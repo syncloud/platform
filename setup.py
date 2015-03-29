@@ -7,11 +7,10 @@ requirements = [
     'urllib3==1.7.1',
     'IPy==0.82a',
     'beautifulsoup4==4.3.2',
-    'convertible',
-    'syncloud-app',
-    'syncloud-image-tools',
-    'syncloud-sam',
-    'Flask'
+    'convertible==0.13',
+    'Flask==0.10.1',
+    'syncloud-app==0.34',
+    'syncloud-image-tools==0.29'
 ]
 
 
@@ -42,9 +41,10 @@ setup(
         'bin/syncloud-apache',
         'bin/syncloud-cli',
         'bin/syncloud-server-post-install',
-        'bin/syncloud-server-post-upgrade'
+        'bin/syncloud-server-post-upgrade',
+        'bin/sam'
     ],
-    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server'],
+    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server', 'syncloud.sam'],
     namespace_packages=['syncloud'],
     data_files=[
         ('insider/config', ['config/insider.cfg']),
@@ -65,7 +65,8 @@ setup(
             'www/index.html']),
         ('/var/www/syncloud-server/images', [
             'www/images/image-ci-128.png',
-            'www/images/owncloud-128.png'])
+            'www/images/owncloud-128.png']),
+        ('sam/config', ['config/sam.cfg'])
     ],
     install_requires=requirements,
     description='Syncloud platform',

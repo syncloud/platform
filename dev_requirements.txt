@@ -1,2 +1,3 @@
 pytest-cov==1.6
 responses==0.2.2
+pypiserver==1.1.6
