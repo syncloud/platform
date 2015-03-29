@@ -1,0 +1,19 @@
+language: python
+env:
+  global:
+    secure: gaUNJyVx+7kYmgoVVkRTCF6YqI9zWqgtYHY3oUjWIZOM9Pwn2vZxXy8iw2AwWiUG4ImTGE/qvtnfOdh6WUMxtC2iCaPHA9b15VVetGH5Q6cpoOYMKqtIVE2AGGndma6wG3V3CiBQk4H2IbGnz+PkS/9TBX+IQIQmMjyLchxT9AE=
+install:
+- pip install -e .
+- pip install -r dev_requirements.txt
+script:
+- py.test --cov syncloud
+deploy:
+  provider: pypi
+  user: syncloud-build
+  password:
+    secure: ASfr5Q9mw6H9ci1WfwruTgNkpusU4e9df8Wx37/KQs2Whd7zvRzbx5kTd0OGtV0qqhCjUw5Oawzd/wPVI5S4uBR6pQDch2kHoEXj/9z4cdp4OmTwFBbbjbxBSB6x1cNDlRzZr2TniTypf5UGwuxVlUc/2Q69esnymhax6BjEets=
+after_deploy:
+- pip install travis-tools
+- universal-version-push version syncloud/image syncloud-build GH_TOKEN master "Travis build"
+- version-increment version
+- universal-version-push version ${TRAVIS_REPO_SLUG} syncloud-build GH_TOKEN ${TRAVIS_BRANCH} "Travis build [skip ci]"

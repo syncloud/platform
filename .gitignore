@@ -1,0 +1,7 @@
+.idea
+*.pyc
+MANIFEST
+dist
+build
+.coverage
+*.egg-info

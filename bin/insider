@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+import argparse
+import logging
+
+from syncloud.app import main
+from syncloud.app import logger
+
+import syncloud.insider.facade
+
+
+def create_args_parser():
+    parser = argparse.ArgumentParser(description='Syncloud insider maps port on router and creates DNS records')
+    parser.add_argument('--bin-path', default=syncloud.insider.facade.default_bin_path, dest='bin_path')
+    parser.add_argument('--config-path', default=syncloud.insider.facade.default_config_path, dest='config_path')
+    parser.add_argument('--log-path', default=syncloud.insider.facade.default_logs_path, dest='log_path')
+    parser.add_argument('--debug', action='store_true')
+
+    subparsers = parser.add_subparsers(help='available commands', dest='action')
+    subparsers.add_parser('list_ports', help="list mapped ports")
+    subparsers.add_parser('sync_all', help="sync port mappings and dns records")
+    sub = subparsers.add_parser('add_service', help="add port mapping and DNS record for a service")
+    sub.add_argument('name', help="name")
+    sub.add_argument('protocol', help="for example: http or https")
+    sub.add_argument('type', help="for example: _http._tcp")
+    sub.add_argument('port', help="local port")
+    sub.add_argument('url', help="url on server")
+    sub = subparsers.add_parser('remove_service', help="remove service")
+    sub.add_argument('name', help="service name")
+    subparsers.add_parser('cron_on', help="add insider sync to cron")
+    subparsers.add_parser('cron_off', help="remove insider sync from cron")
+    sub = subparsers.add_parser('acquire_domain', help="acquire domain")
+    sub.add_argument('email', help="email")
+    sub.add_argument('password', help="password")
+    sub.add_argument('user_domain', help="user domain")
+    subparsers.add_parser('drop_domain', help="drop domain")
+    subparsers.add_parser('user_domain', help="user_domain")
+    sub = subparsers.add_parser('service_info', help="service info")
+    sub.add_argument('name', help="service name")
+    # TODO: Ideally: config [set|get] section key value
+    sub = subparsers.add_parser('set_redirect_info', help="set redirect info")
+    sub.add_argument('domain', help="domain")
+    sub.add_argument('api_url', help="api url")
+    return parser
+
+
+if __name__ == '__main__':
+    parser = create_args_parser()
+    args = parser.parse_args()
+
+    console = True if args.debug else False
+    level = logging.DEBUG if args.debug else logging.INFO
+    logger.init(level, console, '/tmp/insider.log')
+
+    facade = syncloud.insider.facade.get_insider(args.bin_path, args.config_path, args.log_path)
+
+    main.execute(facade, args)
