@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+import logging
+from syncloud.app import logger
+from syncloud.server.serverfacade import get_server
+
+if __name__ == '__main__':
+    logger.init(logging.DEBUG, console=True, line_format='%(message)s')
+    get_server().reconfigure()

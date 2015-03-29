@@ -9,7 +9,9 @@ requirements = [
     'beautifulsoup4==4.3.2',
     'convertible',
     'syncloud-app',
-    'syncloud-image-tools'
+    'syncloud-image-tools',
+    'syncloud-sam',
+    'Flask'
 ]
 
 
@@ -21,6 +23,7 @@ setup(
     scripts=[
         'bin/insider',
         'bin/syncloud-platform-post-install',
+        'bin/syncloud-platform-post-upgrade',
         'bin/syncloud-platform-pre-remove',
         'bin/syncloud-insider-post-install',
         'bin/syncloud-base-installer',
@@ -36,9 +39,12 @@ setup(
         'bin/install-avahi',
         'bin/syncloud-discovery-pre-remove',
         'bin/syncloud-apache-post-install',
-        'bin/syncloud-apache'
+        'bin/syncloud-apache',
+        'bin/syncloud-cli',
+        'bin/syncloud-server-post-install',
+        'bin/syncloud-server-post-upgrade'
     ],
-    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache'],
+    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server'],
     namespace_packages=['syncloud'],
     data_files=[
         ('insider/config', ['config/insider.cfg']),
@@ -49,7 +55,17 @@ setup(
         ('/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
         ('/etc/init.d', ['bin/syncloud-resize-sd']),
         ('syncloud-apache/config', ['config/http.conf']),
-        ('syncloud-apache/config', ['config/https.conf'])
+        ('syncloud-apache/config', ['config/https.conf']),
+        ('syncloud-server/config', ['config/server.wsgi']),
+        ('syncloud-server/apache', [
+            'apache/syncloud-server-http.conf',
+            'apache/syncloud-server-https.conf']),
+        ('/var/www/syncloud-server', [
+            'www/favicon.ico',
+            'www/index.html']),
+        ('/var/www/syncloud-server/images', [
+            'www/images/image-ci-128.png',
+            'www/images/owncloud-128.png'])
     ],
     install_requires=requirements,
     description='Syncloud platform',

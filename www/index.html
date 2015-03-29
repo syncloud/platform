@@ -1,0 +1,63 @@
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="server/favicon.ico">
+
+<title>Syncloud</title>
+
+<head>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://documentcloud.github.com/underscore/underscore-min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+</head>
+
+<body>
+
+
+<div class="container main-container">
+    <div id="sites"></div>
+</div>
+
+<style>
+
+.main-container {
+    margin-top: 10px;
+}
+</style>
+
+<!-- Create your template -->
+<script type="text/html" id='job-template'>
+    <%for (s=0; s < sites.length; s++) {
+       var site = sites[s]; %>
+
+    <% if (s % 2 == 0) { %>
+    <div class="row">
+    <% } %>
+
+      <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
+          <div><a href="<%= site.url %>" ><img class="center-block" src="server/html/images/<%= site.name %>-128.png"/></a></div>
+          <div><p class="text-center"><%= site.name %></p></div>
+      </div>
+
+    <% if (s % 2 == 1 || s == sites.length - 1) { %>
+    </div>
+    <% } %>
+
+    <% } %>
+</script>
+
+<script type="text/javascript">
+
+    $( document ).ready(function() {
+        var getting = $.get( 'server/rest/sites')
+            .done( function(data) {
+                    var template = $("#job-template").html();
+                    $("#sites").html(_.template(template)(data));
+            });
+    });
+</script>
+
+</body>
+</html>

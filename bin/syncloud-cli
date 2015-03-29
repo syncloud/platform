@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+import argparse
+from syncloud.app import main
+from syncloud.app import logger
+import logging
+from syncloud.server import serverfacade
+
+
+def create_args_parser():
+    parser = argparse.ArgumentParser(description='Syncloud Server CLI')
+
+    subparsers = parser.add_subparsers(help='available commands', dest='action')
+    parser.add_argument('--debug', action='store_true')
+
+    sub = subparsers.add_parser('activate', help="activate device")
+    sub.add_argument('release', help="release")
+    sub.add_argument('domain', help="domain")
+    sub.add_argument('api_url', help="api_url")
+    sub.add_argument('email', help="email")
+    sub.add_argument('password', help="password")
+    sub.add_argument('user_domain', help="user_domain")
+
+    subparsers.add_parser('get_access', help="get access to device")
+    subparsers.add_parser('user_domain', help="get user domain")
+
+    return parser
+
+if __name__ == '__main__':
+
+    parser = create_args_parser()
+    args = parser.parse_args()
+
+    console = True if args.debug else False
+    level = logging.DEBUG if args.debug else logging.INFO
+    logger.init(level, console, '/var/log/syncloud-server-cli.log')
+
+    main.execute(serverfacade.get_server(), args)

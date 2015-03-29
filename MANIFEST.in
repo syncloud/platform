@@ -3,6 +3,8 @@ recursive-include bin *
 recursive-include syncloud *
 recursive-include test *
 recursive-include config *
+recursive-include apache *
+recursive-include www *
 
 global-exclude *.pyc
 global-exclude .gitignore
