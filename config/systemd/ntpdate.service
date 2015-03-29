@@ -1,0 +1,12 @@
+[Unit]
+Description=Network Time Service (one-shot ntpdate mode)
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ntpd -q -g -x
+ExecStart=-/sbin/hwclock --systohc
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

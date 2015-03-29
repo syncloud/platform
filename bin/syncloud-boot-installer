@@ -1,0 +1,34 @@
+#!/bin/bash -x
+
+HOST=$(cat /etc/hostname)
+BOOT_LOG=/var/log/syncloud_boot.log
+LOCAL_DATA=/home/www-data
+
+apt-get -y update
+apt-get -yf install
+apt-get -y install ntp udisks-glue
+apt-get -y remove ntpdate
+
+mkdir -p ${LOCAL_DATA}
+chown -R www-data. ${LOCAL_DATA}
+/usr/local/bin/syncloud-link-data.sh ${LOCAL_DATA}
+
+chmod 640 /etc/sudoers.d/www-data
+adduser www-data plugdev
+
+OS_VERSION=$(lsb_release -sr)
+OS_ID=$(lsb_release -si)
+OS_CODE="$OS_ID-$OS_VERSION"
+
+#systemd
+if [[ ${OS_ID} = "Ubuntu" ]]; then
+    echo "will use upstart on $OS_CODE"
+else
+    apt-get -y install bootlogd systemd
+    yes 'Yes, do as I say!' | apt-get install -y --force-yes systemd-sysv
+    systemctl enable ntpdate.service
+    systemctl start ntpdate.service
+    systemctl enable udisks-glue.service
+    systemctl start udisks-glue.service
+    update-rc.d syncloud-resize-sd defaults
+fi

@@ -9,11 +9,13 @@ script:
 - py.test --cov syncloud
 - bash -n bin/install-java
 - bash -n bin/syncloud-base-installer
+- bash -n bin/syncloud-link-data.sh
+- bash -n bin/syncloud-boot-installer
 deploy:
   provider: pypi
   user: syncloud-build
   password:
-    secure: Up3kqeZqrAVN4Snd5J0DOC1FWvPWy96/CgLqpNbnXL24bnNdo2chrO9hMaRpLE/oIRrFgauZKp+FK5E48ZQQjzzWsB7E0ewkp1MmI5pBoeijO/c58fTQPr1X8L87wMdhIOi3dKLLVNGNlCou2huQ2YlI5xU5yevu/dLMfmdV0bY=
+    secure: aLdBVYcXXDtB61PuwiAl3Sw7vxJYXSOB1xxOyYamEYkaqIVFZS6sVlQqFFHuwauEnDlZB3w4rU7GaDhIFDRXXOdEHcTf1ztiDG5GWU/hw6TDj8zUZWSkOW2HSoXzWjSbzaWtFDcBBLerMkpN6keUNZSpttM5cd8E2KG4yckeLrQ=
 after_deploy:
 - pip install travis-tools
 - universal-version-push version syncloud/image syncloud-build GH_TOKEN master "Travis build"
