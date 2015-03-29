@@ -4,3 +4,4 @@ syncloud-insider-post-install
 syncloud-image-base-post-install
 syncloud-boot-installer
 syncloud-remote-post-install
+syncloud-apache-post-install

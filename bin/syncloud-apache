@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+
+from syncloud.app import main
+from syncloud.app import logger
+
+from syncloud.insider.facade import get_insider
+from syncloud.remote.remoteaccess import RemoteAccess
+from syncloud.apache.facade import ApacheFacade
+
+
+def create_args_parser():
+    parser = argparse.ArgumentParser(description='Apache configuration tool')
+
+    subparsers = parser.add_subparsers(help='available commands', dest='action')
+    parser.add_argument('--debug', action='store_true')
+
+    sub = subparsers.add_parser('activate', help="activate default apache configuration")
+    sub.add_argument('hostname')
+
+    sub = subparsers.add_parser('add_http_site', help="Add http site configuration")
+    sub.add_argument('name')
+    sub.add_argument('config_file')
+
+    sub = subparsers.add_parser('add_https_site', help="Add https site configuration")
+    sub.add_argument('name')
+    sub.add_argument('config_file')
+
+    sub = subparsers.add_parser('remove_http_site', help="Remove http site configuration")
+    sub.add_argument('name')
+
+    sub = subparsers.add_parser('remove_https_site', help="Remove https site configuration")
+    sub.add_argument('name')
+
+    subparsers.add_parser('restart', help="Restart web server")
+
+    return parser
+
+if __name__ == '__main__':
+
+    parser = create_args_parser()
+    args = parser.parse_args()
+
+    console = True if args.debug else False
+    level = logging.DEBUG if args.debug else logging.INFO
+    logger.init(level, console, '/tmp/syncloud-apache.log')
+
+    facade = ApacheFacade()
+
+    main.execute(facade, args)

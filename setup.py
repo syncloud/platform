@@ -6,6 +6,7 @@ requirements = [
     'requests==2.2.1',
     'urllib3==1.7.1',
     'IPy==0.82a',
+    'beautifulsoup4==4.3.2',
     'convertible',
     'syncloud-app',
     'syncloud-image-tools'
@@ -33,9 +34,11 @@ setup(
         'bin/syncloud-remote-pre-remove',
         'bin/syncloud-remote-post-install',
         'bin/install-avahi',
-        'bin/syncloud-discovery-pre-remove'
+        'bin/syncloud-discovery-pre-remove',
+        'bin/syncloud-apache-post-install',
+        'bin/syncloud-apache'
     ],
-    packages=['syncloud', 'syncloud.insider'],
+    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache'],
     namespace_packages=['syncloud'],
     data_files=[
         ('insider/config', ['config/insider.cfg']),
@@ -44,7 +47,9 @@ setup(
         ('/etc/polkit-1/localauthority/50-local.d', ['config/polkit/55-storage.pkla']),
         ('/etc/udev/rules.d', ['config/udev/99-syncloud.udisks.rules']),
         ('/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
-        ('/etc/init.d', ['bin/syncloud-resize-sd'])
+        ('/etc/init.d', ['bin/syncloud-resize-sd']),
+        ('syncloud-apache/config', ['config/http.conf']),
+        ('syncloud-apache/config', ['config/https.conf'])
     ],
     install_requires=requirements,
     description='Syncloud platform',
