@@ -31,7 +31,9 @@ setup(
         'bin/syncloud-resize-sd-partition',
         'bin/remote',
         'bin/syncloud-remote-pre-remove',
-        'bin/syncloud-remote-post-install'
+        'bin/syncloud-remote-post-install',
+        'bin/install-avahi',
+        'bin/syncloud-discovery-pre-remove'
     ],
     packages=['syncloud', 'syncloud.insider'],
     namespace_packages=['syncloud'],

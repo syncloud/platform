@@ -11,6 +11,8 @@ script:
 - bash -n bin/syncloud-base-installer
 - bash -n bin/syncloud-link-data.sh
 - bash -n bin/syncloud-boot-installer
+- bash -n bin/install-avahi
+- bash -n bin/syncloud-discovery-pre-remove
 deploy:
   provider: pypi
   user: syncloud-build

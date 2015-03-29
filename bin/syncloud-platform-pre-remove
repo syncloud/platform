@@ -1,3 +1,4 @@
 #!/bin/bash
 
 syncloud-remote-pre-remove
+syncloud-discovery-pre-remove
