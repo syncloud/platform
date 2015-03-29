@@ -20,6 +20,7 @@ setup(
     scripts=[
         'bin/insider',
         'bin/syncloud-platform-post-install',
+        'bin/syncloud-platform-pre-remove',
         'bin/syncloud-insider-post-install',
         'bin/syncloud-base-installer',
         'bin/install-java',
@@ -27,7 +28,10 @@ setup(
         'bin/syncloud-link-data.sh',
         'bin/syncloud-boot-installer',
         'bin/syncloud-resize-sd',
-        'bin/syncloud-resize-sd-partition'
+        'bin/syncloud-resize-sd-partition',
+        'bin/remote',
+        'bin/syncloud-remote-pre-remove',
+        'bin/syncloud-remote-post-install'
     ],
     packages=['syncloud', 'syncloud.insider'],
     namespace_packages=['syncloud'],

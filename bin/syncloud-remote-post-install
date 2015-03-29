@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+import os
+import platform
+
+if __name__ == '__main__':
+    (distname, version, id) = platform.linux_distribution()
+    if distname == "Ubuntu":
+        os.symlink("/usr/lib/insserv/insserv", "/sbin/insserv")
