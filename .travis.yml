@@ -1,7 +1,7 @@
 language: python
 env:
   global:
-    secure: gaUNJyVx+7kYmgoVVkRTCF6YqI9zWqgtYHY3oUjWIZOM9Pwn2vZxXy8iw2AwWiUG4ImTGE/qvtnfOdh6WUMxtC2iCaPHA9b15VVetGH5Q6cpoOYMKqtIVE2AGGndma6wG3V3CiBQk4H2IbGnz+PkS/9TBX+IQIQmMjyLchxT9AE=
+    secure: DQOSdC+HawY6Ye/A715P7Dkkvt54B143FPCJ3cAZxHSljHaEHfrBYApVDiWYjEkoctahsUZz5pxmswcoy3bbrDuHdTcnPJPeW3Y6r3MwJJ3MJ6PBYsdzPp28ODl1Zssk3rZko921cZcDFQsjCMl1cPwNt0/OEFa9NRvG7Hu3sHs=
 install:
 - pip install -e .
 - pip install -r dev_requirements.txt
@@ -11,7 +11,7 @@ deploy:
   provider: pypi
   user: syncloud-build
   password:
-    secure: ASfr5Q9mw6H9ci1WfwruTgNkpusU4e9df8Wx37/KQs2Whd7zvRzbx5kTd0OGtV0qqhCjUw5Oawzd/wPVI5S4uBR6pQDch2kHoEXj/9z4cdp4OmTwFBbbjbxBSB6x1cNDlRzZr2TniTypf5UGwuxVlUc/2Q69esnymhax6BjEets=
+    secure: Up3kqeZqrAVN4Snd5J0DOC1FWvPWy96/CgLqpNbnXL24bnNdo2chrO9hMaRpLE/oIRrFgauZKp+FK5E48ZQQjzzWsB7E0ewkp1MmI5pBoeijO/c58fTQPr1X8L87wMdhIOi3dKLLVNGNlCou2huQ2YlI5xU5yevu/dLMfmdV0bY=
 after_deploy:
 - pip install travis-tools
 - universal-version-push version syncloud/image syncloud-build GH_TOKEN master "Travis build"
