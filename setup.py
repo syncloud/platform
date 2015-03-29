@@ -19,8 +19,11 @@ setup(
     version=version,
     scripts=[
         'bin/insider',
+        'bin/syncloud-platform-post-install',
         'bin/syncloud-insider-post-install',
-        'bin/syncloud-platform-post-install'
+        'bin/syncloud-base-installer',
+        'bin/install-java',
+        'bin/syncloud-image-base-post-install'
     ],
     packages=['syncloud', 'syncloud.insider'],
     namespace_packages=['syncloud'],
