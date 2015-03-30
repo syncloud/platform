@@ -6,3 +6,4 @@ syncloud-boot-installer
 syncloud-remote-post-install
 syncloud-apache-post-install
 syncloud-server-post-install
+install-avahi
