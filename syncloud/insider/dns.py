@@ -35,7 +35,8 @@ class Dns:
     def check_http_error(self, response):
         if not response.status_code == 200:
             self.logger.error(response.text)
-            raise PassthroughJsonError(response.text)
+            error = convertible.from_json(response.text)
+            raise PassthroughJsonError(error.message, response.text)
 
     def acquire(self, email, password, user_domain):
         device_id = id.id()

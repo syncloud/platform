@@ -14,6 +14,7 @@ from syncloud.insider.port_mapper import PortMapper
 from syncloud.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config
 
+from syncloud.app.main import PassthroughJsonError
 
 logger.init(level=logging.DEBUG, console=True)
 
@@ -126,7 +127,7 @@ class TestDns(unittest.TestCase):
         insider_config = get_insider_config('domain.com', 'http://api.domain.com')
         dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
 
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(PassthroughJsonError) as context:
             dns.sync()
 
         self.assertEquals(context.exception.message, "Unknown update token")
@@ -184,7 +185,7 @@ class TestDns(unittest.TestCase):
 
         insider_config = get_insider_config('domain.com', 'http://api.domain.com')
         dns = Dns(insider_config, domain_config, service_config=None, port_mapper=None, local_ip='127.0.0.1')
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(PassthroughJsonError) as context:
             result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
         self.assertEquals(context.exception.message, "Authentication failed")
