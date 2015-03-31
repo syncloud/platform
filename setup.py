@@ -66,10 +66,10 @@ setup(
         ('syncloud-server/apache', [
             'apache/syncloud-server-http.conf',
             'apache/syncloud-server-https.conf']),
-        ('/var/www/syncloud-server', [
+        (prefix + '/var/www/syncloud-server', [
             'www/favicon.ico',
             'www/index.html']),
-        ('/var/www/syncloud-server/images', [
+        (prefix + '/var/www/syncloud-server/images', [
             'www/images/image-ci-128.png',
             'www/images/owncloud-128.png']),
         ('sam/config', ['config/sam.cfg'])
