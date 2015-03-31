@@ -25,7 +25,7 @@ def respond(result, message=None, success=True):
     print(response_json)
 
 
-def run(runner, debug=False, text=False, exit_code_on_error=1):
+def run(runner, debug=False, text=False, exit_code_on_error=0):
     log = logger.get_logger('app')
     try:
         data = runner()
