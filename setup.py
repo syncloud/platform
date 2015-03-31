@@ -1,5 +1,11 @@
 from setuptools import setup
 from os.path import join, dirname
+from sys import exec_prefix
+
+# Use prefix for virtual env
+prefix = ''
+if not exec_prefix == '/usr':
+    prefix = join(exec_prefix, 'local')
 
 requirements = [
     'configobj==4.7.2',
@@ -49,11 +55,11 @@ setup(
     data_files=[
         ('insider/config', ['config/insider.cfg']),
         ('syncloud-image-boot/config', ['config/udisks/udisks-glue.conf']),
-        ('/etc/sudoers.d', ['config/sudoers.d/www-data']),
-        ('/etc/polkit-1/localauthority/50-local.d', ['config/polkit/55-storage.pkla']),
-        ('/etc/udev/rules.d', ['config/udev/99-syncloud.udisks.rules']),
-        ('/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
-        ('/etc/init.d', ['bin/syncloud-resize-sd']),
+        (prefix + '/etc/sudoers.d', ['config/sudoers.d/www-data']),
+        (prefix + '/etc/polkit-1/localauthority/50-local.d', ['config/polkit/55-storage.pkla']),
+        (prefix + '/etc/udev/rules.d', ['config/udev/99-syncloud.udisks.rules']),
+        (prefix + '/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
+        (prefix + '/etc/init.d', ['bin/syncloud-resize-sd']),
         ('syncloud-apache/config', ['config/http.conf']),
         ('syncloud-apache/config', ['config/https.conf']),
         ('syncloud-server/config', ['config/server.wsgi']),
