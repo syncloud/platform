@@ -15,7 +15,7 @@ requirements = [
     'beautifulsoup4==4.3.2',
     'convertible==0.13',
     'Flask==0.10.1',
-    'syncloud-image-tools==0.29'
+    'psutil==2.1.3'
 ]
 
 
@@ -47,10 +47,11 @@ setup(
         'bin/syncloud-cli',
         'bin/syncloud-server-post-install',
         'bin/syncloud-server-post-upgrade',
-        'bin/sam'
+        'bin/sam',
+        'bin/syncloud-id'
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server',
-              'syncloud.sam', 'syncloud.app'],
+              'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu'],
     namespace_packages=['syncloud'],
     data_files=[
         ('insider/config', ['config/insider.cfg']),
