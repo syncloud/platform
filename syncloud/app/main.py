@@ -39,7 +39,7 @@ def run(runner, debug=False, text=False, exit_code_on_error=1):
         exit(exit_code_on_error)
 
 
-def execute(obj, args, exit_code_on_error=1):
+def execute(obj, args, exit_code_on_error=0):
     method = getattr(obj, args.action)
     text = False
     if hasattr(args, 'text'):
