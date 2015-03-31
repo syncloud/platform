@@ -6,6 +6,7 @@ from IPy import IP
 from syncloud.app import logger
 from syncloud.insider.config import Service
 from syncloud.tools import id
+from syncloud.app.main import PassthroughJsonError
 
 
 class ServiceUrls:
@@ -34,8 +35,7 @@ class Dns:
     def check_http_error(self, response):
         if not response.status_code == 200:
             self.logger.error(response.text)
-            error = convertible.from_json(response.text)
-            raise Exception(error.message)
+            raise PassthroughJsonError(response.text)
 
     def acquire(self, email, password, user_domain):
         device_id = id.id()

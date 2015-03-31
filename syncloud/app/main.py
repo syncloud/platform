@@ -17,6 +17,11 @@ def call(func, kwargs):
     return func(**params)
 
 
+class PassthroughJsonError(Exception):
+    def __init__(self, json):
+        self.json = json
+
+
 def respond(result, message=None, success=True):
     convertible.pretty_print()
     response = dict(success=success, message=message, data=result)
@@ -33,6 +38,10 @@ def run(runner, debug=False, text=False, exit_code_on_error=0):
             print(data)
         else:
             respond(data)
+    except PassthroughJsonError, e:
+        log.exception(e)
+        print(e.json)
+        exit(exit_code_on_error)
     except Exception, e:
         log.exception(e)
         respond(e, str(e), success=False)
