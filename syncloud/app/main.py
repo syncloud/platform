@@ -42,7 +42,9 @@ def run(runner, debug=False, text=False, exit_code_on_error=0):
             respond(data)
     except PassthroughJsonError, e:
         log.exception(e)
-        print(e.json)
+        error = convertible.from_json(e.json)
+        error.success = False
+        print(convertible.to_json(error))
         exit(exit_code_on_error)
     except Exception, e:
         log.exception(e)
