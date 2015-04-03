@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     console = True if args.debug else False
     level = logging.DEBUG if args.debug else logging.INFO
-    logger.init(level, console, '/tmp/syncloud-apache.log')
+    logger.init(level, console, '/var/log/syncloud-apache.log')
 
     facade = ApacheFacade()
 

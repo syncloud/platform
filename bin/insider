@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     console = True if args.debug else False
     level = logging.DEBUG if args.debug else logging.INFO
-    logger.init(level, console, '/tmp/insider.log')
+    logger.init(level, console, '/var/log/insider.log')
 
     facade = syncloud.insider.facade.get_insider(args.bin_path, args.config_path, args.log_path)
 
