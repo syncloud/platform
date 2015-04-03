@@ -48,7 +48,8 @@ setup(
         'bin/syncloud-server-post-install',
         'bin/syncloud-server-post-upgrade',
         'bin/sam',
-        'bin/syncloud-id'
+        'bin/syncloud-id',
+        'bin/syncloud-ping'
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server',
               'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu'],
