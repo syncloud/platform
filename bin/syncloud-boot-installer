@@ -30,5 +30,5 @@ else
     systemctl start ntpdate.service
     systemctl enable udisks-glue.service
     systemctl start udisks-glue.service
-    update-rc.d syncloud-resize-sd defaults
+    systemctl enable syncloud-resize-sd.service
 fi

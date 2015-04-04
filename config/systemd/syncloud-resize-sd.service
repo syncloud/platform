@@ -1,0 +1,12 @@
+[Unit]
+Description=Syncloud first boot disk resize
+Rquires=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/syncloud-resize-sd
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
