@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 SYNCLOUD_BOARD=$(syncloud-id name --text)
 DEVICE="/dev/mmcblk0"

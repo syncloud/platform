@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 HOST=$(cat /etc/hostname)
 BOOT_LOG=/var/log/syncloud_boot.log
