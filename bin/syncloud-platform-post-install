@@ -1,7 +1,17 @@
 #!/bin/bash
 
-syncloud-insider-post-install
-syncloud-image-base-post-install
+echo "update packages"
+apt-get -y update
+echo "fix apt errors"
+apt-get -yf install
+
+echo "installing insider dependencies"
+apt-get -y install miniupnpc
+echo "running syncloud base image tweaks"
+syncloud-base-installer
+echo  "installing java"
+install-java
+
 syncloud-boot-installer
 syncloud-remote-post-install
 syncloud-apache-post-install

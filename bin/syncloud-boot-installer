@@ -3,9 +3,6 @@
 HOST=$(cat /etc/hostname)
 BOOT_LOG=/var/log/syncloud_boot.log
 LOCAL_DATA=/home/www-data
-
-apt-get -y update
-apt-get -yf install
 apt-get -y install ntp udisks-glue
 apt-get -y remove ntpdate
 

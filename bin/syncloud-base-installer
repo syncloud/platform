@@ -2,10 +2,6 @@
 
 HOST=$(cat /etc/hostname)
 
-# update packages
-apt-get -y update
-apt-get -yf install
-
 # indentifying OS name and version
 apt-get -y install lsb-release less
 OS_VERSION=$(lsb_release -sr)
