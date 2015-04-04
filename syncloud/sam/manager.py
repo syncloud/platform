@@ -175,8 +175,8 @@ class Manager:
         if not (found.installed_version is not None) == installed:
             if installed:
                 raise Exception('{} should be installed but it is not'.format(app_id))
-            else:
-                raise Exception('{} should not be installed but it is'.format(app_id))
+            # else:
+            #     raise Exception('{} should not be installed but it is'.format(app_id))
 
         return found
 
