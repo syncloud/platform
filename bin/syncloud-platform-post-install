@@ -5,10 +5,12 @@ apt-get -y update
 echo "fix apt errors"
 apt-get -yf install
 
-echo "installing insider dependencies"
-apt-get -y install miniupnpc
 echo "running syncloud base image tweaks"
 syncloud-base-installer
+
+echo "installing insider dependencies"
+apt-get -y install miniupnpc
+
 echo  "installing java"
 install-java
 
