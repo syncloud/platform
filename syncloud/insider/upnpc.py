@@ -56,7 +56,7 @@ class Upnpc:
 
     def port_open_on_router(self, ip, port):
         try:
-            self.logger.debug(check_output('nc -w 1 {0} {1}'.format(ip, port), shell=True))
+            self.logger.debug(check_output('nc -z -w 1 {0} {1}'.format(ip, port), shell=True))
             self.logger.debug("{0}: port is taken".format(port))
             return True
         except CalledProcessError, e:
