@@ -36,7 +36,7 @@ echo "=== fix apt errors ==="
 apt-get -yf install
 
 echo "=== identifying OS name and version ==="
-apt-get -y install lsb-release less
+apt-get -y install lsb-release less python python-dev wget
 OS_VERSION=$(lsb_release -sr)
 OS_ID=$(lsb_release -si)
 
@@ -48,9 +48,6 @@ if [ -e /etc/profile.d/raspi-config.sh ]; then
         -e "/#\s*RPICFG_TO_DISABLE/d"
     telinit q
 fi
-
-apt-get -y install python
-apt-get -y install python-dev
 
 echo "=== changing root password, so finish setup could be done through ssh under root ==="
 echo "root:syncloud" | chpasswd
@@ -80,11 +77,6 @@ if [[ ${HOST} == "raspberrypi" ]]; then
   apt-get purge -y wolfram-engine
 
   apt-get autoremove --purge -y
-  apt-get update -y
-
-  #Do not upgrade for now as lsb_release -si starts returning non "Debian" value
-  #which brakes pi owncloud installation, need to check
-  #apt-get upgrade -y
 
   rm -Rf /etc/X11
   rm -Rf /etc/wpa_supplicant
