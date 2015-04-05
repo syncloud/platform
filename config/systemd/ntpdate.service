@@ -1,6 +1,7 @@
 [Unit]
 Description=Network Time Service (one-shot ntpdate mode)
-After=network-online.target
+Requires=ntp.service
+After=ntp.service
 
 [Service]
 Type=oneshot
