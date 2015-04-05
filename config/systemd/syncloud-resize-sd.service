@@ -1,6 +1,6 @@
 [Unit]
 Description=Syncloud first boot disk resize
-Rquires=local-fs.target
+Requires=local-fs.target
 After=local-fs.target
 
 [Service]
