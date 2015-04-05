@@ -15,7 +15,12 @@ class PortMapper:
         self.port_config = port_config
         self.upnpc = upnpc
         self.logger = logger.get_logger('PortMapper')
-        self.external_ip_address = self.upnpc.external_ip()
+        self._external_ip_address_cache = None
+
+    def _external_ip_address(self):
+        if not self._external_ip_address_cache:
+            self._external_ip_address_cache = self.upnpc.external_ip()
+        return self._external_ip_address_cache
 
     def find_available_ports_to_try(self, existing_ports, local_port, ports_to_try=PORTS_TO_TRY):
         port_range = range(LOWER_LIMIT, UPPER_LIMIT)
@@ -53,7 +58,7 @@ class PortMapper:
         self.port_config.remove_all()
 
     def _is_external_port_open(self, port):
-        return self.upnpc.port_open_on_router(self.external_ip_address, port)
+        return self.upnpc.port_open_on_router(self._external_ip_address(), port)
 
     def get(self, local_port):
         return self.port_config.get(local_port)
@@ -62,7 +67,7 @@ class PortMapper:
         return self.port_config.load()
 
     def external_ip(self):
-        return self.external_ip_address
+        return self._external_ip_address()
 
     def sync(self):
         for mapping in self.list():
