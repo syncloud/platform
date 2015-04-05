@@ -25,6 +25,9 @@ if [[ ${HOST} = "Cubian" ]]; then
 
     #disable wifi driver
     echo "blacklist bcmdhd" > /etc/modprobe.d/fbdev-blacklist.conf
+
+    echo "=== removing ajenti === "
+    sed -i '/ajenti/d' /etc/apt/sources.list
 fi
 
 echo "=== update packages ==="
