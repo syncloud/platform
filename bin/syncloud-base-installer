@@ -28,6 +28,10 @@ if [[ ${HOST} = "Cubian" ]]; then
 
     echo "=== removing ajenti === "
     sed -i '/ajenti/d' /etc/apt/sources.list
+
+    echo "fixing mysql"
+    cat /etc/mysql/debian.cnf
+    sed -i '/fgrep/f' /etc/mysql/debian.cnf
 fi
 
 echo "=== update packages ==="
@@ -67,9 +71,8 @@ if dpkg -l | grep python-requests; then
     apt-get -y remove python-requests
 fi
 
-echo "=== delete unnecessary files ==="
 if [[ ${HOST} == "raspberrypi" ]]; then
-
+  echo "=== delete unnecessary files (RPi) ==="
   rm -rf python_games
   apt-get purge -y x11-common midori lxde python3 python3-minimal
   apt-get purge -y lxde-common lxde-icon-theme omxplayer
@@ -84,8 +87,8 @@ if [[ ${HOST} == "raspberrypi" ]]; then
   rm -f /home/pi/ocr_pi.png
 fi
 
-echo "=== delete unnecessary files ==="
 if [[ ${HOST} == "odroid" ]]; then
+    echo "=== delete unnecessary files (odroid) ==="
     apt-get purge -y apt-xapian-index lightdm chromium-browser firefox* oracle-java8-installer thunderbird lubuntu-* \
     xscreensaver* openjdk* gnome-* xfce4-* lxde-* openbox xbmc arduino*
 
