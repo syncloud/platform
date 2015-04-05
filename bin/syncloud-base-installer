@@ -46,7 +46,6 @@ if [ -e /etc/profile.d/raspi-config.sh ]; then
     sed -i /etc/inittab \
         -e "s/^#\(.*\)#\s*RPICFG_TO_ENABLE\s*/\1/" \
         -e "/#\s*RPICFG_TO_DISABLE/d"
-    telinit q
 fi
 
 echo "=== changing root password, so finish setup could be done through ssh under root ==="
