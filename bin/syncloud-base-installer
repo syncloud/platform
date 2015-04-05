@@ -26,7 +26,12 @@ if [[ ${HOST} = "Cubian" ]]; then
     echo "blacklist bcmdhd" > /etc/modprobe.d/fbdev-blacklist.conf
 fi
 
-# indentifying OS name and version
+echo "update packages"
+apt-get -y update
+echo "fix apt errors"
+apt-get -yf install
+
+echo "indentifying OS name and version"
 apt-get -y install lsb-release less
 OS_VERSION=$(lsb_release -sr)
 OS_ID=$(lsb_release -si)
