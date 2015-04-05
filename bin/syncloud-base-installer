@@ -4,6 +4,7 @@ HOST=$(cat /etc/hostname)
 
 # change ssh port to 22 for all cubieboards
 if [[ ${HOST} = "Cubian" ]]; then
+    echo "=== Cubian tweaks ==="
     sed -i "s/Port 36000/Port 22/g" /etc/ssh/sshd_config
     update-rc.d cubian-motd disable
     rm -rf /etc/init.d/cubian-motd
@@ -26,18 +27,18 @@ if [[ ${HOST} = "Cubian" ]]; then
     echo "blacklist bcmdhd" > /etc/modprobe.d/fbdev-blacklist.conf
 fi
 
-echo "update packages"
+echo "=== update packages ==="
 apt-get -y update
-echo "fix apt errors"
+echo "=== fix apt errors ==="
 apt-get -yf install
 
-echo "indentifying OS name and version"
+echo "=== indentifying OS name and version ==="
 apt-get -y install lsb-release less
 OS_VERSION=$(lsb_release -sr)
 OS_ID=$(lsb_release -si)
 
-# disable pi interractive config
 if [ -e /etc/profile.d/raspi-config.sh ]; then
+    echo "=== disable pi interractive config ==="
     rm -f /etc/profile.d/raspi-config.sh
     sed -i /etc/inittab \
         -e "s/^#\(.*\)#\s*RPICFG_TO_ENABLE\s*/\1/" \
@@ -48,24 +49,24 @@ fi
 apt-get -y install python
 apt-get -y install python-dev
 
-# changing root password, so finish setup could be done through ssh under root
+echo "=== changing root password, so finish setup could be done through ssh under root ==="
 echo "root:syncloud" | chpasswd
 
-#All boards should allow root ssh login for initial setup
+echp "=== allow root ssh login for activation ==="
 sed -i "s/^PermitRootLogin .*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
-#Disable wifi if any
+echo "=== disable wifi if any ==="
 sed -i '/wlan/d' /etc/network/interfaces
 
-#disable ntpdate, as we have our ntpd service running
+echo "=== disable ntpdate, as we have our ntpd service running ==="
 rm -rf /etc/network/if-up.d/ntpdate
 
-# https://github.com/syncloud/image/issues/39
 if dpkg -l | grep python-requests; then
+    echo "=== removing python-requests, see https://github.com/syncloud/image/issues/39 ==="
     apt-get -y remove python-requests
 fi
 
-# delete unnecessary files
+echo "=== delete unnecessary files ==="
 if [[ ${HOST} == "raspberrypi" ]]; then
 
   rm -rf python_games
@@ -87,7 +88,7 @@ if [[ ${HOST} == "raspberrypi" ]]; then
   rm -f /home/pi/ocr_pi.png
 fi
 
-# delete unnecessary files
+echo "=== delete unnecessary files ==="
 if [[ ${HOST} == "odroid" ]]; then
     apt-get purge -y apt-xapian-index lightdm chromium-browser firefox* oracle-java8-installer thunderbird lubuntu-* \
     xscreensaver* openjdk* gnome-* xfce4-* lxde-* openbox xbmc arduino*
