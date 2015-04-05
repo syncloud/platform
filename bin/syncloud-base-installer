@@ -55,6 +55,11 @@ echo "root:syncloud" | chpasswd
 echp "=== allow root ssh login for activation ==="
 sed -i "s/^PermitRootLogin .*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
+echo "=== generate ssh keys for internal ssh server"
+ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N '' -b 2048
+ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ''
+ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
+
 echo "=== disable wifi if any ==="
 sed -i '/wlan/d' /etc/network/interfaces
 
