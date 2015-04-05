@@ -29,9 +29,6 @@ if [[ ${HOST} = "Cubian" ]]; then
     echo "=== removing ajenti === "
     sed -i '/ajenti/d' /etc/apt/sources.list
 
-    echo "fixing mysql"
-    cat /etc/mysql/debian.cnf
-    sed -i '/fgrep/f' /etc/mysql/debian.cnf
 fi
 
 echo "=== update packages ==="
