@@ -32,7 +32,7 @@ apt-get -y update
 echo "=== fix apt errors ==="
 apt-get -yf install
 
-echo "=== indentifying OS name and version ==="
+echo "=== identifying OS name and version ==="
 apt-get -y install lsb-release less
 OS_VERSION=$(lsb_release -sr)
 OS_ID=$(lsb_release -si)
@@ -52,13 +52,10 @@ apt-get -y install python-dev
 echo "=== changing root password, so finish setup could be done through ssh under root ==="
 echo "root:syncloud" | chpasswd
 
-echp "=== allow root ssh login for activation ==="
+echo "=== allow root ssh login for activation ==="
 sed -i "s/^PermitRootLogin .*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
-echo "=== generate ssh keys for internal ssh server"
-ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N '' -b 2048
-ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key -N ''
-ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
+syncloud_ssh_keys_generate
 
 echo "=== disable wifi if any ==="
 sed -i '/wlan/d' /etc/network/interfaces
