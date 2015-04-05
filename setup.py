@@ -48,8 +48,8 @@ setup(
         'bin/sam',
         'bin/syncloud-id',
         'bin/syncloud-ping',
-        'syncloud_ssh_keys_check',
-        'syncloud_ssh_keys_generate'
+        'bin/syncloud_ssh_keys_check',
+        'bin/syncloud_ssh_keys_generate'
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server',
               'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu'],
