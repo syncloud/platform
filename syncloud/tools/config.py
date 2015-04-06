@@ -10,7 +10,8 @@ footprints = [
     ('raspberrypi', Footprint('BCM2708')),
     ('beagleboneblack', Footprint('Generic AM33XX (Flattened Device Tree)')),
     ('odroid-xu3', Footprint('ODROID-XU3')),
-    ('travis', Footprint(vendor_id='AuthenticAMD'))
+    ('travis', Footprint(vendor_id='AuthenticAMD')),
+    ('intel', Footprint(vendor_id='GenuineIntel'))
 ]
 
 titles = {
@@ -20,5 +21,6 @@ titles = {
     'raspberrypi': 'Raspberry Pi Model B',
     'beagleboneblack': 'BeagleBone Black',
     'odroid-xu3': 'ODROID-XU3',
-    'travis': 'Travis'
+    'travis': 'Travis',
+    'intel': 'Intel'
 }
