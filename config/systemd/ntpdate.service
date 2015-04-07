@@ -1,11 +1,10 @@
 [Unit]
-Description=Network Time Service (one-shot ntpdate mode)
+Description=Update hardware clock
 Requires=ntp.service
 After=ntp.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/ntpd -q -g -x
 ExecStart=-/sbin/hwclock --systohc
 RemainAfterExit=yes
 
