@@ -68,7 +68,7 @@ if dpkg -l | grep python-requests; then
     apt-get -y remove python-requests
 fi
 
-if [[ ${HOST} == "raspberrypi" ]]; then
+if [[ ${HOST} == "raspberrypi" || ${HOST} == "raspberrypi2" ]]; then
   echo "=== delete unnecessary files (RPi) ==="
   rm -rf python_games
   apt-get purge -y x11-common midori lxde python3 python3-minimal
