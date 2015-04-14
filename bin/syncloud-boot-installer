@@ -28,4 +28,5 @@ else
     systemctl enable udisks-glue.service
     systemctl start udisks-glue.service
     systemctl enable syncloud-resize-sd.service
+    systemctl enable insider-sync.service
 fi

@@ -62,6 +62,7 @@ setup(
         (prefix + '/etc/udev/rules.d', ['config/udev/99-syncloud.udisks.rules']),
         (prefix + '/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
         (prefix + '/lib/systemd/system', ['config/systemd/syncloud-resize-sd.service', 'config/systemd/syncloud-resize-sd.service']),
+        (prefix + '/lib/systemd/system', ['config/systemd/insider-sync.service']),
         ('syncloud-apache/config', ['config/http.conf']),
         ('syncloud-apache/config', ['config/https.conf']),
         ('syncloud-server/config', ['config/server.wsgi']),

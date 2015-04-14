@@ -1,0 +1,11 @@
+[Unit]
+Description=Syncloud insider sync on boot
+After=local-fs.target network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/insider sync_all
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
