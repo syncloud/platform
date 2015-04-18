@@ -1,0 +1,12 @@
+[Unit]
+Description=Board specific cpu frequency
+Requires=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/cpu_frequency
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

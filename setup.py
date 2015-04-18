@@ -49,7 +49,8 @@ setup(
         'bin/syncloud-id',
         'bin/syncloud-ping',
         'bin/syncloud_ssh_keys_check',
-        'bin/syncloud_ssh_keys_generate'
+        'bin/syncloud_ssh_keys_generate',
+        'bin/cpu_frequency'
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server',
               'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu'],
@@ -62,6 +63,7 @@ setup(
         (prefix + '/etc/udev/rules.d', ['config/udev/99-syncloud.udisks.rules']),
         (prefix + '/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
         (prefix + '/lib/systemd/system', ['config/systemd/syncloud-resize-sd.service', 'config/systemd/syncloud-resize-sd.service']),
+        (prefix + '/lib/systemd/system', ['config/systemd/cpu-frequency.service', 'cpu-frequency.service']),
         (prefix + '/lib/systemd/system', ['config/systemd/insider-sync.service']),
         ('syncloud-apache/config', ['config/http.conf']),
         ('syncloud-apache/config', ['config/https.conf']),

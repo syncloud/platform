@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ -f /var/lib/cpu_frequency_control ]; then
+    for cpu in $(ls /sys/devices/system/cpu/ | grep 'cpu[0-9][0-9]*');do
+      cat /var/lib/cpu_frequency_governor > /sys/devices/system/cpu/${cpu}/cpufreq/scaling_governor
+      cat /var/lib/cpu_frequency_max > /sys/devices/system/cpu/${cpu}/cpufreq/scaling_max_freq
+      cat /var/lib/cpu_frequency_min > /sys/devices/system/cpu/${cpu}/cpufreq/scaling_min_freq
+    done
+fi
