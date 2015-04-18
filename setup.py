@@ -61,12 +61,15 @@ setup(
         (prefix + '/etc/sudoers.d', ['config/sudoers.d/www-data']),
         (prefix + '/etc/polkit-1/localauthority/50-local.d', ['config/polkit/55-storage.pkla']),
         (prefix + '/etc/udev/rules.d', ['config/udev/99-syncloud.udisks.rules']),
-        (prefix + '/lib/systemd/system', ['config/systemd/ntpdate.service', 'config/systemd/udisks-glue.service']),
-        (prefix + '/lib/systemd/system', ['config/systemd/syncloud-resize-sd.service', 'config/systemd/syncloud-resize-sd.service']),
-        (prefix + '/lib/systemd/system', ['config/systemd/cpu-frequency.service', 'cpu-frequency.service']),
-        (prefix + '/lib/systemd/system', ['config/systemd/insider-sync.service']),
-        ('syncloud-apache/config', ['config/http.conf']),
-        ('syncloud-apache/config', ['config/https.conf']),
+        (prefix + '/lib/systemd/system', [
+            'config/systemd/ntpdate.service',
+            'config/systemd/udisks-glue.service',
+            'config/systemd/syncloud-resize-sd.service',
+            'config/systemd/cpu-frequency.service',
+            'config/systemd/insider-sync.service']),
+        ('syncloud-apache/config', [
+            'config/http.conf',
+            'config/https.conf']),
         ('syncloud-server/config', ['config/server.wsgi']),
         ('syncloud-server/apache', [
             'apache/syncloud-server-http.conf',
