@@ -24,9 +24,8 @@ else
     apt-get -y install bootlogd systemd
     yes 'Yes, do as I say!' 2>/dev/null | apt-get install -y --force-yes systemd-sysv
     systemctl enable ntpdate.service
-    systemctl start ntpdate.service
     systemctl enable udisks-glue.service
-    systemctl start udisks-glue.service
     systemctl enable syncloud-resize-sd.service
     systemctl enable insider-sync.service
+    systemctl enable cpu-frequency.service
 fi
