@@ -19,6 +19,8 @@ class ServerFacade:
 
     def activate(self, release, domain, api_url, email, password, user_domain):
 
+        self.reconfigure()
+
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(release, domain, api_url, email, user_domain))
         self.sam.update(release)
         self.sam.upgrade_all()
