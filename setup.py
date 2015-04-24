@@ -43,7 +43,6 @@ setup(
         'bin/syncloud-apache-post-install',
         'bin/syncloud-apache',
         'bin/syncloud-cli',
-        'bin/syncloud-server-post-install',
         'bin/syncloud-server-post-upgrade',
         'bin/sam',
         'bin/syncloud-id',
