@@ -4,12 +4,23 @@ import sys
 
 factory_instance = None
 
+
+class WhitespaceRemovingFormatter(logging.Formatter):
+    def format(self, record):
+        record.msg = clean(record.msg)
+        return super(WhitespaceRemovingFormatter, self).format(record)
+
+
+def clean(message):
+        return message.strip()
+
+
 class LoggerFactory:
     def __init__(self, level, console, filename, line_format):
         self.level = level
         self.console = console
         self.filename = filename
-        self.formatter = logging.Formatter(line_format)
+        self.formatter = WhitespaceRemovingFormatter(line_format)
         if filename:
             self.file_handler = logging.handlers.RotatingFileHandler(self.filename, maxBytes=1000000, backupCount=5)
             self.file_handler.setFormatter(self.formatter)
@@ -29,6 +40,7 @@ class LoggerFactory:
         return logger
 
 default_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
 
 def init(level=logging.INFO, console=False, filename=None, line_format=default_format):
     global factory_instance
