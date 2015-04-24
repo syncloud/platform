@@ -39,7 +39,7 @@ class System():
 
     def restart(self):
         self.logger.debug('restarting apache')
-        runner.call("invoke-rc.d apache2 restart", self.logger, shell=True)
+        runner.call("invoke-rc.d apache2 reload", self.logger, shell=True)
 
     def generate_certificate(self, hostname, cert_file, key_file):
         openssl_cmd = "openssl req -new -x509 -nodes"
