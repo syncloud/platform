@@ -9,7 +9,7 @@ apt-get -y install miniupnpc
 echo  "installing java"
 install-java
 
-syncloud-boot-installer
 syncloud-remote-post-install
 syncloud-apache-post-install
 install-avahi
+syncloud-boot-installer
