@@ -162,9 +162,10 @@ class Manager:
         return "verified successfully"
 
     def get_app_versions(self, app):
-        current_version = self.repo_versions.version(app.id)
+        latest_version = self.repo_versions.version(app.id)
         installed_version = self.installed_versions.version(app.id)
-        return AppVersions(app, current_version, installed_version)
+        self.logger.info('{0}: {1} ({2})'.format(app, installed_version, latest_version))
+        return AppVersions(app, latest_version, installed_version)
 
     def get_app(self, app_id, installed=False):
         found = next((a for a in self.list() if a.app.id == app_id), None)
