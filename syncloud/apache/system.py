@@ -24,7 +24,7 @@ class System():
 
     def _create_dir(self, dir):
         if not os.path.exists(dir):
-            self.logger.debug("creating: {0}".format(dir))
+            self.logger.info("creating: {0}".format(dir))
             os.mkdir(dir)
 
     def disable_all_sites(self, sites_enabled_dir):
@@ -38,7 +38,7 @@ class System():
         runner.call("a2ensite {}".format(name), self.logger, shell=True)
 
     def restart(self):
-        self.logger.debug('restarting apache')
+        self.logger.info('reloading apache configuration')
         runner.call("invoke-rc.d apache2 reload", self.logger, shell=True)
 
     def generate_certificate(self, hostname, cert_file, key_file):

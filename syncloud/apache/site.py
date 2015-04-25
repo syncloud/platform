@@ -22,7 +22,7 @@ def add(name, config_file, https):
     remove(name, https)
 
     name_conf_full = full_conf(name, https)
-    log.debug('copy file {0} to {1}'.format(config_file, name_conf_full))
+    log.info('copy file {0} to {1}'.format(config_file, name_conf_full))
     shutil.copyfile(config_file, name_conf_full)
 
     return get_port(https)
