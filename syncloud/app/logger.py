@@ -12,7 +12,7 @@ class WhitespaceRemovingFormatter(logging.Formatter):
 
 
 def clean(message):
-        return message.strip()
+        return str(message).strip()
 
 
 class LoggerFactory:

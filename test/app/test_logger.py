@@ -47,3 +47,7 @@ def test_log_new_lines(testfile):
 def test_space_remover_formatter():
     assert clean('''abc
     ''') == 'abc'
+
+
+def test_space_remover_formatter_non_string():
+    assert clean(1) == '1'
