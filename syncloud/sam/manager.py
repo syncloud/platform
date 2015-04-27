@@ -164,7 +164,7 @@ class Manager:
     def get_app_versions(self, app):
         latest_version = self.repo_versions.version(app.id)
         installed_version = self.installed_versions.version(app.id)
-        self.logger.info('{0}: {1} ({2})'.format(app, installed_version, latest_version))
+        self.logger.info('{0}: installed: {1} (latest: {2})'.format(app.id, installed_version, latest_version))
         return AppVersions(app, latest_version, installed_version)
 
     def get_app(self, app_id, installed=False):
