@@ -23,9 +23,9 @@ OS_CODE="$OS_ID-$OS_VERSION"
 if [[ ${OS_ID} = "Ubuntu" ]]; then
     echo "will use upstart on $OS_CODE"
 else
-    systemctl enable ntpdate.service
-    systemctl enable udisks-glue.service
-    systemctl enable syncloud-resize-sd.service
-    systemctl enable insider-sync.service
-    systemctl enable cpu-frequency.service
+    systemctl enable ntpdate.service 2>&1
+    systemctl enable udisks-glue.service 2>&1
+    systemctl enable syncloud-resize-sd.service 2>&1
+    systemctl enable insider-sync.service 2>&1
+    systemctl enable cpu-frequency.service 2>&1
 fi
