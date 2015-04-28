@@ -23,8 +23,6 @@ OS_CODE="$OS_ID-$OS_VERSION"
 if [[ ${OS_ID} = "Ubuntu" ]]; then
     echo "will use upstart on $OS_CODE"
 else
-    apt-get -y install bootlogd systemd
-    yes 'Yes, do as I say!' 2>/dev/null | apt-get install -y --force-yes systemd-sysv
     systemctl enable ntpdate.service
     systemctl enable udisks-glue.service
     systemctl enable syncloud-resize-sd.service
