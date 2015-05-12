@@ -299,10 +299,10 @@ class Test_Reconfigure_Installed_Apps(BaseTest):
 
     def test_reconfigure_bad(self):
         reconfigure_content = '#!/bin/sh\nexit 1'
-        self.create_app_version('test-app', '1.0', reconfigure=reconfigure_content)
-        self.create_release('release-1.0', one_app_index(), 'test-app=1.0')
+        self.create_app_version('test-app-r', '1.0', reconfigure=reconfigure_content)
+        self.create_release('release-1.0', one_app_index(), 'test-app-r=1.0')
         self.sam.update('release-1.0')
-        self.sam.install('test-app')
+        self.sam.install('test-app-r')
 
         with pytest.raises(Exception):
             self.sam.reconfigure_installed_apps()
