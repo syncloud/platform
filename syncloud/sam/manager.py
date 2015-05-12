@@ -129,7 +129,7 @@ class Manager:
         self.logger.info("reconfigure installed apps")
         installed_apps = [a for a in self.list() if a.installed_version]
         for application in installed_apps:
-            self.run_hook(application.app.id, 'reconfigure')
+            self.run_hook(application.app, 'reconfigure')
 
     def list(self):
         apps = self.applications.list()
