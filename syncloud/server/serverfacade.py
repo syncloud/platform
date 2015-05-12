@@ -30,6 +30,9 @@ class ServerFacade:
         apache_ports = self.apache.activate("{}.{}".format(user_domain, domain))
         self.insider.add_service("server", "http", "server", apache_ports.http, None)
 
+        self.logger.info("reconfiguring installed apps")
+        self.sam.reconfigure_installed_apps()
+
         credentials = _get_credentials(self.remote_access.enable())
         self.logger.info("activation completed")
         return credentials

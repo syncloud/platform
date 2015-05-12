@@ -5,6 +5,7 @@ from os.path import dirname, join, split
 
 import shutil
 import tempfile
+import pytest
 from syncloud.app import logger
 
 from syncloud.sam.manager import get_sam
@@ -18,6 +19,7 @@ import responses
 test_dir = dirname(__file__)
 logger.init(logging.DEBUG, console=True)
 
+
 def text_file(path, filename, text=''):
     app_path = join(path, filename)
     f = open(app_path, 'w')
@@ -25,7 +27,8 @@ def text_file(path, filename, text=''):
     f.close()
     return app_path
 
-def create_app_version(name, version, pre_remove=None, post_install=None):
+
+def create_app_version(name, version, pre_remove=None, post_install=None, reconfigure=None):
     temp_folder = tempfile.mkdtemp()
 
     app_script_content='''#!/usr/bin/env python
@@ -34,14 +37,19 @@ print("{}")'''.format(version)
     scripts = [name]
 
     if pre_remove:
-        pre_remove_filename = '{}-pre-remove'.format(name)
-        text_file(temp_folder, pre_remove_filename, pre_remove)
-        scripts.append(pre_remove_filename)
+        hook_filename = '{}-pre-remove'.format(name)
+        text_file(temp_folder, hook_filename, pre_remove)
+        scripts.append(hook_filename)
 
     if post_install:
-        post_install_filename = '{}-post-install'.format(name)
-        text_file(temp_folder, post_install_filename, post_install)
-        scripts.append(post_install_filename)
+        hook_filename = '{}-post-install'.format(name)
+        text_file(temp_folder, hook_filename, post_install)
+        scripts.append(hook_filename)
+
+    if reconfigure:
+        hook_filename = '{}-reconfigure'.format(name)
+        text_file(temp_folder, hook_filename, reconfigure)
+        scripts.append(hook_filename)
 
     scripts_line = ', '.join(["'"+s+"'" for s in scripts])
 
@@ -72,6 +80,7 @@ def create_release(release, index, versions=None):
     archive = shutil.make_archive(release, 'zip', prepare_dir_root)
 
     return archive
+
 
 def assert_single_application(applications, id, name, current_version, installed_version):
     assert applications is not None
@@ -131,8 +140,8 @@ class BaseTest:
         release_path = join(self.releases_dir, name)
         shutil.move(archive_path, release_path)
 
-    def create_app_version(self, name, version, pre_remove=None, post_install=None):
-        dist_path = create_app_version(name, version, pre_remove, post_install)
+    def create_app_version(self, name, version, pre_remove=None, post_install=None, reconfigure=None):
+        dist_path = create_app_version(name, version, pre_remove, post_install, reconfigure)
         self.pypi.add_app_version(name, dist_path)
 
 
@@ -286,6 +295,28 @@ class TestUpgradeAll(BaseTest):
         assert_single_application(applications, 'test-app', 'test app', '1.0', '1.0')
 
 
+class Test_Reconfigure_Installed_Apps(BaseTest):
+
+    def test_reconfigure_bad(self):
+        reconfigure_content = '#!/bin/sh\nexit 1'
+        self.create_app_version('test-app', '1.0', reconfigure=reconfigure_content)
+        self.create_release('release-1.0', one_app_index(), 'test-app=1.0')
+        self.sam.update('release-1.0')
+        self.sam.install('test-app')
+
+        with pytest.raises(Exception):
+            self.sam.reconfigure_installed_apps()
+
+    def test_reconfigure_good(self):
+        reconfigure_content = '#!/bin/sh\nexit 0'
+        self.create_app_version('test-app', '1.0', reconfigure=reconfigure_content)
+        self.create_release('release-1.0', one_app_index(), 'test-app=1.0')
+        self.sam.update('release-1.0')
+        self.sam.install('test-app')
+
+        self.sam.reconfigure_installed_apps()
+
+
 class TestHooks(BaseTest):
 
     def test_remove_hook_good(self):
@@ -302,7 +333,6 @@ class TestHooks(BaseTest):
 
         applications = self.sam.list()
         assert_single_application(applications, 'test-app', 'test app', '1.0', None)
-
 
     def test_remove_hook_missing(self):
         self.create_app_version('test-app', '1.0')
