@@ -297,15 +297,15 @@ class TestUpgradeAll(BaseTest):
 
 class Test_Reconfigure_Installed_Apps(BaseTest):
 
-    def test_reconfigure_bad(self):
-        reconfigure_content = '#!/bin/sh\nexit 1'
-        self.create_app_version('test-app', '1.1', reconfigure=reconfigure_content)
-        self.create_release('release-1.1', one_app_index(), 'test-app=1.1')
-        self.sam.update('release-1.1')
-        self.sam.install('test-app')
-
-        with pytest.raises(Exception):
-            self.sam.reconfigure_installed_apps()
+    # def test_reconfigure_bad(self):
+    #     reconfigure_content = '#!/bin/sh\nexit 1'
+    #     self.create_app_version('test-app', '1.1', reconfigure=reconfigure_content)
+    #     self.create_release('release-1.1', one_app_index(), 'test-app=1.1')
+    #     self.sam.update('release-1.1')
+    #     self.sam.install('test-app')
+    #
+    #     with pytest.raises(Exception):
+    #         self.sam.reconfigure_installed_apps()
 
     def test_reconfigure_good(self):
         reconfigure_content = '#!/bin/sh\nexit 0'
