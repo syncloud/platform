@@ -15,7 +15,8 @@ requirements = [
     'beautifulsoup4==4.3.2',
     'convertible==0.13',
     'Flask==0.10.1',
-    'psutil==2.1.3'
+    'psutil==2.1.3',
+    'python-crontab==1.7.2'
 ]
 
 
