@@ -2,94 +2,10 @@
 
 HOST=$(cat /etc/hostname)
 
-# change ssh port to 22 for all cubieboards
-if [[ ${HOST} = "Cubian" ]]; then
-    echo "=== Cubian tweaks ==="
-    sed -i "s/Port 36000/Port 22/g" /etc/ssh/sshd_config
-    update-rc.d cubian-motd disable
-    rm -rf /etc/init.d/cubian-motd
-
-    rm -rf /etc/network/if-up.d/show-morsecode-ip
-    #ssh keys and resize we do ourselves
-    update-rc.d cubian-firstrun disable
-    rm -rf /etc/init.d/cubian-firstrun
-
-    update-rc.d cubian-resize2fs disable
-    rm -rf /etc/init.d/cubian-resize2fs
-
-    # More Cubian scripts to disable if needed
-    #/etc/init.d/cubian-bootled
-    #/etc/init.d/cubian-gpiopermission
-    #/etc/init.d/cubian-cpufreq
-    #/etc/init.d/cubian-blinknetworkled
-
-    #disable wifi driver
-    echo "blacklist bcmdhd" > /etc/modprobe.d/fbdev-blacklist.conf
-
-    echo "=== removing ajenti === "
-    sed -i '/ajenti/d' /etc/apt/sources.list
-
-fi
-
 echo "=== update packages ==="
 apt-get -y update
-echo "=== fix apt errors ==="
-apt-get -yf install
-
-echo "=== identifying OS name and version ==="
-apt-get -y install lsb-release less python python-dev wget
-OS_VERSION=$(lsb_release -sr)
-OS_ID=$(lsb_release -si)
-
-if [ -e /etc/profile.d/raspi-config.sh ]; then
-    echo "=== disable pi interractive config ==="
-    rm -f /etc/profile.d/raspi-config.sh
-    sed -i /etc/inittab \
-        -e "s/^#\(.*\)#\s*RPICFG_TO_ENABLE\s*/\1/" \
-        -e "/#\s*RPICFG_TO_DISABLE/d"
-fi
-
-echo "=== changing root password, so finish setup could be done through ssh under root ==="
-echo "root:syncloud" | chpasswd
-
-echo "=== allow root ssh login for activation ==="
-sed -i "s/^PermitRootLogin .*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
 syncloud_ssh_keys_generate
 
-echo "=== disable wifi if any ==="
-sed -i '/wlan/d' /etc/network/interfaces
-
 echo "=== disable ntpdate, as we have our ntpd service running ==="
 rm -rf /etc/network/if-up.d/ntpdate
-
-if dpkg -l | grep python-requests; then
-    echo "=== removing python-requests, see https://github.com/syncloud/image/issues/39 ==="
-    apt-get -y remove python-requests
-fi
-
-if [[ ${HOST} == "raspberrypi" || ${HOST} == "raspberrypi2" ]]; then
-  echo "=== delete unnecessary files (RPi) ==="
-  rm -rf python_games
-  apt-get purge -y x11-common midori lxde python3 python3-minimal
-  apt-get purge -y lxde-common lxde-icon-theme omxplayer
-  apt-get purge -y wolfram-engine
-
-  apt-get autoremove --purge -y
-
-  rm -Rf /etc/X11
-  rm -Rf /etc/wpa_supplicant
-  rm -Rf /usr/share/icons
-  rm -Rf /home/pi/Desktop
-  rm -f /home/pi/ocr_pi.png
-fi
-
-if [[ ${HOST} == "odroid" ]]; then
-    echo "=== delete unnecessary files (odroid) ==="
-    apt-get purge -y apt-xapian-index lightdm chromium-browser firefox* oracle-java8-installer thunderbird lubuntu-* \
-    xscreensaver* openjdk* gnome-* xfce4-* lxde-* openbox xbmc arduino*
-
-    apt-get autoremove --purge -y
-fi
-rm -rf /var/cache/apt/archives/*.deb
-rm -rf /opt/Wolfram
