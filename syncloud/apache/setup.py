@@ -1,12 +1,10 @@
 import os
 import platform
-from string import Template
+
 from syncloud.app import util
-
 from syncloud.app.logger import get_logger
-from apt import Apt
+from syncloud.tools.apt import Apt
 from ports import Ports
-
 from env import sites_enabled_dir, http_file_template, http_file, http_web_root, \
     log_dir, http_include_dir, https_file_template, https_file, cert_file, key_file, \
     https_web_root
