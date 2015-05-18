@@ -33,21 +33,3 @@ def apache():
     apache = MagicMock()
     apache.activate = MagicMock()
     return apache
-
-
-def test_activate_good(sam, insider, remote, apache):
-
-    server = ServerFacade(sam, insider, remote, apache)
-    credentials = server.activate('0.1', 'syncloud.it', 'http://api.syncloud.it', 'test@example.com', 'pass123', 'test')
-
-    assert credentials.key == 'key123'
-
-
-def test_activate_bad(sam, insider, remote, apache):
-
-    remote.enable = Exception('Boom!')
-
-    server = ServerFacade(sam, insider, remote, apache)
-
-    with pytest.raises(Exception):
-        server.activate('0.1', 'syncloud.it', 'http://api.syncloud.it', 'test@example.com', 'pass123', 'test')
