@@ -19,7 +19,8 @@ requirements = [
     'python-crontab==1.7.2',
     'wget==2.2',
     'MySQL-python==1.2.3',
-    'massedit==0.66'
+    'massedit==0.66',
+    'node.ext.ldap==0.9.7'
 ]
 
 
