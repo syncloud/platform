@@ -1,6 +1,6 @@
+import glob
 import hashlib
 import os
-import shutil
 from os.path import join
 import tempfile
 from syncloud.app import util
@@ -20,8 +20,13 @@ class Ldap():
         self.init_ldif = join(config_dir, 'init.ldif')
 
     def reset(self, full_domain, user, password):
+
         self.service.stop('slapd')
-        shutil.rmtree('/var/lib/ldap/*')
+
+        files = glob.glob('/var/lib/ldap/*')
+        for f in files:
+            os.remove(f)
+
         self.service.start('slapd')
 
         dn = to_ldap_dc(full_domain)

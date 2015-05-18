@@ -7,7 +7,7 @@ class Service():
         self.logger = get_logger('service')
 
     def stop(self, service):
-        runner.call('service stop {}'.format(service), self.logger, shell=True)
+        runner.call('service {} stop'.format(service), self.logger, shell=True)
 
     def start(self, service):
-        runner.call('service start {}'.format(service), self.logger, shell=True)
+        runner.call('service {} start'.format(service), self.logger, shell=True)
