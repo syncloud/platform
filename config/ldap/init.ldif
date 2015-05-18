@@ -1,0 +1,27 @@
+dn: ${dn}
+dc: syncloud
+objectClass: dcObject
+objectClass: organizationalUnit
+ou: syncloud
+
+# administrator
+dn:                    cn=${user},${dn}
+objectClass:           simpleSecurityObject
+objectClass:           organizationalRole
+cn:                    ${user}
+description:           Administrator
+userPassword:          ${password}
+
+# Subtree for Users
+dn:                    ou=Users,${dn}
+ou:                    Users
+description:           Users
+objectClass:           organizationalUnit
+objectClass:           top
+
+# Subtree for Groups
+dn:                    ou=Groups,${dn}
+ou:                    Groups
+description:           Groups
+objectClass:           organizationalUnit
+objectClass:           top

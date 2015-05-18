@@ -84,6 +84,9 @@ setup(
         (prefix + '/var/www/syncloud-server/images', [
             'www/images/image-ci-128.png',
             'www/images/owncloud-128.png']),
+        ('syncloud/ldap/config', [
+            'config/ldap/init.ldif',
+            'config/ldap/rootdn.ldif']),
         ('sam/config', ['config/sam.cfg'])
     ],
     install_requires=requirements,
