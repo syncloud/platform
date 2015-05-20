@@ -1,6 +1,0 @@
-#!/bin/bash
-
-AVAHI_CONFIG=/etc/avahi/services/syncloud.service
-
-rm -rf ${AVAHI_CONFIG}
-service avahi-daemon restart

@@ -12,4 +12,4 @@ install-java
 syncloud-remote-post-install
 syncloud-apache-post-install
 install-avahi
-syncloud-boot-installer
+syncloud_ssh_keys_generate

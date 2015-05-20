@@ -1,9 +1,0 @@
-#!/bin/bash
-
-HOST=$(cat /etc/hostname)
-
-echo 'mysql-server-5.5 mysql-server/root_password password root' | debconf-set-selections
-echo 'mysql-server-5.5 mysql-server/root_password_again password root' | debconf-set-selections
-chroot rootfs apt-get -y install mysql-server-5.5 libmysqlclient-dev ldap-utils slapd libldap2-dev libsasl2-dev libssl-dev
-
-syncloud_ssh_keys_generate
