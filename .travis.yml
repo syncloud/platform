@@ -8,7 +8,7 @@ install:
 script:
 - py.test --cov syncloud
 - bash -n bin/install-java
-- bash -n bin/syncloud-base-installer
+- bash -n bin/syncloud-boot-installer
 - bash -n bin/syncloud-link-data.sh
 - bash -n bin/install-avahi
 deploy:
