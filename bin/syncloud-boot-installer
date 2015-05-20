@@ -1,6 +1,5 @@
 #!/bin/bash
 
-HOST=$(cat /etc/hostname)
 BOOT_LOG=/var/log/syncloud_boot.log
 LOCAL_DATA=/home/www-data
 apt-get -y install ntp udisks-glue
@@ -14,17 +13,8 @@ ls -la ${LOCAL_DATA}/
 chmod 640 /etc/sudoers.d/www-data
 adduser www-data plugdev
 
-OS_VERSION=$(lsb_release -sr)
-OS_ID=$(lsb_release -si)
-OS_CODE="$OS_ID-$OS_VERSION"
-
-#systemd
-if [[ ${OS_ID} = "Ubuntu" ]]; then
-    echo "will use upstart on $OS_CODE"
-else
-    systemctl enable ntpdate.service || true
-    systemctl enable udisks-glue.service || true
-    systemctl enable syncloud-resize-sd.service || true
-    systemctl enable insider-sync.service || true
-    systemctl enable cpu-frequency.service || true
-fi
+systemctl enable ntpdate.service || true
+systemctl enable udisks-glue.service || true
+systemctl enable syncloud-resize-sd.service || true
+systemctl enable insider-sync.service || true
+systemctl enable cpu-frequency.service || true
