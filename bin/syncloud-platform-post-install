@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo "running syncloud base image tweaks"
-syncloud-base-installer
+syncloud_ssh_keys_generate
 
 echo "installing insider dependencies"
 apt-get -y install miniupnpc
@@ -12,4 +11,4 @@ install-java
 syncloud-remote-post-install
 syncloud-apache-post-install
 install-avahi
-syncloud_ssh_keys_generate
+syncloud-boot-installer

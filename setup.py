@@ -20,7 +20,8 @@ requirements = [
     'wget==2.2',
     'MySQL-python==1.2.3',
     'massedit==0.66',
-    'node.ext.ldap==0.9.7'
+    'node.ext.ldap==0.9.7',
+    'flask-simpleldap==0.3.0'
 ]
 
 
@@ -33,7 +34,7 @@ setup(
         'bin/insider',
         'bin/syncloud-platform-post-install',
         'bin/syncloud-platform-post-upgrade',
-        'bin/syncloud-base-installer',
+        'bin/syncloud-boot-installer',
         'bin/install-java',
         'bin/syncloud-link-data.sh',
         'bin/syncloud-resize-sd',
