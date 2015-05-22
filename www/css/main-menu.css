@@ -1,0 +1,39 @@
+.navbar-brand {
+  line-height: 80px;
+  height: 80px;
+  padding-top: 0;
+  font-size: 32px;
+}
+
+.navbar-inverse .navbar-brand {
+  color: #fff;
+}
+
+.navbar-brand img {
+  display: inline;
+}
+
+.navbar-brand span {
+  padding-left: 10px;
+}
+
+.navbar-nav > li > span {
+  padding-left: 15px;
+}
+
+.navbar-nav li, .navbar-nav li a {
+    padding-top: 0px;
+    font-size: 18px;
+}
+
+.navbar-nav li, .navbar-nav li a {
+    line-height: 80px;
+    height: 80px;
+}
+
+@media (max-width: 767px) {
+  .navbar-nav li, .navbar-nav li a {
+    line-height: 30px;
+    height: 30px;
+  }
+}

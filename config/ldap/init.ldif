@@ -5,22 +5,32 @@ objectClass: organizationalUnit
 ou: syncloud
 
 # administrator
-dn:                    cn=${user},${dn}
+dn:                    cn=admin,${dn}
 objectClass:           simpleSecurityObject
 objectClass:           organizationalRole
-cn:                    ${user}
+cn:                    admin
 description:           Administrator
 userPassword:          ${password}
 
 # Subtree for Users
-dn:                    ou=Users,${dn}
+dn:                    ou=users,${dn}
 ou:                    Users
 description:           Users
 objectClass:           organizationalUnit
 objectClass:           top
 
+# administrator
+dn:                    cn=${user},ou=users,${dn}
+objectClass:           simpleSecurityObject
+objectclass:           Person
+cn:                    ${user}
+sn:                    ${user}
+description:           Administrator
+userPassword:          ${password}
+
+
 # Subtree for Groups
-dn:                    ou=Groups,${dn}
+dn:                    ou=groups,${dn}
 ou:                    Groups
 description:           Groups
 objectClass:           organizationalUnit

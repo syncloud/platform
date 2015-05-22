@@ -8,9 +8,10 @@ from syncloud.app.logger import get_logger
 from syncloud.tools.facade import Facade
 from syncloud.tools.service import Service
 from syncloud.app import runner
+import ldap
 
 
-class Ldap():
+class Auth():
     def __init__(self):
         self.logger = get_logger('ldap')
         self.service = Service()
@@ -50,6 +51,15 @@ class Ldap():
 
 def to_ldap_dc(full_domain):
     return 'dc=' + ',dc='.join(full_domain.split('.'))
+
+
+def authenticate(name, password):
+    conn = ldap.initialize('ldap://localhost:389')
+    try:
+        conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
+    except Exception, e:
+        conn.unbind()
+        raise e
 
 
 #https://gist.github.com/rca/7217540

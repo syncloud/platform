@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <title>Syncloud</title>
+
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="js/jquery.jqote2.min.js"></script>
+    <script src="js/jquery-dateFormat.min.js"></script>
+
+
+    <link href="/server/html/css/main-menu.css" rel="stylesheet">
+    <link href="/server/html/css/form-center.css" rel="stylesheet">
+
+
+</head>
+<body>
+
+
+<nav class="navbar navbar-default navbar-static-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"><img src="/server/html/images/logo-52.png"/><span>SYNCLOUD</span></a>
+    </div>
+  </div>
+</nav>
+
+
+<form class="form-horizontal" id="form-login">
+    <h2>Log in</h2>
+    <br/>
+
+    <fieldset>
+
+        <div id="errors_placeholder"></div>
+
+        <div id="group-email" class="form-group">
+            <div class="col-3 col-md-3 col-sm-3 col-lg-3">
+                <label class="control-label" for="name">Name</label>
+            </div>
+            <div class="col-9 col-md-9 col-sm-9 col-lg-9">
+                <input id="name" name="name" type="text" placeholder="user" class="form-control input-md"
+                       required="">
+                <span id="help-email" class="help-block"></span>
+            </div>
+        </div>
+
+        <div id="group-password" class="form-group">
+            <div class="col-3 col-md-3 col-sm-3 col-lg-3">
+                <label class="control-label" for="password">Password</label>
+            </div>
+            <div class="col-9 col-md-9 col-sm-9 col-lg-9">
+                <input id="password" name="password" type="password" placeholder="" class="form-control input-md"
+                       required="">
+                <span id="help-password" class="help-block"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="button-block col-12 col-md-12 col-sm-12 col-lg-12"
+                 style="padding-right:15px; padding-left:15px;">
+                <a href="forgot.html" class="pull-left">Forgot your password?</a>
+                <button id="btnlogin" name="btnlogin" class="btn btn-primary pull-right">Log in</button>
+            </div>
+        </div>
+
+    </fieldset>
+
+</form>
+
+<script type="text/html" id="error_template">
+    <![CDATA[
+    <div class="alert alert-danger">
+        <%= this.message %>
+    </div>
+    ]]>
+</script>
+
+<script type="text/javascript">
+
+    function reset_error() {
+        $('#errors_placeholder').empty();
+        $('#group-email').removeClass('has-error');
+        $('#help-email').text('');
+        $('#group-password').removeClass('has-error');
+        $('#help-password').text('');
+    }
+
+    function show_error(error) {
+        if ('parameters_messages' in error) {
+            for (var i = 0; i < error.parameters_messages.length; i++) {
+                var pm = error.parameters_messages[i];
+                var group_id = '#group-' + pm.parameter;
+                $(group_id).addClass('has-error');
+                var hint_id = '#help-' + pm.parameter;
+                var message_text = pm.messages.join('\n');
+                $(hint_id).text(message_text);
+            }
+        } else {
+            $('#errors_placeholder').append($('#error_template').jqote(error));
+        }
+    }
+
+    $(document).ready(function () {
+        $("#form-login").submit(function (event) {
+            event.preventDefault();
+
+            var values = $("#form-login").serializeArray();
+            reset_error()
+            var posting = $.post("/server/rest/login", values)
+                    .done(function (data) {
+                        window.location.href = "/";
+                    })
+                    .fail(function (xhr, textStatus, errorThrown) {
+                        if (xhr.hasOwnProperty('responseJSON')) {
+                            var error = xhr.responseJSON;
+                            show_error(error);
+                        } else {
+                            window.location.href = "/server/html/login.html";
+                        }
+                    });
+        });
+    });
+</script>
+
+
+</body>
+</html>

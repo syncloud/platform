@@ -1,5 +1,5 @@
 from os.path import join
-from syncloud.server.ldap import Ldap
+from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.server.model import Credentials
 from syncloud.apache.facade import ApacheFacade
@@ -17,9 +17,12 @@ class ServerFacade:
         self.apache = apache
         self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
-        self.ldap = Ldap()
+        self.auth = Auth()
 
-    def activate(self, release, domain, api_url, email, password, user_domain):
+    def activate(self, release, domain, api_url, redirect_email, redirect_password, user_domain):
+        self.activate(release, domain, api_url, redirect_email, redirect_password, user_domain, 'syncloud', 'syncloud')
+
+    def activate(self, release, domain, api_url, email, password, user_domain, device_user, device_password):
 
         self.reconfigure()
 
@@ -37,8 +40,7 @@ class ServerFacade:
         self.sam.reconfigure_installed_apps()
 
         self.logger.info("activating ldap")
-        #TODO: activate should ask for device wide password
-        self.ldap.reset(full_domain, user_domain, password)
+        self.auth.reset(full_domain, device_user, device_password)
 
         credentials = _get_credentials(self.remote_access.enable())
         self.logger.info("activation completed")

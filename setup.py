@@ -20,8 +20,8 @@ requirements = [
     'wget==2.2',
     'MySQL-python==1.2.3',
     'massedit==0.66',
-    'node.ext.ldap==0.9.7',
-    'flask-simpleldap==0.3.0'
+    'python-ldap==2.4.19',
+    'flask-login==0.2.10'
 ]
 
 
@@ -77,10 +77,22 @@ setup(
             'apache/syncloud-server-https.conf']),
         (prefix + '/var/www/syncloud-server', [
             'www/favicon.ico',
-            'www/index.html']),
+            'www/login.html',
+            'www/index.html'
+        ]),
         (prefix + '/var/www/syncloud-server/images', [
             'www/images/image-ci-128.png',
-            'www/images/owncloud-128.png']),
+            'www/images/owncloud-128.png'
+            'www/images/logo-52.png'
+        ]),
+        (prefix + '/var/www/syncloud-server/css', [
+            'www/css/form-center.css',
+            'www/css/main-menu.css',
+        ]),
+        (prefix + '/var/www/syncloud-server/js', [
+            'www/js/jquery.jqote2.min.js',
+            'www/js/jquery-dateFormat.min.js',
+        ]),
         ('syncloud/ldap/config', [
             'config/ldap/init.ldif',
             'config/ldap/rootdn.ldif']),
