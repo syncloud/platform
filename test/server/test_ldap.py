@@ -1,4 +1,4 @@
-from syncloud.server.ldap import to_ldap_dc
+from syncloud.server.auth import to_ldap_dc
 
 
 def test_to_ldap_dc():
