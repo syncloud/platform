@@ -42,3 +42,9 @@ class Pip:
         data = json.loads(response.content)
         version = data['info']['version']
         return str(version)
+
+    def log_version(self, name):
+        cmd_args = ['pip2', 'freeze', '|', 'grep', name]
+        exit_code = runner.call(' '.join(cmd_args), self.logger, stdout_log_level=logging.INFO, shell=True)
+        if self.raise_on_error and not exit_code == 0:
+            raise Exception('failed command: '+' '.join(cmd_args))

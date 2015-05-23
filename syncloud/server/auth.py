@@ -74,9 +74,9 @@ def make_secret(password):
     sha.update(salt)
 
     # create a base64 encoded string of the concatenated digest + salt
-    digest_salt_b64 = '{}{}'.format(sha.digest(), salt).encode('base64').strip()
+    digest_salt_b64 = '{0}{1}'.format(sha.digest(), salt).encode('base64').strip()
 
     # now tag the digest above with the {SSHA} tag
-    tagged_digest_salt = '{{SSHA}}{}'.format(digest_salt_b64)
+    tagged_digest_salt = '{{SSHA}}{0}'.format(digest_salt_b64)
 
     return tagged_digest_salt

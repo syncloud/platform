@@ -20,9 +20,9 @@ class ServerFacade:
         self.auth = Auth()
 
     def activate(self, release, domain, api_url, redirect_email, redirect_password, user_domain):
-        self.activate(release, domain, api_url, redirect_email, redirect_password, user_domain, 'syncloud', 'syncloud')
+        self.activate_new(release, domain, api_url, redirect_email, redirect_password, user_domain, 'syncloud', 'syncloud')
 
-    def activate(self, release, domain, api_url, email, password, user_domain, device_user, device_password):
+    def activate_new(self, release, domain, api_url, email, password, user_domain, device_user, device_password):
 
         self.reconfigure()
 
@@ -32,7 +32,7 @@ class ServerFacade:
         self.insider.set_redirect_info(domain, api_url)
         self.insider.acquire_domain(email, password, user_domain)
 
-        full_domain = "{}.{}".format(user_domain, domain)
+        full_domain = "{0}.{1}".format(user_domain, domain)
         apache_ports = self.apache.activate(full_domain)
         self.insider.add_service("server", "http", "server", apache_ports.http, None)
 
