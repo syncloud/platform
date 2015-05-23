@@ -14,21 +14,15 @@ class Pip:
 
     def install(self, name, version):
         if self.pypi_index:
-            cmd_args = ['pip2', 'install', '--index-url', self.pypi_index, '{}=={}'.format(name, version)]
+            cmd_args = ['pip2', 'install', '--no-binary', ':all:', '--index-url', self.pypi_index, '{}=={}'.format(name, version)]
         else:
-            cmd_args = ['pip2', 'install', '{}=={}'.format(name, version)]
+            cmd_args = ['pip2', 'install', '--no-binary', ':all:', '{}=={}'.format(name, version)]
         exit_code = runner.call(' '.join(cmd_args), self.logger, stdout_log_level=logging.INFO, shell=True)
         if self.raise_on_error and not exit_code == 0:
             raise Exception('failed command: '+' '.join(cmd_args))
 
     def upgrade(self, name, version):
-        if self.pypi_index:
-            cmd_args = ['pip2', 'install', '--index-url', self.pypi_index, '{}=={}'.format(name, version)]
-        else:
-            cmd_args = ['pip2', 'install', '{}=={}'.format(name, version)]
-        exit_code = runner.call(' '.join(cmd_args), self.logger, stdout_log_level=logging.INFO, shell=True)
-        if self.raise_on_error and not exit_code == 0:
-            raise Exception('failed command: '+' '.join(cmd_args))
+        self.install(name, version)
 
     def uninstall(self, name):
         cmd_args = ['yes', '|', 'pip2', 'uninstall', name]
