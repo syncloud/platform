@@ -82,7 +82,7 @@ setup(
         ]),
         (prefix + '/var/www/syncloud-server/images', [
             'www/images/image-ci-128.png',
-            'www/images/owncloud-128.png'
+            'www/images/owncloud-128.png',
             'www/images/logo-52.png'
         ]),
         (prefix + '/var/www/syncloud-server/css', [
