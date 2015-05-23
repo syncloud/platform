@@ -7,10 +7,6 @@ install:
 - pip install -r dev_requirements.txt
 script:
 - py.test --cov syncloud
-- bash -n bin/install-java
-- bash -n bin/syncloud-boot-installer
-- bash -n bin/syncloud-link-data.sh
-- bash -n bin/install-avahi
 deploy:
   provider: pypi
   user: syncloud-build
