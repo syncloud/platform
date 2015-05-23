@@ -53,10 +53,10 @@ def to_ldap_dc(full_domain):
     return 'dc=' + ',dc='.join(full_domain.split('.'))
 
 
-def authenticate(name, password):
+def authenticate(name, password, full_domain_name):
     conn = ldap.initialize('ldap://localhost:389')
     try:
-        conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
+        conn.simple_bind_s('cn={0},ou=users,{1}'.format(name, to_ldap_dc(full_domain_name)), password)
     except Exception, e:
         conn.unbind()
         raise e

@@ -1,5 +1,4 @@
 dn: ${dn}
-dc: syncloud
 objectClass: dcObject
 objectClass: organizationalUnit
 ou: syncloud
