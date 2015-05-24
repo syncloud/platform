@@ -28,7 +28,7 @@ logger.init(console=True)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123223'
 login_manager = LoginManager()
-login_manager.login_view = html_prefix + "/login.html"
+login_manager.login_view = "/server/html/login.html"
 login_manager.init_app(app)
 
 
