@@ -19,10 +19,7 @@ class ServerFacade:
         self.logger = logger.get_logger('ServerFacade')
         self.auth = Auth()
 
-    def activate(self, release, domain, api_url, redirect_email, redirect_password, user_domain):
-        self.activate_new(release, domain, api_url, redirect_email, redirect_password, user_domain, 'syncloud', 'syncloud')
-
-    def activate_new(self, release, domain, api_url, email, password, user_domain, device_user, device_password):
+    def activate(self, release, domain, api_url, email, password, user_domain, device_user = 'syncloud', device_password = 'syncloud'):
 
         self.reconfigure()
 
