@@ -5,8 +5,7 @@ from sys import exec_prefix
 # Use prefix for virtual env
 prefix = ''
 if not exec_prefix == '/usr':
-    print "potentially detected virtual env root prefix: " + prefix
-    # prefix = join(exec_prefix, 'local')
+    prefix = join(exec_prefix, 'local')
 
 requirements = [
     'configobj==4.7.2',
