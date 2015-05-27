@@ -58,16 +58,25 @@ class Manager:
         self.repo_versions = repo_versions
         self.installed_versions = installed_versions
         self.logger = logger.get_logger('sam.manager')
+        self.release_filename = os.path.join(self.config.status_dir(), 'release')
+
+    def get_release(self):
+        if os.path.isfile(self.release_filename):
+            with open(self.release_filename, 'r') as f:
+                release = f.read()
+        else:
+            raise Exception('The release is not set')
+        return release
+
+    def set_release(self, release):
+        with open(self.release_filename, 'w+') as f:
+                f.write(release)
 
     def update(self, release=None):
         self.logger.info("update")
-        release_filename = os.path.join(self.config.status_dir(), 'release')
+
         if not release:
-            if os.path.isfile(release_filename):
-                with open(release_filename, 'r') as f:
-                    release = f.read()
-            else:
-                raise Exception('The release is not set')
+            release = self.get_release()
 
         if release:
             apps_url_template = self.config.apps_url_template()
@@ -96,8 +105,7 @@ class Manager:
             shutil.rmtree(self.apps_dir, ignore_errors=True)
             shutil.copytree(extracted_apps_dir, self.apps_dir)
 
-            with open(release_filename, 'w+') as f:
-                f.write(release)
+            self.set_release(release)
 
             for app in self.applications.list():
                 version = self.repo_versions.version(app.id)

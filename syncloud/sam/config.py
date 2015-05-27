@@ -51,11 +51,3 @@ class SamConfig:
         self.section('sam')
         self.parser.set('sam', 'apps_url_template', apps_url_template)
         self.save()
-
-    def release(self):
-        return self.parser.get('sam', 'release')
-
-    def set_release(self, release):
-        self.section('sam')
-        self.parser.set('sam', 'release', release)
-        self.save()
