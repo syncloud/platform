@@ -24,7 +24,7 @@ class Setup():
             self.apt.add_repo("ppa:ondrej/php5-oldstable")
         self.apt.install(["libapache2-mod-wsgi", "php-apc", "curl", "libapache2-mod-php5"])
 
-        self.system.enable_modules(["rewrite", "headers", "wsgi", "ssl"])
+        self.system.enable_modules(["rewrite", "headers", "wsgi", "ssl", "proxy_http"])
         self.system.init_conf_dirs()
 
     def activate(self, hostname):
