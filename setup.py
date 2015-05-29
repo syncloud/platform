@@ -18,7 +18,6 @@ requirements = [
     'psutil==2.1.3',
     'python-crontab==1.7.2',
     'wget==2.2',
-    'MySQL-python==1.2.3',
     'massedit==0.66',
     'python-ldap==2.4.19',
     'flask-login==0.2.10'
