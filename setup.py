@@ -32,7 +32,6 @@ setup(
     scripts=[
         'bin/insider',
         'bin/syncloud-platform-post-install',
-        'bin/syncloud-platform-post-upgrade',
         'bin/syncloud-boot-installer',
         'bin/install-java',
         'bin/syncloud-link-data.sh',
