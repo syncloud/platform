@@ -180,7 +180,7 @@ class TestBasic(BaseTest):
         applications = self.sam.list()
         assert_single_application(applications, 'test-app', 'test app', '1.1', '1.0')
 
-        self.sam.upgrade('test-app')
+        self.sam.install('test-app')
 
         applications = self.sam.list()
         assert_single_application(applications, 'test-app', 'test app', '1.1', '1.1')
