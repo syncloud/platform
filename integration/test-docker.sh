@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
+APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
+cd ${APP_DIR}
 
 apt-get install docker.io sshpass
 service docker start
@@ -36,10 +36,10 @@ cleanup
 echo "extracting rootfs"
 tar xzf rootfs.tar.gz
 
-echo "rootfs version: $(<rootfs/version)"
+#echo "rootfs version: $(<rootfs/version)"
 
 mkdir rootfs/test
-cp -R ../* rootfs/test
+cp -R * rootfs/test
 
 echo "importing rootfs"
 tar -C rootfs -c . | docker import - syncloud
@@ -52,4 +52,4 @@ sleep 3
 echo "running tests"
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 
-sshexec /test/test.sh
+sshexec /test/integration/test.sh
