@@ -126,12 +126,8 @@ class Manager:
 
     def upgrade_all(self):
         self.logger.info("upgrade all")
-        applications = self.__upgradable_apps()
-        for application in applications:
-            if application.installed_version:
-                self.upgrade(application.app.id)
-            else:
-                self.install(application.app.id)
+        for application in self.__upgradable_apps():
+            self.install(application.app.id)
 
     def reconfigure_installed_apps(self):
         self.logger.info("reconfigure installed apps")
@@ -158,14 +154,6 @@ class Manager:
         self.run_hook(app, 'post-install')
         self.installed_versions.update(app.id, a.current_version)
         return "installed successfully"
-
-    def upgrade(self, app_id):
-        a = self.get_app(app_id, True)
-        app = a.app
-        self.pip.upgrade(app.id, a.current_version)
-        self.run_hook(app, 'post-upgrade')
-        self.installed_versions.update(app.id, a.current_version)
-        return "upgraded successfully"
 
     def latest(self, app_id):
         return self.pip.last_version(app_id)

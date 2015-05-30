@@ -29,9 +29,6 @@ def get_arg_parser():
     sub = subparsers.add_parser('verify', help="verify application")
     sub.add_argument('app_id', help="application id")
 
-    sub = subparsers.add_parser('upgrade', help="upgrade application")
-    sub.add_argument('app_id', help="application id")
-
     sub = subparsers.add_parser('latest', help="latest version of application")
     sub.add_argument('app_id', help="application id")
 

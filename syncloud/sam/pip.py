@@ -21,9 +21,6 @@ class Pip:
         if self.raise_on_error and not exit_code == 0:
             raise Exception('failed command: '+' '.join(cmd_args))
 
-    def upgrade(self, name, version):
-        self.install(name, version)
-
     def uninstall(self, name):
         cmd_args = ['yes', '|', 'pip2', 'uninstall', name]
         exit_code = runner.call(' '.join(cmd_args), self.logger, stdout_log_level=logging.INFO, shell=True)
