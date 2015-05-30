@@ -17,6 +17,6 @@ deploy:
     all_branches: true
 after_deploy:
 - pip install travis-tools
-- universal-version-push version syncloud/image syncloud-build GH_TOKEN master "Travis build"
+#- universal-version-push version syncloud/image syncloud-build GH_TOKEN master "Travis build"
 - version-increment version
 - universal-version-push version ${TRAVIS_REPO_SLUG} syncloud-build GH_TOKEN ${TRAVIS_BRANCH} "Travis build [skip ci]"
