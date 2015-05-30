@@ -11,7 +11,7 @@ from syncloud.app import runner
 import ldap
 
 
-class Auth():
+class Auth:
     def __init__(self):
         self.logger = get_logger('ldap')
         self.service = Service()

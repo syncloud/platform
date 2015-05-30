@@ -16,12 +16,12 @@ def remove_service(service):
         if result == "unknown":
             return
 
+    check_output('systemctl disable {0}'.format(service), shell=True)
     os.remove(__systemd_service_file(service))
 
 def add_service(app_dir, service):
     shutil.copyfile(__app_service_file(app_dir, service), __systemd_service_file(service))
-    check_output('systemctl enable -f {0}'.format(service), shell=True)
-    check_output('systemctl daemon-reload', shell=True)
+    check_output('systemctl enable {0}'.format(service), shell=True)
     check_output('systemctl start {0}'.format(service), shell=True)
 
 def __systemd_service_file(service):
