@@ -28,4 +28,4 @@ def __systemd_service_file(service):
     return join(SYSTEMD_DIR, "{0}.service".format(service))
 
 def __app_service_file(app_dir, service):
-    return join(app_dir, 'config', service)
+    return join(app_dir, 'config', "{0}.service".format(service))
