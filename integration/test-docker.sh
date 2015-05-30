@@ -6,8 +6,8 @@ cd ${DIR}
 apt-get install docker.io sshpass
 service docker start
 
-if [ ! -f syncloud-rootfs.tar.gz ]; then
-  echo "syncloud-rootfs.tar.gz is not ready, run 'sudo ./rootfs.sh'"
+if [ ! -f rootfs.tar.gz ]; then
+  echo "rootfs.tar.gz is not ready, run 'sudo ./bootstrap.sh'"
   exit 1
 fi
 
@@ -34,7 +34,7 @@ function cleanup {
 cleanup
 
 echo "extracting rootfs"
-tar xzf syncloud-rootfs.tar.gz
+tar xzf rootfs.tar.gz
 
 echo "rootfs version: $(<rootfs/version)"
 
