@@ -9,7 +9,7 @@ python get-pip.py
 
 pip2 install -U pytest
 pip2 install -r dev_requirements.txt
-python setup.py
+python setup.py install
 pip2 freeze | grep syncloud
 
 syncloud-platform-post-install
