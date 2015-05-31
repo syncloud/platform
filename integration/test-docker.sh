@@ -45,6 +45,7 @@ echo "importing rootfs"
 tar -C rootfs -c . | docker import - syncloud
 
 echo "starting rootfs"
+#docker run --name rootfs --privileged -d -v /var/run/dbus:/var/run/dbus -it -p 2222:22 syncloud /sbin/init
 docker run --name rootfs --privileged -d -it -p 2222:22 syncloud /sbin/init
 
 sleep 3

@@ -24,11 +24,8 @@ if __name__ == '__main__':
         from_file = sys.argv[1]
     Installer().install('platform', from_file)
 
-    check_output('useradd -d / -s /bin/false messagebus | true', shell=True)
-    check_output('useradd -d / -u 1001 -s /bin/false avahi | true', shell=True)
-
-    add_service(APP_ROOT, 'dbus', include_socket=True)
-    add_service(APP_ROOT, 'avahi-daemon', include_socket=True)
+    add_service(APP_ROOT, 'platform-uwsgi', include_socket=True)
+    add_service(APP_ROOT, 'platform-nginx', include_socket=True)
     check_output('syncloud_ssh_keys_generate', shell=True)
 
     # log.info("installing java")
