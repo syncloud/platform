@@ -3,6 +3,11 @@
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 
+#Fix debconf frontend warnings
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export DEBCONF_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
+
 echo "=== install syncloud dependencies ==="
 wget --no-check-certificate --progress=dot:mega -O get-pip.py https://bootstrap.pypa.io/get-pip.py 2>&1
 python get-pip.py

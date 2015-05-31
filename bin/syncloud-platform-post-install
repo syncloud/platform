@@ -2,6 +2,7 @@
 
 syncloud_ssh_keys_generate
 
+apt-get update
 echo "installing insider dependencies"
 apt-get -y install miniupnpc
 
