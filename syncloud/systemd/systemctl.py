@@ -19,13 +19,24 @@ def remove_service(service):
     check_output('systemctl disable {0}'.format(service), shell=True)
     os.remove(__systemd_service_file(service))
 
-def add_service(app_dir, service):
+def add_service(app_dir, service, include_socket=False):
+
     shutil.copyfile(__app_service_file(app_dir, service), __systemd_service_file(service))
+
+    if include_socket:
+        shutil.copyfile(__app_socket_file(app_dir, service), __systemd_socket_file(service))
+
     check_output('systemctl enable {0}'.format(service), shell=True)
     check_output('systemctl start {0}'.format(service), shell=True)
 
 def __systemd_service_file(service):
     return join(SYSTEMD_DIR, "{0}.service".format(service))
 
+def __systemd_socket_file(service):
+    return join(SYSTEMD_DIR, "{0}.socket".format(service))
+
 def __app_service_file(app_dir, service):
-    return join(app_dir, 'config', "{0}.service".format(service))
+    return join(app_dir, 'config', 'systemd', "{0}.service".format(service))
+
+def __app_socket_file(app_dir, service):
+    return join(app_dir, 'config', 'systemd', "{0}.socket".format(service))

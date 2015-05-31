@@ -3,21 +3,27 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
-ROOT=/opt
-APP_NAME=syncloud-platform
-APP_ROOT=${ROOT}/${APP_NAME}
+NAME=platform
 
-if [ ! -d nginx/build ]; then
-  ./nginx/build.sh
+#if [ ! -d nginx/build ]; then
+#  ./nginx/build.sh
+#else
+#  echo "skipping nginx build"
+#fi
+
+if [ ! -d avahi/build ]; then
+  ./avahi/build.sh
 else
-  echo "skipping nginx build"
+  echo "skipping avahi build"
 fi
 
-rm -rf ${APP_ROOT}
-mkdir ${APP_ROOT}
+rm -rf build
+mkdir -p build/${NAME}
 
-cp -r config ${APP_ROOT}/
-tar xzf nginx/build/nginx.tar.gz -C ${APP_ROOT}/
+cp -r bin build/${NAME}
+cp -r config build/${NAME}
 
-tar cpzf ${APP_NAME}.tar.gz -C ${ROOT} ${APP_NAME}
+tar xzf avahi/build/avahi.tar.gz -C build/${NAME}
+#tar xzf nginx/build/nginx.tar.gz -C build/${NAME}
 
+tar cpzf ${NAME}.tar.gz -C build/ ${NAME}

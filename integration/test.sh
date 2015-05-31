@@ -14,10 +14,13 @@ python get-pip.py
 
 pip2 install -U pytest
 pip2 install -r dev_requirements.txt
+
+echo "installing python part"
 python setup.py install
 pip2 freeze | grep syncloud
 
-syncloud-platform-post-install
+echo "installing binary part"
+syncloud-platform-post-install platform.tar.gz
 
 export TEAMCITY_VERSION=9
 py.test -s verify.py

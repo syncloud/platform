@@ -39,7 +39,6 @@ setup(
         'bin/syncloud-resize-sd-partition',
         'bin/remote',
         'bin/syncloud-remote-post-install',
-        'bin/install-avahi',
         'bin/syncloud-apache-post-install',
         'bin/syncloud-apache',
         'bin/syncloud-cli',
