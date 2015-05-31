@@ -1,9 +1,10 @@
 import requests
 from subprocess import check_output
-
+from socket import gethostname;
 
 def test_avahi():
-    assert '' in check_output('/opt/app/platform/avahi/bin/avahi-browse -atk', shell=True)
+    discovery = check_output('/opt/app/platform/avahi/bin/avahi-browse -atk', shell=True)
+    assert 'syncloud on {0}'.format(gethostname()) in discovery
 
 
 def test_main_site_secured():

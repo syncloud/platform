@@ -1,34 +1,40 @@
 #!/usr/bin/env python
 import logging
+import shutil
 from subprocess import check_output
 import sys
+import time
 from syncloud.sam.installer import Installer
 
-from syncloud.systemd.systemctl import add_service
+from syncloud.systemd.systemctl import add_service, reload_service, restart_service
 from syncloud.app import logger
 
 APP_ROOT = '/opt/app/platform'
 
 if __name__ == '__main__':
     logger.init(logging.DEBUG, console=True, line_format='%(message)s')
-    log = logger.get_logger('ServerFacade')
+    log = logger.get_logger('platform.postinstall')
+
+    check_output('apt-get update', shell=True)
+    log.info("installing insider dependencies")
+    check_output('apt-get -y install miniupnpc', shell=True)
 
     from_file = None
     if sys.argv[1:]:
         from_file = sys.argv[1]
     Installer().install('platform', from_file)
 
+    check_output('useradd -d / -s /bin/false messagebus | true', shell=True)
+    check_output('useradd -d / -u 1001 -s /bin/false avahi | true', shell=True)
+
+    add_service(APP_ROOT, 'dbus', include_socket=True)
     add_service(APP_ROOT, 'avahi-daemon', include_socket=True)
+    check_output('syncloud_ssh_keys_generate', shell=True)
 
-    check_output('check syncloud_ssh_keys_generate', shell=True)
-
-    check_output('apt-get update', shell=True)
-    log.info("installing insider dependencies")
-    check_output('apt-get -y install miniupnpc', shell=True)
-
-    log.info("installing java")
-    check_output('install-java', shell=True)
+    # log.info("installing java")
+    # check_output('install-java', shell=True)
 
     check_output('syncloud-remote-post-install', shell=True)
     check_output('syncloud-apache-post-install', shell=True)
     check_output('syncloud-boot-installer', shell=True)
+

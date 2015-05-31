@@ -23,7 +23,7 @@ mkdir -p build/${NAME}
 cp -r bin build/${NAME}
 cp -r config build/${NAME}
 
-tar xzf avahi/build/avahi.tar.gz -C build/${NAME}
+tar xzf avahi/avahi.tar.gz -C build/${NAME}
 #tar xzf nginx/build/nginx.tar.gz -C build/${NAME}
 
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}

@@ -1,0 +1,12 @@
+[Unit]
+Description=D-Bus System Message Bus
+Documentation=man:dbus-daemon(1)
+Requires=dbus.socket
+
+[Service]
+ExecStartPre=/opt/app/platform/avahi/bin/dbus-uuidgen --ensure
+ExecStart=/opt/app/platform/avahi/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+ExecReload=/opt/app/platform/avahi/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+ExecStop=/bin/true
+KillMode=none
+OOMScoreAdjust=-900

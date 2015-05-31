@@ -17,10 +17,11 @@ pip2 install -r dev_requirements.txt
 
 echo "installing python part"
 python setup.py install
+python setup.py install_data
 pip2 freeze | grep syncloud
 
 echo "installing binary part"
 syncloud-platform-post-install platform.tar.gz
 
 export TEAMCITY_VERSION=9
-py.test -s verify.py
+py.test -s integration/verify.py

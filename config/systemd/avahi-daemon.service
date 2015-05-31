@@ -21,9 +21,11 @@ Requires=avahi-daemon.socket
 
 [Service]
 Type=dbus
+PIDFile=/opt/app/platform/avahi/var/run/avahi-daemon/pid
 BusName=org.freedesktop.Avahi
 ExecStart=/opt/app/platform/avahi/sbin/avahi-daemon -s -f /opt/app/platform/config/avahi/avahi/avahi-daemon.conf
 ExecReload=/opt/app/platform/avahi/sbin/avahi-daemon -r
+Environment=LD_LIBRARY_PATH=/opt/app/platform/avahi/lib
 NotifyAccess=main
 
 [Install]

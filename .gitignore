@@ -5,3 +5,6 @@ dist
 build
 .coverage
 *.egg-info
+*.tar.gz
+rootfs*
+install
