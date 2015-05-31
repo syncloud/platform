@@ -39,7 +39,7 @@ tar xzf rootfs.tar.gz
 #echo "rootfs version: $(<rootfs/version)"
 
 mkdir rootfs/test
-cp -R * rootfs/test
+rsync -a . rootfs/test --exclude=rootfs*
 
 echo "importing rootfs"
 tar -C rootfs -c . | docker import - syncloud
