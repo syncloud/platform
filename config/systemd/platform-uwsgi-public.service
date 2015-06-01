@@ -1,9 +1,9 @@
 [Unit]
-Description=uWSGI Emperor
+Description=uWSGI Public
 After=syslog.target
 
 [Service]
-ExecStart=/opt/app/platform/uwsgi/bin/uwsgi --ini /opt/app/platform/config/uwsgi/emperor.ini
+ExecStart=/opt/app/platform/uwsgi/bin/uwsgi --ini /opt/app/platform/config/uwsgi/public.ini
 Restart=always
 KillSignal=SIGQUIT
 Type=notify

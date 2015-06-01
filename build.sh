@@ -4,6 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
 NAME=platform
+USER=www-data
 
 if [ ! -d uwsgi/build ]; then
   ./uwsgi/build.sh
@@ -28,9 +29,12 @@ mkdir -p build/${NAME}
 
 cp -r bin build/${NAME}
 cp -r config build/${NAME}
+cp -r www build/${NAME}
+cp -r socket build/${NAME}
+chown -R ${USER}. build/${NAME}/socket
 
 #tar xzf avahi/avahi.tar.gz -C build/${NAME}
 tar xzf nginx/build/nginx.tar.gz -C build/${NAME}
 cp -rf uwsgi/install/uwsgi build/${NAME}
-
+rm -rf ${NAME}.tar.gz
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}

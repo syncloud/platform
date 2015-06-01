@@ -16,8 +16,8 @@ pip2 install -U pytest
 pip2 install -r dev_requirements.txt
 
 echo "installing python part"
-python setup.py install
-python setup.py install_data
+python setup.py sdist
+pip2 install --no-binary :all: dist/syncloud-platform-*.tar.gz
 pip2 freeze | grep syncloud
 
 echo "installing binary part"

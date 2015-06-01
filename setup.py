@@ -33,16 +33,11 @@ setup(
         'bin/insider',
         'bin/syncloud-platform-post-install',
         'bin/syncloud-boot-installer',
-        'bin/install-java',
         'bin/syncloud-link-data.sh',
         'bin/syncloud-resize-sd',
         'bin/syncloud-resize-sd-partition',
         'bin/remote',
-        'bin/syncloud-remote-post-install',
-        'bin/syncloud-apache-post-install',
-        'bin/syncloud-apache',
         'bin/syncloud-cli',
-        'bin/syncloud-server-post-upgrade',
         'bin/sam',
         'bin/syncloud-id',
         'bin/syncloud-ping',
@@ -51,7 +46,7 @@ setup(
         'bin/cpu_frequency'
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server',
-              'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd'],
+              'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd', 'syncloud.server.rest'],
     namespace_packages=['syncloud'],
     data_files=[
         ('insider/config', ['config/insider.cfg']),
@@ -65,31 +60,6 @@ setup(
             'config/systemd/syncloud-resize-sd.service',
             'config/systemd/cpu-frequency.service',
             'config/systemd/insider-sync.service']),
-        ('syncloud-apache/config', [
-            'config/http.conf',
-            'config/https.conf']),
-        ('syncloud-server/config', ['config/server.wsgi']),
-        ('syncloud-server/apache', [
-            'apache/syncloud-server-http.conf',
-            'apache/syncloud-server-https.conf']),
-        (prefix + '/var/www/syncloud-server', [
-            'www/favicon.ico',
-            'www/login.html',
-            'www/index.html'
-        ]),
-        (prefix + '/var/www/syncloud-server/images', [
-            'www/images/image-ci-128.png',
-            'www/images/owncloud-128.png',
-            'www/images/logo-52.png'
-        ]),
-        (prefix + '/var/www/syncloud-server/css', [
-            'www/css/form-center.css',
-            'www/css/main-menu.css',
-        ]),
-        (prefix + '/var/www/syncloud-server/js', [
-            'www/js/jquery.jqote2.min.js',
-            'www/js/jquery-dateFormat.min.js',
-        ]),
         ('syncloud/ldap/config', [
             'config/ldap/init.ldif',
             'config/ldap/rootdn.ldif']),

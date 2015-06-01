@@ -6,7 +6,7 @@ import sys
 from syncloud.server.auth import Auth, authenticate
 
 if __name__ == '__main__':
-    sys.path.insert(0, join(dirname(__file__), '..', '..'))
+    sys.path.insert(0, join(dirname(__file__), '..', '..', '..'))
 from syncloud.insider.dns import Endpoint
 from syncloud.server.model import Site
 from syncloud.app import logger
@@ -14,14 +14,11 @@ from syncloud.insider.config import Service, os
 from syncloud.insider.facade import get_insider
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
-www_dir = '/var/www/syncloud-server'
+www_dir = '/opt/app/platform/www'
 mock_sites = None
-html_prefix = ''
-rest_prefix = ''
 
-if __name__ == '__main__':
-    html_prefix = '/server/html'
-    rest_prefix = '/server/rest'
+html_prefix = '/server/html'
+rest_prefix = '/server/rest'
 
 logger.init(console=True)
 
@@ -125,7 +122,7 @@ def filter_websites(endpoints):
 
 
 if __name__ == '__main__':
-    www_dir = join(dirname(__file__), '..', '..', 'www')
+    www_dir = join(dirname(__file__), '..', '..', '..', 'www')
     mock_sites = [
         Endpoint(Service("image-ci", "http", "type", "80", "image-ci"), 'localhost', 8181),
         Endpoint(Service("owncloud", "https", "type", "443", "owncloud"), 'localhost', 8282)]

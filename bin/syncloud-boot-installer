@@ -2,7 +2,6 @@
 
 BOOT_LOG=/var/log/syncloud_boot.log
 LOCAL_DATA=/home/www-data
-apt-get -y install ntp udisks-glue
 
 mkdir -p ${LOCAL_DATA}
 chown -R www-data. ${LOCAL_DATA}
