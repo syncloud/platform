@@ -23,7 +23,7 @@ wget http://nginx.org/download/${NAME}-${VERSION}.tar.gz
 tar xzf ${NAME}-${VERSION}.tar.gz
 cd ${NAME}-${VERSION}
 ./configure --prefix=${PREFIX}
-make
+make -j2
 rm -rf ${PREFIX}
 make install
 cd ..
