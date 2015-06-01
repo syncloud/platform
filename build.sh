@@ -38,3 +38,5 @@ tar xzf nginx/build/nginx.tar.gz -C build/${NAME}
 cp -rf uwsgi/install/uwsgi build/${NAME}
 rm -rf ${NAME}.tar.gz
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}
+
+echo "app: ${NAME}.tar.gz"
