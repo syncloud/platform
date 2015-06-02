@@ -10,4 +10,4 @@ fi
 tar xzf rootfs.tar.gz
 cp -r ./* rootfs/root
 chroot rootfs root/build.sh
-mv rootfs/root/syncloud-platform.tar.gz .
+mv rootfs/root/platform.tar.gz .
