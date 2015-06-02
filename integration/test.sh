@@ -3,7 +3,9 @@
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 
-export TEAMCITY_VERSION=9
+if [[ -n "$1" ]]; then
+    export TEAMCITY_VERSION=$1
+fi
 
 #Fix debconf frontend warnings
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

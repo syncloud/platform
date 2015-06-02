@@ -53,4 +53,4 @@ sleep 3
 echo "running tests"
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 
-sshexec /test/integration/test.sh
+sshexec /test/integration/test.sh $TEAMCITY_VERSION
