@@ -3,6 +3,8 @@
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 
+export TEAMCITY_VERSION=9
+
 #Fix debconf frontend warnings
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export DEBCONF_FRONTEND=noninteractive
@@ -15,13 +17,17 @@ python get-pip.py
 pip2 install -U pytest
 pip2 install -r dev_requirements.txt
 
+python setup.py develop --uninstall
+py.test --cov syncloud test
+pip2 uninstall syncloud-platform
+
 echo "installing python part"
 python setup.py sdist
 pip2 install --no-binary :all: dist/syncloud-platform-*.tar.gz
 pip2 freeze | grep syncloud
 
+
 echo "installing binary part"
 syncloud-platform-post-install platform.tar.gz
 
-export TEAMCITY_VERSION=9
 py.test -s integration/verify.py
