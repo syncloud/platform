@@ -17,9 +17,9 @@ python get-pip.py
 pip2 install -U pytest
 pip2 install -r dev_requirements.txt
 
-python setup.py develop --uninstall
+pip2 install -e .
 py.test --cov syncloud test
-pip2 uninstall syncloud-platform
+python setup.py develop --uninstall
 
 echo "installing python part"
 python setup.py sdist
