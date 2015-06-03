@@ -28,4 +28,5 @@ rm -rf ${PREFIX}
 make install
 cd ../..
 
+rm -rf ${NAME}.tar.gz
 tar cpzf ${NAME}.tar.gz -C ${ROOT} ${NAME}
