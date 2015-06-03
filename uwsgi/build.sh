@@ -29,4 +29,4 @@ cd ../..
 mkdir -p install/${NAME}/bin
 cp build/${NAME}-${VERSION}/uwsgi install/${NAME}/bin/
 
-cd ..
+tar cpzf ${NAME}.tar.gz -C install ${NAME}
