@@ -6,7 +6,7 @@ cd ${DIR}
 NAME=platform
 USER=www-data
 
-if [ ! -d uwsgi/uwsgi.tar.gz ]; then
+if [ ! -f uwsgi/uwsgi.tar.gz ]; then
   ./uwsgi/build.sh
 else
   echo "skipping uwsgi build"
