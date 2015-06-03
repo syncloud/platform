@@ -19,22 +19,27 @@ class ServerFacade:
         self.logger = logger.get_logger('ServerFacade')
         self.auth = Auth()
 
-    def activate(self, release, domain, api_url, email, password, user_domain, device_user = 'syncloud', device_password = 'syncloud'):
+    def activate(self,
+                 release, domain, api_url,
+                 email, password, user_domain,
+                 device_user = 'syncloud', device_password = 'syncloud',
+                 upgrade=True):
 
-        self.reconfigure()
+        # self.reconfigure()
 
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(release, domain, api_url, email, user_domain))
         self.sam.update(release)
-        self.sam.upgrade_all()
+        if upgrade:
+            self.sam.upgrade_all()
         self.insider.set_redirect_info(domain, api_url)
         self.insider.acquire_domain(email, password, user_domain)
 
         full_domain = "{0}.{1}".format(user_domain, domain)
-        apache_ports = self.apache.activate(full_domain)
-        self.insider.add_service("server", "http", "server", apache_ports.http, None)
+        # apache_ports = self.apache.activate(full_domain)
+        self.insider.add_service("server", "http", "server", 80, None)
 
-        self.logger.info("reconfiguring installed apps")
-        self.sam.reconfigure_installed_apps()
+        # self.logger.info("reconfiguring installed apps")
+        # self.sam.reconfigure_installed_apps()
 
         self.logger.info("activating ldap")
         self.auth.reset(full_domain, device_user, device_password)
@@ -43,12 +48,12 @@ class ServerFacade:
         self.logger.info("activation completed")
         return credentials
 
-    def reconfigure(self):
-        http_conf = join(self.tools.usr_local_dir(), 'syncloud-server', 'apache', 'syncloud-server-http.conf')
-        self.apache.add_http_site('server', http_conf)
-        https_conf = join(self.tools.usr_local_dir(), 'syncloud-server', 'apache', 'syncloud-server-https.conf')
-        self.apache.add_https_site('server', https_conf)
-        self.apache.restart()
+    # def reconfigure(self):
+    #     http_conf = join(self.tools.usr_local_dir(), 'syncloud-server', 'apache', 'syncloud-server-http.conf')
+    #     self.apache.add_http_site('server', http_conf)
+    #     https_conf = join(self.tools.usr_local_dir(), 'syncloud-server', 'apache', 'syncloud-server-https.conf')
+    #     self.apache.add_https_site('server', https_conf)
+    #     self.apache.restart()
 
     def get_access(self):
         return _get_credentials(self.remote_access.add_certificate())

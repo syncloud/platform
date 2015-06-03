@@ -3,13 +3,19 @@
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 
-apt-get install docker.io sshpass
-service docker start
-
 if [ ! -f rootfs.tar.gz ]; then
   echo "rootfs.tar.gz is not ready, run 'sudo ./bootstrap.sh'"
   exit 1
 fi
+
+
+if [[ -z "$1" || -z "$2" ]]; then
+    echo "usage $0 redirect_user redirect_password"
+    exit 1
+fi
+
+apt-get install docker.io sshpass
+service docker start
 
 function sshexec {
     sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "$1"
@@ -53,4 +59,4 @@ sleep 3
 echo "running tests"
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 
-sshexec /test/integration/test.sh $TEAMCITY_VERSION
+sshexec "/test/integration/test.sh $1 $2 $TEAMCITY_VERSION"

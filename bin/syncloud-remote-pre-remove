@@ -1,3 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env python
+import logging
 
-remote disable
+from syncloud.app import logger
+from syncloud.sam.platform_installer import PlatformInstaller
+
+if __name__ == '__main__':
+    logger.init(logging.DEBUG, console=True, line_format='%(message)s')
+    PlatformInstaller().remove()
