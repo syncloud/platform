@@ -25,9 +25,8 @@ def activate_device(auth):
     get_insider().insider_config.set_upnpc_mock(True)
 
     server = get_server(insider=get_insider(use_upnpc_mock=True))
-    release = open('{0}/RELEASE'.format(DIR), 'r').read().strip()
     email, password = auth
-    server.activate(release, 'syncloud.info', 'http://api.syncloud.info:81', email, password, 'teamcity', 'user', 'password', False)
+    server.activate('test', 'syncloud.info', 'http://api.syncloud.info:81', email, password, 'teamcity', 'user', 'password', False)
 
     # request.addfinalizer(finalizer_function)
 

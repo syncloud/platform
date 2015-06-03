@@ -28,9 +28,11 @@ class ServerFacade:
         # self.reconfigure()
 
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(release, domain, api_url, email, user_domain))
-        self.sam.update(release)
+
         if upgrade:
+            self.sam.update(release)
             self.sam.upgrade_all()
+
         self.insider.set_redirect_info(domain, api_url)
         self.insider.acquire_domain(email, password, user_domain)
 
