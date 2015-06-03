@@ -28,7 +28,7 @@ cp -r socket build/${NAME}
 chown -R ${USER}. build/${NAME}/socket
 
 tar xzf nginx/nginx.tar.gz -C build/${NAME}
-tar xzf nginx/uwsgi.tar.gz -C build/${NAME}
+tar xzf uwsgi/uwsgi.tar.gz -C build/${NAME}
 rm -rf ${NAME}.tar.gz
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}
 
