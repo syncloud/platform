@@ -20,9 +20,9 @@ class Nginx:
 
     def proxy_definition(self, app, port):
         return Template(
-            'location /${app} { '
-            '   proxy_pass http://127.0.0.1:${port}; '
-            '   proxy_redirect  http://localhost:${port}/ /;'
+            'location /${app} {\n'
+            '    proxy_pass      http://localhost:${port}/ ;\n'
+            '    proxy_redirect  http://localhost:${port}/ / ;\n'
             '}').substitute(
             {'app': app, 'port': port}
         )
