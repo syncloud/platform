@@ -19,7 +19,7 @@ def create_data_dir(app_data_dir, dir_name, user=None):
         print("creating app data dir: {0}".format(data_dir))
         os.mkdir(data_dir)
         if user:
-            print("setting permissions for {0} to {1}".format(app_data_dir, user))
+            print("setting permissions for {0} to {1}".format(data_dir, user))
             os.chown(data_dir, getpwnam(user).pw_uid, getgrnam(user).gr_gid)
     else:
         print("app data dir exists: {0}".format(data_dir))
