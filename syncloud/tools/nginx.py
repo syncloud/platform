@@ -1,5 +1,6 @@
 import os
 from os.path import join
+from string import Template
 from syncloud.systemd.systemctl import reload_service
 from syncloud.config.config import PlatformConfig
 
@@ -12,15 +13,19 @@ class Nginx:
 
         self.remove_app(app, reload=False)
 
-        proxy = '''location /${0}/ {
-            proxy_pass http://127.0.0.1:${1}/${0}/;
-        }'''.format(app, port)
+        proxy = self.proxy_definition(app, port)
 
         webapp = self.__app_file(app)
         with open(webapp, 'w') as f:
             f.write(proxy)
 
         reload_service('platform-nginx')
+
+    def proxy_definition(self, app, port):
+        return Template(
+            'location /${app}/ { proxy_pass http://127.0.0.1:${port}/${app}/; }').substitute(
+            {'app': app, 'port': port}
+        )
 
     def remove_app(self, app, reload=True):
 
