@@ -13,17 +13,17 @@ class Nginx:
 
         self.remove_app(app, reload=False)
 
-        proxy = self.proxy_definition(app, port)
-
-        webapp = self.__app_file(app)
-        with open(webapp, 'w') as f:
-            f.write(proxy)
+        with open(self.__app_file(app), 'w') as f:
+            f.write(self.proxy_definition(app, port))
 
         reload_service('platform-nginx')
 
     def proxy_definition(self, app, port):
         return Template(
-            'location /${app}/ { proxy_pass http://127.0.0.1:${port}/${app}/; }').substitute(
+            'location /${app} { '
+            '   proxy_pass http://127.0.0.1:${port}; '
+            '   proxy_redirect  http://localhost:${port}/ /;'
+            '}').substitute(
             {'app': app, 'port': port}
         )
 
