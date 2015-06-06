@@ -2,21 +2,21 @@ import os
 from os.path import isfile
 from subprocess import check_output
 from syncloud.app import logger
+from syncloud.config.config import PlatformConfig
 from syncloud.sam.manager import get_sam
 import wget
 import tarfile
 
-
-ROOT_PATH = '/opt/app'
 
 class Installer:
     def __init__(self):
         self.log = logger.get_logger('sam.installer')
         self.sam = get_sam()
 
-    def install(self, app, from_file=None):
+    def install(self, app_id, from_file=None, apps_root='/opt/app'):
+
         if not from_file:
-            archive = '{0}.tar.gz'.format(app)
+            archive = '{0}.tar.gz'.format(app_id)
             arch = check_output('uname -m', shell=True).strip()
             url = 'http://apps.syncloud.org/{0}/{1}/{2}'.format(self.sam.get_release(), arch, archive)
 
@@ -33,4 +33,4 @@ class Installer:
             self.log.info('installing from: {0}'.format(from_file))
 
         self.log.info("extracting {0}".format(filename))
-        tarfile.open(filename).extractall(ROOT_PATH)
+        tarfile.open(filename).extractall(apps_root)

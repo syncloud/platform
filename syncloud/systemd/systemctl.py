@@ -3,6 +3,7 @@ from os.path import join
 import shutil
 from subprocess import check_output, CalledProcessError
 from syncloud.app import logger
+from syncloud.config.config import PlatformConfig
 
 SYSTEMD_DIR = join('/lib', 'systemd', 'system')
 
@@ -32,7 +33,10 @@ def remove_service(service):
     check_output('systemctl disable {0}'.format(service), shell=True)
     os.remove(__systemd_service_file(service))
 
-def add_service(app_dir, service, include_socket=False, start=True):
+def add_service(app_id, service, include_socket=False, start=True):
+
+    config = PlatformConfig()
+    app_dir = join(config.apps_root(), app_id)
 
     log = logger.get_logger('systemctl')
 
