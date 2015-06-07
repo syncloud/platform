@@ -1,14 +1,23 @@
+from os.path import join, dirname
 import traceback
 import sys
+import convertible
 
 from flask import Flask, jsonify
+
+if __name__ == '__main__':
+    sys.path.insert(0, join(dirname(__file__), '..', '..', '..'))
+from syncloud.tools.facade import Facade
+from syncloud.app import logger
+
+logger.init(console=True)
 
 app = Flask(__name__)
 
 
-@app.route("/ping", methods=["GET"])
-def ping():
-    return jsonify({"ping": "pong"}), 200
+@app.route("/id", methods=["GET"])
+def id():
+    return jsonify(convertible.to_dict(Facade().id())), 200
 
 @app.errorhandler(Exception)
 def handle_exception(error):

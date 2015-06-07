@@ -1,4 +1,3 @@
-from os.path import join
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.server.model import Credentials
@@ -22,7 +21,7 @@ class ServerFacade:
     def activate(self,
                  release, domain, api_url,
                  email, password, user_domain,
-                 device_user = 'syncloud', device_password = 'syncloud',
+                 device_user='syncloud', device_password='syncloud',
                  upgrade=True):
 
         # self.reconfigure()

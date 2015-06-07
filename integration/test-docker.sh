@@ -42,7 +42,7 @@ echo "extracting rootfs"
 tar xzf rootfs.tar.gz
 
 #echo "rootfs version: $(<rootfs/version)"
-
+sed -i 's/Port 22/Port 2222/g' rootfs/etc/ssh/sshd_config
 mkdir rootfs/test
 rsync -a . rootfs/test --exclude=/rootfs* --exclude=/dist --exclude=/build --exclude=/nginx --exclude=/uwsgi
 
@@ -51,7 +51,7 @@ tar -C rootfs -c . | docker import - syncloud
 
 echo "starting rootfs"
 #docker run --name rootfs --privileged -d -v /var/run/dbus:/var/run/dbus -it -p 2222:22 syncloud /sbin/init
-docker run --name rootfs --privileged -d -it -p 2222:22 syncloud /sbin/init
+docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
 
 sleep 3
 

@@ -41,6 +41,6 @@ def test_public_web():
 
 def test_internal_web():
 
-    response = requests.get('http://localhost:81/ping')
-    assert 'pong' in response.text
+    response = requests.get('http://localhost:81/id')
+    assert 'mac_address' in response.text
     assert response.status_code == 200
