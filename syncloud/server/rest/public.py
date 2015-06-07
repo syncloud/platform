@@ -1,12 +1,15 @@
 import traceback
 import convertible
 from flask import Flask, jsonify, send_from_directory, request
-from os.path import dirname, join
+from os.path import dirname, join, abspath
 import sys
-from syncloud.server.auth import Auth, authenticate
 
+local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
-    sys.path.insert(0, join(dirname(__file__), '..', '..', '..'))
+    sys.path.insert(0, local_root)
+
+from syncloud.config.config import PlatformConfig
+from syncloud.server.auth import authenticate
 from syncloud.insider.dns import Endpoint
 from syncloud.server.model import Site
 from syncloud.app import logger
@@ -14,8 +17,14 @@ from syncloud.insider.config import Service, os
 from syncloud.insider.facade import get_insider
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
-www_dir = '/opt/app/platform/www'
-mock_sites = None
+if __name__ == '__main__':
+    www_dir = join(local_root, 'www', '_site')
+    mock_sites = [
+        Endpoint(Service("image-ci", "http", "type", "80", "image-ci"), 'localhost', 8181),
+        Endpoint(Service("owncloud", "https", "type", "443", "owncloud"), 'localhost', 8282)]
+else:
+    www_dir = PlatformConfig().www_root()
+    mock_sites = None
 
 html_prefix = '/server/html'
 rest_prefix = '/server/rest'
@@ -70,6 +79,7 @@ def login():
             login_user(user_flask, remember=False)
             return 'User logged in', 200
         except Exception, e:
+            traceback.print_exc(file=sys.stdout)
             return jsonify(message=e.message), 400
 
     return jsonify(message='missing name or password'), 400
@@ -122,8 +132,4 @@ def filter_websites(endpoints):
 
 
 if __name__ == '__main__':
-    www_dir = join(dirname(__file__), '..', '..', '..', 'www')
-    mock_sites = [
-        Endpoint(Service("image-ci", "http", "type", "80", "image-ci"), 'localhost', 8181),
-        Endpoint(Service("owncloud", "https", "type", "443", "owncloud"), 'localhost', 8282)]
     app.run(host='0.0.0.0', debug=True, port=5001)

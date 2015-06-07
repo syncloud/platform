@@ -1,0 +1,33 @@
+<script type="text/javascript">
+
+$( document ).ready(function() {
+
+    {% if page.main_menu_item %}
+        $("#{{ page.main_menu_item }}").addClass("active");
+    {% endif %}
+
+    $("#menu_logout").click(function(event) {
+        var posting = $.post( '/server/rest/logout' )
+            .done( function(data) {
+                window.location.href = "/server/html/login.html";
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+            });
+    });
+
+    var getting = $.get( "/server/rest/user" )
+        .done( function(data) {
+            var user = data;
+
+            $('#menu_user_name').text(user.email);
+
+            $('.menu-private').show();
+            $('.menu-public').hide();
+        })
+        .fail( function(xhr, textStatus, errorThrown) {
+        });
+
+
+});
+
+</script>

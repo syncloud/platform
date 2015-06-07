@@ -8,10 +8,16 @@ class PlatformConfig:
         self.parser.read(filename)
 
     def apps_root(self):
-        return self.parser.get('platform', 'apps_root')
+        return self.__get('apps_root')
 
     def data_root(self):
-        return self.parser.get('platform', 'data_root')
+        return self.__get('data_root')
+
+    def www_root(self):
+        return self.__get('www_root')
 
     def nginx_webapps(self):
-        return self.parser.get('platform', 'nginx_webapps')
+        return self.__get('nginx_webapps')
+
+    def __get(self, key):
+        return self.parser.get('platform', key)

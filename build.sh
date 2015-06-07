@@ -18,11 +18,18 @@ else
   echo "skipping nginx build"
 fi
 
+apt-get install ruby ruby-dev make gcc nodejs
+gem install jekyll --no-rdoc --no-ri
+
 rm -rf build
 mkdir -p build/${NAME}
 
 cp -r bin build/${NAME}
 cp -r config build/${NAME}
+cd www
+rm -rf _site
+jekyll build
+cd ..
 cp -r www build/${NAME}
 cp -r socket build/${NAME}
 chown -R ${USER}. build/${NAME}/socket
