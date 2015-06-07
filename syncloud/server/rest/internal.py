@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route("/id", methods=["GET"])
 def id():
-    return jsonify(convertible.to_dict(Facade().id())), 200
+    return jsonify(success=True, message='', data=convertible.to_dict(Facade().id())), 200
 
 @app.errorhandler(Exception)
 def handle_exception(error):
