@@ -18,12 +18,16 @@ else
   echo "skipping nginx build"
 fi
 
-apt-get install ruby ruby-dev make gcc nodejs
-gem install jekyll --no-rdoc --no-ri
+if ! jekyll -v; then
+  echo "installing jekyll"
+  apt-get install ruby ruby-dev make gcc nodejs
+  gem install jekyll --no-rdoc --no-ri
+fi
 
 rm -rf build
 mkdir -p build/${NAME}
 
+echo "copying files"
 cp -r bin build/${NAME}
 cp -r config build/${NAME}
 cd www
@@ -34,9 +38,12 @@ cp -r www build/${NAME}
 cp -r socket build/${NAME}
 chown -R ${USER}. build/${NAME}/socket
 
+echo "extracting nginx"
 tar xzf nginx/nginx.tar.gz -C build/${NAME}
+echo "extracting uwsgi"
 tar xzf uwsgi/uwsgi.tar.gz -C build/${NAME}
 rm -rf ${NAME}.tar.gz
+echo "zipping"
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}
 
 echo "app: ${NAME}.tar.gz"

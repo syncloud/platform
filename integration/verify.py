@@ -16,19 +16,9 @@ def activate_device(auth):
 
     logger.init(logging.DEBUG, True)
 
-    print("installing local binary build")
-    PlatformInstaller().install('platform.tar.gz')
-
-    Pip(None).log_version('syncloud-platform')
-
-    # persist upnp mock setting
-    get_insider().insider_config.set_upnpc_mock(True)
-
     server = get_server(insider=get_insider(use_upnpc_mock=True))
     email, password = auth
-    server.activate('test', 'syncloud.info', 'http://api.syncloud.info:81', email, password, 'teamcity', 'user', 'password', False)
-
-    # request.addfinalizer(finalizer_function)
+    server.activate(email, password, 'teamcity', 'user', 'password', 'http://api.syncloud.info:81', 'syncloud.info')
 
 def test_public_web():
     session = requests.session()

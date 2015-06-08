@@ -3,7 +3,7 @@ import traceback
 import sys
 import convertible
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
@@ -12,6 +12,7 @@ if __name__ == '__main__':
 from syncloud.tools.facade import Facade
 from syncloud.app import logger
 from syncloud.config.config import PlatformConfig
+from syncloud.server.serverfacade import get_server
 
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
@@ -28,6 +29,19 @@ def static_file(filename):
 
 @app.route("/server/rest/id", methods=["GET"])
 def id():
+    return jsonify(success=True, message='', data=convertible.to_dict(Facade().id())), 200
+
+@app.route("/server/rest/activate", methods=["POST"])
+def activate():
+    # TODO: validation
+    get_server().activate(
+        request.form['redirect_email'],
+        request.form['redirect_password'],
+        request.form['user_domain'],
+        request.form['device_user'],
+        request.form['device_password'],
+
+    )
     return jsonify(success=True, message='', data=convertible.to_dict(Facade().id())), 200
 
 @app.errorhandler(Exception)

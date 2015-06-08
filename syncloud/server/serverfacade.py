@@ -19,21 +19,21 @@ class ServerFacade:
         self.auth = Auth()
 
     def activate(self,
-                 release, domain, api_url,
-                 email, password, user_domain,
+                 redirect_email, redirect_password, user_domain,
                  device_user='syncloud', device_password='syncloud',
-                 upgrade=True):
+                 api_url='http://api.syncloud.it', domain='syncloud.it', release=None):
 
         # self.reconfigure()
 
-        self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(release, domain, api_url, email, user_domain))
+        self.logger.info("activate {0}, {1}, {2}, {3}, {4}, {5}".format(
+            redirect_email, user_domain, device_user, release, api_url, domain))
 
-        if upgrade:
+        if release:
             self.sam.update(release)
             self.sam.upgrade_all()
 
         self.insider.set_redirect_info(domain, api_url)
-        self.insider.acquire_domain(email, password, user_domain)
+        self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 
         full_domain = "{0}.{1}".format(user_domain, domain)
         # apache_ports = self.apache.activate(full_domain)

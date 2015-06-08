@@ -1,61 +1,20 @@
 #!/bin/bash
 
-APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
-cd ${APP_DIR}
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd ${DIR}
 
-if [ ! -f rootfs.tar.gz ]; then
-  echo "rootfs.tar.gz is not ready, run 'sudo ./bootstrap.sh'"
-  exit 1
-fi
 
 if [[ -z "$1" || -z "$2" ]]; then
     echo "usage $0 redirect_user redirect_password"
     exit 1
 fi
 
-apt-get install docker.io sshpass
-service docker start
+./docker.sh
 
-function sshexec {
-    sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "$1"
-}
+apt-get install sshpass
+#ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 
-function cleanup {
-
-    echo "cleaning old rootfs"
-    rm -rf rootfs
-
-    echo "docker images"
-    docker images -q
-
-    echo "removing images"
-    docker rm $(docker kill $(docker ps -qa))
-    docker rmi $(docker images -q)
-
-    echo "docker images"
-    docker images -q
-}
-
-cleanup
-
-echo "extracting rootfs"
-tar xzf rootfs.tar.gz
-
-#echo "rootfs version: $(<rootfs/version)"
-sed -i 's/Port 22/Port 2222/g' rootfs/etc/ssh/sshd_config
-mkdir rootfs/test
-rsync -a . rootfs/test --exclude=/rootfs* --exclude=/dist --exclude=/build --exclude=/nginx --exclude=/uwsgi
-
-echo "importing rootfs"
-tar -C rootfs -c . | docker import - syncloud
-
-echo "starting rootfs"
-#docker run --name rootfs --privileged -d -v /var/run/dbus:/var/run/dbus -it -p 2222:22 syncloud /sbin/init
-docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
-
-sleep 3
-
-echo "running tests"
-ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
-
-sshexec "/test/integration/test.sh $1 $2 \"$TEAMCITY_VERSION\""
+sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/unit-test.sh"
+sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/pip-install.sh"
+sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/binary-install.py"
+sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "TEAMCITY_VERSION=\"$TEAMCITY_VERSION\" ;py.test -s /test/integration/verify.py --email=$1 --password=$2"

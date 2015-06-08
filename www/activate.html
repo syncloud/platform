@@ -1,59 +1,76 @@
 ---
 layout: default
-title: Log in
+title: Activate
 
 styles: form-center.css
 main_menu_item: menu_activate
 ---
 
-<form class="form-horizontal" id="form-login">
-    <h2>Activate</h2>
-    <br/>
+<div class="container">
+    <form class="form-horizontal" id="form-activate">
 
-    <fieldset>
+        <fieldset>
+                <div id="errors_placeholder"></div>
+                <br/>
+                <div id="group-redirect-domain" class="form-group">
+                    <div class="col-7 col-md-7 col-sm-7 col-lg-7 col-xs-7">
+                        <input id="redirect-domain" name="redirect-domain" type="text" placeholder="domain" class="form-control input-md"
+                               required="">
+                        <span id="help-redirect-domain" class="help-block"></span>
+                    </div>
+                    <div class="col-5 col-md-5 col-sm-5 col-lg-5 col-xs-5" style="padding-left: 0; font-size: 22px">
+                        <div class="text-left">.syncloud.it</div>
+                    </div>
+                </div>
 
-        <div id="errors_placeholder"></div>
+                <div id="group-redirect-email" class="form-group">
+                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
+                        <input id="redirect-email" name="redirect-email" type="text" placeholder="redirect email" class="form-control input-md"
+                               required="">
+                        <span id="help-redirect-email" class="help-block"></span>
+                    </div>
+                </div>
 
-        <div id="group-email" class="form-group">
-            <div class="col-3 col-md-3 col-sm-3 col-lg-3">
-                <label class="control-label" for="name">Name</label>
-            </div>
-            <div class="col-9 col-md-9 col-sm-9 col-lg-9">
-                <input id="name" name="name" type="text" placeholder="user" class="form-control input-md"
-                       required="">
-                <span id="help-email" class="help-block"></span>
-            </div>
-        </div>
+                <div id="group-redirect-password" class="form-group">
+                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
+                        <input id="redirect-password" name="redirect-password" type="password" placeholder="redirect password" class="form-control input-md"
+                               required="">
+                        <span id="help-redirect-password" class="help-block"></span>
+                    </div>
+                </div>
 
-        <div id="group-password" class="form-group">
-            <div class="col-3 col-md-3 col-sm-3 col-lg-3">
-                <label class="control-label" for="password">Password</label>
-            </div>
-            <div class="col-9 col-md-9 col-sm-9 col-lg-9">
-                <input id="password" name="password" type="password" placeholder="" class="form-control input-md"
-                       required="">
-                <span id="help-password" class="help-block"></span>
-            </div>
-        </div>
+                <div id="group-name" class="form-group">
+                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
+                        <input id="name" name="name" type="text" placeholder="name" class="form-control input-md"
+                               required="">
+                        <span id="help-name" class="help-block"></span>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <div class="button-block col-12 col-md-12 col-sm-12 col-lg-12"
-                 style="padding-right:15px; padding-left:15px;">
-                <a href="forgot.html" class="pull-left">Forgot your password?</a>
-                <button id="btnlogin" name="btnlogin" class="btn btn-primary pull-right">Log in</button>
-            </div>
-        </div>
+                <div id="group-password" class="form-group">
+                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
+                        <input id="password" name="password" type="password" placeholder="password" class="form-control input-md"
+                               required="">
+                        <span id="help-password" class="help-block"></span>
+                    </div>
+                </div>
 
-    </fieldset>
+                <div class="form-group">
+                    <div class="button-block col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12"
+                         style="padding-right:15px; padding-left:15px;">
+                        <button id="btnactivate" name="btnactivate" class="btn btn-primary pull-right">Activate</button>
+                    </div>
+                </div>
 
-</form>
+        </fieldset>
+
+    </form>
+</div>
 
 <script type="text/html" id="error_template">
-    <![CDATA[
     <div class="alert alert-danger">
-        <%= this.message %>
+        <%= message %>
     </div>
-    ]]>
 </script>
 
 <script type="text/javascript">
@@ -77,15 +94,15 @@ main_menu_item: menu_activate
                 $(hint_id).text(message_text);
             }
         } else {
-            $('#errors_placeholder').append($('#error_template').jqote(error));
+            $('#errors_placeholder').append(_.template($("#error_template").html())(error));
         }
     }
 
     $(document).ready(function () {
-        $("#form-login").submit(function (event) {
+        $("#form-activate").submit(function (event) {
             event.preventDefault();
 
-            var values = $("#form-login").serializeArray();
+            var values = $("#form-activate").serializeArray();
             reset_error();
             var posting = $.post("/server/rest/activate", values)
                     .done(function (data) {
