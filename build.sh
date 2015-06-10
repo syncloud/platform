@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
 NAME=platform
-USER=www-data
+USER=platform
 
 if [ ! -f uwsgi/uwsgi.tar.gz ]; then
   ./uwsgi/build.sh
@@ -16,6 +16,13 @@ if [ ! -f nginx/nginx.tar.gz ]; then
   ./nginx/build.sh
 else
   echo "skipping nginx build"
+fi
+
+if [ ! -f openldap/openldap.tar.gz ]; then
+  echo "no openldap build, get one from 3rdparty"
+  exit 1
+else
+  echo "skipping openldap build"
 fi
 
 if ! jekyll -v; then
@@ -42,6 +49,8 @@ echo "extracting nginx"
 tar xzf nginx/nginx.tar.gz -C build/${NAME}
 echo "extracting uwsgi"
 tar xzf uwsgi/uwsgi.tar.gz -C build/${NAME}
+echo "extracting openldap"
+tar xzf openldap/openldap.tar.gz -C build/${NAME}
 rm -rf ${NAME}.tar.gz
 echo "zipping"
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}

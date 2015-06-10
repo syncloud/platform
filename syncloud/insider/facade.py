@@ -1,11 +1,12 @@
 import os
 from os.path import join
+from syncloud.tools.app import get_app_data_root
 from syncloud.tools.facade import Facade
 
 from port_config import PortConfig
 from service_config import ServiceConfig
 
-from syncloud.insider.config import InsiderConfig
+from syncloud.insider.config import InsiderConfig, RedirectConfig
 from syncloud.insider import config
 import upnpc
 import upnpc_mock
@@ -15,10 +16,11 @@ import cron
 
 
 tools_facade = Facade()
-LOCAL_DIR = tools_facade.usr_local_dir()
-default_bin_path = join(LOCAL_DIR, 'bin')
-default_config_path = join(LOCAL_DIR, 'insider', 'config')
-default_logs_path = '/var/log'
+APP_ROOT = '/opt/app/platform'
+DATA_ROOT = '/opt/data/platform'
+default_bin_path = join(APP_ROOT, 'bin')
+default_config_path = join(APP_ROOT, 'config')
+default_logs_path = join(APP_ROOT, 'log')
 
 
 class Insider:
@@ -86,36 +88,29 @@ class Insider:
 
 def get_insider(bin_path=default_bin_path, config_path=default_config_path, logs_path=default_logs_path, use_upnpc_mock=False):
 
-    script_path = os.path.join(bin_path, 'insider')
-    insider_config_path = os.path.join(config_path, 'insider.cfg')
-    cron_log_path = os.path.join(logs_path, 'insider-cron.log')
+    data_root = get_app_data_root('platform')
 
-    insider_config = InsiderConfig(insider_config_path)
-
-    domain_config_path = os.path.join(config_path, 'domain.json')
-    services_config_path = os.path.join(config_path, 'services.json')
-    port_config_path = os.path.join(config_path, 'ports.json')
+    redirect_config = RedirectConfig(join(data_root, 'redirect.cfg'))
+    insider_config = InsiderConfig(join(config_path, 'insider.cfg'), redirect_config)
 
     local_ip = Facade().local_ip()
 
-    port_config = PortConfig(port_config_path)
+    mapper = port_mapper.PortMapper(
+        PortConfig(join(data_root, 'ports.json')),
+        upnpc.Upnpc(local_ip))
 
-    if use_upnpc_mock or insider_config.is_upnpc_mock():
-        upnpclient = upnpc_mock.Upnpc()
-    else:
-        upnpclient = upnpc.Upnpc(local_ip)
-
-    mapper = port_mapper.PortMapper(port_config, upnpclient)
-    domain_config = config.DomainConfig(domain_config_path)
-    service_config = ServiceConfig(services_config_path)
+    service_config = ServiceConfig(join(data_root, 'services.json'))
 
     dns_service = dns.Dns(
         insider_config,
-        domain_config,
+        config.DomainConfig(join(data_root, 'domain.json')),
         service_config,
         mapper,
         local_ip)
 
-    cron_service = cron.Cron(script_path, cron_log_path, insider_config.get_cron_period_mins())
+    cron_service = cron.Cron(
+        join(bin_path, 'insider'),
+        join(logs_path, 'insider-cron.log'),
+        insider_config.get_cron_period_mins())
 
     return Insider(mapper, dns_service, cron_service, insider_config, service_config)

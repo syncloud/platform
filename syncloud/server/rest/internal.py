@@ -33,16 +33,32 @@ def id():
 
 @app.route("/server/rest/activate", methods=["POST"])
 def activate():
-    # TODO: validation
-    get_server().activate(
-        request.form['redirect_email'],
-        request.form['redirect_password'],
-        request.form['user_domain'],
-        request.form['device_user'],
-        request.form['device_password'],
 
+    # TODO: validation
+
+    api_url = None
+    if 'api-url' in request.form:
+        api_url = request.form['api-url']
+
+    domain = None
+    if 'domain' in request.form:
+        domain = request.form['domain']
+
+    release = None
+    if 'release' in request.form:
+        release = request.form['release']
+
+    get_server().activate(
+        request.form['redirect-email'],
+        request.form['redirect-password'],
+        request.form['redirect-domain'],
+        request.form['name'],
+        request.form['password'],
+        api_url,
+        domain,
+        release
     )
-    return jsonify(success=True, message='', data=convertible.to_dict(Facade().id())), 200
+    return jsonify(success=True, message='', data='OK'), 200
 
 @app.errorhandler(Exception)
 def handle_exception(error):

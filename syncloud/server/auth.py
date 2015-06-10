@@ -5,6 +5,7 @@ from os.path import join
 import tempfile
 from syncloud.app import util
 from syncloud.app.logger import get_logger
+from syncloud.systemd.systemctl import stop_service, start_service
 from syncloud.tools.facade import Facade
 from syncloud.tools.service import Service
 from syncloud.app import runner
@@ -22,13 +23,13 @@ class Auth:
 
     def reset(self, full_domain, user, password):
 
-        self.service.stop('slapd')
+        stop_service('platform-openldap')
 
-        files = glob.glob('/var/lib/ldap/*')
+        files = glob.glob('/opt/app/platform/openldap/var/openldap-data/*')
         for f in files:
             os.remove(f)
 
-        self.service.start('slapd')
+        start_service('platform-openldap')
 
         dn = to_ldap_dc(full_domain)
 
@@ -38,7 +39,9 @@ class Auth:
             'dn': dn,
             'password': secret
         })
-        runner.call('ldapmodify -Y EXTERNAL -H ldapi:/// -f {0}'.format(filename), self.logger, shell=True)
+        exit_code = runner.call('/opt/app/platform/openldap/bin/ldapmodify -Y EXTERNAL -H ldapi:/// -f {0}'.format(filename), self.logger, shell=True)
+        if not exit_code == 0:
+            raise Exception("Non zero exit code: {0}".format(exit_code))
 
         fd, filename = tempfile.mkstemp()
         util.transform_file(self.init_ldif, filename, {
@@ -46,8 +49,9 @@ class Auth:
             'user': user,
             'password': secret
         })
-        runner.call('ldapadd -Y EXTERNAL -H ldapi:/// -f {0}'.format(filename), self.logger, shell=True)
-
+        exit_code = runner.call('/opt/app/platform/openldap/bin/ldapadd -Y EXTERNAL -H ldapi:/// -f {0}'.format(filename), self.logger, shell=True)
+        if not exit_code == 0:
+            raise Exception("Non zero exit code: {0}".format(exit_code))
 
 def to_ldap_dc(full_domain):
     return 'dc=' + ',dc='.join(full_domain.split('.'))

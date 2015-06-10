@@ -1,6 +1,7 @@
 import os
 from os.path import isfile
 from subprocess import check_output
+import pwd
 from syncloud.app import logger
 from syncloud.config.config import PlatformConfig
 from syncloud.sam.manager import get_sam
@@ -13,7 +14,7 @@ class Installer:
         self.log = logger.get_logger('sam.installer')
         self.sam = get_sam()
 
-    def install(self, app_id, from_file=None, apps_root='/opt/app'):
+    def install(self, app_id, from_file=None, owner=None, owner_home=None, apps_root='/opt/app'):
 
         if not from_file:
             archive = '{0}.tar.gz'.format(app_id)
@@ -34,3 +35,14 @@ class Installer:
 
         self.log.info("extracting {0}".format(filename))
         tarfile.open(filename).extractall(apps_root)
+        if owner:
+            try:
+                pwd.getpwnam(owner)
+            except KeyError:
+                if owner_home:
+                    owner_home = '--home {0}'.format(owner_home)
+                else:
+                    owner_home = ''
+                self.log.info(check_output('/usr/sbin/useradd -r -s /bin/false {0} {1}'.format(owner, owner_home), shell=True))
+            self.log.info(check_output('chown -R {0}. {1}/{2}'.format(owner, apps_root, app_id), shell=True))
+

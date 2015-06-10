@@ -5,7 +5,7 @@ After=udisk.service
 
 [Service]
 User=www-data
-ExecStart=/usr/bin/udisks-glue --config /usr/local/syncloud-image-boot/config/udisks-glue.conf
+ExecStart=/usr/bin/udisks-glue --config /opt/app/platform/config/udisks/udisks-glue.conf
 RemainAfterExit=yes
 
 [Install]

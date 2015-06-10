@@ -37,7 +37,10 @@ class ServerFacade:
 
         full_domain = "{0}.{1}".format(user_domain, domain)
         # apache_ports = self.apache.activate(full_domain)
-        self.insider.add_service("server", "http", "server", 80, None)
+        try:
+            self.insider.add_service("server", "http", "server", 80, None)
+        except Exception, e:
+            self.logger.info('upnp is not available ' + e.message)
 
         # self.logger.info("reconfiguring installed apps")
         # self.sam.reconfigure_installed_apps()

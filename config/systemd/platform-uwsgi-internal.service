@@ -3,6 +3,7 @@ Description=uWSGI Internal
 After=syslog.target
 
 [Service]
+;User=platform
 ExecStart=/opt/app/platform/uwsgi/bin/uwsgi --ini /opt/app/platform/config/uwsgi/internal.ini
 Restart=always
 KillSignal=SIGQUIT

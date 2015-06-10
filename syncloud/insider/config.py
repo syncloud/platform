@@ -80,11 +80,11 @@ class RedirectConfig:
 
 class InsiderConfig:
 
-    def __init__(self, filename):
+    def __init__(self, filename, redirect_config):
         self.parser = ConfigParser()
         self.parser.read(filename)
         self.filename = filename
-        self.redirect_config = RedirectConfig(join(dirname(filename), 'redirect.cfg'))
+        self.redirect_config = redirect_config
         self.logger = logger.get_logger('insider.InsiderConfig')
 
     def _save(self):

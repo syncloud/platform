@@ -1,12 +1,9 @@
 import logging
 from os.path import dirname
+
 import requests
 import pytest
-from subprocess import check_output
-from syncloud.sam.platform_installer import PlatformInstaller
-from syncloud.server.serverfacade import get_server
-from syncloud.insider.facade import get_insider
-from syncloud.sam.pip import Pip
+
 from syncloud.app import logger
 
 DIR = dirname(__file__)
@@ -16,9 +13,15 @@ def activate_device(auth):
 
     logger.init(logging.DEBUG, True)
 
-    server = get_server(insider=get_insider(use_upnpc_mock=True))
+    # server = get_server(insider=get_insider(use_upnpc_mock=True))
     email, password = auth
-    server.activate(email, password, 'teamcity', 'user', 'password', 'http://api.syncloud.info:81', 'syncloud.info')
+
+    # server.activate(email, password, 'teamcity', 'user', 'password', 'http://api.syncloud.info:81', 'syncloud.info')
+    response = requests.post('http://localhost:81/server/rest/activate',
+                             data={'redirect-email': email, 'redirect-password': password,
+                                   'redirect-domain': 'teamcity', 'name': 'user', 'password': 'password',
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
+    assert response.status_code == 200
 
 def test_public_web():
     session = requests.session()

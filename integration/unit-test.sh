@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )"  && pwd )
+APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )"  && cd .. && pwd )
 cd ${APP_DIR}
 
 echo "insalling test dependencies"
