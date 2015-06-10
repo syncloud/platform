@@ -86,18 +86,24 @@ class Insider:
         return self.dns.endpoints()
 
 
-def get_insider(bin_path=default_bin_path, config_path=default_config_path, logs_path=default_logs_path, use_upnpc_mock=False):
+def get_insider(bin_path=default_bin_path, config_path=default_config_path, logs_path=default_logs_path, use_upnpc_mock=False, data_root=None):
 
-    data_root = get_app_data_root('platform')
+    if not data_root:
+        data_root = get_app_data_root('platform')
 
     redirect_config = RedirectConfig(join(data_root, 'redirect.cfg'))
     insider_config = InsiderConfig(join(config_path, 'insider.cfg'), redirect_config)
 
     local_ip = Facade().local_ip()
 
+    if use_upnpc_mock or insider_config.is_upnpc_mock():
+        upnpclient = upnpc_mock.Upnpc()
+    else:
+        upnpclient = upnpc.Upnpc(local_ip)
+
     mapper = port_mapper.PortMapper(
         PortConfig(join(data_root, 'ports.json')),
-        upnpc.Upnpc(local_ip))
+        upnpclient)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
