@@ -27,7 +27,7 @@ fi
 
 if ! jekyll -v; then
   echo "installing jekyll"
-  apt-get install ruby ruby-dev make gcc nodejs
+  apt-get -y install ruby ruby-dev make gcc nodejs
   gem install jekyll --no-rdoc --no-ri
 fi
 
@@ -43,7 +43,6 @@ jekyll build
 cd ..
 cp -r www build/${NAME}
 cp -r socket build/${NAME}
-chown -R ${USER}. build/${NAME}/socket
 
 echo "extracting nginx"
 tar xzf nginx/nginx.tar.gz -C build/${NAME}
