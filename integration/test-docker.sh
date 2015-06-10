@@ -14,7 +14,11 @@ fi
 apt-get install sshpass
 #ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 
-sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/unit-test.sh"
+if [[ -n "$TEAMCITY_VERSION" ]]; then
+    TC="export TEAMCITY_VERSION=\"$TEAMCITY_VERSION\" ; "
+fi
+
+sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "$TC /test/integration/unit-test.sh"
 sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/pip-install.sh"
 sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/binary-install.py"
-sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "export TEAMCITY_VERSION=\"$TEAMCITY_VERSION\" ;py.test -s /test/integration/verify.py --email=$1 --password=$2"
+sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "$TC py.test -s /test/integration/verify.py --email=$1 --password=$2"
