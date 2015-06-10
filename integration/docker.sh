@@ -50,4 +50,7 @@ tar -C /tmp/rootfs -c . | docker import - syncloud
 echo "starting rootfs"
 docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
 
+echo "sleeping for services to start"
 sleep 5
+
+ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222

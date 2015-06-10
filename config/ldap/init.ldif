@@ -1,10 +1,10 @@
-dn: ${dn}
+dn: dc=syncloud,dc=org
 objectClass: dcObject
 objectClass: organizationalUnit
 ou: syncloud
 
 # administrator
-dn:                    cn=admin,${dn}
+dn:                    cn=admin,dc=syncloud,dc=org
 objectClass:           simpleSecurityObject
 objectClass:           organizationalRole
 cn:                    admin
@@ -12,14 +12,14 @@ description:           Administrator
 userPassword:          ${password}
 
 # Subtree for Users
-dn:                    ou=users,${dn}
+dn:                    ou=users,dc=syncloud,dc=org
 ou:                    Users
 description:           Users
 objectClass:           organizationalUnit
 objectClass:           top
 
 # administrator
-dn:                    cn=${user},ou=users,${dn}
+dn:                    cn=${user},ou=users,dc=syncloud,dc=org
 objectClass:           simpleSecurityObject
 objectclass:           Person
 cn:                    ${user}
@@ -29,7 +29,7 @@ userPassword:          ${password}
 
 
 # Subtree for Groups
-dn:                    ou=groups,${dn}
+dn:                    ou=groups,dc=syncloud,dc=org
 ou:                    Groups
 description:           Groups
 objectClass:           organizationalUnit

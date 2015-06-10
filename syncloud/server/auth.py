@@ -3,25 +3,27 @@ import hashlib
 import os
 from os.path import join
 import tempfile
+from subprocess import check_output
+
+import ldap
+
 from syncloud.app import util
 from syncloud.app.logger import get_logger
+from syncloud.config.config import PlatformConfig
 from syncloud.systemd.systemctl import stop_service, start_service
-from syncloud.tools.facade import Facade
-from syncloud.tools.service import Service
-from syncloud.app import runner
-import ldap
+from syncloud.tools import app
 
 
 class Auth:
     def __init__(self):
         self.logger = get_logger('ldap')
-        self.service = Service()
-        tools_facade = Facade()
-        config_dir = join(tools_facade.usr_local_dir(), 'syncloud', 'ldap', 'config')
-        self.rootdn_ldif = join(config_dir, 'rootdn.ldif')
-        self.init_ldif = join(config_dir, 'init.ldif')
+        self.config = PlatformConfig()
 
-    def reset(self, full_domain, user, password):
+    def reset(self, user, password):
+
+        platform_user = 'platform'
+        data_dir = app.get_app_data_root('platform', platform_user)
+        user_conf_dir = app.create_data_dir(data_dir, 'slapd.d', platform_user, remove_existing=True)
 
         stop_service('platform-openldap')
 
@@ -29,38 +31,32 @@ class Auth:
         for f in files:
             os.remove(f)
 
+        init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
+        ldap_root = '{0}/openldap'.format(self.config.app_dir())
+
+        check_output(
+            '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(ldap_root, user_conf_dir, init_script), shell=True)
+
+        check_output('chown -R {0}. {1}'.format(platform_user, user_conf_dir), shell=True)
+
         start_service('platform-openldap')
 
-        dn = to_ldap_dc(full_domain)
-
         fd, filename = tempfile.mkstemp()
-        secret = make_secret(password)
-        util.transform_file(self.rootdn_ldif, filename, {
-            'dn': dn,
-            'password': secret
-        })
-        exit_code = runner.call('/opt/app/platform/openldap/bin/ldapmodify -Y EXTERNAL -H ldapi:/// -f {0}'.format(filename), self.logger, shell=True)
-        if not exit_code == 0:
-            raise Exception("Non zero exit code: {0}".format(exit_code))
-
-        fd, filename = tempfile.mkstemp()
-        util.transform_file(self.init_ldif, filename, {
-            'dn': dn,
+        util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
             'user': user,
-            'password': secret
+            'password': make_secret(password)
         })
-        exit_code = runner.call('/opt/app/platform/openldap/bin/ldapadd -Y EXTERNAL -H ldapi:/// -f {0}'.format(filename), self.logger, shell=True)
-        if not exit_code == 0:
-            raise Exception("Non zero exit code: {0}".format(exit_code))
+
+        check_output('{0}/bin/ldapadd -Y EXTERNAL -H ldapi:/// -f {1}'.format(ldap_root, filename), shell=True)
 
 def to_ldap_dc(full_domain):
     return 'dc=' + ',dc='.join(full_domain.split('.'))
 
 
-def authenticate(name, password, full_domain_name):
+def authenticate(name, password):
     conn = ldap.initialize('ldap://localhost:389')
     try:
-        conn.simple_bind_s('cn={0},ou=users,{1}'.format(name, to_ldap_dc(full_domain_name)), password)
+        conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
     except Exception, e:
         conn.unbind()
         raise e

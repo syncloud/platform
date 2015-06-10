@@ -74,7 +74,7 @@ def login():
 
     if 'name' in request.form and 'password' in request.form:
         try:
-            authenticate(request.form['name'], request.form['password'], get_insider().full_name())
+            authenticate(request.form['name'], request.form['password'])
             user_flask = UserFlask(User(request.form['name']))
             login_user(user_flask, remember=False)
             return 'User logged in', 200

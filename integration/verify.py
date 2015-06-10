@@ -13,15 +13,22 @@ def activate_device(auth):
 
     logger.init(logging.DEBUG, True)
 
-    # server = get_server(insider=get_insider(use_upnpc_mock=True))
     email, password = auth
 
-    # server.activate(email, password, 'teamcity', 'user', 'password', 'http://api.syncloud.info:81', 'syncloud.info')
+    # activate
+    response = requests.post('http://localhost:81/server/rest/activate',
+                             data={'redirect-email': email, 'redirect-password': password,
+                                   'redirect-domain': 'teamcity', 'name': 'user1', 'password': 'password1',
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
+    assert response.status_code == 200
+
+    # re-activate
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': 'teamcity', 'name': 'user', 'password': 'password',
                                    'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
     assert response.status_code == 200
+
 
 def test_public_web():
     session = requests.session()

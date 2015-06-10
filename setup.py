@@ -61,9 +61,6 @@ setup(
             'config/systemd/syncloud-resize-sd.service',
             'config/systemd/cpu-frequency.service',
             'config/systemd/insider-sync.service']),
-        ('syncloud/ldap/config', [
-            'config/ldap/init.ldif',
-            'config/ldap/rootdn.ldif']),
         ('sam/config', ['config/sam.cfg'])
     ],
     install_requires=requirements,

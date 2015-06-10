@@ -19,16 +19,8 @@ def remove_service(service):
 
     log = logger.get_logger('systemctl')
 
-    try:
-        log.info('checking {0}'.format(service))
-        check_output('systemctl is-active {0}'.format(service), shell=True)
-        log.info('stopping {0}'.format(service))
-        stop_service(service)
-    except CalledProcessError, e:
-        result = e.output.strip()
-        log.info("{0}: {1}".format(service, result))
-        if result == "unknown":
-            return
+    if "unknown" == stop_service(service):
+        return
 
     check_output('systemctl disable {0}'.format(service), shell=True)
     os.remove(__systemd_service_file(service))
@@ -72,10 +64,18 @@ def start_service(service):
         raise e
 
 def stop_service(service):
-
     log = logger.get_logger('systemctl')
-    log.info('stopping {0}'.format(service))
-    check_output('systemctl stop {0}'.format(service), shell=True)
+
+    try:
+        log.info('checking {0}'.format(service))
+        result = check_output('systemctl is-active {0}'.format(service), shell=True).strip()
+        log.info('stopping {0}'.format(service))
+        check_output('systemctl stop {0}'.format(service), shell=True)
+    except CalledProcessError, e:
+        result = e.output.strip()
+
+    log.info("{0}: {1}".format(service, result))
+    return result
 
 def __systemd_service_file(service):
     return join(SYSTEMD_DIR, "{0}.service".format(service))

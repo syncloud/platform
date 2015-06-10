@@ -1,3 +1,4 @@
+from syncloud.config.config import PlatformConfig
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.server.model import Credentials
@@ -20,8 +21,14 @@ class ServerFacade:
 
     def activate(self,
                  redirect_email, redirect_password, user_domain,
-                 device_user='syncloud', device_password='syncloud',
-                 api_url='http://api.syncloud.it', domain='syncloud.it', release=None):
+                 device_user, device_password,
+                 api_url=None, domain=None, release=None):
+
+        if not api_url:
+            api_url = 'http://api.syncloud.it'
+
+        if not domain:
+            domain = 'syncloud.it'
 
         # self.reconfigure()
 
@@ -35,8 +42,6 @@ class ServerFacade:
         self.insider.set_redirect_info(domain, api_url)
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 
-        full_domain = "{0}.{1}".format(user_domain, domain)
-        # apache_ports = self.apache.activate(full_domain)
         try:
             self.insider.add_service("server", "http", "server", 80, None)
         except Exception, e:
@@ -46,7 +51,7 @@ class ServerFacade:
         # self.sam.reconfigure_installed_apps()
 
         self.logger.info("activating ldap")
-        self.auth.reset(full_domain, device_user, device_password)
+        self.auth.reset(device_user, device_password)
 
         credentials = _get_credentials(self.remote_access.enable())
         self.logger.info("activation completed")

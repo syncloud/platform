@@ -16,6 +16,12 @@ class PlatformConfig:
     def www_root(self):
         return self.__get('www_root')
 
+    def app_dir(self):
+        return self.__get('app_dir')
+
+    def config_dir(self):
+        return self.__get('config_dir')
+
     def nginx_webapps(self):
         return self.__get('nginx_webapps')
 
