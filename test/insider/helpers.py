@@ -5,7 +5,7 @@ import os
 from syncloud.insider.port_config import PortConfig
 from syncloud.insider.service_config import ServiceConfig
 
-from syncloud.insider.config import DomainConfig, InsiderConfig
+from syncloud.insider.config import DomainConfig, InsiderConfig, RedirectConfig
 
 
 def temp_file(text=''):
@@ -47,8 +47,7 @@ insider_config = open(insider_config_file).read()
 
 
 def get_insider_config(domain, api_url):
-    filename = temp_file(insider_config)
-    config = InsiderConfig(filename)
+    config = InsiderConfig(temp_file(insider_config), RedirectConfig(temp_file()))
     config.update(domain, api_url)
     return config
 

@@ -16,9 +16,6 @@ class PlatformInstaller:
         data_dir = app.get_app_data_root('platform', 'platform')
         app.create_data_dir(data_dir, 'webapps', 'platform')
 
-        # TODO: Temporarily until ldap-less rootfs arrives
-        stop_service('slapd')
-
         add_service('platform', 'platform-uwsgi-internal')
         add_service('platform', 'platform-uwsgi-public')
         add_service('platform', 'platform-nginx')
