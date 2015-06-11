@@ -3,10 +3,10 @@ from os.path import isfile
 from subprocess import check_output
 import pwd
 from syncloud.app import logger
-from syncloud.config.config import PlatformConfig
 from syncloud.sam.manager import get_sam
 import wget
 import tarfile
+import massedit
 
 
 class Installer:
@@ -15,6 +15,12 @@ class Installer:
         self.sam = get_sam()
 
     def install(self, app_id, from_file=None, owner=None, owner_home=None, apps_root='/opt/app'):
+
+        lang = os.environ['LANG']
+        if lang not in check_output(['locale', '-a']):
+            print("generating locale: {0}".format(lang))
+            fix_locale_gen(lang)
+            check_output('locale-gen')
 
         if not from_file:
             archive = '{0}.tar.gz'.format(app_id)
@@ -46,3 +52,6 @@ class Installer:
                 self.log.info(check_output('/usr/sbin/useradd -r -s /bin/false {0} {1}'.format(owner, owner_home), shell=True))
             self.log.info(check_output('chown -R {0}. {1}/{2}'.format(owner, apps_root, app_id), shell=True))
 
+
+def fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
+    massedit.edit_files([locale_gen], ["re.sub('# {0}', '{0}', line)".format(lang)], dry_run=False)
