@@ -13,7 +13,3 @@ logger.init(logging.DEBUG, True)
 
 print("installing local binary build")
 PlatformInstaller().install(join(APP_DIR, 'platform.tar.gz'))
-Pip(None).log_version('syncloud-platform')
-
-# persist upnp mock setting
-get_insider().insider_config.set_upnpc_mock(True)
