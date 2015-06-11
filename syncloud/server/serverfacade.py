@@ -1,8 +1,6 @@
-from syncloud.config.config import PlatformConfig
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.server.model import Credentials
-from syncloud.apache.facade import ApacheFacade
 from syncloud.sam.manager import get_sam
 from syncloud.remote.remoteaccess import RemoteAccess
 from syncloud.insider import facade
@@ -10,11 +8,10 @@ from syncloud.app import logger
 
 
 class ServerFacade:
-    def __init__(self, sam, insider, remote_access, apache):
+    def __init__(self, sam, insider, remote_access):
         self.sam = sam
         self.insider = insider
         self.remote_access = remote_access
-        self.apache = apache
         self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
         self.auth = Auth()
@@ -80,5 +77,4 @@ def get_server(insider=None):
     if insider is None:
         insider = facade.get_insider()
     remote_access = RemoteAccess(insider)
-    apache = ApacheFacade()
-    return ServerFacade(sam, insider, remote_access, apache)
+    return ServerFacade(sam, insider, remote_access)

@@ -45,7 +45,7 @@ setup(
         'bin/syncloud_ssh_keys_generate',
         'bin/cpu_frequency'
     ],
-    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.apache', 'syncloud.server',
+    packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.server',
               'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
               'syncloud.server.rest', 'syncloud.config'],
     namespace_packages=['syncloud'],

@@ -1,8 +1,9 @@
 import logging
+
 from mock import MagicMock
 import pytest
+
 from syncloud.app import logger
-from syncloud.server.serverfacade import ServerFacade
 
 logger.init(logging.DEBUG, True)
 
