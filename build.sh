@@ -5,25 +5,37 @@ cd ${DIR}
 
 NAME=platform
 USER=platform
+ARCH=x86_64
 
-if [ ! -f uwsgi/uwsgi.tar.gz ]; then
-  ./uwsgi/build.sh
+if [[ -n "$1" ]]; then
+    ARCH=$1
+fi
+
+if [ ! -d 3rdparty ]; then
+  mkdir 3rdparty
+fi
+
+cd 3rdparty
+
+if [ ! -f uwsgi.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi.tar.gz
 else
   echo "skipping uwsgi build"
 fi
 
-if [ ! -f nginx/nginx.tar.gz ]; then
-  ./nginx/build.sh
+if [ ! -f nginx.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_nginx_${ARCH}/lastSuccessful/nginx.tar.gz
 else
   echo "skipping nginx build"
 fi
 
-if [ ! -f openldap/openldap.tar.gz ]; then
-  echo "no openldap build, get one from 3rdparty"
-  exit 1
+if [ ! -f openldap.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openldap_${ARCH}/lastSuccessful/openldap.tar.gz
 else
   echo "skipping openldap build"
 fi
+
+cd ..
 
 if ! jekyll -v; then
   echo "installing jekyll"
@@ -45,11 +57,11 @@ cp -r www build/${NAME}
 cp -r socket build/${NAME}
 
 echo "extracting nginx"
-tar xzf nginx/nginx.tar.gz -C build/${NAME}
+tar xzf 3rdparty/nginx.tar.gz -C build/${NAME}
 echo "extracting uwsgi"
-tar xzf uwsgi/uwsgi.tar.gz -C build/${NAME}
+tar xzf 3rdparty/uwsgi.tar.gz -C build/${NAME}
 echo "extracting openldap"
-tar xzf openldap/openldap.tar.gz -C build/${NAME}
+tar xzf 3rdparty/openldap.tar.gz -C build/${NAME}
 rm -rf ${NAME}.tar.gz
 echo "zipping"
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}

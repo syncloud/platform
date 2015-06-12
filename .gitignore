@@ -9,3 +9,4 @@ build
 rootfs*
 install
 _site
+3rdparty
