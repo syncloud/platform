@@ -13,7 +13,7 @@ ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 cd 3rdparty
 if [ ! -f rootfs-${ARCH}.tar.gz ]; then
   wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_$(dpkg-architecture -q DEB_HOST_GNU_CPU)/lastSuccessful/rootfs.tar.gz\
-  -O rootfs-${ARCH}.tar.gz
+  -O rootfs-${ARCH}.tar.gz --progress dot:giga
 else
   echo "skipping rootfs"
 fi

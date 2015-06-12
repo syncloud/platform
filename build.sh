@@ -21,21 +21,21 @@ cd 3rdparty
 
 if [ ! -f uwsgi-${ARCH}.tar.gz ]; then
   wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi.tar.gz\
-  -O uwsgi-${ARCH}.tar.gz
+  -O uwsgi-${ARCH}.tar.gz --progress dot:giga
 else
   echo "skipping uwsgi build"
 fi
 
 if [ ! -f nginx-${ARCH}.tar.gz ]; then
   wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_nginx_${ARCH}/lastSuccessful/nginx.tar.gz\
-  -O nginx-${ARCH}.tar.gz
+  -O nginx-${ARCH}.tar.gz --progress dot:giga
 else
   echo "skipping nginx build"
 fi
 
 if [ ! -f openldap-${ARCH}.tar.gz ]; then
   wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openldap_${ARCH}/lastSuccessful/openldap.tar.gz\
-  -O openldap-${ARCH}.tar.gz
+  -O openldap-${ARCH}.tar.gz --progress dot:giga
 else
   echo "skipping openldap build"
 fi
