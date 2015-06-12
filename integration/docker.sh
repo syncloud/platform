@@ -12,7 +12,7 @@ ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 
 cd 3rdparty
 if [ ! -f rootfs-${ARCH}.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_$(dpkg-architecture -q DEB_HOST_GNU_CPU)/lastSuccessful/rootfs.tar.gz\
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_${ARCH}/lastSuccessful/rootfs.tar.gz\
   -O rootfs-${ARCH}.tar.gz --progress dot:giga
 else
   echo "skipping rootfs"
@@ -48,7 +48,7 @@ sed -i 's/Port 22/Port 2222/g' /tmp/rootfs/etc/ssh/sshd_config
 mkdir /tmp/rootfs/test
 
 echo "copying all files to rootfs"
-rsync -a ${APP_DIR}/ /tmp/rootfs/test --exclude=/rootfs* --exclude=/dist --exclude=/build --exclude=/nginx --exclude=/uwsgi
+rsync -a ${APP_DIR}/ /tmp/rootfs/test --exclude=/dist --exclude=/build --exclude=/3rdparty
 
 echo "importing rootfs"
 tar -C /tmp/rootfs -c . | docker import - syncloud

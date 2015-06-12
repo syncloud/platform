@@ -13,7 +13,6 @@ if [[ -n "$1" ]]; then
     ARCH=$1
 fi
 
-
 function 3rdparty {
   APP=$1
   if [ ! -d 3rdparty ]; then
