@@ -3,6 +3,8 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
+export TMPDIR=/tmp
+export TMP=/tmp
 NAME=platform
 USER=platform
 ARCH=x86_64
