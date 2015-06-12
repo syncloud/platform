@@ -13,34 +13,25 @@ if [[ -n "$1" ]]; then
     ARCH=$1
 fi
 
-if [ ! -d 3rdparty ]; then
-  mkdir 3rdparty
-fi
 
-cd 3rdparty
+function 3rdparty {
+  APP=$1
+  if [ ! -d 3rdparty ]; then
+    mkdir 3rdparty
+  fi
+  cd 3rdparty
+  if [ ! -f ${APP}-${ARCH}.tar.gz ]; then
+    wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_${APP}_${ARCH}/lastSuccessful/${APP}.tar.gz\
+    -O ${APP}-${ARCH}.tar.gz --progress dot:giga
+  else
+    echo "skipping ${APP}"
+  fi
+  cd ..
+}
 
-if [ ! -f uwsgi-${ARCH}.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi.tar.gz\
-  -O uwsgi-${ARCH}.tar.gz --progress dot:giga
-else
-  echo "skipping uwsgi build"
-fi
-
-if [ ! -f nginx-${ARCH}.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_nginx_${ARCH}/lastSuccessful/nginx.tar.gz\
-  -O nginx-${ARCH}.tar.gz --progress dot:giga
-else
-  echo "skipping nginx build"
-fi
-
-if [ ! -f openldap-${ARCH}.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openldap_${ARCH}/lastSuccessful/openldap.tar.gz\
-  -O openldap-${ARCH}.tar.gz --progress dot:giga
-else
-  echo "skipping openldap build"
-fi
-
-cd ..
+3rdparty uwsgi
+3rdparty nginx
+3rdparty openldap
 
 if ! jekyll -v; then
   echo "installing jekyll"
