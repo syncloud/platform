@@ -19,20 +19,23 @@ fi
 
 cd 3rdparty
 
-if [ ! -f uwsgi.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi.tar.gz
+if [ ! -f uwsgi-${ARCH}.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi.tar.gz\
+  -O uwsgi-${ARCH}.tar.gz
 else
   echo "skipping uwsgi build"
 fi
 
-if [ ! -f nginx.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_nginx_${ARCH}/lastSuccessful/nginx.tar.gz
+if [ ! -f nginx-${ARCH}.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_nginx_${ARCH}/lastSuccessful/nginx.tar.gz\
+  -O nginx-${ARCH}.tar.gz
 else
   echo "skipping nginx build"
 fi
 
-if [ ! -f openldap.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openldap_${ARCH}/lastSuccessful/openldap.tar.gz
+if [ ! -f openldap-${ARCH}.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openldap_${ARCH}/lastSuccessful/openldap.tar.gz\
+  -O openldap-${ARCH}.tar.gz
 else
   echo "skipping openldap build"
 fi
