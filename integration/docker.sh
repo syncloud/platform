@@ -8,9 +8,12 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+
 cd 3rdparty
-if [ ! -f rootfs.tar.gz ]; then
-  wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/lastSuccessful/rootfs.tar.gz
+if [ ! -f rootfs-${ARCH}.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_$(dpkg-architecture -q DEB_HOST_GNU_CPU)/lastSuccessful/rootfs.tar.gz\
+  -O rootfs-${ARCH}.tar.gz
 else
   echo "skipping rootfs"
 fi
@@ -38,7 +41,7 @@ function cleanup {
 cleanup
 
 echo "extracting rootfs"
-tar xzf ${APP_DIR}/3rdparty/rootfs.tar.gz -C /tmp
+tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C /tmp
 
 #echo "rootfs version: $(<rootfs/version)"
 sed -i 's/Port 22/Port 2222/g' /tmp/rootfs/etc/ssh/sshd_config
