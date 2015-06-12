@@ -62,11 +62,11 @@ cp -r www build/${NAME}
 cp -r socket build/${NAME}
 
 echo "extracting nginx"
-tar xzf 3rdparty/nginx.tar.gz -C build/${NAME}
+tar xzf 3rdparty/nginx-${ARCH}.tar.gz -C build/${NAME}
 echo "extracting uwsgi"
-tar xzf 3rdparty/uwsgi.tar.gz -C build/${NAME}
+tar xzf 3rdparty/uwsgi-${ARCH}.tar.gz -C build/${NAME}
 echo "extracting openldap"
-tar xzf 3rdparty/openldap.tar.gz -C build/${NAME}
+tar xzf 3rdparty/openldap-${ARCH}.tar.gz -C build/${NAME}
 rm -rf ${NAME}.tar.gz
 echo "zipping"
 tar cpzf ${NAME}.tar.gz -C build/ ${NAME}
