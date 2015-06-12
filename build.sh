@@ -7,8 +7,8 @@ export TMPDIR=/tmp
 export TMP=/tmp
 NAME=platform
 USER=platform
-ARCH=x86_64
 
+ARCH=x86_64
 if [[ -n "$1" ]]; then
     ARCH=$1
 fi

@@ -2,16 +2,19 @@
 
 
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
-
+cd ${APP_DIR}
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root" 1>&2
    exit 1
 fi
 
-if [ ! -f ${APP_DIR}/rootfs.tar.gz ]; then
-  echo "rootfs.tar.gz is not ready, run 'sudo ./bootstrap.sh'"
-  exit 1
+cd 3rdparty
+if [ ! -f rootfs.tar.gz ]; then
+  wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/lastSuccessful/rootfs.tar.gz
+else
+  echo "skipping rootfs"
 fi
+cd ..
 
 apt-get install docker.io
 service docker start
@@ -35,7 +38,7 @@ function cleanup {
 cleanup
 
 echo "extracting rootfs"
-tar xzf ${APP_DIR}/rootfs.tar.gz -C /tmp
+tar xzf ${APP_DIR}/3rdparty/rootfs.tar.gz -C /tmp
 
 #echo "rootfs version: $(<rootfs/version)"
 sed -i 's/Port 22/Port 2222/g' /tmp/rootfs/etc/ssh/sshd_config
@@ -51,6 +54,6 @@ echo "starting rootfs"
 docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
 
 echo "sleeping for services to start"
-sleep 5
+sleep 7
 
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
