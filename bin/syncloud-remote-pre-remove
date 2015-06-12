@@ -2,7 +2,7 @@
 import logging
 
 from syncloud.app import logger
-from syncloud.sam.platform_installer import PlatformInstaller
+from syncloud.installer.installer import PlatformInstaller
 
 if __name__ == '__main__':
     logger.init(logging.DEBUG, console=True, line_format='%(message)s')

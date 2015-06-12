@@ -47,7 +47,7 @@ setup(
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.remote', 'syncloud.server',
               'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
-              'syncloud.server.rest', 'syncloud.config'],
+              'syncloud.server.rest', 'syncloud.config', 'syncloud.installer'],
     namespace_packages=['syncloud'],
     data_files=[
         ('insider/config', ['config/insider.cfg']),
