@@ -24,12 +24,6 @@ def insider():
     return insider
 
 @pytest.fixture(scope="session")
-def remote():
-    remote = MagicMock()
-    remote.enable = MagicMock(return_value='key123')
-    return remote
-
-@pytest.fixture(scope="session")
 def apache():
     apache = MagicMock()
     apache.activate = MagicMock()

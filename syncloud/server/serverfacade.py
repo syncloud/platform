@@ -2,16 +2,14 @@ from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.server.model import Credentials
 from syncloud.sam.manager import get_sam
-from syncloud.remote.remoteaccess import RemoteAccess
 from syncloud.insider import facade
 from syncloud.app import logger
 
 
 class ServerFacade:
-    def __init__(self, sam, insider, remote_access):
+    def __init__(self, sam, insider):
         self.sam = sam
         self.insider = insider
-        self.remote_access = remote_access
         self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
         self.auth = Auth()
@@ -50,9 +48,9 @@ class ServerFacade:
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)
 
-        credentials = _get_credentials(self.remote_access.enable())
+        # credentials = _get_credentials(self.remote_access.enable())
         self.logger.info("activation completed")
-        return credentials
+        return 'cred'
 
     # def reconfigure(self):
     #     http_conf = join(self.tools.usr_local_dir(), 'syncloud-server', 'apache', 'syncloud-server-http.conf')
@@ -61,8 +59,8 @@ class ServerFacade:
     #     self.apache.add_https_site('server', https_conf)
     #     self.apache.restart()
 
-    def get_access(self):
-        return _get_credentials(self.remote_access.add_certificate())
+    # def get_access(self):
+    #     return _get_credentials(self.remote_access.add_certificate())
 
     def user_domain(self):
         return self.insider.user_domain()
@@ -76,5 +74,4 @@ def get_server(insider=None):
     sam = get_sam()
     if insider is None:
         insider = facade.get_insider()
-    remote_access = RemoteAccess(insider)
-    return ServerFacade(sam, insider, remote_access)
+    return ServerFacade(sam, insider)

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-BOOT_LOG=/var/log/syncloud_boot.log
 LOCAL_DATA=/home/www-data
 
 mkdir -p ${LOCAL_DATA}

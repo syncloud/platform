@@ -1,9 +1,7 @@
 from subprocess import check_output
 
-from syncloud.insider.facade import get_insider
-from syncloud.remote.remoteaccess import RemoteAccess
 from syncloud.sam.installer import Installer
-from syncloud.systemd.systemctl import add_service
+from syncloud.systemd.systemctl import add_service, remove_service
 from syncloud.tools import app
 
 
@@ -20,10 +18,11 @@ class PlatformInstaller:
         add_service('platform', 'platform-nginx')
         add_service('platform', 'platform-openldap', start=False)
 
-        check_output('syncloud_ssh_keys_generate', shell=True)
-
         check_output('syncloud-boot-installer', shell=True)
 
     def remove(self):
-        RemoteAccess(get_insider()).disable()
 
+        remove_service('platform-openldap')
+        remove_service('platform-nginx')
+        remove_service('platform-uwsgi-public')
+        remove_service('platform-uwsgi-internal')
