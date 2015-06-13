@@ -75,6 +75,14 @@ main_menu_item: menu_activate
 
 <script type="text/javascript">
 
+    function save_credentials(user, passwrod) {
+        console.log("saving credentials");
+        if (Android) {
+            console.log("Android: " + Android);
+            Android.saveCredentials(user, password);
+        }
+    }
+
     function reset_error() {
         $('#errors_placeholder').empty();
         $('#group-email').removeClass('has-error');
@@ -99,6 +107,22 @@ main_menu_item: menu_activate
     }
 
     $(document).ready(function () {
+
+        var uri = new URI();
+        var params = uri.query(true);
+
+        var redirect_email = params["redirect-email"];
+        if (redirect_email) {
+            $('#redirect-email').val(redirect_email);
+            $('#group-redirect-email').hide();
+        }
+
+        var redirect_password = params["redirect-password"];
+        if (redirect_password) {
+            $('#redirect-password').val(redirect_password);
+            $('#group-redirect-password').hide();
+        }
+
         $("#form-activate").submit(function (event) {
             event.preventDefault();
 
@@ -106,7 +130,8 @@ main_menu_item: menu_activate
             reset_error();
             var posting = $.post("/server/rest/activate", values)
                     .done(function (data) {
-                        window.location.href = "/";
+                        save_credentials($('#name').val(), $('#password').val());
+//                        window.location.href = "/";
                     })
                     .fail(function (xhr, textStatus, errorThrown) {
                         if (xhr.hasOwnProperty('responseJSON')) {

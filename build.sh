@@ -49,7 +49,6 @@ rm -rf _site
 jekyll build
 cd ..
 cp -r www build/${NAME}
-cp -r socket build/${NAME}
 
 echo "extracting nginx"
 tar xzf 3rdparty/nginx-${ARCH}.tar.gz -C build/${NAME}
