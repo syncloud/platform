@@ -75,11 +75,28 @@ main_menu_item: menu_activate
 
 <script type="text/javascript">
 
-    function save_credentials(user, passwrod) {
+    function auto_login(name, password) {
+        var url = (new URI())
+                .port(80)
+                .directory("server/rest")
+                .filename("login")
+                .query("");
+
+        console.log(url);
+        var form = $(
+                '<form action="' + url + '" method="post">' +
+                '<input type="text" name="name" value="' + name + '" />' +
+                '<input type="text" name="password" value="' + password + '" />' +
+                '</form>');
+        $('body').append(form);
+        form.submit();
+    }
+
+    function save_credentials(name, password) {
         console.log("saving credentials");
-        if (Android) {
+        if (typeof Android !== 'undefined') {
             console.log("Android: " + Android);
-            Android.saveCredentials(user, password);
+            Android.saveCredentials(name, password);
         }
     }
 
@@ -128,19 +145,22 @@ main_menu_item: menu_activate
 
             var values = $("#form-activate").serializeArray();
             reset_error();
-            var posting = $.post("/server/rest/activate", values)
+            $.post("/server/rest/activate", values)
                     .done(function (data) {
-                        save_credentials($('#name').val(), $('#password').val());
+                        var name = $('#name').val();
+                        var password = $('#password').val();
+                        save_credentials(name, password);
+                        auto_login(name, password);
 //                        window.location.href = "/";
-                    })
-                    .fail(function (xhr, textStatus, errorThrown) {
-                        if (xhr.hasOwnProperty('responseJSON')) {
-                            var error = xhr.responseJSON;
-                            show_error(error);
-                        } else {
-                            window.location.href = "/server/html/activate.html";
-                        }
-                    });
+                })
+                .fail(function (xhr, textStatus, errorThrown) {
+                    if (xhr.hasOwnProperty('responseJSON')) {
+                        var error = xhr.responseJSON;
+                        show_error(error);
+                    } else {
+                        window.location.href = "/server/html/activate.html";
+                    }
+                });
         });
     });
 </script>

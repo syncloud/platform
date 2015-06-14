@@ -1,6 +1,6 @@
 import traceback
 import convertible
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, session, redirect
 from os.path import dirname, join, abspath
 import sys
 
@@ -77,7 +77,8 @@ def login():
             authenticate(request.form['name'], request.form['password'])
             user_flask = UserFlask(User(request.form['name']))
             login_user(user_flask, remember=False)
-            return 'User logged in', 200
+            # next_url = request.get('next_url', '/')
+            return redirect("/")
         except Exception, e:
             traceback.print_exc(file=sys.stdout)
             return jsonify(message=e.message), 400
