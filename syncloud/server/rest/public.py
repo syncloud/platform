@@ -115,6 +115,8 @@ def site_list():
     else:
         endpoints = filter_websites(get_insider().endpoints())
 
+    endpoints.append(Endpoint(Service("store", "http", "type", "80", "image-ci"), 'localhost', 8181))
+
     return jsonify(sites=convertible.to_dict(map(Site, endpoints))), 200
 
 
