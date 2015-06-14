@@ -15,18 +15,22 @@ def activate_device(auth):
 
     email, password = auth
 
+    release = open('{0}/RELEASE'.format(DIR), 'r').read().strip()
+
     # activate
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': 'teamcity', 'name': 'user1', 'password': 'password1',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info',
+                                   'release': release})
     assert response.status_code == 200
 
     # re-activate
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': 'teamcity', 'name': 'user', 'password': 'password',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info',
+                                   'release': release})
     assert response.status_code == 200
 
 

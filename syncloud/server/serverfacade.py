@@ -1,6 +1,7 @@
+import uuid
+from syncloud.config.config import PlatformConfig
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
-from syncloud.server.model import Credentials
 from syncloud.sam.manager import get_sam
 from syncloud.insider import facade
 from syncloud.app import logger
@@ -30,9 +31,8 @@ class ServerFacade:
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}, {5}".format(
             redirect_email, user_domain, device_user, release, api_url, domain))
 
-        if release:
-            self.sam.update(release)
-            self.sam.upgrade_all()
+        self.sam.update(release)
+        # self.sam.upgrade_all()
 
         self.insider.set_redirect_info(domain, api_url)
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
@@ -47,6 +47,7 @@ class ServerFacade:
 
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)
+        PlatformConfig().set_web_secret_key(unicode(uuid.uuid4().hex))
 
         # credentials = _get_credentials(self.remote_access.enable())
         self.logger.info("activation completed")
@@ -64,10 +65,6 @@ class ServerFacade:
 
     def user_domain(self):
         return self.insider.user_domain()
-
-
-def _get_credentials(private_key):
-    return Credentials('root', 'syncloud', private_key)
 
 
 def get_server(insider=None):

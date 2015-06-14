@@ -1,8 +1,13 @@
 import traceback
-import convertible
-from flask import Flask, jsonify, send_from_directory, request, session, redirect
 from os.path import dirname, join, abspath
 import sys
+
+import convertible
+from flask import Flask, jsonify, send_from_directory, request, redirect
+
+from syncloud.sam.manager import get_sam
+from syncloud.sam.models import AppVersions
+from syncloud.server.model import app_from_sam_app, App
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
@@ -10,21 +15,20 @@ if __name__ == '__main__':
 
 from syncloud.config.config import PlatformConfig
 from syncloud.server.auth import authenticate
-from syncloud.insider.dns import Endpoint
-from syncloud.server.model import Site
 from syncloud.app import logger
-from syncloud.insider.config import Service, os
-from syncloud.insider.facade import get_insider
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
-    mock_sites = [
-        Endpoint(Service("image-ci", "http", "type", "80", "image-ci"), 'localhost', 8181),
-        Endpoint(Service("owncloud", "https", "type", "443", "owncloud"), 'localhost', 8282)]
+    mock_apps = [
+        App("image-ci", "image ci", 'image-ci'),
+        App("owncloud", "ownCloud", "owncloud")]
+    secret_key = '123223'
 else:
-    www_dir = PlatformConfig().www_root()
-    mock_sites = None
+    config = PlatformConfig()
+    www_dir = config.www_root()
+    mock_apps = None
+    secret_key = config.get_web_secret_key()
 
 html_prefix = '/server/html'
 rest_prefix = '/server/rest'
@@ -32,13 +36,13 @@ rest_prefix = '/server/rest'
 logger.init(console=True)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '123223'
+app.config['SECRET_KEY'] = secret_key
 login_manager = LoginManager()
 login_manager.login_view = "/server/html/login.html"
 login_manager.init_app(app)
 
 
-class User():
+class User:
     def __init__(self, name):
         self.name = name
 
@@ -107,17 +111,33 @@ def index():
     return static_file('index.html')
 
 
-@app.route(rest_prefix + "/sites", methods=["GET"])
+@app.route(rest_prefix + "/installed_apps", methods=["GET"])
 @login_required
-def site_list():
-    if mock_sites:
-        endpoints = mock_sites
+def installed_apps():
+    apps = [app_from_sam_app(app) for app in non_required_apps() if app.installed_version]
+
+    # TODO: Hack to add system apps, need to think about it
+    apps.append(App('store', 'App Store', 'server/html/store.html'))
+
+    return jsonify(apps=convertible.to_dict(apps)), 200
+
+@app.route(rest_prefix + "/available_apps", methods=["GET"])
+@login_required
+def available_apps():
+    apps = [app_from_sam_app(app) for app in non_required_apps()]
+    return jsonify(apps=convertible.to_dict(apps)), 200
+
+
+def non_required_apps():
+    if mock_apps:
+        apps = mock_apps
     else:
-        endpoints = filter_websites(get_insider().endpoints())
-
-    endpoints.append(Endpoint(Service("store", "http", "type", "80", "image-ci"), 'localhost', 8181))
-
-    return jsonify(sites=convertible.to_dict(map(Site, endpoints))), 200
+        apps = get_sam().list()
+        # TODO: pip-less sam should not prefix apps with 'syncloud-'
+        for app in apps:
+            app.app.id = app.app.id[9:]
+        apps = [app for app in apps if not app.app.required]
+    return apps
 
 
 @app.errorhandler(Exception)

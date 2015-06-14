@@ -6,30 +6,24 @@ main_menu_item: menu_apps
 ---
 
 <div class="container">
-    <div id="sites" class="form-horizontal"></div>
+    <div id="apps" class="form-horizontal"></div>
 </div>
 
-<style>
-/*.main-container {*/
-    /*margin-top: 10px;*/
-/*}*/
-</style>
-
 <!-- Create your template -->
-<script type="text/html" id='job-template'>
-    <%for (s=0; s < sites.length; s++) {
-       var site = sites[s]; %>
+<script type="text/html" id='app-template'>
+    <%for (s=0; s < apps.length; s++) {
+       var app = apps[s]; %>
 
     <% if (s % 2 == 0) { %>
     <div class="row">
     <% } %>
 
       <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
-          <div><a href="<%= site.url %>" ><img class="center-block" src="/server/html/images/<%= site.name %>-128.png"/></a></div>
-          <div><p class="text-center"><%= site.name %></p></div>
+          <div><a href="<%= app.url %>" ><img class="center-block" src="/server/html/images/<%= app.id %>-128.png"/></a></div>
+          <div><p class="text-center"><%= app.name %></p></div>
       </div>
 
-    <% if (s % 2 == 1 || s == sites.length - 1) { %>
+    <% if (s % 2 == 1 || s == apps.length - 1) { %>
     </div>
     <% } %>
 
@@ -39,10 +33,10 @@ main_menu_item: menu_apps
 <script type="text/javascript">
 
     $( document ).ready(function() {
-        var getting = $.get( '/server/rest/sites')
+        $.get( '/server/rest/installed_apps')
             .done( function(data) {
-                    var template = $("#job-template").html();
-                    $("#sites").html(_.template(template)(data));
+                    var template = $("#app-template").html();
+                    $("#apps").html(_.template(template)(data));
             });
     });
 </script>

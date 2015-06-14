@@ -1,165 +1,47 @@
 ---
-layout: internal
-title: Activate
+layout: public
+title: Apps
 
-main_menu_item: menu_activate
+main_menu_item: menu_apps
 ---
 
 <div class="container">
-    <form class="form-horizontal" id="form-activate">
-
-        <fieldset>
-                <div id="errors_placeholder"></div>
-                <br/>
-                <div id="group-redirect-domain" class="form-group">
-                    <div class="col-7 col-md-7 col-sm-7 col-lg-7 col-xs-7">
-                        <input id="redirect-domain" name="redirect-domain" type="text" placeholder="domain" class="form-control input-md"
-                               required="">
-                        <span id="help-redirect-domain" class="help-block"></span>
-                    </div>
-                    <div class="col-5 col-md-5 col-sm-5 col-lg-5 col-xs-5" style="padding-left: 0; font-size: 22px">
-                        <div class="text-left">.syncloud.it</div>
-                    </div>
-                </div>
-
-                <div id="group-redirect-email" class="form-group">
-                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <input id="redirect-email" name="redirect-email" type="text" placeholder="redirect email" class="form-control input-md"
-                               required="">
-                        <span id="help-redirect-email" class="help-block"></span>
-                    </div>
-                </div>
-
-                <div id="group-redirect-password" class="form-group">
-                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <input id="redirect-password" name="redirect-password" type="password" placeholder="redirect password" class="form-control input-md"
-                               required="">
-                        <span id="help-redirect-password" class="help-block"></span>
-                    </div>
-                </div>
-
-                <div id="group-name" class="form-group">
-                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <input id="name" name="name" type="text" placeholder="name" class="form-control input-md"
-                               required="">
-                        <span id="help-name" class="help-block"></span>
-                    </div>
-                </div>
-
-                <div id="group-password" class="form-group">
-                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <input id="password" name="password" type="password" placeholder="password" class="form-control input-md"
-                               required="">
-                        <span id="help-password" class="help-block"></span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="button-block col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12"
-                         style="padding-right:15px; padding-left:15px;">
-                        <button id="btnactivate" name="btnactivate" class="btn btn-primary pull-right">Activate</button>
-                    </div>
-                </div>
-
-        </fieldset>
-
-    </form>
+    <div id="apps" class="form-horizontal"></div>
 </div>
 
-<script type="text/html" id="error_template">
-    <div class="alert alert-danger">
-        <%= message %>
+<!-- Create your template -->
+<script type="text/html" id='app-template'>
+    <%for (s=0; s < apps.length; s++) {
+       var app = apps[s]; %>
+
+    <% if (s % 2 == 0) { %>
+    <div class="row">
+    <% } %>
+
+      <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
+          <div><a href="install.html?app=<%= app.id %>" ><img class="center-block" src="/server/html/images/<%= app.id %>-128.png"/></a></div>
+          <div><p class="text-center"><%= app.name %></p></div>
+      </div>
+
+    <% if (s % 2 == 1 || s == apps.length - 1) { %>
     </div>
+    <% } %>
+
+    <% } %>
 </script>
 
 <script type="text/javascript">
 
-    function auto_login(name, password) {
-        var url = (new URI())
-                .port(80)
-                .directory("server/rest")
-                .filename("login")
-                .query("");
-
-        console.log(url);
-        var form = $(
-                '<form action="' + url + '" method="post">' +
-                '<input type="text" name="name" value="' + name + '" />' +
-                '<input type="text" name="password" value="' + password + '" />' +
-                '</form>');
-        $('body').append(form);
-        form.submit();
-    }
-
-    function save_credentials(name, password) {
-        console.log("saving credentials");
-        if (typeof Android !== 'undefined') {
-            console.log("Android: " + Android);
-            Android.saveCredentials(name, password);
-        }
-    }
-
-    function reset_error() {
-        $('#errors_placeholder').empty();
-        $('#group-email').removeClass('has-error');
-        $('#help-email').text('');
-        $('#group-password').removeClass('has-error');
-        $('#help-password').text('');
-    }
-
-    function show_error(error) {
-        if ('parameters_messages' in error) {
-            for (var i = 0; i < error.parameters_messages.length; i++) {
-                var pm = error.parameters_messages[i];
-                var group_id = '#group-' + pm.parameter;
-                $(group_id).addClass('has-error');
-                var hint_id = '#help-' + pm.parameter;
-                var message_text = pm.messages.join('\n');
-                $(hint_id).text(message_text);
-            }
-        } else {
-            $('#errors_placeholder').append(_.template($("#error_template").html())(error));
-        }
-    }
-
-    $(document).ready(function () {
-
-        var uri = new URI();
-        var params = uri.query(true);
-
-        var redirect_email = params["redirect-email"];
-        if (redirect_email) {
-            $('#redirect-email').val(redirect_email);
-            $('#group-redirect-email').hide();
-        }
-
-        var redirect_password = params["redirect-password"];
-        if (redirect_password) {
-            $('#redirect-password').val(redirect_password);
-            $('#group-redirect-password').hide();
-        }
-
-        $("#form-activate").submit(function (event) {
-            event.preventDefault();
-
-            var values = $("#form-activate").serializeArray();
-            reset_error();
-            $.post("/server/rest/activate", values)
-                    .done(function (data) {
-                        var name = $('#name').val();
-                        var password = $('#password').val();
-                        save_credentials(name, password);
-                        auto_login(name, password);
-//                        window.location.href = "/";
-                })
-                .fail(function (xhr, textStatus, errorThrown) {
-                    if (xhr.hasOwnProperty('responseJSON')) {
-                        var error = xhr.responseJSON;
-                        show_error(error);
-                    } else {
-                        window.location.href = "/server/html/activate.html";
-                    }
-                });
-        });
+    $( document ).ready(function() {
+        var getting = $.get( '/server/rest/available_apps')
+            .done( function(data) {
+                    var template = $("#app-template").html();
+                    $("#apps").html(_.template(template)(data));
+            });
     });
 </script>
+
+
+
+</body>
+</html>

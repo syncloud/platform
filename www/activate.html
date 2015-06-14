@@ -11,6 +11,15 @@ main_menu_item: menu_activate
         <fieldset>
                 <div id="errors_placeholder"></div>
                 <br/>
+
+                <div id="group-release" class="form-group">
+                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
+                        <input id="release" name="release" type="text" placeholder="release" class="form-control input-md"
+                               required="">
+                        <span id="help-release" class="help-block"></span>
+                    </div>
+                </div>
+
                 <div id="group-redirect-domain" class="form-group">
                     <div class="col-7 col-md-7 col-sm-7 col-lg-7 col-xs-7">
                         <input id="redirect-domain" name="redirect-domain" type="text" placeholder="domain" class="form-control input-md"
@@ -135,6 +144,12 @@ main_menu_item: menu_activate
 
         var uri = new URI();
         var params = uri.query(true);
+
+        var release = params["release"];
+        if (release) {
+            $('#release').val(release);
+            $('#group-release').hide();
+        }
 
         var redirect_email = params["redirect-email"];
         if (redirect_email) {
