@@ -42,7 +42,7 @@ test_services_config_file_name = 'services.json'
 test_services_config_file = join(test_conf_dir, test_services_config_file_name)
 
 insider_config_file_name = 'insider.cfg'
-insider_config_file = join(dirname(__file__), '..', '..', 'config', insider_config_file_name)
+insider_config_file = join(dirname(__file__), '..', '..', '..', 'config', insider_config_file_name)
 insider_config = open(insider_config_file).read()
 
 
