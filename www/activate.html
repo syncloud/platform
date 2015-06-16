@@ -12,7 +12,7 @@ main_menu_item: menu_activate
                 <div id="errors_placeholder"></div>
                 <br/>
 
-                <div id="group-release" class="form-group">
+                <div id="group-release" class="form-group" style="display: none">
                     <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
                         <input id="release" name="release" type="text" placeholder="release" class="form-control input-md"
                                required="">
@@ -90,55 +90,8 @@ main_menu_item: menu_activate
     </div>
 </script>
 
+<script type="text/javascript" src="/server/html/js/activate.js"></script>
 <script type="text/javascript">
-
-    function auto_login(name, password) {
-        var url = (new URI())
-                .port(80)
-                .directory("server/rest")
-                .filename("login")
-                .query("");
-
-        console.log(url);
-        var form = $(
-                '<form action="' + url + '" method="post">' +
-                '<input type="hidden" name="name" value="' + name + '" />' +
-                '<input type="hidden" name="password" value="' + password + '" />' +
-                '</form>');
-        $('body').append(form);
-        form.submit();
-    }
-
-    function save_credentials(name, password) {
-        console.log("saving credentials");
-        if (typeof Android !== 'undefined') {
-            console.log("Android: " + Android);
-            Android.saveCredentials(name, password);
-        }
-    }
-
-    function reset_error() {
-        $('#errors_placeholder').empty();
-        $('#group-email').removeClass('has-error');
-        $('#help-email').text('');
-        $('#group-password').removeClass('has-error');
-        $('#help-password').text('');
-    }
-
-    function show_error(error) {
-        if ('parameters_messages' in error) {
-            for (var i = 0; i < error.parameters_messages.length; i++) {
-                var pm = error.parameters_messages[i];
-                var group_id = '#group-' + pm.parameter;
-                $(group_id).addClass('has-error');
-                var hint_id = '#help-' + pm.parameter;
-                var message_text = pm.messages.join('\n');
-                $(hint_id).text(message_text);
-            }
-        } else {
-            $('#errors_placeholder').append(_.template($("#error_template").html())(error));
-        }
-    }
 
     $(document).ready(function () {
 
@@ -151,15 +104,13 @@ main_menu_item: menu_activate
             $('#group-release').hide();
         }
 
-        var redirect_email = params["redirect-email"];
-        if (redirect_email) {
-            $('#redirect-email').val(redirect_email);
+        if (Mobile.getRedirectLogin()) {
+            $('#redirect-email').val(Mobile.getRedirectLogin());
             $('#group-redirect-email').hide();
         }
 
-        var redirect_password = params["redirect-password"];
-        if (redirect_password) {
-            $('#redirect-password').val(redirect_password);
+        if (Mobile.getRedirectPassword()) {
+            $('#redirect-password').val(Mobile.getRedirectPassword());
             $('#group-redirect-password').hide();
         }
 
