@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )"  && cd .. && pwd )
-cd ${APP_DIR}
+cd ${APP_DIR}/src
 
 echo "insalling test dependencies"
 pip2 install -U pytest
