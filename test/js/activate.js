@@ -1,21 +1,21 @@
 QUnit.test( "get redirect login", function( assert ) {
   Mobile = new Desktop();
-  assert.ok( !get_redirect_login());
+  assert.ok( !Mobile.getRedirectLogin());
 });
 
 QUnit.test( "get redirect login on Mobile", function( assert ) {
   Mobile = new TestMobile();
-  assert.equal( get_redirect_login(), "login");
+  assert.equal( Mobile.getRedirectLogin(), "login");
 });
 
 QUnit.test( "get redirect password", function( assert ) {
   Mobile = new Desktop();
-  assert.ok( !get_redirect_password());
+  assert.ok( !Mobile.getRedirectPassword());
 });
 
 QUnit.test( "get redirect password on Mobile", function( assert ) {
   Mobile = new TestMobile();
-  assert.equal( get_redirect_password(), "pass");
+  assert.equal( Mobile.getRedirectPassword(), "pass");
 });
 
 function TestMobile() {}

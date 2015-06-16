@@ -110,6 +110,8 @@ def user():
 @app.route('/')
 @login_required
 def index():
+    if not PlatformUserConfig().is_activated():
+        return redirect('{0}://{1}:81'.format(request.scheme, request.host))
     return static_file('index.html')
 
 

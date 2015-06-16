@@ -58,7 +58,7 @@ def activate():
         domain,
         release
     )
-    return jsonify(success=True, message='', data='OK'), 200
+    return id()
 
 @app.errorhandler(Exception)
 def handle_exception(error):

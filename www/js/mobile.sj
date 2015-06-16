@@ -1,8 +1,10 @@
 var Mobile;
 
 function Desktop() {}
+Desktop.prototype.getRelease = function() {};
 Desktop.prototype.getRedirectLogin = function() {};
 Desktop.prototype.getRedirectPassword = function() {};
+Desktop.prototype.saveCredentials = function(mac_address, user, pass) {};
 
 
 if (typeof Android !== 'undefined') {

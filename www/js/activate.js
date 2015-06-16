@@ -15,18 +15,6 @@ function auto_login(name, password) {
     form.submit();
 }
 
-function save_credentials(name, password) {
-    Mobile.saveCredentials(name, password);
-}
-
-function get_redirect_login() {
-    return Mobile.getRedirectLogin();
-}
-
-function get_redirect_password() {
-    return Mobile.getRedirectPassword();
-}
-
 function reset_error() {
     $('#errors_placeholder').empty();
     $('#group-email').removeClass('has-error');
