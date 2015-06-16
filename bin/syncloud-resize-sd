@@ -1,5 +1,8 @@
 #!/bin/bash
 
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd ${DIR}
+
 SYNCLOUD_BOARD=$(syncloud-id name --text)
 DEVICE="/dev/mmcblk0"
 
@@ -8,14 +11,14 @@ if ! blkid | grep "${DEVICE}" > /dev/null ; then
     exit 0
 fi
 
-PARTED_LINES=$(parted -sm $DEVICE unit B print | wc -l)
-PARTITION_NUM=$(expr $PARTED_LINES - 2)
+PARTED_LINES=$(parted -sm ${DEVICE} unit B print | wc -l)
+PARTITION_NUM=$(expr ${PARTED_LINES} - 2)
 
 PARTITION="${DEVICE}p${PARTITION_NUM}"
 
 if [ -f /var/lib/resize_partition_flag ]; then
     rm /var/lib/resize_partition_flag
-    /usr/local/bin/syncloud-resize-sd-partition
+    ./syncloud-resize-sd-partition
     reboot
 fi
 

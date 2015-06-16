@@ -5,7 +5,7 @@ After=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/cpu_frequency
+ExecStart=/opt/app/platform/bin/cpu_frequency
 RemainAfterExit=yes
 
 [Install]

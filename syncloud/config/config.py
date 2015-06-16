@@ -20,6 +20,9 @@ class PlatformConfig:
     def app_dir(self):
         return self.__get('app_dir')
 
+    def data_dir(self):
+        return self.__get('data_dir')
+
     def config_dir(self):
         return self.__get('config_dir')
 

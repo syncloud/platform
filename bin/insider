@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import argparse
 import logging
+from os.path import join
 
 from syncloud.app import main
 from syncloud.app import logger
+from syncloud.config.config import PlatformConfig
 
 import syncloud.insider.facade
 
@@ -49,7 +51,7 @@ if __name__ == '__main__':
 
     console = True if args.debug else False
     level = logging.DEBUG if args.debug else logging.INFO
-    logger.init(level, console, '/var/log/insider.log')
+    logger.init(level, console, join(PlatformConfig().data_dir(), 'insider.log'))
 
     facade = syncloud.insider.facade.get_insider(args.bin_path, args.config_path, args.log_path)
 
