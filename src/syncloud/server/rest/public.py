@@ -6,14 +6,13 @@ import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect
 
 from syncloud.sam.manager import get_sam
-from syncloud.sam.models import AppVersions
 from syncloud.server.model import app_from_sam_app, App
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
-from syncloud.config.config import PlatformConfig
+from syncloud.config.config import PlatformConfig, PlatformUserConfig
 from syncloud.server.auth import authenticate
 from syncloud.app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
@@ -75,6 +74,9 @@ def load_user(email):
 
 @app.route(rest_prefix + "/login", methods=["GET", "POST"])
 def login():
+
+    if not PlatformUserConfig().is_activated():
+        return redirect('{0}://{1}:81'.format(request.scheme, request.host))
 
     if 'name' in request.form and 'password' in request.form:
         try:

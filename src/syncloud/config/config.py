@@ -1,4 +1,5 @@
 from ConfigParser import ConfigParser
+from os.path import isfile
 
 
 class PlatformConfig:
@@ -35,10 +36,36 @@ class PlatformConfig:
     def set_web_secret_key(self, value):
         return self.__set('web_secret_key', value)
 
+    def get_user_config(self):
+        return self.__get('user_config')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 
     def __set(self, key, value):
         self.parser.set('platform', key, value)
+        with open(self.filename, 'wb') as file:
+            self.parser.write(file)
+
+class PlatformUserConfig:
+
+    def __init__(self):
+        self.parser = ConfigParser()
+        self.filename = PlatformConfig().get_user_config()
+        if not isfile(self.filename):
+            self.parser.add_section('platform')
+            self.set_activated(False)
+            self.__save()
+        else:
+            self.parser.read(self.filename)
+
+    def is_activated(self):
+        return self.parser.get('platform', 'activated')
+
+    def set_activated(self, value):
+        self.parser.set('platform', 'activated', value)
+        self.__save()
+
+    def __save(self):
         with open(self.filename, 'wb') as file:
             self.parser.write(file)

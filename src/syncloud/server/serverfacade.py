@@ -1,5 +1,5 @@
 import uuid
-from syncloud.config.config import PlatformConfig
+from syncloud.config.config import PlatformConfig, PlatformUserConfig
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.sam.manager import get_sam
@@ -50,8 +50,8 @@ class ServerFacade:
         PlatformConfig().set_web_secret_key(unicode(uuid.uuid4().hex))
 
         # credentials = _get_credentials(self.remote_access.enable())
+        PlatformUserConfig().set_activated(True)
         self.logger.info("activation completed")
-        return 'cred'
 
     # def reconfigure(self):
     #     http_conf = join(self.tools.usr_local_dir(), 'syncloud-server', 'apache', 'syncloud-server-http.conf')
