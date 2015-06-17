@@ -15,18 +15,16 @@ main_menu_item: menu_apps
       <div><img class="center-block" src="/server/html/images/<%= info.app.id %>-128.png"/></div>
       <div><p class="text-center"><%= info.app.name %></p></div>
     </div>
-    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6" id="app_control">
+    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6" style="margin-top: 30px">
         <% if (info.installed_version) { %>
             <% if (info.current_version == info.installed_version) { %>
                 <button class="btn btn-primary center-block" id="btnremove" name="btnremove" style="margin-bottom: 30px">Remove</button>
             <% } else { %>
                 <button class="btn btn-primary center-block" id="btnupgrade" name="btnupgrade" style="margin-bottom: 30px">Upgrade</button>
-                <span class="text-nowrap">Latest version: <%= info.current_version %></span>
             <% } %>
-                <span class="text-nowrap">Installed version: <%= info.installed_version %></span>
+                <p class="text-nowrap text-center">v<%= info.installed_version %></p>
         <% } else { %>
             <button class="btn btn-primary center-block" id="btninstall" name="btninstall" style="margin-bottom: 30px">Install</button>
-            <span class="text-nowrap">Latest version: <%= info.current_version %></span>
         <% } %>
     </div>
     <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
@@ -43,12 +41,10 @@ main_menu_item: menu_apps
 
     function progress_start() {
         $('#progress-bar').css('visibility', 'visible');
-        $('#btnactivate').addClass('disabled');
     }
 
     function progress_stop() {
         $('#progress-bar').css('visibility', 'hidden');
-        $('#btnactivate').removeClass('disabled');
     }
 
     function refresh(app_id) {
@@ -71,17 +67,23 @@ main_menu_item: menu_apps
     }
 
     function register_events(app_id) {
-        $("#btninstall").click(function () {
+        var btninstall = $("#btninstall");
+        btninstall.click(function (event) {
+            btninstall.addClass('disabled');
             event.preventDefault();
             run('install', app_id);
         });
 
-        $("#btnremove").click(function () {
+        var btnremove = $("#btnremove");
+        btnremove.click(function (event) {
+            btnremove.addClass('disabled');
             event.preventDefault();
             run('remove', app_id);
         });
 
-        $("#btnupgrade").click(function () {
+        var btnupgrade = $("#btnupgrade");
+        btnupgrade.click(function (event) {
+            btnupgrade.addClass('disabled');
             event.preventDefault();
             run('upgrade', app_id);
         });
