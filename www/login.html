@@ -88,7 +88,7 @@ main_menu_item: menu_login
             reset_error();
             var posting = $.post("/server/rest/login", values)
                     .done(function (data) {
-                        window.location.href = "/";
+                        window.location.replace("/");
                     })
                     .fail(function (xhr, textStatus, errorThrown) {
                         if (xhr.hasOwnProperty('responseJSON')) {

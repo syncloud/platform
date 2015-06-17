@@ -1,6 +1,6 @@
 ---
 layout: public
-title: Apps
+title: App Store
 
 main_menu_item: menu_apps
 ---
@@ -19,7 +19,7 @@ main_menu_item: menu_apps
     <% } %>
 
       <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
-          <div><a href="install.html?app=<%= app.id %>" ><img class="center-block" src="/server/html/images/<%= app.id %>-128.png"/></a></div>
+          <div><a href="app.html?app_id=<%= app.id %>" ><img class="center-block" src="/server/html/images/<%= app.id %>-128.png"/></a></div>
           <div><p class="text-center"><%= app.name %></p></div>
       </div>
 
@@ -37,11 +37,6 @@ main_menu_item: menu_apps
             .done( function(data) {
                     var template = $("#app-template").html();
                     $("#apps").html(_.template(template)(data));
-            });
+            }).fail( onError );
     });
 </script>
-
-
-
-</body>
-</html>

@@ -5,7 +5,6 @@ function auto_login(name, password) {
             .filename("login")
             .query("");
 
-    console.log(url);
     var form = $(
             '<form action="' + url + '" method="post">' +
             '<input type="hidden" name="name" value="' + name + '" />' +

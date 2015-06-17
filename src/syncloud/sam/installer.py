@@ -16,11 +16,12 @@ class Installer:
 
     def install(self, app_id, from_file=None, owner=None, owner_home=None, apps_root='/opt/app'):
 
-        lang = os.environ['LANG']
-        if lang not in check_output(['locale', '-a']):
-            print("generating locale: {0}".format(lang))
-            fix_locale_gen(lang)
-            check_output('locale-gen')
+        if 'LANG' in os.environ:
+            lang = os.environ['LANG']
+            if lang not in check_output(['locale', '-a']):
+                print("generating locale: {0}".format(lang))
+                fix_locale_gen(lang)
+                check_output('locale-gen')
 
         if not from_file:
             archive = '{0}.tar.gz'.format(app_id)

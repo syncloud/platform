@@ -37,11 +37,6 @@ main_menu_item: menu_apps
             .done( function(data) {
                     var template = $("#app-template").html();
                     $("#apps").html(_.template(template)(data));
-            });
+            }).fail( onError );
     });
 </script>
-
-
-
-</body>
-</html>

@@ -37,7 +37,7 @@ logger.init(console=True)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 login_manager = LoginManager()
-login_manager.login_view = "/server/html/login.html"
+# login_manager.login_view = "/server/html/login.html"
 login_manager.init_app(app)
 
 
@@ -110,8 +110,6 @@ def user():
 @app.route('/')
 @login_required
 def index():
-    if not PlatformUserConfig().is_activated():
-        return redirect('{0}://{1}:81'.format(request.scheme, request.host))
     return static_file('index.html')
 
 
@@ -121,9 +119,34 @@ def installed_apps():
     apps = [app_from_sam_app(app) for app in non_required_apps() if app.installed_version]
 
     # TODO: Hack to add system apps, need to think about it
-    apps.append(App('store', 'App Store', 'server/html/store.html'))
+    apps.append(App('store', 'App Store', '/server/html/store.html'))
 
     return jsonify(apps=convertible.to_dict(apps)), 200
+
+@app.route(rest_prefix + "/app", methods=["GET"])
+@login_required
+def app_status():
+    app = next(app for app in non_required_apps() if app.app.id == request.args['app_id'])
+    return jsonify(info=convertible.to_dict(app)), 200
+
+@app.route(rest_prefix + "/install", methods=["GET"])
+@login_required
+def install():
+    result = get_sam().install(request.args['app_id'])
+    return jsonify(message=result), 200
+
+@app.route(rest_prefix + "/remove", methods=["GET"])
+@login_required
+def remove():
+    result = get_sam().remove(request.args['app_id'])
+    return jsonify(message=result), 200
+
+@app.route(rest_prefix + "/upgrade", methods=["GET"])
+@login_required
+def upgrade():
+    get_sam().remove(request.args['app_id'])
+    result = get_sam().install(request.args['app_id'])
+    return jsonify(message=result), 200
 
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
 @login_required
@@ -136,11 +159,7 @@ def non_required_apps():
     if mock_apps:
         apps = mock_apps
     else:
-        apps = get_sam().list()
-        # TODO: pip-less sam should not prefix apps with 'syncloud-'
-        for app in apps:
-            app.app.id = app.app.id[9:]
-        apps = [app for app in apps if not app.app.required]
+        apps = [app for app in get_sam().list() if not app.app.required]
     return apps
 
 

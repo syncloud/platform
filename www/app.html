@@ -1,0 +1,98 @@
+---
+layout: public
+title: App
+
+main_menu_item: menu_apps
+---
+
+<div class="container">
+    <div id="app" class="form-horizontal"></div>
+</div>
+
+<!-- Create your template -->
+<script type="text/html" id='app-template'>
+    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
+      <div><img class="center-block" src="/server/html/images/<%= info.app.id %>-128.png"/></div>
+      <div><p class="text-center"><%= info.app.name %></p></div>
+    </div>
+    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6" id="app_control">
+        <% if (info.installed_version) { %>
+            <% if (info.current_version == info.installed_version) { %>
+                <button class="btn btn-primary center-block" id="btnremove" name="btnremove" style="margin-bottom: 30px">Remove</button>
+            <% } else { %>
+                <button class="btn btn-primary center-block" id="btnupgrade" name="btnupgrade" style="margin-bottom: 30px">Upgrade</button>
+                <span class="text-nowrap">Latest version: <%= info.current_version %></span>
+            <% } %>
+                <span class="text-nowrap">Installed version: <%= info.installed_version %></span>
+        <% } else { %>
+            <button class="btn btn-primary center-block" id="btninstall" name="btninstall" style="margin-bottom: 30px">Install</button>
+            <span class="text-nowrap">Latest version: <%= info.current_version %></span>
+        <% } %>
+    </div>
+    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
+        <div id="progress-bar" class="progress" style="height: 10px; margin-bottom: 5px; visibility: hidden">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                 aria-valuemax="100" style="width: 100%">
+                <span class="sr-only">45% Complete</span>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript">
+
+    function progress_start() {
+        $('#progress-bar').css('visibility', 'visible');
+        $('#btnactivate').addClass('disabled');
+    }
+
+    function progress_stop() {
+        $('#progress-bar').css('visibility', 'hidden');
+        $('#btnactivate').removeClass('disabled');
+    }
+
+    function refresh(app_id) {
+        $.get( '/server/rest/app', {app_id: app_id})
+                .done( function(data) {
+                    var template = $("#app-template").html();
+                    $("#app").html(_.template(template)(data));
+                    register_events(app_id);
+                }).fail( onError );
+
+    }
+
+    function run(action, app_id) {
+        progress_start();
+        $.get("/server/rest/" + action, {app_id: app_id})
+                .always(function() {
+                    refresh(app_id);
+                    progress_stop();
+                });
+    }
+
+    function register_events(app_id) {
+        $("#btninstall").click(function () {
+            event.preventDefault();
+            run('install', app_id);
+        });
+
+        $("#btnremove").click(function () {
+            event.preventDefault();
+            run('remove', app_id);
+        });
+
+        $("#btnupgrade").click(function () {
+            event.preventDefault();
+            run('upgrade', app_id);
+        });
+    }
+
+    $( document ).ready(function() {
+
+        var uri = new URI();
+        var params = uri.query(true);
+
+        refresh(params['app_id']);
+
+    });
+</script>
