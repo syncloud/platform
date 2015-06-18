@@ -1,1 +1,1 @@
-www-data ALL = (root) NOPASSWD: /usr/local/bin/syncloud-link-data.sh *
+www-data ALL = (root) NOPASSWD: /usr/local/bin/syncloud-link-data *

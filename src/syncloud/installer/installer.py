@@ -26,7 +26,7 @@ class PlatformInstaller:
         # LOCAL_DATA=/home/www-data
         # mkdir -p ${LOCAL_DATA}
         # chown -R www-data. ${LOCAL_DATA}
-        # /usr/local/bin/syncloud-link-data.sh ${LOCAL_DATA}
+        # /usr/local/bin/syncloud-link-data ${LOCAL_DATA}
         # chmod 640 /etc/sudoers.d/www-data
         # adduser www-data plugdev
         # '/etc/sudoers.d', ['config/sudoers.d/www-data']),
