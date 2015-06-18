@@ -1,0 +1,4 @@
+#!/bin/sh
+SCRIPT_LOCATION=$0
+HOME_DIR=`dirname "$SCRIPT_LOCATION"`/..
+${HOME_DIR}/python/bin/python ${HOME_DIR}/bin/run_hook.py $@
