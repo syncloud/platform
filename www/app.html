@@ -16,15 +16,17 @@ main_menu_item: menu_apps
       <div><p class="text-center"><%= info.app.name %></p></div>
     </div>
     <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6" style="margin-top: 30px">
+        <% _.each(actions, function(el) { %>
+            <button id="btn<%= el %>" name="btn<%= el %>"
+                    class="btn btn-primary center-block"
+                    style="margin-bottom: 10px; margin-top: 10px;">
+                <%= el %>
+            </button>
+        <% }); %>
         <% if (info.installed_version) { %>
-            <% if (info.current_version == info.installed_version) { %>
-                <button class="btn btn-primary center-block" id="btnremove" name="btnremove" style="margin-bottom: 30px">Remove</button>
-            <% } else { %>
-                <button class="btn btn-primary center-block" id="btnupgrade" name="btnupgrade" style="margin-bottom: 30px">Upgrade</button>
-            <% } %>
-                <p class="text-nowrap text-center">v<%= info.installed_version %></p>
-        <% } else { %>
-            <button class="btn btn-primary center-block" id="btninstall" name="btninstall" style="margin-bottom: 30px">Install</button>
+            <p class="text-nowrap text-center" style="margin-bottom: 10px; margin-top: 10px;">
+                v<%= info.installed_version %>
+            </p>
         <% } %>
     </div>
     <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
@@ -35,8 +37,16 @@ main_menu_item: menu_apps
             </div>
         </div>
     </div>
+    <div id="errors_placeholder" class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12"></div>
 </script>
 
+<script type="text/html" id="error_template">
+    <div class="alert alert-danger">
+        <%= message %>
+    </div>
+</script>
+
+<script type="text/javascript" src="/server/html/js/app.js"></script>
 <script type="text/javascript">
 
     function progress_start() {
@@ -51,6 +61,7 @@ main_menu_item: menu_apps
         $.get( '/server/rest/app', {app_id: app_id})
                 .done( function(data) {
                     var template = $("#app-template").html();
+                    data.actions = get_actions(data.info);
                     $("#app").html(_.template(template)(data));
                     register_events(app_id);
                 }).fail( onError );
@@ -60,6 +71,11 @@ main_menu_item: menu_apps
     function run(action, app_id) {
         progress_start();
         $.get("/server/rest/" + action, {app_id: app_id})
+                .fail(function(xhr, textStatus, errorThrown) {
+                    var template = $("#error_template").html();
+                    $('#errors_placeholder').html(_.template(template)(xhr.responseJSON));
+                    show_error(xhr.responseJSON);
+                })
                 .always(function() {
                     refresh(app_id);
                     progress_stop();
@@ -67,34 +83,22 @@ main_menu_item: menu_apps
     }
 
     function register_events(app_id) {
-        var btninstall = $("#btninstall");
-        btninstall.click(function (event) {
-            btninstall.addClass('disabled');
-            event.preventDefault();
-            run('install', app_id);
-        });
+        register_event(app_id, 'install');
+        register_event(app_id, 'remove');
+        register_event(app_id, 'upgrade');
+    }
 
-        var btnremove = $("#btnremove");
-        btnremove.click(function (event) {
-            btnremove.addClass('disabled');
+    function register_event(app_id, action) {
+        var btn = $("#btn" + action);
+        btn.click(function (event) {
+            btn.addClass('disabled');
             event.preventDefault();
-            run('remove', app_id);
-        });
-
-        var btnupgrade = $("#btnupgrade");
-        btnupgrade.click(function (event) {
-            btnupgrade.addClass('disabled');
-            event.preventDefault();
-            run('upgrade', app_id);
+            run(action, app_id);
         });
     }
 
     $( document ).ready(function() {
-
-        var uri = new URI();
-        var params = uri.query(true);
-
-        refresh(params['app_id']);
-
+        refresh(new URI().query(true)['app_id']);
     });
+
 </script>

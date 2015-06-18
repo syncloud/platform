@@ -48,11 +48,9 @@ main_menu_item: menu_login
 </form>
 
 <script type="text/html" id="error_template">
-    <![CDATA[
     <div class="alert alert-danger">
-        <%= this.message %>
+        <%= message %>
     </div>
-    ]]>
 </script>
 
 <script type="text/javascript">
@@ -76,7 +74,8 @@ main_menu_item: menu_login
                 $(hint_id).text(message_text);
             }
         } else {
-            $('#errors_placeholder').append($('#error_template').jqote(error));
+            var template = $('#error_template').html();
+            $('#errors_placeholder').html(_.template(template)(error));
         }
     }
 

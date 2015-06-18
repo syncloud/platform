@@ -1,7 +1,7 @@
 import glob
 import hashlib
+import json
 import os
-from os.path import join
 import tempfile
 from subprocess import check_output
 
@@ -59,8 +59,10 @@ def authenticate(name, password):
         conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
     except Exception, e:
         conn.unbind()
-        raise e
-
+        if 'desc' in e.message:
+            raise Exception(e.message['desc'])
+        else:
+            raise Exception(e.message)
 
 #https://gist.github.com/rca/7217540
 def make_secret(password):
