@@ -125,7 +125,7 @@ def installed_apps():
     apps = [app_from_sam_app(app) for app in non_required_apps() if app.installed_version]
 
     # TODO: Hack to add system apps, need to think about it
-    apps.append(App('store', 'App Store', '/server/html/store.html'))
+    apps.append(App('store', 'App Store', 'server/html/store.html'))
 
     return jsonify(apps=convertible.to_dict(apps)), 200
 
