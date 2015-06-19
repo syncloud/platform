@@ -40,6 +40,12 @@ login_manager = LoginManager()
 # login_manager.login_view = "/server/html/login.html"
 login_manager.init_app(app)
 
+@login_manager.unauthorized_handler
+def _callback():
+    if request.is_xhr:
+        return 'Unauthorised', 401
+    else:
+        return redirect('/server/html/login.html')
 
 class User:
     def __init__(self, name):

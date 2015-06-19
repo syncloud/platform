@@ -34,11 +34,16 @@ def test_reactivate(auth):
                                    'release': release})
     assert response.status_code == 200
 
-def test_public_web_secured():
-    session = requests.session()
-    response = session.get('http://localhost/server/rest/user', allow_redirects=False)
+def test_public_web_unauthorized_browser_redirect():
+    response = requests.get('http://localhost/server/rest/user', allow_redirects=False)
+    assert response.status_code == 302
+
+def test_public_web_unauthorized_ajax_not_redirect():
+    response = requests.get('http://localhost/server/rest/user', allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
+def test_public_web_login():
+    session = requests.session()
     session.post('http://localhost/server/rest/login', data={'name': 'user', 'password': 'password'})
     assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
 
