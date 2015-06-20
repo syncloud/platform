@@ -69,5 +69,6 @@ cp -r bin build/${NAME}
 cp -r config build/${NAME}
 cp -r www build/${NAME}
 
+
 cd build
 tar -zcvf platform-${VERSION}-${ARCHITECTURE}.tar.gz platform
