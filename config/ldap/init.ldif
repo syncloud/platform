@@ -39,10 +39,10 @@ objectClass:           organizationalUnit
 objectClass:           top
 
 # Admin group
-dn:                    cn=admin,ou=groups,dc=syncloud,dc=org
+dn:                    cn=syncloud,ou=groups,dc=syncloud,dc=org
 objectClass:           posixGroup
 objectClass:           top
 gidNumber:             1
-cn:                    admin
-description:           Admin
+cn:                    syncloud
+description:           Syncloud
 memberUid:             ${user}
