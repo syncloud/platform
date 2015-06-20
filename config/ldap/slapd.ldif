@@ -42,6 +42,9 @@ objectClass: olcSchemaConfig
 cn: schema
 
 include: file:///opt/app/platform/openldap/etc/openldap/schema/core.ldif
+include: file:///opt/app/platform/openldap/etc/openldap/schema/cosine.ldif
+include: file:///opt/app/platform/openldap/etc/openldap/schema/inetorgperson.ldif
+include: file:///opt/app/platform/openldap/etc/openldap/schema/nis.ldif
 
 # Frontend settings
 #

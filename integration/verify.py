@@ -15,8 +15,7 @@ def test_non_activated_device_redirect_to_activation():
 
 def test_activate_device(auth):
 
-    email, password, domain = auth
-    release = open('{0}/RELEASE'.format(DIR), 'r').read().strip()
+    email, password, domain, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
@@ -25,8 +24,7 @@ def test_activate_device(auth):
     assert response.status_code == 200
 
 def test_reactivate(auth):
-    email, password, domain = auth
-    release = open('{0}/RELEASE'.format(DIR), 'r').read().strip()
+    email, password, domain, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user', 'password': 'password',
