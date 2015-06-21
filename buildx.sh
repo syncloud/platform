@@ -1,10 +1,13 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+NAME="platform"
+
 ARCHITECTURE=$1
+VERSION="local"
 
-VERSION=`cat version`
-
-NAME=platform
+if [ ! -z "$2" ]; then
+    VERSION=$2
+fi
 
 if ! jekyll -v; then
   echo "installing jekyll"
@@ -17,7 +20,8 @@ rm -rf _site
 jekyll build
 cd ..
 
-cp version src/version
+rm -f src/version
+echo ${VERSION} >> src/version
 cd src
 python setup.py sdist
 cd ..
@@ -71,4 +75,4 @@ cp -r www build/${NAME}
 
 
 cd build
-tar -zcvf platform-${VERSION}-${ARCHITECTURE}.tar.gz platform
+tar -zcvf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz ${NAME}
