@@ -4,7 +4,7 @@ QUnit.test( "app new version available action", function( assert ) {
   info.installed_version = 1.0;
   info.current_version = 1.1;
 
-  assert.deepEqual( get_actions(info), ['upgrade', 'remove']);
+  assert.deepEqual( get_actions(info), ['open', 'upgrade', 'remove']);
 });
 
 QUnit.test( "app latest version action", function( assert ) {
@@ -13,7 +13,7 @@ QUnit.test( "app latest version action", function( assert ) {
   info.installed_version = 1.1;
   info.current_version = 1.1;
 
-  assert.deepEqual( get_actions(info) , ['remove'] );
+  assert.deepEqual( get_actions(info) , ['open', 'remove'] );
 });
 
 QUnit.test( "app not installed action", function( assert ) {

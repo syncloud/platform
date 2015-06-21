@@ -86,6 +86,9 @@ main_menu_item: menu_apps
         register_event(app_id, 'install');
         register_event(app_id, 'remove');
         register_event(app_id, 'upgrade');
+        register_url('/' + app_id.replace('syncloud-', ''), 'open');
+
+
     }
 
     function register_event(app_id, action) {
@@ -94,6 +97,14 @@ main_menu_item: menu_apps
             btn.addClass('disabled');
             event.preventDefault();
             run(action, app_id);
+        });
+    }
+
+    function register_url(url, action) {
+        var btn = $("#btn" + action);
+        btn.click(function (event) {
+            event.preventDefault();
+            window.location.href = url
         });
     }
 
