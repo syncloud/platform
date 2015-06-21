@@ -1,10 +1,10 @@
+#!/bin/sh -x
+
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 NAME="platform"
-
 ARCHITECTURE=$1
 VERSION="local"
-
 if [ ! -z "$2" ]; then
     VERSION=$2
 fi
@@ -73,6 +73,9 @@ cp -r bin build/${NAME}
 cp -r config build/${NAME}
 cp -r www build/${NAME}
 
+mkdir build/${NAME}/META
+echo ${NAME} >> build/${NAME}/META/app
+echo ${VERSION} >> build/${NAME}/META/version
 
 cd build
 tar -zcvf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz ${NAME}
