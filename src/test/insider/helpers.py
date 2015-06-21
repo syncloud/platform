@@ -1,11 +1,12 @@
 from os.path import dirname, join
 import tempfile
 import os
+from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_NAME
 
 from syncloud.insider.port_config import PortConfig
 from syncloud.insider.service_config import ServiceConfig
 
-from syncloud.insider.config import DomainConfig, InsiderConfig, RedirectConfig
+from syncloud.insider.config import DomainConfig, InsiderConfig, RedirectConfig, INSIDER_CONFIG_NAME
 
 
 def temp_file(text=''):
@@ -41,10 +42,12 @@ test_conf_dir = join(dirname(__file__), 'conf')
 test_services_config_file_name = 'services.json'
 test_services_config_file = join(test_conf_dir, test_services_config_file_name)
 
-insider_config_file_name = 'insider.cfg'
-insider_config_file = join(dirname(__file__), '..', '..', '..', 'config', insider_config_file_name)
+CONFIG_DIR = join(dirname(__file__), '..', '..', '..', 'config')
+
+insider_config_file = join(CONFIG_DIR, INSIDER_CONFIG_NAME)
 insider_config = open(insider_config_file).read()
 
+platform_config_file = join(CONFIG_DIR, PLATFORM_CONFIG_NAME)
 
 def get_insider_config(domain, api_url):
     config = InsiderConfig(temp_file(insider_config), RedirectConfig(temp_file()))

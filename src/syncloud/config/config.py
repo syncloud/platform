@@ -1,13 +1,15 @@
 from ConfigParser import ConfigParser
-from os.path import isfile
+from os.path import isfile, join
 
+PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
+PLATFORM_CONFIG_NAME = 'platform.cfg'
 
 class PlatformConfig:
 
-    def __init__(self, filename='/opt/app/platform/config/platform.cfg'):
+    def __init__(self, config_dir=PLATFORM_CONFIG_DIR):
         self.parser = ConfigParser()
-        self.filename = filename
-        self.parser.read(filename)
+        self.filename = join(config_dir, PLATFORM_CONFIG_NAME)
+        self.parser.read(self.filename)
 
     def apps_root(self):
         return self.__get('apps_root')
@@ -26,6 +28,9 @@ class PlatformConfig:
 
     def config_dir(self):
         return self.__get('config_dir')
+
+    def bin_dir(self):
+        return self.__get('bin_dir')
 
     def nginx_webapps(self):
         return self.__get('nginx_webapps')

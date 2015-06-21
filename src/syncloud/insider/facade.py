@@ -1,6 +1,6 @@
 import os
 from os.path import join
-from syncloud.config.config import PlatformConfig
+from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
 from syncloud.tools.app import get_app_data_root
 from syncloud.tools.facade import Facade
 
@@ -14,14 +14,6 @@ import upnpc_mock
 import port_mapper
 import dns
 import cron
-
-
-tools_facade = Facade()
-APP_ROOT = '/opt/app/platform'
-DATA_ROOT = '/opt/data/platform'
-default_bin_path = join(APP_ROOT, 'bin')
-default_config_path = join(APP_ROOT, 'config')
-default_logs_path = join(APP_ROOT, 'log')
 
 
 class Insider:
@@ -87,13 +79,13 @@ class Insider:
         return self.dns.endpoints()
 
 
-def get_insider(bin_path=default_bin_path, config_path=default_config_path, logs_path=default_logs_path, use_upnpc_mock=False, data_root=None):
+def get_insider(config_path=PLATFORM_CONFIG_DIR, use_upnpc_mock=False, data_root=None):
 
     if not data_root:
         data_root = get_app_data_root('platform')
 
     redirect_config = RedirectConfig(join(data_root, 'redirect.cfg'))
-    insider_config = InsiderConfig(join(config_path, 'insider.cfg'), redirect_config)
+    insider_config = InsiderConfig(config_path, redirect_config)
 
     local_ip = Facade().local_ip()
 
@@ -114,9 +106,9 @@ def get_insider(bin_path=default_bin_path, config_path=default_config_path, logs
         service_config,
         mapper,
         local_ip)
-    platform_config = PlatformConfig()
+    platform_config = PlatformConfig(config_path)
     cron_service = cron.Cron(
-        join(bin_path, 'insider'),
+        join(platform_config.bin_dir(), 'insider'),
         join(platform_config.data_dir(), 'insider-cron.log'),
         insider_config.get_cron_period_mins())
 

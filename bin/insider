@@ -5,16 +5,14 @@ from os.path import join
 
 from syncloud.app import main
 from syncloud.app import logger
-from syncloud.config.config import PlatformConfig
+from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
 
 import syncloud.insider.facade
 
 
 def create_args_parser():
     parser = argparse.ArgumentParser(description='Syncloud insider maps port on router and creates DNS records')
-    parser.add_argument('--bin-path', default=syncloud.insider.facade.default_bin_path, dest='bin_path')
-    parser.add_argument('--config-path', default=syncloud.insider.facade.default_config_path, dest='config_path')
-    parser.add_argument('--log-path', default=syncloud.insider.facade.default_logs_path, dest='log_path')
+    parser.add_argument('--config-path', default=PLATFORM_CONFIG_DIR, dest='config_path')
     parser.add_argument('--debug', action='store_true')
 
     subparsers = parser.add_subparsers(help='available commands', dest='action')
@@ -53,6 +51,6 @@ if __name__ == '__main__':
     level = logging.DEBUG if args.debug else logging.INFO
     logger.init(level, console, join(PlatformConfig().data_dir(), 'insider.log'))
 
-    facade = syncloud.insider.facade.get_insider(args.bin_path, args.config_path, args.log_path)
+    facade = syncloud.insider.facade.get_insider(args.config_path)
 
     main.execute(facade, args)

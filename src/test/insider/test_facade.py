@@ -3,16 +3,19 @@ import tempfile
 import shutil
 
 import responses
+from syncloud.config.config import PLATFORM_CONFIG_NAME
+from syncloud.insider.config import INSIDER_CONFIG_NAME
 
 from syncloud.insider.facade import get_insider
-from test.insider.helpers import insider_config_file, insider_config_file_name
+from test.insider.helpers import insider_config_file, platform_config_file
 
 
 @responses.activate
 def test_get_service():
 
     temp_folder = tempfile.mkdtemp()
-    shutil.copyfile(insider_config_file, join(temp_folder, insider_config_file_name))
+    shutil.copyfile(insider_config_file, join(temp_folder, INSIDER_CONFIG_NAME))
+    shutil.copyfile(platform_config_file, join(temp_folder, PLATFORM_CONFIG_NAME))
 
     responses.add(responses.POST,
                   "http://domain.com/domain/acquire",

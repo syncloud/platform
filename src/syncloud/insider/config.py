@@ -77,13 +77,14 @@ class RedirectConfig:
         with open(self.filename, 'wb') as file:
             self.parser.write(file)
 
+INSIDER_CONFIG_NAME = 'insider.cfg'
 
 class InsiderConfig:
-
-    def __init__(self, filename, redirect_config):
+    # TODO: Split redirect and insider config files
+    def __init__(self, config_dir, redirect_config):
         self.parser = ConfigParser()
-        self.parser.read(filename)
-        self.filename = filename
+        self.filename = join(config_dir, INSIDER_CONFIG_NAME)
+        self.parser.read(self.filename)
         self.redirect_config = redirect_config
         self.logger = logger.get_logger('insider.InsiderConfig')
 
