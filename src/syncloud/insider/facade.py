@@ -1,5 +1,6 @@
 import os
 from os.path import join
+from syncloud.config.config import PlatformConfig
 from syncloud.tools.app import get_app_data_root
 from syncloud.tools.facade import Facade
 
@@ -113,10 +114,10 @@ def get_insider(bin_path=default_bin_path, config_path=default_config_path, logs
         service_config,
         mapper,
         local_ip)
-
+    platform_config = PlatformConfig()
     cron_service = cron.Cron(
         join(bin_path, 'insider'),
-        join(logs_path, 'insider-cron.log'),
+        join(platform_config.data_dir(), 'insider-cron.log'),
         insider_config.get_cron_period_mins())
 
     return Insider(mapper, dns_service, cron_service, insider_config, service_config)
