@@ -1,9 +1,7 @@
 #!/bin/bash
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
+APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
-SYNCLOUD_BOARD=$(syncloud-id name --text)
 DEVICE="/dev/mmcblk0"
 
 if ! blkid | grep "${DEVICE}" > /dev/null ; then
@@ -18,7 +16,7 @@ PARTITION="${DEVICE}p${PARTITION_NUM}"
 
 if [ -f /var/lib/resize_partition_flag ]; then
     rm /var/lib/resize_partition_flag
-    ./syncloud-resize-sd-partition
+    ${APP_DIR}/bin/syncloud-resize-sd-partition
     reboot
 fi
 

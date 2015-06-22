@@ -1,5 +1,13 @@
 function AndroidMobile() {}
 
+AndroidMobile.prototype.getApiUrl = function() {
+    return Android.getApiUrl();
+};
+
+AndroidMobile.prototype.getDomain = function() {
+    return Android.getDomain();
+};
+
 AndroidMobile.prototype.getRelease = function() {
     return Android.getRelease();
 };

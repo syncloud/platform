@@ -1,6 +1,8 @@
 var Mobile;
 
 function Desktop() {}
+Desktop.prototype.getApiUrl = function() {};
+Desktop.prototype.getDomain = function() {};
 Desktop.prototype.getRelease = function() {};
 Desktop.prototype.getRedirectLogin = function() {};
 Desktop.prototype.getRedirectPassword = function() {};
