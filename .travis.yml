@@ -11,15 +11,3 @@ install:
 - pip install -r dev_requirements.txt
 script:
 - py.test --cov syncloud
-deploy:
-  provider: pypi
-  user: syncloud-build
-  password:
-    secure: aLdBVYcXXDtB61PuwiAl3Sw7vxJYXSOB1xxOyYamEYkaqIVFZS6sVlQqFFHuwauEnDlZB3w4rU7GaDhIFDRXXOdEHcTf1ztiDG5GWU/hw6TDj8zUZWSkOW2HSoXzWjSbzaWtFDcBBLerMkpN6keUNZSpttM5cd8E2KG4yckeLrQ=
-  on:
-    all_branches: true
-after_deploy:
-- pip install travis-tools
-#- universal-version-push version syncloud/image syncloud-build GH_TOKEN master "Travis build"
-- version-increment version
-- universal-version-push version ${TRAVIS_REPO_SLUG} syncloud-build GH_TOKEN ${TRAVIS_BRANCH} "Travis build [skip ci]"
