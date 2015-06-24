@@ -3,6 +3,7 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 NAME="platform"
+
 ARCHITECTURE=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
     ARCHITECTURE=$1
