@@ -2,7 +2,9 @@ language: python
 env:
   global:
     secure: DQOSdC+HawY6Ye/A715P7Dkkvt54B143FPCJ3cAZxHSljHaEHfrBYApVDiWYjEkoctahsUZz5pxmswcoy3bbrDuHdTcnPJPeW3Y6r3MwJJ3MJ6PBYsdzPp28ODl1Zssk3rZko921cZcDFQsjCMl1cPwNt0/OEFa9NRvG7Hu3sHs=
-before_install: cd src
+before_install:
+- cd src
+- echo "local" > version
 install:
 - pip install --upgrade pip
 - pip install -e .
