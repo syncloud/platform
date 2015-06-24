@@ -2,10 +2,6 @@ import logging
 from os.path import dirname
 
 import requests
-import pytest
-
-from syncloud.app import logger
-
 DIR = dirname(__file__)
 
 def test_non_activated_device_redirect_to_activation():

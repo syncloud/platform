@@ -5,8 +5,7 @@ from syncloud.tools import app
 
 class PlatformInstaller:
 
-    def install(self, from_file=None):
-        Installer().install('platform', from_file, 'platform')
+    def install(self):
 
         data_dir = app.get_app_data_root('platform', 'platform')
         app.create_data_dir(data_dir, 'webapps', 'platform')

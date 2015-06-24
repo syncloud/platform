@@ -1,15 +1,14 @@
 import uuid
+from subprocess import check_output
 from syncloud.config.config import PlatformConfig, PlatformUserConfig
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
-from syncloud.sam.manager import get_sam
 from syncloud.insider import facade
 from syncloud.app import logger
 
 
 class ServerFacade:
-    def __init__(self, sam, insider):
-        self.sam = sam
+    def __init__(self, insider):
         self.insider = insider
         self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
@@ -31,7 +30,10 @@ class ServerFacade:
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}, {5}".format(
             redirect_email, user_domain, device_user, release, api_url, domain))
 
-        self.sam.update(release)
+        update_release = ''
+        if release:
+            update_release = '--release {0}'.format(release)
+        check_output('/opt/app/sam/bin/sam update {0}'.format(update_release), shell=True)
         # self.sam.upgrade_all()
 
         self.insider.set_redirect_info(domain, api_url)
@@ -68,7 +70,6 @@ class ServerFacade:
 
 
 def get_server(insider=None):
-    sam = get_sam()
     if insider is None:
         insider = facade.get_insider()
-    return ServerFacade(sam, insider)
+    return ServerFacade(insider)

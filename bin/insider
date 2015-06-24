@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/app/platform/python/bin/python
 import argparse
 import logging
 from os.path import join

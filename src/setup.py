@@ -1,11 +1,5 @@
 from setuptools import setup
 from os.path import join, dirname
-from sys import exec_prefix
-
-# Use prefix for virtual env
-prefix = ''
-if not exec_prefix == '/usr':
-    prefix = join(exec_prefix, 'local')
 
 requirements = [
     'configobj==4.7.2',
@@ -35,7 +29,7 @@ setup(
         'bin/sam'
     ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.server',
-              'syncloud.sam', 'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
+              'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
               'syncloud.server.rest', 'syncloud.config', 'syncloud.installer'],
     namespace_packages=['syncloud'],
     data_files=[

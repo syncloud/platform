@@ -1,3 +1,28 @@
+import os
+from subprocess import check_output
+import pwd
+from syncloud.app import logger
+import massedit
+
+log = logger.get_logger('platform.post.install')
+
+def fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
+    massedit.edit_files([locale_gen], ["re.sub('# {0}', '{0}', line)".format(lang)], dry_run=False)
+
+if 'LANG' in os.environ:
+    lang = os.environ['LANG']
+    if lang not in check_output(['locale', '-a']):
+        print("generating locale: {0}".format(lang))
+        fix_locale_gen(lang)
+        check_output('locale-gen')
+
+user = 'platform'
+try:
+    pwd.getpwnam(user)
+except KeyError:
+    log.info(check_output('/usr/sbin/useradd -r -s /bin/false {0}'.format(user), shell=True))
+log.info(check_output('chown -R platform. /opt/app/platform', shell=True))
+
 data_dir = app.get_app_data_root('platform', 'platform')
 app.create_data_dir(data_dir, 'webapps', 'platform')
 

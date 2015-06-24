@@ -18,7 +18,10 @@ if [[ -n "$TEAMCITY_VERSION" ]]; then
     TC="export TEAMCITY_VERSION=\"$TEAMCITY_VERSION\" ; "
 fi
 
-sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "$TC /test/integration/unit-test.sh"
-sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/pip-install.sh"
-sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "/test/integration/binary-install.py"
-sshpass -p "syncloud" ssh -o StrictHostKeyChecking=no root@localhost -p 2222 "$TC py.test -s /test/integration/verify.py --email=$1 --password=$2 --domain=$3 --release=$4"
+SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@localhost -p 2222"
+
+#${SSH} "/test/integration/pip-install.sh"
+${SSH} "/opt/app/sam/bin/sam --debug update --release $4"
+${SSH} "/opt/app/sam/bin/sam --debug install /test/build/platform-local-x86_64.tar.gz"
+${SSH} "$TC /test/integration/unit-test.sh"
+${SSH} "$TC /opt/app/platform/python/bin/py.test -s /test/integration/verify.py --email=$1 --password=$2 --domain=$3 --release=$4"
