@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 NAME="platform"
 
-ARCHITECTURE=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+ARCHITECTURE=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
     ARCHITECTURE=$1
 fi
@@ -90,5 +90,5 @@ mkdir build/${NAME}/META
 echo ${NAME} >> build/${NAME}/META/app
 echo ${VERSION} >> build/${NAME}/META/version
 
-cd build
-tar -zcf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz ${NAME}
+echo "zipping"
+tar cpzf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C build/ ${NAME}
