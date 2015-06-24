@@ -5,7 +5,6 @@ import sys
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect
 
-from syncloud.sam.manager import get_sam
 from syncloud.server.model import app_from_sam_app, App
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
@@ -14,8 +13,11 @@ if __name__ == '__main__':
 
 from syncloud.config.config import PlatformConfig, PlatformUserConfig
 from syncloud.server.auth import authenticate
+from syncloud.sam.stub import SamStub
 from syncloud.app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
+
+sam = SamStub()
 
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
@@ -138,20 +140,20 @@ def app_status():
 @app.route(rest_prefix + "/install", methods=["GET"])
 @login_required
 def install():
-    result = get_sam().install(request.args['app_id'])
+    result = sam.install(request.args['app_id'])
     return jsonify(message=result), 200
 
 @app.route(rest_prefix + "/remove", methods=["GET"])
 @login_required
 def remove():
-    result = get_sam().remove(request.args['app_id'])
+    result = sam.remove(request.args['app_id'])
     return jsonify(message=result), 200
 
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
-    get_sam().remove(request.args['app_id'])
-    result = get_sam().install(request.args['app_id'])
+    sam.remove(request.args['app_id'])
+    result = sam.install(request.args['app_id'])
     return jsonify(message=result), 200
 
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
@@ -165,7 +167,7 @@ def non_required_apps():
     if mock_apps:
         apps = mock_apps
     else:
-        apps = [app for app in get_sam().list() if not app.app.required]
+        apps = [app for app in sam.list() if not app.app.required]
     return apps
 
 

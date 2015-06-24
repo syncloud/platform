@@ -5,6 +5,7 @@ from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.insider import facade
 from syncloud.app import logger
+from syncloud.sam.stub import SamStub
 
 
 class ServerFacade:
@@ -13,6 +14,7 @@ class ServerFacade:
         self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
         self.auth = Auth()
+        self.sam = SamStub()
 
     def activate(self,
                  redirect_email, redirect_password, user_domain,
@@ -30,10 +32,7 @@ class ServerFacade:
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}, {5}".format(
             redirect_email, user_domain, device_user, release, api_url, domain))
 
-        update_release = ''
-        if release:
-            update_release = '--release {0}'.format(release)
-        check_output('/opt/app/sam/bin/sam update {0}'.format(update_release), shell=True)
+        self.sam.update(release)
         # self.sam.upgrade_all()
 
         self.insider.set_redirect_info(domain, api_url)

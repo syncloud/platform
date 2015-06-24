@@ -23,18 +23,10 @@ version = open(join(dirname(__file__), 'version')).read().strip()
 setup(
     name='syncloud-platform',
     version=version,
-    scripts=[
-        'bin/syncloud-platform-post-install',
-        'bin/syncloud-platform-pre-remove',
-        'bin/sam'
-    ],
     packages=['syncloud', 'syncloud.insider', 'syncloud.server',
               'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
-              'syncloud.server.rest', 'syncloud.config', 'syncloud.installer'],
+              'syncloud.server.rest', 'syncloud.config', 'syncloud.sam'],
     namespace_packages=['syncloud'],
-    data_files=[
-        ('sam/config', ['config/sam.cfg'])
-    ],
     install_requires=requirements,
     description='Syncloud platform',
     long_description='Syncloud platform',

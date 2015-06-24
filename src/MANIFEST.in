@@ -1,12 +1,6 @@
-include version README.md LICENSE
-recursive-include bin *
+include version
 recursive-include syncloud *
 recursive-include test *
-recursive-include config *
-recursive-include apache *
-recursive-include www *
 
 global-exclude *.pyc
 global-exclude .gitignore
-global-exclude .travis.yml
-
