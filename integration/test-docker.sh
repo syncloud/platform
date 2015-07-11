@@ -20,7 +20,6 @@ fi
 
 SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@localhost -p 2222"
 
-#${SSH} "/test/integration/pip-install.sh"
 ${SSH} "/opt/app/sam/bin/sam --debug update --release $4"
 ${SSH} "/opt/app/sam/bin/sam --debug install /test/platform-${5}-${6}.tar.gz"
 ${SSH} "$TC /test/integration/unit-test.sh"
