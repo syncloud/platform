@@ -1,5 +1,5 @@
 import logging
-from syncloud.app import logger
+from syncloud_app import logger
 from syncloud.insider import upnpc_mock
 
 logger.init(level=logging.DEBUG, console=True)

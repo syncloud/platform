@@ -3,7 +3,7 @@ import pytest
 
 import responses
 from mock import MagicMock
-from syncloud.app import logger
+from syncloud_app import logger
 from convertible import reformat
 from syncloud.tools import config
 from syncloud.tools import footprint
@@ -14,7 +14,7 @@ from syncloud.insider.port_mapper import PortMapper
 from syncloud.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config
 
-from syncloud.app.main import PassthroughJsonError
+from syncloud_app.main import PassthroughJsonError
 
 logger.init(level=logging.DEBUG, console=True)
 

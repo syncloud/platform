@@ -1,5 +1,5 @@
-from syncloud.app import runner
-from syncloud.app.logger import get_logger
+from syncloud_app import runner
+from syncloud_app.logger import get_logger
 
 
 class Service():

@@ -1,5 +1,5 @@
 import re
-from syncloud.app import logger
+from syncloud_app import logger
 
 
 class CpuInfo:

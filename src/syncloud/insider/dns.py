@@ -3,10 +3,10 @@ from urlparse import urljoin
 import requests
 import convertible
 from IPy import IP
-from syncloud.app import logger
+from syncloud_app import logger
 from syncloud.insider.config import Service
 from syncloud.tools import id
-from syncloud.app.main import PassthroughJsonError
+from syncloud_app.main import PassthroughJsonError
 
 
 class ServiceUrls:

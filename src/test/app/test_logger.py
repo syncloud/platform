@@ -2,8 +2,8 @@ import logging
 from os import remove
 import tempfile
 import pytest
-from syncloud.app import logger
-from syncloud.app.logger import clean
+from syncloud_app import logger
+from syncloud_app.logger import clean
 
 
 @pytest.fixture(scope="function")

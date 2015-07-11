@@ -2,7 +2,7 @@ import os
 from os.path import join
 import shutil
 from subprocess import check_output, CalledProcessError
-from syncloud.app import logger
+from syncloud_app import logger
 from syncloud.config.config import PlatformConfig
 
 SYSTEMD_DIR = join('/lib', 'systemd', 'system')

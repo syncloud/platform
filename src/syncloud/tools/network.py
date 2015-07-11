@@ -6,5 +6,3 @@ def local_ip():
     if not local_ip:
         raise(Exception("Can't get local ip address"))
     return local_ip
-
-

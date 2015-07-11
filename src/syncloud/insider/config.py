@@ -1,7 +1,7 @@
 from ConfigParser import ConfigParser
 from os.path import dirname, join
 import os
-from syncloud.app import logger
+from syncloud_app import logger
 import convertible
 
 

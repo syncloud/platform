@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
@@ -36,6 +36,7 @@ function 3rdparty {
 
 PSUTIL_WHL="psutil-2.1.3-cp27-none-linux_${ARCHITECTURE}.whl"
 PYTHON_LDAP_WHL="python_ldap-2.4.19-cp27-none-linux_${ARCHITECTURE}.whl"
+MINIUPNPC_WHL="miniupnpc-1.9-cp27-none-linux_${ARCHITECTURE}.whl"
 NGINX_ZIP=nginx.tar.gz
 UWSGI_ZIP=uwsgi.tar.gz
 OPENLDAP_ZIP=openldap.tar.gz
@@ -46,6 +47,7 @@ PYTHON_ZIP=python.tar.gz
 3rdparty openldap ${OPENLDAP_ZIP}
 3rdparty python ${PYTHON_ZIP}
 3rdparty psutil ${PSUTIL_WHL}
+3rdparty miniupnpc ${MINIUPNPC_WHL}
 3rdparty python_ldap ${PYTHON_LDAP_WHL}
 
 cd www

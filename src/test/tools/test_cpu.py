@@ -1,6 +1,6 @@
 import logging
 from os.path import dirname
-from syncloud.app import logger
+from syncloud_app import logger
 from syncloud.tools.cpu.cpuinfo import CpuInfo
 from syncloud.tools.cpu.reader import Reader
 

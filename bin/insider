@@ -3,8 +3,8 @@ import argparse
 import logging
 from os.path import join
 
-from syncloud.app import main
-from syncloud.app import logger
+from syncloud_app import main
+from syncloud_app import logger
 from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
 
 import syncloud.insider.facade

@@ -4,7 +4,7 @@ from syncloud.config.config import PlatformConfig, PlatformUserConfig
 from syncloud.server.auth import Auth
 from syncloud.tools.facade import Facade
 from syncloud.insider import facade
-from syncloud.app import logger
+from syncloud_app import logger
 from syncloud.sam.stub import SamStub
 
 

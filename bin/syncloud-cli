@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import argparse
-from syncloud.app import main
-from syncloud.app import logger
+from syncloud_app import main
+from syncloud_app import logger
 import logging
 from syncloud.server import serverfacade
 

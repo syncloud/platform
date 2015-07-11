@@ -10,7 +10,7 @@ if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
 from syncloud.tools.facade import Facade
-from syncloud.app import logger
+from syncloud_app import logger
 from syncloud.config.config import PlatformConfig
 from syncloud.server.serverfacade import get_server
 

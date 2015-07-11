@@ -1,7 +1,7 @@
 import os
 from subprocess import check_output
 import pwd
-from syncloud.app import logger
+from syncloud_app import logger
 import massedit
 
 log = logger.get_logger('platform.post.install')

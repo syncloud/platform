@@ -3,7 +3,7 @@ import logging
 from StringIO import StringIO
 import pytest
 
-from syncloud.app import runner
+from syncloud_app import runner
 
 
 @pytest.fixture(scope="function")

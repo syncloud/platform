@@ -10,11 +10,13 @@ requirements = [
     'convertible==0.13',
     'Flask==0.10.1',
     'psutil==2.1.3',
+    'miniupnpc==1.9',
     'python-crontab==1.7.2',
     'wget==2.2',
     'massedit==0.66',
     'python-ldap==2.4.19',
-    'flask-login==0.2.10'
+    'flask-login==0.2.10',
+    'syncloud-app==0.38'
 ]
 
 
@@ -24,7 +26,7 @@ setup(
     name='syncloud-platform',
     version=version,
     packages=['syncloud', 'syncloud.insider', 'syncloud.server',
-              'syncloud.app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
+              'syncloud_app', 'syncloud.tools', 'syncloud.tools.cpu', 'syncloud.systemd',
               'syncloud.server.rest', 'syncloud.config', 'syncloud.sam'],
     namespace_packages=['syncloud'],
     install_requires=requirements,

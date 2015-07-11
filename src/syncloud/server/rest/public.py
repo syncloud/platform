@@ -14,7 +14,7 @@ if __name__ == '__main__':
 from syncloud.config.config import PlatformConfig, PlatformUserConfig
 from syncloud.server.auth import authenticate
 from syncloud.sam.stub import SamStub
-from syncloud.app import logger
+from syncloud_app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
 sam = SamStub()

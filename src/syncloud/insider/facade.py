@@ -9,8 +9,7 @@ from service_config import ServiceConfig
 
 from syncloud.insider.config import InsiderConfig, RedirectConfig
 from syncloud.insider import config
-import upnpc
-import upnpc_mock
+from syncloud.insider.cmd import Cmd
 import port_mapper
 import dns
 import cron
@@ -89,14 +88,14 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, use_upnpc_mock=False, data_root
 
     local_ip = Facade().local_ip()
 
-    if use_upnpc_mock or insider_config.is_upnpc_mock():
-        upnpclient = upnpc_mock.Upnpc()
-    else:
-        upnpclient = upnpc.Upnpc(local_ip)
+    # if use_upnpc_mock or insider_config.is_upnpc_mock():
+    #     upnpclient = upnpc_mock.Upnpc()
+    # else:
+    #     upnpclient = upnpc.UpnpcCmd()
 
-    mapper = port_mapper.PortMapper(
-        PortConfig(join(data_root, 'ports.json')),
-        upnpclient)
+    port_config = PortConfig(join(data_root, 'ports.json'))
+
+    mapper = port_mapper.PortMapper(port_config, Cmd())
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
