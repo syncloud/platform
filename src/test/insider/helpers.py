@@ -1,12 +1,12 @@
 from os.path import dirname, join
 import tempfile
 import os
-from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_NAME
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_NAME
 
-from syncloud.insider.port_config import PortConfig
-from syncloud.insider.service_config import ServiceConfig
+from syncloud_platform.insider.port_config import PortConfig
+from syncloud_platform.insider.service_config import ServiceConfig
 
-from syncloud.insider.config import DomainConfig, InsiderConfig, RedirectConfig, INSIDER_CONFIG_NAME
+from syncloud_platform.insider.config import DomainConfig, InsiderConfig, RedirectConfig, INSIDER_CONFIG_NAME
 
 
 def temp_file(text=''):

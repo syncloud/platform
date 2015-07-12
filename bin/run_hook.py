@@ -1,9 +1,9 @@
 import logging
 
 from syncloud_app import logger
-from syncloud.tools import app
-from syncloud.tools.nginx import Nginx
-from syncloud.systemd.systemctl import add_service, remove_service
+from syncloud_platform.tools import app
+from syncloud_platform.tools.nginx import Nginx
+from syncloud_platform.systemd.systemctl import add_service, remove_service
 
 
 import sys

@@ -4,9 +4,9 @@ import argparse
 from os.path import join
 from syncloud_app import main
 from syncloud_app import logger
-from syncloud.config.config import PlatformConfig
+from syncloud_platform.config.config import PlatformConfig
 
-from syncloud.tools.facade import Facade
+from syncloud_platform.tools.facade import Facade
 
 
 def get_arg_parser():

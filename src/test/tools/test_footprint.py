@@ -1,4 +1,4 @@
-from syncloud.tools.footprint import Footprint
+from syncloud_platform.tools.footprint import Footprint
 
 
 def test_equals_all_members():

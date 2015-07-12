@@ -1,5 +1,5 @@
 import pytest
-from syncloud.insider.upnpc import check_error
+from syncloud_platform.insider.upnpc import check_error
 
 
 def test_check_error_throws():

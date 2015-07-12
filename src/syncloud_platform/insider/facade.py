@@ -1,13 +1,13 @@
 import os
 from os.path import join
-from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
-from syncloud.tools.app import get_app_data_root
-from syncloud.tools.facade import Facade
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
+from syncloud_platform.tools.app import get_app_data_root
+from syncloud_platform.tools.facade import Facade
 
 from port_config import PortConfig
 from service_config import ServiceConfig
 
-from syncloud.insider.config import InsiderConfig, RedirectConfig, DomainConfig
+from syncloud_platform.insider.config import InsiderConfig, RedirectConfig, DomainConfig
 import upnpc
 import port_mapper
 import dns

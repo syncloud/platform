@@ -9,9 +9,9 @@ import ldap
 
 from syncloud_app import util
 from syncloud_app.logger import get_logger
-from syncloud.config.config import PlatformConfig
-from syncloud.systemd.systemctl import stop_service, start_service
-from syncloud.tools import app
+from syncloud_platform.config.config import PlatformConfig
+from syncloud_platform.systemd.systemctl import stop_service, start_service
+from syncloud_platform.tools import app
 
 
 class Auth:

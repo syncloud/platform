@@ -1,5 +1,5 @@
 import socket
-from syncloud.tools import network
+from syncloud_platform.tools import network
 
 
 def test_local_ip():

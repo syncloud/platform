@@ -1,8 +1,8 @@
 import logging
 from os.path import dirname
 from syncloud_app import logger
-from syncloud.tools.cpu.cpuinfo import CpuInfo
-from syncloud.tools.cpu.reader import Reader
+from syncloud_platform.tools.cpu.cpuinfo import CpuInfo
+from syncloud_platform.tools.cpu.reader import Reader
 
 test_dir = dirname(__file__)
 logger.init(logging.DEBUG, console=True)

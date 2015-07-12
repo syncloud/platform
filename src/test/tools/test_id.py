@@ -1,5 +1,5 @@
-from syncloud.tools.footprint import Footprint
-from syncloud.tools.id import getname
+from syncloud_platform.tools.footprint import Footprint
+from syncloud_platform.tools.id import getname
 
 
 def test_getname_cubietruck():

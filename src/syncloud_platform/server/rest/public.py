@@ -5,15 +5,15 @@ import sys
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect
 
-from syncloud.server.model import app_from_sam_app, App
+from syncloud_platform.server.model import app_from_sam_app, App
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
-from syncloud.config.config import PlatformConfig, PlatformUserConfig
-from syncloud.server.auth import authenticate
-from syncloud.sam.stub import SamStub
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
+from syncloud_platform.server.auth import authenticate
+from syncloud_platform.sam.stub import SamStub
 from syncloud_app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 

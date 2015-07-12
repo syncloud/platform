@@ -3,7 +3,7 @@ import os
 from os.path import join
 from pwd import getpwnam
 import shutil
-from syncloud.config.config import PlatformConfig
+from syncloud_platform.config.config import PlatformConfig
 
 def get_app_data_root(app_name, user=None):
     config = PlatformConfig()

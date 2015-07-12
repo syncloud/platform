@@ -1,6 +1,6 @@
 import unittest
 
-from syncloud.insider.config import Service
+from syncloud_platform.insider.config import Service
 from test.insider.helpers import get_service_config
 
 

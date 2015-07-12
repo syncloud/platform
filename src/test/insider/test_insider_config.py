@@ -1,6 +1,6 @@
 import unittest
 
-from syncloud.insider.config import InsiderConfig, RedirectConfig
+from syncloud_platform.insider.config import InsiderConfig, RedirectConfig
 from test.insider.helpers import temp_file, insider_config
 
 

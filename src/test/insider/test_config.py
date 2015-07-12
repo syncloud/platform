@@ -1,6 +1,6 @@
 from convertible import to_json
 
-from syncloud.insider.config import Port
+from syncloud_platform.insider.config import Port
 
 
 def test_port_mapping():

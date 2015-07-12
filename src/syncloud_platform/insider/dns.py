@@ -4,8 +4,8 @@ import requests
 import convertible
 from IPy import IP
 from syncloud_app import logger
-from syncloud.insider.config import Service
-from syncloud.tools import id
+from syncloud_platform.insider.config import Service
+from syncloud_platform.tools import id
 from syncloud_app.main import PassthroughJsonError
 
 

@@ -1,8 +1,8 @@
 import os
 from os.path import join
 from string import Template
-from syncloud.systemd.systemctl import reload_service
-from syncloud.config.config import PlatformConfig
+from syncloud_platform.systemd.systemctl import reload_service
+from syncloud_platform.config.config import PlatformConfig
 
 
 class Nginx:

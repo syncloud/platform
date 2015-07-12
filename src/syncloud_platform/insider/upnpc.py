@@ -2,7 +2,7 @@ import itertools
 from subprocess import check_output, CalledProcessError
 
 from syncloud_app import logger
-from syncloud.insider.cmd import Cmd
+from syncloud_platform.insider.cmd import Cmd
 
 def local_ip(cmd):
     local_ip = cmd.run('hostname -I').split(" ")[0]

@@ -5,9 +5,9 @@ from os.path import join
 
 from syncloud_app import main
 from syncloud_app import logger
-from syncloud.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
 
-import syncloud.insider.facade
+import syncloud_platform.insider.facade
 
 
 def create_args_parser():
@@ -51,6 +51,6 @@ if __name__ == '__main__':
     level = logging.DEBUG if args.debug else logging.INFO
     logger.init(level, console, join(PlatformConfig().data_dir(), 'insider.log'))
 
-    facade = syncloud.insider.facade.get_insider(args.config_path)
+    facade = syncloud_platform.insider.facade.get_insider(args.config_path)
 
     main.execute(facade, args)

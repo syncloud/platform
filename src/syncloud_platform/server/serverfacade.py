@@ -1,11 +1,11 @@
 import uuid
 from subprocess import check_output
-from syncloud.config.config import PlatformConfig, PlatformUserConfig
-from syncloud.server.auth import Auth
-from syncloud.tools.facade import Facade
-from syncloud.insider import facade
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
+from syncloud_platform.server.auth import Auth
+from syncloud_platform.tools.facade import Facade
+from syncloud_platform.insider import facade
 from syncloud_app import logger
-from syncloud.sam.stub import SamStub
+from syncloud_platform.sam.stub import SamStub
 
 
 class ServerFacade:

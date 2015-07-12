@@ -3,10 +3,10 @@ import tempfile
 import shutil
 
 import responses
-from syncloud.config.config import PLATFORM_CONFIG_NAME
-from syncloud.insider.config import INSIDER_CONFIG_NAME
+from syncloud_platform.config.config import PLATFORM_CONFIG_NAME
+from syncloud_platform.insider.config import INSIDER_CONFIG_NAME
 
-from syncloud.insider.facade import get_insider
+from syncloud_platform.insider.facade import get_insider
 from test.insider.helpers import insider_config_file, platform_config_file
 
 

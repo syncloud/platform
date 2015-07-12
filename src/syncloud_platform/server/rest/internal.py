@@ -9,10 +9,10 @@ local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
-from syncloud.tools.facade import Facade
+from syncloud_platform.tools.facade import Facade
 from syncloud_app import logger
-from syncloud.config.config import PlatformConfig
-from syncloud.server.serverfacade import get_server
+from syncloud_platform.config.config import PlatformConfig
+from syncloud_platform.server.serverfacade import get_server
 
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')

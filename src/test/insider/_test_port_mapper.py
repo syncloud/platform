@@ -4,8 +4,8 @@ import unittest
 from mockito import *
 # from mock import MagicMock
 
-from syncloud.insider.config import Port
-from syncloud.insider.upnpc import UpnpPortMapper
+from syncloud_platform.insider.config import Port
+from syncloud_platform.insider.upnpc import UpnpPortMapper
 from test.insider.helpers import get_port_config
 
 

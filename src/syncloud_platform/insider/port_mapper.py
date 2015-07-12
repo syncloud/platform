@@ -1,7 +1,7 @@
 from syncloud_app import logger
 
-from syncloud.insider.config import Port
-from syncloud.insider.upnpc import UpnpPortMapper
+from syncloud_platform.insider.config import Port
+from syncloud_platform.insider.upnpc import UpnpPortMapper
 
 LOWER_LIMIT = 2000
 UPPER_LIMIT = 65535

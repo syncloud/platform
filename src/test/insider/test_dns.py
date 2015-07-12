@@ -4,13 +4,13 @@ import pytest
 import responses
 from syncloud_app import logger
 from convertible import reformat
-from syncloud.tools import config
-from syncloud.tools import footprint
-from syncloud.tools import id
+from syncloud_platform.tools import config
+from syncloud_platform.tools import footprint
+from syncloud_platform.tools import id
 
-from syncloud.insider.dns import Dns
-from syncloud.insider.port_mapper import PortMapper, MockPortMapper
-from syncloud.insider.config import Port, Domain, Service
+from syncloud_platform.insider.dns import Dns
+from syncloud_platform.insider.port_mapper import PortMapper, MockPortMapper
+from syncloud_platform.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config
 
 from syncloud_app.main import PassthroughJsonError

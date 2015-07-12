@@ -1,6 +1,6 @@
 import psutil
-from syncloud.tools.cpu.cpuinfo import CpuInfo
-from syncloud.tools.cpu.reader import Reader
+from syncloud_platform.tools.cpu.cpuinfo import CpuInfo
+from syncloud_platform.tools.cpu.reader import Reader
 
 
 class Footprint:

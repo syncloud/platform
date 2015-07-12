@@ -1,4 +1,4 @@
-from syncloud.tools.nginx import Nginx
+from syncloud_platform.tools.nginx import Nginx
 
 
 def test_proxy():

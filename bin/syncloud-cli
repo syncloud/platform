@@ -4,7 +4,7 @@ import argparse
 from syncloud_app import main
 from syncloud_app import logger
 import logging
-from syncloud.server import serverfacade
+from syncloud_platform.server import serverfacade
 
 
 def create_args_parser():
