@@ -2,7 +2,7 @@ import itertools
 from subprocess import check_output, CalledProcessError
 
 from syncloud_app import logger
-
+from syncloud.insider.cmd import Cmd
 
 def local_ip(cmd):
     local_ip = cmd.run('hostname -I').split(" ")[0]
@@ -92,10 +92,10 @@ PORTS_TO_TRY = 10
 
 class UpnpPortMapper:
 
-    def __init__(self, cmd):
+    def __init__(self):
         self.logger = logger.get_logger('PortMapper')
-        self.cmd = cmd
-        self.upnpc = UpnpcCmd(cmd)
+        self.cmd = Cmd()
+        self.upnpc = UpnpcCmd(self.cmd)
 
     def __find_available_ports(self, existing_ports, local_port, ports_to_try=PORTS_TO_TRY):
         port_range = range(LOWER_LIMIT, UPPER_LIMIT)

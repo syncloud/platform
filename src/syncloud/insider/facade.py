@@ -7,9 +7,8 @@ from syncloud.tools.facade import Facade
 from port_config import PortConfig
 from service_config import ServiceConfig
 
-from syncloud.insider.config import InsiderConfig, RedirectConfig
-from syncloud.insider import config
-from syncloud.insider.cmd import Cmd
+from syncloud.insider.config import InsiderConfig, RedirectConfig, DomainConfig
+import upnpc
 import port_mapper
 import dns
 import cron
@@ -78,7 +77,7 @@ class Insider:
         return self.dns.endpoints()
 
 
-def get_insider(config_path=PLATFORM_CONFIG_DIR, use_upnpc_mock=False, data_root=None):
+def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_root=None):
 
     if not data_root:
         data_root = get_app_data_root('platform')
@@ -88,20 +87,20 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, use_upnpc_mock=False, data_root
 
     local_ip = Facade().local_ip()
 
-    # if use_upnpc_mock or insider_config.is_upnpc_mock():
-    #     upnpclient = upnpc_mock.Upnpc()
-    # else:
-    #     upnpclient = upnpc.UpnpcCmd()
+    if mock_port_mapper:
+        mapper_provider = port_mapper.MockPortMapper
+    else:
+        mapper_provider = upnpc.UpnpPortMapper
 
     port_config = PortConfig(join(data_root, 'ports.json'))
 
-    mapper = port_mapper.PortMapper(port_config, Cmd())
+    mapper = port_mapper.PortMapper(port_config, mapper_provider)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
     dns_service = dns.Dns(
         insider_config,
-        config.DomainConfig(join(data_root, 'domain.json')),
+        DomainConfig(join(data_root, 'domain.json')),
         service_config,
         mapper,
         local_ip)

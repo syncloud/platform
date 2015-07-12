@@ -10,10 +10,10 @@ PORTS_TO_TRY = 10
 
 class PortMapper:
 
-    def __init__(self, port_config, cmd):
+    def __init__(self, port_config, port_mapper_provider):
         self.logger = logger.get_logger('PortMapper')
         self.port_config = port_config
-        self.port_mapper = UpnpPortMapper(cmd)
+        self.port_mapper = port_mapper_provider()
 
     def remove_all(self):
         for mapping in self.list():
@@ -40,8 +40,19 @@ class PortMapper:
         self.port_config.add_or_update(mapping)
 
     def sync_new_port(self, local_port):
-        self.sync_one_mapping(Port(local_port, None))
+        self.sync_one_mapping(local_port)
 
     def sync(self):
         for mapping in self.list():
-            self.sync_one_mapping(mapping)
+            self.sync_one_mapping(mapping.local_port)
+
+
+class MockPortMapper:
+    def __init__(self, external_ip=None):
+        self.__external_ip=external_ip
+    def external_ip(self):
+        return self.__external_ip
+    def add_mapping(self, local_port):
+        return local_port
+    def remove_mapping(self, local_port, external_port):
+        pass

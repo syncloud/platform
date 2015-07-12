@@ -104,13 +104,3 @@ class InsiderConfig:
 
     def get_cron_period_mins(self):
         return self.parser.getint('cron', 'period_mins')
-
-    def is_upnpc_mock(self):
-        return self.parser.getboolean('upnpc', 'mock')
-
-    def set_upnpc_mock(self, enable):
-        if not self.parser.has_section('upnpc'):
-            self.parser.add_section('upnpc')
-        self.parser.set('upnpc', 'mock', enable)
-        self._save()
-

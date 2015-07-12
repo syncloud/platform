@@ -2,7 +2,6 @@ import logging
 import pytest
 
 import responses
-from mock import MagicMock
 from syncloud_app import logger
 from convertible import reformat
 from syncloud.tools import config
@@ -10,24 +9,13 @@ from syncloud.tools import footprint
 from syncloud.tools import id
 
 from syncloud.insider.dns import Dns
-from syncloud.insider.port_mapper import PortMapper
+from syncloud.insider.port_mapper import PortMapper, MockPortMapper
 from syncloud.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config
 
 from syncloud_app.main import PassthroughJsonError
 
 logger.init(level=logging.DEBUG, console=True)
-
-
-def get_upnpc(external_ip):
-    upnpc = MagicMock()
-    upnpc.external_ip = MagicMock(return_value=external_ip)
-    upnpc.port_open_on_router = MagicMock(return_value=False)
-    return upnpc
-
-
-def get_port_mapper(port_config, upnpc):
-    return PortMapper(port_config, upnpc)
 
 
 def assertSingleRequest(expected_request):
@@ -43,10 +31,8 @@ def test_sync_success():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
-    upnpc = get_upnpc(external_ip='192.167.44.52')
-    upnpc.mapped_external_ports = MagicMock(side_effect=[[], [80]])
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
-    port_mapper = get_port_mapper(port_config, upnpc)
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
     responses.add(responses.POST,
@@ -79,10 +65,8 @@ def test_sync_server_side_client_ip():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
-    upnpc = get_upnpc(external_ip='10.1.1.1')
-    upnpc.mapped_external_ports = MagicMock(side_effect=[[], [80]])
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
 
-    port_mapper = get_port_mapper(port_config, upnpc)
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
     responses.add(responses.POST,
@@ -112,8 +96,8 @@ def test_sync_server_side_client_ip():
 def test_sync_server_error():
     service_config = get_service_config([Service("ownCloud", "http", "_http._tcp", 80, url="owncloud")])
     port_config = get_port_config([Port(80, 10000)])
-    upnpc = get_upnpc(external_ip='192.167.44.52')
-    port_mapper = get_port_mapper(port_config, upnpc)
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
     responses.add(responses.POST,
@@ -194,8 +178,7 @@ def test_link_server_error():
 def test_add_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    upnpc = get_upnpc(external_ip='192.167.44.52')
-    port_mapper = get_port_mapper(port_config, upnpc)
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
 
@@ -219,8 +202,7 @@ def test_add_service():
 def test_get_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    upnpc = get_upnpc(external_ip='192.167.44.52')
-    port_mapper = get_port_mapper(port_config, upnpc)
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
 
@@ -239,8 +221,7 @@ def test_get_service():
 def test_get_not_existing_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    upnpc = get_upnpc(external_ip='192.167.44.52')
-    port_mapper = get_port_mapper(port_config, upnpc)
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
@@ -256,10 +237,8 @@ def test_endpoints():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 8080), Port(81, 8181)])
-    upnpc = get_upnpc(external_ip='10.1.1.1')
-    # upnpc.mapped_external_ports = MagicMock(side_effect=[[], [80]])
+    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
 
-    port_mapper = get_port_mapper(port_config, upnpc)
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
     dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')

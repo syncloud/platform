@@ -23,7 +23,7 @@ def test_get_service():
 
     responses.add(responses.POST, "http://domain.com/domain/update", status=200)
 
-    insider = get_insider(config_path=temp_folder, data_root=tempfile.mkdtemp(), use_upnpc_mock=True)
+    insider = get_insider(config_path=temp_folder, data_root=tempfile.mkdtemp(), mock_port_mapper=True)
     insider.set_redirect_info('domain.com', 'http://domain.com')
     insider.acquire_domain('email', 'password', 'user_domain')
     insider.add_service('name', 'protocol', 'type', 80, 'url')
