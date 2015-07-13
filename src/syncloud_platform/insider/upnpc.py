@@ -24,8 +24,6 @@ def check_error(output):
     return output
 
 
-EXTERNAL_PORTS_CMD = "upnpc -l | grep {protocol} | grep '{local_ip}:{local_port}' | awk '{ print $3 }' | cut -d'-' -f1"
-
 class UpnpcCmd:
     def __init__(self, cmd):
         self.cmd = cmd
@@ -56,7 +54,7 @@ class UpnpcCmd:
             raise e
 
     def get_external_ports(self, protocol, local_port):
-        cmd = EXTERNAL_PORTS_CMD.format(protocol=protocol, local_ip=self.local_ip, local_port=local_port)
+        cmd = "upnpc -l | grep %s | grep '%s:%s' | awk '{ print $3 }' | cut -d'-' -f1" % (protocol, self.local_ip, local_port)
         self.logger.debug(cmd)
         try:
             output = self.__run(cmd)
