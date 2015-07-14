@@ -1,8 +1,10 @@
 import itertools
 from subprocess import check_output, CalledProcessError
+from miniupnpc import UPnP
 
 from syncloud_app import logger
 from syncloud_platform.insider.cmd import Cmd
+
 
 def local_ip(cmd):
     local_ip = cmd.run('hostname -I').split(" ")[0]
@@ -83,6 +85,73 @@ class UpnpcCmd:
             raise e
 
 
+class Mapping:
+    def __init__(self, external_port, protocol, local_ip, local_port, description, enabled, remote_ip, lease_time):
+        self.external_port = external_port
+        self.protocol = protocol
+        self.local_ip = local_ip
+        self.local_port = local_port
+        self.description = description
+        self.enabled = enabled
+        self.remote_ip = remote_ip
+        self.lease_time = lease_time
+
+def to_mapping(m):
+    external_port, protocol, local_address, description, enabled_str, remote_ip_str, lease_time = m
+    local_ip_str, local_port = local_address
+    local_ip = local_ip_str
+    if local_ip_str == '': local_ip = None
+    remote_ip = remote_ip_str
+    if remote_ip_str == '': remote_ip = None
+    enabled = False
+    if enabled_str == '1': enabled = True
+    return Mapping(external_port, protocol, local_ip, local_port, description, enabled, remote_ip, lease_time)
+
+
+class UpnpcCmdX:
+    def __init__(self):
+        self.logger = logger.get_logger('UpnpcCmdX')
+        self.upnp = UPnP()
+        self.upnp.discover()
+        self.upnp.selectigd()
+
+    def __run(self, cmd):
+        return check_output(cmd, shell=True)
+
+    def external_ip(self):
+        return self.upnp.externalipaddress()
+
+
+    def __list(self):
+        result = []
+        i = 0
+        while True:
+            p = self.upnp.getgenericportmapping(i)
+            if p is None:
+                break
+            result.append(p)
+            i += 1
+        return [to_mapping(m) for m in result]
+
+    def mapped_external_ports(self, protocol):
+        mappings = self.__list()
+        local_ip = self.upnp.lanaddr
+        ports = [m.external_port for m in mappings if m.protocol == protocol and m.local_ip == local_ip]
+        return ports
+
+    def get_external_ports(self, protocol, local_port):
+        mappings = self.__list()
+        local_ip = self.upnp.lanaddr
+        ports = [m.external_port for m in mappings if m.protocol == protocol and m.local_ip == local_ip and m.local_port == local_port]
+        return ports
+
+    def remove(self, external_port):
+        self.upnp.deleteportmapping(external_port, 'TCP')
+
+    def add(self, local_port, external_port):
+        self.upnp.addportmapping(external_port, 'TCP', self.upnp.lanaddr, local_port, 'Syncloud', '')
+
+
 LOWER_LIMIT = 2000
 UPPER_LIMIT = 65535
 PORTS_TO_TRY = 10
@@ -93,7 +162,8 @@ class UpnpPortMapper:
     def __init__(self):
         self.logger = logger.get_logger('PortMapper')
         self.cmd = Cmd()
-        self.upnpc = UpnpcCmd(self.cmd)
+        # self.upnpc = UpnpcCmd(self.cmd)
+        self.upnpc = UpnpcCmdX()
 
     def __find_available_ports(self, existing_ports, local_port, ports_to_try=PORTS_TO_TRY):
         port_range = range(LOWER_LIMIT, UPPER_LIMIT)
