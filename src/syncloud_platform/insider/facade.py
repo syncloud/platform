@@ -9,22 +9,22 @@ from service_config import ServiceConfig
 
 from syncloud_platform.insider.config import InsiderConfig, RedirectConfig, DomainConfig
 import upnpc
-import port_mapper
+import port_drill
 import dns
 import cron
 
 
 class Insider:
 
-    def __init__(self, port_mapper, dns, cron, insider_config, service_config):
+    def __init__(self, port_drill, dns, cron, insider_config, service_config):
         self.insider_config = insider_config
-        self.port_mapper = port_mapper
+        self.port_drill = port_drill
         self.dns = dns
         self.cron = cron
         self.service_config = service_config
 
     def list_ports(self):
-        return self.port_mapper.list()
+        return self.port_drill.list()
 
     def sync_all(self):
         return self.dns.sync()
@@ -43,7 +43,7 @@ class Insider:
         return self.dns.get_service(name)
 
     def get_mapping(self, port):
-        return self.port_mapper.get(port)
+        return self.port_drill.get(port)
 
     def service_info(self, name):
         return self.dns.service_info(name)
@@ -88,13 +88,13 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
     local_ip = Facade().local_ip()
 
     if mock_port_mapper:
-        mapper_provider = port_mapper.MockPortMapper
+        mapper_provider = port_drill.MockPortMapper
     else:
         mapper_provider = upnpc.UpnpPortMapper
 
     port_config = PortConfig(join(data_root, 'ports.json'))
 
-    mapper = port_mapper.PortMapper(port_config, mapper_provider)
+    port_drill = port_drill.PortDrill(port_config, mapper_provider)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
@@ -102,7 +102,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
         insider_config,
         DomainConfig(join(data_root, 'domain.json')),
         service_config,
-        mapper,
+        port_drill,
         local_ip)
     platform_config = PlatformConfig(config_path)
     cron_service = cron.Cron(
@@ -110,4 +110,4 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
         join(platform_config.data_dir(), 'insider-cron.log'),
         insider_config.get_cron_period_mins())
 
-    return Insider(mapper, dns_service, cron_service, insider_config, service_config)
+    return Insider(port_drill, dns_service, cron_service, insider_config, service_config)

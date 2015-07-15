@@ -5,33 +5,10 @@ import pytest
 from syncloud_app import logger
 
 from syncloud_platform.insider.upnpc import UpnpPortMapper
+from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from test.insider.http import SomeHttpServer, wait_http, wait_http_cant_connect
 
 logger.init(level=logging.DEBUG, console=True)
-
-def check_upnp():
-    try:
-        mapper = UpnpPortMapper()
-        external_ip = mapper.external_ip()
-        return external_ip != ''
-    except Exception as ex:
-        return False
-
-upnp = pytest.mark.skipif(not check_upnp(), reason='UPnP interface was not found')
-
-def pytest_generate_tests(metafunc):
-    if 'mapper' in metafunc.fixturenames:
-        ids = []
-        mappers = []
-        if check_upnp():
-            ids.append('UpnpPortMapper')
-            mappers.append(UpnpPortMapper())
-        metafunc.parametrize('mapper', mappers, ids=ids)
-
-def test_external_ip(mapper):
-    external_ip = mapper.external_ip()
-    assert external_ip is not None
-
 
 @pytest.fixture(scope="module")
 def http_server(request):
@@ -42,6 +19,39 @@ def http_server(request):
         server.stop()
     request.addfinalizer(fin)
     return server
+
+def check_upnp():
+    try:
+        mapper = UpnpPortMapper()
+        external_ip = mapper.external_ip()
+        return external_ip != ''
+    except Exception as ex:
+        return False
+
+def check_natpmp():
+    try:
+        mapper = NatPmpPortMapper()
+        external_ip = mapper.external_ip()
+        return external_ip != ''
+    except Exception as ex:
+        return False
+
+
+def pytest_generate_tests(metafunc):
+    if 'mapper' in metafunc.fixturenames:
+        ids = []
+        mappers = []
+        if check_upnp():
+            ids.append('UpnpPortMapper')
+            mappers.append(UpnpPortMapper())
+        if check_natpmp():
+            ids.append('NatPmpPortMapper')
+            mappers.append(NatPmpPortMapper())
+        metafunc.parametrize('mapper', mappers, ids=ids)
+
+def test_external_ip(mapper):
+    external_ip = mapper.external_ip()
+    assert external_ip is not None
 
 def test_add_mapping_simple(http_server, mapper):
     external_port = mapper.add_mapping(http_server.port)

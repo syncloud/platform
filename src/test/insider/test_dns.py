@@ -9,7 +9,7 @@ from syncloud_platform.tools import footprint
 from syncloud_platform.tools import id
 
 from syncloud_platform.insider.dns import Dns
-from syncloud_platform.insider.port_mapper import PortMapper, MockPortMapper
+from syncloud_platform.insider.port_drill import PortDrill, MockPortMapper
 from syncloud_platform.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config
 
@@ -31,7 +31,7 @@ def test_sync_success():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
@@ -42,7 +42,7 @@ def test_sync_success():
                   content_type="application/json")
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
     dns.sync()
 
     expected_request = '''
@@ -65,7 +65,7 @@ def test_sync_server_side_client_ip():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
@@ -76,7 +76,7 @@ def test_sync_server_side_client_ip():
                   content_type="application/json")
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
     dns.sync()
 
     expected_request = '''
@@ -96,7 +96,7 @@ def test_sync_server_side_client_ip():
 def test_sync_server_error():
     service_config = get_service_config([Service("ownCloud", "http", "_http._tcp", 80, url="owncloud")])
     port_config = get_port_config([Port(80, 10000)])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
@@ -107,7 +107,7 @@ def test_sync_server_error():
                   content_type="application/json")
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync()
@@ -129,7 +129,7 @@ def test_link_success():
                   content_type="application/json")
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config=None, port_mapper=None, local_ip='127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1')
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -166,7 +166,7 @@ def test_link_server_error():
                   content_type="application/json")
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config=None, port_mapper=None, local_ip='127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1')
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
@@ -178,12 +178,12 @@ def test_link_server_error():
 def test_add_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
     dns.add_service("ownCloud", "http", "_http._tcp", 80, url="owncloud")
 
     services = service_config.load()
@@ -202,12 +202,12 @@ def test_add_service():
 def test_get_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
     dns.add_service("ownCloud", "http", "_http._tcp", 80, url="owncloud")
 
     service = dns.get_service("ownCloud")
@@ -221,11 +221,11 @@ def test_get_service():
 def test_get_not_existing_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
 
     service = dns.get_service("ownCloud")
 
@@ -237,11 +237,11 @@ def test_endpoints():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 8080), Port(81, 8181)])
-    port_mapper = PortMapper(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
+    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_mapper, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
 
     endpoints = dns.endpoints()
     assert len(endpoints) == 2

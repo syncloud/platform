@@ -1,14 +1,13 @@
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
-from syncloud_platform.insider.upnpc import UpnpPortMapper
 
 LOWER_LIMIT = 2000
 UPPER_LIMIT = 65535
 PORTS_TO_TRY = 10
 
 
-class PortMapper:
+class PortDrill:
 
     def __init__(self, port_config, port_mapper_provider):
         self.logger = logger.get_logger('PortMapper')

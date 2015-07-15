@@ -24,11 +24,11 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, insider_config, domain_config, service_config, port_mapper, local_ip):
+    def __init__(self, insider_config, domain_config, service_config, port_drill, local_ip):
         self.local_ip = local_ip
         self.domain_config = domain_config
         self.service_config = service_config
-        self.port_mapper = port_mapper
+        self.port_drill = port_drill
         self.insider_config = insider_config
         self.logger = logger.get_logger('dns')
 
@@ -58,10 +58,10 @@ class Dns:
     def drop(self):
         self.domain_config.remove()
         self.service_config.remove_all()
-        self.port_mapper.remove_all()
+        self.port_drill.remove_all()
 
     def add_service(self, name, protocol, service_type, port, url=None):
-        self.port_mapper.sync_new_port(port)
+        self.port_drill.sync_new_port(port)
         new_service = Service(name, protocol, service_type, port, url)
         self.service_config.add_or_update(new_service)
 
@@ -75,7 +75,7 @@ class Dns:
         service = self.get_service(name)
         if service:
             self.service_config.remove(name)
-            self.port_mapper.remove(service.port)
+            self.port_drill.remove(service.port)
 
     def full_name(self):
         return '{}.{}'.format(self.user_domain(), self.insider_config.get_redirect_main_domain())
@@ -84,7 +84,7 @@ class Dns:
         return self.domain_config.load().user_domain
 
     def service_to_endpoint(self, service):
-        mapping = self.port_mapper.get(service.port)
+        mapping = self.port_drill.get(service.port)
         return Endpoint(service, self.full_name(), mapping.external_port)
 
     def service_info(self, name):
@@ -97,7 +97,7 @@ class Dns:
         return [self.service_to_endpoint(service) for service in self.service_config.load()]
 
     def sync(self):
-        self.port_mapper.sync()
+        self.port_drill.sync()
 
         services = self.service_config.load()
         domain = self.domain_config.load()
@@ -106,7 +106,7 @@ class Dns:
 
         services_data = []
         for service in services:
-            mapping = self.port_mapper.get(service.port)
+            mapping = self.port_drill.get(service.port)
             if mapping:
                 service.port = mapping.external_port
                 service_data = dict(
@@ -121,7 +121,7 @@ class Dns:
 
         data = {'token': domain.update_token, 'local_ip': self.local_ip, 'services': services_data}
 
-        external_ip = self.port_mapper.external_ip()
+        external_ip = self.port_drill.external_ip()
         if not external_ip:
             self.logger.warn("Unable to get external ip")
         else:
