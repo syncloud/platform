@@ -94,7 +94,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
 
     port_config = PortConfig(join(data_root, 'ports.json'))
 
-    mapper = port_drill.PortDrill(port_config, mapper_provider)
+    drill = port_drill.PortDrill(port_config, mapper_provider)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
@@ -102,7 +102,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
         insider_config,
         DomainConfig(join(data_root, 'domain.json')),
         service_config,
-        mapper,
+        drill,
         local_ip)
     platform_config = PlatformConfig(config_path)
     cron_service = cron.Cron(
@@ -110,4 +110,4 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
         join(platform_config.data_dir(), 'insider-cron.log'),
         insider_config.get_cron_period_mins())
 
-    return Insider(mapper, dns_service, cron_service, insider_config, service_config)
+    return Insider(drill, dns_service, cron_service, insider_config, service_config)
