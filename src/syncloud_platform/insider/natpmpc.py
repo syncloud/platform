@@ -1,10 +1,6 @@
 import NATPMP
 
 class NatPmpPortMapper:
-
-    def __init__(self):
-        NATPMP.get_gateway_addr()
-
     def external_ip(self):
         return NATPMP.get_public_address()
 
