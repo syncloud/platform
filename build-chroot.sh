@@ -1,5 +1,11 @@
 #!/bin/bash
 
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export DEBCONF_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
+export TMPDIR=/tmp
+export TMP=/tmp
+
 ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
     ARCH=$1

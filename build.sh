@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
+cd ${DIR}
 NAME="platform"
 
 ARCHITECTURE=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
