@@ -18,4 +18,4 @@ tar xzf rootfs.tar.gz -C /tmp/rootfs
 cp -r ./* /tmp/rootfs/root
 chroot /tmp/rootfs root/build.sh $@
 rm -rf platform*.tar.gz
-mv /tmp/rootfs/root/build/platform*.tar.gz .
+mv /tmp/rootfs/root/platform*.tar.gz .
