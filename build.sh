@@ -93,4 +93,5 @@ echo ${NAME} >> build/${NAME}/META/app
 echo ${VERSION} >> build/${NAME}/META/version
 
 echo "zipping"
+rm -rf ${NAME}*.tar.gz
 tar cpzf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C build/ ${NAME}
