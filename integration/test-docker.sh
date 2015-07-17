@@ -2,7 +2,7 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
-
+PYTHON=${DIR}/../build/platform/python/bin
 
 if [[ -z "$1" || -z "$2" || -z "$3" || -z "$4" || -z "$5" || -z "$6" ]]; then
     echo "usage $0 redirect_user redirect_password redirect_domain release platform_version platform_arch"
@@ -12,14 +12,11 @@ fi
 ./docker.sh
 
 apt-get install sshpass
-#ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
+SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost"
 
-if [[ -n "$TEAMCITY_VERSION" ]]; then
-    TC="export TEAMCITY_VERSION=\"$TEAMCITY_VERSION\" ; "
-fi
-
-SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@localhost -p 2222"
+sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
 
 ${SSH} "/opt/app/sam/bin/sam --debug update --release $4"
-${SSH} "/opt/app/sam/bin/sam --debug install /test/platform-${5}-${6}.tar.gz"
-${SSH} "$TC /opt/app/platform/python/bin/py.test -s /test/integration/verify.py --email=$1 --password=$2 --domain=$3 --release=$4"
+${SSH} "/opt/app/sam/bin/sam --debug install /platform-${5}-${6}.tar.gz"
+
+${PYTHON}/py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4
