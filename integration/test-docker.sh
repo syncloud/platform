@@ -13,10 +13,14 @@ fi
 
 apt-get install sshpass
 SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost"
+SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
 
-sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
+${SCP} ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
 
 ${SSH} "/opt/app/sam/bin/sam --debug update --release $4"
 ${SSH} "/opt/app/sam/bin/sam --debug install /platform-${5}-${6}.tar.gz"
 
 ${PYTHON}/py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4
+
+${SCP} root@localhost:/opt/app/platform/uwsgi/internal.log .
+${SCP} root@localhost:/opt/app/platform/uwsgi/public.log .
