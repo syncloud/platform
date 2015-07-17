@@ -6,11 +6,7 @@ class App:
 
 
 def app_from_sam_app(sam_app):
-        url = sam_app.app.id
-        # TODO: pip-less sam should not prefix apps with 'syncloud-'
-        if 'syncloud-' in sam_app.app.id:
-            url = sam_app.app.id[9:]
-        return App(
-            sam_app.app.id,
-            sam_app.app.name,
-            '/' + url)
+    return App(
+        sam_app.app.id,
+        sam_app.app.name,
+        '/' + sam_app.app.id)
