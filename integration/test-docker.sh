@@ -22,5 +22,4 @@ SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@localhost -p 2222"
 
 ${SSH} "/opt/app/sam/bin/sam --debug update --release $4"
 ${SSH} "/opt/app/sam/bin/sam --debug install /test/platform-${5}-${6}.tar.gz"
-${SSH} "$TC /test/integration/unit-test.sh"
 ${SSH} "$TC /opt/app/platform/python/bin/py.test -s /test/integration/verify.py --email=$1 --password=$2 --domain=$3 --release=$4"

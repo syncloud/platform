@@ -4,6 +4,7 @@ import signal
 import requests
 import time
 
+
 def wait_http(ip, port, status_code, timeout):
     start = time.time()
     while True:
