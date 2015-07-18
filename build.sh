@@ -73,6 +73,8 @@ wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
 ${PYTHON_PATH}/python get-pip.py
 rm get-pip.py
 
+export LD_LIBRARY_PATH=python/lib
+
 ${PYTHON_PATH}/pip install wheel
 ${PYTHON_PATH}/pip install ${DIR}/3rdparty/${PSUTIL_WHL}
 ${PYTHON_PATH}/pip install ${DIR}/3rdparty/${PYTHON_LDAP_WHL}
