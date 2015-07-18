@@ -10,6 +10,7 @@ KillSignal=SIGQUIT
 Type=notify
 StandardError=syslog
 NotifyAccess=all
+Environment=LD_LIBRARY_PATH=/opt/app/platform/python/lib
 
 [Install]
 WantedBy=multi-user.target
