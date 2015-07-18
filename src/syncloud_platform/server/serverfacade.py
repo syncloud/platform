@@ -1,5 +1,4 @@
 import uuid
-from subprocess import check_output
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.server.auth import Auth
 from syncloud_platform.tools.facade import Facade
