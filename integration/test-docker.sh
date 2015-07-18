@@ -5,7 +5,7 @@ cd ${DIR}
 PYTHON=${DIR}/../build/platform/python/bin
 
 if [[ -z "$1" || -z "$2" || -z "$3" || -z "$4" || -z "$5" || -z "$6" ]]; then
-    echo "usage $0 redirect_user redirect_password redirect_domain release platform_version platform_arch"
+    echo "usage $0 redirect_user redirect_password redirect_domain release app_version app_arch"
     exit 1
 fi
 
