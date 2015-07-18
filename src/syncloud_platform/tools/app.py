@@ -5,6 +5,7 @@ from pwd import getpwnam
 import shutil
 from syncloud_platform.config.config import PlatformConfig
 
+
 def get_app_data_root(app_name, user=None):
     config = PlatformConfig()
     if not os.path.isdir(config.data_root()):
@@ -12,6 +13,7 @@ def get_app_data_root(app_name, user=None):
         os.mkdir(config.data_root())
 
     return create_data_dir(config.data_root(), app_name, user)
+
 
 def create_data_dir(app_data_dir, dir_name, user=None, remove_existing=False):
     data_dir = join(app_data_dir, dir_name)

@@ -3,8 +3,11 @@ from subprocess import check_output
 import pwd
 from syncloud_app import logger
 import massedit
+from syncloud_platform.systemd.systemctl import add_service
+from syncloud_platform.tools import app
 
 log = logger.get_logger('platform.post.install')
+
 
 def fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
     massedit.edit_files([locale_gen], ["re.sub('# {0}', '{0}', line)".format(lang)], dry_run=False)
