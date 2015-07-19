@@ -57,43 +57,40 @@ cd ..
 
 rm -f src/version
 echo ${VERSION} >> src/version
-cd src
-python setup.py sdist
-cd ..
 
+BUILD_DIR=${DIR}/build/${NAME}
 rm -rf build
-mkdir build
-mkdir build/${NAME}
-cd build/${NAME}
+mkdir -p ${BUILD_DIR}
 
-tar -xf ${DIR}/3rdparty/${PYTHON_ZIP}
-PYTHON_PATH='python/bin'
+tar -xf ${DIR}/3rdparty/${PYTHON_ZIP} -C ${BUILD_DIR}
+PYTHON_PATH=${BUILD_DIR}/python/bin
 
 wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
 ${PYTHON_PATH}/python get-pip.py
 rm get-pip.py
 
-export LD_LIBRARY_PATH=python/lib
+cd ${DIR}/src
+${PYTHON_PATH}/python setup.py sdist
+
+export LD_LIBRARY_PATH=${BUILD_DIR}/python/lib
 
 ${PYTHON_PATH}/pip install wheel
 ${PYTHON_PATH}/pip install ${DIR}/3rdparty/${PSUTIL_WHL}
 ${PYTHON_PATH}/pip install ${DIR}/3rdparty/${PYTHON_LDAP_WHL}
 ${PYTHON_PATH}/pip install ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
 
-tar -xzf ${DIR}/3rdparty/${NGINX_ZIP}
-tar -xzf ${DIR}/3rdparty/${UWSGI_ZIP}
-tar -xzf ${DIR}/3rdparty/${OPENLDAP_ZIP}
+tar -xzf ${DIR}/3rdparty/${NGINX_ZIP} -C ${BUILD_DIR}
+tar -xzf ${DIR}/3rdparty/${UWSGI_ZIP} -C ${BUILD_DIR}
+tar -xzf ${DIR}/3rdparty/${OPENLDAP_ZIP} -C ${BUILD_DIR}
 
-cd ../..
+cp -r ${DIR}/bin ${BUILD_DIR}
+cp -r ${DIR}/config ${BUILD_DIR}
+cp -r ${DIR}/www ${BUILD_DIR}
 
-cp -r bin build/${NAME}
-cp -r config build/${NAME}
-cp -r www build/${NAME}
-
-mkdir build/${NAME}/META
-echo ${NAME} >> build/${NAME}/META/app
-echo ${VERSION} >> build/${NAME}/META/version
+mkdir ${BUILD_DIR}/META
+echo ${NAME} >> ${BUILD_DIR}/META/app
+echo ${VERSION} >> ${BUILD_DIR}/META/version
 
 echo "zipping"
 rm -rf ${NAME}*.tar.gz
-tar cpzf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C build/ ${NAME}
+tar cpzf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C ${DIR}/build/ ${NAME}
