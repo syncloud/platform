@@ -93,4 +93,4 @@ echo ${VERSION} >> ${BUILD_DIR}/META/version
 
 echo "zipping"
 rm -rf ${NAME}*.tar.gz
-tar cpzf ${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C ${DIR}/build/ ${NAME}
+tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C ${DIR}/build/ ${NAME}
