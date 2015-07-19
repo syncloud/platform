@@ -9,12 +9,9 @@ requirements = [
     'beautifulsoup4==4.3.2',
     'convertible==0.13',
     'Flask==0.10.1',
-    'psutil==2.1.3',
-    'miniupnpc==1.9',
     'python-crontab==1.7.2',
     'wget==2.2',
     'massedit==0.66',
-    'python-ldap==2.4.19',
     'flask-login==0.2.10',
     'syncloud-app==0.38'
 ]

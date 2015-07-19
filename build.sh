@@ -77,6 +77,7 @@ export LD_LIBRARY_PATH=${BUILD_DIR}/python/lib
 ${PYTHON_PATH}/pip install wheel
 ${PYTHON_PATH}/pip install ${DIR}/3rdparty/${PSUTIL_WHL}
 ${PYTHON_PATH}/pip install ${DIR}/3rdparty/${PYTHON_LDAP_WHL}
+${PYTHON_PATH}/pip install ${DIR}/3rdparty/${MINIUPNPC_WHL}
 ${PYTHON_PATH}/pip install ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
 
 tar -xzf ${DIR}/3rdparty/${NGINX_ZIP} -C ${BUILD_DIR}
