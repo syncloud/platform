@@ -10,6 +10,13 @@ def test_non_activated_device_redirect_to_activation():
     assert response.headers['Location'] == 'http://localhost:81'
 
 
+def test_internal_web_open():
+
+    response = requests.get('http://localhost:81')
+    assert 'mac_address' in response.text
+    assert response.status_code == 200
+
+
 def test_activate_device(auth):
 
     email, password, domain, release = auth
@@ -41,14 +48,23 @@ def test_public_web_unauthorized_ajax_not_redirect():
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
+session = requests.session()
+
 
 def test_public_web_login():
-    session = requests.session()
     session.post('http://localhost/server/rest/login', data={'name': 'user', 'password': 'password'})
     assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
 
 
-def test_internal_web_open():
+def test_public_web_files():
+
+    response = session.get('http://localhost/server/rest/files')
+    assert response.status_code == 200
+    response = requests.get('http://localhost/server/rest/files', allow_redirects=False)
+    assert response.status_code == 301
+
+
+def test_internal_web_id():
 
     response = requests.get('http://localhost:81/server/rest/id')
     assert 'mac_address' in response.text

@@ -41,6 +41,7 @@ NGINX_ZIP=nginx.tar.gz
 UWSGI_ZIP=uwsgi.tar.gz
 OPENLDAP_ZIP=openldap.tar.gz
 PYTHON_ZIP=python.tar.gz
+#JEKYLL_ZIP=jekyll.tar.gz
 
 3rdparty nginx ${NGINX_ZIP}
 3rdparty uwsgi ${UWSGI_ZIP}
@@ -49,10 +50,13 @@ PYTHON_ZIP=python.tar.gz
 3rdparty psutil ${PSUTIL_WHL}
 3rdparty miniupnpc ${MINIUPNPC_WHL}
 3rdparty python_ldap ${PYTHON_LDAP_WHL}
+#3rdparty jekyll ${JEKYLL_ZIP}
 
+#tar xzf ${DIR}/3rdparty/${JEKYLL_ZIP} -C ${DIR}/3rdparty/
 cd www
 rm -rf _site
 jekyll build
+#${DIR}/3rdparty/jekyll/bin/jekyll build
 cd ..
 
 rm -f src/version
@@ -95,3 +99,6 @@ echo ${VERSION} >> ${BUILD_DIR}/META/version
 echo "zipping"
 rm -rf ${NAME}*.tar.gz
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C ${DIR}/build/ ${NAME}
+
+${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -U pytest
+${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -r dev_requirements.txt

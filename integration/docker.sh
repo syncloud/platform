@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ROOTFS=/tmp/rootfs
+ROOTFS=/tmp/platform/rootfs
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 if [[ $EUID -ne 0 ]]; then
@@ -46,7 +46,7 @@ cleanup
 
 echo "extracting rootfs"
 rm -rf ${ROOTFS}
-mkdir ${ROOTFS}
+mkdir -p ${ROOTFS}
 tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C ${ROOTFS}
 sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
 

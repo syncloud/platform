@@ -1,13 +1,14 @@
+import os
 import traceback
 from os.path import dirname, join, abspath
 import sys
 
 import convertible
-from flask import Flask, jsonify, send_from_directory, request, redirect
+from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
 
 from syncloud_platform.server.model import app_from_sam_app, App
 
-local_root = abspath(join(dirname(__file__), '..', '..', '..'))
+local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
 if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
@@ -22,7 +23,6 @@ sam = SamStub()
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
     mock_apps = [
-        App("image-ci", "image ci", 'image-ci'),
         App("owncloud", "ownCloud", "owncloud")]
     secret_key = '123223'
 else:
@@ -39,15 +39,16 @@ logger.init(console=True)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 login_manager = LoginManager()
-# login_manager.login_view = "/server/html/login.html"
 login_manager.init_app(app)
+
 
 @login_manager.unauthorized_handler
 def _callback():
     if request.is_xhr:
         return 'Unauthorised', 401
     else:
-        return redirect('/server/html/login.html')
+        return redirect(html_prefix + '/login.html')
+
 
 class User:
     def __init__(self, name):
@@ -79,6 +80,7 @@ def static_file(filename):
 @login_manager.user_loader
 def load_user(email):
     return UserFlask(User(email))
+
 
 @app.route(rest_prefix + "/login", methods=["GET", "POST"])
 def login():
@@ -120,6 +122,21 @@ def user():
 def index():
     return static_file('index.html')
 
+files_prefix = rest_prefix + '/files/'
+
+
+@app.route(files_prefix)
+@app.route(files_prefix + '<path:path>')
+@login_required
+def browser(path=''):
+    filesystem_path = join('/', path)
+    if os.path.isfile(filesystem_path):
+        return send_file(filesystem_path, mimetype='text/plain')
+    else:
+        entries = os.listdir(filesystem_path)
+        items = [{'name': entry, 'is_file': os.path.isfile(join(filesystem_path, entry))} for entry in entries]
+        return jsonify(items=items, dir=filesystem_path)
+
 
 @app.route(rest_prefix + "/installed_apps", methods=["GET"])
 @login_required
@@ -127,9 +144,11 @@ def installed_apps():
     apps = [app_from_sam_app(app) for app in non_required_apps() if app.installed_version]
 
     # TODO: Hack to add system apps, need to think about it
-    apps.append(App('store', 'App Store', 'server/html/store.html'))
+    apps.append(App('store', 'App Store', html_prefix + '/store.html'))
+    apps.append(App('settings', 'Settings', html_prefix + '/settings.html'))
 
     return jsonify(apps=convertible.to_dict(apps)), 200
+
 
 @app.route(rest_prefix + "/app", methods=["GET"])
 @login_required
@@ -137,11 +156,13 @@ def app_status():
     app = next(app for app in non_required_apps() if app.app.id == request.args['app_id'])
     return jsonify(info=convertible.to_dict(app)), 200
 
+
 @app.route(rest_prefix + "/install", methods=["GET"])
 @login_required
 def install():
     result = sam.install(request.args['app_id'])
     return jsonify(message=result), 200
+
 
 @app.route(rest_prefix + "/remove", methods=["GET"])
 @login_required
@@ -149,12 +170,14 @@ def remove():
     result = sam.remove(request.args['app_id'])
     return jsonify(message=result), 200
 
+
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
     sam.remove(request.args['app_id'])
     result = sam.install(request.args['app_id'])
     return jsonify(message=result), 200
+
 
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
 @login_required
