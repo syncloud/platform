@@ -2,17 +2,15 @@ from setuptools import setup
 from os.path import join, dirname
 
 requirements = [
-    'configobj==4.7.2',
-    'requests==2.2.1',
     'urllib3==1.7.1',
-    'IPy==0.82a',
+    'requests==2.2.1',
     'beautifulsoup4==4.3.2',
-    'convertible==0.13',
-    'Flask==0.10.1',
+    'IPy==0.82a',
     'python-crontab==1.7.2',
-    'wget==2.2',
     'massedit==0.66',
+    'Flask==0.10.1',
     'flask-login==0.2.10',
+    'convertible==0.13',
     'syncloud-app==0.38'
 ]
 
