@@ -55,8 +55,8 @@ JEKYLL_ZIP=jekyll.tar.gz
 tar xzf ${DIR}/3rdparty/${JEKYLL_ZIP} -C ${DIR}/3rdparty/
 cd www
 rm -rf _site
-#jekyll build
-${DIR}/3rdparty/jekyll/bin/jekyll build
+jekyll build
+#${DIR}/3rdparty/jekyll/bin/jekyll build
 cd ..
 
 rm -f src/version

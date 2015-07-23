@@ -17,10 +17,7 @@ SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
 
 ${SCP} ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
 
-${SSH} "/opt/app/sam/bin/sam --debug update --release $4"
-${SSH} "/opt/app/sam/bin/sam --debug install /platform-${5}-${6}.tar.gz"
-
-${PYTHON}/py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4
+${PYTHON}/py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
 
 ${SCP} root@localhost:/opt/app/platform/uwsgi/internal.log .
 ${SCP} root@localhost:/opt/app/platform/uwsgi/public.log .

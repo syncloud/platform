@@ -1,3 +1,5 @@
+from syncloud_platform.systemd.systemctl import remove_service
+
 remove_service('platform-openldap')
 remove_service('platform-nginx')
 remove_service('platform-uwsgi-public')

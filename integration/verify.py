@@ -1,7 +1,14 @@
 from os.path import dirname
 
 import requests
+from subprocess import check_output
+import time
+
 DIR = dirname(__file__)
+
+
+def test_install(auth):
+    __local_install(auth)
 
 
 def test_non_activated_device_redirect_to_activation():
@@ -19,7 +26,7 @@ def test_internal_web_open():
 
 def test_activate_device(auth):
 
-    email, password, domain, release = auth
+    email, password, domain, release, version, arch = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
@@ -29,7 +36,7 @@ def test_activate_device(auth):
 
 
 def test_reactivate(auth):
-    email, password, domain, release = auth
+    email, password, domain, release, version, arch = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user', 'password': 'password',
@@ -69,3 +76,21 @@ def test_internal_web_id():
     response = requests.get('http://localhost:81/server/rest/id')
     assert 'mac_address' in response.text
     assert response.status_code == 200
+
+
+def test_remove():
+    ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
+    print(check_output('{0} /opt/app/sam/bin/sam --debug remove platform'.format(ssh),shell=True))
+    time.sleep(3)
+
+
+def test_reinstall(auth):
+    __local_install(auth)
+
+
+def __local_install(auth):
+    email, password, domain, release, version, arch = auth
+    ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
+    print(check_output('{0} /opt/app/sam/bin/sam --debug install /platform-{1}-{2}.tar.gz'.format(ssh, version, arch),
+                       shell=True))
+    time.sleep(3)
