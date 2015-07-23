@@ -15,16 +15,16 @@ main_menu_item: menu_apps
       <div><img class="center-block" src="/server/html/images/<%= info.app.id %>-128.png"/></div>
       <div><p class="text-center"><%= info.app.name %></p></div>
     </div>
-    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6" style="margin-top: 30px">
+    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
         <% _.each(actions, function(el) { %>
             <button id="btn<%= el %>" name="btn<%= el %>"
                     class="btn btn-primary center-block"
-                    style="margin-bottom: 10px; margin-top: 10px;">
+                    style="width: 100%; margin-bottom: 10px;">
                 <%= el %>
             </button>
         <% }); %>
         <% if (info.installed_version) { %>
-            <p class="text-nowrap text-center" style="margin-bottom: 10px; margin-top: 10px;">
+            <p class="text-nowrap text-center" style="width: 100%">
                 v<%= info.installed_version %>
             </p>
         <% } %>

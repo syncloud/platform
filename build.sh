@@ -4,9 +4,9 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 NAME="platform"
 
-ARCHITECTURE=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
+ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
-    ARCHITECTURE=$1
+    ARCH=$1
 fi
 
 VERSION="local"
@@ -27,21 +27,21 @@ function 3rdparty {
     mkdir ${DIR}/3rdparty
   fi
   if [ ! -f ${DIR}/3rdparty/${APP_FILE} ]; then
-    wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_${APP_ID}_${ARCHITECTURE}/lastSuccessful/${APP_FILE} \
+    wget http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_${APP_ID}_${ARCH}/lastSuccessful/${APP_FILE} \
     -O ${DIR}/3rdparty/${APP_FILE} --progress dot:giga
   else
     echo "skipping ${APP_ID}"
   fi
 }
 
-PSUTIL_WHL="psutil-2.1.3-cp27-none-linux_${ARCHITECTURE}.whl"
-PYTHON_LDAP_WHL="python_ldap-2.4.19-cp27-none-linux_${ARCHITECTURE}.whl"
-MINIUPNPC_WHL="miniupnpc-1.9-cp27-none-linux_${ARCHITECTURE}.whl"
+PSUTIL_WHL="psutil-2.1.3-cp27-none-linux_${ARCH}.whl"
+PYTHON_LDAP_WHL="python_ldap-2.4.19-cp27-none-linux_${ARCH}.whl"
+MINIUPNPC_WHL="miniupnpc-1.9-cp27-none-linux_${ARCH}.whl"
 NGINX_ZIP=nginx.tar.gz
 UWSGI_ZIP=uwsgi.tar.gz
 OPENLDAP_ZIP=openldap.tar.gz
 PYTHON_ZIP=python.tar.gz
-#JEKYLL_ZIP=jekyll.tar.gz
+JEKYLL_ZIP=jekyll.tar.gz
 
 3rdparty nginx ${NGINX_ZIP}
 3rdparty uwsgi ${UWSGI_ZIP}
@@ -50,13 +50,13 @@ PYTHON_ZIP=python.tar.gz
 3rdparty psutil ${PSUTIL_WHL}
 3rdparty miniupnpc ${MINIUPNPC_WHL}
 3rdparty python_ldap ${PYTHON_LDAP_WHL}
-#3rdparty jekyll ${JEKYLL_ZIP}
+3rdparty jekyll ${JEKYLL_ZIP}
 
-#tar xzf ${DIR}/3rdparty/${JEKYLL_ZIP} -C ${DIR}/3rdparty/
+tar xzf ${DIR}/3rdparty/${JEKYLL_ZIP} -C ${DIR}/3rdparty/
 cd www
 rm -rf _site
-jekyll build
-#${DIR}/3rdparty/jekyll/bin/jekyll build
+#jekyll build
+${DIR}/3rdparty/jekyll/bin/jekyll build
 cd ..
 
 rm -f src/version
@@ -98,7 +98,7 @@ echo ${VERSION} >> ${BUILD_DIR}/META/version
 
 echo "zipping"
 rm -rf ${NAME}*.tar.gz
-tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCHITECTURE}.tar.gz -C ${DIR}/build/ ${NAME}
+tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
 
 ${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -U pytest
 ${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -r dev_requirements.txt
