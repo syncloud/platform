@@ -3,6 +3,7 @@ from subprocess import check_output
 import pwd
 from syncloud_app import logger
 import massedit
+from syncloud_platform.server.auth import Auth
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 
@@ -37,4 +38,4 @@ add_service('platform', 'platform-ntpdate')
 add_service('platform', 'platform-uwsgi-internal')
 add_service('platform', 'platform-uwsgi-public')
 add_service('platform', 'platform-nginx')
-add_service('platform', 'platform-openldap', start=False)
+add_service('platform', 'platform-openldap', start=Auth().installed())

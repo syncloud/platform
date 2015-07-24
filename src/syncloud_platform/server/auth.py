@@ -2,6 +2,7 @@ import glob
 import hashlib
 import json
 import os
+from os.path import join
 import tempfile
 from subprocess import check_output
 
@@ -13,17 +14,23 @@ from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.systemd.systemctl import stop_service, start_service
 from syncloud_platform.tools import app
 
+ldap_user_conf_dir='slapd.d'
+platform_user = 'platform'
+
 
 class Auth:
     def __init__(self):
         self.logger = get_logger('ldap')
         self.config = PlatformConfig()
 
+    def installed(self):
+        data_dir = app.get_app_data_root('platform', platform_user)
+        return os.path.isdir(join(data_dir, ldap_user_conf_dir))
+
     def reset(self, user, password):
 
-        platform_user = 'platform'
         data_dir = app.get_app_data_root('platform', platform_user)
-        user_conf_dir = app.create_data_dir(data_dir, 'slapd.d', platform_user, remove_existing=True)
+        user_conf_dir = app.create_data_dir(data_dir, ldap_user_conf_dir, platform_user, remove_existing=True)
 
         stop_service('platform-openldap')
 

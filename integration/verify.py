@@ -59,8 +59,7 @@ session = requests.session()
 
 
 def test_public_web_login():
-    session.post('http://localhost/server/rest/login', data={'name': 'user', 'password': 'password'})
-    assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
+    __public_web_login()
 
 
 def test_public_web_files():
@@ -86,6 +85,15 @@ def test_remove():
 
 def test_reinstall(auth):
     __local_install(auth)
+
+
+def test_public_web_login_after_reinstall():
+    __public_web_login()
+
+
+def __public_web_login():
+    session.post('http://localhost/server/rest/login', data={'name': 'user', 'password': 'password'})
+    assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
 
 
 def __local_install(auth):
