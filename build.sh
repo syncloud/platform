@@ -60,6 +60,10 @@ cd src
 python setup.py sdist
 cd ..
 
+wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+rm get-pip.py
+
 pip install --upgrade coin
 ./coin_lib.sh
 coin  --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
