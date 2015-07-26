@@ -62,6 +62,14 @@ cd ..
 rm -f src/version
 echo ${VERSION} >> src/version
 
+cd src
+python setup.py sdist
+cd ..
+
+pip install --upgrade coin
+./coin_lib.sh
+coin  --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
+
 BUILD_DIR=${DIR}/build/${NAME}
 rm -rf build
 mkdir -p ${BUILD_DIR}
@@ -72,9 +80,6 @@ PYTHON_PATH=${BUILD_DIR}/python/bin
 wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
 ${PYTHON_PATH}/python get-pip.py
 rm get-pip.py
-
-cd ${DIR}/src
-${PYTHON_PATH}/python setup.py sdist
 
 export LD_LIBRARY_PATH=${BUILD_DIR}/python/lib
 
@@ -91,6 +96,7 @@ tar -xzf ${DIR}/3rdparty/${OPENLDAP_ZIP} -C ${BUILD_DIR}
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
 cp -r ${DIR}/www ${BUILD_DIR}
+cp -r ${DIR}/lib ${BUILD_DIR}
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
@@ -100,5 +106,6 @@ echo "zipping"
 rm -rf ${NAME}*.tar.gz
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
 
+cd ${DIR}/src
 ${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -U pytest
 ${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -r dev_requirements.txt
