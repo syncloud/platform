@@ -4,6 +4,8 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 NAME="platform"
 
+apt-get -y install dpkg-dev
+
 ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
     ARCH=$1
@@ -14,11 +16,11 @@ if [ ! -z "$2" ]; then
     VERSION=$2
 fi
 
-if ! jekyll -v; then
-  echo "installing jekyll"
-  apt-get -y install ruby ruby-dev make gcc nodejs
-  gem install jekyll --no-rdoc --no-ri
-fi
+#if ! jekyll -v; then
+#  echo "installing jekyll"
+#  apt-get -y install ruby ruby-dev make gcc nodejs
+#  gem install jekyll --no-rdoc --no-ri
+#fi
 
 function 3rdparty {
   APP_ID=$1
@@ -55,8 +57,8 @@ JEKYLL_ZIP=jekyll.tar.gz
 tar xzf ${DIR}/3rdparty/${JEKYLL_ZIP} -C ${DIR}/3rdparty/
 cd www
 rm -rf _site
-jekyll build
-#${DIR}/3rdparty/jekyll/bin/jekyll build
+#jekyll build
+${DIR}/3rdparty/jekyll/bin/jekyll build
 cd ..
 
 rm -f src/version
