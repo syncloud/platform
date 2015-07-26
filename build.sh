@@ -4,23 +4,15 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 NAME="platform"
 
-apt-get -y install dpkg-dev
+apt-get -y install nodejs
 
-ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
-if [ ! -z "$1" ]; then
-    ARCH=$1
+if [[ -z "$1" || -z "$2" ]]; then
+    echo "usage $0 app_arch app_version"
+    exit 1
 fi
 
-VERSION="local"
-if [ ! -z "$2" ]; then
-    VERSION=$2
-fi
-
-#if ! jekyll -v; then
-#  echo "installing jekyll"
-#  apt-get -y install ruby ruby-dev make gcc nodejs
-#  gem install jekyll --no-rdoc --no-ri
-#fi
+ARCH=$1
+VERSION=$2
 
 function 3rdparty {
   APP_ID=$1

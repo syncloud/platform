@@ -6,10 +6,12 @@ export DEBIAN_FRONTEND=noninteractive
 export TMPDIR=/tmp
 export TMP=/tmp
 
-ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
-if [ ! -z "$1" ]; then
-    ARCH=$1
+if [[ -z "$1" || -z "$2" ]]; then
+    echo "usage $0 app_arch app_version"
+    exit 1
 fi
+
+ARCH=$1
 
 if [ ! -f "rootfs.tar.gz" ]; then
   wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_${ARCH}/lastSuccessful/rootfs.tar.gz\
