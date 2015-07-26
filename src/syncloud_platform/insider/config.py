@@ -110,5 +110,5 @@ class InsiderConfig:
         return self.parser.getboolean('insider', 'upnp_enabled')
 
     def set_upnp_enabled(self, enabled):
-        self.parser.set('insider', 'upnp_enabled', enabled)
+        self.parser.set('insider', 'upnp_enabled', str(enabled))
         self._save()

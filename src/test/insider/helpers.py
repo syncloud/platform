@@ -9,11 +9,16 @@ from syncloud_platform.insider.service_config import ServiceConfig
 from syncloud_platform.insider.config import DomainConfig, InsiderConfig, RedirectConfig, INSIDER_CONFIG_NAME
 
 
-def temp_file(text=''):
-    fd, filename = tempfile.mkstemp()
-    f = os.fdopen(fd, 'w')
-    f.write(text)
-    f.close()
+def temp_file(text='', filename=None):
+    if filename:
+        filename = '/tmp/' + filename
+        with open(filename, 'w') as f:
+            f.write(text)
+    else:
+        fd, filename = tempfile.mkstemp()
+        f = os.fdopen(fd, 'w')
+        f.write(text)
+        f.close()
     return filename
 
 
@@ -49,8 +54,12 @@ insider_config = open(insider_config_file).read()
 
 platform_config_file = join(CONFIG_DIR, PLATFORM_CONFIG_NAME)
 
+
 def get_insider_config(domain, api_url):
-    config = InsiderConfig(temp_file(insider_config), RedirectConfig(temp_file()))
+    tem_config = temp_file(insider_config, INSIDER_CONFIG_NAME)
+    temp_config_dir = dirname(tem_config)
+    config = InsiderConfig(temp_config_dir, RedirectConfig(temp_file()))
     config.update(domain, api_url)
+    # config.set_upnp_enabled(False)
     return config
 

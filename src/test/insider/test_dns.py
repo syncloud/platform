@@ -24,6 +24,7 @@ def assertSingleRequest(expected_request):
     the_call = responses.calls[0]
     assert expected_request == the_call.request.body
 
+
 @responses.activate
 def test_sync_success():
     service_config = get_service_config([
@@ -42,6 +43,7 @@ def test_sync_success():
                   content_type="application/json")
 
     insider_config = get_insider_config('domain.com', 'http://api.domain.com')
+    insider_config.set_upnp_enabled(True)
     dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
     dns.sync()
 
@@ -53,10 +55,12 @@ def test_sync_success():
     ],
     "ip": "192.167.44.52",
     "local_ip": "127.0.0.1",
+    "map_local_address": false,
     "token": "some_update_token"
 }
 '''
     assertSingleRequest(expected_request)
+
 
 @responses.activate
 def test_sync_server_side_client_ip():
@@ -86,6 +90,7 @@ def test_sync_server_side_client_ip():
         {"name": "SSH", "protocol": "https", "type": "_http._tcp", "port": 81, "local_port": 81, "url": null}
     ],
     "token": "some_update_token",
+    "map_local_address": true,
     "local_ip": "127.0.0.1"
 }
 '''
@@ -113,6 +118,7 @@ def test_sync_server_error():
         dns.sync()
 
     assert context.value.message == "Unknown update token"
+
 
 @responses.activate
 def test_link_success():
@@ -152,6 +158,7 @@ def test_link_success():
     assert domain.user_domain == "boris"
     assert domain.update_token == "some_update_token"
 
+
 @responses.activate
 def test_link_server_error():
     config.footprints.append(('my-PC', footprint.footprint()))
@@ -174,6 +181,7 @@ def test_link_server_error():
 
     domain = domain_config.load()
     assert domain is None
+
 
 def test_add_service():
     service_config = get_service_config([])
@@ -199,6 +207,7 @@ def test_add_service():
     mapping = mappings[0]
     assert 80 == mapping.local_port
 
+
 def test_get_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
@@ -218,6 +227,7 @@ def test_get_service():
     assert 80 == service.port
     assert "owncloud" == service.url
 
+
 def test_get_not_existing_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
@@ -230,6 +240,7 @@ def test_get_not_existing_service():
     service = dns.get_service("ownCloud")
 
     assert service is None
+
 
 def test_endpoints():
     service_config = get_service_config([
