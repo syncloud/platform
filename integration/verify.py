@@ -32,7 +32,7 @@ def test_activate_device(auth):
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
                                    'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info',
                                    'release': release})
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
 
 
 def test_reactivate(auth):

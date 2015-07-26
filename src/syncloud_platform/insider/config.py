@@ -79,6 +79,7 @@ class RedirectConfig:
 
 INSIDER_CONFIG_NAME = 'insider.cfg'
 
+
 class InsiderConfig:
     # TODO: Split redirect and insider config files
     def __init__(self, config_dir, redirect_config):
@@ -90,8 +91,8 @@ class InsiderConfig:
 
     def _save(self):
         self.logger.info('saving config={0}'.format(self.filename))
-        with open(self.filename, 'wb') as file:
-            self.parser.write(file)
+        with open(self.filename, 'wb') as f:
+            self.parser.write(f)
 
     def update(self, domain, api_url):
         self.redirect_config.update(domain, api_url)
@@ -103,4 +104,11 @@ class InsiderConfig:
         return self.redirect_config.get_domain()
 
     def get_cron_period_mins(self):
-        return self.parser.getint('cron', 'period_mins')
+        return self.parser.getint('insider', 'cron_period_mins')
+
+    def get_upnp_enabled(self):
+        return self.parser.getboolean('insider', 'upnp_enabled')
+
+    def set_upnp_enabled(self, enabled):
+        self.parser.set('insider', 'upnp_enabled', enabled)
+        self._save()

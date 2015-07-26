@@ -97,7 +97,8 @@ class Dns:
         return [self.service_to_endpoint(service) for service in self.service_config.load()]
 
     def sync(self):
-        self.port_drill.sync()
+        if self.insider_config.get_upnp_enabled():
+            self.port_drill.sync()
 
         services = self.service_config.load()
         domain = self.domain_config.load()
@@ -119,11 +120,18 @@ class Dns:
                 )
                 services_data.append(service_data)
 
-        data = {'token': domain.update_token, 'local_ip': self.local_ip, 'services': services_data}
+        data = {
+            'token': domain.update_token,
+            'local_ip': self.local_ip,
+            'map_local_address': not self.insider_config.get_upnp_enabled(),
+            'services': services_data}
 
-        external_ip = self.port_drill.external_ip()
+        external_ip = None
+        if self.insider_config.get_upnp_enabled():
+            external_ip = self.port_drill.external_ip()
+
         if not external_ip:
-            self.logger.warn("Unable to get external ip")
+            self.logger.warn("No external ip")
         else:
             if IP(external_ip).iptype() != 'PUBLIC':
                 external_ip = None
