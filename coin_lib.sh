@@ -3,9 +3,10 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
-ARCHITECTURE=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
-    ARCHITECTURE=$1
+  ARCH=$1
+else
+  ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 fi
 
 if [ ! -d lib ]; then
@@ -33,10 +34,10 @@ coin py https://pypi.python.org/packages/source/F/Flask/Flask-0.10.1.tar.gz
 coin py https://pypi.python.org/packages/source/F/Flask-Login/Flask-Login-0.2.11.tar.gz
 coin py https://pypi.python.org/packages/2.7/W/Werkzeug/Werkzeug-0.10.4-py2.py3-none-any.whl
 coin py https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz
-coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_MarkupSafe_${ARCHITECTURE}/lastSuccessful/MarkupSafe-0.23-cp27-none-linux_${ARCHITECTURE}.whl
+coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_MarkupSafe_${ARCH}/lastSuccessful/MarkupSafe-0.23-cp27-none-linux_${ARCH}.whl
 
-coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_psutil_${ARCHITECTURE}/lastSuccessful/psutil-2.1.3-cp27-none-linux_${ARCHITECTURE}.whl
-coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_miniupnpc_${ARCHITECTURE}/lastSuccessful/miniupnpc-1.9-cp27-none-linux_${ARCHITECTURE}.whl
-coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_ldap_${ARCHITECTURE}/lastSuccessful/python_ldap-2.4.19-cp27-none-linux_${ARCHITECTURE}.whl
+coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_psutil_${ARCH}/lastSuccessful/psutil-2.1.3-cp27-none-linux_${ARCH}.whl
+coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_miniupnpc_${ARCH}/lastSuccessful/miniupnpc-1.9-cp27-none-linux_${ARCH}.whl
+coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_ldap_${ARCH}/lastSuccessful/python_ldap-2.4.19-cp27-none-linux_${ARCH}.whl
 
 cd ..

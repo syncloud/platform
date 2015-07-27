@@ -53,16 +53,16 @@ rm -rf _site
 ${DIR}/3rdparty/jekyll/bin/jekyll build
 cd ..
 
+wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+rm get-pip.py
+
 rm -f src/version
 echo ${VERSION} >> src/version
 
 cd src
 python setup.py sdist
 cd ..
-
-wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
-python get-pip.py
-rm get-pip.py
 
 pip install --upgrade coin
 ./coin_lib.sh ${ARCH}
