@@ -65,7 +65,7 @@ python get-pip.py
 rm get-pip.py
 
 pip install --upgrade coin
-./coin_lib.sh
+./coin_lib.sh ${ARCH}
 coin  --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
 
 BUILD_DIR=${DIR}/build/${NAME}
