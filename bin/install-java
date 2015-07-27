@@ -1,9 +1,0 @@
-#!/bin/bash
-
-DISTR_FILENAME=jdk-8u6-linux-arm-vfp-hflt.tar.gz
-wget https://s3-us-west-2.amazonaws.com/syncloud-distributives/${DISTR_FILENAME} -O ${DISTR_FILENAME} --progress dot:giga 2>&1
-tar zxf ${DISTR_FILENAME} -C /opt
-update-alternatives --install /usr/bin/javac javac /opt/jdk1.8.0_06/bin/javac 1
-update-alternatives --install /usr/bin/java java /opt/jdk1.8.0_06/bin/java 1
-update-alternatives --set javac /opt/jdk1.8.0_06/bin/javac
-update-alternatives --set java /opt/jdk1.8.0_06/bin/java
