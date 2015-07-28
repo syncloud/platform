@@ -1,3 +1,5 @@
+import syncloud_platform.importlib
+
 from os.path import join
 import tempfile
 import shutil

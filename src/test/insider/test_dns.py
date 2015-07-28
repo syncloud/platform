@@ -1,3 +1,5 @@
+import syncloud_platform.importlib
+
 import logging
 import pytest
 

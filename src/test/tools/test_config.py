@@ -1,3 +1,5 @@
+import syncloud_platform.importlib
+
 from syncloud_platform.tools.config import footprints, titles
 
 def test_all_known_footprints_are_different():
