@@ -9,6 +9,7 @@ function get_actions(info) {
     } else {
         actions.push('install');
     }
+    actions.push('check');
 
     return actions;
 }

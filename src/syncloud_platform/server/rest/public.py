@@ -113,9 +113,7 @@ def logout():
 @app.route(rest_prefix + "/user", methods=["GET"])
 @login_required
 def user():
-    user = current_user.user
-    user_data = convertible.to_dict(user)
-    return jsonify(user_data), 200
+    return jsonify(convertible.to_dict(current_user.user)), 200
 
 
 @app.route('/')
@@ -142,7 +140,7 @@ def browser(path=''):
 @app.route(rest_prefix + "/installed_apps", methods=["GET"])
 @login_required
 def installed_apps():
-    apps = [app_from_sam_app(app) for app in non_required_apps() if app.installed_version]
+    apps = [app_from_sam_app(a) for a in non_required_apps() if a.installed_version]
 
     # TODO: Hack to add system apps, need to think about it
     apps.append(App('store', 'App Store', html_prefix + '/store.html'))
@@ -154,8 +152,8 @@ def installed_apps():
 @app.route(rest_prefix + "/app", methods=["GET"])
 @login_required
 def app_status():
-    app = next(app for app in non_required_apps() if app.app.id == request.args['app_id'])
-    return jsonify(info=convertible.to_dict(app)), 200
+    application = next(a for a in non_required_apps() if a.app.id == request.args['app_id'])
+    return jsonify(info=convertible.to_dict(application)), 200
 
 
 @app.route(rest_prefix + "/install", methods=["GET"])
@@ -180,10 +178,17 @@ def upgrade():
     return jsonify(message=result), 200
 
 
+@app.route(rest_prefix + "/check", methods=["GET"])
+@login_required
+def update():
+    result = sam.update()
+    return jsonify(message=result), 200
+
+
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
 @login_required
 def available_apps():
-    apps = [app_from_sam_app(app) for app in non_required_apps()]
+    apps = [app_from_sam_app(a) for a in non_required_apps()]
     return jsonify(apps=convertible.to_dict(apps)), 200
 
 
@@ -197,13 +202,13 @@ def get_settings_upnp():
 @login_required
 def toggle_settings_upnp():
     insider = get_insider()
-    config = insider.insider_config
-    config.set_upnp_enabled(not config.get_upnp_enabled())
+    insider_config = insider.insider_config
+    insider_config.set_upnp_enabled(not insider_config.get_upnp_enabled())
     try:
         insider.dns.sync()
         return jsonify(success=True), 200
     except Exception, e:
-        config.set_upnp_enabled(not config.get_upnp_enabled())
+        insider_config.set_upnp_enabled(not insider_config.get_upnp_enabled())
         return jsonify(success=False, message=e.message), 200
 
 
@@ -211,7 +216,7 @@ def non_required_apps():
     if mock_apps:
         apps = mock_apps
     else:
-        apps = [app for app in sam.list() if not app.app.required]
+        apps = [a for a in sam.list() if not a.app.required]
     return apps
 
 
@@ -226,7 +231,8 @@ def handle_exception(error):
 
 
 def filter_websites(endpoints):
-    return [endpoint for endpoint in endpoints if endpoint.service.protocol in ["http", "https"] and endpoint.service.name != "server"]
+    return [endpoint for endpoint in endpoints
+            if endpoint.service.protocol in ["http", "https"] and endpoint.service.name != "server"]
 
 
 if __name__ == '__main__':
