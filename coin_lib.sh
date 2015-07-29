@@ -32,6 +32,7 @@ coin py https://pypi.python.org/packages/3.3/s/six/six-1.9.0-py2.py3-none-any.wh
 
 coin py https://pypi.python.org/packages/source/F/Flask/Flask-0.10.1.tar.gz
 coin py https://pypi.python.org/packages/source/F/Flask-Login/Flask-Login-0.2.11.tar.gz
+coin py https://pypi.python.org/packages/source/i/itsdangerous/itsdangerous-0.24.tar.gz
 coin py https://pypi.python.org/packages/2.7/W/Werkzeug/Werkzeug-0.10.4-py2.py3-none-any.whl
 coin py https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz
 coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_MarkupSafe_${ARCH}/lastSuccessful/MarkupSafe-0.23-cp27-none-linux_${ARCH}.whl
