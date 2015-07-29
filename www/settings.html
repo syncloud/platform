@@ -9,11 +9,66 @@ main_menu_item: menu_apps
     <div class="row">
 
         <div class="col-10 col-md-10 col-sm-10 col-xs-10 col-lg-10">
-          Browse device files
+            Browse device files
         </div>
         <div class="col-2 col-md-2 col-sm-2 col-xs-2 col-lg-2">
-            <a class="btn btn-primary pull-right" href="/server/html/files.html">Open</a>
+            <a class="btn btn-primary" href="/server/html/files.html">Open</a>
         </div>
-      </div>
+
     </div>
+
+    <br>
+
+    <div class="row">
+
+        <div class="col-10 col-md-10 col-sm-10 col-xs-10 col-lg-10">
+            External access
+        </div>
+        <div class="col-2 col-md-2 col-sm-2 col-xs-2 col-lg-2">
+            <button type="button" id="upnp_toggle_btn" data-loading-text="Loading..." class="btn btn-primary" autocomplete="off">
+              Loading...
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
+                <div id="upnp_error" style="color: red; font-size: 14px"></div>
+        </div>
+    </div>
+
+
 </div>
+
+<script type="text/javascript">
+
+    $("#upnp_toggle_btn").on('click', function () {
+        $.get('/server/rest/settings/upnp_toggle')
+                .done(function (data) {
+                    if (data.success)
+                        $("#upnp_error").text('');
+                    else
+                        $("#upnp_error").text(data.message);
+                    upnp_status();
+                }).fail(onError);
+    });
+
+
+    function upnp_status() {
+        $.get('/server/rest/settings/upnp')
+                .done(function (data) {
+                   if (data.enabled)
+                        $("#upnp_toggle_btn").text("Enabled");
+                    else
+                        $("#upnp_toggle_btn").text('Disabled');
+
+                }).fail(onError);
+    }
+
+    $(document).ready(function () {
+        upnp_status()
+    });
+
+</script>

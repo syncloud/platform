@@ -5,6 +5,7 @@ import sys
 
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
+from syncloud_platform.insider.facade import get_insider
 
 from syncloud_platform.server.model import app_from_sam_app, App
 
@@ -184,6 +185,26 @@ def upgrade():
 def available_apps():
     apps = [app_from_sam_app(app) for app in non_required_apps()]
     return jsonify(apps=convertible.to_dict(apps)), 200
+
+
+@app.route(rest_prefix + "/settings/upnp", methods=["GET"])
+@login_required
+def get_settings_upnp():
+    return jsonify(enabled=get_insider().insider_config.get_upnp_enabled()), 200
+
+
+@app.route(rest_prefix + "/settings/upnp_toggle", methods=["GET"])
+@login_required
+def toggle_settings_upnp():
+    insider = get_insider()
+    config = insider.insider_config
+    config.set_upnp_enabled(not config.get_upnp_enabled())
+    try:
+        insider.dns.sync()
+        return jsonify(success=True), 200
+    except Exception, e:
+        config.set_upnp_enabled(not config.get_upnp_enabled())
+        return jsonify(success=False, message=e.message), 200
 
 
 def non_required_apps():
