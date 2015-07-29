@@ -4,8 +4,6 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 NAME="platform"
 
-apt-get -y install nodejs
-
 if [[ -z "$1" || -z "$2" ]]; then
     echo "usage $0 app_arch app_version"
     exit 1
