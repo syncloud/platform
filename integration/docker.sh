@@ -10,6 +10,10 @@ fi
 
 ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 
+if [ ! -d 3rdparty ]; then
+  mkdir 3rdparty
+fi
+
 cd 3rdparty
 if [ ! -f rootfs-${ARCH}.tar.gz ]; then
   wget http://build.syncloud.org:8111/guestAuth/repository/download/debian_rootfs_${ARCH}/lastSuccessful/rootfs.tar.gz\
