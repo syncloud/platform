@@ -30,19 +30,19 @@ NGINX_ZIP=nginx.tar.gz
 UWSGI_ZIP=uwsgi.tar.gz
 OPENLDAP_ZIP=openldap.tar.gz
 PYTHON_ZIP=python.tar.gz
-JEKYLL_ZIP=jekyll.tar.gz
+#JEKYLL_ZIP=jekyll.tar.gz
 
 3rdparty nginx ${NGINX_ZIP}
 3rdparty uwsgi ${UWSGI_ZIP}
 3rdparty openldap ${OPENLDAP_ZIP}
 3rdparty python ${PYTHON_ZIP}
-3rdparty jekyll ${JEKYLL_ZIP}
+#3rdparty jekyll ${JEKYLL_ZIP}
 
 tar xzf ${DIR}/3rdparty/${JEKYLL_ZIP} -C ${DIR}/3rdparty/
 cd www
 rm -rf _site
-#jekyll build
-${DIR}/3rdparty/jekyll/bin/jekyll build
+jekyll build
+#${DIR}/3rdparty/jekyll/bin/jekyll build
 cd ..
 
 wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
