@@ -81,14 +81,3 @@ echo ${VERSION} >> ${BUILD_DIR}/META/version
 echo "zipping"
 rm -rf ${NAME}*.tar.gz
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
-
-PYTHON_PATH=${BUILD_DIR}/python/bin
-export LD_LIBRARY_PATH=${BUILD_DIR}/python/lib
-
-wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
-${PYTHON_PATH}/python get-pip.py
-rm get-pip.py
-
-cd ${DIR}/src
-${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -U pytest
-${PYTHON_PATH}/python ${PYTHON_PATH}/pip2 install -r dev_requirements.txt
