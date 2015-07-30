@@ -4,7 +4,7 @@ import sys
 
 def import_modules(lib_path):
     libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_path, item))]
-    map(lambda x: sys.path.insert(0, x), libs)
+    map(lambda x: sys.path.append(x), libs)
 
 
 from os.path import dirname, join
