@@ -91,6 +91,8 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
         mapper_provider = port_drill.MockPortMapper
     else:
         mapper_provider = upnpc.UpnpPortMapper
+        # mapper_provider = port_drill.provide_mapper
+
 
     port_config = PortConfig(join(data_root, 'ports.json'))
 

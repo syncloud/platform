@@ -10,6 +10,32 @@ UPPER_LIMIT = 65535
 PORTS_TO_TRY = 10
 
 
+def check_mapper(mapper_name, mapper_type):
+    log = logger.get_logger('check_mapper')
+    try:
+        mapper = mapper_type()
+        ip = mapper.external_ip()
+        if ip is None or ip == '':
+            raise Exception("Returned bad ip address: {0}".format(ip))
+        log.warn('{0} mapper is working, returned extrenal ip: {1}'.format(mapper_name, ip))
+        return mapper
+    except Exception as e:
+        log.warn('{0} mapper failed, message: {1}'.format(mapper_name, e.message))
+    return None
+
+
+def provide_mapper():
+    log = logger.get_logger('check_mapper')
+    mapper = check_mapper('NatPmpPortMapper', NatPmpPortMapper)
+    if mapper is not None:
+        return mapper
+    mapper = check_mapper('UpnpPortMapper', UpnpPortMapper)
+    if mapper is not None:
+        return mapper
+    log.error('None of mappers are working')
+    return None
+
+
 class MockPortMapper:
     def __init__(self, external_ip=None):
         self.__external_ip=external_ip
@@ -22,33 +48,6 @@ class MockPortMapper:
 
     def remove_mapping(self, local_port, external_port):
         pass
-
-
-class PortMapperProvider:
-    def __init__(self):
-        self.logger = logger.get_logger('PortMapperProvider')
-
-    def __call__(self):
-        mapper = self.__check_mapper('NAT-PMP', NatPmpPortMapper)
-        if mapper is not None:
-            return mapper
-        mapper = self.__check_mapper('UPnP', UpnpPortMapper)
-        if mapper is not None:
-            return mapper
-        self.logger.error('None of mappers are working')
-
-    def __check_mapper(self, mapper_name, mapper_type):
-        try:
-            mapper = mapper_type()
-            ip = mapper.external_ip()
-            if ip is None:
-                raise Exception("No external ip address returned")
-            self.logger.warn('{0} mapper is working, returned extrenal ip: {1}'.format(mapper_name, ip))
-            return mapper
-        except Exception as e:
-            self.logger.warn('{0} mapper failed, message: {1}'.format(mapper_name, e.message))
-        return None
-
 
 
 class PortDrill:

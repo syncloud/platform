@@ -5,12 +5,12 @@ import logging
 import pytest
 
 from syncloud_app import logger
+logger.init(level=logging.DEBUG, console=True)
 
 from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.insider.natpmpc import NatPmpPortMapper
+from syncloud_platform.insider.port_drill import check_mapper
 from test.insider.http import SomeHttpServer, wait_http, wait_http_cant_connect
-
-logger.init(level=logging.DEBUG, console=True)
 
 @pytest.fixture(scope="module")
 def http_server(request):
@@ -22,33 +22,22 @@ def http_server(request):
     request.addfinalizer(fin)
     return server
 
-def check_upnp():
-    try:
-        mapper = UpnpPortMapper()
-        external_ip = mapper.external_ip()
-        return external_ip != ''
-    except Exception as ex:
-        return False
-
-def check_natpmp():
-    try:
-        mapper = NatPmpPortMapper()
-        external_ip = mapper.external_ip()
-        return external_ip != ''
-    except Exception as ex:
-        return False
-
 
 def pytest_generate_tests(metafunc):
     if 'mapper' in metafunc.fixturenames:
         ids = []
         mappers = []
-        if check_upnp():
+
+        mapper = check_mapper('UpnpPortMapper', UpnpPortMapper)
+        if mapper is not None:
             ids.append('UpnpPortMapper')
-            mappers.append(UpnpPortMapper())
-        if check_natpmp():
+            mappers.append(mapper)
+
+        mapper = check_mapper('NatPmpPortMapper', NatPmpPortMapper)
+        if mapper is not None:
             ids.append('NatPmpPortMapper')
-            mappers.append(NatPmpPortMapper())
+            mappers.append(mapper)
+
         metafunc.parametrize('mapper', mappers, ids=ids)
 
 def test_external_ip(mapper):
