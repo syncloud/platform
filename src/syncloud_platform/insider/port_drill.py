@@ -45,7 +45,7 @@ class PortMapperProvider:
                 raise Exception("No external ip address returned")
             self.logger.warn('{0} mapper is working, returned extrenal ip: {1}'.format(mapper_name, ip))
             return mapper
-        except Exception, e:
+        except Exception as e:
             self.logger.warn('{0} mapper failed, message: {1}'.format(mapper_name, e.message))
         return None
 
