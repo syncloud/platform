@@ -8,7 +8,6 @@ from port_config import PortConfig
 from service_config import ServiceConfig
 
 from syncloud_platform.insider.config import InsiderConfig, RedirectConfig, DomainConfig
-import upnpc
 import port_drill
 import dns
 import cron
@@ -90,8 +89,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
     if mock_port_mapper:
         mapper_provider = port_drill.MockPortMapper
     else:
-        mapper_provider = upnpc.UpnpPortMapper
-        # mapper_provider = port_drill.provide_mapper
+        mapper_provider = port_drill.provide_mapper
 
 
     port_config = PortConfig(join(data_root, 'ports.json'))

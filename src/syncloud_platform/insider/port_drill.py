@@ -10,8 +10,9 @@ UPPER_LIMIT = 65535
 PORTS_TO_TRY = 10
 
 
-def check_mapper(mapper_name, mapper_type):
+def check_mapper(mapper_type):
     log = logger.get_logger('check_mapper')
+    mapper_name = mapper_type.__name__
     try:
         mapper = mapper_type()
         ip = mapper.external_ip()
@@ -26,10 +27,10 @@ def check_mapper(mapper_name, mapper_type):
 
 def provide_mapper():
     log = logger.get_logger('check_mapper')
-    mapper = check_mapper('NatPmpPortMapper', NatPmpPortMapper)
+    mapper = check_mapper(NatPmpPortMapper)
     if mapper is not None:
         return mapper
-    mapper = check_mapper('UpnpPortMapper', UpnpPortMapper)
+    mapper = check_mapper(UpnpPortMapper)
     if mapper is not None:
         return mapper
     log.error('None of mappers are working')

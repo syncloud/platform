@@ -7,9 +7,7 @@ import pytest
 from syncloud_app import logger
 logger.init(level=logging.DEBUG, console=True)
 
-from syncloud_platform.insider.upnpc import UpnpPortMapper
-from syncloud_platform.insider.natpmpc import NatPmpPortMapper
-from syncloud_platform.insider.port_drill import check_mapper
+from syncloud_platform.insider.port_drill import provide_mapper
 from test.insider.http import SomeHttpServer, wait_http, wait_http_cant_connect
 
 @pytest.fixture(scope="module")
@@ -23,21 +21,16 @@ def http_server(request):
     return server
 
 
+ids = []
+mappers = []
+
+mapper = provide_mapper()
+if mapper is not None:
+    ids.append(mapper.__class__.__name__)
+    mappers.append(mapper)
+
 def pytest_generate_tests(metafunc):
     if 'mapper' in metafunc.fixturenames:
-        ids = []
-        mappers = []
-
-        mapper = check_mapper('UpnpPortMapper', UpnpPortMapper)
-        if mapper is not None:
-            ids.append('UpnpPortMapper')
-            mappers.append(mapper)
-
-        mapper = check_mapper('NatPmpPortMapper', NatPmpPortMapper)
-        if mapper is not None:
-            ids.append('NatPmpPortMapper')
-            mappers.append(mapper)
-
         metafunc.parametrize('mapper', mappers, ids=ids)
 
 def test_external_ip(mapper):
