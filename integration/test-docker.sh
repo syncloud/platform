@@ -2,7 +2,6 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
-PYTHON=${DIR}/../build/platform/python/bin
 
 if [[ -z "$1" || -z "$2" || -z "$3" || -z "$4" || -z "$5" || -z "$6" ]]; then
     echo "usage $0 redirect_user redirect_password redirect_domain release app_version app_arch"
@@ -17,7 +16,7 @@ SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
 
 ${SCP} ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
 
-${PYTHON}/py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
+py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
 
 ${SCP} root@localhost:/opt/app/platform/uwsgi/internal.log .
 ${SCP} root@localhost:/opt/app/platform/uwsgi/public.log .
