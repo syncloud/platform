@@ -55,11 +55,15 @@ insider_config = open(insider_config_file).read()
 platform_config_file = join(CONFIG_DIR, PLATFORM_CONFIG_NAME)
 
 
-def get_insider_config(domain, api_url):
+def get_redirect_config():
+    redirect_config = RedirectConfig(temp_file())
+    redirect_config.update('domain.com', 'http://api.domain.com')
+    return redirect_config
+
+
+def get_insider_config():
     tem_config = temp_file(insider_config, INSIDER_CONFIG_NAME)
     temp_config_dir = dirname(tem_config)
-    config = InsiderConfig(temp_config_dir, RedirectConfig(temp_file()))
-    config.update(domain, api_url)
-    # config.set_upnp_enabled(False)
+    config = InsiderConfig(temp_config_dir)
     return config
 

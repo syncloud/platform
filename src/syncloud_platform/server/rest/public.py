@@ -212,6 +212,13 @@ def toggle_settings_upnp():
         return jsonify(success=False, message=e.message), 200
 
 
+@app.route(rest_prefix + "/send_log", methods=["GET"])
+@login_required
+def send_log():
+    get_insider().redirect_service.send_log()
+    return jsonify(success=True), 200
+
+
 def non_required_apps():
     if mock_apps:
         apps = mock_apps

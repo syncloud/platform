@@ -66,42 +66,38 @@ class RedirectConfig:
         self.parser.set('redirect', 'api_url', api_url)
         self._save()
 
+    def set_user_update_token(self, user_update_token):
+        self.parser.set('redirect', 'user_update_token', user_update_token)
+        self._save()
+
     def get_domain(self):
         return self.parser.get('redirect', 'domain')
 
     def get_api_url(self):
         return self.parser.get('redirect', 'api_url')
 
-    def _save(self):
-        self.logger.info('saving config={0}'.format(self.filename))
-        with open(self.filename, 'wb') as file:
-            self.parser.write(file)
-
-INSIDER_CONFIG_NAME = 'insider.cfg'
-
-
-class InsiderConfig:
-    # TODO: Split redirect and insider config files
-    def __init__(self, config_dir, redirect_config):
-        self.parser = ConfigParser()
-        self.filename = join(config_dir, INSIDER_CONFIG_NAME)
-        self.parser.read(self.filename)
-        self.redirect_config = redirect_config
-        self.logger = logger.get_logger('insider.InsiderConfig')
+    def get_user_update_token(self):
+        return self.parser.get('redirect', 'user_update_token')
 
     def _save(self):
         self.logger.info('saving config={0}'.format(self.filename))
         with open(self.filename, 'wb') as f:
             self.parser.write(f)
 
-    def update(self, domain, api_url):
-        self.redirect_config.update(domain, api_url)
+INSIDER_CONFIG_NAME = 'insider.cfg'
 
-    def get_redirect_api_url(self):
-        return self.redirect_config.get_api_url()
 
-    def get_redirect_main_domain(self):
-        return self.redirect_config.get_domain()
+class InsiderConfig:
+    def __init__(self, config_dir):
+        self.parser = ConfigParser()
+        self.filename = join(config_dir, INSIDER_CONFIG_NAME)
+        self.parser.read(self.filename)
+        self.logger = logger.get_logger('insider.InsiderConfig')
+
+    def _save(self):
+        self.logger.info('saving config={0}'.format(self.filename))
+        with open(self.filename, 'wb') as f:
+            self.parser.write(f)
 
     def get_cron_period_mins(self):
         return self.parser.getint('insider', 'cron_period_mins')

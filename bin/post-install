@@ -31,6 +31,7 @@ log.info(check_output('chown -R platform. /opt/app/platform', shell=True))
 
 data_dir = app.get_app_data_root('platform', 'platform')
 app.create_data_dir(data_dir, 'webapps', 'platform')
+app.create_data_dir(data_dir, 'log', 'platform')
 
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')

@@ -13,7 +13,8 @@ from syncloud_platform.tools import id
 from syncloud_platform.insider.dns import Dns
 from syncloud_platform.insider.port_drill import PortDrill, MockPortMapper
 from syncloud_platform.insider.config import Port, Domain, Service
-from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config
+from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config, \
+    get_redirect_config
 
 from syncloud_app.main import PassthroughJsonError
 
@@ -44,9 +45,10 @@ def test_sync_success():
                   body="{'message': 'Domain was updated'}",
                   content_type="application/json")
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
     insider_config.set_upnp_enabled(True)
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
     dns.sync()
 
     expected_request = '''
@@ -81,8 +83,9 @@ def test_sync_server_side_client_ip():
                   body="{'message': 'Domain was updated'}",
                   content_type="application/json")
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
     dns.sync()
 
     expected_request = '''
@@ -113,8 +116,9 @@ def test_sync_server_error():
                   body='{"message": "Unknown update token"}',
                   content_type="application/json")
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync()
@@ -136,8 +140,10 @@ def test_link_success():
                   body='{"user_domain": "boris", "update_token": "some_update_token"}',
                   content_type="application/json")
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+    dns = Dns(insider_config, domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1',
+              redirect_config=redirect_config)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -174,8 +180,11 @@ def test_link_server_error():
                   body='{"message": "Authentication failed"}',
                   content_type="application/json")
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+    dns = Dns(insider_config, domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1',
+              redirect_config=redirect_config)
+
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
@@ -192,8 +201,10 @@ def test_add_service():
 
     domain_config = get_domain_config(None)
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, url="owncloud")
 
     services = service_config.load()
@@ -217,8 +228,10 @@ def test_get_service():
 
     domain_config = get_domain_config(None)
 
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, url="owncloud")
 
     service = dns.get_service("ownCloud")
@@ -236,8 +249,9 @@ def test_get_not_existing_service():
     port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
 
     service = dns.get_service("ownCloud")
 
@@ -253,8 +267,9 @@ def test_endpoints():
     port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
-    insider_config = get_insider_config('domain.com', 'http://api.domain.com')
-    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1')
+    insider_config = get_insider_config()
+    redirect_config = get_redirect_config()
+    dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
 
     endpoints = dns.endpoints()
     assert len(endpoints) == 2

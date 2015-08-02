@@ -33,6 +33,10 @@ class ServerFacade:
         # self.sam.upgrade_all()
 
         self.insider.set_redirect_info(domain, api_url)
+
+        user = self.insider.redirect_service.get_user(redirect_email, redirect_password)
+        self.insider.redirect_service.redirect_config.set_user_update_token(user.update_token)
+
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 
         try:

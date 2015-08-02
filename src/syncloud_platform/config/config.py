@@ -4,6 +4,7 @@ from os.path import isfile, join
 PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 
+
 class PlatformConfig:
 
     def __init__(self, config_dir=PLATFORM_CONFIG_DIR):
@@ -44,13 +45,17 @@ class PlatformConfig:
     def get_user_config(self):
         return self.__get('user_config')
 
+    def get_log_root(self):
+        return self.__get('log_root')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 
     def __set(self, key, value):
         self.parser.set('platform', key, value)
-        with open(self.filename, 'wb') as file:
-            self.parser.write(file)
+        with open(self.filename, 'wb') as f:
+            self.parser.write(f)
+
 
 class PlatformUserConfig:
 
@@ -72,5 +77,5 @@ class PlatformUserConfig:
         self.__save()
 
     def __save(self):
-        with open(self.filename, 'wb') as file:
-            self.parser.write(file)
+        with open(self.filename, 'wb') as f:
+            self.parser.write(f)
