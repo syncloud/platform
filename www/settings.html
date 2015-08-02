@@ -25,7 +25,7 @@ main_menu_item: menu_apps
             External access
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
-            <button type="button" id="upnp_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+            <button type="button" id="external_access_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Loading ...
             </button>
         </div>
@@ -35,7 +35,7 @@ main_menu_item: menu_apps
     <div class="row">
 
         <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
-                <div id="upnp_error" style="color: red; font-size: 14px"></div>
+                <div id="external_access_error" style="color: red; font-size: 14px"></div>
         </div>
     </div>
 
@@ -44,7 +44,7 @@ main_menu_item: menu_apps
     <div class="row">
 
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
-            Send logs to Syncloud
+            Report an issue
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
             <button type="button" id="send_logs_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
@@ -59,30 +59,32 @@ main_menu_item: menu_apps
 
 <script type="text/javascript">
 
-    var upnpToggleBtn = $("#upnp_toggle_btn");
+    var externalAccessToggleBtn = $("#external_access_toggle_btn");
 
-    upnpToggleBtn.on('click', function () {
-        upnpToggleBtn.prop('disabled', true);
-        upnpToggleBtn.text('Checking ...');
-        $.get('/server/rest/settings/upnp_toggle')
+    externalAccessToggleBtn.on('click', function () {
+        externalAccessToggleBtn.prop('disabled', true);
+        externalAccessToggleBtn.text('Checking ...');
+        var mode = externalAccessToggleBtn.data("enabled") ? "disable" : "enable";
+        $.get('/server/rest/settings/external_access_' + mode)
                 .done(function (data) {
                     if (data.success)
-                        $("#upnp_error").text('');
+                        $("#external_access_error").text('');
                     else
-                        $("#upnp_error").text(data.message);
-                    upnp_status();
+                        $("#external_access_error").text(data.message);
+                    external_access_status();
                 }).fail(onError);
     });
 
 
-    function upnp_status() {
-        $.get('/server/rest/settings/upnp')
+    function external_access_status() {
+        $.get('/server/rest/settings/external_access')
                 .done(function (data) {
-                   if (data.enabled)
-                        upnpToggleBtn.text("Enabled");
+                    if (data.enabled)
+                        externalAccessToggleBtn.text("Enabled");
                     else
-                        upnpToggleBtn.text('Disabled');
-                    upnpToggleBtn.prop('disabled', false);
+                        externalAccessToggleBtn.text('Disabled');
+                    externalAccessToggleBtn.data("enabled", data.enabled);
+                    externalAccessToggleBtn.prop('disabled', false);
                 }).fail(onError);
     }
 
@@ -98,7 +100,7 @@ main_menu_item: menu_apps
     });
 
     $(document).ready(function () {
-        upnp_status()
+        external_access_status()
     });
 
 </script>

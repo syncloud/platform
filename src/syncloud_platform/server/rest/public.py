@@ -194,27 +194,35 @@ def available_apps():
     return jsonify(apps=convertible.to_dict(apps)), 200
 
 
-@app.route(rest_prefix + "/settings/upnp", methods=["GET"])
+@app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def get_settings_upnp():
     return jsonify(enabled=InsiderConfig().get_external_access()), 200
 
 
-@app.route(rest_prefix + "/settings/upnp_toggle", methods=["GET"])
+@app.route(rest_prefix + "/settings/external_access_enable", methods=["GET"])
 @login_required
-def toggle_settings_upnp():
+def external_access_enable():
     insider = get_insider()
     if not insider.mapper.available():
         return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
 
     insider_config = insider.insider_config
-    insider_config.set_external_access(not insider_config.get_external_access())
+    insider_config.set_external_access(True)
     try:
         insider.dns.sync()
         return jsonify(success=True), 200
     except Exception, e:
-        insider_config.set_external_access(not insider_config.get_external_access())
+        insider_config.set_external_access(False)
         return jsonify(success=False, message=e.message), 200
+
+
+@app.route(rest_prefix + "/settings/external_access_disable", methods=["GET"])
+@login_required
+def external_access_disable():
+    insider_config = InsiderConfig()
+    insider_config.set_external_access(False)
+    return jsonify(success=True), 200
 
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])
