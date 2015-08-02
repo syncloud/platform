@@ -18,5 +18,4 @@ ${SCP} ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
 
 py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
 
-${SCP} root@localhost:/opt/app/platform/uwsgi/internal.log .
-${SCP} root@localhost:/opt/app/platform/uwsgi/public.log .
+${SCP} root@localhost:/opt/data/platform/log/\* .
