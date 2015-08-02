@@ -1,5 +1,6 @@
 import uuid
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
+from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.server.auth import Auth
 from syncloud_platform.tools.facade import Facade
 from syncloud_platform.insider import facade
@@ -14,6 +15,7 @@ class ServerFacade:
         self.logger = logger.get_logger('ServerFacade')
         self.auth = Auth()
         self.sam = SamStub()
+        self.redirect_service = RedirectService()
 
     def activate(self,
                  redirect_email, redirect_password, user_domain,
@@ -32,10 +34,9 @@ class ServerFacade:
         self.sam.update(release)
         # self.sam.upgrade_all()
 
-        self.insider.set_redirect_info(domain, api_url)
-
-        user = self.insider.redirect_service.get_user(redirect_email, redirect_password)
-        self.insider.redirect_service.redirect_config.set_user_update_token(user.update_token)
+        self.redirect_service.set_info(domain, api_url)
+        user = self.redirect_service.get_user(redirect_email, redirect_password)
+        self.redirect_service.redirect_config.set_user_update_token(user.update_token)
 
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 

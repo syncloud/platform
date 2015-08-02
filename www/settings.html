@@ -5,13 +5,13 @@ title: Settings
 main_menu_item: menu_apps
 ---
 
-<div class="container" style="font-size: 24px">
+<div class="container" style="font-size: 18px">
     <div class="row">
 
-        <div class="col-10 col-md-10 col-sm-10 col-xs-10 col-lg-10">
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             Browse device files
         </div>
-        <div class="col-2 col-md-2 col-sm-2 col-xs-2 col-lg-2">
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
             <a class="btn btn-primary" href="/server/html/files.html">Open</a>
         </div>
 
@@ -21,12 +21,12 @@ main_menu_item: menu_apps
 
     <div class="row">
 
-        <div class="col-10 col-md-10 col-sm-10 col-xs-10 col-lg-10">
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             External access
         </div>
-        <div class="col-2 col-md-2 col-sm-2 col-xs-2 col-lg-2">
-            <button type="button" id="upnp_toggle_btn" data-loading-text="Loading..." class="btn btn-primary" autocomplete="off">
-              Loading...
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="upnp_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Loading ...
             </button>
         </div>
 
@@ -43,11 +43,11 @@ main_menu_item: menu_apps
 
     <div class="row">
 
-        <div class="col-10 col-md-10 col-sm-10 col-xs-10 col-lg-10">
-            Send logs to Syncloud support
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            Send logs to Syncloud
         </div>
-        <div class="col-2 col-md-2 col-sm-2 col-xs-2 col-lg-2">
-            <button type="button" id="send_logs_btn" data-loading-text="Loading..." class="btn btn-primary" autocomplete="off">
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="send_logs_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Send
             </button>
         </div>
@@ -59,7 +59,11 @@ main_menu_item: menu_apps
 
 <script type="text/javascript">
 
-    $("#upnp_toggle_btn").on('click', function () {
+    var upnpToggleBtn = $("#upnp_toggle_btn");
+
+    upnpToggleBtn.on('click', function () {
+        upnpToggleBtn.prop('disabled', true);
+        upnpToggleBtn.text('Loading ...');
         $.get('/server/rest/settings/upnp_toggle')
                 .done(function (data) {
                     if (data.success)
@@ -75,10 +79,10 @@ main_menu_item: menu_apps
         $.get('/server/rest/settings/upnp')
                 .done(function (data) {
                    if (data.enabled)
-                        $("#upnp_toggle_btn").text("Enabled");
+                        upnpToggleBtn.text("Enabled");
                     else
-                        $("#upnp_toggle_btn").text('Disabled');
-
+                        upnpToggleBtn.text('Disabled');
+                    upnpToggleBtn.prop('disabled', false);
                 }).fail(onError);
     }
 

@@ -1,7 +1,6 @@
 import os
 from os.path import join
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
-from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.facade import Facade
 
@@ -16,9 +15,7 @@ import cron
 
 class Insider:
 
-    def __init__(self, mapper, dns, cron, insider_config, service_config, redirect_config, redirect_service):
-        self.redirect_service = redirect_service
-        self.redirect_config = redirect_config
+    def __init__(self, mapper, dns, cron, insider_config, service_config):
         self.insider_config = insider_config
         self.mapper = mapper
         self.dns = dns
@@ -72,9 +69,6 @@ class Insider:
     def cron_off(self):
         return self.cron.off()
 
-    def set_redirect_info(self, domain, api_url):
-        return self.redirect_config.update(domain, api_url)
-
     def endpoints(self):
         return self.dns.endpoints()
 
@@ -84,7 +78,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
     if not data_root:
         data_root = get_app_data_root('platform')
 
-    redirect_config = RedirectConfig(join(data_root, 'redirect.cfg'))
+    redirect_config = RedirectConfig(data_root)
     insider_config = InsiderConfig(config_path)
 
     local_ip = Facade().local_ip()
@@ -113,6 +107,4 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_ro
         join(platform_config.data_dir(), 'insider-cron.log'),
         insider_config.get_cron_period_mins())
 
-    redirect_service = RedirectService(redirect_config, platform_config.get_log_root())
-
-    return Insider(drill, dns_service, cron_service, insider_config, service_config, redirect_config, redirect_service)
+    return Insider(drill, dns_service, cron_service, insider_config, service_config)

@@ -1,13 +1,11 @@
-import syncloud_platform.importlib
+from os.path import dirname
 
-import unittest
-
-from syncloud_platform.insider.config import InsiderConfig, RedirectConfig
-from test.insider.helpers import temp_file, insider_config
+from syncloud_platform.insider.config import RedirectConfig, REDIRECT_CONFIG_NAME
+from test.insider.helpers import temp_file
 
 
 def test_domain():
-    config = RedirectConfig(temp_file())
+    config = RedirectConfig(dirname(temp_file(filename=REDIRECT_CONFIG_NAME)))
 
     config.update('syncloud.it', 'http://api.syncloud.it')
     assert 'syncloud.it' == config.get_domain()

@@ -3,6 +3,7 @@ from os.path import dirname, join
 import os
 from syncloud_app import logger
 import convertible
+from syncloud_platform.config.config import PLATFORM_CONFIG_DIR
 
 
 class Domain:
@@ -49,16 +50,19 @@ class DomainConfig:
         if os.path.isfile(self.filename):
             os.remove(self.filename)
 
+REDIRECT_CONFIG_NAME = 'redirect.cfg'
+
 
 class RedirectConfig:
-    def __init__(self, filename):
+    def __init__(self, config_dir):
         self.parser = ConfigParser()
-        self.parser.read(filename)
-        self.filename = filename
+        self.filename = join(config_dir, REDIRECT_CONFIG_NAME)
         self.logger = logger.get_logger('insider.RedirectConfig')
 
     def update(self, domain, api_url):
-        self.logger.info('settig domain={0}, api_url={1}'.format(domain, api_url))
+        self.parser.read(self.filename)
+        self.logger.info('log file: ' + self.filename)
+        self.logger.info('setting domain={0}, api_url={1}'.format(domain, api_url))
         if not self.parser.has_section('redirect'):
             self.parser.add_section('redirect')
 
@@ -67,16 +71,22 @@ class RedirectConfig:
         self._save()
 
     def set_user_update_token(self, user_update_token):
+        self.parser.read(self.filename)
         self.parser.set('redirect', 'user_update_token', user_update_token)
         self._save()
 
     def get_domain(self):
+        self.parser.read(self.filename)
+        self.logger.info('log file: ' + self.filename)
         return self.parser.get('redirect', 'domain')
 
     def get_api_url(self):
+        self.parser.read(self.filename)
+        self.logger.info('log file: ' + self.filename)
         return self.parser.get('redirect', 'api_url')
 
     def get_user_update_token(self):
+        self.parser.read(self.filename)
         return self.parser.get('redirect', 'user_update_token')
 
     def _save(self):
@@ -88,7 +98,7 @@ INSIDER_CONFIG_NAME = 'insider.cfg'
 
 
 class InsiderConfig:
-    def __init__(self, config_dir):
+    def __init__(self, config_dir=PLATFORM_CONFIG_DIR):
         self.parser = ConfigParser()
         self.filename = join(config_dir, INSIDER_CONFIG_NAME)
         self.parser.read(self.filename)
@@ -102,9 +112,9 @@ class InsiderConfig:
     def get_cron_period_mins(self):
         return self.parser.getint('insider', 'cron_period_mins')
 
-    def get_upnp_enabled(self):
-        return self.parser.getboolean('insider', 'upnp_enabled')
+    def get_external_access(self):
+        return self.parser.getboolean('insider', 'external_access')
 
-    def set_upnp_enabled(self, enabled):
-        self.parser.set('insider', 'upnp_enabled', str(enabled))
+    def set_external_access(self, enabled):
+        self.parser.set('insider', 'external_access', str(enabled))
         self._save()

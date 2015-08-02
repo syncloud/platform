@@ -49,10 +49,6 @@ def create_args_parser():
     subparsers.add_parser('user_domain', help="user_domain")
     sub = subparsers.add_parser('service_info', help="service info")
     sub.add_argument('name', help="service name")
-    # TODO: Ideally: config [set|get] section key value
-    sub = subparsers.add_parser('set_redirect_info', help="set redirect info")
-    sub.add_argument('domain', help="domain")
-    sub.add_argument('api_url', help="api url")
     return parser
 
 

@@ -5,7 +5,9 @@ import sys
 
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
+from syncloud_platform.insider.config import InsiderConfig
 from syncloud_platform.insider.facade import get_insider
+from syncloud_platform.insider.redirect_service import RedirectService
 
 from syncloud_platform.server.model import app_from_sam_app, App
 
@@ -195,27 +197,30 @@ def available_apps():
 @app.route(rest_prefix + "/settings/upnp", methods=["GET"])
 @login_required
 def get_settings_upnp():
-    return jsonify(enabled=get_insider().insider_config.get_upnp_enabled()), 200
+    return jsonify(enabled=InsiderConfig().get_external_access()), 200
 
 
 @app.route(rest_prefix + "/settings/upnp_toggle", methods=["GET"])
 @login_required
 def toggle_settings_upnp():
     insider = get_insider()
+    if not insider.mapper.available():
+        return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
+
     insider_config = insider.insider_config
-    insider_config.set_upnp_enabled(not insider_config.get_upnp_enabled())
+    insider_config.set_external_access(not insider_config.get_external_access())
     try:
         insider.dns.sync()
         return jsonify(success=True), 200
     except Exception, e:
-        insider_config.set_upnp_enabled(not insider_config.get_upnp_enabled())
+        insider_config.set_external_access(not insider_config.get_external_access())
         return jsonify(success=False, message=e.message), 200
 
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    get_insider().redirect_service.send_log()
+    RedirectService().send_log()
     return jsonify(success=True), 200
 
 

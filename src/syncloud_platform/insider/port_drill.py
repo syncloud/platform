@@ -87,3 +87,6 @@ class PortDrill:
     def sync(self):
         for mapping in self.list():
             self.sync_one_mapping(mapping.local_port)
+
+    def available(self):
+        return self.port_mapper is not None

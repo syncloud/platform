@@ -47,7 +47,7 @@ def test_sync_success():
 
     insider_config = get_insider_config()
     redirect_config = get_redirect_config()
-    insider_config.set_upnp_enabled(True)
+    insider_config.set_external_access(True)
     dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
     dns.sync()
 

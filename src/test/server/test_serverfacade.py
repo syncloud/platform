@@ -21,7 +21,6 @@ def sam():
 @pytest.fixture(scope="session")
 def insider():
     insider = MagicMock()
-    insider.set_redirect_info = MagicMock(return_value=True)
     insider.acquire_domain = MagicMock(return_value=True)
     return insider
 

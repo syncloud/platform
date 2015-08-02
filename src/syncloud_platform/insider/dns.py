@@ -92,7 +92,7 @@ class Dns:
         return [self.service_to_endpoint(service) for service in self.service_config.load()]
 
     def sync(self):
-        if self.insider_config.get_upnp_enabled():
+        if self.insider_config.get_external_access():
             self.port_drill.sync()
 
         services = self.service_config.load()
@@ -118,11 +118,11 @@ class Dns:
         data = {
             'token': domain.update_token,
             'local_ip': self.local_ip,
-            'map_local_address': not self.insider_config.get_upnp_enabled(),
+            'map_local_address': not self.insider_config.get_external_access(),
             'services': services_data}
 
         external_ip = None
-        if self.insider_config.get_upnp_enabled():
+        if self.insider_config.get_external_access():
             external_ip = self.port_drill.external_ip()
 
         if not external_ip:
