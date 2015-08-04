@@ -70,6 +70,12 @@ def test_public_web_files():
     assert response.status_code == 301
 
 
+def test_public_settings_disk():
+
+    response = session.get('http://localhost/server/rest/settings/disks')
+    assert response.status_code == 200
+
+
 def test_internal_web_id():
 
     response = requests.get('http://localhost:81/server/rest/id')

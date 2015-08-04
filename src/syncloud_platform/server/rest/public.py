@@ -10,6 +10,7 @@ from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.redirect_service import RedirectService
 
 from syncloud_platform.server.model import app_from_sam_app, App
+from syncloud_platform.tools.hardware import Hardware
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
 if __name__ == '__main__':
@@ -230,6 +231,12 @@ def external_access_disable():
 def send_log():
     RedirectService().send_log()
     return jsonify(success=True), 200
+
+
+@app.route(rest_prefix + "/settings/disks", methods=["GET"])
+@login_required
+def disks():
+    return jsonify(success=True, disks=Hardware().disks()), 200
 
 
 def non_required_apps():

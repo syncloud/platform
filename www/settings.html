@@ -4,9 +4,19 @@ title: Settings
 
 main_menu_item: menu_apps
 ---
+<style>
+    .settings-row {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
 
+    .disk-partition-row {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+</style>
 <div class="container" style="font-size: 18px">
-    <div class="row">
+    <div class="row settings-row">
 
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             Browse device files
@@ -17,9 +27,7 @@ main_menu_item: menu_apps
 
     </div>
 
-    <br>
-
-    <div class="row">
+    <div class="row settings-row">
 
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             External access
@@ -39,9 +47,16 @@ main_menu_item: menu_apps
         </div>
     </div>
 
-    <br>
+    <div class="row settings-row">
 
-    <div class="row">
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
+            Disk info
+        </div>
+    </div>
+
+    <div id="disks"></div>
+
+    <div class="row settings-row">
 
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             Report an issue
@@ -56,6 +71,44 @@ main_menu_item: menu_apps
 
 
 </div>
+
+<!-- Create your template -->
+<script type="text/html" id='disks-template'>
+    <%for (i=0; i < disks.length; i++) {
+       var disk = disks[i];
+       var name = (disk.product) ? disk.product.split(' ')[0] : disk.description
+    %>
+
+    <div class="row settings-row">
+
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
+            <%= name %>
+        </div>
+    </div>
+
+    <%
+    volumes = disk.children;
+    for (j=0; j < volumes.length; j++) {
+       var volume = volumes[j]; %>
+
+    <div class="row disk-partition-row">
+
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            <%= volume.physid %> <%= Math.round(volume.size / (1024 * 1024)) %> Mb
+        </div>
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="send_logs_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Activate
+            </button>
+        </div>
+
+    </div>
+
+    <% } %>
+
+    <% } %>
+</script>
+
 
 <script type="text/javascript">
 
@@ -99,8 +152,18 @@ main_menu_item: menu_apps
                 }).fail(onError);
     });
 
+
+    function disks_status() {
+        $.get('/server/rest/settings/disks')
+                .done(function (data) {
+                    var template = $("#disks-template").html();
+                    $("#disks").html(_.template(template)(data));
+                }).fail(onError);
+    }
+
     $(document).ready(function () {
-        external_access_status()
+        external_access_status();
+        disks_status();
     });
 
 </script>

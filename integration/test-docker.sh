@@ -3,12 +3,12 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
-if [[ -z "$1" || -z "$2" || -z "$3" || -z "$4" || -z "$5" || -z "$6" ]]; then
-    echo "usage $0 redirect_user redirect_password redirect_domain release app_version app_arch"
+if [ "$#" -ne 7 ]; then
+    echo "usage $0 redirect_user redirect_password redirect_domain release app_version app_arch sam_version"
     exit 1
 fi
 
-./docker.sh
+./docker.sh $7
 
 apt-get install sshpass
 SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost"

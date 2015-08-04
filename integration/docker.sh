@@ -9,6 +9,9 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+SAM_VERSION=$1
+
+SAM=sam-${SAM_VERSION}-${ARCH}.tar.gz
 
 if [ ! -d 3rdparty ]; then
   mkdir 3rdparty
@@ -20,6 +23,11 @@ if [ ! -f rootfs-${ARCH}.tar.gz ]; then
   -O rootfs-${ARCH}.tar.gz --progress dot:giga
 else
   echo "skipping rootfs"
+fi
+if [ ! -f ${SAM} ]; then
+  wget http://apps.syncloud.org/apps/${SAM} --progress=dot:giga
+else
+  echo "skipping sam"
 fi
 cd ..
 
@@ -52,6 +60,9 @@ echo "extracting rootfs"
 rm -rf ${ROOTFS}
 mkdir -p ${ROOTFS}
 tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C ${ROOTFS}
+
+tar xzf ${APP_DIR}/3rdparty/${SAM} -C ${ROOTFS}/opt/app
+
 sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
 
 echo "importing rootfs"
