@@ -1,12 +1,13 @@
 import os
 from os.path import join
 import shutil
+from string import Template
 from subprocess import check_output, CalledProcessError
 from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
 
 SYSTEMD_DIR = join('/lib', 'systemd', 'system')
-
+EXTERNAL_DISK_FILENAME = 'opt-disk.mount'
 
 def reload_service(service):
 
@@ -16,14 +17,17 @@ def reload_service(service):
 
 
 def remove_service(service):
+    __remove('{0}.service'.format(service))
 
-    log = logger.get_logger('systemctl')
 
-    if "unknown" == stop_service(service):
+def __remove(filename):
+
+    if "unknown" == __stop(filename):
         return
 
-    check_output('systemctl disable {0}'.format(service), shell=True)
-    os.remove(__systemd_service_file(service))
+    check_output('systemctl disable {0}'.format(filename), shell=True)
+    os.remove(__systemd_file(filename))
+
 
 def add_service(app_id, service, include_socket=False, start=True):
 
@@ -43,14 +47,45 @@ def add_service(app_id, service, include_socket=False, start=True):
         start_service(service)
 
 
-def restart_service(service):
+def add_mount(mount_entry):
 
     log = logger.get_logger('systemctl')
+
+    config = PlatformConfig()
+    mount_template_file = join(config.config_dir(), 'mount', '{0}.template'.format(EXTERNAL_DISK_FILENAME))
+    mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
+        'what': mount_entry.device,
+        'where': config.get_external_disk_dir(),
+        'type': mount_entry.type,
+        'options': mount_entry.options})
+
+    with open(__systemd_file(EXTERNAL_DISK_FILENAME), 'w') as f:
+        f.write(mount_definition)
+
+    log.info('enabling {0}'.format(EXTERNAL_DISK_FILENAME))
+    check_output('systemctl enable {0}'.format(EXTERNAL_DISK_FILENAME), shell=True)
+    __start(EXTERNAL_DISK_FILENAME)
+
+
+def remove_mount():
+    __remove(EXTERNAL_DISK_FILENAME)
+
+
+def restart_service(service):
+
     stop_service(service)
     start_service(service)
 
 
 def start_service(service):
+    __start('{0}.service'.format(service))
+
+
+def start_mount(mount):
+    __start('{0}.mount'.format(mount))
+
+
+def __start(service):
     log = logger.get_logger('systemctl')
 
     try:
@@ -63,7 +98,16 @@ def start_service(service):
             log.error(e.output)
         raise e
 
+
 def stop_service(service):
+    return __stop('{0}.service'.format(service))
+
+
+def stop_mount(service):
+    return __stop('{0}.mount'.format(service))
+
+
+def __stop(service):
     log = logger.get_logger('systemctl')
 
     try:
@@ -77,14 +121,22 @@ def stop_service(service):
     log.info("{0}: {1}".format(service, result))
     return result
 
+
+def __systemd_file(filename):
+    return join(SYSTEMD_DIR, filename)
+
+
 def __systemd_service_file(service):
-    return join(SYSTEMD_DIR, "{0}.service".format(service))
+    return __systemd_file("{0}.service".format(service))
+
 
 def __systemd_socket_file(service):
     return join(SYSTEMD_DIR, "{0}.socket".format(service))
 
+
 def __app_service_file(app_dir, service):
     return join(app_dir, 'config', 'systemd', "{0}.service".format(service))
+
 
 def __app_socket_file(app_dir, service):
     return join(app_dir, 'config', 'systemd', "{0}.socket".format(service))

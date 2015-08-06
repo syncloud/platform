@@ -48,6 +48,9 @@ class PlatformConfig:
     def get_log_root(self):
         return self.__get('log_root')
 
+    def get_external_disk_dir(self):
+        return self.__get('external_disk_dir')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 

@@ -1,0 +1,12 @@
+[Unit]
+Description=External disk
+Before=local-fs.target
+
+[Mount]
+What=${what}
+Where=${where}
+Type=${type}
+Options=${options}
+
+[Install]
+WantedBy=local-fs.target

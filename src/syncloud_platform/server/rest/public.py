@@ -236,7 +236,19 @@ def send_log():
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():
-    return jsonify(success=True, disks=Hardware().disks()), 200
+    return jsonify(success=True, disks=convertible.to_dict(Hardware().available_disks())), 200
+
+
+@app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])
+@login_required
+def disk_activate():
+    return jsonify(success=True, disks=Hardware().activate_disk(request.args['device'])), 200
+
+
+@app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])
+@login_required
+def disk_deactivate():
+    return jsonify(success=True, disks=Hardware().deactivate_disk()), 200
 
 
 def non_required_apps():
