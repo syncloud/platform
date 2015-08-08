@@ -3,3 +3,4 @@ responses==0.2.2
 pypiserver==1.1.6
 mockito==0.5.2
 teamcity-messages
+convertible==0.13
