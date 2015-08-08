@@ -32,15 +32,17 @@ class Hardware:
             if type(logicalname) is list:
                 logicalname = logicalname[0]
 
+            mounted = False
             if 'configuration' in part:
-                mount_point = None
-                if 'lastmountpoint' in part['configuration']:
-                    mount_point = part['configuration']['lastmountpoint']
-            if not mount_point or mount_point == '/opt/disk':
-                mounted = self.mounted_disk(logicalname, mount_output)
-                mount_point = None
-                if mounted:
-                    mount_point = mounted.dir
+                if 'state' in part and part['state'] == 'mounted':
+                    mounted = True
+
+            mount_info = self.mounted_disk(logicalname, mount_output)
+            mount_point = None
+            if mount_info:
+                mount_point = mount_info.dir
+
+            if not mounted or mount_point == '/opt/disk':
                 disk.partitions.append(
                     Partition(part['physid'], part['size'] / (1024 * 1024), logicalname, mount_point))
         return disk
@@ -50,8 +52,13 @@ class Hardware:
             mount_output = check_output('mount', shell=True)
         for entry in mount_output.splitlines():
             if entry.startswith('{0} on'.format(device)):
-                parts = entry.split(' ')
-                return MountEntry(parts[0], parts[2], parts[4], parts[5].strip('()'))
+                parts_on = entry.split(' on ')
+                device = parts_on[0]
+                parts_type = parts_on[1].split(' type ')
+                dir = parts_type[0]
+                parts_options = parts_type[1].split(' ')
+                type = parts_options[0]
+                return MountEntry(device, dir, type, parts_options[1].strip('()'))
         return None
 
     def activate_disk(self, device):

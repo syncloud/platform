@@ -1,4 +1,5 @@
 from os.path import dirname
+import convertible
 
 import requests
 from subprocess import check_output
@@ -70,10 +71,23 @@ def test_public_web_files():
     assert response.status_code == 301
 
 
-def test_public_settings_disk():
-
-    response = session.get('http://localhost/server/rest/settings/disks')
-    assert response.status_code == 200
+# def test_public_settings_disk_add_remove():
+#
+#     # device = check_output('{0}/virtual_disk.sh add'.format(DIR), shell=True).strip()
+#
+#     response = session.get('http://localhost/server/rest/settings/disks')
+#     assert response.status_code == 200
+#     # print response.text
+#     # print response.url
+#     json = convertible.from_json(response.text)
+#     for disk in json.disks:
+#         for partition in disk.partitions:
+#             response = session.get('http://localhost/server/rest/settings/disk_activate', params={'device': partition.device})
+#             assert response.status_code == 200
+#             response = session.get('http://localhost/server/rest/settings/disk_deactivate', params={'device': partition.device})
+#             assert response.status_code == 200
+#
+#     # check_output('{0}/virtual_disk.sh remove'.format(DIR), shell=True)
 
 
 def test_internal_web_id():

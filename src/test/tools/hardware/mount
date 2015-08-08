@@ -1,2 +1,2 @@
 /dev/sdc2 on /opt/disk type ext4 (rw,nosuid,nodev,relatime,data=ordered,uhelper=udisks2)
-/dev/sdc1 on /media/root/PI_BOOT type vfat (rw,nosuid,nodev,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro)
+/dev/sdc1 on /media/root/long name type vfat (rw,nosuid,nodev,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro)
