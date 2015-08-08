@@ -1,23 +1,29 @@
 from os.path import dirname, join
+from syncloud_app import logger
 
 from syncloud_platform.tools.hardware import Hardware
 
 DIR = dirname(__file__)
 
 
+CONFIG_DIR = join(dirname(__file__), '..', '..', '..', 'config')
+
+logger.init(console=True)
+
+
 def test_list():
-    disks = Hardware().available_disks(
+    disks = Hardware(CONFIG_DIR).available_disks(
         open(join(DIR, 'hardware', 'lshw.json')).read(),
         open(join(DIR, 'hardware', 'mount')).read()
     )
     assert len(disks) == 2
     assert len(disks[0].partitions) == 1
-    assert disks[0].partitions[0].mount_point == '/opt/disk'
+    assert disks[0].partitions[0].mount_point == '/opt/disk/external'
     assert len(disks[1].partitions) == 3
 
 
 def test_get_mount_info():
-    mount_point = Hardware().mounted_disk('/dev/sdc1', open(join(DIR, 'hardware', 'mount')).read())
+    mount_point = Hardware(CONFIG_DIR).mounted_disk('/dev/sdc1', open(join(DIR, 'hardware', 'mount')).read())
     assert mount_point.device == '/dev/sdc1'
     assert mount_point.dir == '/media/root/long name'
     assert mount_point.type == 'vfat'
