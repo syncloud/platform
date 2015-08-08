@@ -15,7 +15,7 @@ SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost"
 SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
 
 ${SCP} ${DIR}/../platform-${5}-${6}.tar.gz root@localhost:/
-
+pip2 install -r ${DIR}/../src/dev_requirements.txt
 py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
 
 ${SCP} root@localhost:/opt/data/platform/log/\* .
