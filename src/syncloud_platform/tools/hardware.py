@@ -32,17 +32,21 @@ class Hardware:
             if type(logicalname) is list:
                 logicalname = logicalname[0]
 
-            mounted = False
+            mountable = True
             if 'configuration' in part:
                 if 'state' in part and part['state'] == 'mounted':
-                    mounted = True
+                    mountable = False
+
+            if 'capabilities' in part and 'extended' in part['capabilities']:
+                mountable = False
 
             mount_info = self.mounted_disk(logicalname, mount_output)
             mount_point = None
             if mount_info:
                 mount_point = mount_info.dir
+                mountable = False
 
-            if not mounted or mount_point == '/opt/disk':
+            if mountable or mount_point == '/opt/disk':
                 disk.partitions.append(
                     Partition(part['physid'], part['size'] / (1024 * 1024), logicalname, mount_point))
         return disk

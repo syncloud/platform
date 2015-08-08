@@ -10,8 +10,10 @@ def test_list():
         open(join(DIR, 'hardware', 'lshw.json')).read(),
         open(join(DIR, 'hardware', 'mount')).read()
     )
-    assert len(disks) == 3
+    assert len(disks) == 2
+    assert len(disks[0].partitions) == 1
     assert disks[0].partitions[0].mount_point == '/opt/disk'
+    assert len(disks[1].partitions) == 3
 
 
 def test_get_mount_info():
