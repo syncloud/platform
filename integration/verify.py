@@ -101,7 +101,7 @@ def test_internal_web_id():
 
 def test_remove():
     ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
-    print(check_output('{0} /opt/app/sam/bin/sam --debug remove platform'.format(ssh),shell=True))
+    print(check_output('{0} /opt/app/sam/bin/sam --debug remove platform'.format(ssh), shell=True))
     time.sleep(3)
 
 
@@ -110,10 +110,13 @@ def test_reinstall(auth):
 
 
 def test_public_web_login_after_reinstall():
-    __public_web_login()
+    __public_web_login(reset_session=True)
 
 
-def __public_web_login():
+def __public_web_login(reset_session=False):
+    global session
+    if reset_session:
+        session = requests.session()
     session.post('http://localhost/server/rest/login', data={'name': 'user', 'password': 'password'})
     assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
 

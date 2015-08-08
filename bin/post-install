@@ -42,6 +42,7 @@ log.info(chown('platform', '/opt/app/platform'))
 data_dir = app.get_app_data_root('platform', 'platform')
 app.create_data_dir(data_dir, 'webapps', 'platform')
 app.create_data_dir(data_dir, 'log', 'platform')
+app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')

@@ -34,7 +34,7 @@ class Auth:
 
         stop_service('platform-openldap')
 
-        files = glob.glob('/opt/app/platform/openldap/var/openldap-data/*')
+        files = glob.glob('/opt/data/platform/openldap-data/*')
         for f in files:
             os.remove(f)
 
