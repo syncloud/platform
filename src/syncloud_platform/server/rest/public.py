@@ -242,7 +242,11 @@ def disks():
 @app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])
 @login_required
 def disk_activate():
-    return jsonify(success=True, disks=Hardware().activate_disk(request.args['device'])), 200
+    device = request.args['device']
+    fix_permissions = True
+    if 'fix_permissions' in request.args:
+        fix_permissions = request.args['fix_permissions'] == 'True'
+    return jsonify(success=True, disks=Hardware().activate_disk(device, fix_permissions)), 200
 
 
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])

@@ -1,9 +1,20 @@
 import json
+from os import unlink
+import os
+from os.path import islink, join
 from subprocess import check_output
+from syncloud_app import logger
+from syncloud_platform.config.config import PLATFORM_CONFIG_DIR, PlatformConfig
 from syncloud_platform.systemd import systemctl
+from syncloud_platform.tools.chown import chown
+from syncloud_platform.tools.touch import touch
 
 
 class Hardware:
+
+    def __init__(self, config_path=PLATFORM_CONFIG_DIR):
+        self.platform_config = PlatformConfig(config_path)
+        self.log = logger.get_logger('hardware')
 
     def available_disks(self, lshw_output=None, mount_output=None):
         if not lshw_output:
@@ -46,7 +57,7 @@ class Hardware:
                 mount_point = mount_info.dir
                 mountable = False
 
-            if mountable or mount_point == '/opt/disk':
+            if mountable or mount_point == self.platform_config.get_external_disk_dir():
                 disk.partitions.append(
                     Partition(part['physid'], part['size'] / (1024 * 1024), logicalname, mount_point))
         return disk
@@ -65,15 +76,42 @@ class Hardware:
                 return MountEntry(device, dir, type, parts_options[1].strip('()'))
         return None
 
-    def activate_disk(self, device):
-        systemctl.remove_mount()
+    def activate_disk(self, device, fix_permissions=True):
+
+        self.deactivate_disk()
+
         check_output('udisksctl mount -b {0}'.format(device), shell=True)
         mount_entry = self.mounted_disk(device)
         check_output('udisksctl unmount -b {0}'.format(device), shell=True)
         systemctl.add_mount(mount_entry)
 
+        relink_disk(
+            self.platform_config.get_disk_link(),
+            self.platform_config.get_external_disk_dir(),
+            fix_permissions)
+
     def deactivate_disk(self):
+        relink_disk(
+            self.platform_config.get_disk_link(),
+            self.platform_config.get_internal_disk_dir())
         systemctl.remove_mount()
+
+
+def relink_disk(link, target, fix_permissions=True):
+
+    log = logger.get_logger('hardware.relink_disk')
+
+    if islink(link):
+        unlink(link)
+    os.symlink(target, link)
+    if fix_permissions:
+        log.info('fixing permissions')
+        # TODO: We need to come up with some generic way of giving access to different apps
+        chown('owncloud', link)
+    else:
+        log.info('not fixing permissions')
+
+    touch(join(link, '.ocdata'))
 
 
 class Partition:

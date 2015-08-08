@@ -2,12 +2,13 @@ import os
 from os.path import join
 import shutil
 from string import Template
+import string
 from subprocess import check_output, CalledProcessError
 from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
 
 SYSTEMD_DIR = join('/lib', 'systemd', 'system')
-EXTERNAL_DISK_FILENAME = 'opt-disk.mount'
+
 
 def reload_service(service):
 
@@ -52,23 +53,30 @@ def add_mount(mount_entry):
     log = logger.get_logger('systemctl')
 
     config = PlatformConfig()
-    mount_template_file = join(config.config_dir(), 'mount', '{0}.template'.format(EXTERNAL_DISK_FILENAME))
+    mount_template_file = join(config.config_dir(), 'mount', 'mount.template')
     mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
         'what': mount_entry.device,
         'where': config.get_external_disk_dir(),
         'type': mount_entry.type,
         'options': mount_entry.options})
 
-    with open(__systemd_file(EXTERNAL_DISK_FILENAME), 'w') as f:
+    config = PlatformConfig()
+    mount_filename = __dir_to_systemd_mount_filename(config.get_external_disk_dir())
+    with open(__systemd_file(mount_filename), 'w') as f:
         f.write(mount_definition)
 
-    log.info('enabling {0}'.format(EXTERNAL_DISK_FILENAME))
-    check_output('systemctl enable {0}'.format(EXTERNAL_DISK_FILENAME), shell=True)
-    __start(EXTERNAL_DISK_FILENAME)
+    log.info('enabling {0}'.format(mount_filename))
+    check_output('systemctl enable {0}'.format(mount_filename), shell=True)
+    __start(mount_filename)
+
+
+def __dir_to_systemd_mount_filename(directory):
+    return string.join(filter(None, directory.split('/')), '-') + '.mount'
 
 
 def remove_mount():
-    __remove(EXTERNAL_DISK_FILENAME)
+    config = PlatformConfig()
+    __remove(__dir_to_systemd_mount_filename(config.get_external_disk_dir()))
 
 
 def restart_service(service):
