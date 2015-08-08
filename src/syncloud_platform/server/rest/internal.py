@@ -44,10 +44,6 @@ def activate():
     if 'domain' in request.form:
         domain = request.form['domain']
 
-    release = None
-    if 'release' in request.form:
-        release = request.form['release']
-
     get_server().activate(
         request.form['redirect-email'],
         request.form['redirect-password'],
@@ -55,8 +51,7 @@ def activate():
         request.form['name'],
         request.form['password'],
         api_url,
-        domain,
-        release
+        domain
     )
     return id()
 

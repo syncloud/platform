@@ -27,22 +27,20 @@ def test_internal_web_open():
 
 def test_activate_device(auth):
 
-    email, password, domain, release, version, arch = auth
+    email, password, domain, version, arch = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info',
-                                   'release': release})
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
     assert response.status_code == 200, response.text
 
 
 def test_reactivate(auth):
-    email, password, domain, release, version, arch = auth
+    email, password, domain, version, arch = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user', 'password': 'password',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info',
-                                   'release': release})
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
     assert response.status_code == 200
 
 
@@ -122,7 +120,7 @@ def __public_web_login(reset_session=False):
 
 
 def __local_install(auth):
-    email, password, domain, release, version, arch = auth
+    email, password, domain, version, arch = auth
     ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
     print(check_output('{0} /opt/app/sam/bin/sam --debug install /platform-{1}-{2}.tar.gz'.format(ssh, version, arch),
                        shell=True))

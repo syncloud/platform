@@ -8,10 +8,6 @@ AndroidMobile.prototype.getDomain = function() {
     return Android.getDomain();
 };
 
-AndroidMobile.prototype.getRelease = function() {
-    return Android.getRelease();
-};
-
 AndroidMobile.prototype.getRedirectLogin = function() {
     return Android.getRedirectLogin();
 };

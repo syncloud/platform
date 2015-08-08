@@ -20,7 +20,7 @@ class ServerFacade:
     def activate(self,
                  redirect_email, redirect_password, user_domain,
                  device_user, device_password,
-                 api_url=None, domain=None, release=None):
+                 api_url=None, domain=None):
 
         if not api_url:
             api_url = 'http://api.syncloud.it'
@@ -28,10 +28,10 @@ class ServerFacade:
         if not domain:
             domain = 'syncloud.it'
 
-        self.logger.info("activate {0}, {1}, {2}, {3}, {4}, {5}".format(
-            redirect_email, user_domain, device_user, release, api_url, domain))
+        self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
+            redirect_email, user_domain, device_user, api_url, domain))
 
-        self.sam.update(release)
+        self.sam.update()
         # self.sam.upgrade_all()
 
         self.redirect_service.set_info(domain, api_url)

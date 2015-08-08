@@ -26,13 +26,6 @@ main_menu_item: menu_activate
                     </div>
                 </div>
 
-                <div id="group-release" class="form-group" style="display: none">
-                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <input id="release" name="release" type="text" placeholder="release" class="form-control input-md">
-                        <span id="help-release" class="help-block"></span>
-                    </div>
-                </div>
-
                 <div id="group-redirect-domain" class="form-group">
                     <div class="col-7 col-md-7 col-sm-7 col-lg-7 col-xs-7">
                         <input id="redirect-domain" name="redirect-domain" type="text" placeholder="domain" class="form-control input-md"
@@ -121,12 +114,6 @@ main_menu_item: menu_activate
             $('#domain').val(Mobile.getDomain());
         } else if (params["domain"]) {
             $('#domain').val(params["domain"]);
-        }
-
-        if (Mobile.getRelease()){
-            $('#release').val(Mobile.getRelease());
-        } else if (params["release"]) {
-            $('#release').val(params["release"]);
         }
 
         if (Mobile.getRedirectLogin()) {
