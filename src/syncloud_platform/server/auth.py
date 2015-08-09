@@ -1,6 +1,5 @@
 import glob
 import hashlib
-import json
 import os
 from os.path import join
 import tempfile
@@ -10,6 +9,7 @@ import ldap
 
 from syncloud_app import util
 from syncloud_app.logger import get_logger
+import time
 from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.systemd.systemctl import stop_service, start_service
 from syncloud_platform.tools import app
@@ -20,7 +20,7 @@ platform_user = 'platform'
 
 class Auth:
     def __init__(self):
-        self.logger = get_logger('ldap')
+        self.log = get_logger('ldap')
         self.config = PlatformConfig()
 
     def installed(self):
@@ -54,7 +54,23 @@ class Auth:
             'password': make_secret(password)
         })
 
-        check_output('{0}/bin/ldapadd -Y EXTERNAL -H ldapi:/// -f {1}'.format(ldap_root, filename), shell=True)
+        self.__init_db(filename, ldap_root)
+
+    def __init_db(self, filename, ldap_root):
+        success = False
+        for i in range(0, 3):
+            try:
+                check_output('{0}/bin/ldapadd -Y EXTERNAL -H ldapi:/// -f {1}'.format(ldap_root, filename), shell=True)
+                success = True
+                break
+            except Exception, e:
+                self.log.warn(e.message)
+                self.log.warn("probably ldap is still starting, will retry {0}".format(i))
+                time.sleep(1)
+
+        if not success:
+            raise Exception("Unable to initialize ldap db")
+
 
 def to_ldap_dc(full_domain):
     return 'dc=' + ',dc='.join(full_domain.split('.'))

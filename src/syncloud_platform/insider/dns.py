@@ -110,7 +110,8 @@ class Dns:
                     type=service.type,
                     url=service.url,
                     port=mapping.external_port,
-                    local_port=mapping.local_port
+                    local_port=mapping.local_port,
+                    map_local_address=True
                 )
                 services_data.append(service_data)
 
