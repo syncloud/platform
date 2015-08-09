@@ -110,15 +110,15 @@ class Dns:
                     type=service.type,
                     url=service.url,
                     port=mapping.external_port,
-                    local_port=mapping.local_port,
-                    map_local_address=True
+                    local_port=mapping.local_port
                 )
                 services_data.append(service_data)
 
         data = {
             'token': domain.update_token,
             'local_ip': self.local_ip,
-            'services': services_data}
+            'services': services_data,
+            'map_local_address': False}
 
         external_ip = self.port_drill.external_ip()
 

@@ -59,6 +59,7 @@ def test_sync_success():
     ],
     "ip": "192.167.44.52",
     "local_ip": "127.0.0.1",
+    "map_local_address": false,
     "token": "some_update_token"
 }
 '''
