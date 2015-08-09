@@ -104,15 +104,11 @@ main_menu_item: menu_activate
         var uri = new URI();
         var params = uri.query(true);
 
-        if (Mobile.getApiUrl()){
-            $('#api-url').val(Mobile.getApiUrl());
-        } else if (params["api-url"]) {
+        if (params["api-url"]) {
             $('#api-url').val(params["api-url"]);
         }
 
-        if (Mobile.getDomain()){
-            $('#domain').val(Mobile.getDomain());
-        } else if (params["domain"]) {
+        if (params["domain"]) {
             $('#domain').val(params["domain"]);
         }
 

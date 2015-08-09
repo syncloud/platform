@@ -23,13 +23,16 @@ logger.init(console=True)
 
 app = Flask(__name__)
 
+
 @app.route('/server/html/<path:filename>')
 def static_file(filename):
     return send_from_directory(www_dir, filename)
 
+
 @app.route("/server/rest/id", methods=["GET"])
-def id():
+def identification():
     return jsonify(success=True, message='', data=convertible.to_dict(Facade().id())), 200
+
 
 @app.route("/server/rest/activate", methods=["POST"])
 def activate():
@@ -53,7 +56,8 @@ def activate():
         api_url,
         domain
     )
-    return id()
+    return identification()
+
 
 @app.errorhandler(Exception)
 def handle_exception(error):
