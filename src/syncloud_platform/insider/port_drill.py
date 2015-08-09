@@ -5,10 +5,6 @@ from syncloud_platform.insider.config import Port
 from upnpc import UpnpPortMapper
 from natpmpc import NatPmpPortMapper
 
-LOWER_LIMIT = 10000
-UPPER_LIMIT = 65535
-PORTS_TO_TRY = 10
-
 
 def check_mapper(mapper_type):
     log = logger.get_logger('check_mapper')
@@ -53,7 +49,7 @@ class MockPortMapper:
 
 class PortDrill:
     def __init__(self, port_config, port_mapper_provider):
-        self.logger = logger.get_logger('PortMapper')
+        self.logger = logger.get_logger('PortDrill')
         self.port_config = port_config
         self.port_mapper = port_mapper_provider()
 

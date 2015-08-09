@@ -1,5 +1,6 @@
 import NATPMP
 
+
 class NatPmpPortMapper:
     def external_ip(self):
         return NATPMP.get_public_address()

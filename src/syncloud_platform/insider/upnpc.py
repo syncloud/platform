@@ -24,6 +24,7 @@ class Mapping:
         self.remote_ip = remote_ip
         self.lease_time = lease_time
 
+
 def to_mapping(m):
     external_port, protocol, local_address, description, enabled_str, remote_ip_str, lease_time = m
     local_ip_str, local_port = local_address
@@ -48,7 +49,6 @@ class UpnpClient:
 
     def external_ip(self):
         return self.upnp.externalipaddress()
-
 
     def __list(self):
         result = []
@@ -80,7 +80,7 @@ class UpnpClient:
         self.upnp.addportmapping(external_port, protocol, self.upnp.lanaddr, local_port, description, '')
 
 
-LOWER_LIMIT = 2000
+LOWER_LIMIT = 10000
 UPPER_LIMIT = 65535
 PORTS_TO_TRY = 10
 
