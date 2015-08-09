@@ -5,7 +5,7 @@ from syncloud_platform.insider.config import Port
 from upnpc import UpnpPortMapper
 from natpmpc import NatPmpPortMapper
 
-LOWER_LIMIT = 2000
+LOWER_LIMIT = 10000
 UPPER_LIMIT = 65535
 PORTS_TO_TRY = 10
 
