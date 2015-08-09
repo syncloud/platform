@@ -73,24 +73,22 @@ class Insider:
         return self.dns.endpoints()
 
 
-def get_insider(config_path=PLATFORM_CONFIG_DIR, mock_port_mapper=False, data_root=None):
+def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
-    if not data_root:
-        data_root = get_app_data_root('platform')
+    data_root = get_app_data_root('platform')
 
     redirect_config = RedirectConfig(data_root)
     insider_config = InsiderConfig(config_path)
 
     local_ip = Facade().local_ip()
 
-    if mock_port_mapper:
-        mapper_provider = port_drill.MockPortMapper
-    else:
-        mapper_provider = port_drill.provide_mapper
-
     port_config = PortConfig(join(data_root, 'ports.json'))
 
-    drill = port_drill.PortDrill(port_config, mapper_provider)
+    drill = port_drill.NonePortDrill()
+    if insider_config.get_external_access():
+        mapper = port_drill.provide_mapper()
+        if mapper:
+            drill = port_drill.PortDrill(port_config, mapper)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 

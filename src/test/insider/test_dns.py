@@ -11,7 +11,7 @@ from syncloud_platform.tools import footprint
 from syncloud_platform.tools import id
 
 from syncloud_platform.insider.dns import Dns
-from syncloud_platform.insider.port_drill import PortDrill, MockPortMapper
+from syncloud_platform.insider.port_drill import PortDrill
 from syncloud_platform.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config, \
     get_redirect_config
@@ -35,7 +35,7 @@ def test_sync_success():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
@@ -73,7 +73,7 @@ def test_sync_server_side_client_ip():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='10.1.1.1'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
@@ -106,7 +106,7 @@ def test_sync_server_side_client_ip():
 def test_sync_server_error():
     service_config = get_service_config([Service("ownCloud", "http", "_http._tcp", 80, url="owncloud")])
     port_config = get_port_config([Port(80, 10000)])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
 
@@ -197,7 +197,7 @@ def test_link_server_error():
 def test_add_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
 
@@ -224,7 +224,7 @@ def test_add_service():
 def test_get_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
 
@@ -246,7 +246,7 @@ def test_get_service():
 def test_get_not_existing_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='192.167.44.52'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'))
 
     domain_config = get_domain_config(None)
     insider_config = get_insider_config()
@@ -264,7 +264,7 @@ def test_endpoints():
         Service("SSH", "https", "_http._tcp", 81, url=None)
     ])
     port_config = get_port_config([Port(80, 8080), Port(81, 8181)])
-    port_drill = PortDrill(port_config, lambda: MockPortMapper(external_ip='10.1.1.1'))
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='10.1.1.1'))
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
     insider_config = get_insider_config()
@@ -277,3 +277,17 @@ def test_endpoints():
     assert endpoints[0].external_port == 8080
     assert endpoints[1].service.name == 'SSH'
     assert endpoints[1].external_port == 8181
+
+
+class MockPortMapper:
+    def __init__(self, external_ip=None):
+        self.__external_ip = external_ip
+
+    def external_ip(self):
+        return self.__external_ip
+
+    def add_mapping(self, local_port):
+        return local_port
+
+    def remove_mapping(self, local_port, external_port):
+        pass

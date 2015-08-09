@@ -1,3 +1,4 @@
+import logging
 from os.path import join, dirname, abspath
 import traceback
 import sys
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 else:
     www_dir = PlatformConfig().www_root()
 
-logger.init(console=True)
+logger.init(level=logging.DEBUG, console=True)
 
 app = Flask(__name__)
 

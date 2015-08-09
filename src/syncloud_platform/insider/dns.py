@@ -92,8 +92,7 @@ class Dns:
         return [self.service_to_endpoint(service) for service in self.service_config.load()]
 
     def sync(self):
-        if self.insider_config.get_external_access():
-            self.port_drill.sync()
+        self.port_drill.sync()
 
         services = self.service_config.load()
         domain = self.domain_config.load()
@@ -118,12 +117,9 @@ class Dns:
         data = {
             'token': domain.update_token,
             'local_ip': self.local_ip,
-            'map_local_address': not self.insider_config.get_external_access(),
             'services': services_data}
 
-        external_ip = None
-        if self.insider_config.get_external_access():
-            external_ip = self.port_drill.external_ip()
+        external_ip = self.port_drill.external_ip()
 
         if not external_ip:
             self.logger.warn("No external ip")
@@ -135,6 +131,7 @@ class Dns:
         if external_ip:
             data['ip'] = external_ip
         else:
+            data['map_local_address'] = True
             self.logger.warn("Will try server side client ip detection")
 
         url = urljoin(self.redirect_config.get_api_url(), "/domain/update")

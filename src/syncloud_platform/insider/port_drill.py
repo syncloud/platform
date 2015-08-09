@@ -33,25 +33,11 @@ def provide_mapper():
     return None
 
 
-class MockPortMapper:
-    def __init__(self, external_ip=None):
-        self.__external_ip=external_ip
-
-    def external_ip(self):
-        return self.__external_ip
-
-    def add_mapping(self, local_port):
-        return local_port
-
-    def remove_mapping(self, local_port, external_port):
-        pass
-
-
 class PortDrill:
-    def __init__(self, port_config, port_mapper_provider):
+    def __init__(self, port_config, port_mapper):
         self.logger = logger.get_logger('PortDrill')
         self.port_config = port_config
-        self.port_mapper = port_mapper_provider()
+        self.port_mapper = port_mapper
 
     def remove_all(self):
         for mapping in self.list():
@@ -86,3 +72,35 @@ class PortDrill:
 
     def available(self):
         return self.port_mapper is not None
+
+
+class NonePortDrill:
+    def __init__(self):
+        self.logger = logger.get_logger('NonePortDrill')
+
+    def remove_all(self):
+        pass
+
+    def get(self, local_port):
+        return Port(local_port, None)
+
+    def list(self):
+        return []
+
+    def external_ip(self):
+        return None
+
+    def remove(self, local_port):
+        pass
+
+    def sync_one_mapping(self, local_port):
+        pass
+
+    def sync_new_port(self, local_port):
+        pass
+
+    def sync(self):
+        pass
+
+    def available(self):
+        return False
