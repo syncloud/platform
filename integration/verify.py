@@ -27,7 +27,7 @@ def test_internal_web_open():
 
 def test_activate_device(auth):
 
-    email, password, domain, version, arch = auth
+    email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
@@ -36,7 +36,7 @@ def test_activate_device(auth):
 
 
 def test_reactivate(auth):
-    email, password, domain, version, arch = auth
+    email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user', 'password': 'password',
@@ -120,8 +120,10 @@ def __public_web_login(reset_session=False):
 
 
 def __local_install(auth):
-    email, password, domain, version, arch = auth
+    email, password, domain, version, arch, release = auth
     ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
     print(check_output('{0} /opt/app/sam/bin/sam --debug install /platform-{1}-{2}.tar.gz'.format(ssh, version, arch),
+                       shell=True))
+    print(check_output('{0} /opt/app/sam/bin/sam update --release {1}'.format(ssh, release),
                        shell=True))
     time.sleep(3)

@@ -18,6 +18,10 @@ class SamStub:
     def install(self, app_id):
         return self.__run([self.sam, 'install', app_id])
 
+    def upgrade(self, app_id):
+        self.remove(app_id)
+        return self.install(app_id)
+
     def remove(self, app_id):
         return self.__run([self.sam, 'remove', app_id])
 

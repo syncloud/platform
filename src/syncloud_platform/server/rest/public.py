@@ -155,8 +155,12 @@ def installed_apps():
 @app.route(rest_prefix + "/app", methods=["GET"])
 @login_required
 def app_status():
-    application = next(a for a in non_required_apps() if a.app.id == request.args['app_id'])
+    application = get_app(request.args['app_id'])
     return jsonify(info=convertible.to_dict(application)), 200
+
+
+def get_app(app_id):
+    return next(a for a in sam.list() if a.app.id == app_id)
 
 
 @app.route(rest_prefix + "/install", methods=["GET"])
@@ -176,7 +180,6 @@ def remove():
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
-    sam.remove(request.args['app_id'])
     result = sam.install(request.args['app_id'])
     return jsonify(message=result), 200
 
@@ -247,6 +250,19 @@ def disk_activate():
     if 'fix_permissions' in request.args:
         fix_permissions = request.args['fix_permissions'] == 'True'
     return jsonify(success=True, disks=Hardware().activate_disk(device, fix_permissions)), 200
+
+
+@app.route(rest_prefix + "/settings/version", methods=["GET"])
+@login_required
+def version():
+    return jsonify(convertible.to_dict(get_app('platform'))), 200
+
+
+@app.route(rest_prefix + "/settings/system_upgrade", methods=["GET"])
+@login_required
+def system_upgrade():
+    sam.upgrade('platform')
+    return 'OK', 200
 
 
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])

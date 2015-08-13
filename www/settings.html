@@ -69,6 +69,18 @@ main_menu_item: menu_apps
 
     </div>
 
+    <div class="row settings-row">
+
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            System version: <span id="system_version"></span>
+        </div>
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="system_upgrade_btn" style="display: none" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Upgrade
+            </button>
+        </div>
+
+    </div>
 
 </div>
 
@@ -135,16 +147,47 @@ main_menu_item: menu_apps
                 }).fail(onError);
     }
 
+    function check_system_version() {
+        $.get('/server/rest/settings/version')
+                .done(function (data) {
+                    var btn = $("#system_upgrade_btn");
+                    btn.hide();
+                    var updates = '';
+
+                    if (data.installed_version != data.current_version) {
+                        btn.show();
+                        updates = ', updated version available: ' + data.current_version;
+                        btn.text('Upgrade');
+                        btn.prop('disabled', false);
+                    }
+
+                    $("#system_version").html(data.installed_version + updates);
+
+                }).fail(onError);
+    }
+
+    function check_upgrade_status() {
+        $.get('/server/rest/settings/version')
+                .done(function() {
+                    check_system_version();
+                })
+                .fail(function() {
+                    setTimeout(check_upgrade_status, 2000)
+                })
+
+    }
+
     $(document).ready(function () {
 
         external_access_status();
         disks_status();
+        check_system_version();
 
         externalAccessToggleBtn.on('click', function () {
-            var externalAccessToggleBtn = $(this);
-            externalAccessToggleBtn.prop('disabled', true);
-            externalAccessToggleBtn.text('Checking ...');
-            var mode = externalAccessToggleBtn.data("enabled") ? "disable" : "enable";
+            var btn = $(this);
+            btn.prop('disabled', true);
+            btn.text('Checking ...');
+            var mode = btn.data("enabled") ? "disable" : "enable";
             $.get('/server/rest/settings/external_access_' + mode)
                     .done(function (data) {
                         if (data.success)
@@ -157,28 +200,33 @@ main_menu_item: menu_apps
 
         $('#disks').on('click', 'button.activate', function () {
 
-            var diskBtn = $(this);
-            diskBtn.prop('disabled', true);
-            diskBtn.text('Working ...');
-            var mode = diskBtn.data("mount-point") ? "deactivate" : "activate";
-            $.get('/server/rest/settings/disk_' + mode, {device: diskBtn.data('device')})
+            var btn = $(this);
+            btn.prop('disabled', true);
+            btn.text('Working ...');
+            var mode = btn.data("mount-point") ? "deactivate" : "activate";
+            $.get('/server/rest/settings/disk_' + mode, {device: btn.data('device')})
                     .done(function (data) {
                         disks_status()
                     }).fail(onError);
         });
 
         $("#send_logs_btn").on('click', function () {
-            var sendLogsBtn = $(this);
-            sendLogsBtn.prop('disabled', true);
-            sendLogsBtn.text('Sending ...');
+            var btn = $(this);
+            btn.prop('disabled', true);
+            btn.text('Sending ...');
             $.get('/server/rest/send_log')
                     .done(function (data) {
-                        sendLogsBtn.text('Send');
-                        sendLogsBtn.prop('disabled', false);
+                        btn.text('Send');
+                        btn.prop('disabled', false);
                     }).fail(onError);
         });
 
-
+        $("#system_upgrade_btn").on('click', function () {
+            var btn = $(this);
+            btn.prop('disabled', true);
+            btn.text('Upgrading ...');
+            $.get('/server/rest/settings/system_upgrade');
+        });
 
     });
 
