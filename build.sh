@@ -32,10 +32,10 @@ rm -rf build
 mkdir -p ${BUILD_DIR}
 
 DOWNLOAD_URL=http://build.syncloud.org:8111/guestAuth/repository/download
-coin --to ${BUILD_DIR} --cache_folder nginx_${ARCH} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx.tar.gz
-coin --to ${BUILD_DIR} --cache_folder uwsgi_${ARCH} raw ${DOWNLOAD_URL}/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi.tar.gz
-coin --to ${BUILD_DIR} --cache_folder openldap_${ARCH} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSuccessful/openldap.tar.gz
-coin --to ${BUILD_DIR} --cache_folder python_${ARCH} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSuccessful/openldap-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python-${ARCH}.tar.gz
 
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
