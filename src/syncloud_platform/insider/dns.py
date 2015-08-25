@@ -101,6 +101,7 @@ class Dns:
 
         services_data = []
         for service in services:
+            self.logger.debug('service: ' + service.port)
             mapping = self.port_drill.get(service.port)
             if mapping:
                 service.port = mapping.external_port

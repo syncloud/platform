@@ -72,6 +72,9 @@ class Insider:
     def endpoints(self):
         return self.dns.endpoints()
 
+    def add_main_device_service(self):
+        self.add_service("server", "http", "server", 80, None)
+
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
