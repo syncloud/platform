@@ -60,6 +60,12 @@ class PlatformConfig:
     def get_disk_root(self):
         return self.__get('disk_root')
 
+    def get_ssh_port(self):
+        return self.__get('ssh_port')
+
+    def set_ssh_port(self, value):
+        return self.__set('ssh_port', value)
+
     def __get(self, key):
         return self.parser.get('platform', key)
 

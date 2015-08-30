@@ -6,6 +6,8 @@ from subprocess import check_output
 import time
 
 DIR = dirname(__file__)
+DOCKER_SSH_PORT = 2222
+SSH = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p {0} root@localhost'.format(DOCKER_SSH_PORT)
 
 
 def test_install(auth):
@@ -98,8 +100,7 @@ def test_internal_web_id():
 
 
 def test_remove():
-    ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
-    print(check_output('{0} /opt/app/sam/bin/sam --debug remove platform'.format(ssh), shell=True))
+    __run_ssh('/opt/app/sam/bin/sam --debug remove platform')
     time.sleep(3)
 
 
@@ -109,6 +110,22 @@ def test_reinstall(auth):
 
 def test_public_web_login_after_reinstall():
     __public_web_login(reset_session=True)
+
+
+# def test_public_web_platform_upgrade():
+#
+#     response = session.get('http://localhost/server/rest/settings/system_upgrade')
+#     assert response.status_code == 200
+#     sam_running = True
+#     while sam_running:
+#         response = session.get('http://localhost/server/rest/settings/sam_status')
+#         json = convertible.from_json(response.text)
+#         sam_running = json.is_running
+#         time.sleep(1)
+
+
+# def test_reinstall_local_after_upgrade(auth):
+#     __local_install(auth)
 
 
 def __public_web_login(reset_session=False):
@@ -121,9 +138,16 @@ def __public_web_login(reset_session=False):
 
 def __local_install(auth):
     email, password, domain, version, arch, release = auth
-    ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
-    print(check_output('{0} /opt/app/sam/bin/sam --debug install /platform-{1}-{2}.tar.gz'.format(ssh, version, arch),
-                       shell=True))
-    print(check_output('{0} /opt/app/sam/bin/sam update --release {1}'.format(ssh, release),
-                       shell=True))
+    # __run_ssh('/opt/app/sam/bin/sam --debug remove platform')
+    __run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch))
+    __run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release))
+    __set_docker_ssh_port()
     time.sleep(3)
+
+
+def __run_ssh(command):
+    print(check_output('{0} {1}'.format(SSH, command),shell=True))
+
+
+def __set_docker_ssh_port():
+    __run_ssh("sed -i 's/ssh_port.*/ssh_port:{0}/g' /opt/app/platform/config/platform.cfg".format(DOCKER_SSH_PORT))

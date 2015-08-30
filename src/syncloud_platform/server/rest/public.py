@@ -22,8 +22,6 @@ from syncloud_platform.sam.stub import SamStub
 from syncloud_app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
-sam = SamStub()
-
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
     mock_apps = [
@@ -44,6 +42,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 login_manager = LoginManager()
 login_manager.init_app(app)
+sam = SamStub()
 
 
 @login_manager.unauthorized_handler
@@ -263,6 +262,12 @@ def version():
 def system_upgrade():
     sam.upgrade('platform')
     return 'OK', 200
+
+
+@app.route(rest_prefix + "/settings/sam_status", methods=["GET"])
+@login_required
+def sam_status():
+    return jsonify(is_running=sam.is_running()), 200
 
 
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])
