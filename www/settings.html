@@ -167,12 +167,16 @@ main_menu_item: menu_apps
     }
 
     function check_upgrade_status() {
-        $.get('/server/rest/settings/version')
-                .done(function() {
-                    check_system_version();
+        var recheck_timeput = 2000;
+        $.get('/server/rest/settings/sam_status')
+                .done(function(sam) {
+                    if (sam.is_running)
+                        setTimeout(check_upgrade_status, recheck_timeput);
+                    else
+                        check_system_version();
                 })
                 .fail(function() {
-                    setTimeout(check_upgrade_status, 2000)
+                    setTimeout(check_upgrade_status, recheck_timeput);
                 })
 
     }
@@ -205,7 +209,7 @@ main_menu_item: menu_apps
             btn.text('Working ...');
             var mode = btn.data("mount-point") ? "deactivate" : "activate";
             $.get('/server/rest/settings/disk_' + mode, {device: btn.data('device')})
-                    .done(function (data) {
+                    .done(function () {
                         disks_status()
                     }).fail(onError);
         });
@@ -215,7 +219,7 @@ main_menu_item: menu_apps
             btn.prop('disabled', true);
             btn.text('Sending ...');
             $.get('/server/rest/send_log')
-                    .done(function (data) {
+                    .done(function () {
                         btn.text('Send');
                         btn.prop('disabled', false);
                     }).fail(onError);
@@ -225,7 +229,13 @@ main_menu_item: menu_apps
             var btn = $(this);
             btn.prop('disabled', true);
             btn.text('Upgrading ...');
-            $.get('/server/rest/settings/system_upgrade');
+            $.get('/server/rest/settings/system_upgrade')
+                    .done(function() {
+                        check_upgrade_status();
+                    })
+                    .fail(function () {
+                        check_upgrade_status();
+                    });
         });
 
     });

@@ -49,4 +49,8 @@ class SamStub:
         return result['data']
 
     def is_running(self):
-        return SAM_BIN in [p.cmdline() for p in psutil.get_process_list() if p.cmdline()]
+        for p in psutil.get_process_list():
+            for arg in p.cmdline():
+                if SAM_BIN in arg:
+                    return True
+        return False
