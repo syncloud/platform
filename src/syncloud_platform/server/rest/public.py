@@ -22,13 +22,13 @@ from syncloud_platform.sam.stub import SamStub
 from syncloud_app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
+config = PlatformConfig()
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
     mock_apps = [
         App("owncloud", "ownCloud", "owncloud")]
     secret_key = '123223'
 else:
-    config = PlatformConfig()
     www_dir = config.www_root()
     mock_apps = None
     secret_key = config.get_web_secret_key()
@@ -36,7 +36,7 @@ else:
 html_prefix = '/server/html'
 rest_prefix = '/server/rest'
 
-logger.init(console=True)
+logger.init(filename=config.get_rest_public_log())
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key

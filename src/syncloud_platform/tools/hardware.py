@@ -2,12 +2,15 @@ import json
 from os import unlink
 import os
 from os.path import islink, join
+import re
 from subprocess import check_output
 from syncloud_app import logger
 from syncloud_platform.config.config import PLATFORM_CONFIG_DIR, PlatformConfig
 from syncloud_platform.systemd import systemctl
 from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.touch import touch
+
+PARTTYPE_EXTENDED = '0x5'
 
 
 class Hardware:
@@ -16,51 +19,30 @@ class Hardware:
         self.platform_config = PlatformConfig(config_path)
         self.log = logger.get_logger('hardware')
 
-    def available_disks(self, lshw_output=None, mount_output=None):
-        if not lshw_output:
-            lshw_output = check_output('lshw -json', shell=True)
-        return self.__find_disks([], json.loads(lshw_output), mount_output)
-
-    def __find_disks(self, acc, node, mount_output):
-        if node['class'] == 'disk' and node['id'] == 'disk':
-            disk = self.__parse_disk(node, mount_output)
-            if disk.partitions:
-                acc.append(disk)
-        else:
-            if 'children' in node:
-                for sub_node in node['children']:
-                    self.__find_disks(acc, sub_node, mount_output)
-        return acc
-
-    def __parse_disk(self, node, mount_output):
-        if 'product' in node:
-            name = node['product'].split(' ')[0]
-        else:
-            name = node['description']
-        disk = Disk(name)
-        for part in node['children']:
-            logicalname = part['logicalname']
-            if type(logicalname) is list:
-                logicalname = logicalname[0]
-
-            mountable = True
-            if 'configuration' in part:
-                if 'state' in part and part['state'] == 'mounted':
-                    mountable = False
-
-            if 'capabilities' in part and 'extended' in part['capabilities']:
+    def available_disks(self, lsblk_output=None):
+        if not lsblk_output:
+            lsblk_output = check_output('lsblk -Pp -o NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,MODEL', shell=True)
+        disks = []
+        disk = None
+        for line in lsblk_output.splitlines():
+            fields = dict()
+            for field in re.split(r'" ', line.strip()):
+                key, value = field.split('=', 1)
+                value = value[1:]
+                fields[key] = value
+            if fields['TYPE'] == 'disk':
+                disk = Disk(fields['MODEL'].split(' ')[0])
+                disks.append(disk)
+            elif fields['TYPE'] == 'part':
                 mountable = False
-
-            mount_info = self.mounted_disk(logicalname, mount_output)
-            mount_point = None
-            if mount_info:
-                mount_point = mount_info.dir
-                mountable = False
-
-            if mountable or mount_point == self.platform_config.get_external_disk_dir():
-                disk.partitions.append(
-                    Partition(part['physid'], part['size'] / (1024 * 1024), logicalname, mount_point))
-        return disk
+                mount_point = fields['MOUNTPOINT']
+                if not fields['PARTTYPE'] == PARTTYPE_EXTENDED:
+                    if not mount_point or mount_point == self.platform_config.get_external_disk_dir():
+                        mountable = True
+                if mountable:
+                    disk.partitions.append(Partition(fields['SIZE'], fields['NAME'], mount_point))
+        disks_with_partitions = [d for d in disks if d.partitions]
+        return disks_with_partitions
 
     def mounted_disk(self, device, mount_output=None):
         if not mount_output:
@@ -115,12 +97,10 @@ def relink_disk(link, target, fix_permissions=True):
 
 
 class Partition:
-    def __init__(self, id, size, device, mount_point):
-        self.id = id
+    def __init__(self, size, device, mount_point):
         self.size = size
         self.device = device
         self.mount_point = mount_point
-        self.label = '{0} {1} Mb'.format(id, round(size))
 
 
 class Disk:

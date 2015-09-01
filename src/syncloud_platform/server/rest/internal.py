@@ -15,12 +15,13 @@ from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.server.serverfacade import get_server
 
+config = PlatformConfig()
 if __name__ == '__main__':
     www_dir = join(local_root, 'www', '_site')
 else:
-    www_dir = PlatformConfig().www_root()
+    www_dir = config.www_root()
 
-logger.init(level=logging.DEBUG, console=True)
+logger.init(filename=config.get_rest_internal_log())
 
 app = Flask(__name__)
 

@@ -107,7 +107,7 @@ main_menu_item: menu_apps
     <div class="row disk-partition-row">
 
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
-            <%= partition.label %>
+            <%= partition.size %>
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
             <button type="button" class="btn btn-primary activate" data-mount-point="<%=partition.mount_point %>" data-device="<%=partition.device %>" data-loading-text="Loading ..." autocomplete="off">

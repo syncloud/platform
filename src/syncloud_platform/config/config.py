@@ -66,6 +66,12 @@ class PlatformConfig:
     def set_ssh_port(self, value):
         return self.__set('ssh_port', value)
 
+    def get_rest_internal_log(self):
+        return self.__get('rest_internal_log')
+
+    def get_rest_public_log(self):
+        return self.__get('rest_public_log')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 
