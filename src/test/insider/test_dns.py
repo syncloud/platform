@@ -14,7 +14,7 @@ from syncloud_platform.insider.dns import Dns
 from syncloud_platform.insider.port_drill import PortDrill
 from syncloud_platform.insider.config import Port, Domain, Service
 from test.insider.helpers import get_port_config, get_domain_config, get_service_config, get_insider_config, \
-    get_redirect_config
+    get_redirect_config, get_user_platform_config
 
 from syncloud_app.main import PassthroughJsonError
 
@@ -47,7 +47,8 @@ def test_sync_success():
 
     insider_config = get_insider_config()
     redirect_config = get_redirect_config()
-    insider_config.set_external_access(True)
+    user_platform_config = get_user_platform_config()
+    user_platform_config.set_external_access(True)
     dns = Dns(insider_config, domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
     dns.sync()
 

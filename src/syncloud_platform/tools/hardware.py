@@ -30,7 +30,7 @@ class Hardware:
                 key, value = field.split('=', 1)
                 value = value[1:]
                 fields[key] = value
-            if fields['TYPE'] == 'disk':
+            if fields['TYPE'] == 'disk' or fields['TYPE'] == 'loop':
                 disk = Disk(fields['MODEL'].split(' ')[0])
                 disks.append(disk)
             elif fields['TYPE'] == 'part':

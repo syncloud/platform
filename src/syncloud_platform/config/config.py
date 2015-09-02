@@ -83,9 +83,13 @@ class PlatformConfig:
 
 class PlatformUserConfig:
 
-    def __init__(self):
+    def __init__(self, config_file=None):
         self.parser = ConfigParser()
-        self.filename = PlatformConfig().get_user_config()
+        if config_file:
+            self.filename = config_file
+        else:
+            self.filename = PlatformConfig().get_user_config()
+
         if not isfile(self.filename):
             self.parser.add_section('platform')
             self.set_activated(False)
@@ -93,13 +97,28 @@ class PlatformUserConfig:
         else:
             self.parser.read(self.filename)
 
+        if not self.parser.has_section('platform'):
+            self.parser.add_section('platform')
+
     def is_activated(self):
-        return self.parser.get('platform', 'activated')
+        return self.parser.getboolean('platform', 'activated')
 
     def set_activated(self, value):
-        self.parser.set('platform', 'activated', value)
+        self.parser.set('platform', 'activated', str(value))
+        self.__save()
+
+    def get_external_access(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'external_access'):
+            return False
+        return self.parser.getboolean('platform', 'external_access')
+
+    def set_external_access(self, enabled):
+        self.parser.read(self.filename)
+        self.parser.set('platform', 'external_access', str(enabled))
         self.__save()
 
     def __save(self):
         with open(self.filename, 'wb') as f:
             self.parser.write(f)
+

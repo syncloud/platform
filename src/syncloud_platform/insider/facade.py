@@ -1,6 +1,6 @@
 import os
 from os.path import join
-from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.facade import Facade
 
@@ -82,13 +82,13 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
     redirect_config = RedirectConfig(data_root)
     insider_config = InsiderConfig(config_path)
-
+    user_platform_config = PlatformUserConfig()
     local_ip = Facade().local_ip()
 
     port_config = PortConfig(join(data_root, 'ports.json'))
 
     drill = port_drill.NonePortDrill()
-    if insider_config.get_external_access():
+    if user_platform_config.get_external_access():
         mapper = port_drill.provide_mapper()
         if mapper:
             drill = port_drill.PortDrill(port_config, mapper)

@@ -1,7 +1,7 @@
 from os.path import dirname, join
 import tempfile
 import os
-from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_NAME
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_NAME, PlatformUserConfig
 
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.service_config import ServiceConfig
@@ -66,3 +66,7 @@ def get_insider_config():
     config = InsiderConfig(dirname(temp_file(insider_config, INSIDER_CONFIG_NAME)))
     return config
 
+
+def get_user_platform_config():
+    config = PlatformUserConfig(temp_file())
+    return config

@@ -200,14 +200,14 @@ def available_apps():
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def get_settings_upnp():
-    return jsonify(enabled=InsiderConfig().get_external_access()), 200
+    return jsonify(enabled=PlatformUserConfig().get_external_access()), 200
 
 
 @app.route(rest_prefix + "/settings/external_access_enable", methods=["GET"])
 @login_required
 def external_access_enable():
 
-    InsiderConfig().set_external_access(True)
+    PlatformUserConfig().set_external_access(True)
     try:
 
         insider = get_insider()
@@ -217,14 +217,14 @@ def external_access_enable():
         insider.dns.sync()
         return jsonify(success=True), 200
     except Exception, e:
-        InsiderConfig().set_external_access(False)
+        PlatformUserConfig().set_external_access(False)
         return jsonify(success=False, message=e.message), 200
 
 
 @app.route(rest_prefix + "/settings/external_access_disable", methods=["GET"])
 @login_required
 def external_access_disable():
-    InsiderConfig().set_external_access(False)
+    PlatformUserConfig().set_external_access(False)
     return jsonify(success=True), 200
 
 

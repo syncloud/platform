@@ -138,7 +138,6 @@ def __public_web_login(reset_session=False):
 
 def __local_install(auth):
     email, password, domain, version, arch, release = auth
-    # __run_ssh('/opt/app/sam/bin/sam --debug remove platform')
     __run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch))
     __run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release))
     __set_docker_ssh_port()
