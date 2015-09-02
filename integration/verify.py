@@ -80,14 +80,14 @@ def test_public_settings_disk_add_remove():
     # print response.text
     # print response.url
     json = convertible.from_json(response.text)
-    for disk in json.disks:
-        for partition in disk.partitions:
-            response = session.get('http://localhost/server/rest/settings/disk_activate', params={
-                'device': partition.device, 'fix_permissions': False})
-            assert response.status_code == 200
-            response = session.get(
-                'http://localhost/server/rest/settings/disk_deactivate', params={'device': partition.device})
-            assert response.status_code == 200
+    #for disk in json.disks:
+    #    for partition in disk.partitions:
+    #        response = session.get('http://localhost/server/rest/settings/disk_activate', params={
+    #            'device': partition.device, 'fix_permissions': False})
+    #        assert response.status_code == 200
+    #        response = session.get(
+    #            'http://localhost/server/rest/settings disk_deactivate', params={'device': partition.device})
+    #        assert response.status_code == 200
 
     # check_output('{0}/virtual_disk.sh remove'.format(DIR), shell=True)
 
