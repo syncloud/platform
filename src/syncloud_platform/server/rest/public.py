@@ -183,7 +183,7 @@ def upgrade():
     return jsonify(message=result), 200
 
 
-@app.route(rest_prefix + "/check", methods=["GET"])
+@app.route(rest_prefix + "/settings/check", methods=["GET"])
 @login_required
 def update():
     result = sam.update()

@@ -78,6 +78,9 @@ main_menu_item: menu_apps
             <button type="button" id="system_upgrade_btn" style="display: none" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Upgrade
             </button>
+            <button type="button" id="system_check_btn" style="display: none" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Check
+            </button>
         </div>
 
     </div>
@@ -151,7 +154,9 @@ main_menu_item: menu_apps
         $.get('/server/rest/settings/version')
                 .done(function (data) {
                     var btn = $("#system_upgrade_btn");
+                    var check_btn = $("#system_check_btn");
                     btn.hide();
+                    check_btn.hide();
                     var updates = '';
 
                     if (data.installed_version != data.current_version) {
@@ -159,6 +164,9 @@ main_menu_item: menu_apps
                         updates = ', updated version available: ' + data.current_version;
                         btn.text('Upgrade');
                         btn.prop('disabled', false);
+                    } else {
+                        check_btn.show();
+                        check_btn.prop('disabled', false);
                     }
 
                     $("#system_version").html(data.installed_version + updates);
@@ -230,6 +238,19 @@ main_menu_item: menu_apps
             btn.prop('disabled', true);
             btn.text('Upgrading ...');
             $.get('/server/rest/settings/system_upgrade')
+                    .done(function() {
+                        check_upgrade_status();
+                    })
+                    .fail(function () {
+                        check_upgrade_status();
+                    });
+        });
+
+        $("#system_check_btn").on('click', function () {
+            var btn = $(this);
+            btn.prop('disabled', true);
+            btn.text('Checking ...');
+            $.get('/server/rest/settings/check')
                     .done(function() {
                         check_upgrade_status();
                     })
