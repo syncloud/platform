@@ -166,6 +166,7 @@ main_menu_item: menu_apps
                         btn.prop('disabled', false);
                     } else {
                         check_btn.show();
+                        btn.text('Check');
                         check_btn.prop('disabled', false);
                     }
 
@@ -250,7 +251,7 @@ main_menu_item: menu_apps
             var btn = $(this);
             btn.prop('disabled', true);
             btn.text('Checking ...');
-            $.get('/server/rest/settings/check')
+            $.get('/server/rest/check')
                     .done(function() {
                         check_upgrade_status();
                     })

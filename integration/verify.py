@@ -112,20 +112,24 @@ def test_public_web_login_after_reinstall():
     __public_web_login(reset_session=True)
 
 
-# def test_public_web_platform_upgrade():
-#
-#     response = session.get('http://localhost/server/rest/settings/system_upgrade')
-#     assert response.status_code == 200
-#     sam_running = True
-#     while sam_running:
-#         response = session.get('http://localhost/server/rest/settings/sam_status')
-#         json = convertible.from_json(response.text)
-#         sam_running = json.is_running
-#         time.sleep(1)
+def test_public_web_platform_upgrade():
+
+    response = session.get('http://localhost/server/rest/settings/system_upgrade')
+    assert response.status_code == 200
+    sam_running = True
+    while sam_running:
+        try:
+            response = session.get('http://localhost/server/rest/settings/sam_status')
+            if response.status_code == 200:
+                json = convertible.from_json(response.text)
+                sam_running = json.is_running
+        except Exception, e:
+            pass
+        time.sleep(1)
 
 
-# def test_reinstall_local_after_upgrade(auth):
-#     __local_install(auth)
+def test_reinstall_local_after_upgrade(auth):
+    __local_install(auth)
 
 
 def __public_web_login(reset_session=False):
