@@ -30,15 +30,22 @@ class Hardware:
                 key, value = field.split('=', 1)
                 value = value[1:]
                 fields[key] = value
-            if fields['TYPE'] == 'disk' or fields['TYPE'] == 'loop':
+
+            if fields['TYPE'] == 'disk':
                 disk = Disk(fields['MODEL'].split(' ')[0])
                 disks.append(disk)
+
             elif fields['TYPE'] == 'part':
+
                 mountable = False
                 mount_point = fields['MOUNTPOINT']
                 if not fields['PARTTYPE'] == PARTTYPE_EXTENDED:
                     if not mount_point or mount_point == self.platform_config.get_external_disk_dir():
                         mountable = True
+
+                if '/dev/mmcblk0' in fields['NAME']:
+                    mountable = False
+
                 if mountable:
                     disk.partitions.append(Partition(fields['SIZE'], fields['NAME'], mount_point))
         disks_with_partitions = [d for d in disks if d.partitions]
