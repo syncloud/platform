@@ -45,9 +45,11 @@ class Hardware:
 
                 if '/dev/mmcblk0' in fields['NAME']:
                     mountable = False
-
+                active = False
+                if mount_point == self.platform_config.get_external_disk_dir() and os.path.realpath(self.platform_config.get_disk_link()) == self.platform_config.get_external_disk_dir():
+                    active = True
                 if mountable:
-                    disk.partitions.append(Partition(fields['SIZE'], fields['NAME'], mount_point))
+                    disk.partitions.append(Partition(fields['SIZE'], fields['NAME'], mount_point, active))
         disks_with_partitions = [d for d in disks if d.partitions]
         return disks_with_partitions
 
@@ -104,10 +106,11 @@ def relink_disk(link, target, fix_permissions=True):
 
 
 class Partition:
-    def __init__(self, size, device, mount_point):
+    def __init__(self, size, device, mount_point, active):
         self.size = size
         self.device = device
         self.mount_point = mount_point
+        self.active = active
 
 
 class Disk:

@@ -89,12 +89,25 @@ main_menu_item: menu_apps
 
 <!-- Create your template -->
 <script type="text/html" id='disks-template'>
-    <%for (i=0; i < disks.length; i++) {
+
+    <%
+      if (disks.length == 0) {
+    %>
+
+    <div class="row settings-row">
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
+            No disk found
+        </div>
+    </div>
+
+    <% } %>
+
+    <%
+    for (i=0; i < disks.length; i++) {
        var disk = disks[i];
     %>
 
     <div class="row settings-row" style="display: none">
-
         <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
             <%= disk.name %>
         </div>
@@ -104,7 +117,7 @@ main_menu_item: menu_apps
     partitions = disk.partitions;
     for (j=0; j < partitions.length; j++) {
        var partition = partitions[j];
-       var button = partition.mount_point ? 'Deactivate' : 'Activate';
+       var button = partition.active ? 'Deactivate' : 'Activate';
     %>
 
     <div class="row disk-partition-row">
@@ -113,7 +126,7 @@ main_menu_item: menu_apps
             <%= partition.size %>
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
-            <button type="button" class="btn btn-primary activate" data-mount-point="<%=partition.mount_point %>" data-device="<%=partition.device %>" data-loading-text="Loading ..." autocomplete="off">
+            <button type="button" class="btn btn-primary activate" data-active="<%=partition.active %>" data-device="<%=partition.device %>" data-loading-text="Loading ..." autocomplete="off">
               <%= button %>
             </button>
         </div>
@@ -216,7 +229,7 @@ main_menu_item: menu_apps
             var btn = $(this);
             btn.prop('disabled', true);
             btn.text('Working ...');
-            var mode = btn.data("mount-point") ? "deactivate" : "activate";
+            var mode = btn.data("active") ? "deactivate" : "activate";
             $.get('/server/rest/settings/disk_' + mode, {device: btn.data('device')})
                     .done(function () {
                         disks_status()
