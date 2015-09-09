@@ -38,11 +38,11 @@ $( document ).ready(function() {
 
     $.get(internal_web)
             .done(function (data){
-                menu_reactivate.show();
+                menu_reactivate.removeClass('hidden');
                 reactivate_link.prop('href', internal_web)
             })
             .fail(function (data){
-                menu_reactivate.hide();
+                menu_reactivate.addClass('hidden');
             });
 
 });
