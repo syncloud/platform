@@ -77,6 +77,9 @@ class Hardware:
         check_output('udisksctl unmount -b {0}'.format(device), shell=True)
         systemctl.add_mount(mount_entry)
 
+        if 'fat' in mount_entry.type:
+            fix_permissions = False
+
         relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_external_disk_dir(),
