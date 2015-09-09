@@ -25,4 +25,4 @@ def test_get_mount_info():
     assert mount_point.dir == '/media/root/long name'
     assert mount_point.type == 'vfat'
     assert mount_point.options == 'rw,nosuid,nodev,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,' \
-                                  'shortname=mixed,showexec,utf8,flush,errors=remount-ro'
+                                  'shortname=mixed,showexec,utf8,flush,errors=remount-ro,uid=owncloud'

@@ -11,7 +11,7 @@ from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.touch import touch
 
 PARTTYPE_EXTENDED = '0x5'
-
+EXTERNAL_DISK_USER = 'owncloud'
 
 class Hardware:
 
@@ -65,6 +65,8 @@ class Hardware:
                 parts_options = parts_type[1].split(' ')
                 type = parts_options[0]
                 options = parts_options[1].strip('()').replace('codepage=cp', 'codepage=')
+                if 'fat' in type:
+                    options = '{0},uid={1}'.format(options, EXTERNAL_DISK_USER)
                 return MountEntry(device, dir, type, options)
         return None
 
@@ -102,7 +104,7 @@ def relink_disk(link, target, fix_permissions=True):
     if fix_permissions:
         log.info('fixing permissions')
         # TODO: We need to come up with some generic way of giving access to different apps
-        chown('owncloud', link)
+        chown(EXTERNAL_DISK_USER, link)
     else:
         log.info('not fixing permissions')
 
