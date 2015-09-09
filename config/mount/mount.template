@@ -5,7 +5,7 @@ Before=local-fs.target
 [Mount]
 What=${what}
 Where=${where}
-#Type=${type}
+Type=${type}
 Options=${options}
 
 [Install]

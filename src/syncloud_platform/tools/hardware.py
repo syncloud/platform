@@ -64,7 +64,8 @@ class Hardware:
                 dir = parts_type[0]
                 parts_options = parts_type[1].split(' ')
                 type = parts_options[0]
-                return MountEntry(device, dir, type, parts_options[1].strip('()'))
+                options = parts_options[1].strip('()').replace('codepage=cp', 'codepage=')
+                return MountEntry(device, dir, type, options)
         return None
 
     def activate_disk(self, device, fix_permissions=True):
