@@ -6,8 +6,7 @@ from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserCo
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.service_config import ServiceConfig
 
-from syncloud_platform.insider.config import DomainConfig, RedirectConfig, INSIDER_CONFIG_NAME, \
-    REDIRECT_CONFIG_NAME
+from syncloud_platform.insider.config import DomainConfig, RedirectConfig, REDIRECT_CONFIG_NAME
 
 
 def temp_file(text='', filename=None):
@@ -49,9 +48,6 @@ test_services_config_file_name = 'services.json'
 test_services_config_file = join(test_conf_dir, test_services_config_file_name)
 
 CONFIG_DIR = join(dirname(__file__), '..', '..', '..', 'config')
-
-insider_config_file = join(CONFIG_DIR, INSIDER_CONFIG_NAME)
-insider_config = open(insider_config_file).read()
 
 platform_config_file = join(CONFIG_DIR, PLATFORM_CONFIG_NAME)
 
