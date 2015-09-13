@@ -93,21 +93,3 @@ class RedirectConfig:
         self.logger.info('saving config={0}'.format(self.filename))
         with open(self.filename, 'wb') as f:
             self.parser.write(f)
-
-INSIDER_CONFIG_NAME = 'insider.cfg'
-
-
-class InsiderConfig:
-    def __init__(self, config_dir=PLATFORM_CONFIG_DIR):
-        self.parser = ConfigParser()
-        self.filename = join(config_dir, INSIDER_CONFIG_NAME)
-        self.logger = logger.get_logger('insider.InsiderConfig')
-
-    def _save(self):
-        self.logger.info('saving config={0}'.format(self.filename))
-        with open(self.filename, 'wb') as f:
-            self.parser.write(f)
-
-    def get_cron_period_mins(self):
-        self.parser.read(self.filename)
-        return self.parser.getint('insider', 'cron_period_mins')

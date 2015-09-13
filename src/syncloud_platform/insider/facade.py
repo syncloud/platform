@@ -1,4 +1,3 @@
-import os
 from os.path import join
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig
 from syncloud_platform.tools.app import get_app_data_root
@@ -7,7 +6,7 @@ from syncloud_platform.tools.facade import Facade
 from port_config import PortConfig
 from service_config import ServiceConfig
 
-from syncloud_platform.insider.config import InsiderConfig, RedirectConfig, DomainConfig
+from syncloud_platform.insider.config import RedirectConfig, DomainConfig
 import port_drill
 import dns
 import cron
@@ -15,11 +14,10 @@ import cron
 
 class Insider:
 
-    def __init__(self, mapper, dns, cron, insider_config, service_config):
-        self.insider_config = insider_config
+    def __init__(self, mapper, dns, platform_cron, service_config):
         self.mapper = mapper
         self.dns = dns
-        self.cron = cron
+        self.platform_cron = platform_cron
         self.service_config = service_config
 
     def list_ports(self):
@@ -50,12 +48,13 @@ class Insider:
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
         self.sync_all()
-        self.cron.on()
+        self.platform_cron.remove()
+        self.platform_cron.create()
         return result
 
     def drop_domain(self):
         self.dns.drop()
-        self.cron.off()
+        self.platform_cron.remove()
 
     def full_name(self):
         return self.dns.full_name()
@@ -64,10 +63,10 @@ class Insider:
         return self.dns.user_domain()
 
     def cron_on(self):
-        return self.cron.on()
+        return self.platform_cron.create()
 
     def cron_off(self):
-        return self.cron.off()
+        return self.platform_cron.remove()
 
     def endpoints(self):
         return self.dns.endpoints()
@@ -81,7 +80,6 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     data_root = get_app_data_root('platform')
 
     redirect_config = RedirectConfig(data_root)
-    insider_config = InsiderConfig(config_path)
     user_platform_config = PlatformUserConfig()
     local_ip = Facade().local_ip()
 
@@ -96,16 +94,9 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
     dns_service = dns.Dns(
-        insider_config,
         DomainConfig(join(data_root, 'domain.json')),
         service_config,
         drill,
         local_ip,
         redirect_config)
-    platform_config = PlatformConfig(config_path)
-    cron_service = cron.Cron(
-        join(platform_config.bin_dir(), 'insider'),
-        join(platform_config.data_dir(), 'insider-cron.log'),
-        insider_config.get_cron_period_mins())
-
-    return Insider(drill, dns_service, cron_service, insider_config, service_config)
+    return Insider(drill, dns_service, cron.PlatformCron(PlatformConfig(config_path)), service_config)

@@ -1,12 +1,12 @@
 from os.path import dirname, join
 import tempfile
 import os
-from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_NAME, PlatformUserConfig
+from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig
 
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.service_config import ServiceConfig
 
-from syncloud_platform.insider.config import DomainConfig, InsiderConfig, RedirectConfig, INSIDER_CONFIG_NAME, \
+from syncloud_platform.insider.config import DomainConfig, RedirectConfig, INSIDER_CONFIG_NAME, \
     REDIRECT_CONFIG_NAME
 
 
@@ -59,11 +59,6 @@ platform_config_file = join(CONFIG_DIR, PLATFORM_CONFIG_NAME)
 def get_redirect_config():
     config = RedirectConfig(dirname(temp_file(filename=REDIRECT_CONFIG_NAME)))
     config.update('domain.com', 'http://api.domain.com')
-    return config
-
-
-def get_insider_config():
-    config = InsiderConfig(dirname(temp_file(insider_config, INSIDER_CONFIG_NAME)))
     return config
 
 

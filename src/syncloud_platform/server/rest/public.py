@@ -5,7 +5,6 @@ import sys
 
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
-from syncloud_platform.insider.config import InsiderConfig
 from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.redirect_service import RedirectService
 

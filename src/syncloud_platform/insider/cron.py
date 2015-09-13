@@ -1,33 +1,22 @@
-import os
-from os import system
-from subprocess import Popen, PIPE
+from crontab import CronTab
+from syncloud_platform.config.config import PlatformConfig
 
-class Cron:
+class PlatformCron:
 
-    def __init__(self, main_script_path, log_path, period_mins):
-        self.log_path = log_path
-        self.period_mins = period_mins
-        path, script = os.path.split(main_script_path)
-        self.main_script_name = script
-        self.command_line = main_script_path
+    def __init__(self, platform_config=None):
+        if not platform_config:
+            platform_config = PlatformConfig()
+        self.platform_config = platform_config
+        self.cron = CronTab(user=self.platform_config.cron_user())
 
-    def off(self):
-        if not self.enabled():
-            return 'already disabled'
-        else:
-            cmd = "crontab -l | sed '/{}/d' | crontab -".format(self.main_script_name)
-            system(cmd)
-            return 'disabled'
+    def remove(self):
+        print("remove crontab task")
+        for job in self.cron.find_command(self.platform_config.cron_user()):
+            self.cron.remove(job)
+        self.cron.write()
 
-    def on(self):
-        if self.enabled():
-            return 'already enabled'
-        else:
-            cmd = "{0} sync_all > {1} 2>&1".format(self.command_line, self.log_path)
-            crontab_cmd = "(crontab -l; echo \"*/{} * * * * {}\") | crontab -".format(self.period_mins, cmd)
-            system(crontab_cmd)
-            return 'enabled'
-
-    def enabled(self):
-        cmd = "crontab -l | grep {} | wc -l".format(self.main_script_name)
-        return int(Popen(cmd, shell=True, stdout=PIPE).stdout.read()) > 0
+    def create(self):
+        print("create crontab task")
+        ci_job = self.cron.new(command=self.platform_config.cron_cmd())
+        ci_job.setall(self.platform_config.cron_schedule())
+        self.cron.write()

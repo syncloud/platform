@@ -24,13 +24,12 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, insider_config, domain_config, service_config, port_drill, local_ip, redirect_config):
+    def __init__(self, domain_config, service_config, port_drill, local_ip, redirect_config):
         self.redirect_config = redirect_config
         self.local_ip = local_ip
         self.domain_config = domain_config
         self.service_config = service_config
         self.port_drill = port_drill
-        self.insider_config = insider_config
         self.logger = logger.get_logger('dns')
 
     def acquire(self, email, password, user_domain):

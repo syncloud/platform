@@ -36,6 +36,15 @@ class PlatformConfig:
     def nginx_webapps(self):
         return self.__get('nginx_webapps')
 
+    def cron_user(self):
+        return self.__get('cron_user')
+
+    def cron_cmd(self):
+        return self.__get('cron_cmd')
+
+    def cron_schedule(self):
+        return self.__get('cron_schedule')
+
     def get_web_secret_key(self):
         return self.__get('web_secret_key')
 
