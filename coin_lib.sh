@@ -17,6 +17,11 @@ rm -rf lib/*
 
 cd lib
 
+if [ ! -z "$TEAMCITY_VERSION" ]; then
+  echo "running under TeamCity, cleaning coin cache"
+  rm -rf /tmp/coin.cache
+fi
+
 coin py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
 coin py https://pypi.python.org/packages/py2/u/urllib3/urllib3-1.10.4-py2-none-any.whl
 coin py https://pypi.python.org/packages/2.7/b/beautifulsoup4/beautifulsoup4-4.4.0-py2-none-any.whl
