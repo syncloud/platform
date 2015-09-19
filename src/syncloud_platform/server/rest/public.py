@@ -133,7 +133,7 @@ def browser(path=''):
     if os.path.isfile(filesystem_path):
         return send_file(filesystem_path, mimetype='text/plain')
     else:
-        entries = os.listdir(filesystem_path)
+        entries = sorted(os.listdir(filesystem_path))
         items = [{'name': entry, 'is_file': os.path.isfile(join(filesystem_path, entry))} for entry in entries]
         return jsonify(items=items, dir=filesystem_path)
 
@@ -198,7 +198,7 @@ def available_apps():
 
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
-def get_settings_upnp():
+def external_access():
     return jsonify(enabled=PlatformUserConfig().get_external_access()), 200
 
 
