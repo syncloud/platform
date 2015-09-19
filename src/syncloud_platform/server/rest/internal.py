@@ -5,6 +5,7 @@ import sys
 import convertible
 
 from flask import Flask, jsonify, send_from_directory, request
+from syncloud_app.main import PassthroughJsonError
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
@@ -63,11 +64,15 @@ def activate():
 
 @app.errorhandler(Exception)
 def handle_exception(error):
-    print '-'*60
-    traceback.print_exc(file=sys.stdout)
-    print '-'*60
-    response = jsonify(message=error.message)
+    response = None
     status_code = 500
+    if isinstance(error, PassthroughJsonError):
+        response = error.json
+    else:
+        print '-'*60
+        traceback.print_exc(file=sys.stdout)
+        print '-'*60
+        response = jsonify(message=error.message)
     return response, status_code
 
 

@@ -2,7 +2,6 @@ import uuid
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.server.auth import Auth
-from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.facade import Facade
 from syncloud_platform.insider import facade
 from syncloud_app import logger
@@ -17,7 +16,6 @@ class ServerFacade:
         self.auth = Auth()
         self.sam = SamStub()
         self.redirect_service = RedirectService()
-        self.config = PlatformConfig()
 
     def activate(self,
                  redirect_email, redirect_password, user_domain,
@@ -50,8 +48,6 @@ class ServerFacade:
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)
         PlatformConfig().set_web_secret_key(unicode(uuid.uuid4().hex))
-
-        chown(self.config.cron_user(), self.config.data_dir())
 
         PlatformUserConfig().set_activated(True)
         self.logger.info("activation completed")
