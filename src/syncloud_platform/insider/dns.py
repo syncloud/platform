@@ -27,14 +27,18 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, domain_config, service_config, port_drill, local_ip, redirect_config):
+    def __init__(self, domain_config, service_config, port_drill, local_ip, redirect_config, platform_config=None, fix_permissions=True):
+        self.fix_permissions = fix_permissions
         self.redirect_config = redirect_config
         self.local_ip = local_ip
         self.domain_config = domain_config
         self.service_config = service_config
         self.port_drill = port_drill
         self.logger = logger.get_logger('dns')
-        self.config = PlatformConfig()
+        if platform_config:
+            self.config = platform_config
+        else:
+            self.config = PlatformConfig()
 
     def acquire(self, email, password, user_domain):
         device_id = id.id()
@@ -148,6 +152,6 @@ class Dns:
 
         util.check_http_error(response)
 
-        if not getpass.getuser() == self.config.cron_user():
+        if not getpass.getuser() == self.config.cron_user() and self.fix_permissions:
             chown(self.config.cron_user(), self.config.data_dir())
 

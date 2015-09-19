@@ -1,7 +1,7 @@
 from os.path import dirname, join
 import tempfile
 import os
-from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig
+from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig, PlatformConfig
 
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.service_config import ServiceConfig
@@ -49,7 +49,7 @@ test_services_config_file = join(test_conf_dir, test_services_config_file_name)
 
 CONFIG_DIR = join(dirname(__file__), '..', '..', '..', 'config')
 
-platform_config_file = join(CONFIG_DIR, PLATFORM_CONFIG_NAME)
+platform_config_file = CONFIG_DIR
 
 
 def get_redirect_config():
@@ -60,4 +60,8 @@ def get_redirect_config():
 
 def get_user_platform_config():
     config = PlatformUserConfig(temp_file())
+    return config
+
+def get_platform_config():
+    config = PlatformConfig(platform_config_file)
     return config
