@@ -8,7 +8,7 @@ from syncloud_platform.server.auth import Auth
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.hardware import relink_disk
+from syncloud_platform.tools.hardware import relink_disk, external_disk_is_mounted
 
 log = logger.get_logger('platform.post.install')
 
@@ -33,9 +33,10 @@ if not isdir(platform_config.get_disk_root()):
 if not isdir(platform_config.get_internal_disk_dir()):
     os.mkdir(platform_config.get_internal_disk_dir())
 
-relink_disk(
-    platform_config.get_disk_link(),
-    platform_config.get_internal_disk_dir())
+if not external_disk_is_mounted():
+    relink_disk(
+        platform_config.get_disk_link(),
+        platform_config.get_internal_disk_dir())
 
 log.info(chown('platform', '/opt/app/platform'))
 
