@@ -16,19 +16,19 @@ function auto_login(name, password) {
 
 function reset_error() {
     $('#errors_placeholder').empty();
-    $('#group-email').removeClass('has-error');
-    $('#help-email').text('');
-    $('#group-password').removeClass('has-error');
-    $('#help-password').text('');
+    $('#group-redirect-email').removeClass('has-error');
+    $('#help-redirect-email').text('');
+    $('#group-redirect-password').removeClass('has-error');
+    $('#help-redirect-password').text('');
 }
 
 function show_error(error) {
     if ('parameters_messages' in error) {
         for (var i = 0; i < error.parameters_messages.length; i++) {
             var pm = error.parameters_messages[i];
-            var group_id = '#group-' + pm.parameter;
+            var group_id = '#group-redirect-' + pm.parameter;
             $(group_id).addClass('has-error');
-            var hint_id = '#help-' + pm.parameter;
+            var hint_id = '#help-redirect-' + pm.parameter;
             var message_text = pm.messages.join('\n');
             $(hint_id).text(message_text);
         }
