@@ -98,10 +98,10 @@ class UpnpPortMapper:
 
     def __find_available_ports(self, existing_ports, local_port, ports_to_try=PORTS_TO_TRY):
         port_range = range(LOWER_LIMIT, UPPER_LIMIT)
-        if not local_port in port_range:
+        if local_port not in port_range:
             port_range = [local_port] + port_range
         external_ip = self.upnpc().external_ip()
-        all_open_ports = (x for x in port_range if not port_open_on_router(external_ip, x) and not x in existing_ports)
+        all_open_ports = (x for x in port_range if not port_open_on_router(external_ip, x) and x not in existing_ports)
         return list(itertools.islice(all_open_ports, 0, ports_to_try))
 
     def __add_new_mapping(self, local_port):
