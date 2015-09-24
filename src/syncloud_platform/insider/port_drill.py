@@ -36,9 +36,8 @@ def provide_mapper():
 
 
 class PortDrill:
-    def __init__(self, port_config, port_mapper, domain_update_token, redirect_api_url):
-        self.redirect_api_url = redirect_api_url
-        self.domain_update_token = domain_update_token
+    def __init__(self, port_config, port_mapper, port_prober):
+        self.port_prober = port_prober
         self.logger = logger.get_logger('PortDrill')
         self.port_config = port_config
         self.port_mapper = port_mapper
@@ -70,7 +69,7 @@ class PortDrill:
         for i in range(1, 10):
             self.logger.info('Trying {0}'.format(port_to_try))
             external_port = self.port_mapper.add_mapping(local_port, port_to_try)
-            if self.__probe_port(external_port):
+            if self.port_prober.probe_port(external_port):
                 found_external_port = external_port
                 break
             else:
@@ -97,15 +96,6 @@ class PortDrill:
     def available(self):
         return self.port_mapper is not None
 
-    def __probe_port(self, port):
-        self.logger.info('probing {0}'.format(port))
-        url = urljoin(self.redirect_api_url, "/probe/port")
-        try:
-            response = requests.get(url, params={'token': self.domain_update_token, 'port': port})
-            return response.status_code == 200 and response.text == 'OK'
-        except Exception, e:
-            self.logger.info('{0} is not reachable'.format(port))
-            return False
 
 
 class NonePortDrill:

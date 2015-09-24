@@ -1,5 +1,6 @@
 from os.path import join
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig
+from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.facade import Facade
 
@@ -92,7 +93,8 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     if user_platform_config.get_external_access():
         mapper = port_drill.provide_mapper()
         if mapper:
-            drill = port_drill.PortDrill(port_config, mapper, domain_config.load().update_token, redirect_config.get_api_url())
+            prober = PortProber(domain_config.load().update_token, redirect_config.get_api_url())
+            drill = port_drill.PortDrill(port_config, mapper, prober)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
