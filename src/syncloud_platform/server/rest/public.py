@@ -36,6 +36,7 @@ html_prefix = '/server/html'
 rest_prefix = '/server/rest'
 
 logger.init(filename=config.get_rest_public_log())
+log = logger.get_logger('rest.public')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
@@ -208,12 +209,11 @@ def external_access_enable():
 
     PlatformUserConfig().set_external_access(True)
     try:
-
         insider = get_insider()
         if not insider.mapper.available():
             return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
         insider.add_main_device_service()
-        insider.dns.sync()
+        # insider.dns.sync()
         return jsonify(success=True), 200
     except Exception, e:
         PlatformUserConfig().set_external_access(False)
@@ -223,6 +223,14 @@ def external_access_enable():
 @app.route(rest_prefix + "/settings/external_access_disable", methods=["GET"])
 @login_required
 def external_access_disable():
+    if PlatformUserConfig().get_external_access():
+        try:
+            insider = get_insider()
+            if not insider.mapper.available():
+                return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
+            insider.remove_main_device_service()
+        except Exception, e:
+            log.error(e.message)
     PlatformUserConfig().set_external_access(False)
     return jsonify(success=True), 200
 

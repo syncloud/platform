@@ -28,7 +28,7 @@ class Insider:
 
     def add_service(self, name, protocol, type, port, url):
         result = self.dns.add_service(name, protocol, type, port, url)
-        self.sync_all()
+        # self.sync_all()
         return result
 
     def remove_service(self, name):
@@ -74,6 +74,8 @@ class Insider:
     def add_main_device_service(self):
         self.add_service("server", "http", "server", 80, None)
 
+    def remove_main_device_service(self):
+        self.remove_service("server")
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
@@ -84,17 +86,18 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     local_ip = Facade().local_ip()
 
     port_config = PortConfig(join(data_root, 'ports.json'))
+    domain_config = DomainConfig(join(data_root, 'domain.json'))
 
     drill = port_drill.NonePortDrill()
     if user_platform_config.get_external_access():
         mapper = port_drill.provide_mapper()
         if mapper:
-            drill = port_drill.PortDrill(port_config, mapper)
+            drill = port_drill.PortDrill(port_config, mapper, domain_config.load().update_token, redirect_config.get_api_url())
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
     dns_service = dns.Dns(
-        DomainConfig(join(data_root, 'domain.json')),
+        domain_config,
         service_config,
         drill,
         local_ip,

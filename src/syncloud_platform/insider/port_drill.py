@@ -1,3 +1,5 @@
+from urlparse import urljoin
+import requests
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
@@ -34,7 +36,9 @@ def provide_mapper():
 
 
 class PortDrill:
-    def __init__(self, port_config, port_mapper):
+    def __init__(self, port_config, port_mapper, domain_update_token, redirect_api_url):
+        self.redirect_api_url = redirect_api_url
+        self.domain_update_token = domain_update_token
         self.logger = logger.get_logger('PortDrill')
         self.port_config = port_config
         self.port_mapper = port_mapper
@@ -59,8 +63,28 @@ class PortDrill:
         self.port_config.remove(local_port)
 
     def sync_one_mapping(self, local_port):
-        external_port = self.port_mapper.add_mapping(local_port)
-        mapping = Port(local_port, external_port)
+        self.logger.info('Sync one mapping: {0}'.format(local_port))
+        port_to_try = local_port
+        lower_limit = 10000
+        found_external_port = None
+        for i in range(1, 10):
+            self.logger.info('Trying {0}'.format(port_to_try))
+            external_port = self.port_mapper.add_mapping(local_port, port_to_try)
+            if self.__probe_port(external_port):
+                found_external_port = external_port
+                break
+            else:
+                self.port_mapper.remove_mapping(local_port, external_port)
+
+            if port_to_try == local_port:
+                port_to_try = lower_limit
+            else:
+                port_to_try = external_port + 1
+
+        if not found_external_port:
+            raise Exception('Unable to add mapping')
+
+        mapping = Port(local_port, found_external_port)
         self.port_config.add_or_update(mapping)
 
     def sync_new_port(self, local_port):
@@ -72,6 +96,16 @@ class PortDrill:
 
     def available(self):
         return self.port_mapper is not None
+
+    def __probe_port(self, port):
+        self.logger.info('probing {0}'.format(port))
+        url = urljoin(self.redirect_api_url, "/probe/port")
+        try:
+            response = requests.get(url, params={'token': self.domain_update_token, 'port': port})
+            return response.status_code == 200 and response.text == 'OK'
+        except Exception, e:
+            self.logger.info('{0} is not reachable'.format(port))
+            return False
 
 
 class NonePortDrill:

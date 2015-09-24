@@ -4,15 +4,6 @@ from miniupnpc import UPnP
 
 from syncloud_app import logger
 
-
-def port_open_on_router(ip, port):
-    try:
-        check_output('nc -z -w 1 {0} {1}'.format(ip, port), shell=True)
-        return True
-    except CalledProcessError, e:
-        return False
-
-
 class Mapping:
     def __init__(self, external_port, protocol, local_ip, local_port, description, enabled, remote_ip, lease_time):
         self.external_port = external_port
@@ -82,7 +73,6 @@ class UpnpClient:
 
 LOWER_LIMIT = 10000
 UPPER_LIMIT = 65535
-PORTS_TO_TRY = 10
 
 
 class UpnpPortMapper:
@@ -96,25 +86,22 @@ class UpnpPortMapper:
             self.__upnpc = UpnpClient()
         return self.__upnpc
 
-    def __find_available_ports(self, existing_ports, local_port, ports_to_try=PORTS_TO_TRY):
-        port_range = range(LOWER_LIMIT, UPPER_LIMIT)
-        if local_port not in port_range:
-            port_range = [local_port] + port_range
-        external_ip = self.upnpc().external_ip()
-        all_open_ports = (x for x in port_range if not port_open_on_router(external_ip, x) and x not in existing_ports)
-        return list(itertools.islice(all_open_ports, 0, ports_to_try))
+    def __find_available_ports(self, existing_ports, external_port):
+        port_range = range(external_port, UPPER_LIMIT)
+        return (x for x in port_range if x not in existing_ports)
 
-    def __add_new_mapping(self, local_port):
+    def __add_new_mapping(self, local_port, external_port):
         existing_ports = self.upnpc().mapped_external_ports('TCP')
-        external_ports_to_try = self.__find_available_ports(existing_ports, local_port)
-        for external_port in external_ports_to_try:
+        external_ports_to_try = self.__find_available_ports(existing_ports, external_port)
+        for external_port_to_try in external_ports_to_try:
             try:
-                self.logger.debug('mapping {0}->{1} (external->local)'.format(external_port, local_port))
-                self.upnpc().add('TCP', local_port, external_port, 'Syncloud')
-                return external_port
+                self.logger.debug('mapping {0}->{1} (external->local)'.format(external_port_to_try, local_port))
+                self.upnpc().add('TCP', local_port, external_port_to_try, 'Syncloud')
+                return external_port_to_try
             except Exception, e:
-                self.logger.warn('failed, trying next port: {0}'.format(e.message))
-        raise Exception('Unable to add mapping, tried {0} ports'.format(PORTS_TO_TRY))
+                self.logger.debug('failed, trying next port: {0}'.format(e.message))
+
+        raise Exception('Unable to add mapping')
 
     def __only_one_mapping(self, external_ports):
         external_ports.sort(reverse=True)
@@ -123,13 +110,13 @@ class UpnpPortMapper:
             self.upnpc().remove('TCP', port)
         return first_external_port
 
-    def add_mapping(self, local_port):
+    def add_mapping(self, local_port, external_port):
         external_ports = self.upnpc().get_external_ports('TCP', local_port)
-        self.logger.debug("existing router mappings for {0}: {1}".format(local_port, external_ports))
+        self.logger.info("existing router mappings for {0}: {1}".format(local_port, external_ports))
         if len(external_ports) > 0:
             return self.__only_one_mapping(external_ports)
         else:
-            return self.__add_new_mapping(local_port)
+            return self.__add_new_mapping(local_port, external_port)
 
     def remove_mapping(self, local_port, external_port):
         self.upnpc().remove('TCP', external_port)
