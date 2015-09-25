@@ -12,7 +12,7 @@ from test.insider.http import SomeHttpServer, wait_http, wait_http_cant_connect
 
 @pytest.fixture(scope="module")
 def http_server(request):
-    server = SomeHttpServer(8080)
+    server = SomeHttpServer(8088)
     server.start()
 
     def fin():
