@@ -93,7 +93,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     if user_platform_config.get_external_access():
         mapper = port_drill.provide_mapper()
         if mapper:
-            prober = PortProber(domain_config.load().update_token, redirect_config.get_api_url())
+            prober = PortProber(domain_config, redirect_config.get_api_url())
             drill = port_drill.PortDrill(port_config, mapper, prober)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))

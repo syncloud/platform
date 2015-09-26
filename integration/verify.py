@@ -132,6 +132,14 @@ def test_reinstall_local_after_upgrade(auth):
     __local_install(auth)
 
 
+def test_nginx_performance():
+    print(check_output('ab -c 1 -n 1000 http://127.0.0.1/ping', shell=True))
+
+
+def test_nginx_plus_flask_performance():
+    print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/server/rest/id', shell=True))
+
+
 def __public_web_login(reset_session=False):
     global session
     if reset_session:
@@ -149,7 +157,7 @@ def __local_install(auth):
 
 
 def __run_ssh(command):
-    print(check_output('{0} {1}'.format(SSH, command),shell=True))
+    print(check_output('{0} {1}'.format(SSH, command), shell=True))
 
 
 def __set_docker_ssh_port():

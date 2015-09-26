@@ -31,7 +31,7 @@ else
 fi
 cd ..
 
-apt-get install docker.io
+apt-get install docker.io apache2-utils
 service docker start
 
 function cleanup {

@@ -16,7 +16,7 @@ def check_mapper(mapper_type):
         ip = mapper.external_ip()
         if ip is None or ip == '':
             raise Exception("Returned bad ip address: {0}".format(ip))
-        log.warn('{0} mapper is working, returned extrenal ip: {1}'.format(mapper_name, ip))
+        log.warn('{0} mapper is working, returned external ip: {1}'.format(mapper_name, ip))
         return mapper
     except Exception as e:
         log.warn('{0} mapper failed, message: {1}'.format(mapper_name, e.message))
@@ -72,8 +72,7 @@ class PortDrill:
             if self.port_prober.probe_port(external_port):
                 found_external_port = external_port
                 break
-            else:
-                self.port_mapper.remove_mapping(local_port, external_port)
+            self.port_mapper.remove_mapping(local_port, external_port)
 
             if port_to_try == local_port:
                 port_to_try = lower_limit

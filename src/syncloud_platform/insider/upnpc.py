@@ -69,7 +69,7 @@ class UpnpClient:
         self.upnp.deleteportmapping(external_port, protocol)
 
     def add(self, protocol, local_port, external_port, description):
-        self.logger.info('adding {0} -> {1} port mapping'.format(external_port, local_port))
+        self.logger.debug('adding {0} -> {1} port mapping'.format(external_port, local_port))
         self.upnp.addportmapping(external_port, protocol, self.upnp.lanaddr, local_port, description, '')
 
 
