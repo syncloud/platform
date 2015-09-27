@@ -29,7 +29,7 @@ class Insider:
 
     def add_service(self, name, protocol, type, port, url):
         result = self.dns.add_service(name, protocol, type, port, url)
-        # self.sync_all()
+        self.sync_all()
         return result
 
     def remove_service(self, name):

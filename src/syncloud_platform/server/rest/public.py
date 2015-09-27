@@ -213,7 +213,6 @@ def external_access_enable():
         if not insider.mapper.available():
             return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
         insider.add_main_device_service()
-        # insider.dns.sync()
         return jsonify(success=True), 200
     except Exception, e:
         PlatformUserConfig().set_external_access(False)
