@@ -14,7 +14,7 @@ def reload_service(service):
 
     log = logger.get_logger('systemctl')
     log.info('reloading {0}'.format(service))
-    check_output('systemctl reload {0}'.format(service), shell=True)
+    check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
 
 
 def remove_service(service):
@@ -26,7 +26,7 @@ def __remove(filename):
     if "unknown" == __stop(filename):
         return
 
-    check_output('systemctl disable {0}'.format(filename), shell=True)
+    check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
     os.remove(__systemd_file(filename))
 
 
@@ -43,7 +43,7 @@ def add_service(app_id, service, include_socket=False, start=True):
         shutil.copyfile(__app_socket_file(app_dir, service), __systemd_socket_file(service))
 
     log.info('enabling {0}'.format(service))
-    check_output('systemctl enable {0}'.format(service), shell=True)
+    check_output('systemctl enable {0} 2>&1'.format(service), shell=True)
     if start:
         start_service(service)
 
@@ -66,7 +66,7 @@ def add_mount(mount_entry):
         f.write(mount_definition)
 
     log.info('enabling {0}'.format(mount_filename))
-    check_output('systemctl enable {0}'.format(mount_filename), shell=True)
+    check_output('systemctl enable {0} 2>&1'.format(mount_filename), shell=True)
     __start(mount_filename)
 
 
@@ -98,10 +98,10 @@ def __start(service):
 
     try:
         log.info('starting {0}'.format(service))
-        check_output('systemctl start {0}'.format(service), shell=True)
+        check_output('systemctl start {0} 2>&1'.format(service), shell=True)
     except CalledProcessError, e:
         try:
-            log.error(check_output('systemctl status {0}'.format(service), shell=True))
+            log.error(check_output('systemctl status {0} 2>&1'.format(service), shell=True))
         except CalledProcessError, e:
             log.error(e.output)
         raise e
@@ -120,9 +120,9 @@ def __stop(service):
 
     try:
         log.info('checking {0}'.format(service))
-        result = check_output('systemctl is-active {0}'.format(service), shell=True).strip()
+        result = check_output('systemctl is-active {0} 2>&1'.format(service), shell=True).strip()
         log.info('stopping {0}'.format(service))
-        check_output('systemctl stop {0}'.format(service), shell=True)
+        check_output('systemctl stop {0} 2>&1'.format(service), shell=True)
     except CalledProcessError, e:
         result = e.output.strip()
 
