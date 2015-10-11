@@ -142,7 +142,7 @@ def browser(path=''):
 @app.route(rest_prefix + "/installed_apps", methods=["GET"])
 @login_required
 def installed_apps():
-    apps = [app_from_sam_app(a) for a in non_required_apps() if a.installed_version]
+    apps = [app_from_sam_app(a) for a in sam.installed_user_apps()]
 
     # TODO: Hack to add system apps, need to think about it
     apps.append(App('store', 'App Store', html_prefix + '/store.html'))
@@ -159,7 +159,7 @@ def app_status():
 
 
 def get_app(app_id):
-    return next(a for a in sam.list() if a.app.id == app_id)
+    return sam.get_app(app_id)
 
 
 @app.route(rest_prefix + "/install", methods=["GET"])
@@ -193,8 +193,7 @@ def update():
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
 @login_required
 def available_apps():
-    apps = [app_from_sam_app(a) for a in non_required_apps()]
-    return jsonify(apps=convertible.to_dict(apps)), 200
+    return jsonify(apps=convertible.to_dict([app_from_sam_app(a) for a in sam.user_apps()])), 200
 
 
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
@@ -280,14 +279,6 @@ def sam_status():
 @login_required
 def disk_deactivate():
     return jsonify(success=True, disks=Hardware().deactivate_disk()), 200
-
-
-def non_required_apps():
-    if mock_apps:
-        apps = mock_apps
-    else:
-        apps = [a for a in sam.list() if not a.app.required]
-    return apps
 
 
 @app.errorhandler(Exception)

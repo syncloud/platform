@@ -2,7 +2,7 @@ from syncloud_app import runner
 from syncloud_app.logger import get_logger
 
 
-class Service():
+class Service:
     def __init__(self):
         self.logger = get_logger('service')
 

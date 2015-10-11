@@ -1,23 +1,24 @@
-import json
 from os import unlink
 import os
 from os.path import islink, join
 import re
 from subprocess import check_output
+from os import path
 from syncloud_app import logger
 from syncloud_platform.config.config import PLATFORM_CONFIG_DIR, PlatformConfig
+from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.systemd import systemctl
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.touch import touch
+from syncloud_platform.tools.scripts import run_script
 
 PARTTYPE_EXTENDED = '0x5'
-EXTERNAL_DISK_USER = 'owncloud'
 
 class Hardware:
 
     def __init__(self, config_path=PLATFORM_CONFIG_DIR):
         self.platform_config = PlatformConfig(config_path)
         self.log = logger.get_logger('hardware')
+        self.sam = SamStub()
 
     def available_disks(self, lsblk_output=None):
         if not lsblk_output:
@@ -46,18 +47,24 @@ class Hardware:
                 if '/dev/mmcblk0' in fields['NAME']:
                     mountable = False
                 active = False
-                if mount_point == self.platform_config.get_external_disk_dir() and external_disk_is_mounted(self.platform_config):
+                if mount_point == self.platform_config.get_external_disk_dir() and self.external_disk_is_mounted():
                     active = True
                 if mountable:
                     disk.partitions.append(Partition(fields['SIZE'], fields['NAME'], mount_point, active))
         disks_with_partitions = [d for d in disks if d.partitions]
         return disks_with_partitions
 
-    def mounted_disk(self, device, mount_output=None):
+    def mounted_disk_by_device(self, device, mount_output=None):
+        return self.__mounted_disk(lambda entry: entry.startswith('{0} on'.format(device)), mount_output)
+
+    def mounted_disk_by_dir(self, dir, mount_output=None):
+        return self.__mounted_disk(lambda entry: ' on {0} type'.format(dir) in entry, mount_output)
+
+    def __mounted_disk(self, entry_filter, mount_output=None):
         if not mount_output:
             mount_output = check_output('mount', shell=True)
         for entry in mount_output.splitlines():
-            if entry.startswith('{0} on'.format(device)):
+            if entry_filter(entry):
                 parts_on = entry.split(' on ')
                 device = parts_on[0]
                 parts_type = parts_on[1].split(' type ')
@@ -66,52 +73,73 @@ class Hardware:
                 type = parts_options[0]
                 options = parts_options[1].strip('()').replace('codepage=cp', 'codepage=')
                 if 'fat' in type:
-                    options = '{0},uid={1}'.format(options, EXTERNAL_DISK_USER)
+                    options = '{0},uid={1}'.format(options, 'platform')
                 return MountEntry(device, dir, type, options)
         return None
 
-    def activate_disk(self, device, fix_permissions=True):
+    def activate_disk(self, device):
 
         self.deactivate_disk()
 
         check_output('udisksctl mount -b {0}'.format(device), shell=True)
-        mount_entry = self.mounted_disk(device)
+        mount_entry = self.mounted_disk_by_device(device)
         check_output('udisksctl unmount -b {0}'.format(device), shell=True)
         systemctl.add_mount(mount_entry)
 
-        if 'fat' in mount_entry.type:
-            fix_permissions = False
-
-        relink_disk(
+        self.relink_disk(
             self.platform_config.get_disk_link(),
-            self.platform_config.get_external_disk_dir(),
-            fix_permissions)
+            self.platform_config.get_external_disk_dir())
 
     def deactivate_disk(self):
-        relink_disk(
+        self.relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_internal_disk_dir())
         systemctl.remove_mount()
 
+    def init_app_storage(self, app_id, owner=None):
 
-def external_disk_is_mounted(platform_config):
-    return os.path.realpath(platform_config.get_disk_link()) == platform_config.get_external_disk_dir()
+        if self.external_disk_is_mounted():
+            path.realpath(self.platform_config.get_disk_link())
+            disk_dir = self.platform_config.get_external_disk_dir()
+            mount_entry = self.mounted_disk_by_dir(disk_dir)
+            permissions_support = mount_entry.permissions_support()
+        else:
+            permissions_support = True
 
-def relink_disk(link, target, fix_permissions=True):
+        app_storage_dir = join(self.platform_config.get_disk_link(), app_id)
+        if not path.exists(app_storage_dir):
+            os.mkdir(app_storage_dir)
+        if owner and permissions_support:
+            self.log.info('fixing permissions on {0}'.format(app_storage_dir))
+            chown(owner, app_storage_dir)
+        else:
+            self.log.info('not fixing permissions')
+        return app_storage_dir
 
-    log = logger.get_logger('hardware.relink_disk')
+    def relink_disk(self, link, target):
 
-    if islink(link):
-        unlink(link)
-    os.symlink(target, link)
-    if fix_permissions:
-        log.info('fixing permissions')
-        # TODO: We need to come up with some generic way of giving access to different apps
-        chown(EXTERNAL_DISK_USER, link)
-    else:
-        log.info('not fixing permissions')
+        if islink(link):
+            unlink(link)
+        os.symlink(target, link)
 
-    touch(join(link, '.ocdata'))
+        self.trigger_app_event('on_disk_change.py')
+
+    def trigger_app_event(self, event_script):
+        for app in self.sam.installed_user_apps():
+            app_id = app.app.id
+            app_event_script = join(self.platform_config.apps_root(), app_id, event_script)
+            if path.isfile(app_event_script):
+                self.log.info('executing {0}'.format(app_event_script))
+                try:
+                    run_script(app_event_script)
+                except Exception, e:
+                    self.log.error('error in script', e)
+            else:
+                self.log.info('{0} not found'.format(app_event_script))
+
+    def external_disk_is_mounted(self):
+        return path.realpath(self.platform_config.get_disk_link()) == self.platform_config.get_external_disk_dir()
+
 
 
 class Partition:
@@ -135,3 +163,6 @@ class MountEntry:
         self.dir = dir
         self.type = type
         self.options = options
+
+    def permissions_support(self):
+        return 'fat' not in self.type

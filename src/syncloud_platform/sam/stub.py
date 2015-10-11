@@ -34,6 +34,15 @@ class SamStub:
         result = self.__run([SAM_BIN, 'list'])
         return convertible.to_object(result, convertible.List(item_type=AppVersions))
 
+    def user_apps(self):
+        return [a for a in self.list() if not a.app.required]
+
+    def installed_user_apps(self):
+        return [a for a in self.user_apps() if a.installed_version]
+
+    def get_app(self, app_id):
+        return next(a for a in self.list() if a.app.id == app_id)
+
     def run_detached(self, command):
         # The only reliable way to detach a command
         ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >/dev/null 2>&1 &'".format(

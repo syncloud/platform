@@ -8,7 +8,7 @@ from syncloud_platform.server.auth import Auth
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.hardware import relink_disk, external_disk_is_mounted
+from syncloud_platform.tools.hardware import Hardware
 
 log = logger.get_logger('platform.post.install')
 
@@ -20,12 +20,13 @@ def fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
 
 if 'LANG' in os.environ:
     lang = os.environ['LANG']
-    if lang not in check_output(['locale', '-a']):
+    if lang not in check_output('locale -a 2>&1', shell=True):
         print("generating locale: {0}".format(lang))
         fix_locale_gen(lang)
         check_output('locale-gen')
 
 platform_config = PlatformConfig()
+hardware = Hardware()
 
 if not isdir(platform_config.get_disk_root()):
     os.mkdir(platform_config.get_disk_root())
@@ -33,8 +34,8 @@ if not isdir(platform_config.get_disk_root()):
 if not isdir(platform_config.get_internal_disk_dir()):
     os.mkdir(platform_config.get_internal_disk_dir())
 
-if not external_disk_is_mounted(platform_config):
-    relink_disk(
+if not hardware.external_disk_is_mounted():
+    hardware.relink_disk(
         platform_config.get_disk_link(),
         platform_config.get_internal_disk_dir())
 

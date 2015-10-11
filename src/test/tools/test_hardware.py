@@ -19,10 +19,17 @@ def test_list():
     assert len(disks[1].partitions) == 3
 
 
-def test_get_mount_info():
-    mount_point = Hardware(CONFIG_DIR).mounted_disk('/dev/sdc1', open(join(DIR, 'hardware', 'mount')).read())
+def test_get_mount_info_by_device():
+    mount_point = Hardware(CONFIG_DIR).mounted_disk_by_device('/dev/sdc1', open(join(DIR, 'hardware', 'mount')).read())
     assert mount_point.device == '/dev/sdc1'
     assert mount_point.dir == '/media/root/long name'
     assert mount_point.type == 'vfat'
     assert mount_point.options == 'rw,nosuid,nodev,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,' \
-                                  'shortname=mixed,showexec,utf8,flush,errors=remount-ro,uid=owncloud'
+                                  'shortname=mixed,showexec,utf8,flush,errors=remount-ro,uid=platform'
+
+def test_get_mount_info_by_dir():
+    mount_point = Hardware(CONFIG_DIR).mounted_disk_by_dir('/opt/disk/external', open(join(DIR, 'hardware', 'mount')).read())
+    assert mount_point.device == '/dev/sdc2'
+    assert mount_point.dir == '/opt/disk/external'
+    assert mount_point.type == 'ext4'
+    assert mount_point.options == 'rw,nosuid,nodev,relatime,data=ordered,uhelper=udisks2'

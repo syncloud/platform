@@ -10,11 +10,6 @@ libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_pat
 map(lambda x: sys.path.append(x), libs)
 # end of block to import lib folder
 
-import logging
-from syncloud_app import logger
+from syncloud_platform.tools.scripts import run_script
 
-script_filename = sys.argv[1]
-logger.init(logging.DEBUG, console=True, line_format='%(message)s')
-g = globals().copy()
-g['__file__'] = script_filename
-execfile(script_filename, g)
+run_script(sys.argv[1])
