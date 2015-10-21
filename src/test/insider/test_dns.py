@@ -289,5 +289,5 @@ class MockPortMapper:
 
 class MockPortProber:
 
-    def probe_port(self, port):
+    def probe_port(self, port, protocol):
         return True
