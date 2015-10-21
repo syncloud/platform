@@ -2,28 +2,18 @@ import os
 from subprocess import check_output
 from os.path import isdir
 from syncloud_app import logger
-import massedit
 from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.server.auth import Auth
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.tools.locale import fix_locale
 
 log = logger.get_logger('platform.post.install')
 
 
-def fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
-    editor = massedit.MassEdit()
-    editor.append_code_expr("re.sub('# {0}', '{0}', line)".format(lang))
-    editor.edit_file(locale_gen)
-
-if 'LANG' in os.environ:
-    lang = os.environ['LANG']
-    if lang not in check_output('locale -a 2>&1', shell=True):
-        print("generating locale: {0}".format(lang))
-        fix_locale_gen(lang)
-        check_output('locale-gen')
+fix_locale()
 
 platform_config = PlatformConfig()
 hardware = Hardware()
@@ -46,12 +36,18 @@ app.create_data_dir(data_dir, 'webapps', 'platform')
 app.create_data_dir(data_dir, 'log', 'platform')
 app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
+if not os.path.isfile(platform_config.get_ssl_certificate_file()):
+    check_output('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} -out {1} -subj {2} 2>&1'.format(
+        platform_config.get_ssl_key_file(),
+        platform_config.get_ssl_certificate_file(),
+        '/C=US/ST=Syncloud/L=Syncloud/O=Syncloud/OU=Syncloud/CN=localhost'
+    ), shell=True)
+
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')
-# add_service('platform', 'platform-resize-sd', start=False)
-# add_service('platform', 'platform-udisks-glue')
 add_service('platform', 'platform-ntpdate')
 add_service('platform', 'platform-uwsgi-internal')
 add_service('platform', 'platform-uwsgi-public')
 add_service('platform', 'platform-nginx')
 add_service('platform', 'platform-openldap', start=Auth().installed())
+

@@ -35,5 +35,6 @@ class Nginx:
         if reload:
             reload_service('platform-nginx')
 
+
     def __app_file(self, app):
         return join(self.config.nginx_webapps(), app)

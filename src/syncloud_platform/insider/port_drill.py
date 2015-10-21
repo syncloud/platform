@@ -3,6 +3,7 @@ import requests
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
+from syncloud_platform.insider.util import port_to_protocol
 
 from upnpc import UpnpPortMapper
 from natpmpc import NatPmpPortMapper
@@ -62,6 +63,7 @@ class PortDrill:
         self.port_config.remove(local_port)
 
     def sync_one_mapping(self, local_port):
+
         self.logger.info('Sync one mapping: {0}'.format(local_port))
         port_to_try = local_port
         lower_limit = 10000
@@ -69,7 +71,7 @@ class PortDrill:
         for i in range(1, 10):
             self.logger.info('Trying {0}'.format(port_to_try))
             external_port = self.port_mapper.add_mapping(local_port, port_to_try)
-            if self.port_prober.probe_port(external_port):
+            if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
                 found_external_port = external_port
                 break
             self.port_mapper.remove_mapping(local_port, external_port)

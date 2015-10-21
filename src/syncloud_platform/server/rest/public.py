@@ -199,22 +199,22 @@ def available_apps():
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def external_access():
-    return jsonify(enabled=PlatformUserConfig().get_external_access()), 200
+    return jsonify(mode=PlatformUserConfig().get_external_access()), 200
 
 
 @app.route(rest_prefix + "/settings/external_access_enable", methods=["GET"])
 @login_required
 def external_access_enable():
-
-    PlatformUserConfig().set_external_access(True)
+    mode = request.args['mode']
+    PlatformUserConfig().set_external_access(mode)
     try:
         insider = get_insider()
         if not insider.mapper.available():
             return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
-        insider.add_main_device_service()
+        insider.add_main_device_service(mode)
         return jsonify(success=True), 200
     except Exception, e:
-        PlatformUserConfig().set_external_access(False)
+        PlatformUserConfig().disable_external_access()
         return jsonify(success=False, message=e.message), 200
 
 
@@ -229,7 +229,7 @@ def external_access_disable():
             insider.remove_main_device_service()
         except Exception, e:
             log.error(e.message)
-    PlatformUserConfig().set_external_access(False)
+    PlatformUserConfig().disable_external_access()
     return jsonify(success=True), 200
 
 

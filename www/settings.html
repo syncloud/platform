@@ -28,12 +28,28 @@ main_menu_item: menu_apps
     </div>
 
     <div class="row settings-row">
-
-        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
             External access
         </div>
+    </div>
+
+    <div class="row settings-row">
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            Secure (HTTPS)
+        </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
-            <button type="button" id="external_access_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+            <button type="button" id="external_access_secure_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Loading ...
+            </button>
+        </div>
+    </div>
+
+    <div class="row settings-row">
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            Insecure (HTTP)
+        </div>
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="external_access_insecure_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Loading ...
             </button>
         </div>
@@ -141,17 +157,21 @@ main_menu_item: menu_apps
 
 <script type="text/javascript">
 
-    var externalAccessToggleBtn = $("#external_access_toggle_btn");
+    var externalAccessSecureToggleBtn = $("#external_access_secure_toggle_btn");
+    var externalAccessInsecureToggleBtn = $("#external_access_insecure_toggle_btn");
 
     function external_access_status() {
         $.get('/server/rest/settings/external_access')
                 .done(function (data) {
-                    if (data.enabled)
-                        externalAccessToggleBtn.text("Enabled");
-                    else
-                        externalAccessToggleBtn.text('Disabled');
-                    externalAccessToggleBtn.data("enabled", data.enabled);
-                    externalAccessToggleBtn.prop('disabled', false);
+
+                    externalAccessSecureToggleBtn.text(data.mode == 'https' ? 'Enabled' : 'Disabled');
+                    externalAccessSecureToggleBtn.data("enabled", data.mode == 'https');
+                    externalAccessSecureToggleBtn.prop('disabled', false);
+
+                    externalAccessInsecureToggleBtn.text(data.mode == 'http' ? 'Enabled' : 'Disabled');
+                    externalAccessInsecureToggleBtn.data("enabled", data.mode == 'http');
+                    externalAccessInsecureToggleBtn.prop('disabled', false);
+
                 }).fail(onError);
     }
 
@@ -203,25 +223,32 @@ main_menu_item: menu_apps
 
     }
 
+    function external_access(btn, protocol) {
+        btn.prop('disabled', true);
+        btn.text('Checking ...');
+        var mode = btn.data("enabled") ? "disable" : "enable?mode=" + protocol;
+        $.get('/server/rest/settings/external_access_' + mode)
+                .done(function (data) {
+                    if (data.success)
+                        $("#external_access_error").text('');
+                    else
+                        $("#external_access_error").text(data.message);
+                    external_access_status();
+                }).fail(onError);
+    }
+
     $(document).ready(function () {
 
         external_access_status();
         disks_status();
         check_system_version();
 
-        externalAccessToggleBtn.on('click', function () {
-            var btn = $(this);
-            btn.prop('disabled', true);
-            btn.text('Checking ...');
-            var mode = btn.data("enabled") ? "disable" : "enable";
-            $.get('/server/rest/settings/external_access_' + mode)
-                    .done(function (data) {
-                        if (data.success)
-                            $("#external_access_error").text('');
-                        else
-                            $("#external_access_error").text(data.message);
-                        external_access_status();
-                    }).fail(onError);
+        externalAccessInsecureToggleBtn.on('click', function() {
+            external_access($(this), 'http');
+        });
+
+        externalAccessSecureToggleBtn.on('click', function() {
+            external_access($(this), 'https');
         });
 
         $('#disks').on('click', 'button.activate', function () {

@@ -14,6 +14,7 @@ VERSION=$2
 
 cd www
 rm -rf _site
+hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit 1; }
 jekyll build
 cd ..
 

@@ -10,12 +10,12 @@ class PortProber:
         self.redirect_api_url = redirect_api_url
         self.logger = logger.get_logger('PortProber')
 
-    def probe_port(self, port):
+    def probe_port(self, port, protocol):
         self.logger.info('probing {0}'.format(port))
         url = urljoin(self.redirect_api_url, "/probe/port")
         try:
             update_token = self.domain_config.load().update_token
-            response = requests.get(url, params={'token': update_token, 'port': port})
+            response = requests.get(url, params={'token': update_token, 'port': port, 'protocol': protocol})
             return response.status_code == 200 and response.text == 'OK'
         except Exception, e:
             self.logger.info('{0} is not reachable'.format(port))

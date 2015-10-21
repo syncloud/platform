@@ -1,6 +1,7 @@
 from os.path import join
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig
 from syncloud_platform.insider.port_prober import PortProber
+from syncloud_platform.insider.util import port_to_protocol, protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.facade import Facade
 
@@ -72,8 +73,8 @@ class Insider:
     def endpoints(self):
         return self.dns.endpoints()
 
-    def add_main_device_service(self):
-        self.add_service("server", "http", "server", 80, None)
+    def add_main_device_service(self, mode):
+        self.add_service("server", mode, "server", protocol_to_port(mode), None)
 
     def remove_main_device_service(self):
         self.remove_service("server")

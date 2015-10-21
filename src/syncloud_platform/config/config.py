@@ -81,6 +81,12 @@ class PlatformConfig:
     def get_rest_public_log(self):
         return self.__get('rest_public_log')
 
+    def get_ssl_certificate_file(self):
+        return self.__get('ssl_certificate_file')
+
+    def get_ssl_key_file(self):
+        return self.__get('ssl_key_file')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 
@@ -119,13 +125,20 @@ class PlatformUserConfig:
     def get_external_access(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'external_access'):
-            return False
-        return self.parser.getboolean('platform', 'external_access')
+            return None
 
-    def set_external_access(self, enabled):
+        return self.parser.get('platform', 'external_access')
+
+    def set_external_access(self, mode):
         self.parser.read(self.filename)
-        self.parser.set('platform', 'external_access', str(enabled))
+        self.parser.set('platform', 'external_access', mode)
         self.__save()
+
+    def disable_external_access(self):
+        self.parser.read(self.filename)
+        if self.parser.has_option('platform', 'external_access'):
+            self.parser.remove_option('platform', 'external_access')
+            self.__save()
 
     def __save(self):
         with open(self.filename, 'wb') as f:
