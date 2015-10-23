@@ -39,7 +39,9 @@ class UpnpClient:
         return check_output(cmd, shell=True)
 
     def external_ip(self):
-        return self.upnp.externalipaddress()
+        external_ip = self.upnp.externalipaddress()
+        self.logger.info('ip: {0}'.format(external_ip))
+        return external_ip
 
     def __list(self):
         result = []

@@ -16,7 +16,8 @@ import cron
 
 class Insider:
 
-    def __init__(self, mapper, dns, platform_cron, service_config):
+    def __init__(self, mapper, dns, platform_cron, service_config, user_platform_config):
+        self.user_platform_config = user_platform_config
         self.mapper = mapper
         self.dns = dns
         self.platform_cron = platform_cron
@@ -73,8 +74,9 @@ class Insider:
     def endpoints(self):
         return self.dns.endpoints()
 
-    def add_main_device_service(self, mode):
+    def add_main_device_service(self, mode='http'):
         self.add_service("server", mode, "server", protocol_to_port(mode), None)
+        self.user_platform_config.set_external_access(mode)
 
     def remove_main_device_service(self):
         self.remove_service("server")
@@ -105,4 +107,10 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         drill,
         local_ip,
         redirect_config)
-    return Insider(drill, dns_service, cron.PlatformCron(PlatformConfig(config_path)), service_config)
+
+    return Insider(
+        drill,
+        dns_service,
+        cron.PlatformCron(PlatformConfig(config_path)),
+        service_config,
+        user_platform_config)

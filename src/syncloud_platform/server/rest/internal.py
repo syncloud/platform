@@ -6,6 +6,7 @@ import convertible
 
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
+from syncloud_platform.server.rest.flask_decorators import nocache
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
@@ -28,6 +29,7 @@ app = Flask(__name__)
 
 
 @app.route('/server/html/<path:filename>')
+@nocache
 def static_file(filename):
     return send_from_directory(www_dir, filename)
 

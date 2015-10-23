@@ -14,11 +14,15 @@ def test_install(auth):
     __local_install(auth)
 
 
-def test_non_activated_device_redirect_to_activation():
-    response = requests.post('http://localhost/server/rest/login', allow_redirects=False)
+def test_non_activated_device_main_page_redirect_to_activation():
+    response = requests.get('http://localhost', allow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'] == 'http://localhost:81'
 
+def test_non_activated_device_login_redirect_to_activation():
+    response = requests.post('http://localhost/server/rest/login', allow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers['Location'] == 'http://localhost:81'
 
 def test_internal_web_open():
 
@@ -62,6 +66,11 @@ session = requests.session()
 def test_public_web_login():
     __public_web_login()
 
+def test_default_external_mode_on_activate():
+
+    response = session.get('http://localhost/server/rest/settings/external_access')
+    assert '"mode": "http"' in response.text
+    assert response.status_code == 200
 
 def test_public_web_files():
 
@@ -70,6 +79,12 @@ def test_public_web_files():
     response = requests.get('http://localhost/server/rest/files', allow_redirects=False)
     assert response.status_code == 301
 
+def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
+
+    response = session.get('http://localhost/server/html/settings.html')
+    cache_control = response.headers['Cache-Control']
+    assert 'no-cache' in cache_control
+    assert 'max-age=0' in cache_control
 
 def test_public_settings_disk_add_remove():
 

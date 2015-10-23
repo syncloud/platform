@@ -40,10 +40,10 @@ class ServerFacade:
 
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 
-        # try:
-        #     self.insider.add_main_device_service()
-        # except Exception, e:
-        #     self.logger.info('upnp is not available ' + e.message)
+        try:
+            self.insider.add_main_device_service()
+        except Exception, e:
+            self.logger.warn('upnp is not available ' + e.message)
 
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)

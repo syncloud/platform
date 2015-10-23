@@ -1,14 +1,16 @@
+from functools import update_wrapper
 import os
 import traceback
 from os.path import dirname, join, abspath
 import sys
 
 import convertible
-from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
+from flask import Flask, jsonify, send_from_directory, request, redirect, send_file, make_response
 from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.redirect_service import RedirectService
 
 from syncloud_platform.server.model import app_from_sam_app, App
+from syncloud_platform.server.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.tools.hardware import Hardware
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
@@ -74,8 +76,9 @@ class UserFlask:
     def get_id(self):
         return unicode(self.user)
 
-
 @app.route(html_prefix + '/<path:filename>')
+@nocache
+@redirect_if_not_activated
 def static_file(filename):
     return send_from_directory(www_dir, filename)
 
@@ -86,10 +89,8 @@ def load_user(email):
 
 
 @app.route(rest_prefix + "/login", methods=["GET", "POST"])
+@redirect_if_not_activated
 def login():
-
-    if not PlatformUserConfig().is_activated():
-        return redirect('{0}://{1}:81'.format(request.scheme, request.host))
 
     if 'name' in request.form and 'password' in request.form:
         try:
@@ -119,6 +120,7 @@ def user():
 
 
 @app.route('/')
+@redirect_if_not_activated
 @login_required
 def index():
     return static_file('index.html')
@@ -206,7 +208,6 @@ def external_access():
 @login_required
 def external_access_enable():
     mode = request.args['mode']
-    PlatformUserConfig().set_external_access(mode)
     try:
         insider = get_insider()
         if not insider.mapper.available():
@@ -214,7 +215,6 @@ def external_access_enable():
         insider.add_main_device_service(mode)
         return jsonify(success=True), 200
     except Exception, e:
-        PlatformUserConfig().disable_external_access()
         return jsonify(success=False, message=e.message), 200
 
 
