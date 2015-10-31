@@ -10,3 +10,4 @@ rootfs*
 install
 _site
 3rdparty
+*.iml

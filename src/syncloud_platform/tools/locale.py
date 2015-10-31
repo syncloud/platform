@@ -11,6 +11,7 @@ def fix_locale():
             __fix_locale_gen(lang)
             check_output('locale-gen')
 
+
 def __fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
     editor = massedit.MassEdit()
     editor.append_code_expr("re.sub('# {0}', '{0}', line)".format(lang))
