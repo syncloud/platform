@@ -37,7 +37,7 @@ class DomainConfig:
         self.logger = logger.get_logger('insider.DomainConfig')
 
     def load(self):
-        if not os.path.isfile(self.filename):
+        if not self.exists():
             raise Exception('{} does not exist'.format(self.filename))
         obj = convertible.read_json(self.filename)
         return obj
@@ -47,11 +47,11 @@ class DomainConfig:
         convertible.write_json(self.filename, obj)
 
     def remove(self):
-        if os.path.isfile(self.filename):
+        if self.exists():
             os.remove(self.filename)
 
     def exists(self):
-        os.path.isfile(self.filename)
+        return os.path.isfile(self.filename)
 
 REDIRECT_CONFIG_NAME = 'redirect.cfg'
 
