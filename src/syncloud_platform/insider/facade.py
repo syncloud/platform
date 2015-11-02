@@ -4,6 +4,7 @@ from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import port_to_protocol, protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.facade import Facade
+from syncloud_app import logger
 
 from port_config import PortConfig
 from service_config import ServiceConfig
@@ -22,6 +23,7 @@ class Insider:
         self.dns = dns
         self.platform_cron = platform_cron
         self.service_config = service_config
+        self.logger = logger.get_logger('insider')
 
     def list_ports(self):
         return self.mapper.list()
@@ -80,6 +82,7 @@ class Insider:
 
     def remove_main_device_service(self):
         self.remove_service("server")
+
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):
 

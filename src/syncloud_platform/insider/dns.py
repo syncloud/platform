@@ -102,6 +102,10 @@ class Dns:
         self.port_drill.sync()
 
         services = self.service_config.load()
+        if not self.domain_config.exists():
+            self.logger.info('nothing to sync yet, no dns configuration')
+            return
+
         domain = self.domain_config.load()
         if not domain:
             raise Exception("No token saved, need to call set_dns or get_dns_token first")

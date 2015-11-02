@@ -50,6 +50,9 @@ class DomainConfig:
         if os.path.isfile(self.filename):
             os.remove(self.filename)
 
+    def exists(self):
+        os.path.isfile(self.filename)
+
 REDIRECT_CONFIG_NAME = 'redirect.cfg'
 
 

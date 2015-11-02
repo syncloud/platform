@@ -16,7 +16,9 @@ class PortProber:
         try:
             update_token = self.domain_config.load().update_token
             response = requests.get(url, params={'token': update_token, 'port': port, 'protocol': protocol})
+            self.logger.info('response status_code: {0}'.format(response.status_code))
+            self.logger.info('response text: {0}'.format(response.text))
             return response.status_code == 200 and response.text == 'OK'
         except Exception, e:
-            self.logger.info('{0} is not reachable'.format(port))
+            self.logger.info('{0} is not reachable, error: {1}'.format(port, e.message))
             return False
