@@ -47,8 +47,8 @@ function cleanup {
     docker images -q
 
     echo "removing images"
-    docker rm -f $(docker kill $(docker ps -qa))
-    docker rmi -f $(docker images -q)
+    docker rm $(docker kill $(docker ps -qa))
+    docker rmi $(docker images -q)
 
     echo "docker images"
     docker images -q
