@@ -13,6 +13,7 @@ from syncloud_platform.tools.scripts import run_script
 
 PARTTYPE_EXTENDED = '0x5'
 
+
 class Hardware:
 
     def __init__(self, config_path=PLATFORM_CONFIG_DIR):
@@ -26,31 +27,32 @@ class Hardware:
         disks = []
         disk = None
         for line in lsblk_output.splitlines():
-            fields = dict()
-            for field in re.split(r'" ', line.strip()):
-                key, value = field.split('=', 1)
-                value = value[1:]
-                fields[key] = value
+            match = re.match(
+                r'NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" MODEL="(.*)"',
+                line.strip())
 
-            if fields['TYPE'] == 'disk':
-                disk = Disk(fields['MODEL'].split(' ')[0])
+            lsblk = LsblkEntry(match.group(1), match.group(2), match.group(3),
+                               match.group(4), match.group(5), match.group(6).strip())
+
+            if lsblk.type == 'disk':
+                disk = Disk(lsblk.model.split(' ')[0])
                 disks.append(disk)
 
-            elif fields['TYPE'] == 'part':
+            elif lsblk.type == 'part':
 
                 mountable = False
-                mount_point = fields['MOUNTPOINT']
-                if not fields['PARTTYPE'] == PARTTYPE_EXTENDED:
+                mount_point = lsblk.mountpoint
+                if not lsblk.is_extended_partition():
                     if not mount_point or mount_point == self.platform_config.get_external_disk_dir():
                         mountable = True
 
-                if '/dev/mmcblk0' in fields['NAME']:
+                if lsblk.is_boot_disk():
                     mountable = False
                 active = False
                 if mount_point == self.platform_config.get_external_disk_dir() and self.external_disk_is_mounted():
                     active = True
                 if mountable:
-                    disk.partitions.append(Partition(fields['SIZE'], fields['NAME'], mount_point, active))
+                    disk.partitions.append(Partition(lsblk.size, lsblk.name, mount_point, active))
         disks_with_partitions = [d for d in disks if d.partitions]
         return disks_with_partitions
 
@@ -141,6 +143,20 @@ class Hardware:
         return path.realpath(self.platform_config.get_disk_link()) == self.platform_config.get_external_disk_dir()
 
 
+class LsblkEntry:
+    def __init__(self, name, size, type, mountpoint, parttype, model):
+        self.name = name
+        self.size = size
+        self.type = type
+        self.mountpoint = mountpoint
+        self.parttype = parttype
+        self.model = model
+
+    def is_extended_partition(self):
+        return self.parttype == PARTTYPE_EXTENDED
+
+    def is_boot_disk(self):
+        return '/dev/mmcblk0' in self.name
 
 class Partition:
     def __init__(self, size, device, mount_point, active):
