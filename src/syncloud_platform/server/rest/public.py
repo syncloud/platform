@@ -76,6 +76,7 @@ class UserFlask:
     def get_id(self):
         return unicode(self.user)
 
+
 @app.route(html_prefix + '/<path:filename>')
 @nocache
 @redirect_if_not_activated
@@ -250,10 +251,7 @@ def disks():
 @login_required
 def disk_activate():
     device = request.args['device']
-    fix_permissions = True
-    if 'fix_permissions' in request.args:
-        fix_permissions = request.args['fix_permissions'] == 'True'
-    return jsonify(success=True, disks=Hardware().activate_disk(device, fix_permissions)), 200
+    return jsonify(success=True, disks=Hardware().activate_disk(device)), 200
 
 
 @app.route(rest_prefix + "/settings/version", methods=["GET"])
