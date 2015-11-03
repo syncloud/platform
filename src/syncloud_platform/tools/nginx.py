@@ -21,6 +21,7 @@ class Nginx:
     def proxy_definition(self, app, port):
         return Template(
             'location /${app} {\n'
+            '    proxy_set_header X-Forwarded-Proto $$scheme ;\n'
             '    proxy_pass      http://localhost:${port}/${app} ;\n'
             '    proxy_redirect  http://localhost:${port}/${app} $$scheme://$$http_host/${app} ;\n'
             '}').substitute(
