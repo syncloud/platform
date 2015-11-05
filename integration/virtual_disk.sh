@@ -5,6 +5,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+apt-get install -y kpartx
+
 ACTION=$1
 
 TMP_DISK=/tmp/disk
