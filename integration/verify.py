@@ -88,11 +88,12 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
 
 def test_public_settings_disk_add_remove():
 
-    # device = check_output('{0}/virtual_disk.sh add'.format(DIR), shell=True).strip()
+    print(__run_ssh('/virtual_disk.sh add'))
 
     response = session.get('http://localhost/server/rest/settings/disks')
+    print response.text
     assert response.status_code == 200
-    # print response.text
+    
     # print response.url
     json = convertible.from_json(response.text)
     #for disk in json.disks:
@@ -104,7 +105,7 @@ def test_public_settings_disk_add_remove():
     #            'http://localhost/server/rest/settings disk_deactivate', params={'device': partition.device})
     #        assert response.status_code == 200
 
-    # check_output('{0}/virtual_disk.sh remove'.format(DIR), shell=True)
+    print(__run_ssh('/virtual_disk.sh remove'))
 
 
 def test_internal_web_id():
