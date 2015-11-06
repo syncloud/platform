@@ -6,6 +6,7 @@ import sys
 
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect, send_file, make_response
+from syncloud_platform.insider import port_drill
 from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.redirect_service import RedirectService
 
@@ -210,10 +211,9 @@ def external_access():
 def external_access_enable():
     mode = request.args['mode']
     try:
-        insider = get_insider()
-        if not insider.mapper.available():
+        if not port_drill.provide_mapper():
             return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
-        insider.add_main_device_service(mode)
+        get_insider().add_main_device_service(mode)
         return jsonify(success=True), 200
     except Exception, e:
         return jsonify(success=False, message=e.message), 200
@@ -224,10 +224,9 @@ def external_access_enable():
 def external_access_disable():
     if PlatformUserConfig().get_external_access():
         try:
-            insider = get_insider()
-            if not insider.mapper.available():
+            if not port_drill.provide_mapper():
                 return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
-            insider.remove_main_device_service()
+            get_insider().remove_main_device_service()
         except Exception, e:
             log.error(e.message)
     PlatformUserConfig().disable_external_access()

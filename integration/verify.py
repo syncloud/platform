@@ -66,10 +66,21 @@ session = requests.session()
 def test_public_web_login():
     __public_web_login()
 
+
 def test_default_external_mode_on_activate():
 
     response = session.get('http://localhost/server/rest/settings/external_access')
     assert '"mode": "http"' in response.text
+    assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/external_access_disable')
+    assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=http')
+    assert 'No port mappers found' not in response.text
+    assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/external_access_disable')
     assert response.status_code == 200
 
 def test_public_web_files():
