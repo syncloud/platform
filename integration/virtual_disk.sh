@@ -5,15 +5,17 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-apt-get install -y kpartx
+apt-get install -y kpartx > /var/log/virtual_disk.log 2>&1
 
 ACTION=$1
+FS=$2
 
 TMP_DISK=/tmp/disk
-SILENCE=" > /dev/null"
 function add {
     dd if=/dev/zero bs=1M count=10 of=${TMP_DISK} status=none
     echo "
+p
+o
 p
 n
 p
@@ -22,22 +24,22 @@ p
 
 w
 q
-" | fdisk ${TMP_DISK} > /dev/null 2>&1
+" | fdisk ${TMP_DISK} >> /var/log/virtual_disk.log 2>&1
 
-    kpartx -a ${TMP_DISK}
+    kpartx -as ${TMP_DISK}
     LOOP=$(kpartx -l ${TMP_DISK} | head -1 | cut -d ' ' -f1 | cut -c1-5)
-    mkfs.ext4 -q /dev/mapper/${LOOP}p1
+    mkfs.${FS} /dev/mapper/${LOOP}p1 >> /var/log/virtual_disk.log 2>&1
     echo "/dev/mapper/${LOOP}p1"
 }
 
 function remove {
     LOOP=$(kpartx -l ${TMP_DISK} | head -1 | cut -d ' ' -f1 | cut -c1-5)
-    umount /dev/mapper/${LOOP}p1 > /dev/null 2>&1
-    kpartx -d ${TMP_DISK} > /dev/null
-    rm ${TMP_DISK}
+    umount /dev/mapper/${LOOP}p1 >> /var/log/virtual_disk.log 2>&1
+    kpartx -d ${TMP_DISK} >> /var/log/virtual_disk.log 2>&1
+    rm ${TMP_DISK} >> /var/log/virtual_disk.log 2>&1
 }
 
-case "$1" in
+case "$ACTION" in
         add)
             remove
             add
@@ -48,7 +50,7 @@ case "$1" in
             ;;
 
         *)
-            echo $"Usage: $0 {add|remove}"
+            echo $"Usage: $0 {add|remove} fs"
             exit 1
 
 esac

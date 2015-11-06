@@ -97,26 +97,33 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
     assert 'no-cache' in cache_control
     assert 'max-age=0' in cache_control
 
-def test_public_settings_disk_add_remove():
 
-    print(__run_ssh('/virtual_disk.sh add'))
+def test_public_settings_disk_add_remove_ext4():
+    __test_fs('ext4')
+
+
+def test_public_settings_disk_add_remove_ntfs():
+    __test_fs('ntfs')
+
+
+def __test_fs(fs):
+    loop_dev = __run_ssh('/virtual_disk.sh add {0}'.format(fs)).strip()
 
     response = session.get('http://localhost/server/rest/settings/disks')
     print response.text
+    assert loop_dev in response.text
     assert response.status_code == 200
-    
-    # print response.url
-    json = convertible.from_json(response.text)
-    #for disk in json.disks:
-    #    for partition in disk.partitions:
-    #        response = session.get('http://localhost/server/rest/settings/disk_activate', params={
-    #            'device': partition.device, 'fix_permissions': False})
-    #        assert response.status_code == 200
-    #        response = session.get(
-    #            'http://localhost/server/rest/settings disk_deactivate', params={'device': partition.device})
-    #        assert response.status_code == 200
 
-    print(__run_ssh('/virtual_disk.sh remove'))
+    response = session.get('http://localhost/server/rest/settings/disk_activate',
+                           params={'device': loop_dev})
+    assert response.status_code == 200
+    response = session.get('http://localhost/server/rest/settings/disk_deactivate',
+                           params={'device': loop_dev})
+    assert response.status_code == 200
+
+    __run_ssh('/virtual_disk.sh remove')
+
+    __run_ssh('cat /var/log/virtual_disk.log')
 
 
 def test_internal_web_id():
@@ -184,7 +191,11 @@ def __local_install(auth):
 
 
 def __run_ssh(command):
-    print(check_output('{0} {1}'.format(SSH, command), shell=True))
+    output = check_output('{0} {1}'.format(SSH, command), shell=True)
+    print('ssh:')
+    print output
+    print
+    return output
 
 
 def __set_docker_ssh_port():

@@ -34,7 +34,7 @@ class Hardware:
             lsblk = LsblkEntry(match.group(1), match.group(2), match.group(3),
                                match.group(4), match.group(5), match.group(6).strip())
 
-            if lsblk.type == 'disk':
+            if lsblk.type in ('disk', 'loop'):
                 disk = Disk(lsblk.model.split(' ')[0])
                 disks.append(disk)
 
@@ -72,7 +72,7 @@ class Hardware:
                 parts_type = parts_on[1].split(' type ')
                 dir = parts_type[0]
                 parts_options = parts_type[1].split(' ')
-                type = parts_options[0]
+                type = parts_options[0].replace('fuseblk', 'ntfs')
                 options = parts_options[1].strip('()').replace('codepage=cp', 'codepage=')
                 if 'fat' in type:
                     options = '{0},uid={1}'.format(options, 'platform')
@@ -157,6 +157,7 @@ class LsblkEntry:
 
     def is_boot_disk(self):
         return '/dev/mmcblk0' in self.name
+
 
 class Partition:
     def __init__(self, size, device, mount_point, active):

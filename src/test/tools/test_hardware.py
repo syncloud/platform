@@ -13,10 +13,16 @@ logger.init(console=True)
 
 def test_list():
     disks = Hardware(CONFIG_DIR).available_disks(open(join(DIR, 'hardware', 'lsblk')).read())
-    assert len(disks) == 2
+    assert len(disks) == 3
     assert len(disks[0].partitions) == 1
     assert disks[1].partitions[2].mount_point == '/opt/disk/external'
     assert len(disks[1].partitions) == 3
+
+
+def test_loop_support():
+    disks = Hardware(CONFIG_DIR).available_disks(open(join(DIR, 'hardware', 'lsblk')).read())
+    assert len(disks) == 3
+    assert len(disks[2].partitions) == 1
 
 
 def test_get_mount_info_by_device():
