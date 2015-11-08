@@ -83,7 +83,6 @@ class RedirectConfig:
 
     def get_api_url(self):
         self.parser.read(self.filename)
-        self.logger.info('log file: ' + self.filename)
         return self.parser.get('redirect', 'api_url')
 
     def get_user_update_token(self):

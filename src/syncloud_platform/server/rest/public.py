@@ -210,25 +210,19 @@ def external_access():
 @login_required
 def external_access_enable():
     mode = request.args['mode']
-    try:
-        if not port_drill.provide_mapper():
-            return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
-        get_insider().add_main_device_service(mode)
-        return jsonify(success=True), 200
-    except Exception, e:
-        return jsonify(success=False, message=e.message), 200
+    if not port_drill.provide_mapper():
+        return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
+    get_insider().add_main_device_service(mode)
+    return jsonify(success=True), 200
 
 
 @app.route(rest_prefix + "/settings/external_access_disable", methods=["GET"])
 @login_required
 def external_access_disable():
     if PlatformUserConfig().get_external_access():
-        try:
-            if not port_drill.provide_mapper():
-                return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
-            get_insider().remove_main_device_service()
-        except Exception, e:
-            log.error(e.message)
+        if not port_drill.provide_mapper():
+            return jsonify(success=False, message='No port mappers found (NatPmp, UPnP)'), 200
+        get_insider().remove_main_device_service()
     PlatformUserConfig().disable_external_access()
     return jsonify(success=True), 200
 
@@ -283,7 +277,7 @@ def handle_exception(error):
     print '-'*60
     traceback.print_exc(file=sys.stdout)
     print '-'*60
-    response = jsonify(message=error.message)
+    response = jsonify(success=False, message=error.message)
     status_code = 500
     return response, status_code
 

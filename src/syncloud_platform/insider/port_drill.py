@@ -68,7 +68,8 @@ class PortDrill:
         port_to_try = local_port
         lower_limit = 10000
         found_external_port = None
-        for i in range(1, 10):
+        retries = 10
+        for i in range(1, retries):
             self.logger.info('Trying {0}'.format(port_to_try))
             external_port = self.port_mapper.add_mapping(local_port, port_to_try)
             if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
@@ -82,7 +83,7 @@ class PortDrill:
                 port_to_try = external_port + 1
 
         if not found_external_port:
-            raise Exception('Unable to add mapping')
+            raise Exception('Unable to add mapping, tried {0} times'.format(retries))
 
         mapping = Port(local_port, found_external_port)
         self.port_config.add_or_update(mapping)
