@@ -62,9 +62,11 @@ class Dns:
         self.service_config.remove_all()
         self.port_drill.remove_all()
 
-    def add_service(self, name, protocol, service_type, port, url=None):
-        self.port_drill.sync_new_port(port)
-        new_service = Service(name, protocol, service_type, port, url)
+    def add_service(self, name, protocol, service_type, port, port_drill=None):
+        if not port_drill:
+            port_drill = self.port_drill
+        port_drill.sync_new_port(port)
+        new_service = Service(name, protocol, service_type, port)
         self.service_config.add_or_update(new_service)
 
     def get_service(self, name):

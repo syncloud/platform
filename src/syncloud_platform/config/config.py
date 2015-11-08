@@ -1,5 +1,6 @@
 from ConfigParser import ConfigParser
 from os.path import isfile, join
+from syncloud_app import logger
 
 PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 PLATFORM_CONFIG_NAME = 'platform.cfg'
@@ -102,6 +103,7 @@ class PlatformConfig:
 class PlatformUserConfig:
 
     def __init__(self, config_file=None):
+        self.logger = logger.get_logger('PlatformUserConfig')
         self.parser = ConfigParser()
         if config_file:
             self.filename = config_file
@@ -133,6 +135,7 @@ class PlatformUserConfig:
         return self.parser.get('platform', 'external_access')
 
     def set_external_access(self, mode):
+        self.logger.info('saving config, set_external_access = {0}'.format(mode))
         self.parser.read(self.filename)
         self.parser.set('platform', 'external_access', mode)
         self.__save()

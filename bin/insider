@@ -29,7 +29,6 @@ def create_args_parser():
     parser.add_argument('--debug', action='store_true')
 
     subparsers = parser.add_subparsers(help='available commands', dest='action')
-    subparsers.add_parser('list_ports', help="list mapped ports")
     subparsers.add_parser('sync_all', help="sync port mappings and dns records")
     sub = subparsers.add_parser('add_service', help="add port mapping and DNS record for a service")
     sub.add_argument('name', help="name")

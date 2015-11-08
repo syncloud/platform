@@ -98,7 +98,6 @@ class PortDrill:
         return self.port_mapper is not None
 
 
-
 class NonePortDrill:
     def __init__(self):
         self.logger = logger.get_logger('NonePortDrill')

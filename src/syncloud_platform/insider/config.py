@@ -22,7 +22,7 @@ class Port:
 
 class Service:
 
-    def __init__(self, name, protocol, type, port, url):
+    def __init__(self, name, protocol, type, port, url=None):
         self.name = name
         self.protocol = protocol
         self.type = type
@@ -64,7 +64,6 @@ class RedirectConfig:
 
     def update(self, domain, api_url):
         self.parser.read(self.filename)
-        self.logger.info('log file: ' + self.filename)
         self.logger.info('setting domain={0}, api_url={1}'.format(domain, api_url))
         if not self.parser.has_section('redirect'):
             self.parser.add_section('redirect')
@@ -80,7 +79,6 @@ class RedirectConfig:
 
     def get_domain(self):
         self.parser.read(self.filename)
-        self.logger.info('log file: ' + self.filename)
         return self.parser.get('redirect', 'domain')
 
     def get_api_url(self):

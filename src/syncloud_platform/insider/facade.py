@@ -17,24 +17,16 @@ import cron
 
 class Insider:
 
-    def __init__(self, mapper, dns, platform_cron, service_config, user_platform_config):
+    def __init__(self, dns, platform_cron, service_config, user_platform_config, port_config):
+        self.port_config = port_config
         self.user_platform_config = user_platform_config
-        self.mapper = mapper
         self.dns = dns
         self.platform_cron = platform_cron
         self.service_config = service_config
         self.logger = logger.get_logger('insider')
 
-    def list_ports(self):
-        return self.mapper.list()
-
     def sync_all(self):
         return self.dns.sync()
-
-    def add_service(self, name, protocol, type, port, url):
-        result = self.dns.add_service(name, protocol, type, port, url)
-        self.sync_all()
-        return result
 
     def remove_service(self, name):
         result = self.dns.remove_service(name)
@@ -43,9 +35,6 @@ class Insider:
 
     def get_service(self, name):
         return self.dns.get_service(name)
-
-    def get_mapping(self, port):
-        return self.mapper.get(port)
 
     def service_info(self, name):
         return self.dns.service_info(name)
@@ -77,7 +66,9 @@ class Insider:
         return self.dns.endpoints()
 
     def add_main_device_service(self, mode='http'):
-        self.add_service("server", mode, "server", protocol_to_port(mode), None)
+        drill = get_drill(mode, self.dns.domain_config, self.port_config, self.dns.redirect_config)
+        self.dns.add_service("server", mode, "server", protocol_to_port(mode), drill)
+        self.sync_all()
         self.user_platform_config.set_external_access(mode)
 
     def remove_main_device_service(self):
@@ -95,12 +86,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     port_config = PortConfig(join(data_root, 'ports.json'))
     domain_config = DomainConfig(join(data_root, 'domain.json'))
 
-    drill = port_drill.NonePortDrill()
-    if user_platform_config.get_external_access():
-        mapper = port_drill.provide_mapper()
-        if mapper:
-            prober = PortProber(domain_config, redirect_config.get_api_url())
-            drill = port_drill.PortDrill(port_config, mapper, prober)
+    drill = get_drill(user_platform_config.get_external_access(), domain_config, port_config, redirect_config)
 
     service_config = ServiceConfig(join(data_root, 'services.json'))
 
@@ -112,8 +98,19 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         redirect_config)
 
     return Insider(
-        drill,
         dns_service,
         cron.PlatformCron(PlatformConfig(config_path)),
         service_config,
-        user_platform_config)
+        user_platform_config,
+        port_config)
+
+
+def get_drill(external_access, domain_config, port_config, redirect_config):
+
+    drill = port_drill.NonePortDrill()
+    if external_access:
+        mapper = port_drill.provide_mapper()
+        if mapper:
+            prober = PortProber(domain_config, redirect_config.get_api_url())
+            drill = port_drill.PortDrill(port_config, mapper, prober)
+    return drill

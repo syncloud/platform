@@ -74,14 +74,29 @@ def test_default_external_mode_on_activate():
     assert response.status_code == 200
 
     response = session.get('http://localhost/server/rest/settings/external_access_disable')
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/external_access')
+    assert '"mode": null' in response.text
     assert response.status_code == 200
 
     response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=http')
-    assert 'No port mappers found' not in response.text
+    assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/external_access_disable')
+    response = session.get('http://localhost/server/rest/settings/external_access')
+    assert '"mode": "http"' in response.text
     assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=https')
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/external_access')
+    assert '"mode": "https"' in response.text
+    assert response.status_code == 200
+
 
 def test_public_web_files():
 
@@ -89,6 +104,7 @@ def test_public_web_files():
     assert response.status_code == 200
     response = requests.get('http://localhost/server/rest/files', allow_redirects=False)
     assert response.status_code == 301
+
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
 

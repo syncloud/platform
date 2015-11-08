@@ -3,6 +3,8 @@ from subprocess import check_output, CalledProcessError
 from miniupnpc import UPnP
 
 from syncloud_app import logger
+import time
+
 
 class Mapping:
     def __init__(self, external_port, protocol, local_ip, local_port, description, enabled, remote_ip, lease_time):
@@ -99,11 +101,15 @@ class UpnpPortMapper:
         external_ports_to_try = self.__find_available_ports(existing_ports, external_port)
         for external_port_to_try in external_ports_to_try:
             try:
-                self.logger.debug('mapping {0}->{1} (external->local)'.format(external_port_to_try, local_port))
+                self.logger.info('mapping {0}->{1} (external->local)'.format(external_port_to_try, local_port))
                 self.upnpc().add('TCP', local_port, external_port_to_try, 'Syncloud')
+
+                existing_ports = self.upnpc().mapped_external_ports('TCP')
+                self.logger.info('ports after mapping {0}'.format(existing_ports))
+
                 return external_port_to_try
             except Exception, e:
-                self.logger.debug('failed, trying next port: {0}'.format(e.message))
+                self.logger.info('failed, trying next port: {0}'.format(e.message))
 
         raise Exception('Unable to add mapping')
 
@@ -123,7 +129,20 @@ class UpnpPortMapper:
             return self.__add_new_mapping(local_port, external_port)
 
     def remove_mapping(self, local_port, external_port):
-        self.upnpc().remove('TCP', external_port)
+        try:
+            self.upnpc().remove('TCP', external_port)
+        except Exception, e:
+            self.logger.warn('unable to remove port {0}, probably does not exist anymore, error: ',
+                             external_port, e.message)
 
     def external_ip(self):
-        return self.upnpc().external_ip()
+
+        retry = 0
+        retries = 5
+        ip = self.upnpc().external_ip()
+        while not ip and retry < retries:
+            retry += 1
+            self.logger.info('retrying external ip: {0} / {1}'.format(retry, retries))
+            time.sleep(1)
+            ip = self.upnpc().external_ip()
+        return ip

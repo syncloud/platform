@@ -202,7 +202,7 @@ def test_add_service():
     redirect_config = get_redirect_config()
 
     dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
-    dns.add_service("ownCloud", "http", "_http._tcp", 80, url="owncloud")
+    dns.add_service("ownCloud", "http", "_http._tcp", 80)
 
     services = service_config.load()
     assert 1 == len(services)
@@ -210,7 +210,6 @@ def test_add_service():
     assert "ownCloud" == service.name
     assert "_http._tcp" == service.type
     assert 80 == service.port
-    assert "owncloud" == service.url
 
     mappings = port_config.load()
     assert 1 == len(mappings)
@@ -229,7 +228,7 @@ def test_get_service():
     redirect_config = get_redirect_config()
 
     dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
-    dns.add_service("ownCloud", "http", "_http._tcp", 80, url="owncloud")
+    dns.add_service("ownCloud", "http", "_http._tcp", 80)
 
     service = dns.get_service("ownCloud")
 
@@ -237,7 +236,6 @@ def test_get_service():
     assert "ownCloud" == service.name
     assert "_http._tcp" == service.type
     assert 80 == service.port
-    assert "owncloud" == service.url
 
 
 def test_get_not_existing_service():
