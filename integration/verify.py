@@ -114,12 +114,12 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
     assert 'max-age=0' in cache_control
 
 
-# def test_public_settings_disk_add_remove_ext4():
-#     __test_fs('ext4')
+def test_public_settings_disk_add_remove_ext4():
+    __test_fs('ext4')
 
 
-# def test_public_settings_disk_add_remove_ntfs():
-#     __test_fs('ntfs')
+def test_public_settings_disk_add_remove_ntfs():
+    __test_fs('ntfs')
 
 
 def __test_fs(fs):
