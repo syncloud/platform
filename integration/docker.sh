@@ -69,7 +69,7 @@ echo "importing rootfs"
 tar -C ${ROOTFS} -c . | docker import - syncloud
 
 echo "starting rootfs"
-docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
+docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL
 
 echo "sleeping for services to start"
 sleep 10
