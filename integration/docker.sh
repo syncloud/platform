@@ -36,6 +36,7 @@ service docker start
 
 function cleanup {
 
+    losetup -a
     mount | grep rootfs
     mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
 #    mount | grep docker | awk '{print "umounting "$1; system("umount "$3)}'
