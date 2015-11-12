@@ -40,6 +40,9 @@ class SamStub:
     def installed_user_apps(self):
         return [a for a in self.user_apps() if a.installed_version]
 
+    def installed_all_apps(self):
+        return [a for a in self.list() if a.installed_version]
+
     def get_app(self, app_id):
         return next(a for a in self.list() if a.app.id == app_id)
 

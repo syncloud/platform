@@ -10,10 +10,12 @@ def check_http_error(response):
         error = convertible.from_json(response.text)
         raise PassthroughJsonError(error.message, response.text)
 
+
 def port_to_protocol(port):
     if port == 443:
         return 'https'
     return 'http'
+
 
 def protocol_to_port(protocol):
     if protocol == 'https':

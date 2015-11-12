@@ -1,9 +1,11 @@
-from ConfigParser import ConfigParser
-from os.path import dirname, join
 import os
-from syncloud_app import logger
+from ConfigParser import ConfigParser
+from os.path import join
+
 import convertible
-from syncloud_platform.config.config import PLATFORM_CONFIG_DIR
+from syncloud_app import logger
+
+from syncloud_platform.tools.app import get_app_data_root
 
 
 class Domain:
@@ -29,11 +31,15 @@ class Service:
         self.port = port
         self.url = url
 
+DOMAIN_CONFIG_NAME = 'domain.json'
+
 
 class DomainConfig:
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, config_dir=None):
+        if not config_dir:
+            config_dir = get_app_data_root('platform')
+        self.filename = join(config_dir, DOMAIN_CONFIG_NAME)
         self.logger = logger.get_logger('insider.DomainConfig')
 
     def load(self):
@@ -57,7 +63,9 @@ REDIRECT_CONFIG_NAME = 'redirect.cfg'
 
 
 class RedirectConfig:
-    def __init__(self, config_dir):
+    def __init__(self, config_dir=None):
+        if not config_dir:
+            config_dir = get_app_data_root('platform')
         self.parser = ConfigParser()
         self.filename = join(config_dir, REDIRECT_CONFIG_NAME)
         self.logger = logger.get_logger('insider.RedirectConfig')

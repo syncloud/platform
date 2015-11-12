@@ -75,11 +75,13 @@ class Dns:
     def get_service_by_port(self, port):
         return self.service_config.get(port)
 
-    def remove_service(self, name):
+    def remove_service(self, name, port_drill=None):
+        if not port_drill:
+            port_drill = self.port_drill
         service = self.get_service(name)
         if service:
             self.service_config.remove(name)
-            self.port_drill.remove(service.port)
+            port_drill.remove(service.port)
 
     def full_name(self):
         return '{}.{}'.format(self.user_domain(), self.redirect_config.get_domain())

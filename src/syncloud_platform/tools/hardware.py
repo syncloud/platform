@@ -6,10 +6,9 @@ from subprocess import check_output
 from os import path
 from syncloud_app import logger
 from syncloud_platform.config.config import PLATFORM_CONFIG_DIR, PlatformConfig
-from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.systemd import systemctl
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.scripts import run_script
+from syncloud_platform.tools.events import trigger_app_event_disk
 
 PARTTYPE_EXTENDED = '0x5'
 
@@ -19,7 +18,6 @@ class Hardware:
     def __init__(self, config_path=PLATFORM_CONFIG_DIR):
         self.platform_config = PlatformConfig(config_path)
         self.log = logger.get_logger('hardware')
-        self.sam = SamStub()
 
     def available_disks(self, lsblk_output=None):
         if not lsblk_output:
@@ -124,20 +122,7 @@ class Hardware:
             unlink(link)
         os.symlink(target, link)
 
-        self.trigger_app_event('on_disk_change.py')
-
-    def trigger_app_event(self, event_script):
-        for app in self.sam.installed_user_apps():
-            app_id = app.app.id
-            app_event_script = join(self.platform_config.apps_root(), app_id, event_script)
-            if path.isfile(app_event_script):
-                self.log.info('executing {0}'.format(app_event_script))
-                try:
-                    run_script(app_event_script)
-                except Exception, e:
-                    self.log.error('error in script', e)
-            else:
-                self.log.info('{0} not found'.format(app_event_script))
+        trigger_app_event_disk(self.platform_config.apps_root())
 
     def external_disk_is_mounted(self):
         return path.realpath(self.platform_config.get_disk_link()) == self.platform_config.get_external_disk_dir()

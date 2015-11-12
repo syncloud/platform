@@ -1,11 +1,17 @@
-import os.path
+from os.path import join
 import convertible
+
+from syncloud_platform.tools.app import get_app_data_root
+
+PORT_CONFIG_NAME = 'ports.json'
 
 
 class PortConfig:
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, config_dir=None):
+        if not config_dir:
+            config_dir = get_app_data_root('platform')
+        self.filename = join(config_dir, PORT_CONFIG_NAME)
 
     def load(self):
         items = convertible.read_json(self.filename)

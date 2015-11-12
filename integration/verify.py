@@ -5,6 +5,8 @@ import requests
 from subprocess import check_output
 import time
 
+SYNCLOUD_INFO = 'syncloud.info'
+
 DIR = dirname(__file__)
 DOCKER_SSH_PORT = 2222
 SSH = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p {0} root@localhost'.format(DOCKER_SSH_PORT)
@@ -37,7 +39,7 @@ def test_activate_device(auth):
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': SYNCLOUD_INFO})
     assert response.status_code == 200, response.text
 
 
@@ -46,7 +48,7 @@ def test_reactivate(auth):
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user', 'password': 'password',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info'})
+                                   'api-url': 'http://api.syncloud.info:81', 'domain': SYNCLOUD_INFO})
     assert response.status_code == 200
 
 
@@ -67,7 +69,11 @@ def test_public_web_login():
     __public_web_login()
 
 
-def test_default_external_mode_on_activate():
+def test_default_external_mode_on_activate(auth):
+
+    email, password, domain, version, arch, release = auth
+
+    __run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin')
 
     response = session.get('http://localhost/server/rest/settings/external_access')
     assert '"mode": "http"' in response.text
@@ -80,6 +86,7 @@ def test_default_external_mode_on_activate():
     response = session.get('http://localhost/server/rest/settings/external_access')
     assert '"mode": null' in response.text
     assert response.status_code == 200
+    assert __run_ssh('cat /tmp/on_domain_change.log') == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
     response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=http')
     assert '"success": true' in response.text
@@ -123,7 +130,10 @@ def test_public_settings_disk_add_remove_ntfs():
 
 
 def __test_fs(fs):
-    loop_dev = __run_ssh('/virtual_disk.sh add {0}'.format(fs)).strip()
+
+    __run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin')
+
+    loop_dev = __run_ssh('/integration/virtual_disk.sh add {0}'.format(fs)).strip()
 
     response = session.get('http://localhost/server/rest/settings/disks')
     print response.text
@@ -133,11 +143,14 @@ def __test_fs(fs):
     response = session.get('http://localhost/server/rest/settings/disk_activate',
                            params={'device': loop_dev})
     assert response.status_code == 200
+    assert __run_ssh('cat /tmp/on_disk_change.log') == '/data/platform'
+
     response = session.get('http://localhost/server/rest/settings/disk_deactivate',
                            params={'device': loop_dev})
     assert response.status_code == 200
+    assert __run_ssh('cat /tmp/on_disk_change.log') == '/data/platform'
 
-    __run_ssh('/virtual_disk.sh remove')
+    __run_ssh('/integration/virtual_disk.sh remove')
 
     __run_ssh('cat /var/log/virtual_disk.log')
 
@@ -207,7 +220,7 @@ def __local_install(auth):
 
 
 def __run_ssh(command):
-    output = check_output('{0} {1}'.format(SSH, command), shell=True)
+    output = check_output('{0} {1}'.format(SSH, command), shell=True).strip()
     print('ssh:')
     print output
     print

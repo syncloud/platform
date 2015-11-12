@@ -3,10 +3,10 @@ import tempfile
 import os
 from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig, PlatformConfig
 
-from syncloud_platform.insider.port_config import PortConfig
+from syncloud_platform.insider.port_config import PortConfig, PORT_CONFIG_NAME
 from syncloud_platform.insider.service_config import ServiceConfig
 
-from syncloud_platform.insider.config import DomainConfig, RedirectConfig, REDIRECT_CONFIG_NAME
+from syncloud_platform.insider.config import DomainConfig, RedirectConfig, REDIRECT_CONFIG_NAME, DOMAIN_CONFIG_NAME
 
 
 def temp_file(text='', filename=None):
@@ -23,15 +23,13 @@ def temp_file(text='', filename=None):
 
 
 def get_port_config(mappings):
-    filename = temp_file()
-    config = PortConfig(filename)
+    config = PortConfig(dirname(temp_file(filename=PORT_CONFIG_NAME)))
     config.save(mappings)
     return config
 
 
 def get_domain_config(domain=None):
-    domain_file = temp_file()
-    domain_config = DomainConfig(domain_file)
+    domain_config = DomainConfig(dirname(temp_file(filename=DOMAIN_CONFIG_NAME)))
     domain_config.save(domain)
     return domain_config
 

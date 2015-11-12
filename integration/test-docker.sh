@@ -14,8 +14,6 @@ apt-get install -y sshpass
 SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost"
 SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
 
-${SCP}  ${DIR}/virtual_disk.sh root@localhost:/
-
 ${SCP} ${DIR}/../platform-${4}-${5}.tar.gz root@localhost:/
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 py.test -s verify.py --email=$1 --password=$2 --domain=$3 --app-version=$4 --arch=$5 --release=$7

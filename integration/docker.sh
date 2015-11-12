@@ -38,6 +38,7 @@ function cleanup {
 
     mount | grep rootfs
     mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
+#    mount | grep docker | awk '{print "umounting "$1; system("umount "$3)}'
     mount | grep rootfs
 
     echo "cleaning old rootfs"
@@ -64,6 +65,8 @@ tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C ${ROOTFS}
 tar xzf ${APP_DIR}/3rdparty/${SAM} -C ${ROOTFS}/opt/app
 
 sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
+
+cp -r ${APP_DIR}/integration ${ROOTFS}
 
 echo "importing rootfs"
 tar -C ${ROOTFS} -c . | docker import - syncloud
