@@ -131,6 +131,12 @@ def test_public_settings_disk_add_remove_ntfs():
 
 def __test_fs(fs):
 
+    __run_ssh('mount')
+    __run_ssh('losetup -a')
+    __run_ssh('ls -la /dev/mapper/')
+    __run_ssh('ps aux')
+    __run_ssh('cat /var/log/virtual_disk.log')
+
     __run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin')
 
     loop_dev = __run_ssh('/integration/virtual_disk.sh add {0}'.format(fs)).strip()
