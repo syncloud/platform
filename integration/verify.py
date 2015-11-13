@@ -134,7 +134,7 @@ def __test_fs(fs):
     __run_ssh('mount')
     __run_ssh('losetup -a')
     __run_ssh('ls -la /dev/mapper/')
-    __run_ssh('ps aux')
+    print(check_output('ps aux', shell=True))
 
     __run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin')
 
