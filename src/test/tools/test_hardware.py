@@ -1,4 +1,6 @@
 from os.path import dirname, join
+
+import convertible
 from syncloud_app import logger
 
 from syncloud_platform.tools.hardware import Hardware
@@ -23,6 +25,7 @@ def test_loop_support():
     disks = Hardware(CONFIG_DIR).available_disks(open(join(DIR, 'hardware', 'lsblk')).read())
     assert len(disks) == 3
     assert len(disks[2].partitions) == 1
+    convertible.to_dict(disks)
 
 
 def test_get_mount_info_by_device():

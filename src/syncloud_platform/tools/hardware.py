@@ -34,23 +34,13 @@ class Hardware:
 
             if lsblk.type in ('disk', 'loop'):
                 disk = Disk(lsblk.model.split(' ')[0])
+                if lsblk.type == 'loop':
+                    disk.add_partiotion(lsblk, self.platform_config)
                 disks.append(disk)
 
             elif lsblk.type == 'part':
+                disk.add_partiotion(lsblk, self.platform_config)
 
-                mountable = False
-                mount_point = lsblk.mountpoint
-                if not lsblk.is_extended_partition():
-                    if not mount_point or mount_point == self.platform_config.get_external_disk_dir():
-                        mountable = True
-
-                if lsblk.is_boot_disk():
-                    mountable = False
-                active = False
-                if mount_point == self.platform_config.get_external_disk_dir() and self.external_disk_is_mounted():
-                    active = True
-                if mountable:
-                    disk.partitions.append(Partition(lsblk.size, lsblk.name, mount_point, active))
         disks_with_partitions = [d for d in disks if d.partitions]
         return disks_with_partitions
 
@@ -156,6 +146,24 @@ class Disk:
     def __init__(self, name):
         self.partitions = []
         self.name = name
+
+    def add_partiotion(self, lsblk, platform_config):
+        mountable = False
+        mount_point = lsblk.mountpoint
+        if not lsblk.is_extended_partition():
+            if not mount_point or mount_point == platform_config.get_external_disk_dir():
+                mountable = True
+
+        if lsblk.is_boot_disk():
+            mountable = False
+        active = False
+        if mount_point == platform_config.get_external_disk_dir() and self.external_disk_is_mounted(platform_config):
+            active = True
+        if mountable:
+            self.partitions.append(Partition(lsblk.size, lsblk.name, mount_point, active))
+
+    def external_disk_is_mounted(self, platform_config):
+        return path.realpath(platform_config.get_disk_link()) == platform_config.get_external_disk_dir()
 
 
 class MountEntry:

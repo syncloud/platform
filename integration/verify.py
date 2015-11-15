@@ -1,15 +1,18 @@
 from os.path import dirname
 import convertible
-
+import pytest
 import requests
 from subprocess import check_output
 import time
 
+from integration.util.loop import loop_device_cleanup
+from integration.util.ssh import set_docker_ssh_port
+
+from integration.util.ssh import run_ssh
+
 SYNCLOUD_INFO = 'syncloud.info'
 
 DIR = dirname(__file__)
-DOCKER_SSH_PORT = 2222
-SSH = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p {0} root@localhost'.format(DOCKER_SSH_PORT)
 
 
 def test_install(auth):
@@ -21,10 +24,12 @@ def test_non_activated_device_main_page_redirect_to_activation():
     assert response.status_code == 302
     assert response.headers['Location'] == 'http://localhost:81'
 
+
 def test_non_activated_device_login_redirect_to_activation():
     response = requests.post('http://localhost/server/rest/login', allow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'] == 'http://localhost:81'
+
 
 def test_internal_web_open():
 
@@ -73,7 +78,7 @@ def test_default_external_mode_on_activate(auth):
 
     email, password, domain, version, arch, release = auth
 
-    __run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin')
+    run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin')
 
     response = session.get('http://localhost/server/rest/settings/external_access')
     assert '"mode": "http"' in response.text
@@ -86,7 +91,7 @@ def test_default_external_mode_on_activate(auth):
     response = session.get('http://localhost/server/rest/settings/external_access')
     assert '"mode": null' in response.text
     assert response.status_code == 200
-    assert __run_ssh('cat /tmp/on_domain_change.log') == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+    assert run_ssh('cat /tmp/on_domain_change.log') == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
     response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=http')
     assert '"success": true' in response.text
@@ -121,44 +126,62 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
     assert 'max-age=0' in cache_control
 
 
-def test_public_settings_disk_add_remove_ext4():
-    __test_fs('ext4')
+@pytest.yield_fixture(scope='function')
+def loop_device():
+
+    loop_device_cleanup()
+    print('adding loop device')
+    run_ssh('dd if=/dev/zero bs=1M count=10 of=/tmp/disk')
+    run_ssh('losetup /dev/loop0 /tmp/disk')
+    run_ssh('file -s /dev/loop0')
+
+    yield '/dev/loop0'
+
+    loop_device_cleanup()
 
 
-def test_public_settings_disk_add_remove_ntfs():
-    __test_fs('ntfs')
+def test_public_settings_disk_add_remove_ext4(loop_device):
+    __test_fs(loop_device, 'ext4')
 
 
-def __test_fs(fs):
+def test_public_settings_disk_add_remove_ntfs(loop_device):
+    __test_fs(loop_device, 'ntfs')
 
-    __run_ssh('mount')
-    __run_ssh('losetup -a')
-    __run_ssh('ls -la /dev/mapper/')
-    print(check_output('ps aux', shell=True))
 
-    __run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin')
+def __test_fs(loop_device, fs):
 
-    loop_dev = __run_ssh('/integration/virtual_disk.sh add {0}'.format(fs)).strip()
-    __run_ssh('cat /var/log/virtual_disk.log')
+    run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin')
+
+    run_ssh('mkfs.{0} {1}'.format(fs, loop_device))
+
+    run_ssh('mkdir /tmp/test')
+
+    run_ssh('mount {0} /tmp/test'.format(loop_device))
+    for mount in run_ssh('mount', debug=False).splitlines():
+        if 'loop' in mount:
+            print(mount)
+    run_ssh('umount {0}'.format(loop_device))
+
+    run_ssh('udisksctl mount -b {0}'.format(loop_device))
+    for mount in run_ssh('mount', debug=False).splitlines():
+        if 'loop' in mount:
+            print(mount)
+    run_ssh('udisksctl unmount -b {0}'.format(loop_device))
 
     response = session.get('http://localhost/server/rest/settings/disks')
     print response.text
-    assert loop_dev in response.text
+    assert loop_device in response.text
     assert response.status_code == 200
 
     response = session.get('http://localhost/server/rest/settings/disk_activate',
-                           params={'device': loop_dev})
+                           params={'device': loop_device})
     assert response.status_code == 200
-    assert __run_ssh('cat /tmp/on_disk_change.log') == '/data/platform'
+    assert run_ssh('cat /tmp/on_disk_change.log') == '/data/platform'
 
     response = session.get('http://localhost/server/rest/settings/disk_deactivate',
-                           params={'device': loop_dev})
+                           params={'device': loop_device})
     assert response.status_code == 200
-    assert __run_ssh('cat /tmp/on_disk_change.log') == '/data/platform'
-
-    __run_ssh('/integration/virtual_disk.sh remove')
-
-    __run_ssh('cat /var/log/virtual_disk.log')
+    assert run_ssh('cat /tmp/on_disk_change.log') == '/data/platform'
 
 
 def test_internal_web_id():
@@ -169,7 +192,7 @@ def test_internal_web_id():
 
 
 def test_remove():
-    __run_ssh('/opt/app/sam/bin/sam --debug remove platform')
+    run_ssh('/opt/app/sam/bin/sam --debug remove platform')
     time.sleep(3)
 
 
@@ -219,19 +242,9 @@ def __public_web_login(reset_session=False):
 
 def __local_install(auth):
     email, password, domain, version, arch, release = auth
-    __run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch))
-    __run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release))
-    __set_docker_ssh_port()
+    run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch))
+    run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release))
+    set_docker_ssh_port()
     time.sleep(3)
 
 
-def __run_ssh(command):
-    output = check_output('{0} {1}'.format(SSH, command), shell=True).strip()
-    print('ssh:')
-    print output
-    print
-    return output
-
-
-def __set_docker_ssh_port():
-    __run_ssh("sed -i 's/ssh_port.*/ssh_port:{0}/g' /opt/app/platform/config/platform.cfg".format(DOCKER_SSH_PORT))

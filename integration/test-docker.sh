@@ -3,6 +3,10 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
+export TMPDIR=/tmp
+export TMP=/tmp
+export DEBIAN_FRONTEND=noninteractive
+
 if [ "$#" -ne 7 ]; then
     echo "usage $0 redirect_user redirect_password redirect_domain app_version app_arch sam_version release"
     exit 1
