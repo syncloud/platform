@@ -13,7 +13,7 @@ def run_ssh(command, throw=False, debug=True):
     try:
         output = check_output('{0} {1}'.format(SSH, command), shell=True).strip()
         if debug:
-            print('ssh:')
+            print('ssh command: {0}'.format(command))
             print output
             print
         return output
