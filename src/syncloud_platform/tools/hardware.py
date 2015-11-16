@@ -61,9 +61,9 @@ class Hardware:
                 dir = parts_type[0]
                 parts_options = parts_type[1].split(' ')
                 type = parts_options[0].replace('fuseblk', 'ntfs')
-                options = parts_options[1].strip('()').replace('codepage=cp', 'codepage=')
-                if 'fat' in type:
-                    options = '{0},uid={1}'.format(options, 'platform')
+                options = parts_options[1].strip('()')\
+                    .replace('codepage=cp', 'codepage=')\
+                    .replace('default_permissions', 'permissions')
                 return MountEntry(device, dir, type, options)
         return None
 
