@@ -1,17 +1,15 @@
-from functools import update_wrapper
 import os
 import traceback
 from os.path import dirname, join, abspath
 import sys
 
 import convertible
-from flask import Flask, jsonify, send_from_directory, request, redirect, send_file, make_response
-from syncloud_platform.insider import port_drill
+from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
 from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.redirect_service import RedirectService
 
-from syncloud_platform.server.model import app_from_sam_app, App
-from syncloud_platform.server.rest.flask_decorators import nocache, redirect_if_not_activated
+from syncloud_platform.rest.model import app_from_sam_app, App
+from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.tools.hardware import Hardware
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
@@ -19,7 +17,7 @@ if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
-from syncloud_platform.server.auth import authenticate
+from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.sam.stub import SamStub
 from syncloud_app import logger
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required

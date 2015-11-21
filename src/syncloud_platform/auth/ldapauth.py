@@ -14,11 +14,11 @@ from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.systemd.systemctl import stop_service, start_service
 from syncloud_platform.tools import app
 
-ldap_user_conf_dir='slapd.d'
+ldap_user_conf_dir = 'slapd.d'
 platform_user = 'platform'
 
 
-class Auth:
+class LdapAuth:
     def __init__(self):
         self.log = get_logger('ldap')
         self.config = PlatformConfig()

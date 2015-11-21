@@ -6,7 +6,7 @@ import convertible
 
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
-from syncloud_platform.server.rest.flask_decorators import nocache
+from syncloud_platform.rest.flask_decorators import nocache
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..'))
 if __name__ == '__main__':
@@ -15,7 +15,7 @@ if __name__ == '__main__':
 from syncloud_platform.tools.facade import Facade
 from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
-from syncloud_platform.server.serverfacade import get_server
+from syncloud_platform.activator.serverfacade import get_server
 
 config = PlatformConfig()
 if __name__ == '__main__':

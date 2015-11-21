@@ -11,5 +11,5 @@ map(lambda x: sys.path.append(x), libs)
 # end of block to import lib folder
 
 
-import syncloud_platform.server.rest.internal
-app = syncloud_platform.server.rest.internal.app
+import syncloud_platform.rest.internal
+app = syncloud_platform.rest.internal.app

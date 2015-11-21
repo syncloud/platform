@@ -1,7 +1,7 @@
 import uuid
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.server.auth import Auth
+from syncloud_platform.auth.ldapauth import LdapAuth
 from syncloud_platform.tools.facade import Facade
 from syncloud_platform.insider import facade
 from syncloud_app import logger
@@ -13,7 +13,7 @@ class ServerFacade:
         self.insider = insider
         self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
-        self.auth = Auth()
+        self.auth = LdapAuth()
         self.sam = SamStub()
         self.redirect_service = RedirectService()
 
