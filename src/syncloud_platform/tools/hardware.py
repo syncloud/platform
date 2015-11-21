@@ -108,6 +108,8 @@ class Hardware:
 
     def relink_disk(self, link, target):
 
+        os.chmod(target, 0755)
+
         if islink(link):
             unlink(link)
         os.symlink(target, link)
