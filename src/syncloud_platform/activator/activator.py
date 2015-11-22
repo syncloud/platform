@@ -2,16 +2,16 @@ import uuid
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.auth.ldapauth import LdapAuth
-from syncloud_platform.tools.facade import Facade
 from syncloud_platform.insider import facade
 from syncloud_app import logger
 from syncloud_platform.sam.stub import SamStub
 
 
-class ServerFacade:
-    def __init__(self, insider):
+class Activator:
+    def __init__(self, insider=None):
+        if insider is None:
+            insider = facade.get_insider()
         self.insider = insider
-        self.tools = Facade()
         self.logger = logger.get_logger('ServerFacade')
         self.auth = LdapAuth()
         self.sam = SamStub()
@@ -54,9 +54,3 @@ class ServerFacade:
 
     def user_domain(self):
         return self.insider.user_domain()
-
-
-def get_server(insider=None):
-    if insider is None:
-        insider = facade.get_insider()
-    return ServerFacade(insider)

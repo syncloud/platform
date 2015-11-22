@@ -13,7 +13,7 @@ from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.events import trigger_app_event_domain
-from syncloud_platform.tools.facade import Facade
+from syncloud_platform.tools import network
 
 
 class Insider:
@@ -83,7 +83,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
     redirect_config = RedirectConfig(data_root)
     user_platform_config = PlatformUserConfig()
-    local_ip = Facade().local_ip()
+    local_ip = network.local_ip()
 
     port_config = PortConfig(data_root)
     domain_config = DomainConfig(data_root)

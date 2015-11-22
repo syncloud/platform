@@ -27,6 +27,7 @@ class Id:
         self.title = title
         self.mac_address = mac_address
 
+
 def id():
     f = footprint.footprint()
     name = getname(f)

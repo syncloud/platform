@@ -87,6 +87,7 @@ def authenticate(name, password):
         else:
             raise Exception(e.message)
 
+
 #https://gist.github.com/rca/7217540
 def make_secret(password):
     """
