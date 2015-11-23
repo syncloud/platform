@@ -167,8 +167,8 @@ def get_app(app_id):
 @app.route(rest_prefix + "/install", methods=["GET"])
 @login_required
 def install():
-    result = sam.install(request.args['app_id'])
-    return jsonify(message=result), 200
+    sam.install(request.args['app_id'])
+    return 'OK', 200
 
 
 @app.route(rest_prefix + "/remove", methods=["GET"])
@@ -181,8 +181,8 @@ def remove():
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
-    result = sam.install(request.args['app_id'])
-    return jsonify(message=result), 200
+    sam.upgrade(request.args['app_id'])
+    return 'OK', 200
 
 
 @app.route(rest_prefix + "/check", methods=["GET"])

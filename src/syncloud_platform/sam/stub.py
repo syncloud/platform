@@ -22,10 +22,10 @@ class SamStub:
         return self.__run(args)
 
     def install(self, app_id):
-        return self.__run([SAM_BIN, 'install', app_id])
+        self.__run_detached('{0} install {1}'.format(SAM_BIN, app_id))
 
     def upgrade(self, app_id):
-        self.run_detached('{0} upgrade {1}'.format(SAM_BIN, app_id))
+        self.__run_detached('{0} upgrade {1}'.format(SAM_BIN, app_id))
 
     def remove(self, app_id):
         return self.__run([SAM_BIN, 'remove', app_id])
@@ -46,8 +46,8 @@ class SamStub:
     def get_app(self, app_id):
         return next(a for a in self.list() if a.app.id == app_id)
 
-    def run_detached(self, command):
-        # The only reliable way to detach a command
+    def __run_detached(self, command):
+        # Think about adding twisted
         ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >/dev/null 2>&1 &'".format(
             PlatformConfig().get_ssh_port(), command)
         self.logger.info('ssh command: {0}'.format(ssh_command))

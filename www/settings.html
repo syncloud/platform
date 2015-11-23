@@ -154,152 +154,80 @@ main_menu_item: menu_apps
     <% } %>
 </script>
 
-
+<script type="text/javascript" src="/server/html/js/sam.js"></script>
+<script type="text/javascript" src="/server/html/js/settings.js"></script>
 <script type="text/javascript">
+
+$(document).ready(function () {
 
     var externalAccessSecureToggleBtn = $("#external_access_secure_toggle_btn");
     var externalAccessInsecureToggleBtn = $("#external_access_insecure_toggle_btn");
 
-    function external_access_status() {
-        $.get('/server/rest/settings/external_access')
-                .done(function (data) {
+    external_access_status(externalAccessSecureToggleBtn, externalAccessInsecureToggleBtn);
+    disks_status();
+    check_system_version();
 
-                    externalAccessSecureToggleBtn.text(data.mode == 'https' ? 'Enabled' : 'Disabled');
-                    externalAccessSecureToggleBtn.data("enabled", data.mode == 'https');
-                    externalAccessSecureToggleBtn.prop('disabled', false);
+    externalAccessInsecureToggleBtn.on('click', function() {
+        external_access($(this), 'http', function() {
+            external_access_status(externalAccessSecureToggleBtn, externalAccessInsecureToggleBtn);
+        });
+    });
 
-                    externalAccessInsecureToggleBtn.text(data.mode == 'http' ? 'Enabled' : 'Disabled');
-                    externalAccessInsecureToggleBtn.data("enabled", data.mode == 'http');
-                    externalAccessInsecureToggleBtn.prop('disabled', false);
+    externalAccessSecureToggleBtn.on('click', function() {
+        external_access($(this), 'https', function() {
+            external_access_status(externalAccessSecureToggleBtn, externalAccessInsecureToggleBtn);
+        });
+    });
 
+    $('#disks').on('click', 'button.activate', function () {
+
+        var btn = $(this);
+        btn.prop('disabled', true);
+        btn.text('Working ...');
+        var mode = btn.data("active") ? "deactivate" : "activate";
+        $.get('/server/rest/settings/disk_' + mode, {device: btn.data('device')})
+                .done(function () {
+                    disks_status()
                 }).fail(onError);
-    }
+    });
 
-    function disks_status() {
-        $.get('/server/rest/settings/disks')
-                .done(function (data) {
-                    var template = $("#disks-template").html();
-                    $("#disks").html(_.template(template)(data));
+    $("#send_logs_btn").on('click', function () {
+        var btn = $(this);
+        btn.prop('disabled', true);
+        btn.text('Sending ...');
+        $.get('/server/rest/send_log')
+                .done(function () {
+                    btn.text('Send');
+                    btn.prop('disabled', false);
                 }).fail(onError);
-    }
+    });
 
-    function check_system_version() {
-        $.get('/server/rest/settings/version')
-                .done(function (data) {
-                    var btn = $("#system_upgrade_btn");
-                    var check_btn = $("#system_check_btn");
-                    btn.hide();
-                    check_btn.hide();
-                    var updates = '';
-
-                    if (data.installed_version != data.current_version) {
-                        btn.show();
-                        updates = ', updated version available: ' + data.current_version;
-                        btn.text('Upgrade');
-                        btn.prop('disabled', false);
-                    } else {
-                        check_btn.show();
-                        check_btn.text('Check');
-                        check_btn.prop('disabled', false);
-                    }
-
-                    $("#system_version").html(data.installed_version + updates);
-
-                }).fail(onError);
-    }
-
-    function check_upgrade_status() {
-        var recheck_timeput = 2000;
-        $.get('/server/rest/settings/sam_status')
-                .done(function(sam) {
-                    if (sam.is_running)
-                        setTimeout(check_upgrade_status, recheck_timeput);
-                    else
-                        check_system_version();
+    $("#system_upgrade_btn").on('click', function () {
+        var btn = $(this);
+        btn.prop('disabled', true);
+        btn.text('Upgrading ...');
+        $.get('/server/rest/settings/system_upgrade')
+                .done(function() {
+                    run_after_sam_is_complete(check_system_version);
                 })
-                .fail(function() {
-                    setTimeout(check_upgrade_status, recheck_timeput);
-                })
+                .fail(function () {
+                    run_after_sam_is_complete(check_system_version);
+                });
+    });
 
-    }
-
-    function external_access(btn, protocol) {
+    $("#system_check_btn").on('click', function () {
+        var btn = $(this);
         btn.prop('disabled', true);
         btn.text('Checking ...');
-        var mode = btn.data("enabled") ? "disable" : "enable?mode=" + protocol;
-        $.get('/server/rest/settings/external_access_' + mode)
-                .done(function (data) {
-                    if (data.success)
-                        $("#external_access_error").text('');
-                    else
-                        $("#external_access_error").text(data.message);
-                    external_access_status();
-                }).fail(onError);
-    }
-
-    $(document).ready(function () {
-
-        external_access_status();
-        disks_status();
-        check_system_version();
-
-        externalAccessInsecureToggleBtn.on('click', function() {
-            external_access($(this), 'http');
-        });
-
-        externalAccessSecureToggleBtn.on('click', function() {
-            external_access($(this), 'https');
-        });
-
-        $('#disks').on('click', 'button.activate', function () {
-
-            var btn = $(this);
-            btn.prop('disabled', true);
-            btn.text('Working ...');
-            var mode = btn.data("active") ? "deactivate" : "activate";
-            $.get('/server/rest/settings/disk_' + mode, {device: btn.data('device')})
-                    .done(function () {
-                        disks_status()
-                    }).fail(onError);
-        });
-
-        $("#send_logs_btn").on('click', function () {
-            var btn = $(this);
-            btn.prop('disabled', true);
-            btn.text('Sending ...');
-            $.get('/server/rest/send_log')
-                    .done(function () {
-                        btn.text('Send');
-                        btn.prop('disabled', false);
-                    }).fail(onError);
-        });
-
-        $("#system_upgrade_btn").on('click', function () {
-            var btn = $(this);
-            btn.prop('disabled', true);
-            btn.text('Upgrading ...');
-            $.get('/server/rest/settings/system_upgrade')
-                    .done(function() {
-                        check_upgrade_status();
-                    })
-                    .fail(function () {
-                        check_upgrade_status();
-                    });
-        });
-
-        $("#system_check_btn").on('click', function () {
-            var btn = $(this);
-            btn.prop('disabled', true);
-            btn.text('Checking ...');
-            $.get('/server/rest/check')
-                    .done(function() {
-                        check_upgrade_status();
-                    })
-                    .fail(function () {
-                        check_upgrade_status();
-                    });
-        });
-
+        $.get('/server/rest/check')
+                .done(function() {
+                    run_after_sam_is_complete(check_system_version);
+                })
+                .fail(function () {
+                    run_after_sam_is_complete(check_system_version);
+                });
     });
+
+});
 
 </script>
