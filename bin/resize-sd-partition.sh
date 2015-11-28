@@ -26,4 +26,6 @@ w
 q
 " | fdisk ${DEVICE}
 
+partprobe
+
 resize2fs ${PARTITION}
