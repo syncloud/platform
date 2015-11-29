@@ -10,10 +10,12 @@ def domain():
 
 
 def url():
-    return __url(
-        PlatformUserConfig().get_external_access(),
-        PortConfig().get(80).external_port,
-        domain())
+    external_access_protocol = PlatformUserConfig().get_external_access()
+    port = 80
+    if external_access_protocol:
+        port = PortConfig().get(port).external_port
+
+    return __url(external_access_protocol, port, domain())
 
 
 def __url(protocol, external_port, domain):
