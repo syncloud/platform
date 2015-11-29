@@ -14,6 +14,7 @@ class PortConfig:
         if not config_dir:
             config_dir = get_app_data_root('platform')
         self.filename = join(config_dir, PORT_CONFIG_NAME)
+        self.logger = logger.get_logger('insider.PortConfig')
 
     def load(self):
         items = convertible.read_json(self.filename)
