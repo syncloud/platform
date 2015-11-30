@@ -40,6 +40,6 @@ if __name__ == '__main__':
     level = logging.DEBUG if args.debug else logging.INFO
     logger.init(level, console, join(PlatformConfig().get_platform_log()))
 
-    facade = syncloud_platform.insider.facade.get_insider(args.config_path)
+    facade = syncloud_platform.insider.facade.get_insider()
 
     main.execute(facade, args)
