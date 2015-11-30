@@ -18,23 +18,16 @@ from syncloud_platform.tools import network
 
 class Insider:
 
-    def __init__(self, dns_service, platform_cron, service_config, user_platform_config, port_config, platform_config):
+    def __init__(self, dns_service, platform_cron, user_platform_config, port_config, platform_config):
         self.platform_config = platform_config
         self.port_config = port_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
         self.platform_cron = platform_cron
-        self.service_config = service_config
         self.logger = logger.get_logger('insider')
 
     def sync_all(self):
         return self.dns.sync()
-
-    def get_service(self, name):
-        return self.dns.get_service(name)
-
-    def service_info(self, name):
-        return self.dns.service_info(name)
 
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
@@ -42,25 +35,6 @@ class Insider:
         self.platform_cron.remove()
         self.platform_cron.create()
         return result
-
-    def drop_domain(self):
-        self.dns.drop()
-        self.platform_cron.remove()
-
-    def full_name(self):
-        return self.dns.full_name()
-
-    def user_domain(self):
-        return self.dns.user_domain()
-
-    def cron_on(self):
-        return self.platform_cron.create()
-
-    def cron_off(self):
-        return self.platform_cron.remove()
-
-    def endpoints(self):
-        return self.dns.endpoints()
 
     def add_main_device_service(self, mode='http'):
         drill = get_drill(True, self.dns.domain_config, self.port_config, self.dns.redirect_config)
@@ -83,20 +57,16 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
     redirect_config = RedirectConfig(data_root)
     user_platform_config = PlatformUserConfig()
-    local_ip = network.local_ip()
-
     port_config = PortConfig(data_root)
     domain_config = DomainConfig(data_root)
 
     drill = get_drill(user_platform_config.get_external_access(), domain_config, port_config, redirect_config)
 
-    service_config = ServiceConfig(join(data_root, 'services.json'))
-
     dns_service = dns.Dns(
         domain_config,
-        service_config,
+        ServiceConfig(join(data_root, 'services.json')),
         drill,
-        local_ip,
+        network.local_ip(),
         redirect_config)
 
     platform_config = PlatformConfig(config_path)
@@ -104,7 +74,6 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     return Insider(
         dns_service,
         cron.PlatformCron(platform_config),
-        service_config,
         user_platform_config,
         port_config,
         platform_config)

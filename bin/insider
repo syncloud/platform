@@ -18,28 +18,17 @@ from os.path import join
 
 from syncloud_app import main
 from syncloud_app import logger
-from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR
+from syncloud_platform.config.config import PlatformConfig
 
 import syncloud_platform.insider.facade
 
 
 def create_args_parser():
     parser = argparse.ArgumentParser(description='Syncloud insider maps port on router and creates DNS records')
-    parser.add_argument('--config-path', default=PLATFORM_CONFIG_DIR, dest='config_path')
     parser.add_argument('--debug', action='store_true')
 
     subparsers = parser.add_subparsers(help='available commands', dest='action')
     subparsers.add_parser('sync_all', help="sync port mappings and dns records")
-    subparsers.add_parser('cron_on', help="add insider sync to cron")
-    subparsers.add_parser('cron_off', help="remove insider sync from cron")
-    sub = subparsers.add_parser('acquire_domain', help="acquire domain")
-    sub.add_argument('email', help="email")
-    sub.add_argument('password', help="password")
-    sub.add_argument('user_domain', help="user domain")
-    subparsers.add_parser('drop_domain', help="drop domain")
-    subparsers.add_parser('user_domain', help="user_domain")
-    sub = subparsers.add_parser('service_info', help="service info")
-    sub.add_argument('name', help="service name")
     return parser
 
 

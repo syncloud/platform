@@ -23,7 +23,6 @@ class PortConfig:
         return items
 
     def save(self, items):
-        self.logger.info('saving config={0}'.format(self.filename))
         convertible.write_json(self.filename, items)
 
     def add_or_update(self, mapping):
@@ -33,11 +32,13 @@ class PortConfig:
             self.__add(mapping)
 
     def __add(self, mapping):
+        self.logger.info('adding {0}, {1}'.format(mapping, self.filename))
         mappings_list = self.load()
         mappings_list.append(mapping)
         self.save(mappings_list)
 
     def remove(self, local_port):
+        self.logger.info('removing local_port={0}, {1}'.format(local_port, self.filename))
         mappings_list = self.load()
         new_mappings = [m for m in mappings_list if m.local_port != local_port]
         self.save(new_mappings)
@@ -48,6 +49,7 @@ class PortConfig:
         return mapping
 
     def __update(self, new_mapping):
+        self.logger.info('updating {0}, {1}'.format(new_mapping, self.filename))
         mappings_list = self.load()
         mapping = next((m for m in mappings_list if m.local_port == new_mapping.local_port), None)
         loc = mappings_list.index(mapping)
