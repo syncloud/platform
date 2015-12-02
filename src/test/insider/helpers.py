@@ -4,8 +4,7 @@ import os
 from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig, PlatformConfig
 
 from syncloud_platform.insider.port_config import PortConfig, PORT_CONFIG_NAME
-from syncloud_platform.insider.service_config import ServiceConfig
-
+from syncloud_platform.insider.service_config import ServiceConfig, SERVICE_CONFIG_NAME
 from syncloud_platform.insider.config import DomainConfig, RedirectConfig, REDIRECT_CONFIG_NAME, DOMAIN_CONFIG_NAME
 
 
@@ -35,8 +34,7 @@ def get_domain_config(domain=None):
 
 
 def get_service_config(services):
-    filename = temp_file()
-    config = ServiceConfig(filename)
+    config = ServiceConfig(dirname(temp_file(filename=SERVICE_CONFIG_NAME)))
     config.save(services)
     return config
 
