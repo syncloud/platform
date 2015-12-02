@@ -12,3 +12,7 @@ def test_url_standard_port():
 
 def test_url_non_standard_port():
     assert __url('https', 444, 'domain.tld') == 'https://domain.tld:444'
+
+
+def test_url_subdomain():
+    assert __url('https', 444, 'domain.tld', 'app') == 'https://app.domain.tld:444'
