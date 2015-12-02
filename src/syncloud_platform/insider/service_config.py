@@ -1,11 +1,20 @@
-import os.path
+from os.path import join, isfile
+from os import remove
+
 import convertible
+
+from syncloud_platform.config.config import PLATFORM_APP_NAME
+from syncloud_platform.tools.app import get_app_data_root
+
+SERVICE_CONFIG_NAME = 'services.json'
 
 
 class ServiceConfig:
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, config_dir=None):
+        if not config_dir:
+            config_dir = get_app_data_root(PLATFORM_APP_NAME)
+        self.filename = join(config_dir, SERVICE_CONFIG_NAME)
 
     def load(self):
         items = convertible.read_json(self.filename)
@@ -50,5 +59,5 @@ class ServiceConfig:
         self.save(new_items)
 
     def remove_all(self):
-        if os.path.isfile(self.filename):
-            os.remove(self.filename)
+        if isfile(self.filename):
+            remove(self.filename)

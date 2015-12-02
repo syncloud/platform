@@ -1,5 +1,3 @@
-from os.path import join
-
 from syncloud_app import logger
 
 import cron
@@ -7,7 +5,7 @@ import dns
 import port_drill
 from port_config import PortConfig
 from service_config import ServiceConfig
-from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig, PLATFORM_APP_NAME
 from syncloud_platform.insider.config import RedirectConfig, DomainConfig
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
@@ -53,7 +51,7 @@ class Insider:
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
-    data_root = get_app_data_root('platform')
+    data_root = get_app_data_root(PLATFORM_APP_NAME)
 
     redirect_config = RedirectConfig(data_root)
     user_platform_config = PlatformUserConfig()
@@ -64,7 +62,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
 
     dns_service = dns.Dns(
         domain_config,
-        ServiceConfig(join(data_root, 'services.json')),
+        ServiceConfig(data_root),
         drill,
         network.local_ip(),
         redirect_config)

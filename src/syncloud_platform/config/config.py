@@ -4,6 +4,7 @@ from syncloud_app import logger
 
 PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 PLATFORM_CONFIG_NAME = 'platform.cfg'
+PLATFORM_APP_NAME = 'platform'
 
 
 class PlatformConfig:
