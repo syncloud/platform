@@ -38,6 +38,9 @@ class PlatformConfig:
     def nginx_webapps(self):
         return self.__get('nginx_webapps')
 
+    def nginx_config_dir(self):
+        return self.__get('nginx_config_dir')
+
     def cron_user(self):
         return self.__get('cron_user')
 
@@ -130,10 +133,13 @@ class PlatformUserConfig:
 
     def get_external_access(self):
         self.parser.read(self.filename)
-        if not self.parser.has_option('platform', 'external_access'):
-            return None
+        mode = None
+        if self.parser.has_option('platform', 'external_access'):
+            mode = self.parser.get('platform', 'external_access')
 
-        return self.parser.get('platform', 'external_access')
+        self.logger.info('external_access = {0}'.format(mode))
+
+        return mode
 
     def set_external_access(self, mode):
         self.logger.info('saving config, set_external_access = {0}'.format(mode))

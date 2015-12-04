@@ -1,0 +1,25 @@
+server {
+    listen 80;
+    server_name ${app}.*;
+    location / {
+        proxy_set_header X-Forwarded-Proto $$scheme ;
+        proxy_set_header X-Forwarded-Host $$http_host ;
+        proxy_pass      http://localhost:${port} ;
+        proxy_redirect  http://localhost:${port} $$scheme://$$http_host ;
+    }
+}
+
+server {
+
+    listen 443 ssl;
+    server_name ${app}.*;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
+
+    location / {
+        proxy_set_header X-Forwarded-Proto $$scheme ;
+        proxy_set_header X-Forwarded-Host $$http_host ;
+        proxy_pass      http://localhost:${port} ;
+        proxy_redirect  http://localhost:${port} $$scheme://$$http_host ;
+    }
+}

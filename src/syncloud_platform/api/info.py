@@ -1,6 +1,7 @@
 from syncloud_platform.config.config import PlatformUserConfig
 from syncloud_platform.insider.config import DomainConfig, RedirectConfig
 from syncloud_platform.insider.port_config import PortConfig
+from syncloud_platform.insider.util import protocol_to_port
 
 
 def domain():
@@ -13,7 +14,7 @@ def url(app=None):
     external_access_protocol = PlatformUserConfig().get_external_access()
     port = 80
     if external_access_protocol:
-        port = PortConfig().get(port).external_port
+        port = PortConfig().get(protocol_to_port(external_access_protocol)).external_port
 
     return __url(external_access_protocol, port, domain(), app)
 
