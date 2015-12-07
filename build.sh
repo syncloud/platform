@@ -44,6 +44,8 @@ cp -r ${DIR}/config ${BUILD_DIR}
 cp -r ${DIR}/www ${BUILD_DIR}
 cp -r ${DIR}/lib ${BUILD_DIR}
 
+ls ${BUILD_DIR}/lib/  > ${BUILD_DIR}/lib/path.pth
+
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
 echo ${VERSION} >> ${BUILD_DIR}/META/version

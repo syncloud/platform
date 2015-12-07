@@ -49,6 +49,4 @@ coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_
 coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_miniupnpc_${ARCH}/lastSuccessful/miniupnpc-1.9-cp27-none-linux_${ARCH}.whl
 coin py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_ldap_${ARCH}/lastSuccessful/python_ldap-2.4.19-cp27-none-linux_${ARCH}.whl
 
-ls . > path.pth
-
 cd ..
