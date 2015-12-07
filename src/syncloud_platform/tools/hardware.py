@@ -143,6 +143,9 @@ class Partition:
         self.mount_point = mount_point
         self.active = active
 
+    def __str__(self):
+        return '{0}, {1}, {2}, {3}'.format(self.device, self.size, self.mount_point, self.active)
+
 
 class Disk:
     def __init__(self, name):
@@ -166,6 +169,9 @@ class Disk:
 
     def external_disk_is_mounted(self, platform_config):
         return path.realpath(platform_config.get_disk_link()) == platform_config.get_external_disk_dir()
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.name, ','.join(map(str, self.partitions)))
 
 
 class MountEntry:
