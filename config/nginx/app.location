@@ -1,0 +1,6 @@
+location /${app} {
+    proxy_set_header X-Forwarded-Proto $$scheme ;
+    proxy_set_header X-Forwarded-Host $$http_host ;
+    proxy_pass      http://localhost:${port}/${app} ;
+    proxy_redirect  http://localhost:${port}/${app} $$scheme://$$http_host/${app} ;
+}

@@ -36,6 +36,7 @@ class Insider:
 
     def add_main_device_service(self, mode='http'):
         drill = get_drill(True, self.dns.domain_config, self.port_config, self.dns.redirect_config)
+        self.dns.remove_service("server", drill)
         self.dns.add_service("server", mode, "server", protocol_to_port(mode), drill)
         self.sync_all()
         self.user_platform_config.set_external_access(mode)
