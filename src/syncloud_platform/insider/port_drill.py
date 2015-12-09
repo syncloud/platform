@@ -59,8 +59,9 @@ class PortDrill:
 
     def remove(self, local_port):
         mapping = self.port_config.get(local_port)
-        self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port)
-        self.port_config.remove(local_port)
+        if mapping:
+            self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port)
+            self.port_config.remove(local_port)
 
     def sync_one_mapping(self, local_port):
 
