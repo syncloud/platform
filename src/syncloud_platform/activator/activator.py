@@ -12,7 +12,7 @@ class Activator:
         if insider is None:
             insider = facade.get_insider()
         self.insider = insider
-        self.logger = logger.get_logger('ServerFacade')
+        self.logger = logger.get_logger('Activator')
         self.auth = LdapAuth()
         self.sam = SamStub()
         self.redirect_service = RedirectService()

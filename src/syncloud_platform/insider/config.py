@@ -43,7 +43,7 @@ class DomainConfig:
         if not config_dir:
             config_dir = get_app_data_root('platform')
         self.filename = join(config_dir, DOMAIN_CONFIG_NAME)
-        self.logger = logger.get_logger('insider.DomainConfig')
+        self.logger = logger.get_logger('DomainConfig')
 
     def load(self):
         if not self.exists():
@@ -71,7 +71,7 @@ class RedirectConfig:
             config_dir = get_app_data_root('platform')
         self.parser = ConfigParser()
         self.filename = join(config_dir, REDIRECT_CONFIG_NAME)
-        self.logger = logger.get_logger('insider.RedirectConfig')
+        self.logger = logger.get_logger('RedirectConfig')
 
     def update(self, domain, api_url):
         self.parser.read(self.filename)
