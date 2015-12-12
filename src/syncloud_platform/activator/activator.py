@@ -1,4 +1,9 @@
+import filecmp
+import os
 import uuid
+
+from subprocess import check_output
+
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.auth.ldapauth import LdapAuth
@@ -16,6 +21,7 @@ class Activator:
         self.auth = LdapAuth()
         self.sam = SamStub()
         self.redirect_service = RedirectService()
+        self.platform_config = PlatformConfig()
 
     def activate(self,
                  redirect_email, redirect_password, user_domain,
@@ -30,6 +36,15 @@ class Activator:
 
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
             redirect_email, user_domain, device_user, api_url, domain))
+
+        if filecmp.cmp(self.platform_config.get_ssl_certificate_file(), self.platform_config.get_default_ssl_certificate_file()):
+            check_output('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} -out {1} -subj {2} 2>&1'.format(
+                self.platform_config.get_ssl_key_file(),
+                self.platform_config.get_ssl_certificate_file(),
+                "/C=US/ST=Syncloud/L=Syncloud/O=Syncloud/OU=Syncloud/CN={0}.{1}".format(user_domain, domain)
+            ), shell=True)
+        else:
+            self.logger.info("root ca exists, skipping")
 
         self.sam.update()
         # self.sam.upgrade_all()

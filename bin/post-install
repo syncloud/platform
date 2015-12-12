@@ -1,6 +1,8 @@
 import os
 from subprocess import check_output
 from os.path import isdir
+
+import shutil
 from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.auth.ldapauth import LdapAuth
@@ -10,7 +12,7 @@ from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.hardware import Hardware
 from syncloud_platform.tools.locale import fix_locale
 
-log = logger.get_logger('platform.post.install')
+log = logger.get_logger('platform_post_install')
 
 
 fix_locale()
@@ -37,11 +39,8 @@ app.create_data_dir(data_dir, 'log', 'platform')
 app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
 if not os.path.isfile(platform_config.get_ssl_certificate_file()):
-    check_output('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} -out {1} -subj {2} 2>&1'.format(
-        platform_config.get_ssl_key_file(),
-        platform_config.get_ssl_certificate_file(),
-        '/C=US/ST=Syncloud/L=Syncloud/O=Syncloud/OU=Syncloud/CN=localhost'
-    ), shell=True)
+    shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
+    shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
 
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')
