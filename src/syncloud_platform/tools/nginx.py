@@ -39,3 +39,7 @@ class Nginx:
 
     def __app_file(self, app):
         return join(self.config.nginx_webapps(), app)
+
+    def reload(self):
+        reload_service('platform-nginx')
+

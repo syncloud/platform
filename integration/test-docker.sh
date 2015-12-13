@@ -15,7 +15,6 @@ fi
 ./docker.sh $6
 
 apt-get install -y sshpass
-SSH="sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost"
 SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
 
 ${SCP} ${DIR}/../platform-${4}-${5}.tar.gz root@localhost:/

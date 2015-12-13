@@ -56,6 +56,8 @@ class LdapAuth:
 
         self.__init_db(filename, ldap_root)
 
+        check_output('echo "root:{0}" | chpasswd'.format(password), shell=True)
+
     def __init_db(self, filename, ldap_root):
         success = False
         for i in range(0, 3):
