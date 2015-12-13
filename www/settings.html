@@ -45,6 +45,23 @@ main_menu_item: menu_apps
     </div>
 
     <div class="row settings-row">
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
+            Certificate
+        </div>
+    </div>
+
+    <div class="row settings-row">
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            Regenerate
+        </div>
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="certificate_generate_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Generating ...
+            </button>
+        </div>
+    </div>
+
+    <div class="row settings-row">
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             Insecure (HTTP)
         </div>
@@ -198,6 +215,17 @@ $(document).ready(function () {
         $.get('/server/rest/send_log')
                 .done(function () {
                     btn.text('Send');
+                    btn.prop('disabled', false);
+                }).fail(onError);
+    });
+
+    $("#certificate_generate_btn").on('click', function () {
+        var btn = $(this);
+        btn.prop('disabled', true);
+        btn.text('Generating ...');
+        $.get('/server/rest/certificate_generate')
+                .done(function () {
+                    btn.text('Regenerate');
                     btn.prop('disabled', false);
                 }).fail(onError);
     });

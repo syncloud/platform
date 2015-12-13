@@ -1,8 +1,4 @@
-import filecmp
-import os
 import uuid
-
-from subprocess import check_output
 
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.redirect_service import RedirectService
@@ -10,6 +6,7 @@ from syncloud_platform.auth.ldapauth import LdapAuth
 from syncloud_platform.insider import facade
 from syncloud_app import logger
 from syncloud_platform.sam.stub import SamStub
+from syncloud_platform.tools.tls import Tls
 
 
 class Activator:
@@ -37,17 +34,7 @@ class Activator:
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
             redirect_email, user_domain, device_user, api_url, domain))
 
-        if filecmp.cmp(self.platform_config.get_ssl_certificate_file(), self.platform_config.get_default_ssl_certificate_file()):
-            check_output('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {0} -out {1} -subj {2} 2>&1'.format(
-                self.platform_config.get_ssl_key_file(),
-                self.platform_config.get_ssl_certificate_file(),
-                "/C=US/ST=Syncloud/L=Syncloud/O=Syncloud/OU=Syncloud/CN={0}.{1}".format(user_domain, domain)
-            ), shell=True)
-        else:
-            self.logger.info("root ca exists, skipping")
-
         self.sam.update()
-        # self.sam.upgrade_all()
 
         self.redirect_service.set_info(domain, api_url)
         user = self.redirect_service.get_user(redirect_email, redirect_password)
@@ -63,6 +50,12 @@ class Activator:
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)
         PlatformConfig().set_web_secret_key(unicode(uuid.uuid4().hex))
+
+        tls = Tls()
+        if tls.is_default_certificate_installed():
+            tls.generate_certificate()
+        else:
+            self.logger.info("root ca exists, skipping")
 
         PlatformUserConfig().set_activated(True)
         self.logger.info("activation completed")

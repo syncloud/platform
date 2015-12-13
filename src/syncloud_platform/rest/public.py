@@ -11,6 +11,7 @@ from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.rest.model import app_from_sam_app, App
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.tools.tls import Tls
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
 if __name__ == '__main__':
@@ -222,6 +223,13 @@ def external_access_disable():
 @login_required
 def send_log():
     RedirectService().send_log()
+    return jsonify(success=True), 200
+
+
+@app.route(rest_prefix + "/certificate_generate", methods=["GET"])
+@login_required
+def certificate_generate():
+    Tls().generate_certificate()
     return jsonify(success=True), 200
 
 
