@@ -1,23 +1,28 @@
-from os.path import dirname
+import os
+from os.path import dirname, join
 import convertible
 import pytest
 import requests
 from subprocess import check_output
 import time
 
-from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import set_docker_ssh_port
+import shutil
 
+from integration.util.loop import loop_device_cleanup
+from integration.util.ssh import set_docker_ssh_port, run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
 
 SYNCLOUD_INFO = 'syncloud.info'
 
 DIR = dirname(__file__)
-DEVICE_USER = "user1"
-DEVICE_PASSWORD = "syncloud"
+DEVICE_USER = "user"
+DEVICE_PASSWORD = "password"
+DEFAULT_DEVICE_PASSWORD = "syncloud"
+
 
 def test_install(auth):
-    __local_install(auth)
+    email, password, domain, version, arch, release = auth
+    __local_install(DEFAULT_DEVICE_PASSWORD, version, arch, release)
 
 
 def test_non_activated_device_main_page_redirect_to_activation():
@@ -44,7 +49,7 @@ def test_activate_device(auth):
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
+                                   'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
                                    'api-url': 'http://api.syncloud.info:81', 'domain': SYNCLOUD_INFO})
     assert response.status_code == 200, response.text
 
@@ -199,7 +204,8 @@ def test_remove():
 
 
 def test_reinstall(auth):
-    __local_install(auth)
+    email, password, domain, version, arch, release = auth
+    __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
 def test_public_web_login_after_reinstall():
@@ -209,7 +215,7 @@ def test_public_web_login_after_reinstall():
 def test_public_web_platform_upgrade():
 
     response = session.get('http://localhost/server/rest/settings/system_upgrade')
-    assert response.status_code == 200
+    # assert response.status_code == 200
     sam_running = True
     while sam_running:
         try:
@@ -223,7 +229,8 @@ def test_public_web_platform_upgrade():
 
 
 def test_reinstall_local_after_upgrade(auth):
-    __local_install(auth)
+    email, password, domain, version, arch, release = auth
+    __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
 def test_nginx_performance():
@@ -234,6 +241,18 @@ def test_nginx_plus_flask_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/server/rest/id', shell=True))
 
 
+def test_copy_logs():
+    log_dir = join(DIR, 'log')
+    shutil.rmtree(log_dir, ignore_errors=True)
+    os.mkdir(log_dir)
+    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(log_dir), password=DEVICE_PASSWORD)
+
+    print('-------------------------------------------------------')
+    print('syncloud docker image is running')
+    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
+    print('-------------------------------------------------------')
+
+
 def __public_web_login(reset_session=False):
     global session
     if reset_session:
@@ -242,10 +261,10 @@ def __public_web_login(reset_session=False):
     assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
 
 
-def __local_install(auth):
-    email, password, domain, version, arch, release = auth
-    run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=DEVICE_PASSWORD)
-    run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=DEVICE_PASSWORD)
+def __local_install(password, version, arch, release):
+    run_scp('{0}/../platform-{1}-{2}.tar.gz root@localhost:/'.format(DIR, version, arch), password=password)
+    run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=password)
+    run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=password)
     set_docker_ssh_port()
     time.sleep(3)
 

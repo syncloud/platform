@@ -51,11 +51,7 @@ class Activator:
         self.auth.reset(device_user, device_password)
         PlatformConfig().set_web_secret_key(unicode(uuid.uuid4().hex))
 
-        tls = Tls()
-        if tls.is_default_certificate_installed():
-            tls.generate_certificate()
-        else:
-            self.logger.info("root ca exists, skipping")
+        Tls().generate_certificate()
 
         PlatformUserConfig().set_activated(True)
         self.logger.info("activation completed")

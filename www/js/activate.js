@@ -33,6 +33,9 @@ function show_error(error) {
             $(hint_id).text(message_text);
         }
     } else {
+        if (!('message' in error && error.message)) {
+            error['message'] = 'Server Error'
+        }
         $('#errors_placeholder').append(_.template($("#error_template").html())(error));
     }
 }

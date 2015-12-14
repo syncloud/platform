@@ -226,13 +226,6 @@ def send_log():
     return jsonify(success=True), 200
 
 
-@app.route(rest_prefix + "/certificate_generate", methods=["GET"])
-@login_required
-def certificate_generate():
-    Tls().generate_certificate()
-    return jsonify(success=True), 200
-
-
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():

@@ -15,10 +15,5 @@ fi
 ./docker.sh $6
 
 apt-get install -y sshpass
-SCP="sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222"
-
-${SCP} ${DIR}/../platform-${4}-${5}.tar.gz root@localhost:/
 pip2 install -r ${DIR}/../src/dev_requirements.txt
-py.test -s verify.py --email=$1 --password=$2 --domain=$3 --app-version=$4 --arch=$5 --release=$7
-
-${SCP} root@localhost:/opt/data/platform/log/\* .
+py.test -x -s verify.py --email=$1 --password=$2 --domain=$3 --app-version=$4 --arch=$5 --release=$7
