@@ -98,6 +98,9 @@ class PlatformConfig:
     def get_default_ssl_key_file(self):
         return self.__get('default_ssl_key_file')
 
+    def get_openssl_config(self):
+        return self.__get('openssl_config')
+
     def get_platform_log(self):
         return self.__get('platform_log')
 
