@@ -38,6 +38,7 @@ function cleanup {
 
     losetup -a
 #    mount
+    losetup -d /dev/loop0
     mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
 #    mount | grep docker | awk '{print "umounting "$1; system("umount "$3)}'
     mount | grep rootfs
