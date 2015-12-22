@@ -17,6 +17,13 @@ log = logger.get_logger('platform_post_install')
 
 fix_locale()
 
+log.info(chown('platform', '/opt/app/platform'))
+
+data_dir = app.get_app_data_root('platform', 'platform')
+app.create_data_dir(data_dir, 'webapps', 'platform')
+app.create_data_dir(data_dir, 'log', 'platform')
+app.create_data_dir(data_dir, 'openldap-data', 'platform')
+
 platform_config = PlatformConfig()
 hardware = Hardware()
 
@@ -30,13 +37,6 @@ if not hardware.external_disk_is_mounted():
     hardware.relink_disk(
         platform_config.get_disk_link(),
         platform_config.get_internal_disk_dir())
-
-log.info(chown('platform', '/opt/app/platform'))
-
-data_dir = app.get_app_data_root('platform', 'platform')
-app.create_data_dir(data_dir, 'webapps', 'platform')
-app.create_data_dir(data_dir, 'log', 'platform')
-app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
 if not os.path.isfile(platform_config.get_ssl_certificate_file()):
     shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())

@@ -21,7 +21,7 @@ DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOG_DIR = join(DIR, 'log')
 
 
-def test_remove_logs(auth):
+def test_remove_logs():
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
