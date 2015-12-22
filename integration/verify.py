@@ -18,6 +18,11 @@ DIR = dirname(__file__)
 DEVICE_USER = "user"
 DEVICE_PASSWORD = "password"
 DEFAULT_DEVICE_PASSWORD = "syncloud"
+LOG_DIR = join(DIR, 'log')
+
+
+def test_remove_logs(auth):
+    shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
 def test_install(auth):
@@ -242,10 +247,8 @@ def test_nginx_plus_flask_performance():
 
 
 def test_copy_logs():
-    log_dir = join(DIR, 'log')
-    shutil.rmtree(log_dir, ignore_errors=True)
-    os.mkdir(log_dir)
-    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(log_dir), password=DEVICE_PASSWORD)
+    os.mkdir(LOG_DIR)
+    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=DEVICE_PASSWORD)
 
     print('-------------------------------------------------------')
     print('syncloud docker image is running')
@@ -265,7 +268,7 @@ def __local_install(password, version, arch, release):
     run_scp('{0}/../platform-{1}-{2}.tar.gz root@localhost:/'.format(DIR, version, arch), password=password)
     run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=password)
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=password)
-    set_docker_ssh_port()
+    set_docker_ssh_port(password)
     time.sleep(3)
 
 

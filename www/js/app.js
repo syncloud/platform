@@ -29,6 +29,7 @@ function refresh(app_id) {
                 data.actions = get_actions(data.info);
                 $("#app").html(_.template(template)(data));
                 register_events(app_id);
+                register_url(data.info.app.url, 'open');
             }).fail( onError );
 
 }
@@ -56,7 +57,6 @@ function register_events(app_id) {
     register_event(app_id, 'remove');
     register_event(app_id, 'upgrade');
     register_event(app_id, 'check');
-    register_url('/' + app_id.replace('syncloud-', ''), 'open');
 }
 
 function register_event(app_id, action) {

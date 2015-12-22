@@ -13,10 +13,7 @@ class Nginx:
 
         self.remove_app(app, reload=False)
 
-        with open(self.__app_file('{0}.location'.format(app)), 'w') as f:
-            f.write(self.proxy_definition(app, port, self.config.nginx_config_dir(), 'app.location'))
-
-        with open(self.__app_file('{0}.server'.format(app)), 'w') as f:
+        with open(self.__app_file(app), 'w') as f:
             f.write(self.proxy_definition(app, port, self.config.nginx_config_dir(), 'app.server'))
 
         reload_service('platform-nginx')
@@ -30,15 +27,11 @@ class Nginx:
         if os.path.isfile(webapp):
             os.remove(webapp)
 
-        webapp = self.__app_file(app)
-        if os.path.isfile(webapp):
-            os.remove(webapp)
-
         if reload:
             reload_service('platform-nginx')
 
     def __app_file(self, app):
-        return join(self.config.nginx_webapps(), app)
+        return join(self.config.nginx_webapps(), '{0}.server'.format(app))
 
     def reload(self):
         reload_service('platform-nginx')

@@ -9,4 +9,4 @@ def app_from_sam_app(sam_app):
     return App(
         sam_app.app.id,
         sam_app.app.name,
-        '/' + sam_app.app.id)
+        sam_app.app.url)

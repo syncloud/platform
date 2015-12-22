@@ -5,6 +5,8 @@ import jsonpickle
 import psutil
 
 import convertible
+
+from syncloud_platform.api import info
 from syncloud_platform.config.config import PlatformConfig
 
 SAM_BIN = '/opt/app/sam/bin/sam'
@@ -13,7 +15,7 @@ SAM_BIN = '/opt/app/sam/bin/sam'
 class SamStub:
 
     def __init__(self):
-        self.logger = logger.get_logger('ServerFacade')
+        self.logger = logger.get_logger('SamStub')
 
     def update(self, release=None):
         args = [SAM_BIN, 'update']
@@ -32,7 +34,11 @@ class SamStub:
 
     def list(self):
         result = self.__run([SAM_BIN, 'list'])
-        return convertible.to_object(result, convertible.List(item_type=AppVersions))
+        return [self._add_url(app_versions) for app_versions in convertible.to_object(result, convertible.List(item_type=AppVersions))]
+
+    def _add_url(self, app_versions):
+        app_versions.app.url = info.url(app_versions.app.id)
+        return app_versions
 
     def user_apps(self):
         return [a for a in self.list() if not a.app.required]

@@ -8,17 +8,6 @@ from syncloud_platform.tools.nginx import Nginx
 dir = dirname(__file__)
 
 
-def test_proxy_location():
-    assert Nginx().proxy_definition('test', 80, join(dir, '..', '..', '..', 'config', 'nginx'), 'app.location') == """
-location /test {
-    proxy_set_header X-Forwarded-Proto $scheme ;
-    proxy_set_header X-Forwarded-Host $http_host ;
-    proxy_pass      http://localhost:80/test ;
-    proxy_redirect  http://localhost:80/test $scheme://$http_host/test ;
-}
-""".strip()
-
-
 def test_proxy_server():
     assert Nginx().proxy_definition('test', 80, join(dir, '..', '..', '..', 'config', 'nginx'), 'app.server') == """
 server {
