@@ -6,8 +6,11 @@ from syncloud_platform.insider.util import protocol_to_port
 
 def domain():
     domain_config = DomainConfig()
-    redirect = RedirectConfig()
-    return '{0}.{1}'.format(domain_config.load().user_domain, redirect.get_domain())
+    if domain_config.exists():
+        redirect = RedirectConfig()
+        return '{0}.{1}'.format(domain_config.load().user_domain, redirect.get_domain())
+    else:
+        return None
 
 
 def url(app=None):
@@ -16,7 +19,11 @@ def url(app=None):
     if external_access_protocol:
         port = PortConfig().get(protocol_to_port(external_access_protocol)).external_port
 
-    return __url(external_access_protocol, port, domain(), app)
+    domain_name = domain()
+    if domain_name:
+        return __url(external_access_protocol, port, domain_name, app)
+    else:
+        ''
 
 
 def __url(protocol, external_port, domain, app=None):

@@ -3,7 +3,7 @@ from integration.util.ssh import run_ssh
 
 def loop_device_cleanup(password):
     print('cleanup')
-    for mount in run_ssh('mount', debug=False, password=password).splitlines():
+    for mount in run_ssh('mount', password=password).splitlines():
         if 'loop' in mount:
             print(mount)
 

@@ -169,13 +169,13 @@ def __test_fs(loop_device, fs):
     run_ssh('mkdir /tmp/test', password=DEVICE_PASSWORD)
 
     run_ssh('mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD)
-    for mount in run_ssh('mount', debug=False, password=DEVICE_PASSWORD).splitlines():
+    for mount in run_ssh('mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
     run_ssh('umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
     run_ssh('udisksctl mount -b {0}'.format(loop_device))
-    for mount in run_ssh('mount', debug=False, password=DEVICE_PASSWORD).splitlines():
+    for mount in run_ssh('mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
     run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
