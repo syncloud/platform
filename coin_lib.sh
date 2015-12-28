@@ -28,8 +28,7 @@ coin py https://pypi.python.org/packages/2.7/b/beautifulsoup4/beautifulsoup4-4.4
 coin py https://pypi.python.org/packages/source/I/IPy/IPy-0.83.tar.gz
 coin py https://pypi.python.org/packages/source/m/massedit/massedit-0.67.1.zip
 coin py https://pypi.python.org/packages/source/j/jsonpickle/jsonpickle-0.9.2.tar.gz
-coin py https://pypi.python.org/packages/source/c/convertible/convertible-0.13.tar.gz
-coin py https://pypi.python.org/packages/source/s/syncloud-app/syncloud-app-0.38.tar.gz
+coin py https://pypi.python.org/packages/source/s/syncloud-lib/syncloud-lib-2.tar.gz
 
 coin py https://pypi.python.org/packages/source/p/python-crontab/python-crontab-1.9.3.tar.gz
 coin py https://pypi.python.org/packages/any/p/python-dateutil/python_dateutil-2.4.2-py2.py3-none-any.whl
