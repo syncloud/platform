@@ -10,8 +10,7 @@ requirements = [
     'massedit==0.66',
     'Flask==0.10.1',
     'flask-login==0.2.10',
-    'convertible==0.13',
-    'syncloud-app==0.38'
+    'syncloud-lib==2'
 ]
 
 
