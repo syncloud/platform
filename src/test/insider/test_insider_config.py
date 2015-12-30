@@ -1,4 +1,3 @@
-from os.path import dirname
 
 from syncloud_platform.insider.config import RedirectConfig, REDIRECT_CONFIG_NAME
 from test.insider.helpers import temp_file

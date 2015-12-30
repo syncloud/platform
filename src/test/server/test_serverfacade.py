@@ -1,5 +1,3 @@
-import syncloud_platform.importlib
-
 import logging
 
 from mock import MagicMock

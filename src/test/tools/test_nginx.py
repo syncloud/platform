@@ -1,7 +1,5 @@
 from os.path import dirname, join
 
-import syncloud_platform.importlib
-
 from syncloud_platform.tools.nginx import Nginx
 
 
