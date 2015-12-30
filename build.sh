@@ -46,7 +46,7 @@ cp -r ${DIR}/lib ${BUILD_DIR}
 
 path_file=${BUILD_DIR}/python/lib/python2.7/site-packages/path.pth
 ls ${BUILD_DIR}/lib/  > ${path_file}
-sed -i 's#^#../../../../#g' ${path_file}
+sed -i 's#^#../../../../lib/#g' ${path_file}
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
