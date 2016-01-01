@@ -57,12 +57,12 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     port_config = PortConfig(data_root)
     domain_config = DomainConfig(data_root)
 
-    drill_factory = DrillFactory(user_platform_config, domain_config, port_config, redirect_config)
+    drill_provider = DrillProvider(user_platform_config, domain_config, port_config, redirect_config)
 
     dns_service = dns.Dns(
         domain_config,
         ServiceConfig(data_root),
-        drill_factory,
+        drill_provider,
         network.local_ip(),
         redirect_config)
 
@@ -76,7 +76,7 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         platform_config)
 
 
-class DrillFactory:
+class DrillProvider:
 
     def __init__(self, user_platform_config, domain_config, port_config, redirect_config):
         self.user_platform_config = user_platform_config

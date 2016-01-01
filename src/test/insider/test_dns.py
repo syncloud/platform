@@ -26,6 +26,14 @@ def assertSingleRequest(expected_request):
     assert expected_request == the_call.request.body
 
 
+class FakePortDrillProvider:
+
+    def __init__(self, port_drill):
+        self.port_drill = port_drill
+
+    def get_drill(self):
+        return self.port_drill
+
 @responses.activate
 def test_sync_success():
     service_config = get_service_config([
@@ -46,7 +54,7 @@ def test_sync_success():
     redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
     platform_config = get_platform_config()
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config, platform_config=platform_config, fix_permissions=False)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config, platform_config=platform_config, fix_permissions=False)
     dns.sync()
 
     expected_request = '''
@@ -83,7 +91,7 @@ def test_sync_server_side_client_ip():
 
     redirect_config = get_redirect_config()
     platform_config = get_platform_config()
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config, platform_config=platform_config, fix_permissions=False)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config, platform_config=platform_config, fix_permissions=False)
     dns.sync()
 
     expected_request = '''
@@ -115,7 +123,7 @@ def test_sync_server_error():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync()
@@ -138,7 +146,7 @@ def test_link_success():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1',
+    dns = Dns(domain_config, service_config=None, drill_provider=None, local_ip='127.0.0.1',
               redirect_config=redirect_config)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
@@ -177,7 +185,7 @@ def test_link_server_error():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config=None, port_drill=None, local_ip='127.0.0.1',
+    dns = Dns(domain_config, service_config=None, drill_provider=None, local_ip='127.0.0.1',
               redirect_config=redirect_config)
 
     with pytest.raises(PassthroughJsonError) as context:
@@ -198,7 +206,7 @@ def test_add_service():
 
     redirect_config = get_redirect_config()
 
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80)
 
     services = service_config.load()
@@ -224,7 +232,7 @@ def test_get_service():
 
     redirect_config = get_redirect_config()
 
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80)
 
     service = dns.get_service("ownCloud")
@@ -242,7 +250,7 @@ def test_get_not_existing_service():
 
     domain_config = get_domain_config(None)
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config)
 
     service = dns.get_service("ownCloud")
 
@@ -259,7 +267,7 @@ def test_endpoints():
 
     domain_config = get_domain_config(Domain('boris', 'some_update_token'))
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config, FakePortDrillProvider(port_drill), '127.0.0.1', redirect_config=redirect_config)
 
     endpoints = dns.endpoints()
     assert len(endpoints) == 2
