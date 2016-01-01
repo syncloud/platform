@@ -34,19 +34,17 @@ class Insider:
         self.platform_cron.create()
         return result
 
-    def add_main_device_service(self, mode='http'):
-        drill = get_drill(True, self.dns.domain_config, self.port_config, self.dns.redirect_config)
-        self.dns.remove_service("server", drill)
-        self.dns.add_service("server", mode, "server", protocol_to_port(mode), drill)
+    def add_main_device_service(self, protocol='http'):
+        self.dns.remove_service("server")
+        self.dns.add_service("server", protocol, "server", protocol_to_port(protocol))
         self.sync_all()
-        self.user_platform_config.set_external_access(mode)
+        self.user_platform_config.set_protocol(protocol)
         trigger_app_event_domain(self.platform_config.apps_root())
 
     def remove_main_device_service(self):
-        drill = get_drill(True, self.dns.domain_config, self.port_config, self.dns.redirect_config)
-        self.dns.remove_service("server", drill)
+        self.dns.remove_service("server")
         self.sync_all()
-        self.user_platform_config.disable_external_access()
+        self.user_platform_config.set_external_access(False)
         trigger_app_event_domain(self.platform_config.apps_root())
 
 
@@ -59,12 +57,12 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     port_config = PortConfig(data_root)
     domain_config = DomainConfig(data_root)
 
-    drill = get_drill(user_platform_config.get_external_access(), domain_config, port_config, redirect_config)
+    drill_factory = DrillFactory(user_platform_config, domain_config, port_config, redirect_config)
 
     dns_service = dns.Dns(
         domain_config,
         ServiceConfig(data_root),
-        drill,
+        drill_factory,
         network.local_ip(),
         redirect_config)
 
@@ -78,12 +76,19 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         platform_config)
 
 
-def get_drill(external_access, domain_config, port_config, redirect_config):
+class DrillFactory:
 
-    drill = port_drill.NonePortDrill()
-    if external_access:
-        mapper = port_drill.provide_mapper()
-        if mapper:
-            prober = PortProber(domain_config, redirect_config.get_api_url())
-            drill = port_drill.PortDrill(port_config, mapper, prober)
-    return drill
+    def __init__(self, user_platform_config, domain_config, port_config, redirect_config):
+        self.user_platform_config = user_platform_config
+        self.domain_config = domain_config
+        self.port_config = port_config
+        self.redirect_config = redirect_config
+
+    def get_drill(self):
+        drill = port_drill.NonePortDrill()
+        if self.user_platform_config.get_external_access():
+            mapper = port_drill.provide_mapper()
+            if mapper:
+                prober = PortProber(self.domain_config, self.redirect_config.get_api_url())
+                drill = port_drill.PortDrill(self.port_config, mapper, prober)
+        return drill

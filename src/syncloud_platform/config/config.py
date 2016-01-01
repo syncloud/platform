@@ -142,25 +142,28 @@ class PlatformUserConfig:
 
     def get_external_access(self):
         self.parser.read(self.filename)
-        mode = None
+        external_access = False
         if self.parser.has_option('platform', 'external_access'):
-            mode = self.parser.get('platform', 'external_access')
+            external_access = self.parser.getboolean('platform', 'external_access')
+        self.logger.info('external_access = {0}'.format(external_access))
+        return external_access
 
-        self.logger.info('external_access = {0}'.format(mode))
-
-        return mode
-
-    def set_external_access(self, mode):
-        self.logger.info('saving config, set_external_access = {0}'.format(mode))
+    def set_external_access(self, external_access):
+        self.logger.info('saving config, set_external_access = {0}'.format(external_access))
         self.parser.read(self.filename)
-        self.parser.set('platform', 'external_access', mode)
+        self.parser.set('platform', 'external_access', external_access)
         self.__save()
 
-    def disable_external_access(self):
+    def get_protocol(self):
         self.parser.read(self.filename)
-        if self.parser.has_option('platform', 'external_access'):
-            self.parser.remove_option('platform', 'external_access')
-            self.__save()
+        if not self.parser.has_option('platform', 'protocol'):
+            return 'http'
+        return self.parser.get('platform', 'protocol')
+
+    def set_protocol(self, protocol):
+        self.parser.read(self.filename)
+        self.parser.set('platform', 'protocol', protocol)
+        self.__save()
 
     def __save(self):
         with open(self.filename, 'wb') as f:

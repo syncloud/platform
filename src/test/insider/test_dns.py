@@ -45,7 +45,6 @@ def test_sync_success():
 
     redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
-    user_platform_config.disable_external_access()
     platform_config = get_platform_config()
     dns = Dns(domain_config, service_config, port_drill, '127.0.0.1', redirect_config=redirect_config, platform_config=platform_config, fix_permissions=False)
     dns.sync()

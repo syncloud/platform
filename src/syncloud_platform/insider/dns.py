@@ -27,13 +27,13 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, domain_config, service_config, port_drill, local_ip, redirect_config, platform_config=None, fix_permissions=True):
+    def __init__(self, domain_config, service_config, drill_factory, local_ip, redirect_config, platform_config=None, fix_permissions=True):
         self.fix_permissions = fix_permissions
         self.redirect_config = redirect_config
         self.local_ip = local_ip
         self.domain_config = domain_config
         self.service_config = service_config
-        self.port_drill = port_drill
+        self.drill_factory = drill_factory
         self.logger = logger.get_logger('dns')
         if platform_config:
             self.config = platform_config
@@ -60,11 +60,11 @@ class Dns:
     def drop(self):
         self.domain_config.remove()
         self.service_config.remove_all()
-        self.port_drill.remove_all()
+        port_drill = self.drill_factory.get_drill()
+        port_drill.remove_all()
 
-    def add_service(self, name, protocol, service_type, port, port_drill=None):
-        if not port_drill:
-            port_drill = self.port_drill
+    def add_service(self, name, protocol, service_type, port):
+        port_drill = self.drill_factory.get_drill()
         port_drill.sync_new_port(port)
         new_service = Service(name, protocol, service_type, port)
         self.service_config.add_or_update(new_service)
@@ -75,9 +75,8 @@ class Dns:
     def get_service_by_port(self, port):
         return self.service_config.get(port)
 
-    def remove_service(self, name, port_drill=None):
-        if not port_drill:
-            port_drill = self.port_drill
+    def remove_service(self, name):
+        port_drill = self.drill_factory.get_drill()
         service = self.get_service(name)
         if service:
             self.service_config.remove(name)
@@ -90,7 +89,8 @@ class Dns:
         return self.domain_config.load().user_domain
 
     def service_to_endpoint(self, service):
-        mapping = self.port_drill.get(service.port)
+        port_drill = self.drill_factory.get_drill()
+        mapping = port_drill.get(service.port)
         return Endpoint(service, self.full_name(), mapping.external_port)
 
     def service_info(self, name):
@@ -103,7 +103,8 @@ class Dns:
         return [self.service_to_endpoint(service) for service in self.service_config.load()]
 
     def sync(self):
-        self.port_drill.sync()
+        port_drill = self.drill_factory.get_drill()
+        port_drill.sync()
 
         services = self.service_config.load()
         if not self.domain_config.exists():
@@ -117,7 +118,7 @@ class Dns:
         services_data = []
         for service in services:
             self.logger.debug('service: {0} '.format(service.port))
-            mapping = self.port_drill.get(service.port)
+            mapping = port_drill.get(service.port)
             if mapping:
                 service.port = mapping.external_port
                 service_data = dict(
@@ -136,7 +137,7 @@ class Dns:
             'services': services_data,
             'map_local_address': False}
 
-        external_ip = self.port_drill.external_ip()
+        external_ip = port_drill.external_ip()
 
         if not external_ip:
             self.logger.warn("No external ip")
