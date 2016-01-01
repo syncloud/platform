@@ -1,7 +1,6 @@
 import os
 from subprocess import check_output
 from os.path import isdir
-
 import shutil
 from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
@@ -14,6 +13,11 @@ from syncloud_platform.tools.locale import fix_locale
 
 log = logger.get_logger('platform_post_install')
 
+# TODO: only for migration from pre-protocol version (< v240), remove after upgrading test users
+user_config_file = '/opt/data/platform/user_platform.cfg'
+if os.path.isfile(user_config_file):
+    check_output("sed -i 's/external_access.*=.*http.*/external_access = True/g' {0}".format(user_config_file), shell=True)
+    check_output("sed -i 's/external_access.*=.*None.*/external_access = False/g' {0}".format(user_config_file), shell=True)
 
 fix_locale()
 
@@ -49,4 +53,3 @@ add_service('platform', 'platform-uwsgi-internal')
 add_service('platform', 'platform-uwsgi-public')
 add_service('platform', 'platform-nginx')
 add_service('platform', 'platform-openldap', start=LdapAuth().installed())
-
