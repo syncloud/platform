@@ -14,14 +14,17 @@ def domain():
 
 
 def url(app=None):
-    external_access_protocol = PlatformUserConfig().get_external_access()
-    port = 80
-    if external_access_protocol:
-        port = PortConfig().get(protocol_to_port(external_access_protocol)).external_port
+    config = PlatformUserConfig()
+    protocol = config.get_protocol()
+    port = protocol_to_port(protocol)
+    if config.get_external_access():
+        mapping = PortConfig().get(port)
+        if mapping:
+            port = mapping.external_port
 
     domain_name = domain()
     if domain_name:
-        return __url(external_access_protocol, port, domain_name, app)
+        return __url(protocol, port, domain_name, app)
     else:
         ''
 
