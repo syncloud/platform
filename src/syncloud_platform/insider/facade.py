@@ -25,27 +25,29 @@ class Insider:
         self.logger = logger.get_logger('insider')
 
     def sync_all(self):
-        return self.dns.sync()
+        external_access = self.user_platform_config.get_external_access()
+        return self.dns.sync(external_access)
 
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
-        self.sync_all()
+        # self.sync_all()
         self.platform_cron.remove()
         self.platform_cron.create()
         return result
 
-    def add_main_device_service(self, protocol='http'):
-        self.dns.remove_service("server")
-        self.dns.add_service("server", protocol, "server", protocol_to_port(protocol))
-        self.sync_all()
+    def add_main_device_service(self, protocol, external_access):
+        self.dns.remove_service("server", external_access)
+        self.dns.add_service("server", protocol, "server", protocol_to_port(protocol), external_access)
+        self.dns.sync(external_access)
         self.user_platform_config.set_protocol(protocol)
+        self.user_platform_config.set_external_access(external_access)
         trigger_app_event_domain(self.platform_config.apps_root())
 
-    def remove_main_device_service(self):
-        self.dns.remove_service("server")
-        self.sync_all()
-        self.user_platform_config.set_external_access(False)
-        trigger_app_event_domain(self.platform_config.apps_root())
+    # def remove_main_device_service(self):
+    #     self.dns.remove_service("server")
+    #     self.sync_all()
+    #     self.user_platform_config.set_external_access(False)
+    #     trigger_app_event_domain(self.platform_config.apps_root())
 
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):
@@ -84,9 +86,9 @@ class DrillProvider:
         self.port_config = port_config
         self.redirect_config = redirect_config
 
-    def get_drill(self):
+    def get_drill(self, external_access):
         drill = port_drill.NonePortDrill()
-        if self.user_platform_config.get_external_access():
+        if external_access:
             mapper = port_drill.provide_mapper()
             if mapper:
                 prober = PortProber(self.domain_config, self.redirect_config.get_api_url())

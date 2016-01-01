@@ -43,7 +43,7 @@ class Activator:
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 
         try:
-            self.insider.add_main_device_service()
+            self.insider.add_main_device_service('http', False)
         except Exception, e:
             self.logger.warn('upnp is not available ' + e.message)
 

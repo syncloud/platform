@@ -92,32 +92,40 @@ def test_default_external_mode_on_activate(auth):
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = session.get('http://localhost/server/rest/settings/external_access')
-    assert '"mode": "http"' in response.text
+    assert '"external_access": false' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/external_access_disable')
+    response = session.get('http://localhost/server/rest/settings/protocol')
+    assert '"protocol": "http"' in response.text
+    assert response.status_code == 200
+
+    response = session.get('http://localhost/server/rest/settings/set_external_access',
+                           params={'external_access': 'False'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/external_access')
-    assert '"mode": null' in response.text
-    assert response.status_code == 200
+    # response = session.get('http://localhost/server/rest/settings/external_access')
+    # assert '"mode": null' in response.text
+    # assert response.status_code == 200
+
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
-    response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=http')
+    response = session.get('http://localhost/server/rest/settings/set_protocol',
+                           params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/external_access')
-    assert '"mode": "http"' in response.text
+    response = session.get('http://localhost/server/rest/settings/protocol')
+    assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/external_access_enable?mode=https')
+    response = session.get('http://localhost/server/rest/settings/set_protocol',
+                           params={'protocol': 'http'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/external_access')
-    assert '"mode": "https"' in response.text
+    response = session.get('http://localhost/server/rest/settings/protocol')
+    assert '"protocol": "http"' in response.text
     assert response.status_code == 200
 
 

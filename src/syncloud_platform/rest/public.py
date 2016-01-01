@@ -202,20 +202,26 @@ def available_apps():
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def external_access():
-    return jsonify(mode=PlatformUserConfig().get_external_access()), 200
+    return jsonify(external_access=PlatformUserConfig().get_external_access()), 200
 
 
-@app.route(rest_prefix + "/settings/external_access_enable", methods=["GET"])
+@app.route(rest_prefix + "/settings/set_external_access", methods=["GET"])
 @login_required
 def external_access_enable():
-    get_insider().add_main_device_service(request.args['mode'])
+    get_insider().add_main_device_service(PlatformUserConfig().get_protocol(), request.args['external_access'])
     return jsonify(success=True), 200
 
 
-@app.route(rest_prefix + "/settings/external_access_disable", methods=["GET"])
+@app.route(rest_prefix + "/settings/protocol", methods=["GET"])
 @login_required
-def external_access_disable():
-    get_insider().remove_main_device_service()
+def protocol():
+    return jsonify(protocol=PlatformUserConfig().get_protocol()), 200
+
+
+@app.route(rest_prefix + "/settings/set_protocol", methods=["GET"])
+@login_required
+def set_protocol():
+    get_insider().add_main_device_service(request.args['protocol'], PlatformUserConfig().get_external_access())
     return jsonify(success=True), 200
 
 
@@ -274,9 +280,9 @@ def handle_exception(error):
     return response, status_code
 
 
-def filter_websites(endpoints):
-    return [endpoint for endpoint in endpoints
-            if endpoint.service.protocol in ["http", "https"] and endpoint.service.name != "server"]
+# def filter_websites(endpoints):
+#     return [endpoint for endpoint in endpoints
+#             if endpoint.service.protocol in ["http", "https"] and endpoint.service.name != "server"]
 
 
 if __name__ == '__main__':
