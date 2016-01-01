@@ -11,7 +11,7 @@ def loop_device_cleanup(password):
         if 'loop0p1' in loop:
             run_ssh('losetup -d /dev/loop0', throw=False, password=password)
 
-    run_ssh('losetup')
+    run_ssh('losetup', password=password)
 
     for loop in run_ssh('dmsetup ls', password=password).splitlines():
         if 'loop0p1' in loop:
