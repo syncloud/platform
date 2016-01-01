@@ -241,9 +241,9 @@ def test_public_web_platform_upgrade():
         time.sleep(1)
 
 
-def test_reinstall_local_after_upgrade(auth):
-    email, password, domain, version, arch, release = auth
-    __local_install(DEVICE_PASSWORD, version, arch, release)
+# def test_reinstall_local_after_upgrade(auth):
+#     email, password, domain, version, arch, release = auth
+#     __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
 def test_nginx_performance():
