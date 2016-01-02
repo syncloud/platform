@@ -108,7 +108,7 @@ def test_default_external_mode_on_activate(auth):
     # assert '"mode": null' in response.text
     # assert response.status_code == 200
 
-    assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+    # assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
     response = session.get('http://localhost/server/rest/settings/set_protocol',
                            params={'protocol': 'https'})
