@@ -16,17 +16,20 @@ from syncloud_platform.tools import network
 
 class Insider:
 
-    def __init__(self, dns_service, platform_cron, user_platform_config, port_config, platform_config):
+    def __init__(self, dns_service, platform_cron, user_platform_config, port_config, platform_config, redirect_config, domain_config):
         self.platform_config = platform_config
         self.port_config = port_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
         self.platform_cron = platform_cron
+        self.redirect_config = redirect_config
+        self.domain_config = domain_config
         self.logger = logger.get_logger('insider')
 
     def sync_all(self):
         external_access = self.user_platform_config.get_external_access()
-        return self.dns.sync(external_access)
+        drill = self.get_drill(external_access)
+        return self.dns.sync(drill)
 
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
@@ -35,12 +38,22 @@ class Insider:
         return result
 
     def add_main_device_service(self, protocol, external_access):
-        self.dns.remove_service("server", external_access)
-        self.dns.add_service("server", protocol, "server", protocol_to_port(protocol), external_access)
-        self.dns.sync(external_access)
+        drill = self.get_drill(external_access)
+        self.dns.remove_service("server", drill)
+        self.dns.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
+        self.dns.sync(drill)
         self.user_platform_config.set_protocol(protocol)
         self.user_platform_config.set_external_access(external_access)
         trigger_app_event_domain(self.platform_config.apps_root())
+
+    def get_drill(self, external_access):
+        drill = port_drill.NonePortDrill()
+        if external_access:
+            mapper = port_drill.provide_mapper()
+            if mapper:
+                prober = PortProber(self.domain_config, self.redirect_config.get_api_url())
+                drill = port_drill.PortDrill(self.port_config, mapper, prober)
+        return drill
 
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):
@@ -52,12 +65,9 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
     port_config = PortConfig(data_root)
     domain_config = DomainConfig(data_root)
 
-    drill_provider = DrillProvider(user_platform_config, domain_config, port_config, redirect_config)
-
     dns_service = dns.Dns(
         domain_config,
         ServiceConfig(data_root),
-        drill_provider,
         network.local_ip(),
         redirect_config)
 
@@ -68,22 +78,6 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         cron.PlatformCron(platform_config),
         user_platform_config,
         port_config,
-        platform_config)
-
-
-class DrillProvider:
-
-    def __init__(self, user_platform_config, domain_config, port_config, redirect_config):
-        self.user_platform_config = user_platform_config
-        self.domain_config = domain_config
-        self.port_config = port_config
-        self.redirect_config = redirect_config
-
-    def get_drill(self, external_access):
-        drill = port_drill.NonePortDrill()
-        if external_access:
-            mapper = port_drill.provide_mapper()
-            if mapper:
-                prober = PortProber(self.domain_config, self.redirect_config.get_api_url())
-                drill = port_drill.PortDrill(self.port_config, mapper, prober)
-        return drill
+        platform_config,
+        redirect_config,
+        domain_config)

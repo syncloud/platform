@@ -27,13 +27,12 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, domain_config, service_config, drill_provider, local_ip, redirect_config, platform_config=None, fix_permissions=True):
+    def __init__(self, domain_config, service_config, local_ip, redirect_config, platform_config=None, fix_permissions=True):
         self.fix_permissions = fix_permissions
         self.redirect_config = redirect_config
         self.local_ip = local_ip
         self.domain_config = domain_config
         self.service_config = service_config
-        self.drill_provider = drill_provider
         self.logger = logger.get_logger('dns')
         if platform_config:
             self.config = platform_config
@@ -57,8 +56,7 @@ class Dns:
         self.domain_config.save(domain)
         return domain
 
-    def add_service(self, name, protocol, service_type, port, external_access):
-        port_drill = self.drill_provider.get_drill(external_access)
+    def add_service(self, name, protocol, service_type, port, port_drill):
         port_drill.sync_new_port(port)
         new_service = Service(name, protocol, service_type, port)
         self.service_config.add_or_update(new_service)
@@ -69,8 +67,7 @@ class Dns:
     def get_service_by_port(self, port):
         return self.service_config.get(port)
 
-    def remove_service(self, name, external_access):
-        port_drill = self.drill_provider.get_drill(external_access)
+    def remove_service(self, name, port_drill):
         service = self.get_service(name)
         if service:
             self.service_config.remove(name)
@@ -82,8 +79,7 @@ class Dns:
     def user_domain(self):
         return self.domain_config.load().user_domain
 
-    def sync(self, external_access):
-        port_drill = self.drill_provider.get_drill(external_access)
+    def sync(self, port_drill):
         port_drill.sync()
 
         services = self.service_config.load()
