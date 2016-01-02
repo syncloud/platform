@@ -146,8 +146,7 @@ def test_link_success():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config=None, drill_provider=None, local_ip='127.0.0.1',
-              redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config=None, local_ip='127.0.0.1', redirect_config=redirect_config)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -185,8 +184,7 @@ def test_link_server_error():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    dns = Dns(domain_config, service_config=None, drill_provider=None, local_ip='127.0.0.1',
-              redirect_config=redirect_config)
+    dns = Dns(domain_config, service_config=None, local_ip='127.0.0.1', redirect_config=redirect_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
@@ -252,7 +250,7 @@ def test_get_not_existing_service():
     redirect_config = get_redirect_config()
     dns = Dns(domain_config, service_config, '127.0.0.1', redirect_config=redirect_config)
 
-    service = dns.get_service("ownCloud", port_drill)
+    service = dns.get_service("ownCloud")
 
     assert service is None
 
