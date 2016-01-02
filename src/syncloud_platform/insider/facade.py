@@ -30,7 +30,6 @@ class Insider:
 
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
-        # self.sync_all()
         self.platform_cron.remove()
         self.platform_cron.create()
         return result
@@ -42,12 +41,6 @@ class Insider:
         self.user_platform_config.set_protocol(protocol)
         self.user_platform_config.set_external_access(external_access)
         trigger_app_event_domain(self.platform_config.apps_root())
-
-    # def remove_main_device_service(self):
-    #     self.dns.remove_service("server")
-    #     self.sync_all()
-    #     self.user_platform_config.set_external_access(False)
-    #     trigger_app_event_domain(self.platform_config.apps_root())
 
 
 def get_insider(config_path=PLATFORM_CONFIG_DIR):

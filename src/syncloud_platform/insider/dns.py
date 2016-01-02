@@ -57,12 +57,6 @@ class Dns:
         self.domain_config.save(domain)
         return domain
 
-    # def drop(self, external_access):
-    #     self.domain_config.remove()
-    #     self.service_config.remove_all()
-    #     port_drill = self.drill_factory.get_drill(external_access)
-    #     port_drill.remove_all()
-
     def add_service(self, name, protocol, service_type, port, external_access):
         port_drill = self.drill_provider.get_drill(external_access)
         port_drill.sync_new_port(port)
@@ -87,20 +81,6 @@ class Dns:
 
     def user_domain(self):
         return self.domain_config.load().user_domain
-
-    # def service_to_endpoint(self, service):
-    #     port_drill = self.drill_factory.get_drill()
-    #     mapping = port_drill.get(service.port)
-    #     return Endpoint(service, self.full_name(), mapping.external_port)
-
-    # def service_info(self, name):
-    #     service = self.get_service(name)
-    #     if not service:
-    #         raise Exception("service not found: {0}".format(name))
-    #     return self.service_to_endpoint(service)
-
-    # def endpoints(self):
-    #     return [self.service_to_endpoint(service) for service in self.service_config.load()]
 
     def sync(self, external_access):
         port_drill = self.drill_provider.get_drill(external_access)
