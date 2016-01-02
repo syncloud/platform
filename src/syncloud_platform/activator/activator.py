@@ -49,7 +49,7 @@ class Activator:
 
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)
-        PlatformConfig().set_web_secret_key(unicode(uuid.uuid4().hex))
+        self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         Tls().generate_certificate()
 
