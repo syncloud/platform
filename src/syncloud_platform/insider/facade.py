@@ -10,14 +10,12 @@ from syncloud_platform.insider.config import RedirectConfig, DomainConfig
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root
-from syncloud_platform.tools.events import trigger_app_event_domain
 from syncloud_platform.tools import network
 
 
 class Insider:
 
-    def __init__(self, dns_service, platform_cron, user_platform_config, port_config, platform_config, redirect_config, domain_config):
-        self.platform_config = platform_config
+    def __init__(self, dns_service, platform_cron, user_platform_config, port_config, redirect_config, domain_config):
         self.port_config = port_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
@@ -44,7 +42,6 @@ class Insider:
         self.dns.sync(drill)
         self.user_platform_config.set_protocol(protocol)
         self.user_platform_config.set_external_access(external_access)
-        trigger_app_event_domain(self.platform_config.apps_root())
 
     def get_drill(self, external_access):
         drill = port_drill.NonePortDrill()
@@ -78,6 +75,5 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         cron.PlatformCron(platform_config),
         user_platform_config,
         port_config,
-        platform_config,
         redirect_config,
         domain_config)

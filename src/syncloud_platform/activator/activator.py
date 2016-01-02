@@ -5,6 +5,7 @@ from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.auth.ldapauth import LdapAuth
 from syncloud_platform.insider import facade
 from syncloud_app import logger
+from syncloud_platform.tools.events import trigger_app_event_domain
 from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.tools.tls import Tls
 
@@ -44,6 +45,7 @@ class Activator:
 
         try:
             self.insider.add_main_device_service('http', False)
+            trigger_app_event_domain(self.platform_config.apps_root())
         except Exception, e:
             self.logger.warn('upnp is not available ' + e.message)
 
