@@ -18,10 +18,26 @@ DIR = dirname(__file__)
 DEVICE_USER = "user"
 DEVICE_PASSWORD = "password"
 DEFAULT_DEVICE_PASSWORD = "syncloud"
+LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
 
 
-def test_remove_logs():
+@pytest.fixture(scope="session")
+def module_setup(request):
+    request.addfinalizer(module_teardown)
+
+
+def module_teardown():
+    os.mkdir(LOG_DIR)
+    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=LOGS_SSH_PASSWORD)
+
+    print('-------------------------------------------------------')
+    print('syncloud docker image is running')
+    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
+    print('-------------------------------------------------------')
+
+
+def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
@@ -66,6 +82,8 @@ def test_reactivate(auth):
                                    'redirect-domain': domain, 'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
                                    'api-url': 'http://api.syncloud.info:81', 'domain': SYNCLOUD_INFO})
     assert response.status_code == 200
+    global LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = DEVICE_PASSWORD
 
 
 def test_public_web_unauthorized_browser_redirect():
@@ -252,16 +270,6 @@ def test_nginx_performance():
 
 def test_nginx_plus_flask_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/server/rest/id', shell=True))
-
-
-def test_copy_logs():
-    os.mkdir(LOG_DIR)
-    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=DEVICE_PASSWORD)
-
-    print('-------------------------------------------------------')
-    print('syncloud docker image is running')
-    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
-    print('-------------------------------------------------------')
 
 
 def __public_web_login(reset_session=False):

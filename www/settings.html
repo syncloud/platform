@@ -28,28 +28,29 @@ main_menu_item: menu_apps
     </div>
 
     <div class="row settings-row">
-        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
-            External access
-        </div>
-    </div>
-
-    <div class="row settings-row">
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
-            Secure (HTTPS)
+            Access protocol
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
-            <button type="button" id="external_access_secure_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+            <button type="button" id="protocol_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Loading ...
             </button>
         </div>
     </div>
 
+    <div class="row">
+
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12 col-lg-12">
+                <div id="protocol_error" style="color: red; font-size: 14px"></div>
+        </div>
+    </div>
+
     <div class="row settings-row">
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
-            Insecure (HTTP)
+            External access
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
-            <button type="button" id="external_access_insecure_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+            <button type="button" id="external_access_toggle_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Loading ...
             </button>
         </div>
@@ -160,23 +161,44 @@ main_menu_item: menu_apps
 
 $(document).ready(function () {
 
-    var externalAccessSecureToggleBtn = $("#external_access_secure_toggle_btn");
-    var externalAccessInsecureToggleBtn = $("#external_access_insecure_toggle_btn");
+    var externalAccessToggleBtn = $("#external_access_toggle_btn");
+    var protocolToggleBtn = $("#protocol_toggle_btn");
 
-    external_access_status(externalAccessSecureToggleBtn, externalAccessInsecureToggleBtn);
+    external_access_status(externalAccessToggleBtn);
+    protocol_status(protocolToggleBtn);
     disks_status();
     check_system_version();
 
-    externalAccessInsecureToggleBtn.on('click', function() {
-        external_access($(this), 'http', function() {
-            external_access_status(externalAccessSecureToggleBtn, externalAccessInsecureToggleBtn);
-        });
+    externalAccessToggleBtn.on('click', function() {
+        externalAccessToggleBtn.prop('disabled', true);
+        externalAccessToggleBtn.text('Checking ...');
+        new_external_access = ! externalAccessToggleBtn.data("external_access")
+        $.get('/server/rest/settings/set_external_access?external_access=' + new_external_access)
+            .done(function (data) {
+                if (data.success)
+                    $("#external_access_error").text('');
+                else
+                    $("#external_access_error").text(data.message);
+
+                external_access_status(externalAccessToggleBtn);
+
+            }).fail(onError);
     });
 
-    externalAccessSecureToggleBtn.on('click', function() {
-        external_access($(this), 'https', function() {
-            external_access_status(externalAccessSecureToggleBtn, externalAccessInsecureToggleBtn);
-        });
+    protocolToggleBtn.on('click', function() {
+        protocolToggleBtn.prop('disabled', true);
+        protocolToggleBtn.text('Checking ...');
+        var new_protocol = protocolToggleBtn.data("protocol") == 'http' ? 'https' : 'http'
+        $.get('/server/rest/settings/set_protocol?protocol=' + new_protocol)
+            .done(function (data) {
+                if (data.success)
+                    $("#protocol_error").text('');
+                else
+                    $("#protocol_error").text(data.message);
+
+                protocol_status(protocolToggleBtn);
+
+            }).fail(onError);
     });
 
     $('#disks').on('click', 'button.activate', function () {

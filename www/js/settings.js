@@ -1,14 +1,19 @@
-function external_access_status(secureBtn, insecureBtn) {
+function external_access_status(accessBtn) {
     $.get('/server/rest/settings/external_access')
             .done(function (data) {
+                accessBtn.text(data.external_access ? 'Enabled' : 'Disabled');
+                accessBtn.data("external_access", data.external_access);
+                accessBtn.prop('disabled', false);
+            }).fail(onError);
+}
 
-                secureBtn.text(data.mode == 'https' ? 'Enabled' : 'Disabled');
-                secureBtn.data("enabled", data.mode == 'https');
-                secureBtn.prop('disabled', false);
+function protocol_status(protocolBtn) {
+    $.get('/server/rest/settings/protocol')
+            .done(function (data) {
 
-                insecureBtn.text(data.mode == 'http' ? 'Enabled' : 'Disabled');
-                insecureBtn.data("enabled", data.mode == 'http');
-                insecureBtn.prop('disabled', false);
+                protocolBtn.text(data.protocol);
+                protocolBtn.data("protocol", data.protocol);
+                protocolBtn.prop('disabled', false);
 
             }).fail(onError);
 }
@@ -43,19 +48,5 @@ function check_system_version() {
 
                 $("#system_version").html(data.installed_version + updates);
 
-            }).fail(onError);
-}
-
-function external_access(btn, protocol, on_complete) {
-    btn.prop('disabled', true);
-    btn.text('Checking ...');
-    var mode = btn.data("enabled") ? "disable" : "enable?mode=" + protocol;
-    $.get('/server/rest/settings/external_access_' + mode)
-            .done(function (data) {
-                if (data.success)
-                    $("#external_access_error").text('');
-                else
-                    $("#external_access_error").text(data.message);
-                on_complete();
             }).fail(onError);
 }
