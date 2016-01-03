@@ -207,7 +207,7 @@ def __test_fs(loop_device, fs, public_web_session):
             print(mount)
     run_ssh('umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
-    run_ssh('udisksctl mount -b {0}'.format(loop_device))
+    run_ssh('udisksctl mount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
     for mount in run_ssh('mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
