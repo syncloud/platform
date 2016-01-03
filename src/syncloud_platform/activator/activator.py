@@ -8,6 +8,7 @@ from syncloud_app import logger
 from syncloud_platform.tools.events import trigger_app_event_domain
 from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.tools.tls import Tls
+from syncloud_platform.insider.cron import PlatformCron
 
 
 class Activator:
@@ -20,6 +21,8 @@ class Activator:
         self.sam = SamStub()
         self.redirect_service = RedirectService()
         self.platform_config = PlatformConfig()
+        self.platform_cron = PlatformCron(self.platform_config)
+
 
     def activate(self,
                  redirect_email, redirect_password, user_domain,
@@ -42,6 +45,9 @@ class Activator:
         self.redirect_service.redirect_config.set_user_update_token(user.update_token)
 
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
+
+        self.platform_cron.remove()
+        self.platform_cron.create()
 
         try:
             self.insider.add_main_device_service('http', False)

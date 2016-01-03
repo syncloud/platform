@@ -1,11 +1,10 @@
 from syncloud_app import logger
 
-import cron
 import dns
 import port_drill
 from port_config import PortConfig
 from service_config import ServiceConfig
-from syncloud_platform.config.config import PlatformConfig, PLATFORM_CONFIG_DIR, PlatformUserConfig, PLATFORM_APP_NAME
+from syncloud_platform.config.config import PlatformUserConfig, PLATFORM_APP_NAME
 from syncloud_platform.insider.config import RedirectConfig, DomainConfig
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
@@ -15,11 +14,10 @@ from syncloud_platform.tools import network
 
 class Insider:
 
-    def __init__(self, dns_service, platform_cron, user_platform_config, port_config, redirect_config, domain_config):
+    def __init__(self, dns_service, user_platform_config, port_config, redirect_config, domain_config):
         self.port_config = port_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
-        self.platform_cron = platform_cron
         self.redirect_config = redirect_config
         self.domain_config = domain_config
         self.logger = logger.get_logger('insider')
@@ -31,8 +29,6 @@ class Insider:
 
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
-        self.platform_cron.remove()
-        self.platform_cron.create()
         return result
 
     def add_main_device_service(self, protocol, external_access):
@@ -53,7 +49,7 @@ class Insider:
         return drill
 
 
-def get_insider(config_path=PLATFORM_CONFIG_DIR):
+def get_insider():
 
     data_root = get_app_data_root(PLATFORM_APP_NAME)
 
@@ -68,11 +64,8 @@ def get_insider(config_path=PLATFORM_CONFIG_DIR):
         network.local_ip(),
         redirect_config)
 
-    platform_config = PlatformConfig(config_path)
-
     return Insider(
         dns_service,
-        cron.PlatformCron(platform_config),
         user_platform_config,
         port_config,
         redirect_config,
