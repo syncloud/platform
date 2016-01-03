@@ -8,6 +8,8 @@ import time
 
 import shutil
 
+from requests.adapters import HTTPAdapter
+
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import set_docker_ssh_port, run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
@@ -35,6 +37,15 @@ def module_teardown():
     print('syncloud docker image is running')
     print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
     print('-------------------------------------------------------')
+
+
+@pytest.fixture(scope="function")
+def public_web_session():
+    session = requests.session()
+    session.mount('http://localhost', HTTPAdapter(max_retries=3))
+    session.post('http://localhost/server/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+    assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
+    return session
 
 
 def test_start(module_setup):
@@ -96,28 +107,24 @@ def test_public_web_unauthorized_ajax_not_redirect():
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
-session = requests.session()
+# session = requests.session()
 
 
-def test_public_web_login():
-    __public_web_login()
-
-
-def test_default_external_mode_on_activate(auth):
+def test_default_external_mode_on_activate(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
 
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
-    response = session.get('http://localhost/server/rest/settings/external_access')
+    response = public_web_session.get('http://localhost/server/rest/settings/external_access')
     assert '"external_access": false' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
     assert '"protocol": "http"' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/set_external_access',
+    response = public_web_session.get('http://localhost/server/rest/settings/set_external_access',
                            params={'external_access': 'False'})
     assert '"success": true' in response.text
     assert response.status_code == 200
@@ -128,36 +135,36 @@ def test_default_external_mode_on_activate(auth):
 
     # assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
-    response = session.get('http://localhost/server/rest/settings/set_protocol',
-                           params={'protocol': 'https'})
+    response = public_web_session.get('http://localhost/server/rest/settings/set_protocol',
+                                      params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
     assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/set_protocol',
+    response = public_web_session.get('http://localhost/server/rest/settings/set_protocol',
                            params={'protocol': 'http'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
     assert '"protocol": "http"' in response.text
     assert response.status_code == 200
 
 
-def test_public_web_files():
+def test_public_web_files(public_web_session):
 
-    response = session.get('http://localhost/server/rest/files')
+    response = public_web_session.get('http://localhost/server/rest/files')
     assert response.status_code == 200
     response = requests.get('http://localhost/server/rest/files', allow_redirects=False)
     assert response.status_code == 301
 
 
-def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades():
+def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session):
 
-    response = session.get('http://localhost/server/html/settings.html')
+    response = public_web_session.get('http://localhost/server/html/settings.html')
     cache_control = response.headers['Cache-Control']
     assert 'no-cache' in cache_control
     assert 'max-age=0' in cache_control
@@ -178,15 +185,15 @@ def loop_device():
     loop_device_cleanup(password=DEVICE_PASSWORD)
 
 
-def test_public_settings_disk_add_remove_ext4(loop_device):
-    __test_fs(loop_device, 'ext4')
+def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
+    __test_fs(loop_device, 'ext4', public_web_session)
 
 
-def test_public_settings_disk_add_remove_ntfs(loop_device):
-    __test_fs(loop_device, 'ntfs')
+def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
+    __test_fs(loop_device, 'ntfs', public_web_session)
 
 
-def __test_fs(loop_device, fs):
+def __test_fs(loop_device, fs, public_web_session):
 
     run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
@@ -206,18 +213,18 @@ def __test_fs(loop_device, fs):
             print(mount)
     run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
-    response = session.get('http://localhost/server/rest/settings/disks')
+    response = public_web_session.get('http://localhost/server/rest/settings/disks')
     print response.text
     assert loop_device in response.text
     assert response.status_code == 200
 
-    response = session.get('http://localhost/server/rest/settings/disk_activate',
-                           params={'device': loop_device})
+    response = public_web_session.get('http://localhost/server/rest/settings/disk_activate',
+                                      params={'device': loop_device})
     assert response.status_code == 200
     assert run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD) == '/data/platform'
 
-    response = session.get('http://localhost/server/rest/settings/disk_deactivate',
-                           params={'device': loop_device})
+    response = public_web_session.get('http://localhost/server/rest/settings/disk_deactivate',
+                                      params={'device': loop_device})
     assert response.status_code == 200
     assert run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD) == '/data/platform'
 
@@ -239,18 +246,13 @@ def test_reinstall(auth):
     __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
-def test_public_web_login_after_reinstall():
-    __public_web_login(reset_session=True)
+def test_public_web_platform_upgrade(public_web_session):
 
-
-def test_public_web_platform_upgrade():
-
-    response = session.get('http://localhost/server/rest/settings/system_upgrade')
-    # assert response.status_code == 200
+    public_web_session.get('http://localhost/server/rest/settings/system_upgrade')
     sam_running = True
     while sam_running:
         try:
-            response = session.get('http://localhost/server/rest/settings/sam_status')
+            response = public_web_session.get('http://localhost/server/rest/settings/sam_status')
             if response.status_code == 200:
                 json = convertible.from_json(response.text)
                 sam_running = json.is_running
@@ -270,14 +272,6 @@ def test_nginx_performance():
 
 def test_nginx_plus_flask_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/server/rest/id', shell=True))
-
-
-def __public_web_login(reset_session=False):
-    global session
-    if reset_session:
-        session = requests.session()
-    session.post('http://localhost/server/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
-    assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
 
 
 def __local_install(password, version, arch, release):
