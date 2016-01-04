@@ -54,8 +54,7 @@ def test_sync_success():
     user_platform_config.set_activated(True)
     user_platform_config.set_user_domain('boris')
     user_platform_config.set_update_token('some_update_token')
-    platform_config = get_platform_config()
-    dns = Dns(service_config, '127.0.0.1', redirect_config, platform_config, user_platform_config, fix_permissions=False)
+    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
     dns.sync(port_drill)
 
     expected_request = '''
@@ -89,12 +88,11 @@ def test_sync_server_side_client_ip():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
     user_platform_config.set_activated(True)
     user_platform_config.set_user_domain('boris')
     user_platform_config.set_update_token('some_update_token')
-    dns = Dns(service_config, '127.0.0.1', redirect_config, platform_config, user_platform_config, fix_permissions=False)
+    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
     dns.sync(port_drill)
 
     expected_request = '''
@@ -124,12 +122,11 @@ def test_sync_server_error():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
     user_platform_config.set_activated(True)
     user_platform_config.set_user_domain('boris')
     user_platform_config.set_update_token('some_update_token')
-    dns = Dns(service_config, '127.0.0.1', redirect_config, platform_config, user_platform_config)
+    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync(port_drill)
@@ -150,9 +147,8 @@ def test_link_success():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
-    dns = Dns(None, '127.0.0.1', redirect_config, platform_config, user_platform_config)
+    dns = Dns(None, '127.0.0.1', redirect_config, user_platform_config)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -186,9 +182,8 @@ def test_link_server_error():
                   content_type="application/json")
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
-    dns = Dns(None, '127.0.0.1', redirect_config, platform_config, user_platform_config)
+    dns = Dns(None, '127.0.0.1', redirect_config, user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
@@ -204,10 +199,9 @@ def test_add_service():
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
 
-    dns = Dns(service_config, '127.0.0.1', redirect_config, platform_config, user_platform_config)
+    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
 
     services = service_config.load()
@@ -230,10 +224,9 @@ def test_get_service():
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
 
-    dns = Dns(service_config, '127.0.0.1', redirect_config, platform_config, user_platform_config)
+    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
 
     service = dns.get_service("ownCloud")
@@ -248,10 +241,9 @@ def test_get_not_existing_service():
     service_config = get_service_config([])
 
     redirect_config = get_redirect_config()
-    platform_config = get_platform_config()
     user_platform_config = get_user_platform_config()
 
-    dns = Dns(service_config, '127.0.0.1', redirect_config, platform_config, user_platform_config)
+    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
 
     service = dns.get_service("ownCloud")
 

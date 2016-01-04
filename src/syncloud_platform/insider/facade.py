@@ -1,4 +1,5 @@
 from syncloud_app import logger
+import getpass
 
 import dns
 import port_drill
@@ -10,12 +11,14 @@ from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools import network
+from syncloud_platform.tools.chown import chown
 
 
 class Insider:
 
-    def __init__(self, dns_service, user_platform_config, port_config, redirect_config):
+    def __init__(self, dns_service, platform_config, user_platform_config, port_config, redirect_config):
         self.port_config = port_config
+        self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
         self.redirect_config = redirect_config
@@ -24,7 +27,9 @@ class Insider:
     def sync_all(self):
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
-        return self.dns.sync(drill)
+        self.dns.sync(drill)
+        if not getpass.getuser() == self.platform_config.cron_user():
+            chown(self.platform_config.cron_user(), self.platform_config.data_dir())
 
     def acquire_domain(self, email, password, user_domain):
         result = self.dns.acquire(email, password, user_domain)
@@ -56,16 +61,17 @@ def get_insider():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig()
     port_config = PortConfig(data_root)
+    service_config = ServiceConfig(data_root)
 
     dns_service = dns.Dns(
-        ServiceConfig(data_root),
+        service_config,
         network.local_ip(),
         redirect_config,
-        platform_config,
         user_platform_config)
 
     return Insider(
         dns_service,
+        platform_config,
         user_platform_config,
         port_config,
         redirect_config)

@@ -1,4 +1,3 @@
-import getpass
 from urlparse import urljoin
 
 import requests
@@ -8,7 +7,6 @@ from syncloud_app import logger
 from syncloud_platform.insider import util
 from syncloud_platform.insider.config import Service
 from syncloud_platform.tools import id
-from syncloud_platform.tools.chown import chown
 
 
 class ServiceUrls:
@@ -26,13 +24,11 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, service_config, local_ip, redirect_config, platform_config, user_platform_config, fix_permissions=True):
-        self.fix_permissions = fix_permissions
+    def __init__(self, service_config, local_ip, redirect_config, user_platform_config):
         self.redirect_config = redirect_config
         self.local_ip = local_ip
         self.service_config = service_config
         self.logger = logger.get_logger('dns')
-        self.config = platform_config
         self.user_platform_config = user_platform_config
 
     def acquire(self, email, password, user_domain):
@@ -133,7 +129,3 @@ class Dns:
         response = requests.post(url, json)
 
         util.check_http_error(response)
-
-        if not getpass.getuser() == self.config.cron_user() and self.fix_permissions:
-            chown(self.config.cron_user(), self.config.data_dir())
-
