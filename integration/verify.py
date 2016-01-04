@@ -107,33 +107,38 @@ def test_public_web_unauthorized_ajax_not_redirect():
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
-# session = requests.session()
 
-
-def test_default_external_mode_on_activate(auth, public_web_session):
+def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
 
-    run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+    # run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/server/rest/settings/external_access')
     assert '"external_access": false' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
-    assert '"protocol": "http"' in response.text
-    assert response.status_code == 200
-
     response = public_web_session.get('http://localhost/server/rest/settings/set_external_access',
-                           params={'external_access': 'False'})
+                                      params={'external_access': 'False'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    # response = session.get('http://localhost/server/rest/settings/external_access')
-    # assert '"mode": null' in response.text
-    # assert response.status_code == 200
+    response = public_web_session.get('http://localhost/server/rest/settings/external_access')
+    assert '"external_access": false' in response.text
+    assert response.status_code == 200
 
     # assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
+
+def test_protocol(auth, public_web_session):
+
+    email, password, domain, version, arch, release = auth
+
+    # run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+
+    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
+    assert '"protocol": "http"' in response.text
+    assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/server/rest/settings/set_protocol',
                                       params={'protocol': 'https'})
@@ -145,13 +150,15 @@ def test_default_external_mode_on_activate(auth, public_web_session):
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/server/rest/settings/set_protocol',
-                           params={'protocol': 'http'})
+                                      params={'protocol': 'http'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/server/rest/settings/protocol')
     assert '"protocol": "http"' in response.text
     assert response.status_code == 200
+
+    # assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
 def test_public_web_files(public_web_session):
@@ -259,6 +266,14 @@ def test_public_web_platform_upgrade(public_web_session):
         except Exception, e:
             pass
         time.sleep(1)
+
+
+def test_if_cron_is_enabled_after_upgrade():
+    crontab = run_ssh("crontab -u platform -l", password=DEVICE_PASSWORD)
+    print(crontab)
+    assert len(crontab.splitlines()) == 1
+    assert 'sync' in crontab, crontab
+    assert not crontab.startswith('#'), crontab
 
 
 def test_reinstall_local_after_upgrade(auth):
