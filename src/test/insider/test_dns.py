@@ -11,8 +11,7 @@ from syncloud_platform.tools import id
 from syncloud_platform.insider.dns import Dns
 from syncloud_platform.insider.port_drill import PortDrill
 from syncloud_platform.insider.config import Port, Service
-from test.insider.helpers import get_port_config, get_service_config, \
-    get_redirect_config, get_user_platform_config, get_platform_config
+from test.insider.helpers import get_port_config, get_service_config, get_user_platform_config, get_platform_config
 
 from syncloud_app.main import PassthroughJsonError
 
@@ -49,12 +48,11 @@ def test_sync_success():
                   body="{'message': 'Domain was updated'}",
                   content_type="application/json")
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
     user_platform_config.set_activated(True)
     user_platform_config.set_user_domain('boris')
     user_platform_config.set_update_token('some_update_token')
-    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', service_config, user_platform_config)
     dns.sync(port_drill)
 
     expected_request = '''
@@ -87,12 +85,11 @@ def test_sync_server_side_client_ip():
                   body="{'message': 'Domain was updated'}",
                   content_type="application/json")
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
     user_platform_config.set_activated(True)
     user_platform_config.set_user_domain('boris')
     user_platform_config.set_update_token('some_update_token')
-    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', service_config, user_platform_config)
     dns.sync(port_drill)
 
     expected_request = '''
@@ -121,12 +118,11 @@ def test_sync_server_error():
                   body='{"message": "Unknown update token"}',
                   content_type="application/json")
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
     user_platform_config.set_activated(True)
     user_platform_config.set_user_domain('boris')
     user_platform_config.set_update_token('some_update_token')
-    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', service_config, user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync(port_drill)
@@ -146,9 +142,8 @@ def test_link_success():
                   body='{"user_domain": "boris", "update_token": "some_update_token"}',
                   content_type="application/json")
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
-    dns = Dns(None, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', None, user_platform_config)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -181,9 +176,8 @@ def test_link_server_error():
                   body='{"message": "Authentication failed"}',
                   content_type="application/json")
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
-    dns = Dns(None, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', None, user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
@@ -198,10 +192,9 @@ def test_add_service():
     port_config = get_port_config([])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
 
-    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', service_config, user_platform_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
 
     services = service_config.load()
@@ -223,10 +216,9 @@ def test_get_service():
     port_config = get_port_config([])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
 
-    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', service_config, user_platform_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
 
     service = dns.get_service("ownCloud")
@@ -240,10 +232,9 @@ def test_get_service():
 def test_get_not_existing_service():
     service_config = get_service_config([])
 
-    redirect_config = get_redirect_config()
     user_platform_config = get_user_platform_config()
 
-    dns = Dns(service_config, '127.0.0.1', redirect_config, user_platform_config)
+    dns = Dns('http://api.domain.com', '127.0.0.1', service_config, user_platform_config)
 
     service = dns.get_service("ownCloud")
 
