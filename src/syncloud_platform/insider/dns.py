@@ -5,7 +5,6 @@ import requests
 import convertible
 from IPy import IP
 from syncloud_app import logger
-from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.insider import util
 from syncloud_platform.insider.config import Service
 from syncloud_platform.tools import id
@@ -27,17 +26,14 @@ class Endpoint:
 
 class Dns:
 
-    def __init__(self, domain_config, service_config, local_ip, redirect_config, platform_config=None, fix_permissions=True):
+    def __init__(self, service_config, local_ip, redirect_config, platform_config, user_platform_config, fix_permissions=True):
         self.fix_permissions = fix_permissions
         self.redirect_config = redirect_config
         self.local_ip = local_ip
-        self.domain_config = domain_config
         self.service_config = service_config
         self.logger = logger.get_logger('dns')
-        if platform_config:
-            self.config = platform_config
-        else:
-            self.config = PlatformConfig()
+        self.config = platform_config
+        self.user_platform_config = user_platform_config
 
     def acquire(self, email, password, user_domain):
         device_id = id.id()
@@ -52,9 +48,10 @@ class Dns:
         url = urljoin(self.redirect_config.get_api_url(), "/domain/acquire")
         response = requests.post(url, data)
         util.check_http_error(response)
-        domain = convertible.from_json(response.text)
-        self.domain_config.save(domain)
-        return domain
+        response_data = convertible.from_json(response.text)
+        self.user_platform_config.set_user_domain(response_data.user_domain)
+        self.user_platform_config.set_update_token(response_data.update_token)
+        return response_data
 
     def add_service(self, name, protocol, service_type, port, port_drill):
         port_drill.sync_new_port(port)
@@ -74,21 +71,21 @@ class Dns:
             port_drill.remove(service.port)
 
     def full_name(self):
-        return '{}.{}'.format(self.user_domain(), self.redirect_config.get_domain())
+        return '{}.{}'.format(self.user_platform_config.get_user_domain(), self.redirect_config.get_domain())
 
     def user_domain(self):
-        return self.domain_config.load().user_domain
+        return self.user_platform_config.get_user_domain()
 
     def sync(self, port_drill):
         port_drill.sync()
 
         services = self.service_config.load()
-        if not self.domain_config.exists():
+        if not self.user_platform_config.is_activated():
             self.logger.info('nothing to sync yet, no dns configuration')
             return
 
-        domain = self.domain_config.load()
-        if not domain:
+        update_token = self.user_platform_config.get_update_token()
+        if not update_token:
             raise Exception("No token saved, need to call set_dns or get_dns_token first")
 
         services_data = []
@@ -108,7 +105,7 @@ class Dns:
                 services_data.append(service_data)
 
         data = {
-            'token': domain.update_token,
+            'token': update_token,
             'local_ip': self.local_ip,
             'services': services_data,
             'map_local_address': False}

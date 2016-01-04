@@ -62,6 +62,7 @@ class DomainConfig:
     def exists(self):
         return os.path.isfile(self.filename)
 
+
 REDIRECT_CONFIG_NAME = 'redirect.cfg'
 
 

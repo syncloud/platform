@@ -1,14 +1,15 @@
 from syncloud_platform.config.config import PlatformUserConfig
-from syncloud_platform.insider.config import DomainConfig, RedirectConfig
+from syncloud_platform.insider.config import RedirectConfig
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.util import protocol_to_port
 
 
 def domain():
-    domain_config = DomainConfig()
-    if domain_config.exists():
+    domain_config = PlatformUserConfig()
+    user_domain = domain_config.get_user_domain()
+    if user_domain is not None:
         redirect = RedirectConfig()
-        return '{0}.{1}'.format(domain_config.load().user_domain, redirect.get_domain())
+        return '{0}.{1}'.format(user_domain, redirect.get_domain())
     else:
         return None
 

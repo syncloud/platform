@@ -140,6 +140,28 @@ class PlatformUserConfig:
         self.parser.set('platform', 'activated', str(value))
         self.__save()
 
+    def get_user_domain(self):
+        self.parser.read(self.filename)
+        if self.parser.has_option('platform', 'user_domain'):
+            return self.parser.get('platform', 'user_domain')
+        return None
+
+    def set_user_domain(self, value):
+        self.parser.read(self.filename)
+        self.parser.set('platform', 'user_domain', value)
+        self.__save()
+
+    def get_update_token(self):
+        self.parser.read(self.filename)
+        if self.parser.has_option('platform', 'update_token'):
+            return self.parser.get('platform', 'update_token')
+        return None
+
+    def set_update_token(self, value):
+        self.parser.read(self.filename)
+        self.parser.set('platform', 'update_token', value)
+        self.__save()
+
     def get_external_access(self):
         self.parser.read(self.filename)
         external_access = False
@@ -164,6 +186,7 @@ class PlatformUserConfig:
         self.parser.read(self.filename)
         self.parser.set('platform', 'protocol', protocol)
         self.__save()
+
 
     def __save(self):
         with open(self.filename, 'wb') as f:

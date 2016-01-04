@@ -4,7 +4,7 @@ import dns
 import port_drill
 from port_config import PortConfig
 from service_config import ServiceConfig
-from syncloud_platform.config.config import PlatformUserConfig, PLATFORM_APP_NAME
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
 from syncloud_platform.insider.config import RedirectConfig, DomainConfig
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
@@ -14,12 +14,11 @@ from syncloud_platform.tools import network
 
 class Insider:
 
-    def __init__(self, dns_service, user_platform_config, port_config, redirect_config, domain_config):
+    def __init__(self, dns_service, user_platform_config, port_config, redirect_config):
         self.port_config = port_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
         self.redirect_config = redirect_config
-        self.domain_config = domain_config
         self.logger = logger.get_logger('insider')
 
     def sync_all(self):
@@ -44,7 +43,7 @@ class Insider:
         if external_access:
             mapper = port_drill.provide_mapper()
             if mapper:
-                prober = PortProber(self.domain_config, self.redirect_config.get_api_url())
+                prober = PortProber(self.user_platform_config, self.redirect_config.get_api_url())
                 drill = port_drill.PortDrill(self.port_config, mapper, prober)
         return drill
 
@@ -54,19 +53,19 @@ def get_insider():
     data_root = get_app_data_root(PLATFORM_APP_NAME)
 
     redirect_config = RedirectConfig(data_root)
+    platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig()
     port_config = PortConfig(data_root)
-    domain_config = DomainConfig(data_root)
 
     dns_service = dns.Dns(
-        domain_config,
         ServiceConfig(data_root),
         network.local_ip(),
-        redirect_config)
+        redirect_config,
+        platform_config,
+        user_platform_config)
 
     return Insider(
         dns_service,
         user_platform_config,
         port_config,
-        redirect_config,
-        domain_config)
+        redirect_config)
