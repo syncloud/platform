@@ -9,19 +9,6 @@ from syncloud_platform.insider.config import Service
 from syncloud_platform.tools import id
 
 
-class ServiceUrls:
-    def __init__(self, device_domain, service, mapping):
-        self.domain_port = "{}:{}".format(device_domain, mapping.external_port)
-        self.full_url = "{}://{}/{}".format(service.protocol, self.domain_port, service.url)
-
-
-class Endpoint:
-    def __init__(self, service, domain, external_port):
-        self.service = service
-        self.external_host = domain
-        self.external_port = external_port
-
-
 class Dns:
 
     def __init__(self, service_config, local_ip, redirect_config, user_platform_config):
