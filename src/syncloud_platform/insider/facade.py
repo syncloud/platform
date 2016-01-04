@@ -5,7 +5,7 @@ import port_drill
 from port_config import PortConfig
 from service_config import ServiceConfig
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
-from syncloud_platform.insider.config import RedirectConfig, DomainConfig
+from syncloud_platform.insider.config import RedirectConfig
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root

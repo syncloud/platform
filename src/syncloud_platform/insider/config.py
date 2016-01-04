@@ -2,17 +2,9 @@ import os
 from ConfigParser import ConfigParser
 from os.path import join
 
-import convertible
 from syncloud_app import logger
 
 from syncloud_platform.tools.app import get_app_data_root
-
-
-class Domain:
-
-    def __init__(self, user_domain, update_token):
-        self.update_token = update_token
-        self.user_domain = user_domain
 
 
 class Port:
@@ -33,34 +25,6 @@ class Service:
         self.type = type
         self.port = port
         self.url = url
-
-DOMAIN_CONFIG_NAME = 'domain.json'
-
-
-class DomainConfig:
-
-    def __init__(self, config_dir=None):
-        if not config_dir:
-            config_dir = get_app_data_root('platform')
-        self.filename = join(config_dir, DOMAIN_CONFIG_NAME)
-        self.logger = logger.get_logger('DomainConfig')
-
-    def load(self):
-        if not self.exists():
-            raise Exception('{} does not exist'.format(self.filename))
-        obj = convertible.read_json(self.filename)
-        return obj
-
-    def save(self, obj):
-        self.logger.info('saving config={0}'.format(self.filename))
-        convertible.write_json(self.filename, obj)
-
-    def remove(self):
-        if self.exists():
-            os.remove(self.filename)
-
-    def exists(self):
-        return os.path.isfile(self.filename)
 
 
 REDIRECT_CONFIG_NAME = 'redirect.cfg'

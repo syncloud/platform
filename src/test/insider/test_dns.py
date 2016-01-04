@@ -10,8 +10,8 @@ from syncloud_platform.tools import id
 
 from syncloud_platform.insider.dns import Dns
 from syncloud_platform.insider.port_drill import PortDrill
-from syncloud_platform.insider.config import Port, Domain, Service
-from test.insider.helpers import get_port_config, get_domain_config, get_service_config, \
+from syncloud_platform.insider.config import Port, Service
+from test.insider.helpers import get_port_config, get_service_config, \
     get_redirect_config, get_user_platform_config, get_platform_config
 
 from syncloud_app.main import PassthroughJsonError
