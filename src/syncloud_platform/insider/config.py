@@ -43,24 +43,6 @@ class RedirectConfig:
         with open(self.filename, 'wb') as f:
             self.parser.write(f)
 
-    def update(self, domain, api_url):
-        self.parser.read(self.filename)
-        self.logger.info('setting domain={0}, api_url={1}'.format(domain, api_url))
-        if not self.parser.has_section('redirect'):
-            self.parser.add_section('redirect')
-
-        self.parser.set('redirect', 'domain', domain)
-        self.parser.set('redirect', 'api_url', api_url)
-        self.__save()
-
-    def get_domain(self):
-        self.parser.read(self.filename)
-        return self.parser.get('redirect', 'domain')
-
-    def get_api_url(self):
-        self.parser.read(self.filename)
-        return self.parser.get('redirect', 'api_url')
-
     def set_user_update_token(self, user_update_token):
         self.parser.read(self.filename)
         if not self.parser.has_section('redirect'):

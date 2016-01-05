@@ -44,7 +44,6 @@ platform_config_file = CONFIG_DIR
 
 def get_redirect_config():
     config = RedirectConfig(dirname(temp_file(filename=REDIRECT_CONFIG_NAME)))
-    config.update('domain.com', 'http://api.domain.com')
     return config
 
 
