@@ -1,12 +1,13 @@
-from urlparse import urljoin
-import requests
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.util import port_to_protocol
 
+
 from upnpc import UpnpPortMapper
 from natpmpc import NatPmpPortMapper
+
+from syncloud_platform.insider.port_prober import PortProber
 
 
 def check_mapper(mapper_type):
@@ -130,3 +131,18 @@ class NonePortDrill:
 
     def available(self):
         return False
+
+
+class PortDrillFactory:
+    def __init__(self, user_platform_config, port_config):
+        self.port_config = port_config
+        self.user_platform_config = user_platform_config
+
+    def get_drill(self, external_access):
+        drill = NonePortDrill()
+        if external_access:
+            mapper = provide_mapper()
+            if mapper:
+                prober = PortProber(self.user_platform_config.get_redirect_api_url(), self.user_platform_config.get_update_token())
+                drill = PortDrill(self.port_config, mapper, prober)
+        return drill

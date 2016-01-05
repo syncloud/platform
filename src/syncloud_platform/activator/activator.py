@@ -1,14 +1,15 @@
 import uuid
 
+from syncloud_app import logger
+
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.auth.ldapauth import LdapAuth
-from syncloud_platform.insider import facade
-from syncloud_app import logger
-from syncloud_platform.tools.events import trigger_app_event_domain
-from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools.tls import Tls
+from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.cron import PlatformCron
+from syncloud_platform.auth.ldapauth import LdapAuth
+from syncloud_platform.sam.stub import SamStub
+from syncloud_platform.tools.events import trigger_app_event_domain
+from syncloud_platform.tools.tls import Tls
 
 
 class Activator:
@@ -67,7 +68,7 @@ class Activator:
 def get_activator():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    insider = facade.get_insider()
+    insider = get_insider()
     redirect_service = RedirectService(platform_config, user_platform_config)
 
     return Activator(platform_config, user_platform_config, insider, redirect_service)
