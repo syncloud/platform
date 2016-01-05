@@ -38,8 +38,7 @@ class Insider:
         self.dns.remove_service("server", drill)
         self.dns.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
         self.dns.sync(drill)
-        self.user_platform_config.set_protocol(protocol)
-        self.user_platform_config.set_external_access(external_access)
+        self.user_platform_config.update_device_access(external_access, protocol)
 
     def get_drill(self, external_access):
         drill = port_drill.NonePortDrill()

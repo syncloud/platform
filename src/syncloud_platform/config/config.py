@@ -200,23 +200,17 @@ class PlatformUserConfig:
         self.logger.info('external_access = {0}'.format(external_access))
         return external_access
 
-    def set_external_access(self, external_access):
-        self.logger.info('saving config, set_external_access = {0}'.format(external_access))
-        self.parser.read(self.filename)
-        self.parser.set('platform', 'external_access', external_access)
-        self.__save()
-
     def get_protocol(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'protocol'):
             return 'http'
         return self.parser.get('platform', 'protocol')
 
-    def set_protocol(self, protocol):
+    def update_device_access(self, external_access, protocol):
         self.parser.read(self.filename)
+        self.parser.set('platform', 'external_access', external_access)
         self.parser.set('platform', 'protocol', protocol)
         self.__save()
-
 
     def __save(self):
         with open(self.filename, 'wb') as f:
