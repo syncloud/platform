@@ -38,6 +38,11 @@ class RedirectConfig:
         self.filename = join(config_dir, REDIRECT_CONFIG_NAME)
         self.logger = logger.get_logger('RedirectConfig')
 
+    def __save(self):
+        self.logger.info('saving config={0}'.format(self.filename))
+        with open(self.filename, 'wb') as f:
+            self.parser.write(f)
+
     def update(self, domain, api_url):
         self.parser.read(self.filename)
         self.logger.info('setting domain={0}, api_url={1}'.format(domain, api_url))
@@ -46,12 +51,7 @@ class RedirectConfig:
 
         self.parser.set('redirect', 'domain', domain)
         self.parser.set('redirect', 'api_url', api_url)
-        self._save()
-
-    def set_user_update_token(self, user_update_token):
-        self.parser.read(self.filename)
-        self.parser.set('redirect', 'user_update_token', user_update_token)
-        self._save()
+        self.__save()
 
     def get_domain(self):
         self.parser.read(self.filename)
@@ -61,11 +61,11 @@ class RedirectConfig:
         self.parser.read(self.filename)
         return self.parser.get('redirect', 'api_url')
 
+    def set_user_update_token(self, user_update_token):
+        self.parser.read(self.filename)
+        self.parser.set('redirect', 'user_update_token', user_update_token)
+        self.__save()
+
     def get_user_update_token(self):
         self.parser.read(self.filename)
         return self.parser.get('redirect', 'user_update_token')
-
-    def _save(self):
-        self.logger.info('saving config={0}'.format(self.filename))
-        with open(self.filename, 'wb') as f:
-            self.parser.write(f)

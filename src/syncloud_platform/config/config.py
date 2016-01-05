@@ -133,6 +133,28 @@ class PlatformUserConfig:
         if not self.parser.has_section('platform'):
             self.parser.add_section('platform')
 
+    def update_redirect(self, domain, api_url):
+        self.parser.read(self.filename)
+        self.logger.info('setting domain={0}, api_url={1}'.format(domain, api_url))
+        if not self.parser.has_section('redirect'):
+            self.parser.add_section('redirect')
+
+        self.parser.set('redirect', 'domain', domain)
+        self.parser.set('redirect', 'api_url', api_url)
+        self.__save()
+
+    def get_redirect_domain(self):
+        self.parser.read(self.filename)
+        if self.parser.has_section('redirect') and self.parser.has_option('redirect', 'domain'):
+            return self.parser.get('redirect', 'domain')
+        return 'syncloud.it'
+
+    def get_redirect_api_url(self):
+        self.parser.read(self.filename)
+        if self.parser.has_section('redirect') and self.parser.has_option('redirect', 'api_url'):
+            return self.parser.get('redirect', 'api_url')
+        return 'http://api.syncloud.it'
+
     def is_activated(self):
         return self.parser.getboolean('platform', 'activated')
 
