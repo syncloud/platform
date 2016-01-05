@@ -11,6 +11,7 @@ from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools import network
 from syncloud_platform.tools.chown import chown
 
+from syncloud_platform.tools.events import trigger_app_event_domain
 
 class Insider:
 
@@ -38,6 +39,7 @@ class Insider:
         self.dns_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
         self.dns_service.sync(drill)
         self.user_platform_config.update_device_access(external_access, protocol)
+        trigger_app_event_domain(self.platform_config.apps_root())
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)
