@@ -64,6 +64,3 @@ class Activator:
 
         self.user_platform_config.set_activated(True)
         self.logger.info("activation completed")
-
-    def user_domain(self):
-        return self.insider.user_domain()
