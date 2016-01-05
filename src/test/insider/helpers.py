@@ -49,7 +49,7 @@ def get_redirect_config():
 
 
 def get_user_platform_config():
-    config = PlatformUserConfig(temp_file())
+    config = PlatformUserConfig(config_file=temp_file())
     return config
 
 def get_platform_config():

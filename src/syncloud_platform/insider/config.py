@@ -63,6 +63,8 @@ class RedirectConfig:
 
     def set_user_update_token(self, user_update_token):
         self.parser.read(self.filename)
+        if not self.parser.has_section('redirect'):
+            self.parser.add_section('redirect')
         self.parser.set('redirect', 'user_update_token', user_update_token)
         self.__save()
 

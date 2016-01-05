@@ -1,24 +1,26 @@
-from syncloud_platform.config.config import PlatformUserConfig
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider.config import RedirectConfig
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.util import protocol_to_port
 
 
 def domain():
-    domain_config = PlatformUserConfig()
-    user_domain = domain_config.get_user_domain()
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    user_domain = user_platform_config.get_user_domain()
     if user_domain is not None:
         redirect = RedirectConfig()
-        return '{0}.{1}'.format(user_domain, redirect.get_domain())
+        return '{0}.{1}'.format(user_domain, user_platform_config.get_redirect_domain())
     else:
         return None
 
 
 def url(app=None):
-    config = PlatformUserConfig()
-    protocol = config.get_protocol()
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    protocol = user_platform_config.get_protocol()
     port = protocol_to_port(protocol)
-    if config.get_external_access():
+    if user_platform_config.get_external_access():
         mapping = PortConfig().get(port)
         if mapping:
             port = mapping.external_port

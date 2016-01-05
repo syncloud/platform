@@ -48,7 +48,7 @@ class Insider:
         if external_access:
             mapper = port_drill.provide_mapper()
             if mapper:
-                prober = PortProber(self.user_platform_config, self.redirect_config.get_api_url())
+                prober = PortProber(self.user_platform_config, self.user_platform_config.get_redirect_api_url())
                 drill = port_drill.PortDrill(self.port_config, mapper, prober)
         return drill
 
@@ -59,7 +59,7 @@ def get_insider():
 
     redirect_config = RedirectConfig(data_root)
     platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
     port_config = PortConfig(data_root)
     service_config = ServiceConfig(data_root)
 

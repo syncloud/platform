@@ -1,9 +1,9 @@
-from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig
+from syncloud_platform.config.config import PlatformUserConfig
 from test.insider.helpers import temp_file
 
 
 def test_domain():
-    config = PlatformUserConfig(temp_file(filename=PLATFORM_CONFIG_NAME))
+    config = PlatformUserConfig(config_file =temp_file())
 
     config.update_redirect('syncloud.it', 'http://api.syncloud.it')
     assert 'syncloud.it' == config.get_redirect_domain()

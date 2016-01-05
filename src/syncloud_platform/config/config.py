@@ -115,13 +115,10 @@ class PlatformConfig:
 
 class PlatformUserConfig:
 
-    def __init__(self, config_file=None):
+    def __init__(self, config_file):
         self.logger = logger.get_logger('PlatformUserConfig')
         self.parser = ConfigParser()
-        if config_file:
-            self.filename = config_file
-        else:
-            self.filename = PlatformConfig().get_user_config()
+        self.filename = config_file
 
         if not isfile(self.filename):
             self.parser.add_section('platform')

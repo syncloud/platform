@@ -2,7 +2,7 @@ from os import listdir
 from urlparse import urljoin
 from subprocess import check_output
 from os.path import isfile, join
-from syncloud_platform.config.config import PlatformConfig
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider import util
 import requests
 import convertible
@@ -13,13 +13,15 @@ from syncloud_platform.tools.app import get_app_data_root
 class RedirectService:
 
     def __init__(self, data_root=None):
-        self.log_root = PlatformConfig().get_log_root()
+        self.platform_config = PlatformConfig()
+        self.log_root = self.platform_config.get_log_root()
         if not data_root:
             data_root = get_app_data_root('platform')
         self.redirect_config = RedirectConfig(data_root)
+        self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
 
     def get_user(self, email, password):
-        url = urljoin(self.redirect_config.get_api_url(), "/user/get")
+        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/user/get")
         response = requests.get(url, params={'email': email, 'password': password})
         util.check_http_error(response)
         user = convertible.from_json(response.text).data
@@ -32,7 +34,7 @@ class RedirectService:
 
         logs = '\n----------------------\n'.join(map(self.read_log, log_files))
 
-        url = urljoin(self.redirect_config.get_api_url(), "/user/log")
+        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/user/log")
         response = requests.post(url, {'token': self.redirect_config.get_user_update_token(), 'data': logs})
         util.check_http_error(response)
         user = convertible.from_json(response.text)
@@ -48,4 +50,4 @@ class RedirectService:
         return log
 
     def set_info(self, domain, api_url):
-        return self.redirect_config.update(domain, api_url)
+        return self.user_platform_config.update_redirect(domain, api_url)

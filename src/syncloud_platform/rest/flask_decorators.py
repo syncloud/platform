@@ -1,6 +1,6 @@
 from functools import update_wrapper
 from flask import make_response, redirect, request
-from syncloud_platform.config.config import PlatformUserConfig
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 
 def nocache(f):
     def new_func(*args, **kwargs):
@@ -13,7 +13,8 @@ def nocache(f):
 def redirect_if_not_activated(f):
     def new_func(*args, **kwargs):
         resp = make_response(f(*args, **kwargs))
-        if not PlatformUserConfig().is_activated():
+        platform_config = PlatformConfig()
+        if not PlatformUserConfig(platform_config.get_user_config()).is_activated():
             return redirect('{0}://{1}:81'.format(request.scheme, request.host))
         else:
             return resp

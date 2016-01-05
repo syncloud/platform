@@ -202,26 +202,34 @@ def available_apps():
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def external_access():
-    return jsonify(external_access=PlatformUserConfig().get_external_access()), 200
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    return jsonify(external_access=user_platform_config.get_external_access()), 200
 
 
 @app.route(rest_prefix + "/settings/set_external_access", methods=["GET"])
 @login_required
 def external_access_enable():
-    get_insider().add_main_device_service(PlatformUserConfig().get_protocol(), request.args['external_access'])
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    get_insider().add_main_device_service(user_platform_config.get_protocol(), request.args['external_access'])
     return jsonify(success=True), 200
 
 
 @app.route(rest_prefix + "/settings/protocol", methods=["GET"])
 @login_required
 def protocol():
-    return jsonify(protocol=PlatformUserConfig().get_protocol()), 200
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    return jsonify(protocol=user_platform_config.get_protocol()), 200
 
 
 @app.route(rest_prefix + "/settings/set_protocol", methods=["GET"])
 @login_required
 def set_protocol():
-    get_insider().add_main_device_service(request.args['protocol'], PlatformUserConfig().get_external_access())
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    get_insider().add_main_device_service(request.args['protocol'], user_platform_config.get_external_access())
     return jsonify(success=True), 200
 
 

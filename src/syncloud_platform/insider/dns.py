@@ -28,7 +28,7 @@ class Dns:
             'device_name': device_id.name,
             'device_title': device_id.title,
         }
-        url = urljoin(self.redirect_config.get_api_url(), "/domain/acquire")
+        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/acquire")
         response = requests.post(url, data)
         util.check_http_error(response)
         response_data = convertible.from_json(response.text)
@@ -102,7 +102,7 @@ class Dns:
             data['map_local_address'] = True
             self.logger.warn("Will try server side client ip detection")
 
-        url = urljoin(self.redirect_config.get_api_url(), "/domain/update")
+        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
         self.logger.debug('url: ' + url)
         json = convertible.to_json(data)

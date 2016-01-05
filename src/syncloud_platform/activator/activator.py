@@ -21,6 +21,7 @@ class Activator:
         self.sam = SamStub()
         self.redirect_service = RedirectService()
         self.platform_config = PlatformConfig()
+        self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
         self.platform_cron = PlatformCron(self.platform_config)
 
 
@@ -61,7 +62,7 @@ class Activator:
 
         Tls().generate_certificate()
 
-        PlatformUserConfig().set_activated(True)
+        self.user_platform_config.set_activated(True)
         self.logger.info("activation completed")
 
     def user_domain(self):
