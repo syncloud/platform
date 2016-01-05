@@ -167,6 +167,8 @@ class PlatformUserConfig:
         return self.parser.getboolean('platform', 'activated')
 
     def set_activated(self, value):
+        self.parser.read(self.filename)
+        self.logger.info('saving activated = {0}'.format(value))
         self.parser.set('platform', 'activated', str(value))
         self.__save()
 
@@ -178,6 +180,7 @@ class PlatformUserConfig:
 
     def set_user_domain(self, value):
         self.parser.read(self.filename)
+        self.logger.info('saving user_domain = {0}'.format(value))
         self.parser.set('platform', 'user_domain', value)
         self.__save()
 
@@ -189,6 +192,7 @@ class PlatformUserConfig:
 
     def set_update_token(self, value):
         self.parser.read(self.filename)
+        self.logger.info('saving update_token = {0}'.format(value))
         self.parser.set('platform', 'update_token', value)
         self.__save()
 
