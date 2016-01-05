@@ -6,7 +6,6 @@ import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
 
-from syncloud_platform.activator.activator import get_activator
 from syncloud_platform.rest.flask_decorators import nocache
 from syncloud_platform.tools import id
 from syncloud_platform.config.config import PlatformConfig
@@ -16,6 +15,8 @@ if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
 from syncloud_app import logger
+
+from syncloud_platform.device import get_device
 
 config = PlatformConfig()
 if __name__ == '__main__':
@@ -52,9 +53,9 @@ def activate():
     if 'domain' in request.form:
         domain = request.form['domain']
 
-    activator = get_activator()
+    device = get_device()
 
-    activator.activate(
+    device.activate(
         request.form['redirect-email'],
         request.form['redirect-password'],
         request.form['redirect-domain'],

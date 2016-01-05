@@ -20,7 +20,7 @@ setup(
     name='syncloud-platform',
     version=version,
     packages=['syncloud_platform', 'syncloud_platform.insider', 'syncloud_platform.api', 'syncloud_platform.auth',
-              'syncloud_platform.activator', 'syncloud_platform.tools', 'syncloud_platform.tools.cpu', 'syncloud_platform.systemd',
+              'syncloud_platform.tools', 'syncloud_platform.tools.cpu', 'syncloud_platform.systemd',
               'syncloud_platform.rest', 'syncloud_platform.config', 'syncloud_platform.sam'],
     namespace_packages=['syncloud_platform'],
     install_requires=requirements,

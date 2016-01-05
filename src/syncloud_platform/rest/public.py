@@ -5,13 +5,11 @@ import sys
 
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
-from syncloud_platform.insider.facade import get_insider
 from syncloud_platform.insider.redirect_service import RedirectService
 
 from syncloud_platform.rest.model import app_from_sam_app, App
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.tools.hardware import Hardware
-from syncloud_platform.tools.tls import Tls
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
 if __name__ == '__main__':
@@ -21,6 +19,9 @@ from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.sam.stub import SamStub
 from syncloud_app import logger
+
+from syncloud_platform.device import get_device
+
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 
 config = PlatformConfig()
@@ -212,7 +213,8 @@ def external_access():
 def external_access_enable():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    get_insider().add_main_device_service(user_platform_config.get_protocol(), request.args['external_access'])
+    device = get_device()
+    device.add_main_device_service(user_platform_config.get_protocol(), request.args['external_access'])
     return jsonify(success=True), 200
 
 
@@ -229,7 +231,8 @@ def protocol():
 def set_protocol():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    get_insider().add_main_device_service(request.args['protocol'], user_platform_config.get_external_access())
+    device = get_device()
+    device.add_main_device_service(request.args['protocol'], user_platform_config.get_external_access())
     return jsonify(success=True), 200
 
 

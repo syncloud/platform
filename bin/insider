@@ -20,7 +20,7 @@ from syncloud_app import main
 from syncloud_app import logger
 from syncloud_platform.config.config import PlatformConfig
 
-import syncloud_platform.insider.facade
+from syncloud_platform.device import get_device
 
 
 def create_args_parser():
@@ -40,6 +40,6 @@ if __name__ == '__main__':
     level = logging.DEBUG if args.debug else logging.INFO
     logger.init(level, console, join(PlatformConfig().get_platform_log()))
 
-    facade = syncloud_platform.insider.facade.get_insider()
+    device = get_device()
 
-    main.execute(facade, args)
+    main.execute(device, args)
