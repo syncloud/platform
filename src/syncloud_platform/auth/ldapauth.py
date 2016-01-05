@@ -10,7 +10,6 @@ import ldap
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 import time
-from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.systemd.systemctl import stop_service, start_service
 from syncloud_platform.tools import app
 
@@ -19,9 +18,9 @@ platform_user = 'platform'
 
 
 class LdapAuth:
-    def __init__(self):
+    def __init__(self, platform_config):
         self.log = get_logger('ldap')
-        self.config = PlatformConfig()
+        self.config = platform_config
 
     def installed(self):
         data_dir = app.get_app_data_root('platform', platform_user)

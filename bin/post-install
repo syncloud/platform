@@ -30,6 +30,7 @@ app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
 platform_config = PlatformConfig()
 hardware = Hardware()
+ldap_auth = LdapAuth(platform_config)
 
 if not isdir(platform_config.get_disk_root()):
     os.mkdir(platform_config.get_disk_root())
@@ -52,4 +53,4 @@ add_service('platform', 'platform-ntpdate')
 add_service('platform', 'platform-uwsgi-internal')
 add_service('platform', 'platform-uwsgi-public')
 add_service('platform', 'platform-nginx')
-add_service('platform', 'platform-openldap', start=LdapAuth().installed())
+add_service('platform', 'platform-openldap', start=ldap_auth.installed())

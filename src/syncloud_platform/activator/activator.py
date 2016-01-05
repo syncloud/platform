@@ -12,16 +12,15 @@ from syncloud_platform.insider.cron import PlatformCron
 
 
 class Activator:
-    def __init__(self, insider=None):
-        if insider is None:
-            insider = facade.get_insider()
+    def __init__(self, platform_config, user_platform_config, insider, redirect_service):
+        self.platform_config = platform_config
+        self.user_platform_config = user_platform_config
         self.insider = insider
+        self.redirect_service = redirect_service
+
         self.logger = logger.get_logger('Activator')
-        self.auth = LdapAuth()
         self.sam = SamStub()
-        self.redirect_service = RedirectService()
-        self.platform_config = PlatformConfig()
-        self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
+        self.auth = LdapAuth(self.platform_config)
         self.platform_cron = PlatformCron(self.platform_config)
 
 
@@ -64,3 +63,11 @@ class Activator:
 
         self.user_platform_config.set_activated(True)
         self.logger.info("activation completed")
+
+def get_activator():
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    insider = facade.get_insider()
+    redirect_service = RedirectService(platform_config, user_platform_config)
+
+    return Activator(platform_config, user_platform_config, insider, redirect_service)

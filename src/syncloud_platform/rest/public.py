@@ -236,7 +236,10 @@ def set_protocol():
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    RedirectService().send_log()
+    platform_config = PlatformConfig()
+    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
+    redirect_service = RedirectService(platform_config, user_platform_config)
+    redirect_service.send_log()
     return jsonify(success=True), 200
 
 

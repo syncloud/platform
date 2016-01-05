@@ -2,7 +2,6 @@ from os import listdir
 from urlparse import urljoin
 from subprocess import check_output
 from os.path import isfile, join
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
 from syncloud_platform.insider import util
 import requests
 import convertible
@@ -10,10 +9,10 @@ import convertible
 
 class RedirectService:
 
-    def __init__(self):
-        self.platform_config = PlatformConfig()
+    def __init__(self, platform_config, user_platform_config):
+        self.platform_config = platform_config
+        self.user_platform_config = user_platform_config
         self.log_root = self.platform_config.get_log_root()
-        self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
 
     def get_user(self, email, password):
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/user/get")
