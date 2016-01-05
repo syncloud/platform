@@ -84,7 +84,7 @@ def test_activate_device(auth):
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': SYNCLOUD_INFO})
+                                   'api-url': 'http://api.syncloud.info', 'domain': SYNCLOUD_INFO})
     assert response.status_code == 200, response.text
 
 
@@ -93,7 +93,7 @@ def test_reactivate(auth):
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password,
                                    'redirect-domain': domain, 'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': SYNCLOUD_INFO})
+                                   'api-url': 'http://api.syncloud.info', 'domain': SYNCLOUD_INFO})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
