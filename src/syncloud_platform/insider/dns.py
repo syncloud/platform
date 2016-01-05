@@ -11,15 +11,12 @@ from syncloud_platform.tools import id
 
 class Dns:
 
-    def __init__(self, redirect_api_url, local_ip, service_config, user_platform_config):
-        self.redirect_api_url = redirect_api_url
+    def __init__(self, service_config, local_ip, redirect_config, user_platform_config):
+        self.redirect_config = redirect_config
         self.local_ip = local_ip
         self.service_config = service_config
+        self.logger = logger.get_logger('dns')
         self.user_platform_config = user_platform_config
-        self.logger = logger.get_logger('Dns')
-
-    def __redirect_url(self, url):
-        return urljoin(self.redirect_api_url, url)
 
     def acquire(self, email, password, user_domain):
         device_id = id.id()
@@ -31,7 +28,7 @@ class Dns:
             'device_name': device_id.name,
             'device_title': device_id.title,
         }
-        url = self.__redirect_url("/domain/acquire")
+        url = urljoin(self.redirect_config.get_api_url(), "/domain/acquire")
         response = requests.post(url, data)
         util.check_http_error(response)
         response_data = convertible.from_json(response.text)
@@ -55,6 +52,12 @@ class Dns:
         if service:
             self.service_config.remove(name)
             port_drill.remove(service.port)
+
+    def full_name(self):
+        return '{}.{}'.format(self.user_platform_config.get_user_domain(), self.redirect_config.get_domain())
+
+    def user_domain(self):
+        return self.user_platform_config.get_user_domain()
 
     def sync(self, port_drill):
         port_drill.sync()
@@ -105,7 +108,7 @@ class Dns:
             data['map_local_address'] = True
             self.logger.warn("Will try server side client ip detection")
 
-        url = self.__redirect_url("/domain/update")
+        url = urljoin(self.redirect_config.get_api_url(), "/domain/update")
 
         self.logger.debug('url: ' + url)
         json = convertible.to_json(data)

@@ -5,6 +5,7 @@ from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserCo
 
 from syncloud_platform.insider.port_config import PortConfig, PORT_CONFIG_NAME
 from syncloud_platform.insider.service_config import ServiceConfig, SERVICE_CONFIG_NAME
+from syncloud_platform.insider.config import RedirectConfig, REDIRECT_CONFIG_NAME
 
 
 def temp_file(text='', filename=None):
@@ -39,6 +40,13 @@ test_services_config_file = join(test_conf_dir, test_services_config_file_name)
 CONFIG_DIR = join(dirname(__file__), '..', '..', '..', 'config')
 
 platform_config_file = CONFIG_DIR
+
+
+def get_redirect_config():
+    config = RedirectConfig(dirname(temp_file(filename=REDIRECT_CONFIG_NAME)))
+    config.update('domain.com', 'http://api.domain.com')
+    return config
+
 
 def get_user_platform_config():
     config = PlatformUserConfig(temp_file())

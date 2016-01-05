@@ -64,9 +64,9 @@ def get_insider():
     service_config = ServiceConfig(data_root)
 
     dns_service = dns.Dns(
-        redirect_config.get_api_url(),
-        network.local_ip(),
         service_config,
+        network.local_ip(),
+        redirect_config,
         user_platform_config)
 
     return Insider(
