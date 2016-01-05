@@ -53,12 +53,6 @@ class Dns:
             self.service_config.remove(name)
             port_drill.remove(service.port)
 
-    def full_name(self):
-        return '{}.{}'.format(self.user_platform_config.get_user_domain(), self.redirect_config.get_domain())
-
-    def user_domain(self):
-        return self.user_platform_config.get_user_domain()
-
     def sync(self, port_drill):
         port_drill.sync()
 
