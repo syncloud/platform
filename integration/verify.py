@@ -280,11 +280,11 @@ def test_reinstall_local_after_upgrade(auth):
     email, password, domain, version, arch, release = auth
     __local_install(DEVICE_PASSWORD, version, arch, release)
 
-pytest.xfail()
+@pytest.mark.xfail
 def test_nginx_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1/ping', shell=True))
 
-pytest.xfail()
+@pytest.mark.xfail
 def test_nginx_plus_flask_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/server/rest/id', shell=True))
 
