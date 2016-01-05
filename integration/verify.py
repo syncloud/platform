@@ -8,6 +8,8 @@ import time
 
 import shutil
 
+import pytest
+
 from requests.adapters import HTTPAdapter
 
 from integration.util.loop import loop_device_cleanup
@@ -107,7 +109,7 @@ def test_public_web_unauthorized_ajax_not_redirect():
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
-
+@pytest.mark.xfail
 def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
@@ -129,7 +131,7 @@ def test_external_mode(auth, public_web_session):
 
     # assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
-
+@pytest.mark.xfail
 def test_protocol(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
