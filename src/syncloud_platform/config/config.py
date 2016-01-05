@@ -152,6 +152,17 @@ class PlatformUserConfig:
             return self.parser.get('redirect', 'api_url')
         return 'http://api.syncloud.it'
 
+    def set_user_update_token(self, user_update_token):
+        self.parser.read(self.filename)
+        if not self.parser.has_section('redirect'):
+            self.parser.add_section('redirect')
+        self.parser.set('redirect', 'user_update_token', user_update_token)
+        self.__save()
+
+    def get_user_update_token(self):
+        self.parser.read(self.filename)
+        return self.parser.get('redirect', 'user_update_token')
+
     def is_activated(self):
         return self.parser.getboolean('platform', 'activated')
 

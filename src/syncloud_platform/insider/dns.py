@@ -11,8 +11,7 @@ from syncloud_platform.tools import id
 
 class Dns:
 
-    def __init__(self, service_config, local_ip, redirect_config, user_platform_config):
-        self.redirect_config = redirect_config
+    def __init__(self, service_config, local_ip, user_platform_config):
         self.local_ip = local_ip
         self.service_config = service_config
         self.logger = logger.get_logger('dns')

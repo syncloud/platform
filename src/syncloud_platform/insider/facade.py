@@ -6,7 +6,6 @@ import port_drill
 from port_config import PortConfig
 from service_config import ServiceConfig
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
-from syncloud_platform.insider.config import RedirectConfig
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.app import get_app_data_root
@@ -16,12 +15,11 @@ from syncloud_platform.tools.chown import chown
 
 class Insider:
 
-    def __init__(self, dns_service, platform_config, user_platform_config, port_config, redirect_config):
+    def __init__(self, dns_service, platform_config, user_platform_config, port_config):
         self.port_config = port_config
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.dns = dns_service
-        self.redirect_config = redirect_config
         self.logger = logger.get_logger('insider')
 
     def sync_all(self):
@@ -57,7 +55,6 @@ def get_insider():
 
     data_root = get_app_data_root(PLATFORM_APP_NAME)
 
-    redirect_config = RedirectConfig(data_root)
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
     port_config = PortConfig(data_root)
@@ -66,12 +63,10 @@ def get_insider():
     dns_service = dns.Dns(
         service_config,
         network.local_ip(),
-        redirect_config,
         user_platform_config)
 
     return Insider(
         dns_service,
         platform_config,
         user_platform_config,
-        port_config,
-        redirect_config)
+        port_config)

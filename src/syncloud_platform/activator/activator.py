@@ -41,9 +41,9 @@ class Activator:
 
         self.sam.update()
 
-        self.redirect_service.set_info(domain, api_url)
+        self.user_platform_config.update_redirect(domain, api_url)
         user = self.redirect_service.get_user(redirect_email, redirect_password)
-        self.redirect_service.redirect_config.set_user_update_token(user.update_token)
+        self.user_platform_config.set_user_update_token(user.update_token)
 
         self.insider.acquire_domain(redirect_email, redirect_password, user_domain)
 
