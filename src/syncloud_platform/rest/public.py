@@ -3,22 +3,28 @@ import traceback
 from os.path import dirname, join, abspath
 import sys
 
+
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
 from syncloud_platform.insider.redirect_service import RedirectService
 
+from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.rest.model import app_from_sam_app, App
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.tools import network
+
 
 local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
 if __name__ == '__main__':
     sys.path.insert(0, local_root)
 
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
 from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.sam.stub import SamStub
 from syncloud_app import logger
+
+from syncloud_platform.insider.service_config import ServiceConfig
 
 from syncloud_platform.device import get_device
 
@@ -241,7 +247,9 @@ def set_protocol():
 def send_log():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    redirect_service = RedirectService(platform_config, user_platform_config)
+    data_root = get_app_data_root(PLATFORM_APP_NAME)
+    service_config = ServiceConfig(data_root)
+    redirect_service = RedirectService(service_config, network.local_ip(), user_platform_config, platform_config)
     get_user_update_token = user_platform_config.get_user_update_token()
     redirect_service.send_log(get_user_update_token)
     return jsonify(success=True), 200
