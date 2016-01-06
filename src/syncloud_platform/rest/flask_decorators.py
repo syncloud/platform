@@ -11,10 +11,11 @@ def nocache(f):
     return update_wrapper(new_func, f)
 
 def redirect_if_not_activated(f):
+    platform_config = PlatformConfig()
+    platform_user_config = PlatformUserConfig(platform_config.get_user_config())
     def new_func(*args, **kwargs):
         resp = make_response(f(*args, **kwargs))
-        platform_config = PlatformConfig()
-        if not PlatformUserConfig(platform_config.get_user_config()).is_activated():
+        if platform_user_config.get_domain_update_token() is None:
             return redirect('{0}://{1}:81'.format(request.scheme, request.host))
         else:
             return resp

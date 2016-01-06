@@ -143,6 +143,6 @@ class PortDrillFactory:
         if external_access:
             mapper = provide_mapper()
             if mapper:
-                prober = PortProber(self.user_platform_config.get_redirect_api_url(), self.user_platform_config.get_update_token())
+                prober = PortProber(self.user_platform_config.get_redirect_api_url(), self.user_platform_config.get_domain_update_token())
                 drill = PortDrill(self.port_config, mapper, prober)
         return drill

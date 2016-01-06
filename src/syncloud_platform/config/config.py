@@ -122,7 +122,6 @@ class PlatformUserConfig:
 
         if not isfile(self.filename):
             self.parser.add_section('platform')
-            self.set_activated(False)
             self.__save()
         else:
             self.parser.read(self.filename)
@@ -163,32 +162,23 @@ class PlatformUserConfig:
         self.parser.read(self.filename)
         return self.parser.get('redirect', 'user_update_token')
 
-    def is_activated(self):
-        return self.parser.getboolean('platform', 'activated')
-
-    def set_activated(self, value):
-        self.parser.read(self.filename)
-        self.logger.info('saving activated = {0}'.format(value))
-        self.parser.set('platform', 'activated', str(value))
-        self.__save()
-
     def get_user_domain(self):
         self.parser.read(self.filename)
         if self.parser.has_option('platform', 'user_domain'):
             return self.parser.get('platform', 'user_domain')
         return None
 
-    def get_update_token(self):
+    def get_domain_update_token(self):
         self.parser.read(self.filename)
-        if self.parser.has_option('platform', 'update_token'):
-            return self.parser.get('platform', 'update_token')
+        if self.parser.has_option('platform', 'domain_update_token'):
+            return self.parser.get('platform', 'domain_update_token')
         return None
 
     def update_domain(self, user_domain, domain_update_token):
         self.parser.read(self.filename)
         self.logger.info('saving user_domain = {0}, domain_update_token = {0}'.format(user_domain, domain_update_token))
         self.parser.set('platform', 'user_domain', user_domain)
-        self.parser.set('platform', 'update_token', domain_update_token)
+        self.parser.set('platform', 'domain_update_token', domain_update_token)
         self.__save()
 
     def get_external_access(self):

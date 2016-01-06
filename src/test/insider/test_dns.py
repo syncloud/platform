@@ -52,7 +52,6 @@ def test_sync_success():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    user_platform_config.set_activated(True)
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(service_config, '127.0.0.1', user_platform_config, platform_config)
     dns.sync(port_drill, 'some_update_token')
@@ -91,7 +90,6 @@ def test_sync_server_side_client_ip():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    user_platform_config.set_activated(True)
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(service_config, '127.0.0.1', user_platform_config, platform_config)
     dns.sync(port_drill, 'some_update_token')
@@ -126,7 +124,6 @@ def test_sync_server_error():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    user_platform_config.set_activated(True)
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(service_config, '127.0.0.1', user_platform_config, platform_config)
 

@@ -73,7 +73,6 @@ class Device:
 
         Tls().generate_certificate()
 
-        self.user_platform_config.set_activated(True)
         self.logger.info("activation completed")
 
     def add_main_device_service(self, protocol, external_access):
@@ -81,7 +80,7 @@ class Device:
         self.redirect_service.remove_service("server", drill)
         self.redirect_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
 
-        update_token = self.user_platform_config.get_update_token()
+        update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
             raise Exception("No update token saved, device is not activated yet")
 
@@ -90,11 +89,7 @@ class Device:
         trigger_app_event_domain(self.platform_config.apps_root())
 
     def sync_all(self):
-        if not self.user_platform_config.is_activated():
-            self.logger.info('Nothing to sync yet, device is not activated yet')
-            return
-
-        update_token = self.user_platform_config.get_update_token()
+        update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
             raise Exception("No update token saved, device is not activated yet")
 
