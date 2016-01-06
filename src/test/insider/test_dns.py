@@ -51,10 +51,9 @@ def test_sync_success():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.set_activated(True)
-    user_platform_config.set_user_domain('boris')
-    user_platform_config.set_update_token('some_update_token')
+    user_platform_config.update_domain('boris', 'some_update_token')
     dns = Dns(service_config, '127.0.0.1', user_platform_config)
-    dns.sync(port_drill)
+    dns.sync(port_drill, 'some_update_token')
 
     expected_request = '''
 {
@@ -89,10 +88,9 @@ def test_sync_server_side_client_ip():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.set_activated(True)
-    user_platform_config.set_user_domain('boris')
-    user_platform_config.set_update_token('some_update_token')
+    user_platform_config.update_domain('boris', 'some_update_token')
     dns = Dns(service_config, '127.0.0.1', user_platform_config)
-    dns.sync(port_drill)
+    dns.sync(port_drill, 'some_update_token')
 
     expected_request = '''
 {
@@ -123,12 +121,11 @@ def test_sync_server_error():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.set_activated(True)
-    user_platform_config.set_user_domain('boris')
-    user_platform_config.set_update_token('some_update_token')
+    user_platform_config.update_domain('boris', 'some_update_token')
     dns = Dns(service_config, '127.0.0.1', user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
-        dns.sync(port_drill)
+        dns.sync(port_drill, 'some_update_token')
 
     assert context.value.message == "Unknown update token"
 
@@ -165,8 +162,8 @@ def test_link_success():
     # Need to assert all passed POST parameters
     # self.assertSingleRequest(convertible.to_json(expected_request_data))
 
-    assert user_platform_config.get_user_domain() == "boris"
-    assert user_platform_config.get_update_token() == "some_update_token"
+    assert result.user_domain == "boris"
+    assert result.update_token == "some_update_token"
 
 
 @responses.activate

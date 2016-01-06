@@ -242,7 +242,8 @@ def send_log():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
     redirect_service = RedirectService(platform_config, user_platform_config)
-    redirect_service.send_log()
+    get_user_update_token = user_platform_config.get_user_update_token()
+    redirect_service.send_log(get_user_update_token)
     return jsonify(success=True), 200
 
 

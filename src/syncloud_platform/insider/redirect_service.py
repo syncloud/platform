@@ -21,7 +21,7 @@ class RedirectService:
         user = convertible.from_json(response.text).data
         return user
 
-    def send_log(self):
+    def send_log(self, user_update_token):
 
         log_files = [join(self.log_root, f) for f in listdir(self.log_root) if isfile(join(self.log_root, f))]
         log_files.append('/var/log/sam.log')
@@ -29,7 +29,7 @@ class RedirectService:
         logs = '\n----------------------\n'.join(map(self.read_log, log_files))
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/user/log")
-        response = requests.post(url, {'token': self.user_platform_config.get_user_update_token(), 'data': logs})
+        response = requests.post(url, {'token': user_update_token, 'data': logs})
         util.check_http_error(response)
         user = convertible.from_json(response.text)
 

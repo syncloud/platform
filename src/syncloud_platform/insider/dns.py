@@ -31,8 +31,6 @@ class Dns:
         response = requests.post(url, data)
         util.check_http_error(response)
         response_data = convertible.from_json(response.text)
-        self.user_platform_config.set_user_domain(response_data.user_domain)
-        self.user_platform_config.set_update_token(response_data.update_token)
         return response_data
 
     def add_service(self, name, protocol, service_type, port, port_drill):
@@ -52,17 +50,9 @@ class Dns:
             self.service_config.remove(name)
             port_drill.remove(service.port)
 
-    def sync(self, port_drill):
+    def sync(self, port_drill, update_token):
         port_drill.sync()
-
         services = self.service_config.load()
-        if not self.user_platform_config.is_activated():
-            self.logger.info('nothing to sync yet, no dns configuration')
-            return
-
-        update_token = self.user_platform_config.get_update_token()
-        if not update_token:
-            raise Exception("No token saved, need to call set_dns or get_dns_token first")
 
         services_data = []
         for service in services:

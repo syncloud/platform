@@ -58,7 +58,8 @@ class Device:
         user = self.redirect_service.get_user(redirect_email, redirect_password)
         self.user_platform_config.set_user_update_token(user.update_token)
 
-        self.dns_service.acquire(redirect_email, redirect_password, user_domain)
+        response_data = self.dns_service.acquire(redirect_email, redirect_password, user_domain)
+        self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
 
         self.platform_cron.remove()
         self.platform_cron.create()
@@ -81,14 +82,28 @@ class Device:
         drill = self.get_drill(external_access)
         self.dns_service.remove_service("server", drill)
         self.dns_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
-        self.dns_service.sync(drill)
+
+        update_token = self.user_platform_config.get_update_token()
+        if update_token is None:
+            raise Exception("No update token saved, device is not activated yet")
+
+        self.dns_service.sync(drill, update_token)
         self.user_platform_config.update_device_access(external_access, protocol)
         trigger_app_event_domain(self.platform_config.apps_root())
 
     def sync_all(self):
+        if not self.user_platform_config.is_activated():
+            self.logger.info('Nothing to sync yet, device is not activated yet')
+            return
+
+        update_token = self.user_platform_config.get_update_token()
+        if update_token is None:
+            raise Exception("No update token saved, device is not activated yet")
+
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
-        self.dns_service.sync(drill)
+        self.dns_service.sync(drill, update_token)
+
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
 

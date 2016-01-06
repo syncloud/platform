@@ -178,22 +178,17 @@ class PlatformUserConfig:
             return self.parser.get('platform', 'user_domain')
         return None
 
-    def set_user_domain(self, value):
-        self.parser.read(self.filename)
-        self.logger.info('saving user_domain = {0}'.format(value))
-        self.parser.set('platform', 'user_domain', value)
-        self.__save()
-
     def get_update_token(self):
         self.parser.read(self.filename)
         if self.parser.has_option('platform', 'update_token'):
             return self.parser.get('platform', 'update_token')
         return None
 
-    def set_update_token(self, value):
+    def update_domain(self, user_domain, domain_update_token):
         self.parser.read(self.filename)
-        self.logger.info('saving update_token = {0}'.format(value))
-        self.parser.set('platform', 'update_token', value)
+        self.logger.info('saving user_domain = {0}, domain_update_token = {0}'.format(user_domain, domain_update_token))
+        self.parser.set('platform', 'user_domain', user_domain)
+        self.parser.set('platform', 'update_token', domain_update_token)
         self.__save()
 
     def get_external_access(self):
