@@ -63,7 +63,7 @@ class Device:
         self.platform_cron.create()
 
         try:
-            self.add_main_device_service('http', False)
+            self.set_access('http', False)
         except Exception, e:
             self.logger.warn('upnp is not available ' + e.message)
 
@@ -75,7 +75,7 @@ class Device:
 
         self.logger.info("activation completed")
 
-    def add_main_device_service(self, protocol, external_access):
+    def set_access(self, protocol, external_access):
         drill = self.get_drill(external_access)
         self.redirect_service.remove_service("server", drill)
         self.redirect_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)

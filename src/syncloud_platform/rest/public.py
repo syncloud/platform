@@ -220,7 +220,7 @@ def external_access_enable():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
     device = get_device()
-    device.add_main_device_service(user_platform_config.get_protocol(), request.args['external_access'])
+    device.set_access(user_platform_config.get_protocol(), request.args['external_access'])
     return jsonify(success=True), 200
 
 
@@ -238,7 +238,7 @@ def set_protocol():
     platform_config = PlatformConfig()
     user_platform_config = PlatformUserConfig(platform_config.get_user_config())
     device = get_device()
-    device.add_main_device_service(request.args['protocol'], user_platform_config.get_external_access())
+    device.set_access(request.args['protocol'], user_platform_config.get_external_access())
     return jsonify(success=True), 200
 
 
