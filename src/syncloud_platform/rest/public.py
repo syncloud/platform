@@ -1,57 +1,23 @@
 import os
-import traceback
-from os.path import dirname, join, abspath
 import sys
-
+import traceback
+from os.path import join
 
 import convertible
-from flask import Flask, jsonify, send_from_directory, request, redirect, send_file
-from syncloud_platform.insider.redirect_service import RedirectService
+from flask import jsonify, send_from_directory, request, redirect, send_file
+from flask.ext.login import login_user, logout_user, current_user, login_required
 
-from syncloud_platform.tools.app import get_app_data_root
-from syncloud_platform.rest.model import app_from_sam_app, App
-from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
-from syncloud_platform.tools.hardware import Hardware
-from syncloud_platform.tools import network
-
-
-local_root = abspath(join(dirname(__file__), '..', '..', '..', '..'))
-if __name__ == '__main__':
-    sys.path.insert(0, local_root)
-
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
 from syncloud_platform.auth.ldapauth import authenticate
-from syncloud_platform.sam.stub import SamStub
-from syncloud_app import logger
+from syncloud_platform.rest.facade.public import Public, html_prefix, rest_prefix
+from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
+from syncloud_platform.rest.model.flask_user import FlaskUser
+from syncloud_platform.rest.model.user import User
+from syncloud_platform.tools.hardware import Hardware
 
-from syncloud_platform.insider.service_config import ServiceConfig
+public = Public()
 
-from syncloud_platform.device import get_device
-
-from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
-
-config = PlatformConfig()
-if __name__ == '__main__':
-    www_dir = join(local_root, 'www', '_site')
-    mock_apps = [
-        App("owncloud", "ownCloud", "owncloud")]
-    secret_key = '123223'
-else:
-    www_dir = config.www_root()
-    mock_apps = None
-    secret_key = config.get_web_secret_key()
-
-html_prefix = '/server/html'
-rest_prefix = '/server/rest'
-
-logger.init(filename=config.get_rest_public_log())
-log = logger.get_logger('rest.public')
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = secret_key
-login_manager = LoginManager()
-login_manager.init_app(app)
-sam = SamStub()
+app = public.flask_app
+login_manager = public.flask_login_manager
 
 
 @login_manager.unauthorized_handler
@@ -62,38 +28,16 @@ def _callback():
         return redirect(html_prefix + '/login.html')
 
 
-class User:
-    def __init__(self, name):
-        self.name = name
-
-
-class UserFlask:
-    def __init__(self, user):
-        self.user = user
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return unicode(self.user)
-
-
 @app.route(html_prefix + '/<path:filename>')
 @nocache
 @redirect_if_not_activated
 def static_file(filename):
-    return send_from_directory(www_dir, filename)
+    return send_from_directory(public.www_dir, filename)
 
 
 @login_manager.user_loader
 def load_user(email):
-    return UserFlask(User(email))
+    return FlaskUser(User(email))
 
 
 @app.route(rest_prefix + "/login", methods=["GET", "POST"])
@@ -103,7 +47,7 @@ def login():
     if 'name' in request.form and 'password' in request.form:
         try:
             authenticate(request.form['name'], request.form['password'])
-            user_flask = UserFlask(User(request.form['name']))
+            user_flask = FlaskUser(User(request.form['name']))
             login_user(user_flask, remember=False)
             # next_url = request.get('next_url', '/')
             return redirect("/")
@@ -139,119 +83,88 @@ files_prefix = rest_prefix + '/files/'
 @app.route(files_prefix)
 @app.route(files_prefix + '<path:path>')
 @login_required
-def browser(path=''):
+def browse(path=''):
     filesystem_path = join('/', path)
     if os.path.isfile(filesystem_path):
         return send_file(filesystem_path, mimetype='text/plain')
     else:
-        entries = sorted(os.listdir(filesystem_path))
-        items = [{'name': entry, 'is_file': os.path.isfile(join(filesystem_path, entry))} for entry in entries]
-        return jsonify(items=items, dir=filesystem_path)
+        return jsonify(items=public.browse(filesystem_path), dir=filesystem_path)
 
 
 @app.route(rest_prefix + "/installed_apps", methods=["GET"])
 @login_required
 def installed_apps():
-    apps = [app_from_sam_app(a) for a in sam.installed_user_apps()]
-
-    # TODO: Hack to add system apps, need to think about it
-    apps.append(App('store', 'App Store', html_prefix + '/store.html'))
-    apps.append(App('settings', 'Settings', html_prefix + '/settings.html'))
-
-    return jsonify(apps=convertible.to_dict(apps)), 200
+    return jsonify(apps=convertible.to_dict(public.installed_apps())), 200
 
 
 @app.route(rest_prefix + "/app", methods=["GET"])
 @login_required
 def app_status():
-    application = get_app(request.args['app_id'])
-    return jsonify(info=convertible.to_dict(application)), 200
-
-
-def get_app(app_id):
-    return sam.get_app(app_id)
+    return jsonify(info=convertible.to_dict(public.get_app(request.args['app_id']))), 200
 
 
 @app.route(rest_prefix + "/install", methods=["GET"])
 @login_required
 def install():
-    sam.install(request.args['app_id'])
+    public.install(request.args['app_id'])
     return 'OK', 200
 
 
 @app.route(rest_prefix + "/remove", methods=["GET"])
 @login_required
 def remove():
-    result = sam.remove(request.args['app_id'])
-    return jsonify(message=result), 200
+    return jsonify(message=public.remove(request.args['app_id'])), 200
 
 
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
-    sam.upgrade(request.args['app_id'])
+    public.upgrade(request.args['app_id'])
     return 'OK', 200
 
 
 @app.route(rest_prefix + "/check", methods=["GET"])
 @login_required
 def update():
-    result = sam.update()
-    return jsonify(message=result), 200
+    return jsonify(message=public.update()), 200
 
 
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
 @login_required
 def available_apps():
-    return jsonify(apps=convertible.to_dict([app_from_sam_app(a) for a in sam.user_apps()])), 200
+    return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def external_access():
-    platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    return jsonify(external_access=user_platform_config.get_external_access()), 200
+    return jsonify(external_access=public.external_access()), 200
 
 
 @app.route(rest_prefix + "/settings/set_external_access", methods=["GET"])
 @login_required
 def external_access_enable():
-    platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    device = get_device()
-    device.set_access(user_platform_config.get_protocol(), request.args['external_access'])
+    public.external_access_enable(request.args['external_access'])
     return jsonify(success=True), 200
 
 
 @app.route(rest_prefix + "/settings/protocol", methods=["GET"])
 @login_required
 def protocol():
-    platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    return jsonify(protocol=user_platform_config.get_protocol()), 200
+    return jsonify(protocol=public.protocol()), 200
 
 
 @app.route(rest_prefix + "/settings/set_protocol", methods=["GET"])
 @login_required
 def set_protocol():
-    platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    device = get_device()
-    device.set_access(request.args['protocol'], user_platform_config.get_external_access())
+    public.set_protocol(request.args['protocol'])
     return jsonify(success=True), 200
 
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    data_root = get_app_data_root(PLATFORM_APP_NAME)
-    service_config = ServiceConfig(data_root)
-    redirect_service = RedirectService(service_config, network.local_ip(), user_platform_config, platform_config)
-    get_user_update_token = user_platform_config.get_user_update_token()
-    redirect_service.send_log(get_user_update_token)
+    public.send_log()
     return jsonify(success=True), 200
 
 
@@ -264,33 +177,32 @@ def disks():
 @app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])
 @login_required
 def disk_activate():
-    device = request.args['device']
-    return jsonify(success=True, disks=Hardware().activate_disk(device)), 200
+    return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
 
 
 @app.route(rest_prefix + "/settings/version", methods=["GET"])
 @login_required
 def version():
-    return jsonify(convertible.to_dict(get_app('platform'))), 200
+    return jsonify(convertible.to_dict(public.get_app('platform'))), 200
 
 
 @app.route(rest_prefix + "/settings/system_upgrade", methods=["GET"])
 @login_required
 def system_upgrade():
-    sam.upgrade('platform')
+    public.system_upgrade()
     return 'OK', 200
 
 
 @app.route(rest_prefix + "/settings/sam_status", methods=["GET"])
 @login_required
 def sam_status():
-    return jsonify(is_running=sam.is_running()), 200
+    return jsonify(is_running=public.sam_status()), 200
 
 
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])
 @login_required
 def disk_deactivate():
-    return jsonify(success=True, disks=Hardware().deactivate_disk()), 200
+    return jsonify(success=True, disks=public.disk_deactivate()), 200
 
 
 @app.errorhandler(Exception)
@@ -301,12 +213,3 @@ def handle_exception(error):
     response = jsonify(success=False, message=error.message)
     status_code = 500
     return response, status_code
-
-
-# def filter_websites(endpoints):
-#     return [endpoint for endpoint in endpoints
-#             if endpoint.service.protocol in ["http", "https"] and endpoint.service.name != "server"]
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5001)
