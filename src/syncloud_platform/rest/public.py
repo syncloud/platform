@@ -9,13 +9,16 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from flask_login import LoginManager
 
 from syncloud_platform.auth.ldapauth import authenticate
-from syncloud_platform.rest.facade.public import Public, html_prefix, rest_prefix
+from syncloud_platform.di.injector import Injector
+from syncloud_platform.rest.facade.common import html_prefix, rest_prefix
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.tools.hardware import Hardware
 
-public = Public()
+injector = Injector()
+public = injector.public
+common = injector.common
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = public.platform_config.get_web_secret_key()
@@ -167,7 +170,7 @@ def set_protocol():
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    public.send_log()
+    common.send_log()
     return jsonify(success=True), 200
 
 

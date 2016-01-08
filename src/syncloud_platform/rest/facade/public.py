@@ -1,30 +1,21 @@
 import os
-
 from os.path import join
 
 from syncloud_app import logger
 
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
 from syncloud_platform.device import get_device
-from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.insider.service_config import ServiceConfig
+from syncloud_platform.rest.facade.common import html_prefix
 from syncloud_platform.rest.model.app import app_from_sam_app, App
 from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools import network
-from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.hardware import Hardware
-
-html_prefix = '/server/html'
-rest_prefix = '/server/rest'
 
 
 class Public:
 
-    def __init__(self):
-        self.platform_config = PlatformConfig()
-        logger.init(filename=self.platform_config.get_rest_public_log())
+    def __init__(self, platform_config, user_platform_config):
+        self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
-        self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
+        self.user_platform_config = user_platform_config
         self.device = get_device()
         self.sam = SamStub()
         self.www_dir = self.platform_config.www_root()
@@ -70,13 +61,6 @@ class Public:
 
     def set_protocol(self, protocol):
         self.device.set_access(protocol, self.user_platform_config.get_external_access())
-
-    def send_log(self):
-        data_root = get_app_data_root(PLATFORM_APP_NAME)
-        service_config = ServiceConfig(data_root)
-        redirect_service = RedirectService(service_config, network.local_ip(), self.user_platform_config, self.platform_config)
-        get_user_update_token = self.user_platform_config.get_user_update_token()
-        redirect_service.send_log(get_user_update_token)
 
     def disk_activate(self, device):
         return Hardware().activate_disk(device)

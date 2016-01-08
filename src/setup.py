@@ -2,10 +2,10 @@ from setuptools import setup
 from os.path import join, dirname
 
 requirements = [
-    'urllib3==1.7.1',
-    'requests==2.2.1',
+    'urllib3==1.10.4',
+    'requests==2.7.0',
     'beautifulsoup4==4.3.2',
-    'IPy==0.82a',
+    'IPy==0.83',
     'python-crontab==1.7.2',
     'massedit==0.66',
     'Flask==0.10.1',
@@ -22,7 +22,7 @@ setup(
     packages=['syncloud_platform', 'syncloud_platform.insider', 'syncloud_platform.api', 'syncloud_platform.auth',
               'syncloud_platform.tools', 'syncloud_platform.tools.cpu', 'syncloud_platform.systemd',
               'syncloud_platform.rest', 'syncloud_platform.config', 'syncloud_platform.sam',
-              'syncloud_platform.rest.facade', 'syncloud_platform.rest.model'],
+              'syncloud_platform.rest.facade', 'syncloud_platform.rest.model', 'syncloud_platform.di'],
     namespace_packages=['syncloud_platform'],
     install_requires=requirements,
     description='Syncloud platform',

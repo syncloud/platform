@@ -1,46 +1,32 @@
-from os.path import join, dirname, abspath
 import traceback
 import sys
 import convertible
-
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
 
+from syncloud_platform.di.injector import Injector
+from syncloud_platform.rest.facade.common import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
-from syncloud_platform.tools import id
-from syncloud_platform.config.config import PlatformConfig
 
-local_root = abspath(join(dirname(__file__), '..', '..', '..'))
-if __name__ == '__main__':
-    sys.path.insert(0, local_root)
-
-from syncloud_app import logger
-
-from syncloud_platform.device import get_device
-
-config = PlatformConfig()
-if __name__ == '__main__':
-    www_dir = join(local_root, 'www', '_site')
-else:
-    www_dir = config.www_root()
-
-logger.init(filename=config.get_rest_internal_log())
+injector = Injector()
+internal = injector.internal
+common = injector.common
 
 app = Flask(__name__)
 
 
-@app.route('/server/html/<path:filename>')
+@app.route(html_prefix + "/<path:filename>")
 @nocache
 def static_file(filename):
-    return send_from_directory(www_dir, filename)
+    return send_from_directory(internal.www_dir, filename)
 
 
-@app.route("/server/rest/id", methods=["GET"])
+@app.route(rest_prefix + "/id", methods=["GET"])
 def identification():
-    return jsonify(success=True, message='', data=convertible.to_dict(id.id())), 200
+    return jsonify(success=True, message='', data=convertible.to_dict(internal.identification())), 200
 
 
-@app.route("/server/rest/activate", methods=["POST"])
+@app.route(rest_prefix + "/activate", methods=["POST"])
 def activate():
 
     # TODO: validation
@@ -53,9 +39,7 @@ def activate():
     if 'domain' in request.form:
         domain = request.form['domain']
 
-    device = get_device()
-
-    device.activate(
+    internal.activate(
         request.form['redirect-email'],
         request.form['redirect-password'],
         request.form['redirect-domain'],
@@ -65,6 +49,12 @@ def activate():
         domain
     )
     return identification()
+
+
+@app.route(rest_prefix + "/send_log", methods=["GET"])
+def send_log():
+    common.send_log()
+    return jsonify(success=True), 200
 
 
 @app.errorhandler(Exception)
