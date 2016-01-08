@@ -11,9 +11,7 @@ SERVICE_CONFIG_NAME = 'services.json'
 
 class ServiceConfig:
 
-    def __init__(self, config_dir=None):
-        if not config_dir:
-            config_dir = get_app_data_root(PLATFORM_APP_NAME)
+    def __init__(self, config_dir):
         self.filename = join(config_dir, SERVICE_CONFIG_NAME)
 
     def load(self):

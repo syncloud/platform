@@ -1,36 +1,25 @@
-import uuid
 import getpass
+import uuid
 
 from syncloud_app import logger
 
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
-from syncloud_platform.insider.cron import PlatformCron
 from syncloud_platform.auth.ldapauth import LdapAuth
-from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools.tls import Tls
-
-from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.insider.port_drill import PortDrillFactory
-from syncloud_platform.insider.port_config import PortConfig
-from syncloud_platform.insider.service_config import ServiceConfig
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
+from syncloud_platform.insider.cron import PlatformCron
 from syncloud_platform.insider.util import protocol_to_port
-
-from syncloud_platform.tools.app import get_app_data_root
-from syncloud_platform.tools import network
 from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.events import trigger_app_event_domain
+from syncloud_platform.tools.tls import Tls
 
 
 class Device:
 
-    def __init__(self, platform_config, user_platform_config, redirect_service, port_drill_factory):
+    def __init__(self, platform_config, user_platform_config, redirect_service, port_drill_factory, sam):
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.redirect_service = redirect_service
         self.port_drill_factory = port_drill_factory
 
-        self.sam = SamStub()
+        self.sam = sam
         self.auth = LdapAuth(self.platform_config)
         self.platform_cron = PlatformCron(self.platform_config)
 
@@ -102,17 +91,3 @@ class Device:
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)
-
-
-def get_device():
-    platform_config = PlatformConfig()
-    user_platform_config = PlatformUserConfig(platform_config.get_user_config())
-    data_root = get_app_data_root(PLATFORM_APP_NAME)
-    port_config = PortConfig(data_root)
-    service_config = ServiceConfig(data_root)
-
-    redirect_service = RedirectService(service_config, network.local_ip(), user_platform_config, platform_config)
-
-    port_drill_factory = PortDrillFactory(user_platform_config, port_config)
-
-    return Device(platform_config, user_platform_config, redirect_service, port_drill_factory)

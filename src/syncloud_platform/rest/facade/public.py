@@ -3,7 +3,6 @@ from os.path import join
 
 from syncloud_app import logger
 
-from syncloud_platform.device import get_device
 from syncloud_platform.rest.facade.common import html_prefix
 from syncloud_platform.rest.model.app import app_from_sam_app, App
 from syncloud_platform.sam.stub import SamStub
@@ -12,11 +11,11 @@ from syncloud_platform.tools.hardware import Hardware
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config):
+    def __init__(self, platform_config, user_platform_config, device):
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
         self.user_platform_config = user_platform_config
-        self.device = get_device()
+        self.device = device
         self.sam = SamStub()
         self.www_dir = self.platform_config.www_root()
 

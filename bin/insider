@@ -1,26 +1,8 @@
 #!/opt/app/platform/python/bin/python
 
-# block to import lib folder
-import sys
-from os import listdir
-from os.path import join, dirname, isdir, abspath
-
-app_path = abspath(join(dirname(__file__), '..'))
-
-lib_path = join(app_path, 'lib')
-libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_path, item))]
-map(lambda x: sys.path.append(x), libs)
-# end of block to import lib folder
-
+from syncloud_platform.di.injector import Injector
 import argparse
-import logging
-from os.path import join
-
 from syncloud_app import main
-from syncloud_app import logger
-from syncloud_platform.config.config import PlatformConfig
-
-from syncloud_platform.device import get_device
 
 
 def create_args_parser():
@@ -36,10 +18,6 @@ if __name__ == '__main__':
     parser = create_args_parser()
     args = parser.parse_args()
 
-    console = True if args.debug else False
-    level = logging.DEBUG if args.debug else logging.INFO
-    logger.init(level, console, join(PlatformConfig().get_platform_log()))
-
-    device = get_device()
+    device = Injector(args.debug).device
 
     main.execute(device, args)

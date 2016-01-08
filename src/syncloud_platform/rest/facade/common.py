@@ -1,22 +1,32 @@
-from syncloud_platform.config.config import PLATFORM_APP_NAME
-from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.insider.service_config import ServiceConfig
-from syncloud_platform.tools import network
-from syncloud_platform.tools.app import get_app_data_root
-
+from os import listdir
+from os.path import isfile, join
+from subprocess import check_output
 
 html_prefix = '/server/html'
 rest_prefix = '/server/rest'
 
 
 class Common:
-    def __init__(self, platform_config, user_platform_config):
+    def __init__(self, platform_config, user_platform_config, redirect_service):
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
+        self.redirect_service = redirect_service
+        self.log_root = self.platform_config.get_log_root()
 
     def send_log(self):
-        data_root = get_app_data_root(PLATFORM_APP_NAME)
-        service_config = ServiceConfig(data_root)
-        redirect_service = RedirectService(service_config, network.local_ip(), self.user_platform_config, self.platform_config)
-        get_user_update_token = self.user_platform_config.get_user_update_token()
-        redirect_service.send_log(get_user_update_token)
+
+        log_files = [join(self.log_root, f) for f in listdir(self.log_root) if isfile(join(self.log_root, f))]
+        log_files.append('/var/log/sam.log')
+
+        logs = '\n----------------------\n'.join(map(self.read_log, log_files))
+
+        self.redirect_service.send_log(self.user_platform_config.get_user_update_token(), logs)
+
+    def read_log(self, filename):
+        log = 'file: {0}\n\n'.format(filename)
+        if isfile(filename):
+            log += check_output('tail -100 {0}'.format(filename), shell=True)
+        else:
+            log += '-- not found --'
+        return log
+
