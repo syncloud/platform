@@ -169,6 +169,11 @@ def test_public_web_files(public_web_session):
     assert response.status_code == 301
 
 
+def test_installed_apps(public_web_session):
+    response = public_web_session.get('http://localhost/server/rest/installed_apps')
+    assert response.status_code == 200
+
+
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session):
 
     response = public_web_session.get('http://localhost/server/html/settings.html')

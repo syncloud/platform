@@ -10,8 +10,7 @@ from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, 
 from syncloud_platform.device import get_device
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.service_config import ServiceConfig
-from syncloud_platform.rest.model.app import app_from_sam_app
-from syncloud_platform.sam.models import App
+from syncloud_platform.rest.model.app import app_from_sam_app, App
 from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.tools import network
 from syncloud_platform.tools.app import get_app_data_root
