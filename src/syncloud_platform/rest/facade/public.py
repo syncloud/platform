@@ -2,8 +2,6 @@ import os
 
 from os.path import join
 
-from flask import Flask
-from flask_login import LoginManager
 from syncloud_app import logger
 
 from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
@@ -29,12 +27,6 @@ class Public:
         self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
         self.device = get_device()
         self.sam = SamStub()
-
-        self.flask_app = Flask(__name__)
-        self.flask_app.config['SECRET_KEY'] = self.platform_config.get_web_secret_key()
-        self.flask_login_manager = LoginManager()
-        self.flask_login_manager.init_app(self.flask_app)
-
         self.www_dir = self.platform_config.www_root()
 
     def browse(self, filesystem_path):

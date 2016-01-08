@@ -4,8 +4,9 @@ import traceback
 from os.path import join
 
 import convertible
-from flask import jsonify, send_from_directory, request, redirect, send_file
+from flask import jsonify, send_from_directory, request, redirect, send_file, Flask
 from flask.ext.login import login_user, logout_user, current_user, login_required
+from flask_login import LoginManager
 
 from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.rest.facade.public import Public, html_prefix, rest_prefix
@@ -16,8 +17,10 @@ from syncloud_platform.tools.hardware import Hardware
 
 public = Public()
 
-app = public.flask_app
-login_manager = public.flask_login_manager
+app = Flask(__name__)
+app.config['SECRET_KEY'] = public.platform_config.get_web_secret_key()
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
 @login_manager.unauthorized_handler
