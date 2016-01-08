@@ -48,3 +48,10 @@ def test_equals_vendor():
     footprint = Footprint(vendor_id='AuthenticAMD', cpu_count=32, mem_size=1234)
     pattern = Footprint(vendor_id='AuthenticAMD')
     assert footprint.match(pattern)
+
+def test_lsusb():
+    footprint1 = Footprint(vendor_id='arm', lsusb="Some Realtek USB Host")
+    footprint2 = Footprint(vendor_id='arm', lsusb="Some Logitech USB Host")
+    pattern = Footprint(vendor_id='arm', lsusb="Realtek")
+    assert footprint1.match(pattern)
+    assert not footprint2.match(pattern)
