@@ -48,4 +48,4 @@ def footprint():
     info = CpuInfo(Reader())
     cpu_hardware = info.hardware()
     vendor_id = info.vendor_id()
-    return Footprint(cpu_hardware, cpu_count, mem_size, vendor_id, lsusb())
+    return Footprint(cpu_hardware, cpu_count, mem_size, vendor_id, None)
