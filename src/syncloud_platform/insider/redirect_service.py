@@ -12,8 +12,8 @@ from syncloud_platform.tools import id
 
 class RedirectService:
 
-    def __init__(self, service_config, local_ip, user_platform_config):
-        self.local_ip = local_ip
+    def __init__(self, service_config, network, user_platform_config):
+        self.network = network
         self.service_config = service_config
         self.user_platform_config = user_platform_config
 
@@ -88,9 +88,10 @@ class RedirectService:
                 )
                 services_data.append(service_data)
 
+        local_ip = self.network.local_ip()
         data = {
             'token': update_token,
-            'local_ip': self.local_ip,
+            'local_ip': local_ip,
             'services': services_data,
             'map_local_address': False}
 
