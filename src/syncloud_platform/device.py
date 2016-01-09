@@ -3,26 +3,23 @@ import uuid
 
 from syncloud_app import logger
 
-from syncloud_platform.auth.ldapauth import LdapAuth
-from syncloud_platform.insider.cron import PlatformCron
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.events import trigger_app_event_domain
-from syncloud_platform.tools.tls import Tls
 
 
 class Device:
 
-    def __init__(self, platform_config, user_platform_config, redirect_service, port_drill_factory, sam):
+    def __init__(self, platform_config, user_platform_config, redirect_service,
+                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls):
+        self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.redirect_service = redirect_service
         self.port_drill_factory = port_drill_factory
-
         self.sam = sam
-        self.auth = LdapAuth(self.platform_config)
-        self.platform_cron = PlatformCron(self.platform_config)
-
+        self.auth = ldap_auth
+        self.platform_cron = platform_cron
+        self.event_trigger = event_trigger
         self.logger = logger.get_logger('Device')
 
     def activate(self,
@@ -60,7 +57,7 @@ class Device:
         self.auth.reset(device_user, device_password)
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
-        Tls().generate_certificate()
+        self.tls.generate_certificate()
 
         self.logger.info("activation completed")
 
@@ -75,7 +72,7 @@ class Device:
 
         self.redirect_service.sync(drill, update_token)
         self.user_platform_config.update_device_access(external_access, protocol)
-        trigger_app_event_domain(self.platform_config.apps_root())
+        self.event_trigger.trigger_app_event_domain(self.platform_config.apps_root())
 
     def sync_all(self):
         update_token = self.user_platform_config.get_domain_update_token()

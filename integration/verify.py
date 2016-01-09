@@ -248,6 +248,13 @@ def test_internal_web_id():
     assert response.status_code == 200
 
 
+def test_if_cron_is_enabled_after_install():
+    crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
+    assert len(crontab.splitlines()) == 1
+    assert 'sync' in crontab, crontab
+    assert not crontab.startswith('#'), crontab
+
+
 def test_remove():
     run_ssh('/opt/app/sam/bin/sam --debug remove platform', password=DEVICE_PASSWORD)
     time.sleep(3)
@@ -271,14 +278,6 @@ def test_public_web_platform_upgrade(public_web_session):
         except Exception, e:
             pass
         time.sleep(1)
-
-
-def test_if_cron_is_enabled_after_upgrade():
-    crontab = run_ssh("crontab -u platform -l", password=DEVICE_PASSWORD)
-    print(crontab)
-    assert len(crontab.splitlines()) == 1
-    assert 'sync' in crontab, crontab
-    assert not crontab.startswith('#'), crontab
 
 
 def test_reinstall_local_after_upgrade(auth):

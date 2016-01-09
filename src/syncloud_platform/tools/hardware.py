@@ -5,18 +5,17 @@ import re
 from subprocess import check_output
 from os import path
 from syncloud_app import logger
-from syncloud_platform.config.config import PLATFORM_CONFIG_DIR, PlatformConfig
 from syncloud_platform.systemd import systemctl
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.events import trigger_app_event_disk
 
 PARTTYPE_EXTENDED = '0x5'
 
 
 class Hardware:
 
-    def __init__(self, config_path=PLATFORM_CONFIG_DIR):
-        self.platform_config = PlatformConfig(config_path)
+    def __init__(self, platform_config, event_trigger):
+        self.platform_config = platform_config
+        self.event_trigger = event_trigger
         self.log = logger.get_logger('hardware')
 
     def available_disks(self, lsblk_output=None):
@@ -114,7 +113,7 @@ class Hardware:
             unlink(link)
         os.symlink(target, link)
 
-        trigger_app_event_disk(self.platform_config.apps_root())
+        self.event_trigger.trigger_app_event_disk(self.platform_config.apps_root())
 
     def external_disk_is_mounted(self):
         return path.realpath(self.platform_config.get_disk_link()) == self.platform_config.get_external_disk_dir()

@@ -1,6 +1,7 @@
 from functools import update_wrapper
 from flask import make_response, redirect, request
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig
+from syncloud_platform.di.injector import Injector
+
 
 def nocache(f):
     def new_func(*args, **kwargs):
@@ -10,9 +11,9 @@ def nocache(f):
         return resp
     return update_wrapper(new_func, f)
 
+
 def redirect_if_not_activated(f):
-    platform_config = PlatformConfig()
-    platform_user_config = PlatformUserConfig(platform_config.get_user_config())
+    platform_user_config = Injector().user_platform_config
     def new_func(*args, **kwargs):
         resp = make_response(f(*args, **kwargs))
         if platform_user_config.get_domain_update_token() is None:

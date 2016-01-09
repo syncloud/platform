@@ -5,18 +5,17 @@ from syncloud_app import logger
 
 from syncloud_platform.rest.facade.common import html_prefix
 from syncloud_platform.rest.model.app import app_from_sam_app, App
-from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools.hardware import Hardware
 
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device):
+    def __init__(self, platform_config, user_platform_config, device, sam, hardware):
+        self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
         self.user_platform_config = user_platform_config
         self.device = device
-        self.sam = SamStub()
+        self.sam = sam
         self.www_dir = self.platform_config.www_root()
 
     def browse(self, filesystem_path):
@@ -62,7 +61,7 @@ class Public:
         self.device.set_access(protocol, self.user_platform_config.get_external_access())
 
     def disk_activate(self, device):
-        return Hardware().activate_disk(device)
+        return self.hardware.activate_disk(device)
 
     def system_upgrade(self):
         self.sam.upgrade('platform')
@@ -71,4 +70,7 @@ class Public:
         return self.sam.is_running()
 
     def disk_deactivate(self):
-        return Hardware().deactivate_disk()
+        return self.hardware.deactivate_disk()
+
+    def disks(self):
+        return self.hardware.available_disks()

@@ -6,15 +6,14 @@ import psutil
 
 import convertible
 
-from syncloud_platform.api import info
-from syncloud_platform.config.config import PlatformConfig
-
 SAM_BIN = '/opt/app/sam/bin/sam'
 
 
 class SamStub:
 
-    def __init__(self):
+    def __init__(self, platform_config, info):
+        self.info = info
+        self.platform_config = platform_config
         self.logger = logger.get_logger('SamStub')
 
     def update(self, release=None):
@@ -37,7 +36,7 @@ class SamStub:
         return [self._add_url(app_versions) for app_versions in convertible.to_object(result, convertible.List(item_type=AppVersions))]
 
     def _add_url(self, app_versions):
-        app_versions.app.url = info.url(app_versions.app.id)
+        app_versions.app.url = self.info.url(app_versions.app.id)
         return app_versions
 
     def user_apps(self):
@@ -55,7 +54,7 @@ class SamStub:
     def __run_detached(self, command):
         # Think about adding twisted
         ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >/dev/null 2>&1 &'".format(
-            PlatformConfig().get_ssh_port(), command)
+            self.platform_config.get_ssh_port(), command)
         self.logger.info('ssh command: {0}'.format(ssh_command))
         output = check_output(ssh_command, shell=True)
         self.logger.info(output)

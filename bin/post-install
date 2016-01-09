@@ -3,15 +3,17 @@ from subprocess import check_output
 from os.path import isdir
 import shutil
 from syncloud_app import logger
-from syncloud_platform.config.config import PlatformConfig
-from syncloud_platform.auth.ldapauth import LdapAuth
+from syncloud_platform.di.injector import Injector
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.hardware import Hardware
 from syncloud_platform.tools.locale import fix_locale
 
 log = logger.get_logger('platform_post_install')
+
+fix_locale()
+
+log.info(chown('platform', '/opt/app/platform'))
 
 # TODO: only for migration from pre-protocol version (< v240), remove after upgrading test users
 user_config_file = '/opt/data/platform/user_platform.cfg'
@@ -19,18 +21,19 @@ if os.path.isfile(user_config_file):
     check_output("sed -i 's/external_access.*=.*http.*/external_access = True/g' {0}".format(user_config_file), shell=True)
     check_output("sed -i 's/external_access.*=.*None.*/external_access = False/g' {0}".format(user_config_file), shell=True)
 
-fix_locale()
-
-log.info(chown('platform', '/opt/app/platform'))
+# TODO: User specific cron remove as we did not have proper cleanup in post-remove, remove after upgrading test users
+print(check_output("echo "" | crontab - -u platform", shell=True))
 
 data_dir = app.get_app_data_root('platform', 'platform')
 app.create_data_dir(data_dir, 'webapps', 'platform')
 app.create_data_dir(data_dir, 'log', 'platform')
 app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
-platform_config = PlatformConfig()
-hardware = Hardware()
-ldap_auth = LdapAuth(platform_config)
+injector = Injector()
+
+platform_config = injector.platform_config
+hardware = injector.hardware
+ldap_auth = injector.ldap_auth
 
 if not isdir(platform_config.get_disk_root()):
     os.mkdir(platform_config.get_disk_root())

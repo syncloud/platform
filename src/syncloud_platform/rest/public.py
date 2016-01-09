@@ -14,7 +14,6 @@ from syncloud_platform.rest.facade.common import html_prefix, rest_prefix
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
-from syncloud_platform.tools.hardware import Hardware
 
 injector = Injector()
 public = injector.public
@@ -177,7 +176,7 @@ def send_log():
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():
-    return jsonify(success=True, disks=convertible.to_dict(Hardware().available_disks())), 200
+    return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
 
 
 @app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])

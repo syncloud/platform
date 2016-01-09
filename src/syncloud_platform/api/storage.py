@@ -1,6 +1,5 @@
-from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.di.injector import Injector
 
 
 def init(app_id, owner):
-    hardware = Hardware()
-    return hardware.init_app_storage(app_id, owner)
+    return Injector().storage.init(app_id, owner)

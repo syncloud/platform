@@ -16,4 +16,4 @@ fi
 
 apt-get install -y sshpass
 pip2 install -r ${DIR}/../src/dev_requirements.txt
-py.test -s verify.py --email=$1 --password=$2 --domain=$3 --app-version=$4 --arch=$5 --release=$7
+py.test -x -s verify.py --email=$1 --password=$2 --domain=$3 --app-version=$4 --arch=$5 --release=$7

@@ -1,20 +1,18 @@
 import filecmp
 import tempfile
-from string import Template
 from subprocess import check_output
 
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 
-from syncloud_platform.api import info
-from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.tools.nginx import Nginx
 
 
 class Tls:
-    def __init__(self):
+    def __init__(self, platform_config, info):
+        self.info = info
         self.log = get_logger('tls')
-        self.platform_config = PlatformConfig()
+        self.platform_config = platform_config
 
     def generate_certificate(self):
 
@@ -23,7 +21,7 @@ class Tls:
 
         cert_file = self.platform_config.get_ssl_certificate_file()
         fd, temp_configfile = tempfile.mkstemp()
-        util.transform_file(self.platform_config.get_openssl_config(), temp_configfile, {'domain': info.domain()})
+        util.transform_file(self.platform_config.get_openssl_config(), temp_configfile, {'domain': self.info.domain()})
         cmd = 'openssl req -new -x509 -days 3650 -config {0} -key {1} -out {2} 2>&1'.format(
             temp_configfile, key_file, cert_file)
         self.log.info('running: ' + cmd)
