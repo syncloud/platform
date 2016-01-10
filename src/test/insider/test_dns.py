@@ -53,7 +53,7 @@ def test_sync_success():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(service_config, '127.0.0.1', user_platform_config)
+    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
     dns.sync(port_drill, 'some_update_token')
 
     expected_request = '''
@@ -91,7 +91,7 @@ def test_sync_server_side_client_ip():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(service_config, '127.0.0.1', user_platform_config)
+    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
     dns.sync(port_drill, 'some_update_token')
 
     expected_request = '''
@@ -125,7 +125,7 @@ def test_sync_server_error():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(service_config, '127.0.0.1', user_platform_config)
+    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync(port_drill, 'some_update_token')
@@ -149,7 +149,7 @@ def test_link_success():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(None, '127.0.0.1', user_platform_config)
+    dns = RedirectService(None, MockNetwork('127.0.0.1'), user_platform_config)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -186,7 +186,7 @@ def test_link_server_error():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(None, '127.0.0.1', user_platform_config)
+    dns = RedirectService(None, MockNetwork('127.0.0.1'), user_platform_config)
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
@@ -206,7 +206,7 @@ def test_add_service():
 
     # platform_config = get_platform_config()
 
-    dns = RedirectService(service_config, '127.0.0.1', user_platform_config)
+    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
 
     services = service_config.load()
@@ -222,7 +222,6 @@ def test_add_service():
     assert 80 == mapping.local_port
 
 
-
 def test_get_service():
     service_config = get_service_config([])
     port_config = get_port_config([])
@@ -233,7 +232,7 @@ def test_get_service():
 
     # platform_config = get_platform_config()
 
-    dns = RedirectService(service_config, '127.0.0.1', user_platform_config)
+    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
     dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
 
     service = dns.get_service("ownCloud")
@@ -252,7 +251,7 @@ def test_get_not_existing_service():
 
     # platform_config = get_platform_config()
 
-    dns = RedirectService(service_config, '127.0.0.1', user_platform_config)
+    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
 
     service = dns.get_service("ownCloud")
 
@@ -272,7 +271,17 @@ class MockPortMapper:
     def remove_mapping(self, local_port, external_port):
         pass
 
+
 class MockPortProber:
 
     def probe_port(self, port, protocol):
         return True
+
+
+class MockNetwork:
+
+    def __init__(self, ip):
+        self.ip = ip
+
+    def local_ip(self):
+        return self.ip

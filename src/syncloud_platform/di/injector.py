@@ -16,11 +16,11 @@ from syncloud_platform.rest.facade.common import Common
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools import network
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.device_storage import DeviceStorage
 from syncloud_platform.tools.events import EventTrigger
 from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.tools.network import Network
 from syncloud_platform.tools.tls import Tls
 
 
@@ -37,7 +37,8 @@ class Injector:
         self.data_root = get_app_data_root(PLATFORM_APP_NAME)
 
         self.service_config = ServiceConfig(self.data_root)
-        self.redirect_service = RedirectService(self.service_config, network.local_ip(), self.user_platform_config)
+        self.network = Network()
+        self.redirect_service = RedirectService(self.service_config, self.network, self.user_platform_config)
         self.port_config = PortConfig(self.data_root)
 
         self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config)

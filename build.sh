@@ -9,6 +9,8 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 fi
 
+apt-get -y install jekyll
+
 ARCH=$1
 VERSION=$2
 
@@ -19,6 +21,14 @@ fi
 if [ "${ARCH}" == 'armv7l' ]; then
     ARCH_DEB="armhf"
 fi
+
+if hash jekyll; then
+    wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
+    python get-pip.py
+    rm get-pip.py
+fi
+
+pip install coin
 
 cd www
 rm -rf _site
