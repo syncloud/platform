@@ -34,7 +34,7 @@ def test_get_mount_info_by_device():
     assert mount_point.device == '/dev/sdc1'
     assert mount_point.dir == '/media/root/long name'
     assert mount_point.type == 'vfat'
-    assert mount_point.options == 'rw,nosuid,nodev,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,' \
+    assert mount_point.options == 'rw,nosuid,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,' \
                                   'shortname=mixed,showexec,utf8,flush,errors=remount-ro'
 
 
@@ -43,7 +43,7 @@ def test_get_mount_info_by_dir():
     assert mount_point.device == '/dev/sdc2'
     assert mount_point.dir == '/opt/disk/external'
     assert mount_point.type == 'ext4'
-    assert mount_point.options == 'rw,nosuid,nodev,relatime,data=ordered,uhelper=udisks2'
+    assert mount_point.options == 'rw,nosuid,relatime,data=ordered,uhelper=udisks2'
 
 
 def test_ntfs_permissions():
@@ -51,5 +51,5 @@ def test_ntfs_permissions():
     assert mount_point.device == '/dev/sdc3'
     assert mount_point.dir == '/media/ntfs'
     assert mount_point.type == 'ntfs'
-    assert mount_point.options == 'rw,nosuid,nodev,relatime,user_id=0,group_id=0,permissions,allow_other,' \
+    assert mount_point.options == 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,' \
                                   'blksize=4096'
