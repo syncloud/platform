@@ -62,7 +62,8 @@ class Hardware:
                 type = parts_options[0].replace('fuseblk', 'ntfs')
                 options = parts_options[1].strip('()')\
                     .replace('codepage=cp', 'codepage=')\
-                    .replace('default_permissions', 'permissions')
+                    .replace('default_permissions', 'permissions')\
+                    .replace('nodev,', '')
                 return MountEntry(device, dir, type, options)
         return None
 

@@ -27,7 +27,9 @@ def __remove(filename):
         return
 
     check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
-    os.remove(__systemd_file(filename))
+    systemd_file = __systemd_file(filename)
+    if os.path.isfile(systemd_file):
+        os.remove(systemd_file)
 
 
 def add_service(app_id, service, include_socket=False, start=True):
