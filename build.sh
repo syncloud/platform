@@ -12,6 +12,14 @@ fi
 ARCH=$1
 VERSION=$2
 
+ARCH_DEB="unknown"
+if [ "${ARCH}" == 'x86_64' ]; then
+    ARCH_DEB="amd64"
+fi
+if [ "${ARCH}" == 'armv7l' ]; then
+    ARCH_DEB="armhf"
+fi
+
 cd www
 rm -rf _site
 hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit 1; }
@@ -38,6 +46,8 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessf
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSuccessful/openldap-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python-${ARCH}.tar.gz
+
+coin --to ${BUILD_DIR} deb http://http.us.debian.org/debian/pool/main/u/usbutils/usbutils_007-4_${ARCH_DEB}.deb--subfolder usbutils
 
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
