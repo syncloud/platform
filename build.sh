@@ -14,6 +14,14 @@ apt-get -y install jekyll
 ARCH=$1
 VERSION=$2
 
+if hash jekyll; then
+    wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
+    python get-pip.py
+    rm get-pip.py
+fi
+
+pip install coin
+
 cd www
 rm -rf _site
 hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit 1; }
