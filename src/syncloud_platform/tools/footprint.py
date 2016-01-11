@@ -1,9 +1,10 @@
+import sys
 import psutil
 from syncloud_platform.tools.cpu.cpuinfo import CpuInfo
 from syncloud_platform.tools.cpu.reader import Reader
 
 from subprocess import check_output
-
+from os.path import join, dirname, abspath
 
 def match_contains(pattern, value):
     if pattern is None:
@@ -38,9 +39,14 @@ class Footprint:
         return str(self.__dict__)
 
 
-def lsusb():
-    return check_output(['lsusb'])
+def get_app_path():
+    python_path = sys.executable
+    app_path = abspath(join(dirname(python_path), '..', '..'))
+    return app_path
 
+def lsusb():
+    lsusb_path = join(get_app_path(), 'usbutils', 'bin', 'lsusb')
+    return check_output([lsusb_path])
 
 def footprint():
     cpu_count = psutil.cpu_count()
@@ -48,4 +54,4 @@ def footprint():
     info = CpuInfo(Reader())
     cpu_hardware = info.hardware()
     vendor_id = info.vendor_id()
-    return Footprint(cpu_hardware, cpu_count, mem_size, vendor_id, None)
+    return Footprint(cpu_hardware, cpu_count, mem_size, vendor_id, lsusb())
