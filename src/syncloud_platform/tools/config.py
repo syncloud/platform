@@ -24,6 +24,7 @@ titles = {
     'raspberrypi2': 'Raspberry Pi 2 Model B',
     'beagleboneblack': 'BeagleBone Black',
     'odroid-xu3': 'ODROID-XU3',
+    'odroid-xu4': 'ODROID-XU4',
     'travis': 'Travis',
     'intel': 'Intel'
 }
