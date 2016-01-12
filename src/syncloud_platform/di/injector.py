@@ -34,6 +34,8 @@ class Injector:
 
         self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
 
+        self.common = Common(self.platform_config)
+
         self.data_root = get_app_data_root(PLATFORM_APP_NAME)
 
         self.service_config = ServiceConfig(self.data_root)
@@ -48,11 +50,10 @@ class Injector:
         self.ldap_auth = LdapAuth(self.platform_config)
         self.event_trigger = EventTrigger(self.sam)
         self.tls = Tls(self.platform_config, self.info)
-        self.device = Device(self.platform_config, self.user_platform_config,
-                             self.redirect_service, self.port_drill_factory,
-                             self.sam, self.platform_cron, self.ldap_auth, self.event_trigger, self.tls)
 
-        self.common = Common(self.platform_config, self.user_platform_config, self.redirect_service)
+        self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service, self.port_drill_factory,
+                             self.common, self.sam, self.platform_cron, self.ldap_auth, self.event_trigger, self.tls)
+
         self.internal = Internal(self.platform_config, self.device)
 
         self.hardware = Hardware(self.platform_config, self.event_trigger)

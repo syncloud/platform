@@ -10,7 +10,7 @@ from syncloud_platform.tools.chown import chown
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls):
+                 port_drill_factory, common, sam, platform_cron, ldap_auth, event_trigger, tls):
         self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
@@ -20,6 +20,7 @@ class Device:
         self.auth = ldap_auth
         self.platform_cron = platform_cron
         self.event_trigger = event_trigger
+        self.common = common
         self.logger = logger.get_logger('Device')
 
     def activate(self,
@@ -85,6 +86,11 @@ class Device:
 
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
+
+    def send_logs(self):
+        user_token = self.user_platform_config.get_user_update_token()
+        logs = self.common.get_logs()
+        self.redirect_service.send_log(user_token, logs)
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)

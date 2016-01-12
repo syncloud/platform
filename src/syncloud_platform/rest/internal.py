@@ -10,7 +10,7 @@ from syncloud_platform.rest.flask_decorators import nocache
 
 injector = Injector()
 internal = injector.internal
-common = injector.common
+device = injector.device
 
 app = Flask(__name__)
 
@@ -53,7 +53,7 @@ def activate():
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 def send_log():
-    common.send_log()
+    device.send_logs()
     return jsonify(success=True), 200
 
 

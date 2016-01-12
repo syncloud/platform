@@ -17,7 +17,7 @@ from syncloud_platform.rest.model.user import User
 
 injector = Injector()
 public = injector.public
-common = injector.common
+device = injector.device
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = public.platform_config.get_web_secret_key()
@@ -169,7 +169,7 @@ def set_protocol():
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    common.send_log()
+    device.send_logs()
     return jsonify(success=True), 200
 
 
