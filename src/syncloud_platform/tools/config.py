@@ -10,10 +10,10 @@ footprints = [
     ('raspberrypi', Footprint('BCM2708')),
     ('raspberrypi2', Footprint('BCM2709')),
     ('beagleboneblack', Footprint('Generic AM33XX (Flattened Device Tree)')),
-    ('odroid-xu3', Footprint('ODROID-XU3', lsusb='05e3')),
-    ('odroid-xu4', Footprint('ODROID-XU3', lsusb='0424')),
-    ('travis', Footprint(vendor_id='AuthenticAMD')),
-    ('intel', Footprint(vendor_id='GenuineIntel'))
+    ('odroid-xu4', Footprint('ODROID-XU3', lsusb='05e3')),
+    ('odroid-xu3', Footprint('ODROID-XU3', lsusb='0424')),
+    ('PC', Footprint(vendor_id='AuthenticAMD')),
+    ('PC', Footprint(vendor_id='GenuineIntel'))
 ]
 
 titles = {
@@ -25,6 +25,5 @@ titles = {
     'beagleboneblack': 'BeagleBone Black',
     'odroid-xu3': 'ODROID-XU3',
     'odroid-xu4': 'ODROID-XU4',
-    'travis': 'Travis',
-    'intel': 'Intel'
+    'PC': 'Personal Computer'
 }
