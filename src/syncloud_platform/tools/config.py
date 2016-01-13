@@ -10,8 +10,8 @@ footprints = [
     ('raspberrypi', Footprint('BCM2708')),
     ('raspberrypi2', Footprint('BCM2709')),
     ('beagleboneblack', Footprint('Generic AM33XX (Flattened Device Tree)')),
-    ('odroid-xu4', Footprint('ODROID-XU3', lsusb='05e3')),
-    ('odroid-xu3', Footprint('ODROID-XU3', lsusb='0424')),
+    ('odroid-xu4', Footprint('ODROID-XU3', lsusb='0424')),
+    ('odroid-xu3', Footprint('ODROID-XU3', lsusb='05e3')),
     ('PC', Footprint(vendor_id='AuthenticAMD')),
     ('PC', Footprint(vendor_id='GenuineIntel'))
 ]
