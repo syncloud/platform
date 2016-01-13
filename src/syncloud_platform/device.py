@@ -49,10 +49,7 @@ class Device:
         self.platform_cron.remove()
         self.platform_cron.create()
 
-        try:
-            self.set_access('http', False)
-        except Exception, e:
-            self.logger.warn('upnp is not available ' + e.message)
+        self.set_access('http', False)
 
         self.logger.info("activating ldap")
         self.auth.reset(device_user, device_password)
@@ -63,13 +60,13 @@ class Device:
         self.logger.info("activation completed")
 
     def set_access(self, protocol, external_access):
+        update_token = self.user_platform_config.get_domain_update_token()
+        if update_token is None:
+            return
+
         drill = self.get_drill(external_access)
         self.redirect_service.remove_service("server", drill)
         self.redirect_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
-
-        update_token = self.user_platform_config.get_domain_update_token()
-        if update_token is None:
-            raise Exception("No update token saved, device is not activated yet")
 
         self.redirect_service.sync(drill, update_token)
         self.user_platform_config.update_device_access(external_access, protocol)
@@ -78,7 +75,7 @@ class Device:
     def sync_all(self):
         update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
-            raise Exception("No update token saved, device is not activated yet")
+            return
 
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)

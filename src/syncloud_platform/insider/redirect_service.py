@@ -52,7 +52,10 @@ class RedirectService:
         return response_data
 
     def add_service(self, name, protocol, service_type, port, port_drill):
-        port_drill.sync_new_port(port)
+        try:
+            port_drill.sync_new_port(port)
+        except Exception, e:
+            self.logger.error('Unable to add new port for service "{0}": {1}'.format(name, e.message))
         new_service = Service(name, protocol, service_type, port)
         self.service_config.add_or_update(new_service)
 
@@ -66,10 +69,16 @@ class RedirectService:
         service = self.get_service(name)
         if service:
             self.service_config.remove(name)
-            port_drill.remove(service.port)
+            try:
+                port_drill.remove(service.port)
+            except Exception, e:
+                self.logger.error('Unable to remove port for service "{0}": {1}'.format(name, e.message))
 
     def sync(self, port_drill, update_token):
-        port_drill.sync()
+        try:
+            port_drill.sync()
+        except Exception, e:
+            self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
         services = self.service_config.load()
 
         services_data = []
