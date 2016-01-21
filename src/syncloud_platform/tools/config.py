@@ -25,5 +25,6 @@ titles = {
     'beagleboneblack': 'BeagleBone Black',
     'odroid-xu3': 'ODROID-XU3',
     'odroid-xu4': 'ODROID-XU4',
-    'PC': 'Personal Computer'
+    'PC': 'Personal Computer',
+    'unknown': 'Unknown'
 }
