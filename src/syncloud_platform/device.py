@@ -65,8 +65,18 @@ class Device:
             return
 
         drill = self.get_drill(external_access)
-        self.redirect_service.remove_service("server", drill)
-        self.redirect_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
+        new_web_local_port = protocol_to_port(protocol)
+        old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
+
+        try:
+            drill.remove(old_web_local_port)
+        except Exception, e:
+            self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
+
+        try:
+            drill.sync_new_port(new_web_local_port)
+        except Exception, e:
+            self.logger.error('Unable to add new port {0}: {1}'.format(new_web_local_port, e.message))
 
         self.redirect_service.sync(drill, update_token)
         self.user_platform_config.update_device_access(external_access, protocol)
