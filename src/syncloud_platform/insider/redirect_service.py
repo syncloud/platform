@@ -37,7 +37,6 @@ class RedirectService:
     def acquire(self, email, password, user_domain):
         device_id = id.id()
         data = {
-            'platform_version': platform_version,
             'email': email,
             'password': password,
             'user_domain': user_domain,
@@ -69,6 +68,7 @@ class RedirectService:
         local_ip = self.network.local_ip()
         data = {
             'token': update_token,
+            'platform_version': platform_version,
             'local_ip': local_ip,
             'map_local_address': map_local_address,
             'web_protocol': web_protocol,
