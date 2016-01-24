@@ -4,6 +4,7 @@ import convertible
 import requests
 from IPy import IP
 from syncloud_app import logger
+from syncloud_platform.tools.version import platform_version
 
 from syncloud_platform.insider import util
 from syncloud_platform.tools import id
@@ -36,6 +37,7 @@ class RedirectService:
     def acquire(self, email, password, user_domain):
         device_id = id.id()
         data = {
+            'platform_version': platform_version,
             'email': email,
             'password': password,
             'user_domain': user_domain,
