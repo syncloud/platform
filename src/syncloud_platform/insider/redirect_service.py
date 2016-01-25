@@ -4,7 +4,6 @@ import convertible
 import requests
 from IPy import IP
 from syncloud_app import logger
-from syncloud_platform.tools.version import platform_version
 
 from syncloud_platform.insider import util
 from syncloud_platform.tools import id
@@ -12,9 +11,10 @@ from syncloud_platform.tools import id
 
 class RedirectService:
 
-    def __init__(self, network, user_platform_config):
+    def __init__(self, network, user_platform_config, version_func):
         self.network = network
         self.user_platform_config = user_platform_config
+        self.version_func = version_func
 
         self.logger = logger.get_logger('RedirectService')
 
@@ -65,7 +65,7 @@ class RedirectService:
         if mapping:
             web_port = mapping.external_port
 
-        version = platform_version()
+        version = self.version_func()
 
         local_ip = self.network.local_ip()
         data = {
