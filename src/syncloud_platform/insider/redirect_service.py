@@ -65,10 +65,12 @@ class RedirectService:
         if mapping:
             web_port = mapping.external_port
 
+        version = platform_version()
+
         local_ip = self.network.local_ip()
         data = {
             'token': update_token,
-            'platform_version': platform_version,
+            'platform_version': version,
             'local_ip': local_ip,
             'map_local_address': map_local_address,
             'web_protocol': web_protocol,
