@@ -198,17 +198,26 @@ def loop_device():
 
 
 def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
-    __test_fs(loop_device, 'ext4', public_web_session)
+    disk_create(loop_device, 'ext4')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
 
 def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
-    __test_fs(loop_device, 'ntfs', public_web_session)
+    disk_create(loop_device, 'ntfs')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
 
-def __test_fs(loop_device, fs, public_web_session):
+def test_disk_physical_remove(loop_device, public_web_session):
+    disk_create(loop_device, 'ext4')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    run_ssh('udevadm trigger --action=remove -y loop0', password=DEVICE_PASSWORD)
+    run_ssh('udevadm settle', password=DEVICE_PASSWORD)
+    assert current_disk_link() == '/opt/disk/internal/platform'
 
-    run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
+def disk_create(loop_device, fs):
     run_ssh('mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
 
     run_ssh('mkdir /tmp/test', password=DEVICE_PASSWORD)
@@ -225,6 +234,11 @@ def __test_fs(loop_device, fs, public_web_session):
             print(mount)
     run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
+
+def disk_activate(loop_device,  public_web_session):
+
+    run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+
     response = public_web_session.get('http://localhost/server/rest/settings/disks')
     print response.text
     assert loop_device in response.text
@@ -233,12 +247,18 @@ def __test_fs(loop_device, fs, public_web_session):
     response = public_web_session.get('http://localhost/server/rest/settings/disk_activate',
                                       params={'device': loop_device})
     assert response.status_code == 200
-    assert run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD) == '/data/platform'
+    return current_disk_link()
 
+
+def disk_deactivate(loop_device,  public_web_session):
     response = public_web_session.get('http://localhost/server/rest/settings/disk_deactivate',
                                       params={'device': loop_device})
     assert response.status_code == 200
-    assert run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD) == '/data/platform'
+    return current_disk_link()
+
+
+def current_disk_link():
+    return run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
 
 
 def test_internal_web_id():

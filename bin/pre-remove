@@ -9,4 +9,7 @@ remove_service('platform-ntpdate')
 remove_service('platform-insider-sync')
 remove_service('platform-cpu-frequency')
 
-Injector().platform_cron.remove()
+injectoe = Injector()
+injector.platform_cron.remove()
+injector.udev.remove()
+

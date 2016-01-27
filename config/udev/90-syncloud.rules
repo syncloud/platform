@@ -1,0 +1,3 @@
+KERNEL=="sd*", ACTION=="remove", RUN+="/opt/app/platform/bin/check_external_disk.py"
+KERNEL=="mmcblk*", ACTION=="remove", RUN+="/opt/app/platform/bin/check_external_disk.py"
+KERNEL=="loop*", ACTION=="remove", RUN+="/opt/app/platform/bin/check_external_disk.py"

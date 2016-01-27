@@ -19,9 +19,11 @@ from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.device_storage import DeviceStorage
 from syncloud_platform.tools.events import EventTrigger
 from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.tools.mount import Mount
 from syncloud_platform.tools.network import Network
 from syncloud_platform.tools.tls import Tls
 from syncloud_platform.tools.version import platform_version
+from syncloud_platform.tools.udev import Udev
 
 
 class Injector:
@@ -54,8 +56,10 @@ class Injector:
                              self.common, self.sam, self.platform_cron, self.ldap_auth, self.event_trigger, self.tls)
 
         self.internal = Internal(self.platform_config, self.device)
-
-        self.hardware = Hardware(self.platform_config, self.event_trigger)
+        self.mount = Mount(self.platform_config)
+        self.hardware = Hardware(self.platform_config, self.event_trigger, self.mount)
         self.storage = DeviceStorage(self.hardware)
 
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.sam, self.hardware)
+        self.udev = Udev(self.platform_config)
+
