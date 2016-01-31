@@ -1,11 +1,12 @@
 from subprocess import check_output
-from os import path
 from syncloud_app import logger
 import re
 
+
 class Mount:
-    def __init__(self, platform_config):
+    def __init__(self, platform_config, path_checker):
         self.platform_config = platform_config
+        self.path_checker = path_checker
         self.log = logger.get_logger('mount')
 
     def mounted_disk_by_device(self, device, mount_output=None):
@@ -48,18 +49,11 @@ class Mount:
     def get_mounted_external_disk(self):
         mount_point = None
 
-        if self.external_disk_link_exists():
+        if self.path_checker.external_disk_link_exists():
             disk_dir = self.platform_config.get_external_disk_dir()
             mount_point = self.mounted_disk_by_dir(disk_dir)
 
         return mount_point
-
-    def external_disk_link_exists(self):
-        real_link_path = path.realpath(self.platform_config.get_disk_link())
-        self.log.info('real link path: {0}'.format(real_link_path))
-        external_disk_path = self.platform_config.get_external_disk_dir()
-        self.log.info('external disk path: {0}'.format(external_disk_path))
-        return real_link_path == external_disk_path
 
 
 class MountEntry:

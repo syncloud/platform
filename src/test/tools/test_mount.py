@@ -1,10 +1,10 @@
 from os.path import dirname, join
 
-import convertible
 from syncloud_app import logger
 
 from syncloud_platform.config.config import PlatformConfig
-from syncloud_platform.tools.mount import Mount
+from syncloud_platform.tools.disk.mount import Mount
+from syncloud_platform.tools.disk.path_checker import PathChecker
 
 DIR = dirname(__file__)
 
@@ -13,8 +13,10 @@ CONFIG_DIR = join(dirname(__file__), '..', '..', '..', 'config')
 
 logger.init(console=True)
 
+
 def get_mount():
-    return Mount(PlatformConfig(CONFIG_DIR))
+    platform_config = PlatformConfig(CONFIG_DIR)
+    return Mount(platform_config, PathChecker(platform_config))
 
 
 def test_get_mount_info_by_device():

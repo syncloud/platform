@@ -33,7 +33,7 @@ injector = get_injector()
 
 platform_config = injector.platform_config
 hardware = injector.hardware
-mount = injector.mount
+path_checker = injector.path_checker
 ldap_auth = injector.ldap_auth
 
 if not isdir(platform_config.get_disk_root()):
@@ -42,7 +42,7 @@ if not isdir(platform_config.get_disk_root()):
 if not isdir(platform_config.get_internal_disk_dir()):
     os.mkdir(platform_config.get_internal_disk_dir())
 
-if not mount.external_disk_link_exists():
+if not path_checker.external_disk_link_exists():
     hardware.relink_disk(
         platform_config.get_disk_link(),
         platform_config.get_internal_disk_dir())

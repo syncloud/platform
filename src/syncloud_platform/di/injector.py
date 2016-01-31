@@ -1,6 +1,6 @@
 import logging
-
 from os.path import join
+
 from syncloud_app import logger
 
 from syncloud_platform.auth.ldapauth import LdapAuth
@@ -17,22 +17,26 @@ from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.device_storage import DeviceStorage
+from syncloud_platform.tools.disk.lsblk import Lsblk
+from syncloud_platform.tools.disk.mount import Mount
+from syncloud_platform.tools.disk.path_checker import PathChecker
 from syncloud_platform.tools.events import EventTrigger
 from syncloud_platform.tools.hardware import Hardware
-from syncloud_platform.tools.mount import Mount
 from syncloud_platform.tools.network import Network
-from syncloud_platform.tools.tls import Tls
-from syncloud_platform.tools.version import platform_version
-from syncloud_platform.tools.udev import Udev
 from syncloud_platform.tools.nginx import Nginx
+from syncloud_platform.tools.tls import Tls
+from syncloud_platform.tools.udev import Udev
+from syncloud_platform.tools.version import platform_version
 
 default_injector = None
+
 
 def get_injector():
     global default_injector
     if default_injector is None:
         default_injector = Injector()
     return default_injector
+
 
 class Injector:
     def __init__(self, debug=False):
@@ -61,14 +65,16 @@ class Injector:
         self.nginx = Nginx(self.platform_config)
         self.tls = Tls(self.platform_config, self.info, self.nginx)
         
-        self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service, self.port_drill_factory,
-                             self.common, self.sam, self.platform_cron, self.ldap_auth, self.event_trigger, self.tls)
+        self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service,
+                             self.port_drill_factory, self.common, self.sam, self.platform_cron, self.ldap_auth,
+                             self.event_trigger, self.tls)
 
         self.internal = Internal(self.platform_config, self.device)
-        self.mount = Mount(self.platform_config)
-        self.hardware = Hardware(self.platform_config, self.event_trigger, self.mount)
+        self.path_checker = PathChecker(self.platform_config)
+        self.mount = Mount(self.platform_config, self.path_checker)
+        self.lsblk = Lsblk(self.platform_config, self.path_checker)
+        self.hardware = Hardware(self.platform_config, self.event_trigger, self.mount, self.lsblk, self.path_checker)
         self.storage = DeviceStorage(self.hardware)
 
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.sam, self.hardware)
         self.udev = Udev(self.platform_config)
-
