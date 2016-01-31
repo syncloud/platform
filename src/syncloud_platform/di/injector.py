@@ -24,6 +24,7 @@ from syncloud_platform.tools.network import Network
 from syncloud_platform.tools.tls import Tls
 from syncloud_platform.tools.version import platform_version
 from syncloud_platform.tools.udev import Udev
+from syncloud_platform.tools.nginx import Nginx
 
 default_injector = None
 
@@ -57,8 +58,9 @@ class Injector:
         self.platform_cron = PlatformCron(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config)
         self.event_trigger = EventTrigger(self.sam)
-        self.tls = Tls(self.platform_config, self.info)
-
+        self.nginx = Nginx(self.platform_config)
+        self.tls = Tls(self.platform_config, self.info, self.nginx)
+        
         self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service, self.port_drill_factory,
                              self.common, self.sam, self.platform_cron, self.ldap_auth, self.event_trigger, self.tls)
 

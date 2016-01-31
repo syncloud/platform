@@ -6,8 +6,8 @@ from syncloud_platform.config.config import PlatformConfig
 
 
 class Nginx:
-    def __init__(self):
-        self.config = PlatformConfig()
+    def __init__(self, platform_config):
+        self.config = platform_config
 
     def add_app(self, app, port):
 
