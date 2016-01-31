@@ -4,11 +4,11 @@ import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
 
-from syncloud_platform.di.injector import Injector
+from syncloud_platform.di.injector import get_injector
 from syncloud_platform.rest.facade.common import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
 
-injector = Injector()
+injector = get_injector()
 internal = injector.internal
 device = injector.device
 

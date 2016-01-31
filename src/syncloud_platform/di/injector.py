@@ -25,6 +25,13 @@ from syncloud_platform.tools.tls import Tls
 from syncloud_platform.tools.version import platform_version
 from syncloud_platform.tools.udev import Udev
 
+default_injector = None
+
+def get_injector():
+    global default_injector
+    if default_injector is None:
+        default_injector = Injector()
+    return default_injector
 
 class Injector:
     def __init__(self, debug=False):

@@ -22,7 +22,7 @@ def test_get_mount_info_by_device():
     assert mount_point.device == '/dev/sdc1'
     assert mount_point.dir == '/media/root/long name'
     assert mount_point.type == 'vfat'
-    assert mount_point.options == 'rw,nosuid,relatime,fmask=0022,dmask=0077,codepage=437,iocharset=iso8859-1,' \
+    assert mount_point.options == 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,' \
                                   'shortname=mixed,showexec,utf8,flush,errors=remount-ro'
 
 

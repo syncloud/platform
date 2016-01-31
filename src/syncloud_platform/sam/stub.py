@@ -61,6 +61,7 @@ class SamStub:
 
     def __run(self, cmd_args):
         cmd_line = ' '.join(cmd_args)
+        self.logger.info('cmd: {0}'.format(cmd_line))
         output = check_output(cmd_line, shell=True)
         result = jsonpickle.decode(output)
         return result['data']

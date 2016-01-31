@@ -67,8 +67,10 @@ class Hardware:
     def init_app_storage(self, app_id, owner=None):
         external_mount = self.mount.get_mounted_external_disk()
         if external_mount:
+            self.log.info('external disk is mounted')
             permissions_support = external_mount.permissions_support()
         else:
+            self.log.info('internal mount')
             permissions_support = True
 
         app_storage_dir = join(self.platform_config.get_disk_link(), app_id)

@@ -197,21 +197,33 @@ def loop_device():
     loop_device_cleanup(password=DEVICE_PASSWORD)
 
 
+def disk_writable():
+    run_ssh('su - platform -c "touch /data/platform/test.file"', password=DEVICE_PASSWORD)
+
 def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
     disk_create(loop_device, 'ext4')
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
 
 def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
     disk_create(loop_device, 'ntfs')
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    disk_writable()
+    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+
+def test_public_settings_disk_add_remove_vfat(loop_device, public_web_session):
+    disk_create(loop_device, 'vfat')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
 
 def test_disk_physical_remove(loop_device, public_web_session):
     disk_create(loop_device, 'ext4')
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    loop_device_cleanup(password=DEVICE_PASSWORD)
     run_ssh('udevadm trigger --action=remove -y loop0', password=DEVICE_PASSWORD)
     run_ssh('udevadm settle', password=DEVICE_PASSWORD)
     assert current_disk_link() == '/opt/disk/internal/platform'
