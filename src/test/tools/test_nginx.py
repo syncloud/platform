@@ -16,6 +16,7 @@ server {
         proxy_set_header X-Forwarded-Host $http_host ;
         proxy_pass      http://localhost:80 ;
         proxy_redirect  http://localhost:80 $scheme://$http_host ;
+        proxy_buffering off;
     }
 }
 
@@ -31,6 +32,7 @@ server {
         proxy_set_header X-Forwarded-Host $http_host ;
         proxy_pass      http://localhost:80 ;
         proxy_redirect  http://localhost:80 $scheme://$http_host ;
+        proxy_buffering off;
     }
 }
 
