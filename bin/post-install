@@ -51,6 +51,9 @@ if not os.path.isfile(platform_config.get_ssl_certificate_file()):
     shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
     shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
 
+injector.platform_cron.remove()
+injector.platform_cron.create()
+
 udev = injector.udev
 udev.remove()
 udev.add()

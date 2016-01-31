@@ -281,6 +281,10 @@ def test_internal_web_id():
 
 
 def test_if_cron_is_enabled_after_install():
+    cron_is_enabled_after_install()
+
+
+def cron_is_enabled_after_install():
     crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
     assert len(crontab.splitlines()) == 1
     assert 'sync' in crontab, crontab
@@ -315,6 +319,10 @@ def test_public_web_platform_upgrade(public_web_session):
 def test_reinstall_local_after_upgrade(auth):
     email, password, domain, version, arch, release = auth
     __local_install(DEVICE_PASSWORD, version, arch, release)
+
+
+def test_if_cron_is_enabled_after_upgrade():
+    cron_is_enabled_after_install()
 
 
 def test_nginx_performance():
