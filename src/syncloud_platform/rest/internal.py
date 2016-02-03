@@ -31,10 +31,6 @@ def activate():
 
     # TODO: validation
 
-    api_url = None
-    if 'api-url' in request.form:
-        api_url = request.form['api-url']
-
     domain = None
     if 'domain' in request.form:
         domain = request.form['domain']
@@ -45,7 +41,6 @@ def activate():
         request.form['redirect-domain'],
         request.form['name'],
         request.form['password'],
-        api_url,
         domain
     )
     return identification()

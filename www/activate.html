@@ -12,13 +12,6 @@ main_menu_item: menu_activate
                 <div id="errors_placeholder"></div>
                 <br/>
 
-                <div id="group-api-url" class="form-group" style="display: none">
-                    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-                        <input id="api-url" name="api-url" type="text" placeholder="api-url" class="form-control input-md">
-                        <span id="help-api-url" class="help-block"></span>
-                    </div>
-                </div>
-
                 <div id="group-domain" class="form-group" style="display: none">
                     <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
                         <input id="domain" name="domain" type="text" placeholder="domain" class="form-control input-md">
@@ -111,10 +104,6 @@ main_menu_item: menu_activate
 
         var uri = new URI();
         var params = uri.query(true);
-
-        if (params["api-url"]) {
-            $('#api-url').val(params["api-url"]);
-        }
 
         if (params["domain"]) {
             $('#domain').val(params["domain"]);

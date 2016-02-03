@@ -26,13 +26,12 @@ class Device:
     def activate(self,
                  redirect_email, redirect_password, user_domain,
                  device_user, device_password,
-                 api_url=None, domain=None):
-
-        if not api_url:
-            api_url = 'http://api.syncloud.it'
+                 domain=None):
 
         if not domain:
             domain = 'syncloud.it'
+
+        api_url = 'http://api.'+domain
 
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
             redirect_email, user_domain, device_user, api_url, domain))

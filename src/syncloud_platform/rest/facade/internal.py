@@ -13,7 +13,7 @@ class Internal:
     def activate(self,
                  redirect_email, redirect_password, user_domain,
                  device_user, device_password,
-                 api_url=None, domain=None):
+                 domain=None):
 
         self.device.activate(
             redirect_email,
@@ -21,6 +21,5 @@ class Internal:
             user_domain,
             device_user,
             device_password,
-            api_url,
             domain
         )
