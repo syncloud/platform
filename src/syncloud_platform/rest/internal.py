@@ -31,17 +31,20 @@ def activate():
 
     # TODO: validation
 
-    domain = None
-    if 'domain' in request.form:
-        domain = request.form['domain']
+    main_domain = None
+    if 'main_domain' in request.form:
+        main_domain = request.form['main_domain']
+
+    if main_domain is None:
+        main_domain = "syncloud.it"
 
     internal.activate(
-        request.form['redirect-email'],
-        request.form['redirect-password'],
-        request.form['redirect-domain'],
-        request.form['name'],
-        request.form['password'],
-        domain
+        request.form['redirect_email'],
+        request.form['redirect_password'],
+        request.form['user_domain'],
+        request.form['device_username'],
+        request.form['device_password'],
+        main_domain
     )
     return identification()
 

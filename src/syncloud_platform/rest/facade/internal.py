@@ -10,16 +10,5 @@ class Internal:
     def identification(self):
         return id.id()
 
-    def activate(self,
-                 redirect_email, redirect_password, user_domain,
-                 device_user, device_password,
-                 domain=None):
-
-        self.device.activate(
-            redirect_email,
-            redirect_password,
-            user_domain,
-            device_user,
-            device_password,
-            domain
-        )
+    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
+        self.device.activate(redirect_email, redirect_password, user_domain, device_username, device_password, main_domain)

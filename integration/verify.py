@@ -82,18 +82,16 @@ def test_activate_device(auth):
 
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
-                                   'domain': SYNCLOUD_INFO})
+                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
 
 
 def test_reactivate(auth):
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
-                                   'domain': SYNCLOUD_INFO})
+                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
