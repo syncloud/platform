@@ -23,23 +23,16 @@ class Device:
         self.common = common
         self.logger = logger.get_logger('Device')
 
-    def activate(self,
-                 redirect_email, redirect_password, user_domain,
-                 device_user, device_password,
-                 api_url=None, domain=None):
+    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
 
-        if not api_url:
-            api_url = 'http://api.syncloud.it'
-
-        if not domain:
-            domain = 'syncloud.it'
+        redirect_api_url = 'http://api.' + main_domain
 
         self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
-            redirect_email, user_domain, device_user, api_url, domain))
+            redirect_email, user_domain, device_username, redirect_api_url, main_domain))
 
         self.sam.update()
 
-        self.user_platform_config.update_redirect(domain, api_url)
+        self.user_platform_config.update_redirect(main_domain, redirect_api_url)
         user = self.redirect_service.get_user(redirect_email, redirect_password)
         self.user_platform_config.set_user_update_token(user.update_token)
 
@@ -52,7 +45,7 @@ class Device:
         self.set_access('http', False)
 
         self.logger.info("activating ldap")
-        self.auth.reset(device_user, device_password)
+        self.auth.reset(device_username, device_password)
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_certificate()

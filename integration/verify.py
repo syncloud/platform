@@ -82,18 +82,16 @@ def test_activate_device(auth):
 
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
-                                   'api-url': 'http://api.syncloud.info', 'domain': SYNCLOUD_INFO})
+                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
 
 
 def test_reactivate(auth):
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
-                                   'api-url': 'http://api.syncloud.info', 'domain': SYNCLOUD_INFO})
+                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
@@ -281,6 +279,10 @@ def test_internal_web_id():
 
 
 def test_if_cron_is_enabled_after_install():
+    cron_is_enabled_after_install()
+
+
+def cron_is_enabled_after_install():
     crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
     assert len(crontab.splitlines()) == 1
     assert 'sync' in crontab, crontab
@@ -315,6 +317,10 @@ def test_public_web_platform_upgrade(public_web_session):
 def test_reinstall_local_after_upgrade(auth):
     email, password, domain, version, arch, release = auth
     __local_install(DEVICE_PASSWORD, version, arch, release)
+
+
+def test_if_cron_is_enabled_after_upgrade():
+    cron_is_enabled_after_install()
 
 
 def test_nginx_performance():
