@@ -105,8 +105,8 @@ main_menu_item: menu_activate
         var uri = new URI();
         var params = uri.query(true);
 
-        if (params["domain"]) {
-            $('#domain').val(params["domain"]);
+        if (params["main_domain"]) {
+            $('#main_domain').val(params["main_domain"]);
         }
 
         if (Mobile.getRedirectLogin()) {
