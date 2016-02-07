@@ -33,7 +33,8 @@ def activate():
 
     main_domain = None
     if 'main_domain' in request.form:
-        main_domain = request.form['main_domain']
+        if request.form['main_domain']:
+            main_domain = request.form['main_domain']
 
     if main_domain is None:
         main_domain = "syncloud.it"
