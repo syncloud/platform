@@ -169,7 +169,7 @@ def set_protocol():
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    device.send_logs()
+    public.send_logs()
     return jsonify(success=True), 200
 
 

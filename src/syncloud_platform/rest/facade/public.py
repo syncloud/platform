@@ -9,7 +9,7 @@ from syncloud_platform.rest.model.app import app_from_sam_app, App
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, sam, hardware):
+    def __init__(self, platform_config, user_platform_config, device, sam, hardware, redirect_service, common):
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
@@ -17,6 +17,8 @@ class Public:
         self.device = device
         self.sam = sam
         self.www_dir = self.platform_config.www_root()
+        self.redirect_service = redirect_service
+        self.common = common
 
     def browse(self, filesystem_path):
         entries = sorted(os.listdir(filesystem_path))
@@ -74,3 +76,10 @@ class Public:
 
     def disks(self):
         return self.hardware.available_disks()
+
+
+    def send_logs(self):
+        user_token = self.user_platform_config.get_user_update_token()
+        logs = self.common.get_logs()
+        self.redirect_service.send_log(user_token, logs)
+

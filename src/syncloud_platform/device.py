@@ -23,17 +23,23 @@ class Device:
         self.common = common
         self.logger = logger.get_logger('Device')
 
-    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
+
+    def prepare_redirect(self, redirect_email, redirect_password, main_domain):
 
         redirect_api_url = 'http://api.' + main_domain
 
-        self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
-            redirect_email, user_domain, device_username, redirect_api_url, main_domain))
+        self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
 
         self.sam.update()
-
         self.user_platform_config.update_redirect(main_domain, redirect_api_url)
         user = self.redirect_service.get_user(redirect_email, redirect_password)
+        return user
+
+    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
+
+        self.logger.info("activate {0}, {1}".format(user_domain, device_username))
+           
+        user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
         self.user_platform_config.set_user_update_token(user.update_token)
 
         response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain)
@@ -87,10 +93,6 @@ class Device:
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
 
-    def send_logs(self):
-        user_token = self.user_platform_config.get_user_update_token()
-        logs = self.common.get_logs()
-        self.redirect_service.send_log(user_token, logs)
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)

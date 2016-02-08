@@ -73,12 +73,12 @@ main_menu_item: menu_activate
 
                 <div class="form-group">
 
-                    <div class="button-block col-6 col-md-6 col-sm-6 col-lg-6 col-xs-6"
+                    <div class="col-6 col-md-6 col-sm-6 col-lg-6 col-xs-6"
                          style="padding-right:15px; padding-left:15px;">
-                        <button type="button" id="send_logs_btn" class="btn btn-primary pull-left">Send logs</button>
+                        <a href="/server/html/logs.html" class="pull-left">Send logs</a>
                     </div>
 
-                    <div class="button-block col-6 col-md-6 col-sm-6 col-lg-6 col-xs-6"
+                    <div class="button-block" col-6 col-md-6 col-sm-6 col-lg-6 col-xs-6"
                          style="padding-right:15px; padding-left:15px;">
                         <button id="btnactivate" name="btnactivate" class="btn btn-primary pull-right">Activate</button>
                     </div>
@@ -148,7 +148,6 @@ main_menu_item: menu_activate
                     });
         });
 
-        $("#send_logs_btn").on('click', send_logs);
 
     });
 </script>

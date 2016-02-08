@@ -31,13 +31,7 @@ def activate():
 
     # TODO: validation
 
-    main_domain = None
-    if 'main_domain' in request.form:
-        if request.form['main_domain']:
-            main_domain = request.form['main_domain']
-
-    if main_domain is None:
-        main_domain = "syncloud.it"
+    main_domain = get_main_domain(request.form)
 
     internal.activate(
         request.form['redirect_email'],
@@ -49,10 +43,25 @@ def activate():
     )
     return identification()
 
+def get_main_domain(request_form):
+    
+    main_domain = None
+    if 'main_domain' in request_form:
+        if request_form['main_domain']:
+            main_domain = request_form['main_domain']
+
+    if main_domain is None:
+        main_domain = "syncloud.it"
+
+    return main_domain
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 def send_log():
-    device.send_logs()
+    internal.send_logs(
+        request.form['redirect_email'],
+        request.form['redirect_password'],
+        get_main_domain(request.form))
+
     return jsonify(success=True), 200
 
 

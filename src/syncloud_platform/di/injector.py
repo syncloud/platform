@@ -69,12 +69,12 @@ class Injector:
                              self.port_drill_factory, self.common, self.sam, self.platform_cron, self.ldap_auth,
                              self.event_trigger, self.tls)
 
-        self.internal = Internal(self.platform_config, self.device)
+        self.internal = Internal(self.platform_config, self.device, self.redirect_service, self.common)
         self.path_checker = PathChecker(self.platform_config)
         self.mount = Mount(self.platform_config, self.path_checker)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger, self.mount, self.lsblk, self.path_checker)
         self.storage = DeviceStorage(self.hardware)
 
-        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.sam, self.hardware)
+        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.sam, self.hardware, self.redirect_service, self.common)
         self.udev = Udev(self.platform_config)
