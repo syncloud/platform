@@ -16,7 +16,7 @@ class Internal:
         self.device.activate(redirect_email, redirect_password, user_domain, device_username, device_password, main_domain)
 
     def send_logs(self, redirect_email, redirect_password, main_domain):
-        user = self.device.prepare_resirect(redirect_email, redirect_password, main_domain)
+        user = self.device.prepare_redirect(redirect_email, redirect_password, main_domain)
         
         logs = self.common.get_logs()
         self.redirect_service.send_log(user.update_token, logs)

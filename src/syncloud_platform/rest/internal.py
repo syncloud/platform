@@ -43,6 +43,7 @@ def activate():
     )
     return identification()
 
+
 def get_main_domain(request_form):
     
     main_domain = None
@@ -55,7 +56,8 @@ def get_main_domain(request_form):
 
     return main_domain
 
-@app.route(rest_prefix + "/send_log", methods=["GET"])
+
+@app.route(rest_prefix + "/send_log", methods=["POST"])
 def send_log():
     internal.send_logs(
         request.form['redirect_email'],

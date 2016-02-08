@@ -23,7 +23,6 @@ class Device:
         self.common = common
         self.logger = logger.get_logger('Device')
 
-
     def prepare_redirect(self, redirect_email, redirect_password, main_domain):
 
         redirect_api_url = 'http://api.' + main_domain
@@ -92,7 +91,6 @@ class Device:
 
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
-
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)

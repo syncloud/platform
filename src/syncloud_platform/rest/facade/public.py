@@ -77,7 +77,6 @@ class Public:
     def disks(self):
         return self.hardware.available_disks()
 
-
     def send_logs(self):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.common.get_logs()
