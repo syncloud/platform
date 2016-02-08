@@ -77,16 +77,6 @@ main_menu_item: menu_activate
             $('#main_domain').val(params["main_domain"]);
         }
 
-        if (Mobile.getRedirectLogin()) {
-            $('#redirect_email').val(Mobile.getRedirectLogin());
-            $('#group-redirect-email').hide();
-        }
-
-        if (Mobile.getRedirectPassword()) {
-            $('#redirect-password').val(Mobile.getRedirectPassword());
-            $('#group-redirect-password').hide();
-        }
-
         $("#form-logs").submit(function (event) {
             event.preventDefault();
 
@@ -95,7 +85,7 @@ main_menu_item: menu_activate
 
             var values = $("#form-logs").serializeArray();
             reset_error();
-            $.post("/server/rest/send_log", values)
+            $.get("/server/rest/send_log", values)
                     .done(function (data) {
                         window.location.href = "/server/html/activate.html";
                     })
