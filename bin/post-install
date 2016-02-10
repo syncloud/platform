@@ -60,8 +60,6 @@ udev.add()
 
 app_data_dir = app.get_app_data_root('platform')
 
-app.create_data_dir(app_data_dir, 'client_body_temp')
-
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')
 add_service('platform', 'platform-ntpdate')
