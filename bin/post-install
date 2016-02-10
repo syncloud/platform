@@ -58,6 +58,8 @@ udev = injector.udev
 udev.remove()
 udev.add()
 
+app_data_dir = app.get_app_data_root('platform')
+
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')
 add_service('platform', 'platform-ntpdate')
