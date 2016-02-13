@@ -10,7 +10,7 @@ from syncloud_platform.tools.chown import chown
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, common, sam, platform_cron, ldap_auth, event_trigger, tls):
+                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls):
         self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
@@ -20,7 +20,6 @@ class Device:
         self.auth = ldap_auth
         self.platform_cron = platform_cron
         self.event_trigger = event_trigger
-        self.common = common
         self.logger = logger.get_logger('Device')
 
     def prepare_redirect(self, redirect_email, redirect_password, main_domain):

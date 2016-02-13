@@ -23,7 +23,7 @@ setup(
               'syncloud_platform.tools', 'syncloud_platform.tools.cpu', 'syncloud_platform.systemd',
               'syncloud_platform.rest', 'syncloud_platform.config', 'syncloud_platform.sam',
               'syncloud_platform.rest.facade', 'syncloud_platform.rest.model', 'syncloud_platform.di',
-              'syncloud_platform.tools.disk'],
+              'syncloud_platform.tools.disk', 'syncloud_platform.log'],
     namespace_packages=['syncloud_platform'],
     install_requires=requirements,
     description='Syncloud platform',

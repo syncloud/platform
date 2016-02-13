@@ -107,6 +107,7 @@ def test_public_web_unauthorized_ajax_not_redirect():
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
+
 def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
@@ -127,6 +128,7 @@ def test_external_mode(auth, public_web_session):
     assert response.status_code == 200
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
 
 def test_protocol(auth, public_web_session):
 
@@ -198,6 +200,7 @@ def loop_device():
 def disk_writable():
     run_ssh('su - platform -c "touch /data/platform/test.file"', password=DEVICE_PASSWORD)
 
+
 def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
     disk_create(loop_device, 'ext4')
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
@@ -210,6 +213,7 @@ def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
     disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+
 
 def test_public_settings_disk_add_remove_vfat(loop_device, public_web_session):
     disk_create(loop_device, 'vfat')
@@ -336,6 +340,7 @@ def __local_install(password, version, arch, release):
     run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=password)
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=password)
     set_docker_ssh_port(password)
+    run_ssh('systemctl restart platform-uwsgi-public', password=password)
     time.sleep(3)
 
 
