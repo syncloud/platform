@@ -1,15 +1,7 @@
-# block to import lib folder
 import sys
-from os import listdir
-from os.path import join, dirname, isdir, abspath
-
-app_path = abspath(join(dirname(__file__), '..'))
-
-lib_path = join(app_path, 'lib')
-libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_path, item))]
-map(lambda x: sys.path.append(x), libs)
-# end of block to import lib folder
-
+import logging
+from syncloud_app import logger
 from syncloud_platform.tools.scripts import run_script
 
+logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 run_script(sys.argv[1])

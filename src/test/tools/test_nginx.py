@@ -1,13 +1,13 @@
 from os.path import dirname, join
 
 from syncloud_platform.tools.nginx import Nginx
-
+from syncloud_platform.config.config import PlatformConfig
 
 dir = dirname(__file__)
 
 
 def test_proxy_server():
-    assert Nginx().proxy_definition('test', 80, join(dir, '..', '..', '..', 'config', 'nginx'), 'app.server') == """
+    assert Nginx(PlatformConfig()).proxy_definition('test', 80, join(dir, '..', '..', '..', 'config', 'nginx'), 'app.server') == """
 server {
     listen 80;
     server_name test.*;

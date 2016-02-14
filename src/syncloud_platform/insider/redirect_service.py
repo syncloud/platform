@@ -6,16 +6,15 @@ from IPy import IP
 from syncloud_app import logger
 
 from syncloud_platform.insider import util
-from syncloud_platform.insider.config import Service
 from syncloud_platform.tools import id
 
 
 class RedirectService:
 
-    def __init__(self, service_config, network, user_platform_config):
+    def __init__(self, network, user_platform_config, version_func):
         self.network = network
-        self.service_config = service_config
         self.user_platform_config = user_platform_config
+        self.version_func = version_func
 
         self.logger = logger.get_logger('RedirectService')
 
@@ -51,58 +50,33 @@ class RedirectService:
         response_data = convertible.from_json(response.text)
         return response_data
 
-    def add_service(self, name, protocol, service_type, port, port_drill):
-        try:
-            port_drill.sync_new_port(port)
-        except Exception, e:
-            self.logger.error('Unable to add new port for service "{0}": {1}'.format(name, e.message))
-        new_service = Service(name, protocol, service_type, port)
-        self.service_config.add_or_update(new_service)
-
-    def get_service(self, name):
-        return self.service_config.get(name)
-
-    def get_service_by_port(self, port):
-        return self.service_config.get(port)
-
-    def remove_service(self, name, port_drill):
-        service = self.get_service(name)
-        if service:
-            self.service_config.remove(name)
-            try:
-                port_drill.remove(service.port)
-            except Exception, e:
-                self.logger.error('Unable to remove port for service "{0}": {1}'.format(name, e.message))
-
     def sync(self, port_drill, update_token):
         try:
             port_drill.sync()
         except Exception, e:
             self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
-        services = self.service_config.load()
 
-        services_data = []
-        for service in services:
-            self.logger.debug('service: {0} '.format(service.port))
-            mapping = port_drill.get(service.port)
-            if mapping:
-                service.port = mapping.external_port
-                service_data = dict(
-                    name=service.name,
-                    protocol=service.protocol,
-                    type=service.type,
-                    url=service.url,
-                    port=mapping.external_port,
-                    local_port=mapping.local_port
-                )
-                services_data.append(service_data)
+        map_local_address = not self.user_platform_config.get_external_access()
+
+        web_protocol = self.user_platform_config.get_protocol()
+        web_local_port = util.protocol_to_port(web_protocol)
+        web_port = None
+        mapping = port_drill.get(web_local_port)
+        if mapping:
+            web_port = mapping.external_port
+
+        version = self.version_func()
 
         local_ip = self.network.local_ip()
         data = {
             'token': update_token,
+            'platform_version': version,
             'local_ip': local_ip,
-            'services': services_data,
-            'map_local_address': False}
+            'map_local_address': map_local_address,
+            'web_protocol': web_protocol,
+            'web_port': web_port,
+            'web_local_port': web_local_port
+        }
 
         external_ip = port_drill.external_ip()
 
@@ -113,10 +87,9 @@ class RedirectService:
                 external_ip = None
                 self.logger.warn("External ip is not public")
 
-        if external_ip:
+        if map_local_address and external_ip is not None:
             data['ip'] = external_ip
         else:
-            data['map_local_address'] = True
             self.logger.warn("Will try server side client ip detection")
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")

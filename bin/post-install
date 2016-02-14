@@ -3,7 +3,7 @@ from subprocess import check_output
 from os.path import isdir
 import shutil
 from syncloud_app import logger
-from syncloud_platform.di.injector import Injector
+from syncloud_platform.di.injector import get_injector
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
@@ -29,10 +29,11 @@ app.create_data_dir(data_dir, 'webapps', 'platform')
 app.create_data_dir(data_dir, 'log', 'platform')
 app.create_data_dir(data_dir, 'openldap-data', 'platform')
 
-injector = Injector()
+injector = get_injector()
 
 platform_config = injector.platform_config
 hardware = injector.hardware
+path_checker = injector.path_checker
 ldap_auth = injector.ldap_auth
 
 if not isdir(platform_config.get_disk_root()):
@@ -41,7 +42,7 @@ if not isdir(platform_config.get_disk_root()):
 if not isdir(platform_config.get_internal_disk_dir()):
     os.mkdir(platform_config.get_internal_disk_dir())
 
-if not hardware.external_disk_is_mounted():
+if not path_checker.external_disk_link_exists():
     hardware.relink_disk(
         platform_config.get_disk_link(),
         platform_config.get_internal_disk_dir())
@@ -49,6 +50,15 @@ if not hardware.external_disk_is_mounted():
 if not os.path.isfile(platform_config.get_ssl_certificate_file()):
     shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
     shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
+
+injector.platform_cron.remove()
+injector.platform_cron.create()
+
+udev = injector.udev
+udev.remove()
+udev.add()
+
+app_data_dir = app.get_app_data_root('platform')
 
 add_service('platform', 'platform-cpu-frequency')
 add_service('platform', 'platform-insider-sync')

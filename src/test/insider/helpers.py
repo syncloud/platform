@@ -4,7 +4,6 @@ import os
 from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig, PlatformConfig
 
 from syncloud_platform.insider.port_config import PortConfig, PORT_CONFIG_NAME
-from syncloud_platform.insider.service_config import ServiceConfig, SERVICE_CONFIG_NAME
 
 
 def temp_file(text='', filename=None):
@@ -23,12 +22,6 @@ def temp_file(text='', filename=None):
 def get_port_config(mappings):
     config = PortConfig(dirname(temp_file(filename=PORT_CONFIG_NAME)))
     config.save(mappings)
-    return config
-
-
-def get_service_config(services):
-    config = ServiceConfig(dirname(temp_file(filename=SERVICE_CONFIG_NAME)))
-    config.save(services)
     return config
 
 

@@ -6,7 +6,7 @@ class CpuInfo:
 
     def __init__(self, reader):
         self.reader = reader
-        self.logger = logger.get_logger('CpuInfo')
+        self.log = logger.get_logger('CpuInfo')
 
     def vendor_id(self):
         return self.value('vendor_id')

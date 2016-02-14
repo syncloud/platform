@@ -10,7 +10,7 @@ from syncloud_platform.tools.chown import chown
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, common, sam, platform_cron, ldap_auth, event_trigger, tls):
+                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls):
         self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
@@ -20,27 +20,24 @@ class Device:
         self.auth = ldap_auth
         self.platform_cron = platform_cron
         self.event_trigger = event_trigger
-        self.common = common
         self.logger = logger.get_logger('Device')
 
-    def activate(self,
-                 redirect_email, redirect_password, user_domain,
-                 device_user, device_password,
-                 api_url=None, domain=None):
+    def prepare_redirect(self, redirect_email, redirect_password, main_domain):
 
-        if not api_url:
-            api_url = 'http://api.syncloud.it'
+        redirect_api_url = 'http://api.' + main_domain
 
-        if not domain:
-            domain = 'syncloud.it'
-
-        self.logger.info("activate {0}, {1}, {2}, {3}, {4}".format(
-            redirect_email, user_domain, device_user, api_url, domain))
+        self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
 
         self.sam.update()
-
-        self.user_platform_config.update_redirect(domain, api_url)
+        self.user_platform_config.update_redirect(main_domain, redirect_api_url)
         user = self.redirect_service.get_user(redirect_email, redirect_password)
+        return user
+
+    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
+
+        self.logger.info("activate {0}, {1}".format(user_domain, device_username))
+           
+        user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
         self.user_platform_config.set_user_update_token(user.update_token)
 
         response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain)
@@ -52,7 +49,7 @@ class Device:
         self.set_access('http', False)
 
         self.logger.info("activating ldap")
-        self.auth.reset(device_user, device_password)
+        self.auth.reset(device_username, device_password)
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_certificate()
@@ -65,8 +62,18 @@ class Device:
             return
 
         drill = self.get_drill(external_access)
-        self.redirect_service.remove_service("server", drill)
-        self.redirect_service.add_service("server", protocol, "server", protocol_to_port(protocol), drill)
+        new_web_local_port = protocol_to_port(protocol)
+        old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
+
+        try:
+            drill.remove(old_web_local_port)
+        except Exception, e:
+            self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
+
+        try:
+            drill.sync_new_port(new_web_local_port)
+        except Exception, e:
+            self.logger.error('Unable to add new port {0}: {1}'.format(new_web_local_port, e.message))
 
         self.redirect_service.sync(drill, update_token)
         self.user_platform_config.update_device_access(external_access, protocol)
@@ -83,11 +90,6 @@ class Device:
 
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
-
-    def send_logs(self):
-        user_token = self.user_platform_config.get_user_update_token()
-        logs = self.common.get_logs()
-        self.redirect_service.send_log(user_token, logs)
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)

@@ -25,8 +25,8 @@ class EventTrigger:
                 log.info('executing {0}'.format(app_event_script))
                 try:
                     run_script(app_event_script)
-                except Exception, e:
-                    log.error('error in script, error: {0}'.format(e.message))
-                    traceback.print_exc()
+                except:
+                    log.error('error in script')
+                    log.error(traceback.format_exc())
             else:
                 log.info('{0} not found'.format(app_event_script))

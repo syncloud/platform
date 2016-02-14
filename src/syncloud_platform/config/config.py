@@ -62,6 +62,12 @@ class PlatformConfig:
     def get_log_root(self):
         return self.__get('log_root')
 
+    def get_log_sender_pattern(self):
+        return self.__get('log_sender_pattern')
+
+    def get_log_sender_sam_log(self):
+        return self.__get('log_sender_sam_log')
+
     def get_internal_disk_dir(self):
         return self.__get('internal_disk_dir')
 
@@ -116,7 +122,7 @@ class PlatformConfig:
 class PlatformUserConfig:
 
     def __init__(self, config_file):
-        self.logger = logger.get_logger('PlatformUserConfig')
+        self.log = logger.get_logger('PlatformUserConfig')
         self.parser = ConfigParser()
         self.filename = config_file
 
@@ -131,7 +137,7 @@ class PlatformUserConfig:
 
     def update_redirect(self, domain, api_url):
         self.parser.read(self.filename)
-        self.logger.info('setting domain={0}, api_url={1}'.format(domain, api_url))
+        self.log.info('setting domain={0}, api_url={1}'.format(domain, api_url))
         if not self.parser.has_section('redirect'):
             self.parser.add_section('redirect')
 
@@ -176,7 +182,7 @@ class PlatformUserConfig:
 
     def update_domain(self, user_domain, domain_update_token):
         self.parser.read(self.filename)
-        self.logger.info('saving user_domain = {0}, domain_update_token = {0}'.format(user_domain, domain_update_token))
+        self.log.info('saving user_domain = {0}, domain_update_token = {0}'.format(user_domain, domain_update_token))
         self.parser.set('platform', 'user_domain', user_domain)
         self.parser.set('platform', 'domain_update_token', domain_update_token)
         self.__save()
@@ -186,7 +192,7 @@ class PlatformUserConfig:
         external_access = False
         if self.parser.has_option('platform', 'external_access'):
             external_access = self.parser.getboolean('platform', 'external_access')
-        self.logger.info('external_access = {0}'.format(external_access))
+        self.log.info('external_access = {0}'.format(external_access))
         return external_access
 
     def get_protocol(self):

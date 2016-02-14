@@ -9,10 +9,11 @@ from syncloud_platform.tools.nginx import Nginx
 
 
 class Tls:
-    def __init__(self, platform_config, info):
+    def __init__(self, platform_config, info, nginx):
         self.info = info
         self.log = get_logger('tls')
         self.platform_config = platform_config
+        self.nginx = nginx
 
     def generate_certificate(self):
 
@@ -27,7 +28,7 @@ class Tls:
         self.log.info('running: ' + cmd)
         check_output(cmd, shell=True)
 
-        Nginx().reload()
+        self.nginx.reload()
 
     def is_default_certificate_installed(self):
         return filecmp.cmp(

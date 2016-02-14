@@ -4,11 +4,11 @@ import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
 
-from syncloud_platform.di.injector import Injector
-from syncloud_platform.rest.facade.common import rest_prefix, html_prefix
+from syncloud_platform.di.injector import get_injector
+from syncloud_platform.rest.props import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
 
-injector = Injector()
+injector = get_injector()
 internal = injector.internal
 device = injector.device
 
@@ -31,29 +31,39 @@ def activate():
 
     # TODO: validation
 
-    api_url = None
-    if 'api-url' in request.form:
-        api_url = request.form['api-url']
-
-    domain = None
-    if 'domain' in request.form:
-        domain = request.form['domain']
+    main_domain = get_main_domain(request.form)
 
     internal.activate(
-        request.form['redirect-email'],
-        request.form['redirect-password'],
-        request.form['redirect-domain'],
-        request.form['name'],
-        request.form['password'],
-        api_url,
-        domain
+        request.form['redirect_email'],
+        request.form['redirect_password'],
+        request.form['user_domain'],
+        request.form['device_username'],
+        request.form['device_password'],
+        main_domain
     )
     return identification()
 
 
-@app.route(rest_prefix + "/send_log", methods=["GET"])
+def get_main_domain(request_form):
+    
+    main_domain = None
+    if 'main_domain' in request_form:
+        if request_form['main_domain']:
+            main_domain = request_form['main_domain']
+
+    if main_domain is None:
+        main_domain = "syncloud.it"
+
+    return main_domain
+
+
+@app.route(rest_prefix + "/send_log", methods=["POST"])
 def send_log():
-    device.send_logs()
+    internal.send_logs(
+        request.form['redirect_email'],
+        request.form['redirect_password'],
+        get_main_domain(request.form))
+
     return jsonify(success=True), 200
 
 

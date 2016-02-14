@@ -11,12 +11,14 @@ from syncloud_platform.tools import id
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.port_drill import PortDrill
 from syncloud_platform.insider.config import Port, Service
-from test.insider.helpers import get_port_config, get_service_config, get_user_platform_config, get_platform_config
+from test.insider.helpers import get_port_config, get_user_platform_config, get_platform_config
 
 from syncloud_app.main import PassthroughJsonError
 
 logger.init(level=logging.DEBUG, console=True)
 
+def test_version():
+    return 'test'
 
 def assertSingleRequest(expected_request):
     expected_request = reformat(expected_request)
@@ -35,10 +37,6 @@ class FakePortDrillProvider:
 
 @responses.activate
 def test_sync_success():
-    service_config = get_service_config([
-        Service("ownCloud", "http", "_http._tcp", 80, url="owncloud"),
-        Service("SSH", "https", "_http._tcp", 81, url=None)
-    ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
@@ -53,18 +51,18 @@ def test_sync_success():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
+    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
     dns.sync(port_drill, 'some_update_token')
 
     expected_request = '''
 {
-    "services": [
-        {"name": "ownCloud", "protocol": "http", "type": "_http._tcp", "port": 80, "local_port": 80, "url": "owncloud"},
-        {"name": "SSH", "protocol": "https", "type": "_http._tcp", "port": 81, "local_port": 81, "url": null}
-    ],
+    "web_local_port": 80,
+    "web_port": 80,
+    "web_protocol": "http",
     "ip": "192.167.44.52",
     "local_ip": "127.0.0.1",
-    "map_local_address": false,
+    "map_local_address": true,
+    "platform_version": "test",
     "token": "some_update_token"
 }
 '''
@@ -73,10 +71,6 @@ def test_sync_success():
 
 @responses.activate
 def test_sync_server_side_client_ip():
-    service_config = get_service_config([
-        Service("ownCloud", "http", "_http._tcp", 80, url="owncloud"),
-        Service("SSH", "https", "_http._tcp", 81, url=None)
-    ])
     port_config = get_port_config([Port(80, 80), Port(81, 81)])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='10.1.1.1'), MockPortProber())
 
@@ -86,20 +80,18 @@ def test_sync_server_side_client_ip():
                   body="{'message': 'Domain was updated'}",
                   content_type="application/json")
 
-    # platform_config = get_platform_config()
-
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
+    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
     dns.sync(port_drill, 'some_update_token')
 
     expected_request = '''
 {
-    "services": [
-        {"name": "ownCloud", "protocol": "http", "type": "_http._tcp", "port": 80, "local_port": 80, "url": "owncloud"},
-        {"name": "SSH", "protocol": "https", "type": "_http._tcp", "port": 81, "local_port": 81, "url": null}
-    ],
+    "web_local_port": 80,
+    "web_port": 80,
+    "web_protocol": "http",
+    "platform_version": "test",
     "token": "some_update_token",
     "map_local_address": true,
     "local_ip": "127.0.0.1"
@@ -110,7 +102,6 @@ def test_sync_server_side_client_ip():
 
 @responses.activate
 def test_sync_server_error():
-    service_config = get_service_config([Service("ownCloud", "http", "_http._tcp", 80, url="owncloud")])
     port_config = get_port_config([Port(80, 10000)])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
@@ -120,12 +111,10 @@ def test_sync_server_error():
                   body='{"message": "Unknown update token"}',
                   content_type="application/json")
 
-    # platform_config = get_platform_config()
-
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
+    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync(port_drill, 'some_update_token')
@@ -145,11 +134,9 @@ def test_link_success():
                   body='{"user_domain": "boris", "update_token": "some_update_token"}',
                   content_type="application/json")
 
-    # platform_config = get_platform_config()
-
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(None, MockNetwork('127.0.0.1'), user_platform_config)
+    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -182,11 +169,9 @@ def test_link_server_error():
                   body='{"message": "Authentication failed"}',
                   content_type="application/json")
 
-    # platform_config = get_platform_config()
-
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(None, MockNetwork('127.0.0.1'), user_platform_config)
+    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
@@ -194,68 +179,6 @@ def test_link_server_error():
     assert context.value.message == "Authentication failed"
 
     assert user_platform_config.get_user_domain() is None
-
-
-def test_add_service():
-    service_config = get_service_config([])
-    port_config = get_port_config([])
-    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
-
-    user_platform_config = get_user_platform_config()
-    user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-
-    # platform_config = get_platform_config()
-
-    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
-    dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
-
-    services = service_config.load()
-    assert 1 == len(services)
-    service = services[0]
-    assert "ownCloud" == service.name
-    assert "_http._tcp" == service.type
-    assert 80 == service.port
-
-    mappings = port_config.load()
-    assert 1 == len(mappings)
-    mapping = mappings[0]
-    assert 80 == mapping.local_port
-
-
-def test_get_service():
-    service_config = get_service_config([])
-    port_config = get_port_config([])
-    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
-
-    user_platform_config = get_user_platform_config()
-    user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-
-    # platform_config = get_platform_config()
-
-    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
-    dns.add_service("ownCloud", "http", "_http._tcp", 80, port_drill)
-
-    service = dns.get_service("ownCloud")
-
-    assert service is not None
-    assert "ownCloud" == service.name
-    assert "_http._tcp" == service.type
-    assert 80 == service.port
-
-
-def test_get_not_existing_service():
-    service_config = get_service_config([])
-
-    user_platform_config = get_user_platform_config()
-    user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-
-    # platform_config = get_platform_config()
-
-    dns = RedirectService(service_config, MockNetwork('127.0.0.1'), user_platform_config)
-
-    service = dns.get_service("ownCloud")
-
-    assert service is None
 
 
 class MockPortMapper:

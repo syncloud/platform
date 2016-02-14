@@ -82,18 +82,16 @@ def test_activate_device(auth):
 
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': 'user1', 'password': 'password1',
-                                   'api-url': 'http://api.syncloud.info', 'domain': SYNCLOUD_INFO})
+                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
 
 
 def test_reactivate(auth):
     email, password, domain, version, arch, release = auth
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password,
-                                   'redirect-domain': domain, 'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
-                                   'api-url': 'http://api.syncloud.info', 'domain': SYNCLOUD_INFO})
+                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
@@ -108,6 +106,7 @@ def test_public_web_unauthorized_ajax_not_redirect():
     response = requests.get('http://localhost/server/rest/user',
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
+
 
 def test_external_mode(auth, public_web_session):
 
@@ -129,6 +128,7 @@ def test_external_mode(auth, public_web_session):
     assert response.status_code == 200
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
 
 def test_protocol(auth, public_web_session):
 
@@ -197,18 +197,41 @@ def loop_device():
     loop_device_cleanup(password=DEVICE_PASSWORD)
 
 
+def disk_writable():
+    run_ssh('su - platform -c "touch /data/platform/test.file"', password=DEVICE_PASSWORD)
+
+
 def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
-    __test_fs(loop_device, 'ext4', public_web_session)
+    disk_create(loop_device, 'ext4')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    disk_writable()
+    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
 
 def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
-    __test_fs(loop_device, 'ntfs', public_web_session)
+    disk_create(loop_device, 'ntfs')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    disk_writable()
+    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
 
-def __test_fs(loop_device, fs, public_web_session):
+def test_public_settings_disk_add_remove_vfat(loop_device, public_web_session):
+    disk_create(loop_device, 'vfat')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    disk_writable()
+    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
-    run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
+def test_disk_physical_remove(loop_device, public_web_session):
+    disk_create(loop_device, 'ext4')
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    loop_device_cleanup(password=DEVICE_PASSWORD)
+    run_ssh('udevadm trigger --action=remove -y loop0', password=DEVICE_PASSWORD)
+    run_ssh('udevadm settle', password=DEVICE_PASSWORD)
+    assert current_disk_link() == '/opt/disk/internal/platform'
+
+
+def disk_create(loop_device, fs):
     run_ssh('mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
 
     run_ssh('mkdir /tmp/test', password=DEVICE_PASSWORD)
@@ -225,6 +248,11 @@ def __test_fs(loop_device, fs, public_web_session):
             print(mount)
     run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
+
+def disk_activate(loop_device,  public_web_session):
+
+    run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+
     response = public_web_session.get('http://localhost/server/rest/settings/disks')
     print response.text
     assert loop_device in response.text
@@ -233,12 +261,18 @@ def __test_fs(loop_device, fs, public_web_session):
     response = public_web_session.get('http://localhost/server/rest/settings/disk_activate',
                                       params={'device': loop_device})
     assert response.status_code == 200
-    assert run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD) == '/data/platform'
+    return current_disk_link()
 
+
+def disk_deactivate(loop_device,  public_web_session):
     response = public_web_session.get('http://localhost/server/rest/settings/disk_deactivate',
                                       params={'device': loop_device})
     assert response.status_code == 200
-    assert run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD) == '/data/platform'
+    return current_disk_link()
+
+
+def current_disk_link():
+    return run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
 
 
 def test_internal_web_id():
@@ -249,6 +283,10 @@ def test_internal_web_id():
 
 
 def test_if_cron_is_enabled_after_install():
+    cron_is_enabled_after_install()
+
+
+def cron_is_enabled_after_install():
     crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
     assert len(crontab.splitlines()) == 1
     assert 'sync' in crontab, crontab
@@ -285,6 +323,10 @@ def test_reinstall_local_after_upgrade(auth):
     __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
+def test_if_cron_is_enabled_after_upgrade():
+    cron_is_enabled_after_install()
+
+
 def test_nginx_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1/ping', shell=True))
 
@@ -298,6 +340,7 @@ def __local_install(password, version, arch, release):
     run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=password)
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=password)
     set_docker_ssh_port(password)
+    run_ssh('systemctl restart platform-uwsgi-public', password=password)
     time.sleep(3)
 
 

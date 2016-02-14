@@ -1,4 +1,4 @@
-from syncloud_platform.di.injector import Injector
+from syncloud_platform.di.injector import get_injector
 from syncloud_platform.systemd.systemctl import remove_service
 
 remove_service('platform-openldap')
@@ -9,4 +9,7 @@ remove_service('platform-ntpdate')
 remove_service('platform-insider-sync')
 remove_service('platform-cpu-frequency')
 
-Injector().platform_cron.remove()
+injector = get_injector()
+injector.platform_cron.remove()
+injector.udev.remove()
+

@@ -6,9 +6,10 @@ def loop_device_cleanup(password):
     for mount in run_ssh('mount', password=password).splitlines():
         if 'loop' in mount:
             print(mount)
+            run_ssh('umount /dev/loop0', throw=False, password=password)
 
     for loop in run_ssh('losetup', password=password).splitlines():
-        if 'loop0p1' in loop:
+        if 'loop0' in loop:
             run_ssh('losetup -d /dev/loop0', throw=False, password=password)
 
     run_ssh('losetup', password=password)

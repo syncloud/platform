@@ -40,14 +40,14 @@ function app_status(app_id) {
 }
 
 function run(action, app_id) {
+    $('#errors_placeholder').empty();
     progress_start();
     $.get("/server/rest/" + action, {app_id: app_id})
             .fail(function(xhr, textStatus, errorThrown) {
                 var template = $("#error_template").html();
                 $('#errors_placeholder').html(_.template(template)(xhr.responseJSON));
-                show_error(xhr.responseJSON);
             })
-            .always(function() {
+            .done(function() {
                 run_after_sam_is_complete(function() {app_status(app_id)});
             });
 }

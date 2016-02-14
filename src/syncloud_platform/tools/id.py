@@ -32,7 +32,7 @@ def id():
     f = footprint.footprint()
     name = getname(f)
     if not name:
-        raise Exception('Unknown footprint: {}'.format(f))
+        name = 'unknown'
     mac_address = getmac()
 
     title = config.titles[name]
