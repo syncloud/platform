@@ -59,7 +59,7 @@ class UpnpClient:
     def mapped_external_ports(self, protocol):
         mappings = self.__list()
         local_ip = self.upnp.lanaddr
-        ports = [m.external_port for m in mappings if m.protocol == protocol and m.local_ip == local_ip]
+        ports = [m.external_port for m in mappings if m.protocol == protocol]
         return ports
 
     def get_external_ports(self, protocol, local_port):
