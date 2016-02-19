@@ -75,7 +75,7 @@ class Device:
         except Exception, e:
             self.logger.error('Unable to add new port {0}: {1}'.format(new_web_local_port, e.message))
 
-        self.redirect_service.sync(drill, update_token)
+        self.redirect_service.sync(drill, update_token, protocol, external_access)
         self.user_platform_config.update_device_access(external_access, protocol)
         self.event_trigger.trigger_app_event_domain(self.platform_config.apps_root())
 
@@ -86,7 +86,8 @@ class Device:
 
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
-        self.redirect_service.sync(drill, update_token)
+        web_protocol = self.user_platform_config.get_protocol()
+        self.redirect_service.sync(drill, update_token, web_protocol, external_access)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
