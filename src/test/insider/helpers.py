@@ -38,6 +38,7 @@ def get_user_platform_config():
     config = PlatformUserConfig(config_file=temp_file())
     return config
 
+
 def get_platform_config():
     config = PlatformConfig(platform_config_file)
     return config

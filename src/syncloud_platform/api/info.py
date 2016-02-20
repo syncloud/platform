@@ -9,4 +9,4 @@ def domain():
 
 def url(app=None):
     injector = get_injector()
-    return DeviceInfo(injector.user_platform_config, injector.port_config).url()
+    return DeviceInfo(injector.user_platform_config, injector.port_config).url(app)
