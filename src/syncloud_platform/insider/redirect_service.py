@@ -50,15 +50,14 @@ class RedirectService:
         response_data = convertible.from_json(response.text)
         return response_data
 
-    def sync(self, port_drill, update_token):
+    def sync(self, port_drill, update_token, web_protocol, external_access):
         try:
             port_drill.sync()
         except Exception, e:
             self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
 
-        map_local_address = not self.user_platform_config.get_external_access()
+        map_local_address = not external_access
 
-        web_protocol = self.user_platform_config.get_protocol()
         web_local_port = util.protocol_to_port(web_protocol)
         web_port = None
         mapping = port_drill.get(web_local_port)
@@ -96,7 +95,7 @@ class RedirectService:
 
         self.logger.debug('url: ' + url)
         json = convertible.to_json(data)
-        self.logger.debug('request: ' + json)
+        self.logger.info('request: ' + json)
         response = requests.post(url, json)
 
         util.check_http_error(response)

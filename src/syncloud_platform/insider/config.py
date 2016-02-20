@@ -6,7 +6,7 @@ class Port:
 
     def __str__(self):
         return '{0}->{1}'.format(self.external_port, self.local_port)
-\
+
 
 class Service:
 

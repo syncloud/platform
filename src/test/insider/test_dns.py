@@ -52,7 +52,7 @@ def test_sync_success():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token')
+    dns.sync(port_drill, 'some_update_token', 'http', False)
 
     expected_request = '''
 {
@@ -84,7 +84,7 @@ def test_sync_server_side_client_ip():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token')
+    dns.sync(port_drill, 'some_update_token', 'http', False)
 
     expected_request = '''
 {
@@ -117,7 +117,7 @@ def test_sync_server_error():
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
-        dns.sync(port_drill, 'some_update_token')
+        dns.sync(port_drill, 'some_update_token', 'http', False)
 
     assert context.value.message == "Unknown update token"
 
