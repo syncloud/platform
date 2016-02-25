@@ -86,10 +86,11 @@ class RedirectService:
                 external_ip = None
                 self.logger.warn("External ip is not public")
 
-        if map_local_address and external_ip is not None:
-            data['ip'] = external_ip
-        else:
-            self.logger.warn("Will try server side client ip detection")
+        if not map_local_address:
+            if external_ip:
+                data['ip'] = external_ip
+            else:
+                self.logger.warn("Will try server side client ip detection")
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
