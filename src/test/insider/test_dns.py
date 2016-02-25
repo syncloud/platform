@@ -52,7 +52,7 @@ def test_sync_success():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token', 'http', False)
+    dns.sync(port_drill, 'some_update_token', 'http', True)
 
     expected_request = '''
 {
@@ -61,7 +61,7 @@ def test_sync_success():
     "web_protocol": "http",
     "ip": "192.167.44.52",
     "local_ip": "127.0.0.1",
-    "map_local_address": true,
+    "map_local_address": false,
     "platform_version": "test",
     "token": "some_update_token"
 }
