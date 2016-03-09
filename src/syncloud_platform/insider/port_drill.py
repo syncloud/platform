@@ -1,9 +1,7 @@
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
-from syncloud_platform.insider.util import port_to_protocol
-
-
+from syncloud_platform.insider.util import port_to_protocol, is_web_port
 from upnpc import UpnpPortMapper
 from natpmpc import NatPmpPortMapper
 
@@ -74,6 +72,9 @@ class PortDrill:
         for i in range(1, retries):
             self.logger.info('Trying {0}'.format(port_to_try))
             external_port = self.port_mapper.add_mapping(local_port, port_to_try)
+            if not is_web_port(local_port):
+                found_external_port = external_port
+                break
             if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
                 found_external_port = external_port
                 break
