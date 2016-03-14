@@ -23,6 +23,7 @@ dn:                    cn=${user},ou=users,dc=syncloud,dc=org
 objectClass:           simpleSecurityObject
 objectClass:           Person
 objectClass:           inetOrgPerson
+objectClass:           posixAccount
 uid:                   ${user}
 cn:                    ${user}
 sn:                    ${user}
