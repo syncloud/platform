@@ -26,6 +26,7 @@ objectClass:           inetOrgPerson
 objectClass:           posixAccount
 uidNumber:            10
 gidNumber:            10
+homeDirectory:      ${user}
 uid:                   ${user}
 cn:                    ${user}
 sn:                    ${user}
