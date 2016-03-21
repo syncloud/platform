@@ -43,8 +43,8 @@ def module_teardown():
 
 @pytest.fixture(scope="function")
 def public_web_session():
+    wait_for_platform_web()
     session = requests.session()
-    session.mount('http://localhost', HTTPAdapter(max_retries=3))
     session.post('http://localhost/server/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
     assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
     return session
@@ -85,6 +85,8 @@ def test_activate_device(auth):
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
+    global LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = 'password1'
 
 
 def test_reactivate(auth):
@@ -198,7 +200,8 @@ def loop_device():
 
 
 def disk_writable():
-    run_ssh('su - platform -c "touch /data/platform/test.file"', password=DEVICE_PASSWORD)
+    run_ssh('ls -la /data/', password=DEVICE_PASSWORD)
+    run_ssh("su - platform -s /bin/bash -c 'touch /data/platform/test.file'", password=DEVICE_PASSWORD)
 
 
 def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
@@ -234,6 +237,7 @@ def test_disk_physical_remove(loop_device, public_web_session):
 def disk_create(loop_device, fs):
     run_ssh('mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
 
+    run_ssh('rm -rf /tmp/test', password=DEVICE_PASSWORD)
     run_ssh('mkdir /tmp/test', password=DEVICE_PASSWORD)
 
     run_ssh('mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD)
@@ -344,3 +348,6 @@ def __local_install(password, version, arch, release):
     time.sleep(3)
 
 
+def wait_for_platform_web():
+    print(check_output('while ! nc -w 1 -z localhost 81; do sleep 1; done', shell=True))
+    print(check_output('while ! nc -w 1 -z localhost 80; do sleep 1; done', shell=True))

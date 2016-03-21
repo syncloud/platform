@@ -20,4 +20,4 @@ def loop_device_cleanup(password):
 
     for loop_disk in run_ssh('ls -la /tmp', password=password).splitlines():
         if '/tmp/disk' in loop_disk:
-            run_ssh('rm -fr /tmp/disk', throw=False, password=password)
+            run_ssh('rm -rf /tmp/disk', throw=False, password=password)
