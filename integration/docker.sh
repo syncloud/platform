@@ -77,9 +77,6 @@ tar -C ${ROOTFS} -c . | docker import - syncloud
 echo "starting rootfs"
 docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL
 
-#echo "sleeping for services to start"
-#sleep 10
-
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 while test $? -gt 0
 do
