@@ -92,5 +92,10 @@ class Device:
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
 
+    def add_port(self, local_port):
+        external_access = self.user_platform_config.get_external_access()
+        drill = self.get_drill(external_access)
+        drill.sync_new_port(local_port)
+
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)
