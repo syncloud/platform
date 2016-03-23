@@ -1,4 +1,5 @@
 from syncloud_app import logger
+import time
 
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.util import port_to_protocol, is_web_port
@@ -13,7 +14,7 @@ def check_mapper(mapper_type):
     mapper_name = mapper_type.__name__
     try:
         mapper = mapper_type()
-        ip = mapper.external_ip()
+        ip = retrial_get_external_address(mapper)
         if ip is None or ip == '':
             raise Exception("Returned bad ip address: {0}".format(ip))
         log.warn('{0} mapper is working, returned external ip: {1}'.format(mapper_name, ip))
@@ -22,6 +23,17 @@ def check_mapper(mapper_type):
         log.warn('{0} mapper failed, message: {1}'.format(mapper_name, e.message))
     return None
 
+def retrial_get_external_address(mapper):
+    log = logger.get_logger('get_external_address')
+    retry = 0
+    retries = 5
+    ip = mapper.external_ip()
+    while not ip and retry < retries:
+        retry += 1
+        log.info('retrying external ip: {0} / {1}'.format(retry, retries))
+        time.sleep(1)
+        ip = mapper.external_ip()
+    return ip
 
 def provide_mapper():
     log = logger.get_logger('check_mapper')
