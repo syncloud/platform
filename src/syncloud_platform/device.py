@@ -61,9 +61,14 @@ class Device:
         if update_token is None:
             return
 
-        drill = self.get_drill(external_access)
         new_web_local_port = protocol_to_port(protocol)
         old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
+
+        drill = self.get_drill(external_access)
+
+        if drill is None:
+            self.logger.error('Will not change access mode. Was not able to get working port drill.')
+            return
 
         try:
             drill.remove(old_web_local_port)

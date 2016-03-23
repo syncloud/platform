@@ -152,10 +152,11 @@ class PortDrillFactory:
         self.user_platform_config = user_platform_config
 
     def get_drill(self, external_access):
-        drill = NonePortDrill()
-        if external_access:
-            mapper = provide_mapper()
-            if mapper:
-                prober = PortProber(self.user_platform_config.get_redirect_api_url(), self.user_platform_config.get_domain_update_token())
-                drill = PortDrill(self.port_config, mapper, prober)
+        if not external_access:
+            return NonePortDrill()
+        drill = None
+        mapper = provide_mapper()
+        if mapper:
+            prober = PortProber(self.user_platform_config.get_redirect_api_url(), self.user_platform_config.get_domain_update_token())
+            drill = PortDrill(self.port_config, mapper, prober)
         return drill
