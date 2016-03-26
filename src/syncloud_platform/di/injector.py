@@ -42,9 +42,10 @@ class Injector:
     def __init__(self, debug=False):
         self.platform_config = PlatformConfig()
 
-        console = True if debug else False
-        level = logging.DEBUG if debug else logging.INFO
-        logger.init(level, console, join(self.platform_config.get_platform_log()))
+        if not logger.factory_instance:
+            console = True if debug else False
+            level = logging.DEBUG if debug else logging.INFO
+            logger.init(level, console, join(self.platform_config.get_platform_log()))
 
         self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
 

@@ -103,7 +103,7 @@ def __start(service):
         check_output('systemctl start {0} 2>&1'.format(service), shell=True)
     except CalledProcessError, e:
         try:
-            log.error(check_output('systemctl status {0} || true 2>&1'.format(service), shell=True))
+            log.error(check_output('journalctl | grep {0}'.format(service), shell=True))
         except CalledProcessError, e:
             log.error(e.output)
         raise e
