@@ -49,7 +49,7 @@ def test_add_mapping_simple(http_server, mapper):
 
 def test_add_mapping_twice(http_server, mapper):
     external_port_first = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
-    external_port_second = mapper.add_mapping(http_server.port, http_server.portc)
+    external_port_second = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
     assert external_port_first == external_port_second
 
 
