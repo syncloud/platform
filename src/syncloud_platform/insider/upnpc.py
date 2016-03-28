@@ -31,11 +31,19 @@ def to_mapping(m):
 
 
 class UpnpClient:
-    def __init__(self):
+    def __init__(self, upnp):
         self.logger = logger.get_logger('UpnpClient')
-        self.upnp = UPnP()
+        self.upnp = upnp
+        self.initialized = False
+
+    def init(self):
+        if self.initialized:
+            # self.logger.info('upnp is already initialized, skipping')
+            return
+        self.logger.info('initializing upnp')
         self.upnp.discover()
         self.upnp.selectigd()
+        self.initialized = True
 
     def __run(self, cmd):
         return check_output(cmd, shell=True)
@@ -83,14 +91,16 @@ UPPER_LIMIT = 65535
 
 class UpnpPortMapper:
 
-    def __init__(self):
+    def __init__(self, upnp_client):
         self.logger = logger.get_logger('UpnpPortMapper')
-        self.__upnpc = None
+        self.upnp_client = upnp_client
+
+    def name(self):
+        return 'UpnpPortMapper'
 
     def upnpc(self):
-        if self.__upnpc is None:
-            self.__upnpc = UpnpClient()
-        return self.__upnpc
+        self.upnp_client.init()
+        return self.upnp_client
 
     def __find_available_ports(self, existing_ports, external_port):
         port_range = range(external_port, UPPER_LIMIT)

@@ -1,27 +1,24 @@
-from syncloud_app import logger
 import time
 
+from syncloud_app import logger
+
 from syncloud_platform.insider.config import Port
-from syncloud_platform.insider.util import port_to_protocol, is_web_port
-from upnpc import UpnpPortMapper
-from natpmpc import NatPmpPortMapper
-
 from syncloud_platform.insider.port_prober import PortProber
+from syncloud_platform.insider.util import port_to_protocol, is_web_port
 
 
-def check_mapper(mapper_type):
+def check_mapper(mapper):
     log = logger.get_logger('check_mapper')
-    mapper_name = mapper_type.__name__
     try:
-        mapper = mapper_type()
         ip = retrial_get_external_address(mapper)
         if ip is None or ip == '':
             raise Exception("Returned bad ip address: {0}".format(ip))
-        log.warn('{0} mapper is working, returned external ip: {1}'.format(mapper_name, ip))
+        log.warn('{0} mapper is working, returned external ip: {1}'.format(mapper.name(), ip))
         return mapper
     except Exception as e:
-        log.warn('{0} mapper failed, message: {1}'.format(mapper_name, e.message))
+        log.warn('{0} mapper failed, message: {1}'.format(mapper.name(), e.message))
     return None
+
 
 def retrial_get_external_address(mapper):
     log = logger.get_logger('get_external_address')
@@ -35,12 +32,13 @@ def retrial_get_external_address(mapper):
         ip = mapper.external_ip()
     return ip
 
-def provide_mapper():
+
+def provide_mapper(nat_pmp_port_mapper, upnp_port_mapper):
     log = logger.get_logger('check_mapper')
-    mapper = check_mapper(NatPmpPortMapper)
+    mapper = check_mapper(nat_pmp_port_mapper)
     if mapper is not None:
         return mapper
-    mapper = check_mapper(UpnpPortMapper)
+    mapper = check_mapper(upnp_port_mapper)
     if mapper is not None:
         return mapper
     log.error('None of mappers are working')
@@ -147,16 +145,20 @@ class NonePortDrill:
 
 
 class PortDrillFactory:
-    def __init__(self, user_platform_config, port_config):
+    def __init__(self, user_platform_config, port_config, nat_pmp_port_mapper, upnp_port_mapper):
         self.port_config = port_config
         self.user_platform_config = user_platform_config
+        self.nat_pmp_port_mapper = nat_pmp_port_mapper
+        self.upnp_port_mapper = upnp_port_mapper
 
     def get_drill(self, external_access):
         if not external_access:
             return NonePortDrill()
         drill = None
-        mapper = provide_mapper()
+        mapper = provide_mapper(self.nat_pmp_port_mapper, self.upnp_port_mapper)
         if mapper:
-            prober = PortProber(self.user_platform_config.get_redirect_api_url(), self.user_platform_config.get_domain_update_token())
+            prober = PortProber(
+                self.user_platform_config.get_redirect_api_url(),
+                self.user_platform_config.get_domain_update_token())
             drill = PortDrill(self.port_config, mapper, prober)
         return drill

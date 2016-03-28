@@ -7,6 +7,9 @@ class NatPmpPortMapper:
     def __init__(self):
         self.logger = logger.get_logger('NatPmpPortMapper')
 
+    def name(self):
+        return 'NatPmpPortMapper'
+
     def external_ip(self):
         external_ip = NATPMP.get_public_address()
         self.logger.info('ip: {0}'.format(external_ip))

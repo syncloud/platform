@@ -1,4 +1,5 @@
 import logging
+from miniupnpc import UPnP
 from os.path import join
 
 from syncloud_app import logger
@@ -8,9 +9,11 @@ from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, 
 from syncloud_platform.device import Device
 from syncloud_platform.insider.cron import PlatformCron
 from syncloud_platform.insider.device_info import DeviceInfo
+from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.port_drill import PortDrillFactory
 from syncloud_platform.insider.redirect_service import RedirectService
+from syncloud_platform.insider.upnpc import UpnpPortMapper, UpnpClient
 from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
@@ -57,7 +60,10 @@ class Injector:
         self.redirect_service = RedirectService(self.network, self.user_platform_config, platform_version)
         self.port_config = PortConfig(self.data_root)
 
-        self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config)
+        self.nat_pmp_port_mapper = NatPmpPortMapper()
+        self.upnp_port_mapper = UpnpPortMapper(UpnpClient(UPnP()))
+        self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
+                                                   self.nat_pmp_port_mapper, self.upnp_port_mapper)
         self.info = DeviceInfo(self.user_platform_config, self.port_config)
         self.sam = SamStub(self.platform_config, self.info)
         self.platform_cron = PlatformCron(self.platform_config)
