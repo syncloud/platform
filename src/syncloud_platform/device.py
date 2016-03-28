@@ -76,7 +76,7 @@ class Device:
             self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
 
         try:
-            drill.sync_new_port(new_web_local_port)
+            drill.sync_new_port(new_web_local_port, 'TCP')
         except Exception, e:
             self.logger.error('Unable to add new port {0}: {1}'.format(new_web_local_port, e.message))
 
@@ -97,15 +97,15 @@ class Device:
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
 
-    def add_port(self, local_port):
+    def add_port(self, local_port, protocol):
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
-        drill.sync_new_port(local_port)
+        drill.sync_new_port(local_port, protocol)
 
-    def remove_port(self, local_port):
+    def remove_port(self, local_port, protocol):
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
-        drill.remove(local_port)
+        drill.remove(local_port, protocol)
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)

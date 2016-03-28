@@ -31,9 +31,10 @@ class FakePortDrillProvider:
     def get_drill(self, external_access):
         return self.port_drill
 
+
 @responses.activate
 def test_sync_success():
-    port_config = get_port_config([Port(80, 80), Port(81, 81)])
+    port_config = get_port_config([Port(80, 80, 'TCP'), Port(81, 81, 'TCP')])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
     responses.add(responses.POST,
@@ -67,7 +68,7 @@ def test_sync_success():
 
 @responses.activate
 def test_sync_server_side_client_ip():
-    port_config = get_port_config([Port(80, 80), Port(81, 81)])
+    port_config = get_port_config([Port(80, 80, 'TCP'), Port(81, 81, 'TCP')])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='10.1.1.1'), MockPortProber())
 
     responses.add(responses.POST,
@@ -98,7 +99,7 @@ def test_sync_server_side_client_ip():
 
 @responses.activate
 def test_sync_server_error():
-    port_config = get_port_config([Port(80, 10000)])
+    port_config = get_port_config([Port(80, 10000, 'TCP')])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
     responses.add(responses.POST,
