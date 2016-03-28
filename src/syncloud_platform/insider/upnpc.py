@@ -89,9 +89,9 @@ UPPER_LIMIT = 65535
 
 class UpnpPortMapper:
 
-    def __init__(self, upnp_client):
+    def __init__(self, upnp):
         self.logger = logger.get_logger('UpnpPortMapper')
-        self.upnp_client = upnp_client
+        self.upnp_client = UpnpClient(upnp)
 
     def name(self):
         return 'UpnpPortMapper'

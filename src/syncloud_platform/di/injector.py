@@ -13,7 +13,7 @@ from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.port_drill import PortDrillFactory
 from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.insider.upnpc import UpnpPortMapper, UpnpClient
+from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
@@ -61,7 +61,7 @@ class Injector:
         self.port_config = PortConfig(self.data_root)
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()
-        self.upnp_port_mapper = UpnpPortMapper(UpnpClient(UPnP()))
+        self.upnp_port_mapper = UpnpPortMapper(UPnP())
         self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
                                                    self.nat_pmp_port_mapper, self.upnp_port_mapper)
         self.info = DeviceInfo(self.user_platform_config, self.port_config)

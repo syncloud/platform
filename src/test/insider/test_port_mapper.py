@@ -3,7 +3,6 @@ from miniupnpc import UPnP
 import pytest
 
 from syncloud_platform.insider.natpmpc import NatPmpPortMapper
-from syncloud_platform.insider.upnpc import UpnpClient
 from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.insider.port_drill import provide_mapper
 from test.insider.http import SomeHttpServer, wait_http, wait_http_cant_connect
@@ -23,7 +22,7 @@ def http_server(request):
 ids = []
 mappers = []
 
-mapper = provide_mapper(NatPmpPortMapper(), UpnpPortMapper(UpnpClient(UPnP())))
+mapper = provide_mapper(NatPmpPortMapper(), UpnpPortMapper(UPnP()))
 if mapper is not None:
     ids.append(mapper.name())
     mappers.append(mapper)
