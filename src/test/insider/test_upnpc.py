@@ -1,11 +1,5 @@
-import logging
-
-from syncloud_app import logger
-
 from syncloud_platform.insider.upnpc import UpnpPortMapper, UpnpClient, Mapping
 from test.insider.inmemory_upnp import InMemoryUPnP
-
-logger.init(level=logging.DEBUG, console=True)
 
 
 def test_port_free():
@@ -13,7 +7,7 @@ def test_port_free():
     upnp = InMemoryUPnP('1.1.1.1', '2.2.2.2')
 
     mapper = UpnpPortMapper(UpnpClient(upnp))
-    mapper.add_mapping(80, 80)
+    mapper.add_mapping(80, 80, 'TCP')
 
     assert len(upnp.mappings) == 1
     assert upnp.mappings[0].external_port == 80
@@ -26,7 +20,7 @@ def test_port_taken():
     upnp.mappings = [Mapping(80, 'TCP', '3.3.3.3', 80, '', True, '1.1.1.1', '')]
 
     mapper = UpnpPortMapper(UpnpClient(upnp))
-    mapper.add_mapping(80, 80)
+    mapper.add_mapping(80, 80, 'TCP')
 
     assert len(upnp.mappings) == 2
 
@@ -43,7 +37,7 @@ def test_fail_to_add():
     upnp.fail_on_external_port_with(80, Exception('Failed'))
 
     mapper = UpnpPortMapper(UpnpClient(upnp))
-    mapper.add_mapping(80, 80)
+    mapper.add_mapping(80, 80, 'TCP')
 
     assert len(upnp.mappings) == 1
 
@@ -59,6 +53,6 @@ def test_fail_to_remove():
     upnp.fail_on_external_port_with(80, Exception('Failed'))
 
     mapper = UpnpPortMapper(UpnpClient(upnp))
-    mapper.remove_mapping(80, 80)
+    mapper.remove_mapping(80, 80, 'TCP')
 
     assert len(upnp.mappings) == 1

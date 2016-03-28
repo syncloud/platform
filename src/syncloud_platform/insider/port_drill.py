@@ -69,10 +69,10 @@ class PortDrill:
     def remove(self, local_port):
         mapping = self.port_config.get(local_port)
         if mapping:
-            self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port)
+            self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port, 'TCP')
             self.port_config.remove(local_port)
 
-    def sync_one_mapping(self, local_port):
+    def sync_one_mapping(self, local_port, protocol):
 
         self.logger.info('Sync one mapping: {0}'.format(local_port))
         port_to_try = local_port
@@ -81,14 +81,14 @@ class PortDrill:
         retries = 10
         for i in range(1, retries):
             self.logger.info('Trying {0}'.format(port_to_try))
-            external_port = self.port_mapper.add_mapping(local_port, port_to_try)
+            external_port = self.port_mapper.add_mapping(local_port, port_to_try, protocol)
             if not is_web_port(local_port):
                 found_external_port = external_port
                 break
             if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
                 found_external_port = external_port
                 break
-            self.port_mapper.remove_mapping(local_port, external_port)
+            self.port_mapper.remove_mapping(local_port, external_port, protocol)
 
             if port_to_try == local_port:
                 port_to_try = lower_limit
@@ -102,11 +102,11 @@ class PortDrill:
         self.port_config.add_or_update(mapping)
 
     def sync_new_port(self, local_port):
-        self.sync_one_mapping(local_port)
+        self.sync_one_mapping(local_port, 'TCP')
 
     def sync(self):
         for mapping in self.list():
-            self.sync_one_mapping(mapping.local_port)
+            self.sync_one_mapping(mapping.local_port, 'TCP')
 
     def available(self):
         return self.port_mapper is not None

@@ -1,13 +1,6 @@
-import logging
-
-from syncloud_app import logger
-
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.device_info import DeviceInfo
 from test.insider.helpers import get_user_platform_config, get_port_config
-
-
-logger.init(level=logging.DEBUG, console=True)
 
 
 def test_url_with_external_access():

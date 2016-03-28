@@ -104,15 +104,15 @@ class UpnpPortMapper:
         port_range = range(external_port, UPPER_LIMIT)
         return (x for x in port_range if x not in existing_ports)
 
-    def __add_new_mapping(self, local_port, external_port):
-        existing_ports = self.upnpc().mapped_external_ports('TCP')
+    def __add_new_mapping(self, local_port, external_port, protocol):
+        existing_ports = self.upnpc().mapped_external_ports(protocol)
         external_ports_to_try = self.__find_available_ports(existing_ports, external_port)
         for external_port_to_try in external_ports_to_try:
             try:
                 self.logger.info('mapping {0}->{1} (external->local)'.format(external_port_to_try, local_port))
-                self.upnpc().add('TCP', local_port, external_port_to_try, 'Syncloud')
+                self.upnpc().add(protocol, local_port, external_port_to_try, 'Syncloud')
 
-                existing_ports = self.upnpc().mapped_external_ports('TCP')
+                existing_ports = self.upnpc().mapped_external_ports(protocol)
                 self.logger.info('ports after mapping {0}'.format(existing_ports))
 
                 return external_port_to_try
@@ -121,24 +121,24 @@ class UpnpPortMapper:
 
         raise Exception('Unable to add mapping')
 
-    def __only_one_mapping(self, external_ports):
+    def __only_one_mapping(self, external_ports, protocol):
         external_ports.sort(reverse=True)
         first_external_port = external_ports.pop()
         for port in external_ports:
-            self.upnpc().remove('TCP', port)
+            self.upnpc().remove(protocol, port)
         return first_external_port
 
-    def add_mapping(self, local_port, external_port):
-        external_ports = self.upnpc().get_external_ports('TCP', local_port)
+    def add_mapping(self, local_port, external_port, protocol):
+        external_ports = self.upnpc().get_external_ports(protocol, local_port)
         self.logger.info("existing router mappings for {0}: {1}".format(local_port, external_ports))
         if len(external_ports) > 0:
-            return self.__only_one_mapping(external_ports)
+            return self.__only_one_mapping(external_ports, protocol)
         else:
-            return self.__add_new_mapping(local_port, external_port)
+            return self.__add_new_mapping(local_port, external_port, protocol)
 
-    def remove_mapping(self, local_port, external_port):
+    def remove_mapping(self, local_port, external_port, protocol):
         try:
-            self.upnpc().remove('TCP', external_port)
+            self.upnpc().remove(protocol, external_port)
         except Exception, e:
             self.logger.warn('unable to remove port {0}, probably does not exist anymore, error: {1}, {2}'.format(
                              external_port, repr(e), vars(e)))

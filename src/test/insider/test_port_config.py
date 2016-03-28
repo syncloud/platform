@@ -1,11 +1,5 @@
-import logging
-
-from syncloud_app import logger
-
 from syncloud_platform.insider.config import Port
 from test.insider.helpers import get_port_config
-
-logger.init(level=logging.DEBUG, console=True)
 
 
 def test_add_or_update():

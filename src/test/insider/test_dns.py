@@ -1,8 +1,6 @@
-import logging
 import pytest
 
 import responses
-from syncloud_app import logger
 from convertible import reformat
 from syncloud_platform.tools import config
 from syncloud_platform.tools import footprint
@@ -14,8 +12,6 @@ from syncloud_platform.insider.config import Port, Service
 from test.insider.helpers import get_port_config, get_user_platform_config, get_platform_config
 
 from syncloud_app.main import PassthroughJsonError
-
-logger.init(level=logging.DEBUG, console=True)
 
 def test_version():
     return 'test'
@@ -188,10 +184,10 @@ class MockPortMapper:
     def external_ip(self):
         return self.__external_ip
 
-    def add_mapping(self, local_port, external_port):
+    def add_mapping(self, local_port, external_port, protocol):
         return external_port
 
-    def remove_mapping(self, local_port, external_port):
+    def remove_mapping(self, local_port, external_port, protocol):
         pass
 
 
