@@ -49,7 +49,8 @@ class PortConfig:
     def get(self, local_port):
         mappings_list = self.load()
         mapping = next((m for m in mappings_list if m.local_port == local_port), None)
-        self.logger.info('getting port mapping for local_port={0}: {1}'.format(local_port, mapping))        
+        mapping_for_log = convertible.to_json(mapping) if mapping else mapping
+        self.logger.info('getting port mapping for local_port={0}: {1}'.format(local_port, mapping_for_log))
         return mapping
 
     def __update(self, new_mapping):
