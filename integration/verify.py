@@ -110,6 +110,17 @@ def test_public_web_unauthorized_ajax_not_redirect():
     assert response.status_code == 401
 
 
+def test_running_platform_web():
+    print(check_output('nc -zv -w 1 localhost 80', shell=True))
+
+
+def test_platform_rest():
+    session = requests.session()
+    session.mount('http://localhost', HTTPAdapter(max_retries=5))
+    response = session.get('http://localhost', timeout=60)
+    assert response.status_code == 200
+
+
 def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
