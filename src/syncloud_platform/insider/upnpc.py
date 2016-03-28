@@ -89,7 +89,8 @@ UPPER_LIMIT = 65535
 
 class UpnpPortMapper:
 
-    def __init__(self, upnp):
+    def __init__(self, upnp, fail_attempts=50):
+        self.fail_attempts = fail_attempts
         self.logger = logger.get_logger('UpnpPortMapper')
         self.upnp_client = UpnpClient(upnp)
 
@@ -102,7 +103,8 @@ class UpnpPortMapper:
 
     def __find_available_ports(self, existing_ports, external_port):
         port_range = range(external_port, UPPER_LIMIT)
-        return (x for x in port_range if x not in existing_ports)
+        available_ports = [x for x in port_range if x not in existing_ports]
+        return available_ports[0:self.fail_attempts]
 
     def __add_new_mapping(self, local_port, external_port, protocol):
         existing_ports = self.upnpc().mapped_external_ports(protocol)
@@ -117,7 +119,7 @@ class UpnpPortMapper:
 
                 return external_port_to_try
             except Exception, e:
-                self.logger.error('failed, trying next port: {0}, {1}'.format(repr(e), vars(e)))
+                self.logger.error('failed: {0}, {1}'.format(repr(e), vars(e)))
 
         raise Exception('Unable to add mapping')
 
