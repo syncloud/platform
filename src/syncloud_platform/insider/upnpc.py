@@ -38,7 +38,6 @@ class UpnpClient:
 
     def init(self):
         if self.initialized:
-            # self.logger.info('upnp is already initialized, skipping')
             return
         self.logger.info('initializing upnp')
         self.upnp.discover()
@@ -66,7 +65,6 @@ class UpnpClient:
 
     def mapped_external_ports(self, protocol):
         mappings = self.__list()
-        local_ip = self.upnp.lanaddr
         ports = [m.external_port for m in mappings if m.protocol == protocol]
         return ports
 
@@ -119,7 +117,7 @@ class UpnpPortMapper:
 
                 return external_port_to_try
             except Exception, e:
-                self.logger.info('failed, trying next port: {0}'.format(e.message))
+                self.logger.error('failed, trying next port: {0}, {1}'.format(repr(e), vars(e)))
 
         raise Exception('Unable to add mapping')
 
@@ -142,8 +140,8 @@ class UpnpPortMapper:
         try:
             self.upnpc().remove('TCP', external_port)
         except Exception, e:
-            self.logger.warn('unable to remove port {0}, probably does not exist anymore, error: ',
-                             external_port, e.message)
+            self.logger.warn('unable to remove port {0}, probably does not exist anymore, error: {1}, {2}'.format(
+                             external_port, repr(e), vars(e)))
 
     def external_ip(self):
 

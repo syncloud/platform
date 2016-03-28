@@ -16,7 +16,7 @@ def check_mapper(mapper):
         log.warn('{0} mapper is working, returned external ip: {1}'.format(mapper.name(), ip))
         return mapper
     except Exception as e:
-        log.warn('{0} mapper failed, message: {1}'.format(mapper.name(), e.message))
+        log.warn('{0} mapper failed, message: {1}, {2}'.format(mapper.name(), repr(e), vars(e)))
     return None
 
 
