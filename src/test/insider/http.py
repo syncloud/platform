@@ -9,7 +9,7 @@ def wait_http(ip, port, status_code, timeout):
     start = time.time()
     while True:
         try:
-            r = requests.get('http://{ip}:{port}'.format(ip=ip, port=port))
+            r = requests.get('http://{ip}:{port}'.format(ip=ip, port=port), timeout=timeout)
             if r.status_code == status_code:
                 return r
         except Exception as ex:
@@ -23,9 +23,11 @@ def wait_http_cant_connect(ip, port, timeout):
     start = time.time()
     while True:
         try:
-            requests.get('http://{ip}:{port}'.format(ip=ip, port=port))
+            requests.get('http://{ip}:{port}'.format(ip=ip, port=port), timeout=timeout)
         except Exception as ex:
+            print(ex)
             return ex
+        print('waiting')
         elapsed = time.time() - start
         if elapsed > timeout:
             raise Exception('Timeout of {} seconds happened {} seconds elapsed'.format(timeout, elapsed))

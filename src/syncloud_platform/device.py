@@ -69,18 +69,18 @@ class Device:
         if drill is None:
             self.logger.error('Will not change access mode. Was not able to get working port drill.')
             return
-
+        http_network_protocol = 'TCP'
         try:
-            drill.remove(old_web_local_port)
+            drill.remove(old_web_local_port, http_network_protocol)
         except Exception, e:
             self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
 
         try:
-            drill.sync_new_port(new_web_local_port, 'TCP')
+            drill.sync_new_port(new_web_local_port, http_network_protocol)
         except Exception, e:
             self.logger.error('Unable to add new port {0}: {1}'.format(new_web_local_port, e.message))
 
-        self.redirect_service.sync(drill, update_token, protocol, external_access)
+        self.redirect_service.sync(drill, update_token, protocol, external_access, http_network_protocol)
         self.user_platform_config.update_device_access(external_access, protocol)
         self.event_trigger.trigger_app_event_domain(self.platform_config.apps_root())
 

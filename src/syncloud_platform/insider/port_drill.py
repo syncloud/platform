@@ -57,8 +57,8 @@ class PortDrill:
             self.remove(mapping.local_port, mapping.protocol)
         self.port_config.remove_all()
 
-    def get(self, local_port):
-        return self.port_config.get(local_port)
+    def get(self, local_port, protocol):
+        return self.port_config.get(local_port, protocol)
 
     def list(self):
         return self.port_config.load()
@@ -67,10 +67,10 @@ class PortDrill:
         return self.port_mapper.external_ip()
 
     def remove(self, local_port, protocol):
-        mapping = self.port_config.get(local_port)
+        mapping = self.port_config.get(local_port, protocol)
         if mapping:
             self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port, protocol)
-            self.port_config.remove(local_port)
+            self.port_config.remove(local_port, protocol)
 
     def sync_one_mapping(self, local_port, protocol):
 
@@ -106,7 +106,7 @@ class PortDrill:
 
     def sync(self):
         for mapping in self.list():
-            self.sync_one_mapping(mapping.local_port, 'TCP')
+            self.sync_one_mapping(mapping.local_port, mapping.protocol)
 
     def available(self):
         return self.port_mapper is not None
@@ -119,8 +119,8 @@ class NonePortDrill:
     def remove_all(self):
         pass
 
-    def get(self, local_port):
-        return Port(local_port, None, 'TCP')
+    def get(self, local_port, protocol):
+        return Port(local_port, None, protocol)
 
     def list(self):
         return []

@@ -50,7 +50,7 @@ class RedirectService:
         response_data = convertible.from_json(response.text)
         return response_data
 
-    def sync(self, port_drill, update_token, web_protocol, external_access):
+    def sync(self, port_drill, update_token, web_protocol, external_access, network_protocol):
         try:
             port_drill.sync()
         except Exception, e:
@@ -60,7 +60,7 @@ class RedirectService:
 
         web_local_port = util.protocol_to_port(web_protocol)
         web_port = None
-        mapping = port_drill.get(web_local_port)
+        mapping = port_drill.get(web_local_port, network_protocol)
         if mapping:
             web_port = mapping.external_port
 

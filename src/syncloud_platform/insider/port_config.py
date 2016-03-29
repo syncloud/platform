@@ -29,7 +29,7 @@ class PortConfig:
         convertible.write_json(self.filename, items)
 
     def add_or_update(self, mapping):
-        if self.get(mapping.local_port):
+        if self.get(mapping.local_port, mapping.protocol):
             self.__update(mapping)
         else:
             self.__add(mapping)
@@ -40,15 +40,15 @@ class PortConfig:
         mappings_list.append(mapping)
         self.save(mappings_list)
 
-    def remove(self, local_port):
+    def remove(self, local_port, protocol):
         self.logger.info('removing local_port={0}, {1}'.format(local_port, self.filename))
         mappings_list = self.load()
-        new_mappings = [m for m in mappings_list if m.local_port != local_port]
+        new_mappings = [m for m in mappings_list if not (m.local_port == local_port and m.protocol == protocol)]
         self.save(new_mappings)
 
-    def get(self, local_port):
+    def get(self, local_port, protocol):
         mappings_list = self.load()
-        mapping = next((m for m in mappings_list if m.local_port == local_port), None)
+        mapping = next((m for m in mappings_list if m.local_port == local_port and m.protocol == protocol), None)
         mapping_for_log = convertible.to_json(mapping) if mapping else mapping
         self.logger.info('getting port mapping for local_port={0}: {1}'.format(local_port, mapping_for_log))
         return mapping

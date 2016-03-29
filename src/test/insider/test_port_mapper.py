@@ -1,6 +1,7 @@
 from miniupnpc import UPnP
 
 import pytest
+import time
 
 from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from syncloud_platform.insider.upnpc import UpnpPortMapper
@@ -10,7 +11,7 @@ from test.insider.http import SomeHttpServer, wait_http, wait_http_cant_connect
 
 @pytest.fixture(scope="module")
 def http_server(request):
-    server = SomeHttpServer(8088)
+    server = SomeHttpServer(18088)
     server.start()
 
     def fin():
@@ -43,6 +44,7 @@ def test_add_mapping_simple(http_server, mapper):
     assert external_port is not None
     external_ip = mapper.external_ip()
     response = wait_http(external_ip, external_port, 200, timeout=1)
+    print(response)
     assert response is not None
 
 
@@ -57,5 +59,5 @@ def test_remove_mapping(http_server, mapper):
     local_port = http_server.port
     external_port = mapper.add_mapping(local_port, http_server.port, 'TCP')
     mapper.remove_mapping(local_port, external_port, 'TCP')
-    ex = wait_http_cant_connect(external_ip, external_port, timeout=10)
+    ex = wait_http_cant_connect(external_ip, external_port, timeout=5)
     assert ex is not None

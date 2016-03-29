@@ -8,8 +8,8 @@ from syncloud_platform.tools import id
 
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.port_drill import PortDrill
-from syncloud_platform.insider.config import Port, Service
-from test.insider.helpers import get_port_config, get_user_platform_config, get_platform_config
+from syncloud_platform.insider.config import Port
+from test.insider.helpers import get_port_config, get_user_platform_config
 
 from syncloud_app.main import PassthroughJsonError
 
@@ -49,7 +49,7 @@ def test_sync_success():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token', 'http', True)
+    dns.sync(port_drill, 'some_update_token', 'http', True, 'TCP')
 
     expected_request = '''
 {
@@ -81,7 +81,7 @@ def test_sync_server_side_client_ip():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token', 'http', False)
+    dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
 
     expected_request = '''
 {
@@ -114,7 +114,7 @@ def test_sync_server_error():
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
-        dns.sync(port_drill, 'some_update_token', 'http', False)
+        dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
 
     assert context.value.message == "Unknown update token"
 
