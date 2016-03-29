@@ -128,13 +128,13 @@ class NonePortDrill:
     def external_ip(self):
         return None
 
-    def remove(self, local_port):
+    def remove(self, local_port, protocol):
         pass
 
-    def sync_one_mapping(self, local_port):
+    def sync_one_mapping(self, local_port, protocol):
         pass
 
-    def sync_new_port(self, local_port):
+    def sync_new_port(self, local_port, protocol):
         pass
 
     def sync(self):
