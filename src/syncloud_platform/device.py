@@ -6,6 +6,8 @@ from syncloud_app import logger
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.chown import chown
 
+http_network_protocol = 'TCP'
+
 
 class Device:
 
@@ -69,7 +71,6 @@ class Device:
         if drill is None:
             self.logger.error('Will not change access mode. Was not able to get working port drill.')
             return
-        http_network_protocol = 'TCP'
         try:
             drill.remove(old_web_local_port, http_network_protocol)
         except Exception, e:
@@ -92,7 +93,7 @@ class Device:
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
         web_protocol = self.user_platform_config.get_protocol()
-        self.redirect_service.sync(drill, update_token, web_protocol, external_access)
+        self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())

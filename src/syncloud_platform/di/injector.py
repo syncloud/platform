@@ -78,8 +78,8 @@ class Injector:
 
         self.internal = Internal(self.platform_config, self.device, self.redirect_service, self.log_aggregator)
         self.path_checker = PathChecker(self.platform_config)
-        self.mount = Mount(self.platform_config, self.path_checker)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
+        self.mount = Mount(self.platform_config, self.path_checker, self.lsblk)
         self.hardware = Hardware(self.platform_config, self.event_trigger, self.mount, self.lsblk, self.path_checker)
         self.storage = DeviceStorage(self.hardware)
 

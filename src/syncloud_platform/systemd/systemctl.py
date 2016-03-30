@@ -59,7 +59,8 @@ def add_mount(mount_entry):
     mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
         'what': mount_entry.device,
         'where': config.get_external_disk_dir(),
-        'type': mount_entry.type,
+        # 'type': mount_entry.type,
+        'type': 'auto',
         'options': mount_entry.options})
 
     config = PlatformConfig()

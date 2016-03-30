@@ -174,6 +174,10 @@ def test_protocol(auth, public_web_session):
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
+def test_cron_job(auth, public_web_session):
+    assert '"success": true' in run_ssh('/opt/app/platform/bin/insider sync_all', password=DEVICE_PASSWORD)
+
+
 def test_public_web_files(public_web_session):
 
     response = public_web_session.get('http://localhost/server/rest/files')
@@ -216,25 +220,26 @@ def disk_writable():
 
 
 def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
-    disk_create(loop_device, 'ext4')
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
-    disk_writable()
-    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+    __test_add_remove_disk(loop_device, public_web_session, 'ext4')
 
 
 def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
-    disk_create(loop_device, 'ntfs')
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
-    disk_writable()
-    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+    __test_add_remove_disk(loop_device, public_web_session, 'ntfs')
 
 
 def test_public_settings_disk_add_remove_vfat(loop_device, public_web_session):
-    disk_create(loop_device, 'vfat')
+    __test_add_remove_disk(loop_device, public_web_session, 'vfat')
+
+
+def test_public_settings_disk_add_remove_exfat(loop_device, public_web_session):
+    __test_add_remove_disk(loop_device, public_web_session, 'exfat')
+
+
+def __test_add_remove_disk(loop_device, public_web_session, fs):
+    disk_create(loop_device, fs)
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
     disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
-
 
 def test_disk_physical_remove(loop_device, public_web_session):
     disk_create(loop_device, 'ext4')

@@ -2,22 +2,34 @@ from subprocess import check_output
 from syncloud_app import logger
 import re
 
+known_fs_options = {
+    'ext4': 'rw,nosuid,relatime,data=ordered,uhelper=udisks2'
+}
+
 
 class Mount:
-    def __init__(self, platform_config, path_checker):
+    def __init__(self, platform_config, path_checker, lsblk):
         self.platform_config = platform_config
         self.path_checker = path_checker
+        self.lsblk = lsblk
         self.log = logger.get_logger('mount')
 
     def mounted_disk_by_device(self, device, mount_output=None):
         self.log.info('searching by device: {0}'.format(device))
-        return self.__mounted_disk(lambda entry: entry.startswith('{0} on'.format(device)), mount_output)
+        partition = self.lsblk.find_partition_by_device(device)
+        if not partition:
+            return
+        return self.__mounted_disk(lambda entry: entry.startswith('{0} on'.format(device)), partition.fs_type, mount_output)
 
     def mounted_disk_by_dir(self, dir, mount_output=None):
         self.log.info('searching by dir: {0}'.format(dir))
-        return self.__mounted_disk(lambda entry: ' on {0} type'.format(dir) in entry, mount_output)
+        partition = self.lsblk.find_partition_by_dir(dir)
+        if not partition:
+            return
+        return self.__mounted_disk(lambda entry: ' on {0} type'.format(dir) in entry, partition.fs_type, mount_output)
 
-    def __mounted_disk(self, entry_filter, mount_output=None):
+    def __mounted_disk(self, entry_filter, fs_type, mount_output=None):
+
         if not mount_output:
             mount_output = check_output('mount', shell=True)
         self.log.info('searching mount')
@@ -30,20 +42,29 @@ class Mount:
                 parts_type = parts_on[1].split(' type ')
                 dir = parts_type[0]
                 parts_options = parts_type[1].split(' ')
-                type = parts_options[0].replace('fuseblk', 'ntfs')
-                options = self.get_options(type, parts_options[1])
-                return MountEntry(device, dir, type, options)
+                options = self.get_options(fs_type, parts_options[1])
+                return MountEntry(device, dir, fs_type, options)
         self.log.info('not found')
         return None
 
     def get_options(self, type, udisks_options):
+
+        if type in known_fs_options:
+            return known_fs_options[type]
+
         options = udisks_options.strip('()')\
                     .replace('codepage=cp', 'codepage=')\
                     .replace('default_permissions', 'permissions')\
                     .replace('nodev,', '')
         options = re.sub('fmask=\d+', 'fmask=0000', options)
+        if 'fmask=' not in options:
+            options += ',fmask=0000'
         options = re.sub('dmask=\d+', 'dmask=0000', options)
+        if 'dmask=' not in options:
+            options += ',dmask=0000'
         options = re.sub('umask=\d+', 'umask=0000', options)
+        if 'umask=' not in options:
+            options += ',umask=0000'
         return options
 
     def get_mounted_external_disk(self):
@@ -67,6 +88,6 @@ class MountEntry:
         self.log.info('entry: {0}, {1}, {2}, {3}'.format(device, dir, type, options))
 
     def permissions_support(self):
-        supported = 'fat' not in self.type
+        supported = self.type not in ['vfat', 'exfat']
         self.log.info('permissions support: {0}'.format(supported))
         return supported
