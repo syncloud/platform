@@ -14,16 +14,16 @@ class Mount:
         self.lsblk = lsblk
         self.log = logger.get_logger('mount')
 
-    def mounted_disk_by_device(self, device, mount_output=None):
+    def mounted_disk_by_device(self, device, mount_output=None, lsblk_output=None):
         self.log.info('searching by device: {0}'.format(device))
-        partition = self.lsblk.find_partition_by_device(device)
+        partition = self.lsblk.find_partition_by_device(device, lsblk_output)
         if not partition:
             return
         return self.__mounted_disk(lambda entry: entry.startswith('{0} on'.format(device)), partition.fs_type, mount_output)
 
-    def mounted_disk_by_dir(self, dir, mount_output=None):
+    def mounted_disk_by_dir(self, dir, mount_output=None, lsblk_output=None):
         self.log.info('searching by dir: {0}'.format(dir))
-        partition = self.lsblk.find_partition_by_dir(dir)
+        partition = self.lsblk.find_partition_by_dir(dir, lsblk_output)
         if not partition:
             return
         return self.__mounted_disk(lambda entry: ' on {0} type'.format(dir) in entry, partition.fs_type, mount_output)
@@ -57,14 +57,8 @@ class Mount:
                     .replace('default_permissions', 'permissions')\
                     .replace('nodev,', '')
         options = re.sub('fmask=\d+', 'fmask=0000', options)
-        if 'fmask=' not in options:
-            options += ',fmask=0000'
         options = re.sub('dmask=\d+', 'dmask=0000', options)
-        if 'dmask=' not in options:
-            options += ',dmask=0000'
         options = re.sub('umask=\d+', 'umask=0000', options)
-        if 'umask=' not in options:
-            options += ',umask=0000'
         return options
 
     def get_mounted_external_disk(self):
