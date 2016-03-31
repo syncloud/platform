@@ -5,7 +5,8 @@ import re
 known_fs_options = {
     'ext4': 'rw,nosuid,relatime,data=ordered,uhelper=udisks2',
     'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro',
-    'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096'
+    'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096',
+    'exfat': 'rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other,blksize=4096'
 }
 
 
@@ -54,14 +55,7 @@ class Mount:
         if type in known_fs_options:
             return known_fs_options[type]
 
-        options = udisks_options.strip('()')\
-                    .replace('codepage=cp', 'codepage=')\
-                    .replace('default_permissions', 'permissions')\
-                    .replace('nodev,', '')
-        options = re.sub('fmask=\d+', 'fmask=0000', options)
-        options = re.sub('dmask=\d+', 'dmask=0000', options)
-        options = re.sub('umask=\d+', 'umask=0000', options)
-        return options
+        return udisks_options.strip('()')
 
     def get_mounted_external_disk(self):
         mount_point = None
