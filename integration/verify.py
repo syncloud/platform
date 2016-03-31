@@ -235,6 +235,10 @@ def test_public_settings_disk_add_remove_exfat(loop_device, public_web_session):
     __test_add_remove_disk(loop_device, public_web_session, 'exfat')
 
 
+def test_public_settings_disk_add_remove_ext2(loop_device, public_web_session):
+    __test_add_remove_disk(loop_device, public_web_session, 'ext2')
+
+
 def __test_add_remove_disk(loop_device, public_web_session, fs):
     disk_create(loop_device, fs)
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
