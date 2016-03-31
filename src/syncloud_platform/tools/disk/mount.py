@@ -4,7 +4,8 @@ import re
 
 known_fs_options = {
     'ext4': 'rw,nosuid,relatime,data=ordered,uhelper=udisks2',
-    'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro'
+    'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,shortname=mixed,showexec,utf8,flush,errors=remount-ro',
+    'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096'
 }
 
 
