@@ -29,16 +29,13 @@ if mapper is not None:
     mappers.append(mapper)
 
 
-def pytest_generate_tests(metafunc):
-    if 'mapper' in metafunc.fixturenames:
-        metafunc.parametrize('mapper', mappers, ids=ids)
-
-
+@pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_external_ip(mapper):
     external_ip = mapper.external_ip()
     assert external_ip is not None
 
 
+@pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_add_mapping_simple(http_server, mapper):
     external_port = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
     assert external_port is not None
@@ -48,12 +45,14 @@ def test_add_mapping_simple(http_server, mapper):
     assert response is not None
 
 
+@pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_add_mapping_twice(http_server, mapper):
     external_port_first = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
     external_port_second = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
     assert external_port_first == external_port_second
 
 
+@pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_remove_mapping(http_server, mapper):
     external_ip = mapper.external_ip()
     local_port = http_server.port
