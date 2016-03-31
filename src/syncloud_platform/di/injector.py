@@ -21,7 +21,6 @@ from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.tools.app import get_app_data_root
 from syncloud_platform.tools.device_storage import DeviceStorage
 from syncloud_platform.tools.disk.lsblk import Lsblk
-from syncloud_platform.tools.disk.mount import Mount
 from syncloud_platform.tools.disk.path_checker import PathChecker
 from syncloud_platform.tools.events import EventTrigger
 from syncloud_platform.tools.hardware import Hardware
@@ -79,8 +78,7 @@ class Injector:
         self.internal = Internal(self.platform_config, self.device, self.redirect_service, self.log_aggregator)
         self.path_checker = PathChecker(self.platform_config)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
-        self.mount = Mount(self.platform_config, self.path_checker, self.lsblk)
-        self.hardware = Hardware(self.platform_config, self.event_trigger, self.mount, self.lsblk, self.path_checker)
+        self.hardware = Hardware(self.platform_config, self.event_trigger, self.lsblk, self.path_checker)
         self.storage = DeviceStorage(self.hardware)
 
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.sam, self.hardware,

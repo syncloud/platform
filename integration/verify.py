@@ -219,31 +219,13 @@ def disk_writable():
     run_ssh("su - platform -s /bin/bash -c 'touch /data/platform/test.file'", password=DEVICE_PASSWORD)
 
 
-def test_public_settings_disk_add_remove_ext4(loop_device, public_web_session):
-    __test_add_remove_disk(loop_device, public_web_session, 'ext4')
-
-
-def test_public_settings_disk_add_remove_ntfs(loop_device, public_web_session):
-    __test_add_remove_disk(loop_device, public_web_session, 'ntfs')
-
-
-def test_public_settings_disk_add_remove_vfat(loop_device, public_web_session):
-    __test_add_remove_disk(loop_device, public_web_session, 'vfat')
-
-
-def test_public_settings_disk_add_remove_exfat(loop_device, public_web_session):
-    __test_add_remove_disk(loop_device, public_web_session, 'exfat')
-
-
-def test_public_settings_disk_add_remove_ext2(loop_device, public_web_session):
-    __test_add_remove_disk(loop_device, public_web_session, 'ext2')
-
-
-def __test_add_remove_disk(loop_device, public_web_session, fs):
-    disk_create(loop_device, fs)
+@pytest.mark.parametrize("fs_type", ['ntfs', 'vfat', 'exfat', 'ext2', 'ext3', 'ext4'])
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):
+    disk_create(loop_device, fs_type)
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
     disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+
 
 def test_disk_physical_remove(loop_device, public_web_session):
     disk_create(loop_device, 'ext4')

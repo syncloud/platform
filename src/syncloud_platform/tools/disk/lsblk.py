@@ -120,6 +120,9 @@ class Partition:
         self.fs_type = fs_type
         self.mountable = mountable
 
+    def permissions_support(self):
+        return self.fs_type not in ['vfat', 'exfat']
+
     def __str__(self):
         return '{0}, {1}, {2}, {3}'.format(self.device, self.size, self.mount_point, self.active)
 

@@ -1,19 +1,28 @@
 from os import unlink
 import os
 from os.path import islink, join
-from subprocess import check_output
 from os import path
 from syncloud_app import logger
 from syncloud_platform.systemd import systemctl
 from syncloud_platform.tools.chown import chown
 
 
+supported_fs_options = {
+    'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,'
+            'shortname=mixed,showexec,utf8,flush,errors=remount-ro',
+    'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096',
+    'exfat': 'rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other,blksize=4096',
+    'ext2': 'rw,nosuid,nodev,relatime',
+    'ext3': 'rw,nosuid,nodev,relatime',
+    'ext4': 'rw,nosuid,relatime,data=ordered'
+}
+
+
 class Hardware:
 
-    def __init__(self, platform_config, event_trigger, mount, lsblk, path_checker):
+    def __init__(self, platform_config, event_trigger, lsblk, path_checker):
         self.platform_config = platform_config
         self.event_trigger = event_trigger
-        self.mount = mount
         self.lsblk = lsblk
         self.path_checker = path_checker
         self.log = logger.get_logger('hardware')
@@ -25,10 +34,17 @@ class Hardware:
         self.log.info('activate disk: {0}'.format(device))
         self.deactivate_disk()
 
-        check_output('udisksctl mount -b {0}'.format(device), shell=True)
-        mount_entry = self.mount.mounted_disk_by_device(device)
-        check_output('udisksctl unmount -b {0}'.format(device), shell=True)
-        systemctl.add_mount(mount_entry)
+        partition = self.lsblk.find_partition_by_device(device)
+        if not partition:
+            self.log.error('unable to find device: {0}'.format(device))
+            return
+
+        fs_type = partition.fs_type
+        if fs_type not in supported_fs_options:
+            self.log.error('filesystems type is not supported: {0}'.format(fs_type))
+            return
+
+        systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
 
         self.relink_disk(
             self.platform_config.get_disk_link(),
@@ -42,18 +58,10 @@ class Hardware:
         systemctl.remove_mount()
 
     def init_app_storage(self, app_id, owner=None):
-        external_mount = self.mount.get_mounted_external_disk()
-        if external_mount:
-            self.log.info('external disk is mounted')
-            permissions_support = external_mount.permissions_support()
-        else:
-            self.log.info('internal mount')
-            permissions_support = True
-
         app_storage_dir = join(self.platform_config.get_disk_link(), app_id)
         if not path.exists(app_storage_dir):
             os.mkdir(app_storage_dir)
-        if owner and permissions_support:
+        if owner and self.__support_permissions():
             self.log.info('fixing permissions on {0}'.format(app_storage_dir))
             chown(owner, app_storage_dir)
         else:
@@ -74,3 +82,14 @@ class Hardware:
         self.log.info('checking external disk')
         if self.path_checker.external_disk_link_exists() and not self.lsblk.is_external_disk_attached():
             self.deactivate_disk()
+
+    def __support_permissions(self):
+        if self.path_checker.external_disk_link_exists():
+            disk_dir = self.platform_config.get_external_disk_dir()
+            mount_point = self.lsblk.find_partition_by_dir(disk_dir)
+            if mount_point:
+                self.log.info('external disk is mounted')
+                return mount_point.permissions_support()
+
+        self.log.info('internal mount')
+        return True
