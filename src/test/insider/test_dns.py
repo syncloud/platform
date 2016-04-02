@@ -1,8 +1,6 @@
-import logging
 import pytest
 
 import responses
-from syncloud_app import logger
 from convertible import reformat
 from syncloud_platform.tools import config
 from syncloud_platform.tools import footprint
@@ -10,12 +8,10 @@ from syncloud_platform.tools import id
 
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.port_drill import PortDrill
-from syncloud_platform.insider.config import Port, Service
-from test.insider.helpers import get_port_config, get_user_platform_config, get_platform_config
+from syncloud_platform.insider.config import Port
+from test.insider.helpers import get_port_config, get_user_platform_config
 
 from syncloud_app.main import PassthroughJsonError
-
-logger.init(level=logging.DEBUG, console=True)
 
 def test_version():
     return 'test'
@@ -35,9 +31,10 @@ class FakePortDrillProvider:
     def get_drill(self, external_access):
         return self.port_drill
 
+
 @responses.activate
 def test_sync_success():
-    port_config = get_port_config([Port(80, 80), Port(81, 81)])
+    port_config = get_port_config([Port(80, 80, 'TCP'), Port(81, 81, 'TCP')])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
     responses.add(responses.POST,
@@ -52,7 +49,7 @@ def test_sync_success():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token', 'http', False)
+    dns.sync(port_drill, 'some_update_token', 'http', True, 'TCP')
 
     expected_request = '''
 {
@@ -61,7 +58,7 @@ def test_sync_success():
     "web_protocol": "http",
     "ip": "192.167.44.52",
     "local_ip": "127.0.0.1",
-    "map_local_address": true,
+    "map_local_address": false,
     "platform_version": "test",
     "token": "some_update_token"
 }
@@ -71,7 +68,7 @@ def test_sync_success():
 
 @responses.activate
 def test_sync_server_side_client_ip():
-    port_config = get_port_config([Port(80, 80), Port(81, 81)])
+    port_config = get_port_config([Port(80, 80, 'TCP'), Port(81, 81, 'TCP')])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='10.1.1.1'), MockPortProber())
 
     responses.add(responses.POST,
@@ -84,7 +81,7 @@ def test_sync_server_side_client_ip():
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
-    dns.sync(port_drill, 'some_update_token', 'http', False)
+    dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
 
     expected_request = '''
 {
@@ -102,7 +99,7 @@ def test_sync_server_side_client_ip():
 
 @responses.activate
 def test_sync_server_error():
-    port_config = get_port_config([Port(80, 10000)])
+    port_config = get_port_config([Port(80, 10000, 'TCP')])
     port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
 
     responses.add(responses.POST,
@@ -117,7 +114,7 @@ def test_sync_server_error():
     dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
-        dns.sync(port_drill, 'some_update_token', 'http', False)
+        dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
 
     assert context.value.message == "Unknown update token"
 
@@ -188,10 +185,10 @@ class MockPortMapper:
     def external_ip(self):
         return self.__external_ip
 
-    def add_mapping(self, local_port, external_port):
+    def add_mapping(self, local_port, external_port, protocol):
         return external_port
 
-    def remove_mapping(self, local_port, external_port):
+    def remove_mapping(self, local_port, external_port, protocol):
         pass
 
 

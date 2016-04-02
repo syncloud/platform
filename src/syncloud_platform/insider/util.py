@@ -21,3 +21,7 @@ def protocol_to_port(protocol):
     if protocol == 'https':
         return 443
     return 80
+
+
+def is_web_port(port):
+    return port == 80 or port == 443

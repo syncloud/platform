@@ -17,7 +17,9 @@ def loop_device_cleanup(password):
     for loop in run_ssh('dmsetup ls', password=password).splitlines():
         if 'loop0p1' in loop:
             run_ssh('sudo dmsetup remove loop0p1', password=password)
+        if 'loop0p2' in loop:
+            run_ssh('sudo dmsetup remove loop0p2', password=password)
 
     for loop_disk in run_ssh('ls -la /tmp', password=password).splitlines():
         if '/tmp/disk' in loop_disk:
-            run_ssh('rm -fr /tmp/disk', throw=False, password=password)
+            run_ssh('rm -rf /tmp/disk', throw=False, password=password)

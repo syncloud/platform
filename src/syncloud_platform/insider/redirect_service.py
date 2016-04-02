@@ -50,7 +50,7 @@ class RedirectService:
         response_data = convertible.from_json(response.text)
         return response_data
 
-    def sync(self, port_drill, update_token, web_protocol, external_access):
+    def sync(self, port_drill, update_token, web_protocol, external_access, network_protocol):
         try:
             port_drill.sync()
         except Exception, e:
@@ -60,7 +60,7 @@ class RedirectService:
 
         web_local_port = util.protocol_to_port(web_protocol)
         web_port = None
-        mapping = port_drill.get(web_local_port)
+        mapping = port_drill.get(web_local_port, network_protocol)
         if mapping:
             web_port = mapping.external_port
 
@@ -86,10 +86,11 @@ class RedirectService:
                 external_ip = None
                 self.logger.warn("External ip is not public")
 
-        if map_local_address and external_ip is not None:
-            data['ip'] = external_ip
-        else:
-            self.logger.warn("Will try server side client ip detection")
+        if not map_local_address:
+            if external_ip:
+                data['ip'] = external_ip
+            else:
+                self.logger.warn("Will try server side client ip detection")
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 

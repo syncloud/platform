@@ -29,7 +29,7 @@ class DeviceInfo:
         protocol = self.user_platform_config.get_protocol()
         port = protocol_to_port(protocol)
         if self.user_platform_config.get_external_access():
-            mapping = self.port_config.get(port)
+            mapping = self.port_config.get(port, 'TCP')
             if mapping:
                 port = mapping.external_port
 

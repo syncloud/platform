@@ -1,8 +1,9 @@
 class Port:
 
-    def __init__(self, local_port, external_port):
+    def __init__(self, local_port, external_port, protocol):
         self.local_port = local_port
         self.external_port = external_port
+        self.protocol = protocol
 
     def __str__(self):
         return '{0}->{1}'.format(self.external_port, self.local_port)

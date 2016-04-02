@@ -6,6 +6,8 @@ from syncloud_app import logger
 from syncloud_platform.insider.util import protocol_to_port
 from syncloud_platform.tools.chown import chown
 
+http_network_protocol = 'TCP'
+
 
 class Device:
 
@@ -61,21 +63,25 @@ class Device:
         if update_token is None:
             return
 
-        drill = self.get_drill(external_access)
         new_web_local_port = protocol_to_port(protocol)
         old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
 
+        drill = self.get_drill(external_access)
+
+        if drill is None:
+            self.logger.error('Will not change access mode. Was not able to get working port drill.')
+            return
         try:
-            drill.remove(old_web_local_port)
+            drill.remove(old_web_local_port, http_network_protocol)
         except Exception, e:
             self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
 
         try:
-            drill.sync_new_port(new_web_local_port)
+            drill.sync_new_port(new_web_local_port, http_network_protocol)
         except Exception, e:
             self.logger.error('Unable to add new port {0}: {1}'.format(new_web_local_port, e.message))
 
-        self.redirect_service.sync(drill, update_token, protocol, external_access)
+        self.redirect_service.sync(drill, update_token, protocol, external_access, http_network_protocol)
         self.user_platform_config.update_device_access(external_access, protocol)
         self.event_trigger.trigger_app_event_domain(self.platform_config.apps_root())
 
@@ -87,10 +93,20 @@ class Device:
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
         web_protocol = self.user_platform_config.get_protocol()
-        self.redirect_service.sync(drill, update_token, web_protocol, external_access)
+        self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             chown(self.platform_config.cron_user(), self.platform_config.data_dir())
+
+    def add_port(self, local_port, protocol):
+        external_access = self.user_platform_config.get_external_access()
+        drill = self.get_drill(external_access)
+        drill.sync_new_port(local_port, protocol)
+
+    def remove_port(self, local_port, protocol):
+        external_access = self.user_platform_config.get_external_access()
+        drill = self.get_drill(external_access)
+        drill.remove(local_port, protocol)
 
     def get_drill(self, external_access):
         return self.port_drill_factory.get_drill(external_access)

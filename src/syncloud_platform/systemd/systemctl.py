@@ -50,17 +50,18 @@ def add_service(app_id, service, include_socket=False, start=True):
         start_service(service)
 
 
-def add_mount(mount_entry):
+def add_mount(device, fs_type, options):
 
     log = logger.get_logger('systemctl')
 
     config = PlatformConfig()
     mount_template_file = join(config.config_dir(), 'mount', 'mount.template')
     mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
-        'what': mount_entry.device,
+        'what': device,
         'where': config.get_external_disk_dir(),
-        'type': mount_entry.type,
-        'options': mount_entry.options})
+        # 'type': fs_type,
+        'type': 'auto',
+        'options': options})
 
     config = PlatformConfig()
     mount_filename = __dir_to_systemd_mount_filename(config.get_external_disk_dir())
@@ -103,7 +104,8 @@ def __start(service):
         check_output('systemctl start {0} 2>&1'.format(service), shell=True)
     except CalledProcessError, e:
         try:
-            log.error(check_output('systemctl status {0} 2>&1'.format(service), shell=True))
+            log.error(check_output('systemctl status {0}'.format(service), shell=True))
+            log.error(check_output('journalctl | grep {0}'.format(service), shell=True))
         except CalledProcessError, e:
             log.error(e.output)
         raise e
