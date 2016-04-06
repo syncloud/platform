@@ -1,7 +1,7 @@
 function auto_login(name, password) {
     var url = (new URI())
             .port(80)
-            .directory("server/rest")
+            .directory("rest")
             .filename("login")
             .query("");
 

@@ -1,5 +1,5 @@
 function external_access_status(accessBtn) {
-    $.get('/server/rest/settings/external_access')
+    $.get('/rest/settings/external_access')
             .done(function (data) {
                 accessBtn.text(data.external_access ? 'Enabled' : 'Disabled');
                 accessBtn.data("external_access", data.external_access);
@@ -8,7 +8,7 @@ function external_access_status(accessBtn) {
 }
 
 function protocol_status(protocolBtn) {
-    $.get('/server/rest/settings/protocol')
+    $.get('/rest/settings/protocol')
             .done(function (data) {
 
                 protocolBtn.text(data.protocol);
@@ -19,7 +19,7 @@ function protocol_status(protocolBtn) {
 }
 
 function disks_status() {
-    $.get('/server/rest/settings/disks')
+    $.get('/rest/settings/disks')
             .done(function (data) {
                 var template = $("#disks-template").html();
                 $("#disks").html(_.template(template)(data));
@@ -27,7 +27,7 @@ function disks_status() {
 }
 
 function check_system_version() {
-    $.get('/server/rest/settings/version')
+    $.get('/rest/settings/version')
             .done(function (data) {
                 var btn = $("#system_upgrade_btn");
                 var check_btn = $("#system_check_btn");

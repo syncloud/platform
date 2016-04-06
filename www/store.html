@@ -33,7 +33,7 @@ main_menu_item: menu_apps
 <script type="text/javascript">
 
     $( document ).ready(function() {
-        var getting = $.get( '/server/rest/available_apps')
+        var getting = $.get( '/rest/available_apps')
             .done( function(data) {
                     var template = $("#app-template").html();
                     $("#apps").html(_.template(template)(data));

@@ -174,7 +174,7 @@ $(document).ready(function () {
         externalAccessToggleBtn.prop('disabled', true);
         externalAccessToggleBtn.text('Checking ...');
         new_external_access = ! externalAccessToggleBtn.data("external_access")
-        $.get('/server/rest/settings/set_external_access?external_access=' + new_external_access)
+        $.get('/rest/settings/set_external_access?external_access=' + new_external_access)
             .done(function (data) {
                 if (data.success)
                     $("#external_access_error").text('');
@@ -190,7 +190,7 @@ $(document).ready(function () {
         protocolToggleBtn.prop('disabled', true);
         protocolToggleBtn.text('Checking ...');
         var new_protocol = protocolToggleBtn.data("protocol") == 'http' ? 'https' : 'http'
-        $.get('/server/rest/settings/set_protocol?protocol=' + new_protocol)
+        $.get('/rest/settings/set_protocol?protocol=' + new_protocol)
             .done(function (data) {
                 if (data.success)
                     $("#protocol_error").text('');
@@ -208,7 +208,7 @@ $(document).ready(function () {
         btn.prop('disabled', true);
         btn.text('Working ...');
         var mode = btn.data("active") ? "deactivate" : "activate";
-        $.get('/server/rest/settings/disk_' + mode, {device: btn.data('device')})
+        $.get('/rest/settings/disk_' + mode, {device: btn.data('device')})
                 .done(function () {
                     disks_status()
                 }).fail(onError);
@@ -220,7 +220,7 @@ $(document).ready(function () {
         var btn = $(this);
         btn.prop('disabled', true);
         btn.text('Upgrading ...');
-        $.get('/server/rest/settings/system_upgrade')
+        $.get('/rest/settings/system_upgrade')
                 .done(function() {
                     run_after_sam_is_complete(check_system_version);
                 })
@@ -233,7 +233,7 @@ $(document).ready(function () {
         var btn = $(this);
         btn.prop('disabled', true);
         btn.text('Checking ...');
-        $.get('/server/rest/check')
+        $.get('/rest/check')
                 .done(function() {
                     run_after_sam_is_complete(check_system_version);
                 })

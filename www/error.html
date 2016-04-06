@@ -35,7 +35,7 @@ main_menu_item: menu_apps
     sendLogsBtn.on('click', function () {
         sendLogsBtn.prop('disabled', true);
         sendLogsBtn.text('Sending ...');
-        $.get('/server/rest/send_log')
+        $.get('/rest/send_log')
                 .done(function (data) {
                     sendLogsBtn.text('Send');
                     sendLogsBtn.prop('disabled', false);

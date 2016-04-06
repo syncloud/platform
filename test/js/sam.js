@@ -4,7 +4,7 @@ QUnit.test( "sam after complete", function( assert ) {
     var done = assert.async();
 
     $.mockjax({
-        url: "/server/rest/settings/sam_status",
+        url: "/rest/settings/sam_status",
         responseText: {
             is_running: false
         }

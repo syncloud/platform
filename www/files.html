@@ -38,7 +38,7 @@ main_menu_item: menu_apps
                   <% if (!item.is_file) { %>
                     <a href="/files.html?dir=<%= full_path %>" class="clickable" ><%= item.name %></a>
                   <% } else { %>
-                    <a href="/server/rest/files<%= full_path %>" class="clickable"><%= item.name %></a>
+                    <a href="/rest/files<%= full_path %>" class="clickable"><%= item.name %></a>
                   <% } %>
               </div>
         </div>
@@ -57,7 +57,7 @@ main_menu_item: menu_apps
         if (params["dir"])
             dir = params["dir"];
 
-        $.get( '/server/rest/files' + dir)
+        $.get( '/rest/files' + dir)
             .done( function(data) {
                     var template = $("#item-template").html();
                     $("#items").html(_.template(template)(data));

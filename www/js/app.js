@@ -23,7 +23,7 @@ function progress_stop() {
 }
 
 function refresh(app_id) {
-    $.get( '/server/rest/app', {app_id: app_id})
+    $.get( '/rest/app', {app_id: app_id})
             .done( function(data) {
                 var template = $("#app-template").html();
                 data.actions = get_actions(data.info);
@@ -42,7 +42,7 @@ function app_status(app_id) {
 function run(action, app_id) {
     $('#errors_placeholder').empty();
     progress_start();
-    $.get("/server/rest/" + action, {app_id: app_id})
+    $.get("/rest/" + action, {app_id: app_id})
             .fail(function(xhr, textStatus, errorThrown) {
                 var template = $("#error_template").html();
                 $('#errors_placeholder').html(_.template(template)(xhr.responseJSON));

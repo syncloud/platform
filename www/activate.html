@@ -127,7 +127,7 @@ main_menu_item: menu_activate
 
             var values = $("#form-activate").serializeArray();
             reset_error();
-            $.post("/server/rest/activate", values)
+            $.post("/rest/activate", values)
                     .done(function (data) {
                         var device_username = $('#device_username').val();
                         var device_password = $('#device_password').val();

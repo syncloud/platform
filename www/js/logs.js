@@ -2,7 +2,7 @@ function send_logs() {
     var btn = $(this);
     btn.prop('disabled', true);
     btn.text('Sending ...');
-    $.get('/server/rest/send_log')
+    $.get('/rest/send_log')
             .done(function () {
                 btn.text('Send logs');
                 btn.prop('disabled', false);

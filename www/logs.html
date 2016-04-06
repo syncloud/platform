@@ -85,7 +85,7 @@ main_menu_item: menu_activate
 
             var values = $("#form-logs").serializeArray();
             reset_error();
-            $.post("/server/rest/send_log", values)
+            $.post("/rest/send_log", values)
                     .done(function (data) {
                         window.location.href = "/activate.html";
                     })

@@ -79,7 +79,7 @@ main_menu_item: menu_login
 
             var values = $("#form-login").serializeArray();
             reset_error();
-            var posting = $.post("/server/rest/login", values)
+            var posting = $.post("/rest/login", values)
                     .done(function (data) {
                         window.location.replace("/");
                     })

@@ -45,8 +45,8 @@ def module_teardown():
 def public_web_session():
     wait_for_platform_web()
     session = requests.session()
-    session.post('http://localhost/server/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
-    assert session.get('http://localhost/server/rest/user', allow_redirects=False).status_code == 200
+    session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+    assert session.get('http://localhost/rest/user', allow_redirects=False).status_code == 200
     return session
 
 
@@ -66,7 +66,7 @@ def test_non_activated_device_main_page_redirect_to_activation():
 
 
 def test_non_activated_device_login_redirect_to_activation():
-    response = requests.post('http://localhost/server/rest/login', allow_redirects=False)
+    response = requests.post('http://localhost/rest/login', allow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'] == 'http://localhost:81'
 
@@ -81,7 +81,7 @@ def test_internal_web_open():
 def test_activate_device(auth):
 
     email, password, domain, version, arch, release = auth
-    response = requests.post('http://localhost:81/server/rest/activate',
+    response = requests.post('http://localhost:81/rest/activate',
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
@@ -91,7 +91,7 @@ def test_activate_device(auth):
 
 def test_reactivate(auth):
     email, password, domain, version, arch, release = auth
-    response = requests.post('http://localhost:81/server/rest/activate',
+    response = requests.post('http://localhost:81/rest/activate',
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
@@ -100,12 +100,12 @@ def test_reactivate(auth):
 
 
 def test_public_web_unauthorized_browser_redirect():
-    response = requests.get('http://localhost/server/rest/user', allow_redirects=False)
+    response = requests.get('http://localhost/rest/user', allow_redirects=False)
     assert response.status_code == 302
 
 
 def test_public_web_unauthorized_ajax_not_redirect():
-    response = requests.get('http://localhost/server/rest/user',
+    response = requests.get('http://localhost/rest/user',
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
@@ -127,16 +127,16 @@ def test_external_mode(auth, public_web_session):
 
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
-    response = public_web_session.get('http://localhost/server/rest/settings/external_access')
+    response = public_web_session.get('http://localhost/rest/settings/external_access')
     assert '"external_access": false' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/set_external_access',
+    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
                                       params={'external_access': 'False'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/external_access')
+    response = public_web_session.get('http://localhost/rest/settings/external_access')
     assert '"external_access": false' in response.text
     assert response.status_code == 200
 
@@ -149,25 +149,25 @@ def test_protocol(auth, public_web_session):
 
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
-    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "http"' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/set_protocol',
+    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
                                       params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/set_protocol',
+    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
                                       params={'protocol': 'http'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "http"' in response.text
     assert response.status_code == 200
 
@@ -180,14 +180,14 @@ def test_cron_job(auth, public_web_session):
 
 def test_public_web_files(public_web_session):
 
-    response = public_web_session.get('http://localhost/server/rest/files')
+    response = public_web_session.get('http://localhost/rest/files')
     assert response.status_code == 200
-    response = requests.get('http://localhost/server/rest/files', allow_redirects=False)
+    response = requests.get('http://localhost/rest/files', allow_redirects=False)
     assert response.status_code == 301
 
 
 def test_installed_apps(public_web_session):
-    response = public_web_session.get('http://localhost/server/rest/installed_apps')
+    response = public_web_session.get('http://localhost/rest/installed_apps')
     assert response.status_code == 200
 
 
@@ -259,19 +259,19 @@ def disk_activate(loop_device,  public_web_session):
 
     run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
-    response = public_web_session.get('http://localhost/server/rest/settings/disks')
+    response = public_web_session.get('http://localhost/rest/settings/disks')
     print response.text
     assert loop_device in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/server/rest/settings/disk_activate',
+    response = public_web_session.get('http://localhost/rest/settings/disk_activate',
                                       params={'device': loop_device})
     assert response.status_code == 200
     return current_disk_link()
 
 
 def disk_deactivate(loop_device,  public_web_session):
-    response = public_web_session.get('http://localhost/server/rest/settings/disk_deactivate',
+    response = public_web_session.get('http://localhost/rest/settings/disk_deactivate',
                                       params={'device': loop_device})
     assert response.status_code == 200
     return current_disk_link()
@@ -283,7 +283,7 @@ def current_disk_link():
 
 def test_internal_web_id():
 
-    response = requests.get('http://localhost:81/server/rest/id')
+    response = requests.get('http://localhost:81/rest/id')
     assert 'mac_address' in response.text
     assert response.status_code == 200
 
@@ -309,19 +309,19 @@ def test_reinstall(auth):
     __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
-def test_public_web_platform_upgrade(public_web_session):
-
-    public_web_session.get('http://localhost/server/rest/settings/system_upgrade')
-    sam_running = True
-    while sam_running:
-        try:
-            response = public_web_session.get('http://localhost/server/rest/settings/sam_status')
-            if response.status_code == 200:
-                json = convertible.from_json(response.text)
-                sam_running = json.is_running
-        except Exception, e:
-            pass
-        time.sleep(1)
+# def test_public_web_platform_upgrade(public_web_session):
+#
+#     public_web_session.get('http://localhost/rest/settings/system_upgrade')
+#     sam_running = True
+#     while sam_running:
+#         try:
+#             response = public_web_session.get('http://localhost/rest/settings/sam_status')
+#             if response.status_code == 200:
+#                 json = convertible.from_json(response.text)
+#                 sam_running = json.is_running
+#         except Exception, e:
+#             pass
+#         time.sleep(1)
 
 
 def test_reinstall_local_after_upgrade(auth):
@@ -338,7 +338,7 @@ def test_nginx_performance():
 
 
 def test_nginx_plus_flask_performance():
-    print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/server/rest/id', shell=True))
+    print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/rest/id', shell=True))
 
 
 def __local_install(password, version, arch, release):
