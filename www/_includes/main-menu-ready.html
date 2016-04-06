@@ -9,7 +9,7 @@ $( document ).ready(function() {
     $("#menu_logout").click(function(event) {
         var posting = $.post( '/server/rest/logout' )
             .done( function(data) {
-                window.location.href = "/server/html/login.html";
+                window.location.href = "/login.html";
             })
             .fail( function(xhr, textStatus, errorThrown) {
             });

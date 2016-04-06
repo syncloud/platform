@@ -193,7 +193,7 @@ def test_installed_apps(public_web_session):
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session):
 
-    response = public_web_session.get('http://localhost/server/html/settings.html')
+    response = public_web_session.get('http://localhost/settings.html')
     cache_control = response.headers['Cache-Control']
     assert 'no-cache' in cache_control
     assert 'max-age=0' in cache_control

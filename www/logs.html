@@ -64,8 +64,8 @@ main_menu_item: menu_activate
     </div>
 </script>
 
-<script type="text/javascript" src="/server/html/js/activate.js"></script>
-<script type="text/javascript" src="/server/html/js/logs.js"></script>
+<script type="text/javascript" src="/js/activate.js"></script>
+<script type="text/javascript" src="/js/logs.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -87,14 +87,14 @@ main_menu_item: menu_activate
             reset_error();
             $.post("/server/rest/send_log", values)
                     .done(function (data) {
-                        window.location.href = "/server/html/activate.html";
+                        window.location.href = "/activate.html";
                     })
                     .fail(function (xhr, textStatus, errorThrown) {
                         if (xhr.hasOwnProperty('responseJSON')) {
                             var error = xhr.responseJSON;
                             show_error(error);
                         } else {
-                            window.location.href = "/server/html/logs.html";
+                            window.location.href = "/logs.html";
                         }
                     })
                     .always(function() {

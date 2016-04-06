@@ -36,7 +36,7 @@ main_menu_item: menu_apps
         <div class="col-6 col-md-12 col-sm-12 col-xs-12 col-lg-12">
               <div style="padding: 10px;">
                   <% if (!item.is_file) { %>
-                    <a href="/server/html/files.html?dir=<%= full_path %>" class="clickable" ><%= item.name %></a>
+                    <a href="/files.html?dir=<%= full_path %>" class="clickable" ><%= item.name %></a>
                   <% } else { %>
                     <a href="/server/rest/files<%= full_path %>" class="clickable"><%= item.name %></a>
                   <% } %>

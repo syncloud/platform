@@ -75,7 +75,7 @@ main_menu_item: menu_activate
 
                     <div class="col-6 col-md-6 col-sm-6 col-lg-6 col-xs-6"
                          style="padding-right:15px; padding-left:15px;">
-                        <a href="/server/html/logs.html" class="pull-left">Send logs</a>
+                        <a href="/logs.html" class="pull-left">Send logs</a>
                     </div>
 
                     <div class="button-block" col-6 col-md-6 col-sm-6 col-lg-6 col-xs-6"
@@ -96,8 +96,8 @@ main_menu_item: menu_activate
     </div>
 </script>
 
-<script type="text/javascript" src="/server/html/js/activate.js"></script>
-<script type="text/javascript" src="/server/html/js/logs.js"></script>
+<script type="text/javascript" src="/js/activate.js"></script>
+<script type="text/javascript" src="/js/logs.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -139,7 +139,7 @@ main_menu_item: menu_activate
                             var error = xhr.responseJSON;
                             show_error(error);
                         } else {
-                            window.location.href = "/server/html/activate.html";
+                            window.location.href = "/activate.html";
                         }
                     })
                     .always(function() {
