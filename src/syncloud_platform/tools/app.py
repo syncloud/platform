@@ -6,6 +6,11 @@ import shutil
 from syncloud_platform.config.config import PlatformConfig
 
 
+def get_app_dir(app_name):
+    config = PlatformConfig()
+    return join(config.apps_root(), app_name)
+
+
 def get_app_data_root(app_name, user=None):
     config = PlatformConfig()
     if not os.path.isdir(config.data_root()):
