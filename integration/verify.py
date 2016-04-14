@@ -178,14 +178,6 @@ def test_cron_job(auth, public_web_session):
     assert '"success": true' in run_ssh('/opt/app/platform/bin/insider sync_all', password=DEVICE_PASSWORD)
 
 
-def test_public_web_files(public_web_session):
-
-    response = public_web_session.get('http://localhost/rest/files')
-    assert response.status_code == 200
-    response = requests.get('http://localhost/rest/files', allow_redirects=False)
-    assert response.status_code == 301
-
-
 def test_installed_apps(public_web_session):
     response = public_web_session.get('http://localhost/rest/installed_apps')
     assert response.status_code == 200
