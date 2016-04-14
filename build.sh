@@ -45,8 +45,9 @@ cd src
 python setup.py sdist
 cd ..
 
+CACHE_DIR=${DIR}/cache.dir
 ./coin_lib.sh ${ARCH}
-coin  --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
+coin  --cache_folder=${CACHE_DIR}/syncloud-platform --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
 
 BUILD_DIR=${DIR}/build/${NAME}
 rm -rf build
@@ -54,11 +55,11 @@ mkdir -p ${BUILD_DIR}
 
 DOWNLOAD_URL=http://build.syncloud.org:8111/guestAuth/repository/download
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSuccessful/openldap-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python-${ARCH}.tar.gz
+coin --cache_folder=${CACHE_DIR}/uwsgi --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi-${ARCH}.tar.gz
+coin --cache_folder=${CACHE_DIR}/openldap --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSuccessful/openldap-${ARCH}.tar.gz
+coin --cache_folder=${CACHE_DIR}/python --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python-${ARCH}.tar.gz
 
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_usbutils_${ARCH}/lastSuccessful/usbutils-${ARCH}.tar.gz
+coin --cache_folder=${CACHE_DIR}/usbutils --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_usbutils_${ARCH}/lastSuccessful/usbutils-${ARCH}.tar.gz
 
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
