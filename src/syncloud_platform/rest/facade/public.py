@@ -1,6 +1,3 @@
-import os
-from os.path import join
-
 from syncloud_app import logger
 
 from syncloud_platform.rest.props import html_prefix
@@ -19,10 +16,6 @@ class Public:
         self.www_dir = self.platform_config.www_root()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
-
-    def browse(self, filesystem_path):
-        entries = sorted(os.listdir(filesystem_path))
-        return [{'name': entry, 'is_file': os.path.isfile(join(filesystem_path, entry))} for entry in entries]
 
     def installed_apps(self):
         apps = [app_from_sam_app(a) for a in self.sam.installed_user_apps()]

@@ -1,7 +1,5 @@
-import os
 import sys
 import traceback
-from os.path import join
 
 import convertible
 from flask import jsonify, send_from_directory, request, redirect, send_file, Flask
@@ -81,19 +79,6 @@ def user():
 @login_required
 def index():
     return static_file('index.html')
-
-files_prefix = rest_prefix + '/files/'
-
-
-@app.route(files_prefix)
-@app.route(files_prefix + '<path:path>')
-@login_required
-def browse(path=''):
-    filesystem_path = join('/', path)
-    if os.path.isfile(filesystem_path):
-        return send_file(filesystem_path, mimetype='text/plain')
-    else:
-        return jsonify(items=public.browse(filesystem_path), dir=filesystem_path)
 
 
 @app.route(rest_prefix + "/installed_apps", methods=["GET"])
