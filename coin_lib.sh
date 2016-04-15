@@ -18,7 +18,7 @@ rm -rf lib/*
 coin --to=lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
 coin --to=lib py https://pypi.python.org/packages/py2/u/urllib3/urllib3-1.10.4-py2-none-any.whl
 coin --to=lib py https://pypi.python.org/packages/2.7/b/beautifulsoup4/beautifulsoup4-4.4.0-py2-none-any.whl
-coin --cache_folder=${CACHE_DIR}/ipy py https://pypi.python.org/packages/source/I/IPy/IPy-0.83.tar.gz
+coin --to=lib py https://pypi.python.org/packages/source/I/IPy/IPy-0.83.tar.gz
 coin --to=lib py https://pypi.python.org/packages/source/m/massedit/massedit-0.67.1.zip
 coin --to=lib py https://pypi.python.org/packages/source/j/jsonpickle/jsonpickle-0.9.2.tar.gz
 coin --to=lib py https://pypi.python.org/packages/source/s/syncloud-lib/syncloud-lib-2.tar.gz
