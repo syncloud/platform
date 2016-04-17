@@ -9,6 +9,19 @@ from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
 from syncloud_platform.tools.locale import fix_locale
 
+APP_NAME = 'platform'
+USER_NAME = 'platform'
+
+def makepath(path):
+    if not isdir(path):
+        os.makedirs(path)
+
+from grp import getgrnam
+from pwd import getpwnam
+
+def chownpath(path, user):
+    os.chown(path, getpwnam(user).pw_uid, getgrnam(user).gr_gid)
+
 log = logger.get_logger('platform_post_install')
 
 fix_locale()
@@ -24,10 +37,12 @@ if os.path.isfile(user_config_file):
 # TODO: User specific cron remove as we did not have proper cleanup in post-remove, remove after upgrading test users
 print(check_output("echo "" | crontab - -u platform", shell=True))
 
-data_dir = app.get_app_data_root('platform', 'platform')
-app.create_data_dir(data_dir, 'webapps', 'platform')
-app.create_data_dir(data_dir, 'log', 'platform')
-app.create_data_dir(data_dir, 'openldap-data', 'platform')
+data_dir = app.get_app_data_dir(APP_NAME)
+chownpath(data_dir, USER_NAME)
+
+app.create_data_dir(data_dir, 'webapps', USER_NAME)
+app.create_data_dir(data_dir, 'log', USER_NAME)
+app.create_data_dir(data_dir, 'openldap-data', USER_NAME)
 
 injector = get_injector()
 
@@ -58,12 +73,10 @@ udev = injector.udev
 udev.remove()
 udev.add()
 
-app_data_dir = app.get_app_data_root('platform')
-
-add_service('platform', 'platform-cpu-frequency')
-add_service('platform', 'platform-insider-sync')
-add_service('platform', 'platform-ntpdate')
-add_service('platform', 'platform-uwsgi-internal')
-add_service('platform', 'platform-uwsgi-public')
-add_service('platform', 'platform-nginx')
-add_service('platform', 'platform-openldap', start=ldap_auth.installed())
+add_service(APP_NAME, 'platform-cpu-frequency')
+add_service(APP_NAME, 'platform-insider-sync')
+add_service(APP_NAME, 'platform-ntpdate')
+add_service(APP_NAME, 'platform-uwsgi-internal')
+add_service(APP_NAME, 'platform-uwsgi-public')
+add_service(APP_NAME, 'platform-nginx')
+add_service(APP_NAME, 'platform-openldap', start=ldap_auth.installed())
