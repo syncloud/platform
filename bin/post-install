@@ -1,6 +1,6 @@
 import os
 from subprocess import check_output
-from os.path import isdir
+from os.path import isdir, join
 import shutil
 from syncloud_app import logger
 from syncloud_platform.di.injector import get_injector
@@ -40,9 +40,15 @@ print(check_output("echo "" | crontab - -u platform", shell=True))
 data_dir = app.get_app_data_dir(APP_NAME)
 chownpath(data_dir, USER_NAME)
 
-app.create_data_dir(data_dir, 'webapps', USER_NAME)
-app.create_data_dir(data_dir, 'log', USER_NAME)
-app.create_data_dir(data_dir, 'openldap-data', USER_NAME)
+data_dirs = [
+    join(data_dir, 'webapps'),
+    join(data_dir, 'log'),
+    join(data_dir, 'openldap-data')
+]
+
+for data_dir in data_dirs:
+    makepath(data_dir)
+    chownpath(data_dir, USER_NAME)
 
 injector = get_injector()
 
