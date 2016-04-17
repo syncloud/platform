@@ -3,6 +3,7 @@ from os.path import isdir
 from grp import getgrnam
 from pwd import getpwnam
 from shutil import rmtree
+from subprocess import check_output
 
 def makepath(path):
     if not isdir(path):
@@ -14,16 +15,18 @@ def removepath(path):
         rmtree(path, ignore_errors=True)
 
 
-def chownpath(path, user):
-    chown(path, getpwnam(user).pw_uid, getgrnam(user).gr_gid)
+def chownpath(path, user, recursive=False):
+    if recursive:
+        chownrecursive(path, user)
+    else:
+        chown(path, getpwnam(user).pw_uid, getgrnam(user).gr_gid)
+
+
+def chownrecursive(path, user):
+    return check_output('chown -RL {0}. {1}'.format(user, path), shell=True)
 
 
 def touch(file, user):
     with open(file, 'a'):
         utime(file, None)
     chownpath(file, user)
-
-
-def chown(user, dir):
-    useradd(user)
-    return check_output('chown -RL {0}. {1}'.format(user, dir), shell=True)
