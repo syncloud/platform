@@ -7,7 +7,8 @@ from syncloud_platform.di.injector import get_injector
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.locale import fix_locale
+
+from syncloud_platform.gaplib import fs, linux
 
 APP_NAME = 'platform'
 USER_NAME = 'platform'
@@ -24,7 +25,7 @@ def chownpath(path, user):
 
 log = logger.get_logger('platform_post_install')
 
-fix_locale()
+linux.fix_locale()
 
 log.info(chown('platform', '/opt/app/platform'))
 
