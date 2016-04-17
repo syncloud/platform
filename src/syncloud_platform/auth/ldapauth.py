@@ -30,7 +30,10 @@ class LdapAuth:
     def reset(self, user, password):
 
         data_dir = app.get_app_data_dir('platform')
-        user_conf_dir = app.create_data_dir(data_dir, ldap_user_conf_dir, platform_user, remove_existing=True)
+        user_conf_dir = join(data_dir, ldap_user_conf_dir)
+        removepath(user_conf_dir)
+        makepath(user_conf_dir)
+        chownpath(user_conf_dir, platform_user)
 
         stop_service('platform-openldap')
 
