@@ -12,6 +12,7 @@ from syncloud_app.logger import get_logger
 import time
 from syncloud_platform.systemd.systemctl import stop_service, start_service
 from syncloud_platform.tools import app
+from syncloud_platform.tools.stdlib import makepath, removepath, chownpath
 
 ldap_user_conf_dir = 'slapd.d'
 platform_user = 'platform'
@@ -23,7 +24,7 @@ class LdapAuth:
         self.config = platform_config
 
     def installed(self):
-        data_dir = app.get_app_data_root('platform', platform_user)
+        data_dir = app.get_app_data_dir('platform')
         return os.path.isdir(join(data_dir, ldap_user_conf_dir))
 
     def reset(self, user, password):

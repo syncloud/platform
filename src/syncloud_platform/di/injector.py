@@ -18,7 +18,7 @@ from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools.app import get_app_data_root
+from syncloud_platform.tools.app import get_app_data_dir
 from syncloud_platform.tools.device_storage import DeviceStorage
 from syncloud_platform.tools.disk.lsblk import Lsblk
 from syncloud_platform.tools.disk.path_checker import PathChecker
@@ -53,7 +53,7 @@ class Injector:
 
         self.log_aggregator = Aggregator(self.platform_config)
 
-        self.data_root = get_app_data_root(PLATFORM_APP_NAME)
+        self.data_root = get_app_data_dir(PLATFORM_APP_NAME)
 
         self.network = Network()
         self.redirect_service = RedirectService(self.network, self.user_platform_config, platform_version)
