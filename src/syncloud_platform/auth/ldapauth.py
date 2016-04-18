@@ -12,7 +12,7 @@ from syncloud_app.logger import get_logger
 import time
 from syncloud_platform.systemd.systemctl import stop_service, start_service
 from syncloud_platform.tools import app
-from syncloud_platform.tools.stdlib import makepath, removepath
+from syncloud_platform.tools.stdlib import makepath
 
 from syncloud_platform.gaplib import fs, linux
 
@@ -33,7 +33,7 @@ class LdapAuth:
 
         data_dir = app.get_app_data_dir('platform')
         user_conf_dir = join(data_dir, ldap_user_conf_dir)
-        removepath(user_conf_dir)
+        fs.removepath(user_conf_dir)
         makepath(user_conf_dir)
         fs.chownpath(user_conf_dir, platform_user)
 
