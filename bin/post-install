@@ -13,10 +13,6 @@ from syncloud_platform.gaplib import fs, linux
 APP_NAME = 'platform'
 USER_NAME = 'platform'
 
-def makepath(path):
-    if not isdir(path):
-        os.makedirs(path)
-
 from grp import getgrnam
 from pwd import getpwnam
 
@@ -45,7 +41,7 @@ data_dirs = [
 ]
 
 for data_dir in data_dirs:
-    makepath(data_dir)
+    fs.makepath(data_dir)
     fs.chownpath(data_dir, USER_NAME)
 
 injector = get_injector()
