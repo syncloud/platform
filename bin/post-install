@@ -20,9 +20,6 @@ def makepath(path):
 from grp import getgrnam
 from pwd import getpwnam
 
-def chownpath(path, user):
-    os.chown(path, getpwnam(user).pw_uid, getgrnam(user).gr_gid)
-
 log = logger.get_logger('platform_post_install')
 
 linux.fix_locale()
@@ -39,7 +36,7 @@ if os.path.isfile(user_config_file):
 print(check_output("echo "" | crontab - -u platform", shell=True))
 
 data_dir = app.get_app_data_dir(APP_NAME)
-chownpath(data_dir, USER_NAME)
+fs.chownpath(data_dir, USER_NAME)
 
 data_dirs = [
     join(data_dir, 'webapps'),
@@ -49,7 +46,7 @@ data_dirs = [
 
 for data_dir in data_dirs:
     makepath(data_dir)
-    chownpath(data_dir, USER_NAME)
+    fs.chownpath(data_dir, USER_NAME)
 
 injector = get_injector()
 
