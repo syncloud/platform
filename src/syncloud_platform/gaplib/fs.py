@@ -25,8 +25,6 @@ def chownpath(path, user, recursive=False):
 def chownrecursive(path, user):
     return check_output('chown -RL {0}. {1}'.format(user, path), shell=True)
 
-
-def touch(file, user):
+def touchfile(file):
     with open(file, 'a'):
         utime(file, None)
-    chownpath(file, user)
