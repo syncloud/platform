@@ -4,7 +4,7 @@ from os.path import islink, join
 from os import path
 from syncloud_app import logger
 from syncloud_platform.systemd import systemctl
-from syncloud_platform.tools.chown import chown
+from syncloud_platform.gaplib import fs
 
 
 supported_fs_options = {
@@ -63,7 +63,7 @@ class Hardware:
             os.mkdir(app_storage_dir)
         if owner and self.__support_permissions():
             self.log.info('fixing permissions on {0}'.format(app_storage_dir))
-            chown(owner, app_storage_dir)
+            fs.chownpath(app_storage_dir, owner)
         else:
             self.log.info('not fixing permissions')
         return app_storage_dir

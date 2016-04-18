@@ -4,7 +4,7 @@ import uuid
 from syncloud_app import logger
 
 from syncloud_platform.insider.util import protocol_to_port
-from syncloud_platform.tools.chown import chown
+from syncloud_platform.gaplib import fs
 
 http_network_protocol = 'TCP'
 
@@ -96,7 +96,7 @@ class Device:
         self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
 
         if not getpass.getuser() == self.platform_config.cron_user():
-            chown(self.platform_config.cron_user(), self.platform_config.data_dir())
+            fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())
 
     def add_port(self, local_port, protocol):
         external_access = self.user_platform_config.get_external_access()

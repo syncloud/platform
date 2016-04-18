@@ -6,7 +6,6 @@ from syncloud_app import logger
 from syncloud_platform.di.injector import get_injector
 from syncloud_platform.systemd.systemctl import add_service
 from syncloud_platform.tools import app
-from syncloud_platform.tools.chown import chown
 
 from syncloud_platform.gaplib import fs, linux
 
@@ -20,7 +19,8 @@ log = logger.get_logger('platform_post_install')
 
 linux.fix_locale()
 
-log.info(chown('platform', '/opt/app/platform'))
+linux.useradd(USER_NAME)
+log.info(fs.chownpath('/opt/app/platform', USER_NAME, recursive=True))
 
 # TODO: only for migration from pre-protocol version (< v240), remove after upgrading test users
 user_config_file = '/opt/data/platform/user_platform.cfg'
