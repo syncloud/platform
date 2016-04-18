@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-ROOTFS=/tmp/platform/rootfs
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
+ROOTFS=${APP_DIR}/rootfs
 cd ${APP_DIR}
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root" 1>&2
@@ -45,7 +45,7 @@ function cleanup {
     mount | grep rootfs
 
     echo "cleaning old rootfs"
-    rm -rf /tmp/rootfs
+    rm -rf ${ROOTFS}
 
     echo "docker images"
     docker images -q
