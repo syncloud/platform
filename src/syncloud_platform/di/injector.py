@@ -24,7 +24,6 @@ from syncloud_platform.tools.disk.lsblk import Lsblk
 from syncloud_platform.tools.disk.path_checker import PathChecker
 from syncloud_platform.tools.events import EventTrigger
 from syncloud_platform.tools.hardware import Hardware
-from syncloud_platform.tools.network import Network
 from syncloud_platform.tools.nginx import Nginx
 from syncloud_platform.tools.tls import Tls
 from syncloud_platform.tools.udev import Udev
@@ -55,7 +54,6 @@ class Injector:
 
         self.data_root = get_app_data_dir(PLATFORM_APP_NAME)
 
-        self.network = Network()
         self.redirect_service = RedirectService(self.user_platform_config, platform_version)
         self.port_config = PortConfig(self.data_root)
 
