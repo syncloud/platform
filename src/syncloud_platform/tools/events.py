@@ -2,7 +2,7 @@ import traceback
 from os import path
 from os.path import join
 from syncloud_app import logger
-from syncloud_platform.tools.scripts import run_script
+from syncloud_platform.gaplib.scripts import run_script
 
 
 class EventTrigger:
