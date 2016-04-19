@@ -5,9 +5,6 @@ from subprocess import check_output
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 
-from syncloud_platform.tools.nginx import Nginx
-
-
 class Tls:
     def __init__(self, platform_config, info, nginx):
         self.info = info
