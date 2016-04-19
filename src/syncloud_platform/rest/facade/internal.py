@@ -1,4 +1,4 @@
-from syncloud_platform.tools import id
+from syncloud_platform.board import id
 
 
 class Internal:

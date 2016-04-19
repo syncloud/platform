@@ -2,9 +2,9 @@ import pytest
 
 import responses
 from convertible import reformat
-from syncloud_platform.tools import config
-from syncloud_platform.tools import footprint
-from syncloud_platform.tools import id
+from syncloud_platform.board import config
+from syncloud_platform.board import footprint
+from syncloud_platform.board import id
 
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.port_drill import PortDrill

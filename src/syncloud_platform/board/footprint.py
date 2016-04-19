@@ -1,7 +1,7 @@
 import sys
 import psutil
-from syncloud_platform.tools.cpu.cpuinfo import CpuInfo
-from syncloud_platform.tools.cpu.reader import Reader
+from cpu.cpuinfo import CpuInfo
+from cpu.reader import Reader
 
 from subprocess import check_output
 from os.path import join, dirname, abspath

@@ -1,5 +1,5 @@
 
-from syncloud_platform.tools.config import footprints, titles
+from syncloud_platform.board.config import footprints, titles
 
 def test_all_known_footprints_are_different():
     for name, f in footprints:

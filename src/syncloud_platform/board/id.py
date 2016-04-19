@@ -3,9 +3,9 @@ import uuid
 import config
 
 
-def getname(footprint):
+def getname(a_footprint):
     for name, f in config.footprints:
-        if footprint.match(f):
+        if a_footprint.match(f):
             return name
     return None
 

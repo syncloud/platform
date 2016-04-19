@@ -6,7 +6,7 @@ from IPy import IP
 from syncloud_app import logger
 
 from syncloud_platform.insider import util
-from syncloud_platform.tools import id
+from syncloud_platform.board import id
 
 
 class RedirectService:
