@@ -18,7 +18,6 @@ from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools.app import get_app_data_dir
 from syncloud_platform.tools.disk.lsblk import Lsblk
 from syncloud_platform.tools.disk.path_checker import PathChecker
 from syncloud_platform.tools.events import EventTrigger
@@ -27,6 +26,7 @@ from syncloud_platform.tools.nginx import Nginx
 from syncloud_platform.tools.tls import Tls
 from syncloud_platform.tools.udev import Udev
 from syncloud_platform.tools.version import platform_version
+from syncloud_platform.application.apppaths import AppPaths
 
 default_injector = None
 
@@ -51,10 +51,11 @@ class Injector:
 
         self.log_aggregator = Aggregator(self.platform_config)
 
-        self.data_root = get_app_data_dir(PLATFORM_APP_NAME)
+        self.platform_app_paths = AppPaths(PLATFORM_APP_NAME, self.platform_config)
+        self.platform_app_paths.get_app_data_dir()
 
         self.redirect_service = RedirectService(self.user_platform_config, platform_version)
-        self.port_config = PortConfig(self.data_root)
+        self.port_config = PortConfig(self.platform_app_paths.get_app_data_dir())
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()
         self.upnp_port_mapper = UpnpPortMapper(UPnP())
