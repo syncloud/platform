@@ -56,7 +56,7 @@ class Injector:
         self.data_root = get_app_data_dir(PLATFORM_APP_NAME)
 
         self.network = Network()
-        self.redirect_service = RedirectService(self.network, self.user_platform_config, platform_version)
+        self.redirect_service = RedirectService(self.user_platform_config, platform_version)
         self.port_config = PortConfig(self.data_root)
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()

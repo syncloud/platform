@@ -25,3 +25,10 @@ def __fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
     editor = massedit.MassEdit()
     editor.append_code_expr("re.sub('# {0}', '{0}', line)".format(lang))
     editor.edit_file(locale_gen)
+
+
+def local_ip():
+    ip = check_output(["hostname", "-I"]).split(" ")[0]
+    if not ip:
+        raise(Exception("Can't get local ip address"))
+    return ip

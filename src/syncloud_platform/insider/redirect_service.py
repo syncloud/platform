@@ -7,12 +7,12 @@ from syncloud_app import logger
 
 from syncloud_platform.insider import util
 from syncloud_platform.board import id
+from syncloud_platform.gaplib import linux
 
 
 class RedirectService:
 
-    def __init__(self, network, user_platform_config, version_func):
-        self.network = network
+    def __init__(self, user_platform_config, version_func):
         self.user_platform_config = user_platform_config
         self.version_func = version_func
 
@@ -66,7 +66,7 @@ class RedirectService:
 
         version = self.version_func()
 
-        local_ip = self.network.local_ip()
+        local_ip = linux.local_ip()
         data = {
             'token': update_token,
             'platform_version': version,

@@ -6,6 +6,15 @@ from syncloud_platform.board import config
 from syncloud_platform.board import footprint
 from syncloud_platform.board import id
 
+from syncloud_platform.gaplib import linux
+
+def mock_local_ip(ip):
+    def fake_local_ip():
+        return ip
+    return fake_local_ip
+
+linux.local_ip = mock_local_ip('127.0.0.1')
+
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.port_drill import PortDrill
 from syncloud_platform.insider.config import Port
@@ -48,7 +57,7 @@ def test_sync_success():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, test_version)
     dns.sync(port_drill, 'some_update_token', 'http', True, 'TCP')
 
     expected_request = '''
@@ -80,7 +89,7 @@ def test_sync_server_side_client_ip():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, test_version)
     dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
 
     expected_request = '''
@@ -111,7 +120,7 @@ def test_sync_server_error():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
@@ -133,7 +142,7 @@ def test_link_success():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, test_version)
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -168,7 +177,7 @@ def test_link_server_error():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(MockNetwork('127.0.0.1'), user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, test_version)
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
@@ -196,12 +205,3 @@ class MockPortProber:
 
     def probe_port(self, port, protocol):
         return True
-
-
-class MockNetwork:
-
-    def __init__(self, ip):
-        self.ip = ip
-
-    def local_ip(self):
-        return self.ip
