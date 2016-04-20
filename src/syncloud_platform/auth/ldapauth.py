@@ -26,12 +26,12 @@ class LdapAuth:
         self.app_paths = AppPaths('platform', platform_config)
 
     def installed(self):
-        data_dir = self.app_paths.get_app_data_dir('platform')
+        data_dir = self.app_paths.get_app_data_dir()
         return os.path.isdir(join(data_dir, ldap_user_conf_dir))
 
     def reset(self, user, password):
 
-        data_dir = self.app_paths.get_app_data_dir('platform')
+        data_dir = self.app_paths.get_app_data_dir()
         user_conf_dir = join(data_dir, ldap_user_conf_dir)
         fs.removepath(user_conf_dir)
         fs.makepath(user_conf_dir)
