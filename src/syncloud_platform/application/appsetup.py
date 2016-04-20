@@ -5,11 +5,11 @@ class AppSetup:
         self.app_paths = app_paths
         self.nginx = nginx
 
-    def get_app_dir(self):
-        return self.app_paths.get_app_dir()
+    def get_install_dir(self):
+        return self.app_paths.get_install_dir()
 
-    def get_app_data_dir(self, remove_existing=False):
-        return self.app_paths.get_app_data_dir(remove_existing)
+    def get_data_dir(self, remove_existing=False):
+        return self.app_paths.get_data_dir(remove_existing)
 
     def register_web(self, port):
         self.nginx.add_app(self.app_name, port)

@@ -9,10 +9,10 @@ class AppPaths:
         self.app_name = app_name
         self.platform_config = platform_config
 
-    def get_app_dir(self):
+    def get_install_dir(self):
         return join(self.platform_config.apps_root(), self.app_name)
 
-    def get_app_data_dir(self, remove_existing=False):
+    def get_data_dir(self, remove_existing=False):
         config = self.platform_config
         if not isdir(config.data_root()):
             print("creating app data root: {0}".format(config.data_root()))

@@ -52,10 +52,10 @@ class Injector:
         self.log_aggregator = Aggregator(self.platform_config)
 
         self.platform_app_paths = AppPaths(PLATFORM_APP_NAME, self.platform_config)
-        self.platform_app_paths.get_app_data_dir()
+        self.platform_app_paths.get_data_dir()
 
         self.redirect_service = RedirectService(self.user_platform_config, platform_version)
-        self.port_config = PortConfig(self.platform_app_paths.get_app_data_dir())
+        self.port_config = PortConfig(self.platform_app_paths.get_data_dir())
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()
         self.upnp_port_mapper = UpnpPortMapper(UPnP())
