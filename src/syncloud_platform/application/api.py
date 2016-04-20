@@ -10,3 +10,4 @@ def get_app_setup(app_name):
     app_paths = get_app_paths(app_name)
     injector = get_injector()
     app_setup = AppSetup(app_name, app_paths, injector.nginx)
+    return app_setup
