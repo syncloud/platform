@@ -25,6 +25,13 @@ class DeviceInfo:
         else:
             return None
 
+    def app_domain(self, app_name):
+        user_domain = self.user_platform_config.get_user_domain()
+        if user_domain is not None:
+            return '{0}.{1}.{2}'.format(app_name, user_domain, self.user_platform_config.get_redirect_domain())
+        else:
+            return None
+
     def url(self, app=None):
         protocol = self.user_platform_config.get_protocol()
         port = protocol_to_port(protocol)

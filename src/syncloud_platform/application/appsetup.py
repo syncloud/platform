@@ -25,6 +25,9 @@ class AppSetup:
     def device_domain_name(self):
         return self.device_info.domain()
 
+    def app_domain_name(self):
+        return self.device_info.app_domain(self.app_name)
+
     def app_url(self):
         return self.device_info.url(self.app_name)
 
