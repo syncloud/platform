@@ -1,3 +1,5 @@
+from syncloud_platform.systemd import systemctl
+
 class AppSetup:
 
     def __init__(self, app_name, app_paths, nginx, storage, device_info, device):
@@ -37,3 +39,15 @@ class AppSetup:
 
     def remove_port(self, local_port, protocol):
         self.device.remove_port(local_port, protocol)
+
+    def add_service(self, service_name):
+        systemctl.add_service(self.app_name, service_name)
+
+    def remove_service(self, service_name):
+        systemctl.remove_service(service_name)
+
+    def restart_service(self, service_name):
+        systemctl.restart_service(service_name)
+
+    def reload_service(self, service_name):
+        systemctl.reload_service(service_name)
