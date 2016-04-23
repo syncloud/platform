@@ -19,7 +19,7 @@ version = open(join(dirname(__file__), 'version')).read().strip()
 setup(
     name='syncloud-platform',
     version=version,
-    packages=['syncloud_platform', 'syncloud_platform.insider', 'syncloud_platform.api', 'syncloud_platform.auth',
+    packages=['syncloud_platform', 'syncloud_platform.insider', 'syncloud_platform.auth',
               'syncloud_platform.board', 'syncloud_platform.board.cpu',
               'syncloud_platform.application',
               'syncloud_platform.gaplib', 'syncloud_platform.tools', 'syncloud_platform.systemd',
