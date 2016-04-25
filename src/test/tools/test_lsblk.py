@@ -4,8 +4,8 @@ import convertible
 from syncloud_app import logger
 
 from syncloud_platform.config.config import PlatformConfig
-from syncloud_platform.tools.disk.lsblk import Lsblk
-from syncloud_platform.tools.disk.path_checker import PathChecker
+from syncloud_platform.disks.disk.lsblk import Lsblk
+from syncloud_platform.disks.disk.path_checker import PathChecker
 
 DIR = dirname(__file__)
 

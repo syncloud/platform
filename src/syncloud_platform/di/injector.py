@@ -18,13 +18,13 @@ from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
-from syncloud_platform.tools.disk.lsblk import Lsblk
-from syncloud_platform.tools.disk.path_checker import PathChecker
+from syncloud_platform.disks.disk.lsblk import Lsblk
+from syncloud_platform.disks.disk.path_checker import PathChecker
 from syncloud_platform.tools.events import EventTrigger
-from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.disks.hardware import Hardware
 from syncloud_platform.tools.nginx import Nginx
 from syncloud_platform.tools.tls import Tls
-from syncloud_platform.tools.udev import Udev
+from syncloud_platform.disks.udev import Udev
 from syncloud_platform.tools.version import platform_version
 from syncloud_platform.application.apppaths import AppPaths
 
