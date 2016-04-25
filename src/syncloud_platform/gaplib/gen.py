@@ -1,6 +1,8 @@
 import os
-from os.path import join, dirname, relpath
+from os import makedirs
+from os.path import join, dirname, relpath, isdir, split
 from string import Template
+import jinja2
 
 import fs
 
@@ -14,6 +16,30 @@ def generate_file(from_path, to_path, variables):
     to_file = open(to_path, 'w+')
     to_file.write(to_text)
     to_file.close()
+
+def generate_file2(from_path, to_path, variables, variable_tags=None):
+    from_path_dir, from_path_filename = split(from_path)
+    loader = jinja2.FileSystemLoader(searchpath=from_path_dir)
+    variable_start_tag = "{{"
+    variable_end_tag = "}}"
+    if variable_tags is not None:
+        variable_start_tag, variable_end_tag = variable_tags
+    env_parameters = dict(
+        loader=loader,
+        trim_blocks=True,
+        lstrip_blocks=True,
+        undefined=jinja2.StrictUndefined,
+        variable_start_string=variable_start_tag,
+        variable_end_string=variable_end_tag
+    )
+    environment = jinja2.Environment(**env_parameters)
+    template = environment.get_template(from_path_filename)
+    output = template.render(variables)
+    to_path_dir = dirname(to_path)
+    if not isdir(to_path_dir):
+        makedirs(to_path_dir)
+    with open(to_path, 'wb+') as fh:
+        fh.write(output)
 
 def generate_files(from_dir, to_dir, variables):
     for dir_name, subdirs, files in os.walk(from_dir):
