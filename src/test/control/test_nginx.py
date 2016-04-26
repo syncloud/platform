@@ -1,6 +1,6 @@
 from os.path import dirname, join
 
-from syncloud_platform.tools.nginx import Nginx
+from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.config.config import PlatformConfig
 
 dir = dirname(__file__)
