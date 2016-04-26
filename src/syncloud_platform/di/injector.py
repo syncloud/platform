@@ -20,12 +20,12 @@ from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.disks.lsblk import Lsblk
 from syncloud_platform.disks.path_checker import PathChecker
-from syncloud_platform.tools.events import EventTrigger
+from syncloud_platform.events import EventTrigger
 from syncloud_platform.disks.hardware import Hardware
 from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.control.tls import Tls
 from syncloud_platform.disks.udev import Udev
-from syncloud_platform.tools.version import platform_version
+from syncloud_platform.version import platform_version
 from syncloud_platform.application.apppaths import AppPaths
 
 default_injector = None
