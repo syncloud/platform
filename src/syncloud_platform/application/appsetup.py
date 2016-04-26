@@ -1,4 +1,4 @@
-from syncloud_platform.systemd import systemctl
+from syncloud_platform.control import systemctl
 
 class AppSetup:
 

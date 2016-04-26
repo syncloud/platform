@@ -4,7 +4,7 @@ from os.path import isdir, join
 import shutil
 from syncloud_app import logger
 from syncloud_platform.di.injector import get_injector
-from syncloud_platform.systemd.systemctl import add_service
+from syncloud_platform.control.systemctl import add_service
 from syncloud_platform.application import api
 
 from syncloud_platform.gaplib import fs, linux

@@ -1,7 +1,7 @@
 import os
 from os.path import join
 from string import Template
-from syncloud_platform.systemd.systemctl import reload_service
+from syncloud_platform.control.systemctl import reload_service
 from syncloud_app import logger
 
 

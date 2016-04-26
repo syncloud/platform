@@ -10,7 +10,7 @@ import ldap
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 import time
-from syncloud_platform.systemd.systemctl import stop_service, start_service
+from syncloud_platform.control.systemctl import stop_service, start_service
 
 from syncloud_platform.gaplib import fs, linux
 from syncloud_platform.application.apppaths import AppPaths

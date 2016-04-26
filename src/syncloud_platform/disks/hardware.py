@@ -3,7 +3,7 @@ import os
 from os.path import islink, join
 from os import path
 from syncloud_app import logger
-from syncloud_platform.systemd import systemctl
+from syncloud_platform.control import systemctl
 from syncloud_platform.gaplib import fs
 
 

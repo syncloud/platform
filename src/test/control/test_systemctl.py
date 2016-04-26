@@ -1,4 +1,4 @@
-from syncloud_platform.systemd.systemctl import __dir_to_systemd_mount_filename
+from syncloud_platform.control.systemctl import __dir_to_systemd_mount_filename
 
 
 def test_dir_to_systemd_mount_filename():
