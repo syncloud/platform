@@ -22,6 +22,9 @@ class AppSetup:
     def unregister_web(self):
         self.nginx.remove_app(self.app_name)
 
+    def get_storage_dir(self):
+        return self.storage.get_app_storage_dir(self.app_name)
+
     def init_storage(self, user):
         return self.storage.init_app_storage(self.app_name, user)
 

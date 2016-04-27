@@ -57,8 +57,12 @@ class Hardware:
             self.platform_config.get_internal_disk_dir())
         systemctl.remove_mount()
 
-    def init_app_storage(self, app_id, owner=None):
+    def get_app_storage_dir(self, app_id):
         app_storage_dir = join(self.platform_config.get_disk_link(), app_id)
+        return app_storage_dir
+
+    def init_app_storage(self, app_id, owner=None):
+        app_storage_dir = self.get_app_storage_dir(app_id)
         if not path.exists(app_storage_dir):
             os.mkdir(app_storage_dir)
         if owner and self.__support_permissions():
