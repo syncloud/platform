@@ -10,7 +10,7 @@ def test_empty_template():
     empty_template_filename = temp_file();
     target_filename = temp_file();
     remove(target_filename)
-    gen.generate_file2(empty_template_filename, target_filename, {})
+    gen.generate_file_jinja(empty_template_filename, target_filename, {})
     assert isfile(target_filename)
 
 
@@ -19,7 +19,7 @@ def test_simple_substitution():
     empty_template_filename = temp_file(text=template_text);
     target_filename = temp_file();
     remove(target_filename)
-    gen.generate_file2(empty_template_filename, target_filename, {'variable': 'blah-blah'})
+    gen.generate_file_jinja(empty_template_filename, target_filename, {'variable': 'blah-blah'})
     assert isfile(target_filename)
     target_text = read_text(target_filename)
     assert target_text == 'blah-blah'
@@ -31,7 +31,7 @@ def test_unknown_variable():
         empty_template_filename = temp_file(text=template_text);
         target_filename = temp_file();
         remove(target_filename)
-        gen.generate_file2(empty_template_filename, target_filename, {})
+        gen.generate_file_jinja(empty_template_filename, target_filename, {})
 
 
 def test_custom_variable_tags():
@@ -39,7 +39,7 @@ def test_custom_variable_tags():
     empty_template_filename = temp_file(text=template_text);
     target_filename = temp_file();
     remove(target_filename)
-    gen.generate_file2(empty_template_filename, target_filename, {'variable': 'blah-blah'}, variable_tags=('<%', '>'))
+    gen.generate_file_jinja(empty_template_filename, target_filename, {'variable': 'blah-blah'}, variable_tags=('<%', '>'))
     assert isfile(target_filename)
     target_text = read_text(target_filename)
     assert target_text == 'blah-blah brackets {{ variable }} does not mean anything'
