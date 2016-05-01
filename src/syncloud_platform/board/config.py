@@ -13,6 +13,7 @@ footprints = [
     ('beagleboneblack', Footprint('Generic AM33XX (Flattened Device Tree)')),
     ('odroid-xu4', Footprint('ODROID-XU3', lsusb='05e3')),
     ('odroid-xu3', Footprint('ODROID-XU3', lsusb='0424')),
+    ('odroid-c2', Footprint('ODROID-C2')),
     ('PC', Footprint(vendor_id='AuthenticAMD')),
     ('PC', Footprint(vendor_id='GenuineIntel'))
 ]
@@ -27,6 +28,7 @@ titles = {
     'beagleboneblack': 'BeagleBone Black',
     'odroid-xu3': 'ODROID-XU3',
     'odroid-xu4': 'ODROID-XU4',
+    'odroid-c2': 'ODROID-C2',
     'PC': 'Personal Computer',
     'unknown': 'Unknown'
 }
