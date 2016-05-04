@@ -46,7 +46,11 @@ def get_app_path():
 
 def lsusb():
     lsusb_path = join(get_app_path(), 'usbutils', 'bin', 'lsusb')
-    return check_output([lsusb_path])
+    try:
+        lsusb_result = check_output([lsusb_path])
+        return lsusb_result
+    except:
+        return None
 
 def footprint():
     cpu_count = psutil.cpu_count()
