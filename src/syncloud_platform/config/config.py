@@ -207,6 +207,14 @@ class PlatformUserConfig:
         self.parser.set('platform', 'protocol', protocol)
         self.__save()
 
+    def get_port_drilling_enabled(self):
+        self.parser.read(self.filename)
+        port_drilling_enabled = True
+        if self.parser.has_option('platform', 'port_drilling_enabled'):
+            port_drilling_enabled = self.parser.getboolean('platform', 'port_drilling_enabled')
+        self.log.info('port_drilling_enabled = {0}'.format(port_drilling_enabled))
+        return port_drilling_enabled
+
     def __save(self):
         with open(self.filename, 'wb') as f:
             self.parser.write(f)
