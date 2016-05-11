@@ -36,6 +36,7 @@ fs.chownpath(data_dir, USER_NAME)
 data_dirs = [
     join(data_dir, 'webapps'),
     join(data_dir, 'log'),
+    join(data_dir, 'nginx'),
     join(data_dir, 'openldap-data')
 ]
 
