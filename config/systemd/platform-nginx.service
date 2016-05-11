@@ -5,7 +5,7 @@ After=platform-uwsgi-internal.service platform-uwsgi-public.service
 
 [Service]
 Type=forking
-PIDFile=/opt/app/platform/nginx/logs/nginx.pid
+PIDFile=/opt/data/platform/log/nginx.pid
 #RootDirectory=/opt/app/platform/nginx
 ExecStartPre=/opt/app/platform/nginx/sbin/nginx -t -c /opt/app/platform/config/nginx/nginx.conf
 ExecStart=/opt/app/platform/nginx/sbin/nginx -c /opt/app/platform/config/nginx/nginx.conf
