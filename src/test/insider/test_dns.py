@@ -2,6 +2,8 @@ import pytest
 
 import responses
 from convertible import reformat
+from syncloud_platform.board import config
+from syncloud_platform.board import footprint
 from syncloud_platform.board import id
 
 from syncloud_platform.gaplib import linux
@@ -128,6 +130,8 @@ def test_sync_server_error():
 
 @responses.activate
 def test_link_success():
+    config.footprints.append(('my-PC', footprint.footprint()))
+    config.titles['my-PC'] = 'My PC'
     device_id = id.id()
 
     responses.add(responses.POST,
@@ -162,6 +166,9 @@ def test_link_success():
 
 @responses.activate
 def test_link_server_error():
+    config.footprints.append(('my-PC', footprint.footprint()))
+    config.titles['my-PC'] = 'My PC'
+
     responses.add(responses.POST,
                   "http://api.domain.com/domain/acquire",
                   status=403,
