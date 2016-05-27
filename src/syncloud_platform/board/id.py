@@ -1,13 +1,6 @@
-import footprint
 import uuid
-import config
-
-
-def getname(a_footprint):
-    for name, f in config.footprints:
-        if a_footprint.match(f):
-            return name
-    return None
+from ConfigParser import ConfigParser
+from os.path import isfile
 
 
 def getmac():
@@ -16,9 +9,22 @@ def getmac():
     return mac_formated
 
 
-def name():
-    f = footprint.footprint()
-    return getname(f)
+class IdConfig:
+    def __init__(self, filename):
+        self.parser = ConfigParser()
+        if isfile(filename):
+            self.parser.read(filename)
+
+    def __get(self, key, default=None):
+        if self.parser.has_option('id', 'name'):
+            return self.parser.get('id', 'name')
+        return default
+
+    def name(self):
+        return self.__get('name', default='unknown')
+
+    def title(self):
+        return self.__get('title', default='Unknown')
 
 
 class Id:
@@ -28,13 +34,10 @@ class Id:
         self.mac_address = mac_address
 
 
-def id():
-    f = footprint.footprint()
-    name = getname(f)
-    if not name:
-        name = 'unknown'
+def id(id_config_filename='/etc/syncloud/id.cfg'):
+    id_config = IdConfig(id_config_filename)
     mac_address = getmac()
-
-    title = config.titles[name]
+    name = id_config.name()
+    title = id_config.title()
     id = Id(name, title, mac_address)
     return id
