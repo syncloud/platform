@@ -22,7 +22,7 @@ setup(
     packages=['syncloud_platform',
               'syncloud_platform.insider',
               'syncloud_platform.auth',
-              'syncloud_platform.board', 'syncloud_platform.board.cpu',
+              'syncloud_platform.board',
               'syncloud_platform.application',
               'syncloud_platform.gaplib',
               'syncloud_platform.rest', 'syncloud_platform.rest.facade', 'syncloud_platform.rest.model',
