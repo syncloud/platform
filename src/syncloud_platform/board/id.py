@@ -16,8 +16,8 @@ class IdConfig:
             self.parser.read(filename)
 
     def __get(self, key, default=None):
-        if self.parser.has_option('id', 'name'):
-            return self.parser.get('id', 'name')
+        if self.parser.has_option('id', key):
+            return self.parser.get('id', key)
         return default
 
     def name(self):
