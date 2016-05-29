@@ -3,6 +3,7 @@ from syncloud_app import logger
 from syncloud_platform.rest.props import html_prefix
 from syncloud_platform.rest.model.app import app_from_sam_app, App
 
+from syncloud_platform.control import power
 
 class Public:
 
@@ -16,6 +17,12 @@ class Public:
         self.www_dir = self.platform_config.www_root()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
+
+    def restart(self):
+        power.restart(delay_sec=3)
+
+    def shutdown(self):
+        power.shutdown(delay_sec=3)
 
     def installed_apps(self):
         apps = [app_from_sam_app(a) for a in self.sam.installed_user_apps()]

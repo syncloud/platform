@@ -106,6 +106,20 @@ def remove():
     return jsonify(message=public.remove(request.args['app_id'])), 200
 
 
+@app.route(rest_prefix + "/restart", methods=["GET"])
+@login_required
+def restart():
+    public.restart()
+    return 'OK', 200
+
+
+@app.route(rest_prefix + "/shutdown", methods=["GET"])
+@login_required
+def shutdown():
+    public.shutdown()
+    return 'OK', 200
+
+
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
