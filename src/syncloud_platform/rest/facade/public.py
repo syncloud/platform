@@ -19,10 +19,10 @@ class Public:
         self.log_aggregator = log_aggregator
 
     def restart(self):
-        power.restart(delay_sec=3)
+        power.restart()
 
     def shutdown(self):
-        power.shutdown(delay_sec=3)
+        power.shutdown()
 
     def installed_apps(self):
         apps = [app_from_sam_app(a) for a in self.sam.installed_user_apps()]

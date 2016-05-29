@@ -1,11 +1,11 @@
 import os
 
 
-def restart(delay_sec=0):
-    command = '( sleep {delay_sec}; systemctl reboot -i ) &'.format(delay_sec=delay_sec)
+def restart():
+    command = 'shutdown -r now'
     os.system(command)
 
 
-def shutdown(delay_sec=0):
-    command = '( sleep {delay_sec}; systemctl poweroff -i ) &'.format(delay_sec=delay_sec)
+def shutdown():
+    command = 'shutdown now'
     os.system(command)
