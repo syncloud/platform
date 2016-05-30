@@ -66,7 +66,6 @@ class Public:
         return self.hardware.activate_disk(device)
 
     def system_upgrade(self):
-        self.sam.upgrade('sam')
         self.sam.upgrade('platform')
 
     def sam_status(self):
