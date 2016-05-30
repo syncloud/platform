@@ -1,3 +1,4 @@
+{% if page.show_main_menu %}
 <script type="text/javascript">
 
 $( document ).ready(function() {
@@ -18,8 +19,6 @@ $( document ).ready(function() {
     $.get( "/rest/user" )
         .done( function(data) {
             var user = data;
-
-            $('#menu_user_name').text(user.email);
 
             $('.menu-private').show();
             $('.menu-public').hide();
@@ -48,3 +47,4 @@ $( document ).ready(function() {
 });
 
 </script>
+{% endif %}

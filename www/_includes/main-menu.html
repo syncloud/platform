@@ -12,21 +12,24 @@
       <a class="navbar-brand" href="#"><img src="images/logo-52.png"/><span>SYNCLOUD</span></a>
     </div>
 
+    {% if page.show_main_menu %}
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav navbar-right menu-private" style="display: none">
         <li>
-          <span id="menu_user_name"></span>
           <button id="menu_logout" class="btn btn-default"><span class="glyphicon glyphicon-log-out"></span> Log out</button>
         </li>
       </ul>
       <ul class="nav navbar-nav">
         <li id="menu_apps" class="menu-private" ><a href="/index.html">Apps</a></li>
+        <li id="menu_appcenter" class="menu-private" ><a href="/store.html">App Center</a></li>
+        <li id="menu_settings" class="menu-private" ><a href="/settings.html">Settings</a></li>
         <li id="menu_reactivate" class="menu-private hidden" ><a id="reactivate_link" href="#">Reactivate</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right menu-public">
         <li id="menu_login"><a href="/login.html">Log in</a></li>
       </ul>
     </div>
+    {% endif %}
 
   </div>
 </nav>
