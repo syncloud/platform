@@ -7,16 +7,20 @@ from syncloud_platform.control import power
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, sam, hardware, redirect_service, log_aggregator):
+    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator):
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
         self.user_platform_config = user_platform_config
         self.device = device
+        self.device_info = device_info
         self.sam = sam
         self.www_dir = self.platform_config.www_root()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
+
+    def domain(self):
+        self.device_info.domain()
 
     def restart(self):
         power.restart()
