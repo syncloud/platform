@@ -50,3 +50,10 @@ function check_system_version() {
 
             }).fail(onError);
 }
+
+function get_device_domain() {
+    $.get('/rest/settings/device_domain')
+            .done(function (data) {
+                $("#device_domain").html(data.device_domain);
+            }).fail(onError);
+}

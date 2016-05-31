@@ -38,25 +38,6 @@ $( document ).ready(function() {
         })
         .fail( function(xhr, textStatus, errorThrown) {
         });
-
-    var internal_web = (new URI())
-        .port(81)
-        .directory("")
-        .filename("")
-        .query("");
-
-    var menu_reactivate = $("#menu_reactivate");
-    var reactivate_link = $("#reactivate_link");
-
-    $.get(internal_web)
-            .done(function (data){
-                menu_reactivate.removeClass('hidden');
-                reactivate_link.prop('href', internal_web)
-            })
-            .fail(function (data){
-                menu_reactivate.addClass('hidden');
-            });
-
 });
 
 </script>
