@@ -172,6 +172,12 @@ def send_log():
     return jsonify(success=True), 200
 
 
+@app.route(rest_prefix + "/settings/domain", methods=["GET"])
+@login_required
+def domain():
+    return jsonify(convertible.to_dict(public.domain)), 200
+
+
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():

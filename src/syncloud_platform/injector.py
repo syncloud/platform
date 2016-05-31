@@ -78,6 +78,6 @@ class Injector:
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger, self.lsblk, self.path_checker)
 
-        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.sam, self.hardware,
+        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam, self.hardware,
                              self.redirect_service, self.log_aggregator)
         self.udev = Udev(self.platform_config)
