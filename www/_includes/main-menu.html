@@ -14,22 +14,57 @@
 
     {% if page.show_main_menu %}
     <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav navbar-right menu-private" style="display: none">
+      <ul class="nav navbar-nav navbar-right hidden-xs">
         <li>
-          <button id="menu_logout" class="btn btn-default"><span class="glyphicon glyphicon-log-out"></span> Log out</button>
+          <button class="btn btn-default" style="margin-left: 5px; margin-right: 5px" data-toggle="modal" data-target="#modalShutdown"><span class="glyphicon glyphicon-off"></span> Shutdown</button>
+        </li>
+        <li>
+          <button id="menu_logout" class="btn btn-default" style="margin-left: 5px; margin-right: 5px"><span class="glyphicon glyphicon-log-out"></span> Log out</button>
         </li>
       </ul>
       <ul class="nav navbar-nav">
-        <li id="menu_apps" class="menu-private" ><a href="/index.html">Apps</a></li>
-        <li id="menu_appcenter" class="menu-private" ><a href="/store.html">App Center</a></li>
-        <li id="menu_settings" class="menu-private" ><a href="/settings.html">Settings</a></li>
-        <li id="menu_reactivate" class="menu-private hidden" ><a id="reactivate_link" href="#">Reactivate</a></li>
+        <li id="menu_apps"><a href="/index.html">Apps</a></li>
+        <li id="menu_appcenter"><a href="/store.html">App Center</a></li>
+        <li id="menu_settings"><a href="/settings.html">Settings</a></li>
+        <li id="menu_reactivate"><a id="reactivate_link" href="#">Reactivate</a></li>
       </ul>
-      <ul class="nav navbar-nav navbar-right menu-public">
-        <li id="menu_login"><a href="/login.html">Log in</a></li>
+      <ul class="nav navbar-nav visible-xs">
+        <li><a id="menu_logout_a">Log out</a></li>
+        <li><a data-toggle="modal" data-target="#modalShutdown">Shutdown</a></li>
       </ul>
     </div>
-    {% endif %}
 
+    <div id="modalShutdown" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Shutdown</h4>
+          </div>
+          <div class="modal-body">
+            <div class="clearfix" style="display: block">
+              <button id="btn_restart" class="btn btn-primary pull-left" style="width: 110px; margin-right: 10px"><span class="glyphicon glyphicon-repeat"></span> Restart</button>
+              <div style="display: block">
+                Device will restart. Device boot could take several minutes.
+              </div>
+            </div>
+            <br/>
+            <div class="clearfix" style="display: block">
+              <button id="btn_shutdown" class="btn btn-danger pull-left" style="width: 110px; margin-right: 10px"><span class="glyphicon glyphicon-off"></span> Shutdown</button>
+              <div style="display: block">
+                Device will stop running. You will need to physical access to the device to power it on.
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endif %}
   </div>
 </nav>

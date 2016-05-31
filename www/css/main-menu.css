@@ -21,18 +21,18 @@
   padding-left: 15px;
 }
 
-.navbar-nav li, .navbar-nav li a {
+.navbar-nav > li, .navbar-nav > li > a {
     padding-top: 0px;
     font-size: 18px;
 }
 
-.navbar-nav li, .navbar-nav li a {
+.navbar-nav > li, .navbar-nav > li > a {
     line-height: 80px;
     height: 80px;
 }
 
 @media (max-width: 767px) {
-  .navbar-nav li, .navbar-nav li a {
+  .navbar-nav > li, .navbar-nav > li > a {
     line-height: 30px;
     height: 30px;
   }

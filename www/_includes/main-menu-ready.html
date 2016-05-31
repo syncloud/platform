@@ -7,7 +7,7 @@ $( document ).ready(function() {
         $("#{{ page.main_menu_item }}").addClass("active");
     {% endif %}
 
-    $("#menu_logout").click(function(event) {
+    $("#menu_logout, #menu_logout_a").click(function(event) {
         var posting = $.post( '/rest/logout' )
             .done( function(data) {
                 window.location.href = "/login.html";
@@ -16,12 +16,25 @@ $( document ).ready(function() {
             });
     });
 
+    $("#btn_restart").click(function(event) {
+        var posting = $.get( '/rest/restart' )
+            .done( function(data) {
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+            });
+    });
+
+    $("#btn_shutdown").click(function(event) {
+        var posting = $.get( '/rest/shutdown' )
+            .done( function(data) {
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+            });
+    });
+
     $.get( "/rest/user" )
         .done( function(data) {
             var user = data;
-
-            $('.menu-private').show();
-            $('.menu-public').hide();
         })
         .fail( function(xhr, textStatus, errorThrown) {
         });
