@@ -20,7 +20,7 @@ class Public:
         self.log_aggregator = log_aggregator
 
     def domain(self):
-        self.device_info.domain()
+        return self.device_info.domain()
 
     def restart(self):
         power.restart()
