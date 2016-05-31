@@ -175,7 +175,7 @@ def send_log():
 @app.route(rest_prefix + "/settings/device_domain", methods=["GET"])
 @login_required
 def device_domain():
-    return jsonify(convertible.to_dict(public.domain())), 200
+    return jsonify(success=True, device_domain=public.domain()), 200
 
 
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
