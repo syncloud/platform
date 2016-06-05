@@ -124,12 +124,10 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
-def test_external_https_mode(auth, public_web_session):
-
-    email, password, domain, version, arch, release = auth
+def test_external_https_mode(public_web_session):
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'True'})
+                                      params={'external_access': 'true'})
     assert '"success": true' in response.text
     assert response.status_code == 200
     
@@ -150,7 +148,7 @@ def test_external_mode(auth, public_web_session):
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'False'})
+                                      params={'external_access': 'false'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
