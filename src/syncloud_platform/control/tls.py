@@ -5,16 +5,27 @@ from subprocess import check_output
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 
+
 class Tls:
     def __init__(self, platform_config, info, nginx):
         self.info = info
         self.log = get_logger('tls')
         self.platform_config = platform_config
         self.nginx = nginx
+        self.certbot_bin = '{0}/certbot/bin/certbot'.format(self.platform_config.app_dir())
 
     def generate_real_certificate(self):
         try:
-             check_output('{0}/certbot/bin/certbot certonly --cert-path ${1} --key-path ${2} --webroot --webroot-path ${3} -d ${4}'.format(self.platform_config.app_dir(), self.platform_config.get_ssl_certificate_file(), self.platform_config.get_ssl_key_file(),  self.platform_config.www_root(), self.info.domain()), shell=True)
+
+            self.log.info('running certbot')
+            output = check_output('{0} certonly --cert-path {1} --key-path {2} --webroot --webroot-path {3} -d {4}'.format(
+                 self.certbot_bin,
+                 self.platform_config.get_ssl_certificate_file(),
+                 self.platform_config.get_ssl_key_file(),
+                 self.platform_config.www_root(),
+                 self.info.domain()), shell=True)
+            self.log.info(output)
+
         except Exception, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e.message))
 
