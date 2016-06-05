@@ -59,6 +59,8 @@ class Device:
         self.logger.info("activation completed")
 
     def set_access(self, protocol, external_access):
+        self.logger.info('set_access: protocol={0}, external_access={1}'.format(protocol, external_access))
+
         update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
             return

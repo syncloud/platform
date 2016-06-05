@@ -25,6 +25,7 @@ class Tls:
                  self.platform_config.www_root(),
                  self.info.domain()), shell=True)
             self.log.info(output)
+            self.nginx.reload()
 
         except Exception, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e.message))
@@ -32,7 +33,8 @@ class Tls:
     def generate_self_signed_certificate(self):
 
         key_file = self.platform_config.get_ssl_key_file()
-        check_output('openssl genrsa -out {0} 4096 2>&1'.format(key_file), shell=True)
+        output = check_output('openssl genrsa -out {0} 4096 2>&1'.format(key_file), shell=True)
+        self.log.info(output)
 
         cert_file = self.platform_config.get_ssl_certificate_file()
         fd, temp_configfile = tempfile.mkstemp()
@@ -40,7 +42,8 @@ class Tls:
         cmd = 'openssl req -new -x509 -days 3650 -config {0} -key {1} -out {2} 2>&1'.format(
             temp_configfile, key_file, cert_file)
         self.log.info('running: ' + cmd)
-        check_output(cmd, shell=True)
+        output = check_output(cmd, shell=True)
+        self.log.info(output)
 
         self.nginx.reload()
 
