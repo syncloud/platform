@@ -12,7 +12,13 @@ class Tls:
         self.platform_config = platform_config
         self.nginx = nginx
 
-    def generate_certificate(self):
+    def generate_real_certificate(self):
+        try:
+             check_output('{0}/certbot/bin/certbot certonly --cert-path ${1} --key-path ${2} --webroot --webroot-path ${3} -d ${4}'.format(self.platform_config.app_dir(), self.platform_config.get_ssl_certificate_file(), self.platform_config.get_ssl_key_file(),  self.platform_config.www_root(), self.info.domain()), shell=True)
+        except Exception, e:
+            self.log.warn('unable to generate real certificate: {0}'.format(e.message))
+
+    def generate_self_signed_certificate(self):
 
         key_file = self.platform_config.get_ssl_key_file()
         check_output('openssl genrsa -out {0} 4096 2>&1'.format(key_file), shell=True)

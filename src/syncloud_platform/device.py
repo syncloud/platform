@@ -54,7 +54,7 @@ class Device:
         self.auth.reset(device_username, device_password)
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
-        self.tls.generate_certificate()
+        self.tls.generate_self_signed_certificate()
 
         self.logger.info("activation completed")
 
@@ -65,6 +65,9 @@ class Device:
 
         new_web_local_port = protocol_to_port(protocol)
         old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
+
+        if protocol == 'https' and external_access:
+            self.tls.generate_real_certificate()
 
         drill = self.get_drill(external_access)
 

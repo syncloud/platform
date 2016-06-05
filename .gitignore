@@ -13,4 +13,5 @@ _site
 *.iml
 lib
 .cache
+.coin.cache
 version

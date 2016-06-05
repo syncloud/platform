@@ -124,6 +124,21 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
+def test_external_https_mode(auth, public_web_session):
+
+    email, password, domain, version, arch, release = auth
+
+    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
+                                      params={'external_access': 'True'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+    
+    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+                                      params={'protocol': 'https'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
@@ -153,7 +168,7 @@ def test_protocol(auth, public_web_session):
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
-    assert '"protocol": "http"' in response.text
+    assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_protocol',
