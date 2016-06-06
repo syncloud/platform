@@ -29,6 +29,7 @@ class Tls:
 
         except Exception, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e))
+            self.log.warn(e.output)
 
     def generate_self_signed_certificate(self):
 
