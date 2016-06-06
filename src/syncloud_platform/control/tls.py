@@ -1,4 +1,5 @@
 import filecmp
+import subprocess
 import tempfile
 from subprocess import check_output, CalledProcessError
 
@@ -31,7 +32,7 @@ class Tls:
                                 self.platform_config.get_ssl_certificate_file(),
                                 self.platform_config.get_ssl_key_file(),
                                 self.platform_config.www_root(),
-                                self.info.domain()), shell=True)
+                                self.info.domain()), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
             self.nginx.reload()
