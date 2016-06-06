@@ -1,7 +1,8 @@
 import filecmp
 import tempfile
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
+from os.path import join
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 
@@ -13,21 +14,29 @@ class Tls:
         self.platform_config = platform_config
         self.nginx = nginx
         self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
+        self.log_dir = self.platform_config.get_log_root()
+        self.certbot_config_dir = join(self.platform_config.data_root(), 'certbot')
 
     def generate_real_certificate(self):
         try:
 
             self.log.info('running certbot')
-            output = check_output('{0} certonly --cert-path {1} --key-path {2} --webroot --webroot-path {3} -d {4}'.format(
-                 self.certbot_bin,
-                 self.platform_config.get_ssl_certificate_file(),
-                 self.platform_config.get_ssl_key_file(),
-                 self.platform_config.www_root(),
-                 self.info.domain()), shell=True)
+            output = check_output(
+                '{0} --logs-dir={1} --config-dir={2} '
+                'certonly --cert-path {3} --key-path {4} '
+                '--webroot --webroot-path {5} '
+                '-d {6}'.format(self.certbot_bin,
+                                self.log_dir,
+                                self.certbot_config_dir,
+                                self.platform_config.get_ssl_certificate_file(),
+                                self.platform_config.get_ssl_key_file(),
+                                self.platform_config.www_root(),
+                                self.info.domain()), shell=True)
+
             self.log.info(output)
             self.nginx.reload()
 
-        except Exception, e:
+        except CalledProcessError, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e))
             self.log.warn(e.output)
 
