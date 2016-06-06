@@ -28,7 +28,7 @@ class Tls:
             self.nginx.reload()
 
         except Exception, e:
-            self.log.warn('unable to generate real certificate: {0}'.format(e.message))
+            self.log.warn('unable to generate real certificate: {0}'.format(e))
 
     def generate_self_signed_certificate(self):
 

@@ -144,7 +144,7 @@ def test_external_mode(auth, public_web_session):
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/external_access')
-    assert '"external_access": false' in response.text
+    assert '"external_access": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
