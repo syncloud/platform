@@ -12,7 +12,7 @@ class Tls:
         self.log = get_logger('tls')
         self.platform_config = platform_config
         self.nginx = nginx
-        self.certbot_bin = '{0}/certbot/bin/certbot'.format(self.platform_config.app_dir())
+        self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
 
     def generate_real_certificate(self):
         try:
