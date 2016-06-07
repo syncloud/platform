@@ -1,13 +1,17 @@
 from subprocess import check_output
 from syncloud_app import logger
 from models import AppVersions
+from os.path import join, isdir
 import jsonpickle
 import psutil
+from shutil import rmtree, copytree
 
 import convertible
 
 SAM_BIN = '/opt/app/sam/bin/sam'
 
+TEMP_SAM_PATH = '/tmp/sam-copy'
+TEMP_SAM_BIN = join(TEMP_SAM_PATH, 'bin/sam')
 
 class SamStub:
 
@@ -26,7 +30,14 @@ class SamStub:
         self.__run_detached('{0} install {1}'.format(SAM_BIN, app_id))
 
     def upgrade(self, app_id):
-        self.__run_detached('{0} upgrade {1}'.format(SAM_BIN, app_id))
+        sam_bin = SAM_BIN
+        if app_id == 'sam':
+            if isdir(TEMP_SAM_PATH):
+                rmtree(TEMP_SAM_PATH, ignore_errors=True)
+            copytree('/opt/app/sam', TEMP_SAM_PATH)
+            self.__run_detached('{0} upgrade {1}'.format(TEMP_SAM_BIN, app_id))
+            sam_bin = TEMP_SAM_BIN
+        self.__run_detached('{0} upgrade {1}'.format(sam_bin, app_id))
 
     def remove(self, app_id):
         return self.__run([SAM_BIN, 'remove', app_id])
@@ -69,6 +80,6 @@ class SamStub:
     def is_running(self):
         for p in psutil.get_process_list():
             for arg in p.cmdline():
-                if SAM_BIN in arg:
+                if SAM_BIN in arg or TEMP_SAM_PATH in arg:
                     return True
         return False

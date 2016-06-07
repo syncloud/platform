@@ -72,6 +72,9 @@ class Public:
     def system_upgrade(self):
         self.sam.upgrade('platform')
 
+    def sam_upgrade(self):
+        self.sam.upgrade('sam')
+
     def sam_status(self):
         return self.sam.is_running()
 

@@ -32,7 +32,6 @@ function check_system_version() {
                 var btn = $("#system_upgrade_btn");
                 var check_btn = $("#system_check_btn");
                 btn.hide();
-                check_btn.hide();
                 var updates = '';
 
                 if (data.installed_version != data.current_version) {
@@ -41,7 +40,6 @@ function check_system_version() {
                     btn.text('Upgrade');
                     btn.prop('disabled', false);
                 } else {
-                    check_btn.show();
                     check_btn.text('Check');
                     check_btn.prop('disabled', false);
                 }

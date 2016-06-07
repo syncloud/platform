@@ -92,14 +92,37 @@ main_menu_item: menu_settings
     <div class="row settings-row">
 
         <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            Check for updates
+        </div>
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="system_check_btn" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Check
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row settings-row">
+
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
             System version: <span id="system_version"></span>
         </div>
         <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
             <button type="button" id="system_upgrade_btn" style="display: none" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
               Upgrade
             </button>
-            <button type="button" id="system_check_btn" style="display: none" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
-              Check
+        </div>
+
+    </div>
+
+    <div class="row settings-row">
+
+        <div class="col-8 col-md-8 col-sm-8 col-xs-8 col-lg-8">
+            Installer version: <span id="sam_version"></span>
+        </div>
+        <div class="col-4 col-md-4 col-sm-4 col-xs-4 col-lg-4">
+            <button type="button" id="sam_upgrade_btn" style="display: none" data-loading-text="Loading ..." class="btn btn-primary" autocomplete="off">
+              Upgrade
             </button>
         </div>
 
@@ -236,6 +259,19 @@ $(document).ready(function () {
         btn.prop('disabled', true);
         btn.text('Upgrading ...');
         $.get('/rest/settings/system_upgrade')
+                .done(function() {
+                    run_after_sam_is_complete(check_system_version);
+                })
+                .fail(function () {
+                    run_after_sam_is_complete(check_system_version);
+                });
+    });
+
+    $("#sam_upgrade_btn").on('click', function () {
+        var btn = $(this);
+        btn.prop('disabled', true);
+        btn.text('Upgrading ...');
+        $.get('/rest/settings/sam_upgrade')
                 .done(function() {
                     run_after_sam_is_complete(check_system_version);
                 })

@@ -203,6 +203,13 @@ def system_upgrade():
     return 'OK', 200
 
 
+@app.route(rest_prefix + "/settings/sam_upgrade", methods=["GET"])
+@login_required
+def sam_upgrade():
+    public.sam_upgrade()
+    return 'OK', 200
+
+
 @app.route(rest_prefix + "/settings/sam_status", methods=["GET"])
 @login_required
 def sam_status():
