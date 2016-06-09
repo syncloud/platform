@@ -18,7 +18,7 @@ class Tls:
         self.openssl_bin = '{0}/lib/openssl/bin/openssl'.format(self.platform_config.app_dir())
         self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
         self.log_dir = self.platform_config.get_log_root()
-        self.certbot_config_dir = join(self.platform_config.data_root(), 'certbot')
+        self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 
     def generate_real_certificate(self):
         try:
