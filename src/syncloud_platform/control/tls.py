@@ -35,7 +35,7 @@ class Tls:
                                 self.platform_config.get_ssl_key_file(),
                                 self.platform_config.www_root(),
                                 self.info.domain(),
-                                self.user_platform_config.g et_user_email()), stderr=subprocess.STDOUT, shell=True)
+                                self.user_platform_config.get_user_email()), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
             self.nginx.reload()
@@ -49,7 +49,7 @@ class Tls:
         key_file = self.platform_config.get_ssl_key_file()
         try:
 
-            output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), shell=True)
+            output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), stderr=subprocess.STDOUT, shell=True)
             self.log.info(output)
         except CalledProcessError, e:
             self.log.warn('unable to generate self-signed certificate: {0}'.format(e))
