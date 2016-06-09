@@ -57,8 +57,7 @@ class Tls:
         cert_file = self.platform_config.get_ssl_certificate_file()
         fd, temp_configfile = tempfile.mkstemp()
         util.transform_file(self.platform_config.get_openssl_config(), temp_configfile, {'domain': self.info.domain()})
-        cmd = 'openssl req -new -x509 -days 3650 -config {0} -key {1} -out {2} 2>&1'.format(
-            temp_configfile, key_file, cert_file)
+        cmd = '{0} req -new -x509 -days 3650 -config {1} -key {2} -out {3} 2>&1'.format(self.openssl_bin, temp_configfile, key_file, cert_file)
         self.log.info('running: ' + cmd)
         output = check_output(cmd, shell=True)
         self.log.info(output)
