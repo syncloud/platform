@@ -45,8 +45,14 @@ class Tls:
     def generate_self_signed_certificate(self):
 
         key_file = self.platform_config.get_ssl_key_file()
-        output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), shell=True)
-        self.log.info(output)
+        try:
+
+            output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), shell=True)
+            self.log.info(output)
+        except CalledProcessError, e:
+            self.log.warn('unable to generate self-signed certificate: {0}'.format(e))
+            self.log.warn(e.output)
+            raise e
 
         cert_file = self.platform_config.get_ssl_certificate_file()
         fd, temp_configfile = tempfile.mkstemp()
