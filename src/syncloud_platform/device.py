@@ -32,6 +32,8 @@ class Device:
 
         self.sam.update()
         self.user_platform_config.update_redirect(main_domain, redirect_api_url)
+        self.user_platform_config.set_user_email(redirect_email)
+
         user = self.redirect_service.get_user(redirect_email, redirect_password)
         return user
 

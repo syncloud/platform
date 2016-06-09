@@ -9,10 +9,11 @@ from syncloud_app.logger import get_logger
 
 
 class Tls:
-    def __init__(self, platform_config, info, nginx):
+    def __init__(self, platform_config, user_platform_config, info, nginx):
         self.info = info
         self.log = get_logger('tls')
         self.platform_config = platform_config
+        self.user_platform_config = user_platform_config
         self.nginx = nginx
         self.openssl_bin = '{0}/lib/openssl/bin/openssl'.format(self.platform_config.app_dir())
         self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
@@ -27,13 +28,14 @@ class Tls:
                 '{0} --logs-dir={1} --config-dir={2} '
                 'certonly --cert-path {3} --key-path {4} '
                 '--webroot --webroot-path {5} '
-                '-d {6}'.format(self.certbot_bin,
+                '-d {6} --agree-tos --email {7} '.format(self.certbot_bin,
                                 self.log_dir,
                                 self.certbot_config_dir,
                                 self.platform_config.get_ssl_certificate_file(),
                                 self.platform_config.get_ssl_key_file(),
                                 self.platform_config.www_root(),
-                                self.info.domain()), stderr=subprocess.STDOUT, shell=True)
+                                self.info.domain(),
+                                self.user_platform_config.g et_user_email()), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
             self.nginx.reload()

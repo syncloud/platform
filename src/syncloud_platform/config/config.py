@@ -127,20 +127,19 @@ class PlatformUserConfig:
         self.filename = config_file
 
         if not isfile(self.filename):
-            self.parser.add_section('platform')
             self.__save()
-        else:
-            self.parser.read(self.filename)
+
+        self.parser.read(self.filename)
 
         if not self.parser.has_section('platform'):
             self.parser.add_section('platform')
+        if not self.parser.has_section('redirect'):
+            self.parser.add_section('redirect')
 
     def update_redirect(self, domain, api_url):
         self.parser.read(self.filename)
         self.log.info('setting domain={0}, api_url={1}'.format(domain, api_url))
-        if not self.parser.has_section('redirect'):
-            self.parser.add_section('redirect')
-
+        
         self.parser.set('redirect', 'domain', domain)
         self.parser.set('redirect', 'api_url', api_url)
         self.__save()
@@ -159,14 +158,21 @@ class PlatformUserConfig:
 
     def set_user_update_token(self, user_update_token):
         self.parser.read(self.filename)
-        if not self.parser.has_section('redirect'):
-            self.parser.add_section('redirect')
         self.parser.set('redirect', 'user_update_token', user_update_token)
         self.__save()
 
     def get_user_update_token(self):
         self.parser.read(self.filename)
         return self.parser.get('redirect', 'user_update_token')
+
+    def set_user_email(self, user_email):
+        self.parser.read(self.filename)
+        self.parser.set('redirect', 'user_email', user_email)
+        self.__save()
+
+    def get_user_email(self):
+        self.parser.read(self.filename)
+        return self.parser.get('redirect', 'user_email')
 
     def get_user_domain(self):
         self.parser.read(self.filename)
