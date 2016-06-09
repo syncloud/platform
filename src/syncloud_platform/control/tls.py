@@ -14,6 +14,7 @@ class Tls:
         self.log = get_logger('tls')
         self.platform_config = platform_config
         self.nginx = nginx
+        self.openssl_bin = '{0}/lib/openssl/bin/openssl'.format(self.platform_config.app_dir())
         self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_root(), 'certbot')
@@ -44,7 +45,7 @@ class Tls:
     def generate_self_signed_certificate(self):
 
         key_file = self.platform_config.get_ssl_key_file()
-        output = check_output('openssl genrsa -out {0} 4096 2>&1'.format(key_file), shell=True)
+        output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), shell=True)
         self.log.info(output)
 
         cert_file = self.platform_config.get_ssl_certificate_file()

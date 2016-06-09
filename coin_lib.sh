@@ -42,3 +42,5 @@ coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/th
 
 coin --to=lib raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_certbot_${ARCH}/lastSuccessful/certbot-${ARCH}.tar.gz
 
+coin --to=lib raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openssl_${ARCH}/lastSuccessful/openssl-${ARCH}.tar.gz
+
