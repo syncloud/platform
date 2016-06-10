@@ -303,7 +303,7 @@ def test_if_cron_is_enabled_after_install():
 def cron_is_enabled_after_install():
     crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
     assert len(crontab.splitlines()) == 1
-    assert 'sync' in crontab, crontab
+    assert 'cron.py' in crontab, crontab
     assert not crontab.startswith('#'), crontab
 
 
