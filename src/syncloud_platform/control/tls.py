@@ -18,7 +18,7 @@ class Tls:
         self.openssl_bin = '{0}/lib/openssl/bin/openssl'.format(self.platform_config.app_dir())
         self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
         self.log_dir = self.platform_config.get_log_root()
-        self.certbot_config_dir = join(self.platform_config.data_root(), 'certbot')
+        self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 
     def generate_real_certificate(self):
         try:
@@ -35,7 +35,7 @@ class Tls:
                                 self.platform_config.get_ssl_key_file(),
                                 self.platform_config.www_root(),
                                 self.info.domain(),
-                                self.user_platform_config.g et_user_email()), stderr=subprocess.STDOUT, shell=True)
+                                self.user_platform_config.get_user_email()), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
             self.nginx.reload()
@@ -49,7 +49,7 @@ class Tls:
         key_file = self.platform_config.get_ssl_key_file()
         try:
 
-            output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), shell=True)
+            output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file), stderr=subprocess.STDOUT, shell=True)
             self.log.info(output)
         except CalledProcessError, e:
             self.log.warn('unable to generate self-signed certificate: {0}'.format(e))
