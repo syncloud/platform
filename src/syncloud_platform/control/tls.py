@@ -21,6 +21,10 @@ class Tls:
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 
     def generate_real_certificate(self):
+
+        if (not self.platform_config.is_certbot_enabled()):
+            return self.log.info('certbot is not enabled, not running')
+
         try:
 
             self.log.info('running certbot')

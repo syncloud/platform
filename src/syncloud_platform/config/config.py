@@ -110,6 +110,9 @@ class PlatformConfig:
     def get_platform_log(self):
         return self.__get('platform_log')
 
+    def is_certbot_enabled(self):
+        return self.parser.getboolean('platform', 'certbot_enabled')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 
