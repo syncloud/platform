@@ -20,15 +20,6 @@ class SamStub:
         self.platform_config = platform_config
         self.logger = logger.get_logger('SamStub')
 
-    def __get_sam_bin(self, app_id):
-        sam_bin = SAM_BIN
-        if app_id == 'sam':
-            if isdir(TEMP_SAM_PATH):
-                rmtree(TEMP_SAM_PATH, ignore_errors=True)
-            copytree('/opt/app/sam', TEMP_SAM_PATH)
-            sam_bin = TEMP_SAM_BIN
-        return sam_bin
-
     def update(self, release=None):
         args = [SAM_BIN, 'update']
         if release:
@@ -39,7 +30,13 @@ class SamStub:
         self.__run_detached('{0} install {1}'.format(SAM_BIN, app_id))
 
     def upgrade(self, app_id):
-        sam_bin = self.__get_sam_bin(app_id)
+        sam_bin = SAM_BIN
+        if app_id == 'sam':
+            if isdir(TEMP_SAM_PATH):
+                rmtree(TEMP_SAM_PATH, ignore_errors=True)
+            copytree('/opt/app/sam', TEMP_SAM_PATH)
+            self.__run_detached('{0} upgrade {1}'.format(TEMP_SAM_BIN, app_id))
+            sam_bin = TEMP_SAM_BIN
         self.__run_detached('{0} upgrade {1}'.format(sam_bin, app_id))
 
     def remove(self, app_id):
