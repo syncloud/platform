@@ -84,12 +84,12 @@ def test_internal_web_open():
 def test_activate_device(auth):
 
     email, password, domain, version, arch, release = auth
+    global LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://localhost:81/rest/activate',
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
-    global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = 'password1'
 
 
 def test_reactivate(auth):
@@ -124,6 +124,19 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
+def test_external_https_mode(public_web_session):
+
+    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
+                                      params={'external_access': 'true'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+    
+    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+                                      params={'protocol': 'https'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
@@ -131,11 +144,11 @@ def test_external_mode(auth, public_web_session):
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/external_access')
-    assert '"external_access": false' in response.text
+    assert '"external_access": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'False'})
+                                      params={'external_access': 'false'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -153,7 +166,7 @@ def test_protocol(auth, public_web_session):
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
-    assert '"protocol": "http"' in response.text
+    assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_protocol',
@@ -290,7 +303,7 @@ def test_if_cron_is_enabled_after_install():
 def cron_is_enabled_after_install():
     crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
     assert len(crontab.splitlines()) == 1
-    assert 'sync' in crontab, crontab
+    assert 'cron.py' in crontab, crontab
     assert not crontab.startswith('#'), crontab
 
 

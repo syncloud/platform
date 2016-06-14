@@ -37,7 +37,8 @@ data_dirs = [
     join(data_dir, 'webapps'),
     join(data_dir, 'log'),
     join(data_dir, 'nginx'),
-    join(data_dir, 'openldap-data')
+    join(data_dir, 'openldap-data'),
+    join(data_dir, 'certbot')
 ]
 
 for data_dir in data_dirs:
