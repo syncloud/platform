@@ -7,9 +7,10 @@ from os.path import join
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+import datetime
 
-HOUR = 60 * 60
-DAY = HOUR * 24
 
 class Tls:
     def __init__(self, platform_config, user_platform_config, info, nginx):
@@ -25,6 +26,11 @@ class Tls:
 
     def generate_real_certificate(self):
 
+        cert = x509.load_pem_x509_certificate(pem_data, default_backend())
+        self.log.info('issuer: {0}'.format(cert.issuer))
+        days_left = (cert.not_valid_after - datetime.datetime.now()).days
+        self.log.info('days left: {0}'.format(cert.days_left))
+        
         if (not self.platform_config.is_certbot_enabled()):
             return self.log.info('certbot is not enabled, not running')
 
