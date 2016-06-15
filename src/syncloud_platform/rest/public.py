@@ -199,7 +199,7 @@ def version():
 @app.route(rest_prefix + "/settings/versions", methods=["GET"])
 @login_required
 def versions():
-    return jsonify(convertible.to_dict(public.list_apps())), 200
+    return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
 
 
 
