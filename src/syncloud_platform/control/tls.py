@@ -25,8 +25,8 @@ class Tls:
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 
     def generate_real_certificate(self):
-
-        cert = x509.load_pem_x509_certificate(pem_data, default_backend())
+        cert_data = open(self.platform_config.get_ssl_certificate_file(), 'r').read()
+        cert = x509.load_pem_x509_certificate(cert_data, default_backend())
         self.log.info('issuer: {0}'.format(cert.issuer))
         days_left = (cert.not_valid_after - datetime.datetime.now()).days
         self.log.info('days left: {0}'.format(cert.days_left))
