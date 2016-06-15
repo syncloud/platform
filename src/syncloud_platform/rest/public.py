@@ -196,6 +196,13 @@ def version():
     return jsonify(convertible.to_dict(public.get_app('platform'))), 200
 
 
+@app.route(rest_prefix + "/settings/versions", methods=["GET"])
+@login_required
+def versions():
+    return jsonify(convertible.to_dict(public.list_apps())), 200
+
+
+
 @app.route(rest_prefix + "/settings/system_upgrade", methods=["GET"])
 @login_required
 def system_upgrade():

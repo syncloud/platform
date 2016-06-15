@@ -39,6 +39,9 @@ class Public:
     def get_app(self, app_id):
         return self.sam.get_app(app_id)
 
+    def list_apps(self):
+        return self.sam.list()
+
     def install(self, app_id):
         self.sam.install(app_id)
 
