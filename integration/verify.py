@@ -124,7 +124,9 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
-def test_external_https_mode(public_web_session):
+def test_external_https_mode_with_certbot(public_web_session):
+
+    run_ssh('sed -i 's/certbot_enabled:.*/certbot_enabled: True/g' /opt/data/platform/config/platform.conf', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
                                       params={'external_access': 'true'})
