@@ -44,5 +44,5 @@ coin --to=lib raw http://build.syncloud.org:8111/guestAuth/repository/download/t
 
 coin --to=lib raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openssl_${ARCH}/lastSuccessful/openssl-${ARCH}.tar.gz
 
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/cryptography-1.3.2-cp27-none-linux_${ARCH}.whl
+coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/cryptography-1.4-cp27-none-linux_${ARCH}.whl
 
