@@ -8,6 +8,9 @@ from syncloud_app import util
 from syncloud_app.logger import get_logger
 
 
+HOUR = 60 * 60
+DAY = HOUR * 24
+
 class Tls:
     def __init__(self, platform_config, user_platform_config, info, nginx):
         self.info = info
