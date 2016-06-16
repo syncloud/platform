@@ -53,3 +53,5 @@ coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/th
 
 coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/cffi-1.6.0-cp27-none-linux_${ARCH}.whl
 
+http://build.syncloud.org:8111/repository/guestAuth/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/idna-2.1-py2-none-any.whl
+
