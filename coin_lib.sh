@@ -49,5 +49,6 @@ coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/th
 
 coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/ipaddress-1.0.16-py2-none-any.whl
 
+coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_x86_64/lastSuccessful/pyasn1-0.1.9-py2.py3-none-any.whl
 
 
