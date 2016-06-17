@@ -43,15 +43,3 @@ coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/th
 coin --to=lib raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_certbot_${ARCH}/lastSuccessful/certbot-${ARCH}.tar.gz
 
 coin --to=lib raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openssl_${ARCH}/lastSuccessful/openssl-${ARCH}.tar.gz
-
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/cryptography-1.4-cp27-none-linux_${ARCH}.whl
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/enum34-1.1.6-py2-none-any.whl
-
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/ipaddress-1.0.16-py2-none-any.whl
-
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/pyasn1-0.1.9-py2.py3-none-any.whl
-
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/cffi-1.6.0-cp27-none-linux_${ARCH}.whl
-
-coin --to=lib py http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_cryptography_${ARCH}/lastSuccessful/idna-2.1-py2-none-any.whl
-
