@@ -24,7 +24,7 @@ class Tls:
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 
-    def cert_info():
+    def cert_info(self):
         cert_data = open(self.platform_config.get_ssl_certificate_file(), 'r').read()
         cert = x509.load_pem_x509_certificate(cert_data, default_backend())
         self.log.info('issuer: {0}'.format(cert.issuer))
