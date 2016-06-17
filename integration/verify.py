@@ -126,14 +126,11 @@ def test_platform_rest():
 
 def test_external_https_mode_with_certbot(public_web_session):
 
-    run_ssh("sed -i 's/certbot_enabled:.*/certbot_enabled: true/g' /opt/app/platform/config/platform.cfg", password=DEVICE_PASSWORD)
-    #run_ssh("systemctl restart platform-uwsgi-public", password=DEVICE_PASSWORD)
-
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
                                       params={'external_access': 'true'})
     assert '"success": true' in response.text
     assert response.status_code == 200
-    
+
     response = public_web_session.get('http://localhost/rest/settings/set_protocol',
                                       params={'protocol': 'https'})
     assert '"success": true' in response.text

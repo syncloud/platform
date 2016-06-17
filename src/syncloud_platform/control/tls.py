@@ -24,13 +24,17 @@ class Tls:
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 
-    def generate_real_certificate(self):
+    def cert_info():
         cert_data = open(self.platform_config.get_ssl_certificate_file(), 'r').read()
         cert = x509.load_pem_x509_certificate(cert_data, default_backend())
         self.log.info('issuer: {0}'.format(cert.issuer))
         days_left = (cert.not_valid_after - datetime.datetime.now()).days
-        self.log.info('days left: {0}'.format(cert.days_left))
+        self.log.info('days left: {0}'.format(days_left))
+
+    def generate_real_certificate(self):
         
+        self.cert_info()
+
         if (not self.platform_config.is_certbot_enabled()):
             return self.log.info('certbot is not enabled, not running')
 
@@ -51,6 +55,7 @@ class Tls:
                                 self.user_platform_config.get_user_email()), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
+            self.cert_info()
             self.nginx.reload()
 
         except CalledProcessError, e:
