@@ -6,4 +6,4 @@ injector = Injector()
 
 injector.device.sync_all()
 
-#injector.tls.generate_real_certificate()
+injector.tls.generate_real_certificate()
