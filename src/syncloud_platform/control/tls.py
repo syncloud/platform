@@ -42,17 +42,17 @@ class Tls:
 
             self.log.info('running certbot')
             output = check_output(
-                '{0} --logs-dir={1} --config-dir={2} '
-                'certonly --cert-path {3} --key-path {4} '
-                '--webroot --webroot-path {5} '
-                '-d {6} --agree-tos --email {7} '.format(self.certbot_bin,
+                '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
+                'certonly --cert-path {4} --key-path {5} '
+                '--webroot --webroot-path {6} '
+                '-d {7} '.format(self.certbot_bin,
                                 self.log_dir,
                                 self.certbot_config_dir,
+                                self.user_platform_config.get_user_email(),
                                 self.platform_config.get_ssl_certificate_file(),
                                 self.platform_config.get_ssl_key_file(),
                                 self.platform_config.www_root(),
-                                self.info.domain(),
-                                self.user_platform_config.get_user_email()), stderr=subprocess.STDOUT, shell=True)
+                                self.info.domain()), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
             self.cert_info()
