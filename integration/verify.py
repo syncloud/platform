@@ -124,22 +124,6 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
-def test_certbot_cli():
-    run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
-
-def test_external_https_mode_with_certbot(public_web_session):
-
-    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'true'})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
-                                      params={'protocol': 'https'})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
-
 def test_external_mode(auth, public_web_session):
 
     email, password, domain, version, arch, release = auth
@@ -147,19 +131,30 @@ def test_external_mode(auth, public_web_session):
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/external_access')
-    assert '"external_access": true' in response.text
+    assert '"external_access": false' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'false'})
+                                      params={'external_access': 'true'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/external_access')
-    assert '"external_access": false' in response.text
+    assert '"external_access": true' in response.text
     assert response.status_code == 200
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
+
+def test_certbot_cli():
+    run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
+
+def test_external_https_mode_with_certbot(public_web_session):
+
+    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+                                      params={'protocol': 'https'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
 
 
 def test_protocol(auth, public_web_session):
