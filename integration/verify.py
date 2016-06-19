@@ -124,6 +124,9 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
+def test_certbot_cli():
+    run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
+
 def test_external_https_mode_with_certbot(public_web_session):
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
