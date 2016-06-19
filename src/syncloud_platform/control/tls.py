@@ -19,8 +19,8 @@ class Tls:
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.nginx = nginx
-        self.openssl_bin = '{0}/lib/openssl/bin/openssl'.format(self.platform_config.app_dir())
-        self.certbot_bin = '{0}/lib/certbot/bin/certbot'.format(self.platform_config.app_dir())
+        self.openssl_bin = '{0}/openssl/bin/openssl'.format(self.platform_config.app_dir())
+        self.certbot_bin = '{0}/python/bin/certbot'.format(self.platform_config.app_dir())
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
 

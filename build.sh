@@ -45,7 +45,9 @@ cd src
 python setup.py sdist
 cd ..
 
-./coin_lib.sh ${ARCH}
+rm -rf lib
+mkdir lib
+
 coin --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
 
 BUILD_DIR=${DIR}/build/${NAME}
@@ -56,6 +58,7 @@ DOWNLOAD_URL=http://build.syncloud.org:8111/guestAuth/repository/download
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_uwsgi_${ARCH}/lastSuccessful/uwsgi-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSuccessful/openldap-${ARCH}.tar.gz
+coin --to=${BUILD_DIR} raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openssl_${ARCH}/lastSuccessful/openssl-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python-${ARCH}.tar.gz
 
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt

@@ -8,4 +8,6 @@ Flask==0.10.1
 flask-login==0.2.10
 psutil==2.1.3
 Jinja2==2.7.3
+miniupnpc==1.9
+python-ldap==2.4.25
 syncloud-lib==2
