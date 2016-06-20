@@ -53,21 +53,22 @@ class Tls:
                               self.platform_config.get_ssl_key_file(),
                               self.platform_config.www_root(),
                               domain_args), stderr=subprocess.STDOUT, shell=True)
-
-            certbot_certificate_file = '{0}/certbot/live/{1}/fullchain.pem'.format(
-                self.platform_config.data_dir(), self.info.domain())
-            if os.path.exists(self.platform_config.get_ssl_certificate_file()):
-                os.remove(self.platform_config.get_ssl_certificate_file())
-            os.symlink(certbot_certificate_file, self.platform_config.get_ssl_certificate_file())
-
-            certbot_key_file = '{0}/certbot/keys/0000_key-certbot.pem'.format(
-                self.platform_config.data_dir(), self.info.domain())
-            if os.path.exists(self.platform_config.get_ssl_key_file()):
-                os.remove(self.platform_config.get_ssl_key_file())
-            os.symlink(certbot_key_file, self.platform_config.get_ssl_key_file())
-
             self.log.info(output)
-            self.nginx.reload()
+
+            if 'no action taken' not in output:
+                certbot_certificate_file = '{0}/certbot/live/{1}/fullchain.pem'.format(
+                    self.platform_config.data_dir(), self.info.domain())
+                if os.path.exists(self.platform_config.get_ssl_certificate_file()):
+                    os.remove(self.platform_config.get_ssl_certificate_file())
+                os.symlink(certbot_certificate_file, self.platform_config.get_ssl_certificate_file())
+
+                certbot_key_file = '{0}/certbot/keys/0000_key-certbot.pem'.format(
+                    self.platform_config.data_dir(), self.info.domain())
+                if os.path.exists(self.platform_config.get_ssl_key_file()):
+                    os.remove(self.platform_config.get_ssl_key_file())
+                os.symlink(certbot_key_file, self.platform_config.get_ssl_key_file())
+
+                self.nginx.reload()
 
         except CalledProcessError, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e))
