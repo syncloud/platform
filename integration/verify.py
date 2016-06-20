@@ -149,12 +149,19 @@ def test_external_mode(auth, public_web_session):
 def test_certbot_cli():
     run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
 
+
 def test_external_https_mode_with_certbot(public_web_session):
 
     response = public_web_session.get('http://localhost/rest/settings/set_protocol',
                                       params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
+
+
+def test_show_https_certificate():
+    run_ssh("echo | "
+            "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
+            "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
 def test_protocol(auth, public_web_session):
@@ -261,7 +268,7 @@ def disk_create(loop_device, fs):
     run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
-def disk_activate(loop_device,  public_web_session):
+def disk_activate(loop_device, public_web_session):
 
     run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
@@ -276,7 +283,7 @@ def disk_activate(loop_device,  public_web_session):
     return current_disk_link()
 
 
-def disk_deactivate(loop_device,  public_web_session):
+def disk_deactivate(loop_device, public_web_session):
     response = public_web_session.get('http://localhost/rest/settings/disk_deactivate',
                                       params={'device': loop_device})
     assert response.status_code == 200
