@@ -7,9 +7,17 @@ from os.path import join
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 
+def apps_to_certbot_domain_args(app_versions, domain):
+    # we need to list all the individual domains for now as wildcard domain is not supported by certbot yet
+    all_apps = [app_versions.app.name for app_versions in self.sam.list()]
+    app_full_domains = [ '{0}.{1}'.format(app, self.info.domain() for app in all_apps ]
+    all_domains = app_full_domains.append(self.info.domain())
+    domain_args = '-d'.join(all_domains)
+    return domain_args
+
 
 class Tls:
-    def __init__(self, platform_config, user_platform_config, info, nginx):
+    def __init__(self, platform_config, user_platform_config, info, nginx, sam):
         self.info = info
         self.log = get_logger('tls')
         self.platform_config = platform_config
@@ -19,6 +27,7 @@ class Tls:
         self.certbot_bin = '{0}/bin/certbot'.format(self.platform_config.app_dir())
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
+        self.sam = sam
 
     def generate_real_certificate(self):
 
@@ -28,18 +37,19 @@ class Tls:
         try:
 
             self.log.info('running certbot')
+            domain_args = apps_to_certbot_domain_args(self.sam.list(), self.info.domain())
             output = check_output(
                 '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
                 'certonly --cert-path {4} --key-path {5} '
                 '--webroot --webroot-path {6} '
-                '-d {7} '.format(self.certbot_bin,
+                '{7} '.format(self.certbot_bin,
                                 self.log_dir,
                                 self.certbot_config_dir,
                                 self.user_platform_config.get_user_email(),
                                 self.platform_config.get_ssl_certificate_file(),
                                 self.platform_config.get_ssl_key_file(),
                                 self.platform_config.www_root(),
-                                self.info.domain()), stderr=subprocess.STDOUT, shell=True)
+                                domain_args), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
             self.nginx.reload()
