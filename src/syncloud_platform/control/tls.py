@@ -10,7 +10,7 @@ from syncloud_app.logger import get_logger
 def apps_to_certbot_domain_args(app_versions, domain):
     # we need to list all the individual domains for now as wildcard domain is not supported by certbot yet
     all_apps = [app_versions.app.name for app_versions in self.sam.list()]
-    app_full_domains = [ '{0}.{1}'.format(app, self.info.domain() for app in all_apps ]
+    app_full_domains = [ '{0}.{1}'.format(app, self.info.domain()) for app in all_apps ]
     all_domains = app_full_domains.append(self.info.domain())
     domain_args = '-d'.join(all_domains)
     return domain_args
