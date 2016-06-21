@@ -159,7 +159,7 @@ def _wait_for_ip(user_domain):
     retry = 0
     while retry < retries:
         ip = socket.gethostbyname(user_domain)
-        if not ip.startswith('192')
+        if not ip.startswith('192'):
             return
         retry += 1
         time.sleep(1)
