@@ -46,13 +46,17 @@ class Tls:
 
             self.log.info('running certbot')
             domain_args = apps_to_certbot_domain_args(self.sam.list(), self.info.domain())
+            test_cert = ''
+            if self.platform_config.is_certbot_test_cert():
+                test_cert = '--test-cert'
             output = check_output(
                 '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
-                'certonly --webroot --webroot-path {4} '
-                '{5} '.format(self.certbot_bin,
+                'certonly {4} --webroot --webroot-path {5} '
+                '{6} '.format(self.certbot_bin,
                               self.log_dir,
                               self.certbot_config_dir,
                               self.user_platform_config.get_user_email(),
+                              test_cert,
                               self.platform_config.www_root(),
                               domain_args), stderr=subprocess.STDOUT, shell=True)
             self.log.info(output)
