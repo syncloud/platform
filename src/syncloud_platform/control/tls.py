@@ -35,7 +35,12 @@ class Tls:
     def generate_real_certificate(self):
 
         if not self.platform_config.is_certbot_enabled():
-            return self.log.info('certbot is not enabled, not running')
+            self.log.info('certbot is not enabled, not running')
+            return
+
+        if not self.user_platform_config.get_external_access():
+            self.log.info('external access is not enabled, not running certbot')
+            return
 
         try:
 
@@ -43,14 +48,11 @@ class Tls:
             domain_args = apps_to_certbot_domain_args(self.sam.list(), self.info.domain())
             output = check_output(
                 '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
-                'certonly --cert-path {4} --key-path {5} '
-                '--webroot --webroot-path {6} '
+                'certonly --webroot --webroot-path {6} '
                 '{7} '.format(self.certbot_bin,
                               self.log_dir,
                               self.certbot_config_dir,
                               self.user_platform_config.get_user_email(),
-                              self.platform_config.get_ssl_certificate_file(),
-                              self.platform_config.get_ssl_key_file(),
                               self.platform_config.www_root(),
                               domain_args), stderr=subprocess.STDOUT, shell=True)
             self.log.info(output)
