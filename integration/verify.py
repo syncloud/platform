@@ -7,7 +7,7 @@ from subprocess import check_output
 import time
 
 import shutil
-
+import socket
 import pytest
 
 from requests.adapters import HTTPAdapter
@@ -154,11 +154,12 @@ def test_external_mode(auth, public_web_session, user_domain):
 
 
 def _wait_for_ip(user_domain):
+
     retries = 10
     retry = 0
     while retry < retries:
-        code = os.system('ping {0}'.format(user_domain))
-        if code == 0:
+        ip = socket.gethostbyname(user_domain)
+        if not ip.startswith('192')
             return
         retry += 1
         time.sleep(1)
