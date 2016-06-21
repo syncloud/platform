@@ -148,7 +148,7 @@ def test_external_mode(auth, public_web_session, user_domain):
     assert '"external_access": true' in response.text
     assert response.status_code == 200
 
-    _wait_for_ip(user_domain):
+    _wait_for_ip(user_domain)
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
