@@ -53,6 +53,11 @@ def public_web_session():
     return session
 
 
+@pytest.fixture(scope="module")
+def user_domain(auth):
+    email, password, domain, version, arch, release = auth
+    return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
@@ -124,7 +129,7 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
-def test_external_mode(auth, public_web_session):
+def test_external_mode(auth, public_web_session, user_domain):
 
     email, password, domain, version, arch, release = auth
 
@@ -143,8 +148,20 @@ def test_external_mode(auth, public_web_session):
     assert '"external_access": true' in response.text
     assert response.status_code == 200
 
+    _wait_for_ip(user_domain):
+
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
+
+def _wait_for_ip(user_domain):
+    retries = 10
+    retry = 0
+    while retry < retries:
+        code = os.system('ping {0}'.format(user_domain))
+        if code == 0:
+            return
+        retry += 1
+        time.sleep(1)
 
 def test_certbot_cli():
     run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
