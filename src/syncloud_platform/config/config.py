@@ -113,6 +113,9 @@ class PlatformConfig:
     def is_certbot_enabled(self):
         return self.parser.getboolean('platform', 'certbot_enabled')
 
+    def is_certbot_test_cert(self):
+        return self.parser.getboolean('platform', 'certbot_test_cert')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 

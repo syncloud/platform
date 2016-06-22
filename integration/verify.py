@@ -7,7 +7,7 @@ from subprocess import check_output
 import time
 
 import shutil
-
+import socket
 import pytest
 
 from requests.adapters import HTTPAdapter
@@ -52,6 +52,11 @@ def public_web_session():
     assert session.get('http://localhost/rest/user', allow_redirects=False).status_code == 200
     return session
 
+
+@pytest.fixture(scope="module")
+def user_domain(auth):
+    email, password, domain, version, arch, release = auth
+    return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
@@ -124,42 +129,57 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
-def test_external_https_mode_with_certbot(public_web_session):
-
-    run_ssh("sed -i 's/certbot_enabled:.*/certbot_enabled: true/g' /opt/app/platform/config/platform.cfg", password=DEVICE_PASSWORD)
-    #run_ssh("systemctl restart platform-uwsgi-public", password=DEVICE_PASSWORD)
-
-    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'true'})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-    
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
-                                      params={'protocol': 'https'})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
-
-def test_external_mode(auth, public_web_session):
+def test_external_mode(auth, public_web_session, user_domain):
 
     email, password, domain, version, arch, release = auth
 
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/external_access')
-    assert '"external_access": true' in response.text
+    assert '"external_access": false' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'false'})
+                                      params={'external_access': 'true'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/settings/external_access')
-    assert '"external_access": false' in response.text
+    assert '"external_access": true' in response.text
     assert response.status_code == 200
 
+    _wait_for_ip(user_domain)
+
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
+
+def _wait_for_ip(user_domain):
+
+    retries = 10
+    retry = 0
+    while retry < retries:
+        ip = socket.gethostbyname(user_domain)
+        if not ip.startswith('192'):
+            return
+        retry += 1
+        time.sleep(1)
+
+def test_certbot_cli():
+    run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
+
+
+def test_external_https_mode_with_certbot(public_web_session):
+
+    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+                                      params={'protocol': 'https'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
+def test_show_https_certificate():
+    run_ssh("echo | "
+            "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
+            "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
 def test_protocol(auth, public_web_session):
@@ -266,7 +286,7 @@ def disk_create(loop_device, fs):
     run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
-def disk_activate(loop_device,  public_web_session):
+def disk_activate(loop_device, public_web_session):
 
     run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
@@ -281,7 +301,7 @@ def disk_activate(loop_device,  public_web_session):
     return current_disk_link()
 
 
-def disk_deactivate(loop_device,  public_web_session):
+def disk_deactivate(loop_device, public_web_session):
     response = public_web_session.get('http://localhost/rest/settings/disk_deactivate',
                                       params={'device': loop_device})
     assert response.status_code == 200
@@ -357,7 +377,9 @@ def __local_install(password, version, arch, release):
     run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=password)
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=password)
     set_docker_ssh_port(password)
+    run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/app/platform/config/platform.cfg ", password=password)
     run_ssh('systemctl restart platform-uwsgi-public', password=password)
+    
     time.sleep(3)
 
 
