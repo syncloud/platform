@@ -377,7 +377,7 @@ def __local_install(password, version, arch, release):
     run_ssh('/opt/app/sam/bin/sam --debug install /platform-{0}-{1}.tar.gz'.format(version, arch), password=password)
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=password)
     set_docker_ssh_port(password)
-    run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/data/platform/config/platform.cfg ", password=password)
+    run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/app/platform/config/platform.cfg ", password=password)
     run_ssh('systemctl restart platform-uwsgi-public', password=password)
     
     time.sleep(3)
