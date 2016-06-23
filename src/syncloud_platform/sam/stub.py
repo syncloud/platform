@@ -81,7 +81,7 @@ class SamStub:
         return result['data']
 
     def is_running(self):
-        for p in psutil.get_process_list():
+        for p in psutil.process_iter():
             for arg in p.cmdline():
                 if SAM_BIN in arg or TEMP_SAM_PATH in arg:
                     return True
