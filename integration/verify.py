@@ -340,19 +340,19 @@ def test_reinstall(auth):
     __local_install(DEVICE_PASSWORD, version, arch, release)
 
 
-def test_public_web_platform_upgrade(public_web_session):
-
-    public_web_session.get('http://localhost/rest/settings/system_upgrade')
-    sam_running = True
-    while sam_running:
-        try:
-            response = public_web_session.get('http://localhost/rest/settings/sam_status')
-            if response.status_code == 200:
-                json = convertible.from_json(response.text)
-                sam_running = json.is_running
-        except Exception, e:
-            pass
-        time.sleep(1)
+# def test_public_web_platform_upgrade(public_web_session):
+#
+#     public_web_session.get('http://localhost/rest/settings/system_upgrade')
+#     sam_running = True
+#     while sam_running:
+#         try:
+#             response = public_web_session.get('http://localhost/rest/settings/sam_status')
+#             if response.status_code == 200:
+#                 json = convertible.from_json(response.text)
+#                 sam_running = json.is_running
+#         except Exception, e:
+#             pass
+#         time.sleep(1)
 
 
 def test_reinstall_local_after_upgrade(auth):
