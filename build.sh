@@ -61,8 +61,6 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_openldap_${ARCH}/lastSucce
 coin --to=${BUILD_DIR} raw http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openssl_${ARCH}/lastSuccessful/openssl-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccessful/python-${ARCH}.tar.gz
 
-ls /lib
-
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
 cp -r ${DIR}/bin ${BUILD_DIR}
