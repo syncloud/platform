@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -xe
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
@@ -10,7 +10,7 @@ if [[ -z "$1" || -z "$2" ]]; then
 fi
 
 apt-get update
-apt-get -y install jekyll
+apt-get -y install jekyll python-dev
 
 ARCH=$1
 VERSION=$2
