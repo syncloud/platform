@@ -185,6 +185,16 @@ main_menu_item: menu_settings
 <script type="text/javascript" src="js/logs.js"></script>
 <script type="text/javascript">
 
+function find_app(apps_data, app_id) {
+    for (s=0; s < apps_data.length; s++) {
+        var app_data = apps_data[s];
+        if (app_data.app.id == app_id) {
+            return app_data;
+        }
+    }
+    return null;
+}
+
 function external_access_status(accessBtn) {
     $.get('/rest/settings/external_access')
             .done(function (data) {
@@ -214,24 +224,31 @@ function disks_status() {
 }
 
 function check_system_version() {
-    $.get('/rest/settings/version')
+    $.get('/rest/settings/versions')
             .done(function (data) {
-                var btn = $("#system_upgrade_btn");
                 var check_btn = $("#system_check_btn");
-                btn.hide();
-                var updates = '';
+                check_btn.prop('disabled', false);
 
-                if (data.installed_version != data.current_version) {
-                    btn.show();
-                    updates = ', updated version available: ' + data.current_version;
-                    btn.text('Upgrade');
-                    btn.prop('disabled', false);
-                } else {
-                    check_btn.text('Check');
-                    check_btn.prop('disabled', false);
+                platform_data = find_app(data.data, "platform")
+                sam_data = find_app(data.data, "sam")
+
+                var platform_upgrade_btn = $("#system_upgrade_btn");
+                platform_upgrade_btn.hide();
+                var platform_updates = '';
+                if (platform_data.installed_version != platform_data.current_version) {
+                    platform_upgrade_btn.show();
+                    platform_updates = ', available: ' + platform_data.current_version;
                 }
+                $("#system_version").html(platform_data.installed_version + updates);
 
-                $("#system_version").html(data.installed_version + updates);
+                var sam_upgrade_btn = $("#sam_upgrade_btn");
+                sam_upgrade_btn.hide();
+                var sam_updates = '';
+                if (sam_data.installed_version != sam_data.current_version) {
+                    sam_upgrade_btn.show();
+                    sam_updates = ', available: ' + sam_data.current_version;
+                }
+                $("#sam_version").html(sam_data.installed_version + updates);
 
             }).fail(onError);
 }
