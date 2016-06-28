@@ -227,6 +227,7 @@ function check_system_version() {
     $.get('/rest/settings/versions')
             .done(function (data) {
                 var check_btn = $("#system_check_btn");
+                check_btn.text('Check');
                 check_btn.prop('disabled', false);
 
                 platform_data = find_app(data.data, "platform")
@@ -236,19 +237,21 @@ function check_system_version() {
                 platform_upgrade_btn.hide();
                 var platform_updates = '';
                 if (platform_data.installed_version != platform_data.current_version) {
+                    platform_upgrade_btn.text('Upgrade')
                     platform_upgrade_btn.show();
                     platform_updates = ', available: ' + platform_data.current_version;
                 }
-                $("#system_version").html(platform_data.installed_version + updates);
+                $("#system_version").html(platform_data.installed_version + platform_updates);
 
                 var sam_upgrade_btn = $("#sam_upgrade_btn");
                 sam_upgrade_btn.hide();
                 var sam_updates = '';
                 if (sam_data.installed_version != sam_data.current_version) {
+                    sam_upgrade_btn.text('Upgrade')
                     sam_upgrade_btn.show();
                     sam_updates = ', available: ' + sam_data.current_version;
                 }
-                $("#sam_version").html(sam_data.installed_version + updates);
+                $("#sam_version").html(sam_data.installed_version + sam_updates);
 
             }).fail(onError);
 }
