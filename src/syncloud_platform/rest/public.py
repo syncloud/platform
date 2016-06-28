@@ -190,12 +190,6 @@ def disk_activate():
     return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
 
 
-@app.route(rest_prefix + "/settings/version", methods=["GET"])
-@login_required
-def version():
-    return jsonify(convertible.to_dict(public.get_app('platform'))), 200
-
-
 @app.route(rest_prefix + "/settings/versions", methods=["GET"])
 @login_required
 def versions():
