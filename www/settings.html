@@ -238,6 +238,7 @@ function check_system_version() {
                 var platform_updates = '';
                 if (platform_data.installed_version != platform_data.current_version) {
                     platform_upgrade_btn.text('Upgrade')
+                    platform_upgrade_btn.prop('disabled', false);
                     platform_upgrade_btn.show();
                     platform_updates = ', available: ' + platform_data.current_version;
                 }
@@ -248,6 +249,7 @@ function check_system_version() {
                 var sam_updates = '';
                 if (sam_data.installed_version != sam_data.current_version) {
                     sam_upgrade_btn.text('Upgrade')
+                    sam_upgrade_btn.prop('disabled', false);
                     sam_upgrade_btn.show();
                     sam_updates = ', available: ' + sam_data.current_version;
                 }
