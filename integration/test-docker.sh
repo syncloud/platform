@@ -12,7 +12,7 @@ if [ "$#" -ne 7 ]; then
     exit 1
 fi
 
-./docker.sh $6
+./docker.sh $6 $7
 
 apt-get install -y sshpass
 pip2 install -r ${DIR}/../src/dev_requirements.txt

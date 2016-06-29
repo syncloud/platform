@@ -10,6 +10,7 @@ fi
 
 ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 SAM_VERSION=$1
+RELEASE=$2
 
 SAM=sam-${SAM_VERSION}-${ARCH}.tar.gz
 
@@ -84,5 +85,7 @@ do
   echo "Waiting for SSH ..."
   sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 done
+
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/opt/app/sam/bin/sam update --release ${RELEASE}"
 
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
