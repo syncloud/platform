@@ -66,7 +66,7 @@ def test_install(auth):
 
 def test_activate_device(auth):
 
-    email, password, domain, version, arch, release = auth
+    email, password, domain, app_archive_path = auth
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = 'password'
     response = requests.post('http://localhost:81/rest/activate',
