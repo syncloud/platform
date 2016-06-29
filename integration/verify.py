@@ -374,7 +374,7 @@ def test_nginx_plus_flask_performance():
 
 def __local_install(password, version, arch, release):
     app_archive = 'platform-{0}-{1}.tar.gz'.format(version, arch)
-    run_scp('{0}/../{0} root@localhost:/'.format(DIR, app_archive), password=password)
+    run_scp('{0}/../{1} root@localhost:/'.format(DIR, app_archive), password=password)
     run_ssh('/opt/app/sam/bin/sam --debug install /{0}'.format(app_archive), password=password)
     set_docker_ssh_port(password)
     run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/app/platform/config/platform.cfg ", password=password)
