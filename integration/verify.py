@@ -129,28 +129,28 @@ def test_platform_rest():
     assert response.status_code == 200
 
 
-# def test_external_mode(auth, public_web_session, user_domain):
-#
-#     email, password, domain, version, arch, release = auth
-#
-#     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
-#
-#     response = public_web_session.get('http://localhost/rest/settings/external_access')
-#     assert '"external_access": false' in response.text
-#     assert response.status_code == 200
-#
-#     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-#                                       params={'external_access': 'true'})
-#     assert '"success": true' in response.text
-#     assert response.status_code == 200
-#
-#     response = public_web_session.get('http://localhost/rest/settings/external_access')
-#     assert '"external_access": true' in response.text
-#     assert response.status_code == 200
-#
-#     _wait_for_ip(user_domain)
-#
-#     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+def test_external_mode(auth, public_web_session, user_domain):
+
+    email, password, domain, version, arch, release = auth
+
+    run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+
+    response = public_web_session.get('http://localhost/rest/settings/external_access')
+    assert '"external_access": false' in response.text
+    assert response.status_code == 200
+
+    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
+                                      params={'external_access': 'true'})
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+    response = public_web_session.get('http://localhost/rest/settings/external_access')
+    assert '"external_access": true' in response.text
+    assert response.status_code == 200
+
+    _wait_for_ip(user_domain)
+
+    assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
 def _wait_for_ip(user_domain):
