@@ -9,9 +9,6 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 fi
 
-apt-get update
-apt-get -y install jekyll python-dev
-
 ARCH=$1
 VERSION=$2
 
@@ -23,13 +20,6 @@ if [ "${ARCH}" == 'armv7l' ]; then
     ARCH_DEB="armhf"
 fi
 
-if hash jekyll; then
-    wget -O get-pip.py https://bootstrap.pypa.io/get-pip.py
-    python get-pip.py
-    rm get-pip.py
-fi
-
-pip install coin
 
 cd www
 rm -rf _site
@@ -37,18 +27,6 @@ hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit
 hash ruby 2>/dev/null || { echo >&2 "ruby (jekyll) is not installed. Aborting."; exit 1; }
 jekyll build
 cd ..
-
-rm -f src/version
-echo ${VERSION} >> src/version
-
-cd src
-python setup.py sdist
-cd ..
-
-rm -rf lib
-mkdir lib
-
-coin --to ${DIR}/lib py ${DIR}/src/dist/syncloud-platform-${VERSION}.tar.gz
 
 BUILD_DIR=${DIR}/build/${NAME}
 rm -rf build
@@ -63,14 +41,15 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_python_${ARCH}/lastSuccess
 
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
+cd src
+rm -f version
+echo ${VERSION} >> version
+${BUILD_DIR}/python/bin/python setup.py install
+cd ..
+
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
 cp -r ${DIR}/www ${BUILD_DIR}
-cp -r ${DIR}/lib ${BUILD_DIR}
-
-path_file=${BUILD_DIR}/python/lib/python2.7/site-packages/path.pth
-ls ${BUILD_DIR}/lib/  > ${path_file}
-sed -i 's#^#../../../../lib/#g' ${path_file}
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
