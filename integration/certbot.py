@@ -1,21 +1,15 @@
 import os
-from os.path import dirname, join
-import convertible
-import pytest
-import requests
-from subprocess import check_output
-import time
-
 import shutil
 import socket
+import time
+from os.path import dirname, join
+
 import pytest
+import requests
 
-from requests.adapters import HTTPAdapter
-
-from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import set_docker_ssh_port, run_scp, SSH, ssh_command
-from integration.util.ssh import run_ssh
 from integration.util.helper import local_install, wait_for_platform_web
+from integration.util.ssh import run_scp, SSH, ssh_command
+from integration.util.ssh import run_ssh
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -25,6 +19,7 @@ DEVICE_PASSWORD = "password"
 DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
+CERTIFICATE_DIR = join(DIR, 'certificate')
 
 
 @pytest.fixture(scope="session")
@@ -59,13 +54,14 @@ def user_domain(auth):
     email, password, domain, version, arch, release = auth
     return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
+
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
 def test_install(auth):
-    email, password, domain, version, arch, release = auth
-    local_install(DIR, DEFAULT_DEVICE_PASSWORD, version, arch, release)
+    email, password, domain, app_archive_path = auth
+    local_install(DIR, app_archive_path)
 
 
 def test_activate_device(auth):
@@ -79,9 +75,7 @@ def test_activate_device(auth):
     assert response.status_code == 200, response.text
 
 
-def test_external_mode(auth, public_web_session, user_domain):
-
-    email, password, domain, version, arch, release = auth
+def test_external_mode(public_web_session, user_domain):
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
                                       params={'external_access': 'true'})
@@ -106,6 +100,7 @@ def _wait_for_ip(user_domain):
         retry += 1
         time.sleep(1)
 
+
 def test_certbot_cli():
     run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
 
@@ -115,3 +110,13 @@ def test_external_https_mode_with_certbot(public_web_session):
     response = public_web_session.get('http://localhost/rest/settings/regenerate_certificate')
     assert '"success": true' in response.text
     assert response.status_code == 200
+
+    os.mkdir(CERTIFICATE_DIR)
+
+    run_scp('root@localhost:/opt/data/platform/certbot/live/*/fullchain.pem {0}/syncloud.crt'
+            .format(CERTIFICATE_DIR),
+            password=LOGS_SSH_PASSWORD)
+
+    run_scp('root@localhost:/opt/data/platform/certbot/keys/0000_key-certbot.pem {0}/syncloud.key'
+            .format(CERTIFICATE_DIR),
+            password=LOGS_SSH_PASSWORD)

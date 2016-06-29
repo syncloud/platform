@@ -1,12 +1,10 @@
-import filecmp
-import os
 import subprocess
-import tempfile
-from subprocess import check_output, CalledProcessError
-
 from os.path import join
-from syncloud_app import util
+from subprocess import check_output
+
 from syncloud_app.logger import get_logger
+
+from syncloud_platform.certbot.certbot_result import CertbotResult
 
 
 def apps_to_certbot_domain_args(app_versions, domain):
@@ -38,26 +36,24 @@ class CertbotGenerator:
 
         self.log.info('running certbot')
         domain_args = apps_to_certbot_domain_args(self.sam.list(), self.info.domain())
+
         test_cert = ''
         if is_test_cert:
             test_cert = '--test-cert'
+
         output = check_output(
             '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
             'certonly {4} --webroot --webroot-path {5} '
             '{6} '.format(self.certbot_bin,
-                              self.log_dir,
-                              self.certbot_config_dir,
-                              self.user_platform_config.get_user_email(),
-                              test_cert,
-                              self.platform_config.www_root(),
-                              domain_args), stderr=subprocess.STDOUT, shell=True)
+                          self.log_dir,
+                          self.certbot_config_dir,
+                          self.user_platform_config.get_user_email(),
+                          test_cert,
+                          self.platform_config.www_root(),
+                          domain_args), stderr=subprocess.STDOUT, shell=True)
 
         self.log.info(output)
 
         regenerated = 'no action taken' not in output
                
-        return CertbotResilt(certbot_certificate_file, certbot_key_file, regenerated)
-
-               
-
-   
+        return CertbotResult(self.certbot_certificate_file, self.certbot_key_file, regenerated)
