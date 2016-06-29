@@ -222,6 +222,12 @@ def sam_status():
 def disk_deactivate():
     return jsonify(success=True, disks=public.disk_deactivate()), 200
 
+@app.route(rest_prefix + "/settings/regenerate_certificate", methods=["GET"])
+@login_required
+def regenerate_certificate():
+    public.regenerate_certificate()
+    return jsonify(success=True), 200
+
 
 @app.errorhandler(Exception)
 def handle_exception(error):

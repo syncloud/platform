@@ -4,10 +4,10 @@ from syncloud_platform.rest.props import html_prefix
 from syncloud_platform.rest.model.app import app_from_sam_app, App
 
 from syncloud_platform.control import power
-
+from syncloud_platform.certbot import certbot_generator
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator):
+    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator):
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
@@ -18,6 +18,7 @@ class Public:
         self.www_dir = self.platform_config.www_root()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
+        self.certbot_generator = certbot_generator
 
     def domain(self):
         return self.device_info.domain()
@@ -92,3 +93,5 @@ class Public:
         logs = self.log_aggregator.get_logs()
         self.redirect_service.send_log(user_token, logs)
 
+    def regenerate_certificate():
+        self.certbot_generator.generate_certificate()
