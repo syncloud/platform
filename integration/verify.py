@@ -55,7 +55,7 @@ def public_web_session():
 
 @pytest.fixture(scope="module")
 def user_domain(auth):
-    email, password, domain, version, arch, release = auth
+    email, password, domain, version, arch = auth
     return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 def test_start(module_setup):
@@ -63,8 +63,8 @@ def test_start(module_setup):
 
 
 def test_install(auth):
-    email, password, domain, version, arch, release = auth
-    __local_install(DEFAULT_DEVICE_PASSWORD, version, arch, release)
+    email, password, domain, version, arch = auth
+    __local_install(DEFAULT_DEVICE_PASSWORD, version, arch)
 
 
 def test_non_activated_device_main_page_redirect_to_activation():
@@ -88,7 +88,7 @@ def test_internal_web_open():
 
 def test_activate_device(auth):
 
-    email, password, domain, version, arch, release = auth
+    email, password, domain, version, arch = auth
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://localhost:81/rest/activate',
@@ -98,7 +98,7 @@ def test_activate_device(auth):
 
 
 def test_reactivate(auth):
-    email, password, domain, version, arch, release = auth
+    email, password, domain, version, arch = auth
     response = requests.post('http://localhost:81/rest/activate',
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
@@ -131,7 +131,7 @@ def test_platform_rest():
 
 def test_external_mode(auth, public_web_session, user_domain):
 
-    email, password, domain, version, arch, release = auth
+    email, password, domain, version, arch = auth
 
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
@@ -184,7 +184,7 @@ def test_show_https_certificate():
 
 def test_protocol(auth, public_web_session):
 
-    email, password, domain, version, arch, release = auth
+    email, password, domain, version, arch = auth
 
     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 
@@ -336,8 +336,8 @@ def test_remove():
 
 
 def test_reinstall(auth):
-    email, password, domain, version, arch, release = auth
-    __local_install(DEVICE_PASSWORD, version, arch, release)
+    email, password, domain, version, arch = auth
+    __local_install(DEVICE_PASSWORD, version, arch)
 
 
 def test_public_web_platform_upgrade(public_web_session):
@@ -356,8 +356,8 @@ def test_public_web_platform_upgrade(public_web_session):
 
 
 def test_reinstall_local_after_upgrade(auth):
-    email, password, domain, version, arch, release = auth
-    __local_install(DEVICE_PASSWORD, version, arch, release)
+    email, password, domain, version, arch = auth
+    __local_install(DEVICE_PASSWORD, version, arch)
 
 
 def test_if_cron_is_enabled_after_upgrade():
@@ -372,7 +372,7 @@ def test_nginx_plus_flask_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/rest/id', shell=True))
 
 
-def __local_install(password, version, arch, release):
+def __local_install(password, version, arch):
     app_archive = 'platform-{0}-{1}.tar.gz'.format(version, arch)
     run_scp('{0}/../{1} root@localhost:/'.format(DIR, app_archive), password=password)
     run_ssh('/opt/app/sam/bin/sam --debug install /{0}'.format(app_archive), password=password)
