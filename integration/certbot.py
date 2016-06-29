@@ -61,7 +61,7 @@ def test_start(module_setup):
 
 def test_install(auth):
     email, password, domain, app_archive_path = auth
-    local_install(DIR, app_archive_path)
+    local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path)
 
 
 def test_activate_device(auth):
