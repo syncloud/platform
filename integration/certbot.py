@@ -33,6 +33,8 @@ def module_teardown():
 
     print('systemd logs')
     run_ssh('journalctl | grep platform', password=LOGS_SSH_PASSWORD)
+run_ssh('journalctl | grep nginx', password=LOGS_SSH_PASSWORD)
+run_ssh('journalctl | grep uwsgi', password=LOGS_SSH_PASSWORD)
 
     print('-------------------------------------------------------')
     print('syncloud docker image is running')
