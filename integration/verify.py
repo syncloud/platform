@@ -12,9 +12,9 @@ import pytest
 
 from requests.adapters import HTTPAdapter
 
-from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import set_docker_ssh_port, run_scp, SSH, ssh_command
-from integration.util.ssh import run_ssh
+from util.loop import loop_device_cleanup
+from util.ssh import set_docker_ssh_port, run_scp, SSH, ssh_command
+from util.ssh import run_ssh
 
 SYNCLOUD_INFO = 'syncloud.info'
 
