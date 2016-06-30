@@ -90,11 +90,6 @@ def test_platform_rest():
 
 def test_external_mode(public_web_session, user_domain):
 
-    response = public_web_session.get('http://localhost/rest/settings/set_external_access',
-                                      params={'external_access': 'true'})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
     response = public_web_session.get('http://localhost/rest/settings/external_access')
     assert '"external_access": true' in response.text
     assert response.status_code == 200
