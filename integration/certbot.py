@@ -51,7 +51,7 @@ def public_web_session():
 
 @pytest.fixture(scope="module")
 def user_domain(auth):
-    email, password, domain, version, arch, release = auth
+    email, password, domain, app_archive_path = auth
     return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
