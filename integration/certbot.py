@@ -75,6 +75,17 @@ def test_activate_device(auth):
     assert response.status_code == 200, response.text
 
 
+def test_running_platform_web():
+    print(check_output('nc -zv -w 1 localhost 80', shell=True))
+
+
+def test_platform_rest():
+    session = requests.session()
+    session.mount('http://localhost', HTTPAdapter(max_retries=5))
+    response = session.get('http://localhost', timeout=60)
+    assert response.status_code == 200
+
+
 def test_external_mode(public_web_session, user_domain):
 
     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
