@@ -1,4 +1,4 @@
-from integration.util.ssh import run_ssh
+from util.ssh import run_ssh
 
 
 def loop_device_cleanup(password):
