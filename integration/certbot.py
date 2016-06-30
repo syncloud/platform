@@ -6,7 +6,7 @@ from os.path import dirname, join
 from subprocess import check_output
 import pytest
 import requests
-
+from requests.adapters import HTTPAdapter
 from integration.util.helper import local_install, wait_for_platform_web
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
