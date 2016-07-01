@@ -36,6 +36,6 @@ def public_web_session():
         except Exception, e:
             retry += 1
             print(e.message)
-            print('retry {0} of {1}'.format(retry, retries)
+            print('retry {0} of {1}'.format(retry, retries))
     
 
