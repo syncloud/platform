@@ -42,15 +42,6 @@ def module_teardown():
     print('-------------------------------------------------------')
 
 
-@pytest.fixture(scope="function")
-def public_web_session():
-    wait_for_platform_web()
-    session = requests.session()
-    session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
-    assert session.get('http://localhost/rest/user', allow_redirects=False).status_code == 200
-    return session
-
-
 @pytest.fixture(scope="module")
 def user_domain(auth):
     email, password, domain, app_archive_path = auth
