@@ -7,6 +7,7 @@ class InMemoryUPnP:
         self.mappings = []
         self.lanaddr = lanaddr
         self.external_port_to_fail = dict()
+        self.devlist = []
 
     def fail_on_external_port_with(self, external_port, e):
         self.external_port_to_fail[external_port] = e
