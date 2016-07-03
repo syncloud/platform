@@ -41,7 +41,6 @@ class UpnpClient:
             return
         self.logger.info('initializing upnp')
         self.upnp.discover()
-        self.logger.info(self.upnp.devlist)
         self.upnp.selectigd()
         self.initialized = True
 
