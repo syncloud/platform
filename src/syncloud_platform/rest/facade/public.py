@@ -93,5 +93,5 @@ class Public:
         logs = self.log_aggregator.get_logs()
         self.redirect_service.send_log(user_token, logs)
 
-    def regenerate_certificate():
+    def regenerate_certificate(self):
         self.certbot_generator.generate_certificate()
