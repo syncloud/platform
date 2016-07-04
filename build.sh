@@ -21,6 +21,8 @@ if [ "${ARCH}" == 'armv7l' ]; then
 fi
 
 
+apt-get -y install libffi-dev
+
 cd www
 rm -rf _site
 hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit 1; }
