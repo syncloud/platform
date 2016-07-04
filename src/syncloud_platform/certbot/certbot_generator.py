@@ -41,19 +41,24 @@ class CertbotGenerator:
         if is_test_cert:
             test_cert = '--test-cert'
 
-        output = check_output(
-            '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
-            'certonly {4} --webroot --webroot-path {5} '
-            '{6} '.format(self.certbot_bin,
-                          self.log_dir,
-                          self.certbot_config_dir,
-                          self.user_platform_config.get_user_email(),
-                          test_cert,
-                          self.platform_config.www_root(),
-                          domain_args), stderr=subprocess.STDOUT, shell=True)
+        try:
 
-        self.log.info(output)
+            output = check_output(
+                '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
+                'certonly {4} --webroot --webroot-path {5} '
+                '{6} '.format(self.certbot_bin,
+                              self.log_dir,
+                              self.certbot_config_dir,
+                              self.user_platform_config.get_user_email(),
+                              test_cert,
+                              self.platform_config.www_root(),
+                              domain_args), stderr=subprocess.STDOUT, shell=True)
 
-        regenerated = 'no action taken' not in output
-               
-        return CertbotResult(self.certbot_certificate_file, self.certbot_key_file, regenerated)
+            self.log.info(output)
+            regenerated = 'no action taken' not in output
+            return CertbotResult(self.certbot_certificate_file, self.certbot_key_file, regenerated)
+
+        except subprocess.CalledProcessError, e:
+            self.log.warn(e.output)
+            raise e
+
