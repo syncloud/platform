@@ -32,7 +32,7 @@ class CertbotGenerator:
         self.certbot_key_file = '{0}/certbot/keys/0000_key-certbot.pem'.format(
                 self.platform_config.data_dir(), self.info.domain())
 
-    def generate_certificate(self, is_test_cert):
+    def generate_certificate(self, is_test_cert = False):
 
         self.log.info('running certbot')
         domain_args = apps_to_certbot_domain_args(self.sam.list(), self.info.domain())
