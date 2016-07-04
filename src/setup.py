@@ -29,6 +29,7 @@ setup(
               'syncloud_platform.config',
               'syncloud_platform.sam',
               'syncloud_platform.control',
+              'syncloud_platform.certbot',
               'syncloud_platform.disks',
               'syncloud_platform.log'],
     namespace_packages=['syncloud_platform'],

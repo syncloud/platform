@@ -1,4 +1,4 @@
-from syncloud_platform.control.tls import apps_to_certbot_domain_args
+from syncloud_platform.certbot.certbot_generator import apps_to_certbot_domain_args
 from syncloud_platform.sam.models import AppVersions, App
 
 

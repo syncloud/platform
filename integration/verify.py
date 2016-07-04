@@ -1,7 +1,6 @@
 import os
-from os.path import dirname, join, split
+from os.path import dirname, join
 import convertible
-import pytest
 import requests
 from subprocess import check_output
 import time
@@ -13,8 +12,9 @@ import pytest
 from requests.adapters import HTTPAdapter
 
 from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import set_docker_ssh_port, run_scp, SSH, ssh_command
+from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
+from integration.util.helper import local_install, wait_for_platform_web
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -44,15 +44,6 @@ def module_teardown():
     print('-------------------------------------------------------')
 
 
-@pytest.fixture(scope="function")
-def public_web_session():
-    wait_for_platform_web()
-    session = requests.session()
-    session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
-    assert session.get('http://localhost/rest/user', allow_redirects=False).status_code == 200
-    return session
-
-
 @pytest.fixture(scope="module")
 def user_domain(auth):
     email, password, domain, app_archive_path = auth
@@ -64,7 +55,7 @@ def test_start(module_setup):
 
 def test_install(auth):
     email, password, domain, app_archive_path = auth
-    __local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path)
+    local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path)
 
 
 def test_non_activated_device_main_page_redirect_to_activation():
@@ -337,7 +328,7 @@ def test_remove():
 
 def test_reinstall(auth):
     email, password, domain, app_archive_path = auth
-    __local_install(DEVICE_PASSWORD, app_archive_path)
+    local_install(DEVICE_PASSWORD, app_archive_path)
 
 
 def test_public_web_platform_upgrade(public_web_session):
@@ -357,7 +348,7 @@ def test_public_web_platform_upgrade(public_web_session):
 
 def test_reinstall_local_after_upgrade(auth):
     email, password, domain, app_archive_path = auth
-    __local_install(DEVICE_PASSWORD, app_archive_path)
+    local_install(DEVICE_PASSWORD, app_archive_path)
 
 
 def test_if_cron_is_enabled_after_upgrade():
@@ -370,19 +361,3 @@ def test_nginx_performance():
 
 def test_nginx_plus_flask_performance():
     print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/rest/id', shell=True))
-
-
-def __local_install(password, app_archive_path):
-    _, app_archive = split(app_archive_path)
-    run_scp('{0} root@localhost:/'.format(app_archive_path), password=password)
-    run_ssh('/opt/app/sam/bin/sam --debug install /{0}'.format(app_archive), password=password)
-    set_docker_ssh_port(password)
-    run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/app/platform/config/platform.cfg ", password=password)
-    run_ssh('systemctl restart platform-uwsgi-public', password=password)
-    
-    time.sleep(3)
-
-
-def wait_for_platform_web():
-    print(check_output('while ! nc -w 1 -z localhost 81; do sleep 1; done', shell=True))
-    print(check_output('while ! nc -w 1 -z localhost 80; do sleep 1; done', shell=True))

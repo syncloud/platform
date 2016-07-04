@@ -23,6 +23,7 @@ from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.events import EventTrigger
 from syncloud_platform.disks.hardware import Hardware
 from syncloud_platform.control.nginx import Nginx
+from syncloud_platform.certbot.certbot_generator import CertbotGenerator
 from syncloud_platform.control.tls import Tls
 from syncloud_platform.disks.udev import Udev
 from syncloud_platform.version import platform_version
@@ -67,7 +68,8 @@ class Injector:
         self.ldap_auth = LdapAuth(self.platform_config)
         self.event_trigger = EventTrigger(self.sam)
         self.nginx = Nginx(self.platform_config)
-        self.tls = Tls(self.platform_config, self.user_platform_config, self.info, self.nginx, self.sam)
+        self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config, self.info, self.sam)
+        self.tls = Tls(self.platform_config, self.user_platform_config, self.info, self.nginx, self.certbot_genetator)
         
         self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service,
                              self.port_drill_factory, self.sam, self.platform_cron, self.ldap_auth,
@@ -79,5 +81,5 @@ class Injector:
         self.hardware = Hardware(self.platform_config, self.event_trigger, self.lsblk, self.path_checker)
 
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam, self.hardware,
-                             self.redirect_service, self.log_aggregator)
+                             self.redirect_service, self.log_aggregator, self.certbot_genetator)
         self.udev = Udev(self.platform_config)
