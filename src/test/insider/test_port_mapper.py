@@ -40,7 +40,7 @@ def test_add_mapping_simple(http_server, mapper):
     external_port = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
     assert external_port is not None
     external_ip = mapper.external_ip()
-    response = wait_http(external_ip, external_port, 200, timeout=1)
+    response = wait_http(external_ip, external_port, 200, timeout=2)
     print(response)
     assert response is not None
 
