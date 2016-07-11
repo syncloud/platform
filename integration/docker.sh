@@ -79,6 +79,7 @@ tar -C ${ROOTFS} -c . | docker import - syncloud
 echo "starting rootfs"
 docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL
 
+ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 while test $? -gt 0
 do
@@ -88,5 +89,3 @@ do
 done
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/opt/app/sam/bin/sam update --release ${RELEASE}"
-
-ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
