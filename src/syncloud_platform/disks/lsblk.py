@@ -35,7 +35,7 @@ class Lsblk:
                                      match.group(4), match.group(5), match.group(6), match.group(7).strip())
 
             if lsblk_entry.type in ('disk', 'loop'):
-                disk_name = lsblk_entry.model.split(' ')[0]
+                disk_name = lsblk_entry.model
                 disk = Disk(disk_name, [])
                 if lsblk_entry.type == 'loop':
                     self.log.info('adding loop')
