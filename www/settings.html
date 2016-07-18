@@ -182,7 +182,6 @@ main_menu_item: menu_settings
 </script>
 
 <script type="text/javascript" src="js/sam.js"></script>
-<script type="text/javascript" src="js/logs.js"></script>
 <script type="text/javascript">
 
 function find_app(apps_data, app_id) {
@@ -262,6 +261,17 @@ function get_device_domain() {
     $.get('/rest/settings/device_domain')
             .done(function (data) {
                 $("#device_domain").html(data.device_domain);
+            }).fail(onError);
+}
+
+function send_logs() {
+    var btn = $(this);
+    btn.prop('disabled', true);
+    btn.text('Sending ...');
+    $.get('/rest/send_log')
+            .done(function () {
+                btn.text('Send logs');
+                btn.prop('disabled', false);
             }).fail(onError);
 }
 
