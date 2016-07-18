@@ -73,7 +73,6 @@ def test_non_activated_device_login_redirect_to_activation():
 def test_internal_web_open():
 
     response = requests.get('http://localhost:81')
-    assert 'mac_address' in response.text
     assert response.status_code == 200
 
 
