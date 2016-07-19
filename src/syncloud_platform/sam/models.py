@@ -7,6 +7,7 @@ class App:
     required = Field(default=False)
     ui = Field(default=False)
     url = Field(default='')
+    icon = Field(default=None)
 
 
 class Apps:
