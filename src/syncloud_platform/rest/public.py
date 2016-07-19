@@ -139,6 +139,12 @@ def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
+@app.route(rest_prefix + "/settings/access", methods=["GET"])
+@login_required
+def access():
+    return jsonify(success=True, data=public.access()), 200
+
+
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
 @login_required
 def external_access():

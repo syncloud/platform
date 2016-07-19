@@ -58,6 +58,11 @@ class Public:
     def available_apps(self):
         return [app_from_sam_app(a) for a in self.sam.user_apps()]
 
+    def access(self):
+        external_access = self.user_platform_config.get_external_access()
+        protocol = self.user_platform_config.get_protocol()
+        return dict(external_access=external_access, protocol=protocol)
+
     def external_access(self):
         return self.user_platform_config.get_external_access()
 
