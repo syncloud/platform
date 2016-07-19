@@ -4,20 +4,20 @@ default_ca = CA_default
 [ CA_default ]
 # Directory and file locations.
 dir               = ${config_dir}/tls/ca
-certs             = $dir/certs
-crl_dir           = $dir/crl
-new_certs_dir     = $dir/newcerts
-database          = $dir/index.txt
-serial            = $dir/serial
-RANDFILE          = $dir/private/.rand
+certs             = $$dir/certs
+crl_dir           = $$dir/crl
+new_certs_dir     = $$dir/newcerts
+database          = $$dir/index.txt
+serial            = $$dir/serial
+RANDFILE          = $$dir/private/.rand
 
 # The root key and root certificate.
 private_key       = ${ssl_ca_key_file}
 certificate       = ${ssl_ca_certificate_file}
 
 # For certificate revocation lists.
-crlnumber         = $dir/crlnumber
-crl               = $dir/crl/ca.crl.pem
+crlnumber         = $$dir/crlnumber
+crl               = $$dir/crl/ca.crl.pem
 crl_extensions    = crl_ext
 default_crl_days  = 30
 
