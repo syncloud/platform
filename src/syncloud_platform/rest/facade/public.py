@@ -33,8 +33,8 @@ class Public:
         apps = [app_from_sam_app(a) for a in self.sam.installed_user_apps()]
 
         # TODO: Hack to add system apps, need to think about it
-        apps.append(App('store', 'App Store', html_prefix + '/store.html'))
-        apps.append(App('settings', 'Settings', html_prefix + '/settings.html'))
+        apps.append(App('store', 'App Store', None, html_prefix + '/store.html'))
+        apps.append(App('settings', 'Settings', None, html_prefix + '/settings.html'))
         return apps
 
     def get_app(self, app_id):
