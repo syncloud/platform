@@ -69,7 +69,7 @@ class Tls:
             self.log.info(output)
 
             # Server Key
-            key_file = self.platform_config.get_ssl_ca_key_file()
+            key_file = self.platform_config.get_ssl_key_file()
             output = check_output('{0} genrsa -out {1} 4096 2>&1'
                                   .format(self.openssl_bin,
                                           key_file),
