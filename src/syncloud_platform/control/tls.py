@@ -58,7 +58,7 @@ class Tls:
             cert_ca_file = self.platform_config.get_ssl_ca_certificate_file()
             fd, temp_configfile = tempfile.mkstemp()
             util.transform_file(self.platform_config.get_openssl_config(), temp_configfile,
-                                {'domain': self.info.domain(), 'config_dir': self.platform_config.config_dir(), 'ssl_ca_key_file": key_ca_file, 'ssl_ca_certificate_file': cert_ca_file})
+                                {'domain': self.info.domain(), 'config_dir': self.platform_config.config_dir(), 'ssl_ca_key_file': key_ca_file, 'ssl_ca_certificate_file': cert_ca_file})
 
             output = check_output('{0} req -new -x509 -days 3650 -config {1} -key {2} -out {3} 2>&1'
                                   .format(self.openssl_bin,
