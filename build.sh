@@ -21,7 +21,7 @@ if [ "${ARCH}" == 'armv7l' ]; then
 fi
 
 
-apt-get -y install libffi-dev
+apt-get -y install libffi-dev python-dev build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
 
 cd www
 rm -rf _site

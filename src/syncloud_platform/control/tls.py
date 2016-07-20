@@ -46,26 +46,73 @@ class Tls:
 
     def generate_self_signed_certificate(self):
 
-        key_file = self.platform_config.get_ssl_key_file()
         try:
 
-            output = check_output('{0} genrsa -out {1} 4096 2>&1'.format(self.openssl_bin, key_file),
+            key_ca_file = self.platform_config.get_ssl_ca_key_file()
+            cert_ca_file = self.platform_config.get_ssl_ca_certificate_file()
+            fd, temp_configfile = tempfile.mkstemp()
+            util.transform_file(self.platform_config.get_openssl_config(), temp_configfile,
+                                {
+                                    'domain': self.info.domain(),
+                                    'config_dir': self.platform_config.config_dir(),
+                                    'ssl_ca_key_file': key_ca_file,
+                                    'ssl_ca_certificate_file': cert_ca_file
+                                })
+
+            self.log.info('generating CA Key')
+            output = check_output('OPENSSL_CONF={2} {0} genrsa -out {1} 4096 2>&1'.format(
+                self.openssl_bin,
+                key_ca_file,
+                temp_configfile),
+                stderr=subprocess.STDOUT, shell=True)
+            self.log.info(output)
+
+            self.log.info('generating CA Certificate')
+            output = check_output('OPENSSL_CONF={1} {0} req -new -x509 -days 3650 -config {1} -key {2} -out {3} 2>&1'
+                                  .format(self.openssl_bin,
+                                          temp_configfile,
+                                          key_ca_file,
+                                          cert_ca_file),
                                   stderr=subprocess.STDOUT, shell=True)
             self.log.info(output)
+
+            self.log.info('generating Server Key')
+            key_file = self.platform_config.get_ssl_key_file()
+            output = check_output('OPENSSL_CONF={2} {0} genrsa -out {1} 4096 2>&1'
+                                  .format(self.openssl_bin,
+                                          key_file,
+                                          temp_configfile),
+                                  stderr=subprocess.STDOUT, shell=True)
+            self.log.info(output)
+
+            self.log.info('generating Server Certificate Request')
+            key_file = self.platform_config.get_ssl_key_file()
+            certificate_request_file = self.platform_config.get_ssl_certificate_request_file()
+            output = check_output('OPENSSL_CONF={1} {0} req -config {1} -key {2} -new -sha256 -out {3} 2>&1'
+                                  .format(self.openssl_bin,
+                                          temp_configfile,
+                                          key_file,
+                                          certificate_request_file),
+                                  stderr=subprocess.STDOUT, shell=True)
+            self.log.info(output)
+
+            self.log.info('generating Server Certificate')
+            cert_file = self.platform_config.get_ssl_certificate_file()
+            output = check_output(
+                'OPENSSL_CONF={1} {0} ca -config {1} '
+                '-extensions server_cert -days 3650 '
+                '-notext -md sha256 -in {2} -out {3} -batch 2>&1'.format(
+                    self.openssl_bin,
+                    temp_configfile,
+                    certificate_request_file,
+                    cert_file),
+                stderr=subprocess.STDOUT, shell=True)
+            self.log.info(output)
+
         except CalledProcessError, e:
             self.log.warn('unable to generate self-signed certificate: {0}'.format(e))
             self.log.warn(e.output)
             raise e
-
-        cert_file = self.platform_config.get_ssl_certificate_file()
-        fd, temp_configfile = tempfile.mkstemp()
-        util.transform_file(self.platform_config.get_openssl_config(), temp_configfile, {'domain': self.info.domain()})
-        cmd = '{0} req -new -x509 -days 3650 -config {1} -key {2} -out {3} 2>&1'.format(self.openssl_bin,
-                                                                                        temp_configfile, key_file,
-                                                                                        cert_file)
-        self.log.info('running: ' + cmd)
-        output = check_output(cmd, shell=True)
-        self.log.info(output)
 
         self.nginx.reload()
 
