@@ -6,6 +6,7 @@ from subprocess import check_output, CalledProcessError
 
 from syncloud_app import util
 from syncloud_app.logger import get_logger
+import time
 
 
 class Tls:
@@ -50,6 +51,11 @@ class Tls:
 
             key_ca_file = self.platform_config.get_ssl_ca_key_file()
             cert_ca_file = self.platform_config.get_ssl_ca_certificate_file()
+            ssl_ca_serial_file = self.platform_config.get_ssl_ca_serial_file()
+
+            with open(ssl_ca_serial_file, 'w') as f:
+                f.write(str(int(time.time())))
+
             fd, temp_configfile = tempfile.mkstemp()
             util.transform_file(self.platform_config.get_openssl_config(), temp_configfile,
                                 {

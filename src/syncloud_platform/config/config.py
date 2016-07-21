@@ -98,6 +98,9 @@ class PlatformConfig:
     def get_ssl_ca_certificate_file(self):
         return self.__get('ssl_ca_certificate_file')
 
+    def get_ssl_ca_serial_file(self):
+        return self.__get('ssl_ca_serial_file')
+
     def get_ssl_certificate_request_file(self):
         return self.__get('ssl_certificate_request_file')
 
