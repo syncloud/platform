@@ -55,9 +55,8 @@
 				<div class="dropdowncontainer hlink">
 					<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
 					<div id="myDropdown" class="dropdown-content">
-					<a href="#">Sleep</a>
-					<a href="#">Shutdown</a>
 					<a href="#">Restart</a>
+					<a href="#">Shutdown</a>
 					</div>
 				</div>
 			</div>
@@ -74,9 +73,8 @@
 			<a href="settings.html">Settings</a>
 			<div class="menucolor2">
 			<a href="#" id="btn_logout_small">Log out</a>
-			<a href="#" >Sleep</a>
-			<a href="#" >Shutdown</a>
 			<a href="#" >Restart</a>
+			<a href="#" >Shutdown</a>
 			</div>
 		</div>
 	</div>
@@ -111,6 +109,25 @@
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/lib/bootstrap-switch.min.js"></script>
 <script src="js/ui/menu.js"></script>
+
+<script type="text/javascript">
+
+function ui_send_log() {
+		var btn = $("#btn_send_logs");
+		btn.button('loading');
+		backend_send_log(function() {
+				btn.button('reset');
+		});
+}
+
+$(document).ready(function () {
+    $("#btn_send_logs").on('click', function () {
+    		ui_send_log();
+    });
+});
+
+</script>
+
 <!--[if lt IE 9]> 
 <script src="js/lib/html5.js"></script>
 <script src="js/lib/IE9.js"></script>

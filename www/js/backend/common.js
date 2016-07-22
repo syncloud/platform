@@ -6,6 +6,14 @@ function onError(xhr, textStatus, errorThrown) {
     }
 }
 
+function on_error(status, error) {
+    if (status === 401) {
+        window.location.href = "/login.html";
+    } else {
+        window.location.href = "/error.html";
+    }
+}
+
 function run_after_sam_is_complete(on_complete) {
 
     var recheck_function = function () { run_after_sam_is_complete(on_complete); }
@@ -28,6 +36,16 @@ function find_app(apps_data, app_id) {
         var app_data = apps_data[s];
         if (app_data.app.id == app_id) {
             return app_data;
+        }
+    }
+    return null;
+}
+
+function get_value(values, name) {
+    for (i=0; i < values.length; i++) {
+        var value = values[i];
+        if (value.name === name) {
+            return value.value;
         }
     }
     return null;

@@ -1,5 +1,5 @@
-$( document ).ready(function() {
-    var data = {
+var backend = {
+    apps_data: {
       "apps": [
         {
           "id": "owncloud",
@@ -27,6 +27,12 @@ $( document ).ready(function() {
           "icon": "penguin.png"
         }
       ]
-    };
-    display_apps(data);
-});
+    },
+
+    available_apps: function(parameters) {
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.apps_data);
+        }, 2000);
+    }
+}

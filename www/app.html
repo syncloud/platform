@@ -58,9 +58,8 @@
 				<div class="dropdowncontainer hlink">
 					<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
 					<div id="myDropdown" class="dropdown-content">
-					<a href="#">Sleep</a>
-					<a href="#">Shutdown</a>
 					<a href="#">Restart</a>
+					<a href="#">Shutdown</a>
 					</div>
 				</div>
 			</div>
@@ -77,9 +76,8 @@
 			<a href="settings.html">Settings</a>
 			<div class="menucolor2">
 			<a href="#" id="btn_logout_small">Log out</a>
-			<a href="#" >Sleep</a>
-			<a href="#" >Shutdown</a>
 			<a href="#" >Restart</a>
+			<a href="#" >Shutdown</a>
 			</div>
 		</div>
 	</div>
@@ -145,20 +143,50 @@
 		</div>
 </script>
 
-<script type="text/javascript">
-
-function display_app(data) {
-		var template = $("#app-template").html();
-		$("#block_app").html(_.template(template)(data));
-}
-
-</script>
-
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/ui/menu.js"></script>
-<!--[if lt IE 9]> 
+
+<script type="text/javascript">
+
+function register_btn_open_click() {
+    $("#btn_open").on('click', function () {
+        var btn = $(this);
+        var app_url = btn.data('url');
+        window.location.href = app_url;
+    });
+}
+
+function register_btn_action_click(app_id, action) {
+		$("#btn_"+action).on('click', function () {
+				var btn = $(this);
+				btn.button('loading');
+				backend_app_action(app_id, action, function() {
+						btn.button('reset');
+				});
+		});
+}
+
+function ui_display_app(data) {
+		var template = $("#app-template").html();
+		$("#block_app").html(_.template(template)(data));
+		var app_id = data.info.app.id;
+		register_btn_open_click();
+		register_btn_action_click(app_id, 'install');
+		register_btn_action_click(app_id, 'upgrade');
+		register_btn_action_click(app_id, 'remove');
+}
+
+$( document ).ready(function () {
+		var app_id = new URI().query(true)['app_id'];
+
+		backend_update_app(app_id);
+});
+
+</script>
+
+<!--[if lt IE 9]>
 <script src="js/lib/html5.js"></script>
 <script src="js/lib/IE9.js"></script>
 <![endif]-->

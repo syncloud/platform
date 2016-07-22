@@ -57,9 +57,8 @@
 				<div class="dropdowncontainer hlink">
 					<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
 					<div id="myDropdown" class="dropdown-content">
-					<a href="#">Sleep</a>
-					<a href="#">Shutdown</a>
 					<a href="#">Restart</a>
+					<a href="#">Shutdown</a>
 					</div>
 				</div>
 			</div>
@@ -76,9 +75,8 @@
 			<a href="settings.html">Settings</a>
 			<div class="menucolor2">
 			<a href="#" id="btn_logout_small">Log out</a>
-			<a href="#" >Sleep</a>
-			<a href="#" >Shutdown</a>
 			<a href="#" >Restart</a>
+			<a href="#" >Shutdown</a>
 			</div>
 		</div>
 	</div>
@@ -123,6 +121,12 @@
     <% } %>
 </script>
 
+<!-- Scripts-->
+<script src="js/lib/jquery-1.11.3.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/lib/bootstrap-switch.min.js"></script>
+<script src="js/ui/menu.js"></script>
+
 <script type="text/javascript">
 
 function display_apps(data) {
@@ -130,14 +134,15 @@ function display_apps(data) {
 		$("#block_apps").html(_.template(template)(data));
 }
 
+$( document ).ready(function() {
+		backend_installed_apps(function (data) {
+				display_apps(data);
+		});
+});
+
 </script>
 
-<!-- Scripts-->
-<script src="js/lib/jquery-1.11.3.min.js"></script>
-<script src="js/lib/bootstrap.min.js"></script>
-<script src="js/lib/bootstrap-switch.min.js"></script>
-<script src="js/ui/menu.js"></script>
-<!--[if lt IE 9]> 
+<!--[if lt IE 9]>
 <script src="js/lib/html5.js"></script>
 <script src="js/lib/IE9.js"></script>
 <![endif]-->

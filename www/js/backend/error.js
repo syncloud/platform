@@ -1,21 +1,16 @@
-$(document).ready(function () {
-    $("#btn_send_logs").on('click', function () {
-        var btn = $(this);
-        btn.button('loading');
-
-        $.get('/rest/user')
-                .done(function() {
-                    $.get('/rest/send_log')
-                            .done(function (data) {
-                                window.location.href = "/";
-                            })
-                            .fail(onError)
-                            .always(function() {
-                                btn.button('reset');
-                            });
+function backend_send_log(on_completed) {
+    $.get('/rest/user')
+        .done(function() {
+            $.get('/rest/send_log')
+                .done(function (data) {
+                    window.location.href = "/";
                 })
-                .fail(function() {
-                    window.location.href = "/sendlogs.html";
+                .fail(onError)
+                .always(function() {
+                    on_completed();
                 });
-    });
-});
+        })
+        .fail(function() {
+            window.location.href = "/sendlogs.html";
+        });
+}

@@ -83,6 +83,49 @@
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/lib/bootstrap-switch.min.js"></script>
 <script src="js/ui/menu.js"></script>
+
+<script type="text/javascript">
+
+function show_error(error) {
+		if (error) {
+				if ('parameters_messages' in error) {
+						for (var i = 0; i < error.parameters_messages.length; i++) {
+								var pm = error.parameters_messages[i];
+								var message_text = pm.messages.join('\n');
+						}
+				} else {
+						if (!('message' in error && error.message)) {
+								error['message'] = 'Server Error'
+						}
+				}
+    }
+}
+
+$(document).ready(function () {
+
+    $("#form-logs").submit(function (event) {
+        event.preventDefault();
+
+        var btn = $('#btn_send');
+        btn.button('loading');
+
+        var values = $("#form-logs").serializeArray();
+
+        backend_send_log(values,
+        	function() {
+							window.location.href = "activate.html";
+        	},
+        	show_error,
+        	function() {
+							btn.button('reset');
+        	});
+    });
+
+});
+
+
+</script>
+
 <!--[if lt IE 9]>
 <script src="js/lib/html5.js"></script>
 <script src="js/lib/IE9.js"></script>

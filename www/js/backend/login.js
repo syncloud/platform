@@ -1,4 +1,4 @@
-function login(values, on_error) {
+function backend_login(values, on_error) {
     $.post("/rest/login", values)
             .done(function (data) {
                 window.location.replace("/");
@@ -12,12 +12,3 @@ function login(values, on_error) {
                 }
             });
 }
-
-$(document).ready(function () {
-    $("#form-login").submit(function (event) {
-        event.preventDefault();
-
-        var values = $("#form-login").serializeArray();
-        login(values);
-    });
-});
