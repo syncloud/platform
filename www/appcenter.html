@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Apps | Syncloud.it</title>
+	<title>App Center | Syncloud.it</title>
 	<meta name="author" content="feelspace.ru">
 	<meta name="description" content="Your Personal Server">
 	<meta name="keywords" content="Your Personal Server">
@@ -35,11 +35,7 @@
   <script type="text/javascript" src="js/lib/underscore-min.js"></script>
 
 	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-	<!-- Bootstrap -->
-    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
-    <link href="css/lib/bootstrap-switch.min.css" rel="stylesheet">
-    <link href="css/lib/font-awesome.css" rel="stylesheet">
-	</head>
+	</head>	
 <body>
 <div class="wrapper">
 <div class="content">
@@ -48,8 +44,8 @@
 		<header class="wd12">
 			<div class="logo">Syncloud</div>
 			<div class="menulinks">
-				<a href="index.html" class="apps active hlink">Apps</a>
-				<a href="appcenter.html" class="appcenter hlink">App Center</a>
+				<a href="index.html" class="apps hlink">Apps</a>
+				<a href="appcenter.html" class="appcenter active hlink">App Center</a>
 				<a href="settings.html" class="settings hlink">Settings</a>
 			</div>
 			<div class="menuoff">
@@ -84,7 +80,7 @@
 	</div>
 	<!--Login_block1-->
 	<div class="block1 wd12" id="block1">
-		<h1 class="bigh1">Applications</h1>
+		<h1 class="bigh1">App Center</h1>
 		<div class="row appcenterlist" id="block_apps">
 		</div>
 	</div>
@@ -111,16 +107,13 @@
 
     <%for (s=0; s < apps.length; s++) {
         var app = apps[s]; %>
-
-				<% if (app.id != "store" && app.id != "settings") { %>
-				<a href="<%= app.url %>" class="colapp app">
+				<a href="app.html?app_id=<%= app.id %>" class="colapp app">
 					<img src="appsimages/<%= app.icon %>" class="appminimg">
-					<div class="appname"><%= app.name %></div>
+					<div class="appname withline"><%= app.name %></div>
 					<div class="appdesc"></div>
 				</a>
-				<% } %>
-
     <% } %>
+
 </script>
 
 <script type="text/javascript">
@@ -134,17 +127,14 @@ function display_apps(data) {
 
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
-<script src="js/lib/bootstrap.min.js"></script>
-<script src="js/lib/bootstrap-switch.min.js"></script>
 <script src="js/ui/menu.js"></script>
 <!--[if lt IE 9]> 
 <script src="js/lib/html5.js"></script>
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
-
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/index.js"></script>
+<script src="js/backend/appcenter.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

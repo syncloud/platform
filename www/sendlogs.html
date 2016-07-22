@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Apps | Syncloud.it</title>
+	<title>Send logs | Syncloud.it</title>
 	<meta name="author" content="feelspace.ru">
 	<meta name="description" content="Your Personal Server">
 	<meta name="keywords" content="Your Personal Server">
@@ -31,61 +31,34 @@
 	<meta name="msapplication-TileColor" content="#da532c">
 	<meta name="msapplication-TileImage" content="/mstile-144x144.png">
 	<meta name="theme-color" content="#ffffff">
-
-  <script type="text/javascript" src="js/lib/underscore-min.js"></script>
-
+	
 	<link rel="stylesheet" href="css/site.min.css" type="text/css">
+
 	<!-- Bootstrap -->
     <link href="css/lib/bootstrap.min.css" rel="stylesheet">
     <link href="css/lib/bootstrap-switch.min.css" rel="stylesheet">
     <link href="css/lib/font-awesome.css" rel="stylesheet">
-	</head>
+
+	</head>	
 <body>
 <div class="wrapper">
 <div class="content">
 <!--HEADER-->
 	<div class="headblock">
 		<header class="wd12">
-			<div class="logo">Syncloud</div>
-			<div class="menulinks">
-				<a href="index.html" class="apps active hlink">Apps</a>
-				<a href="appcenter.html" class="appcenter hlink">App Center</a>
-				<a href="settings.html" class="settings hlink">Settings</a>
-			</div>
-			<div class="menuoff">
-				<a href="#" id="btn_logout_large" class="logout hlink">Log out</a>
-				<div class="dropdowncontainer hlink">
-					<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
-					<div id="myDropdown" class="dropdown-content">
-					<a href="#">Sleep</a>
-					<a href="#">Shutdown</a>
-					<a href="#">Restart</a>
-					</div>
-				</div>
-			</div>
-			<div class="menubutton">
-				<span></span>
-				<span></span>
-				<span></span>
-				<span></span>
-			</div>
+			<div class="logo onelogo">Syncloud</div>
 		</header>
-		<div class="navi">
-			<a href="index.html">Apps</a>
-			<a href="appcenter.html">App Center</a>
-			<a href="settings.html">Settings</a>
-			<div class="menucolor2">
-			<a href="#" id="btn_logout_small">Log out</a>
-			<a href="#" >Sleep</a>
-			<a href="#" >Shutdown</a>
-			<a href="#" >Restart</a>
-			</div>
-		</div>
 	</div>
 	<!--Login_block1-->
 	<div class="block1 wd12" id="block1">
-		<h1 class="bigh1">Applications</h1>
-		<div class="row appcenterlist" id="block_apps">
+		<h1>Send Logs</h1>
+		<div class="formblock">
+			<form id="form-logs">
+				<h2>Syncloud Account:</h2>
+				<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
+				<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
+				<button id="btn_send" class="submit buttonblue" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send Logs</button>
+			</form>
 		</div>
 	</div>
 </div>
@@ -105,46 +78,17 @@
 		</footer>
 	</div>
 </div>
-
-<!-- Create your template -->
-<script type="text/html" id='apps-template'>
-
-    <%for (s=0; s < apps.length; s++) {
-        var app = apps[s]; %>
-
-				<% if (app.id != "store" && app.id != "settings") { %>
-				<a href="<%= app.url %>" class="colapp app">
-					<img src="appsimages/<%= app.icon %>" class="appminimg">
-					<div class="appname"><%= app.name %></div>
-					<div class="appdesc"></div>
-				</a>
-				<% } %>
-
-    <% } %>
-</script>
-
-<script type="text/javascript">
-
-function display_apps(data) {
-		var template = $("#apps-template").html();
-		$("#block_apps").html(_.template(template)(data));
-}
-
-</script>
-
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/lib/bootstrap-switch.min.js"></script>
 <script src="js/ui/menu.js"></script>
-<!--[if lt IE 9]> 
+<!--[if lt IE 9]>
 <script src="js/lib/html5.js"></script>
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
-
 <script src="js/backend/common.js"></script>
-<script src="js/backend/menu.js"></script>
-<script src="js/backend/index.js"></script>
+<script src="js/backend/sendlogs.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

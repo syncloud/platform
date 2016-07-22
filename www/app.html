@@ -1,134 +1,171 @@
----
-layout: public
-title: App
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Name of App | Syncloud.it</title>
+	<meta name="author" content="feelspace.ru">
+	<meta name="description" content="Your Personal Server">
+	<meta name="keywords" content="Your Personal Server">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="MobileOptimized" content="width" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	
+	<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+	<link rel="icon" type="image/png" href="/favicon-194x194.png" sizes="194x194">
+	<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+	<meta name="theme-color" content="#ffffff">
 
-show_main_menu: true
-main_menu_item: menu_apps
----
+  <script type="text/javascript" src="js/lib/underscore-min.js"></script>
+  <script type="text/javascript" src="js/lib/URI.js"></script>
 
-<div class="container">
-    <div id="app" class="form-horizontal"></div>
+	<link rel="stylesheet" href="css/site.min.css" type="text/css">
+	<!-- Bootstrap -->
+    <link href="css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="css/lib/font-awesome.css" rel="stylesheet">
+
+	</head>
+<body>
+<div class="wrapper">
+<div class="content">
+<!--HEADER-->
+	<div class="headblock">
+		<header class="wd12">
+			<div class="logo">Syncloud</div>
+			<div class="menulinks">
+				<a href="index.html" class="apps hlink">Apps</a>
+				<a href="appcenter.html" class="appcenter hlink active">App Center</a>
+				<a href="settings.html" class="settings hlink">Settings</a>
+			</div>
+			<div class="menuoff">
+				<a href="#" id="btn_logout_large" class="logout hlink">Log out</a>
+				<div class="dropdowncontainer hlink">
+					<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
+					<div id="myDropdown" class="dropdown-content">
+					<a href="#">Sleep</a>
+					<a href="#">Shutdown</a>
+					<a href="#">Restart</a>
+					</div>
+				</div>
+			</div>
+			<div class="menubutton">
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+		</header>
+		<div class="navi">
+			<a href="index.html">Apps</a>
+			<a href="appcenter.html">App Center</a>
+			<a href="settings.html">Settings</a>
+			<div class="menucolor2">
+			<a href="#" id="btn_logout_small">Log out</a>
+			<a href="#" >Sleep</a>
+			<a href="#" >Shutdown</a>
+			<a href="#" >Restart</a>
+			</div>
+		</div>
+	</div>
+	<!--Login_block1-->
+	<div class="block1 wd12" id="block_app">
+	</div>
+</div>
+<!--footer-->
+	<div class="footerblock">
+		<footer class="wd12">
+				<div class="contacts">
+					<a href="mailto:syncloud@syncloud.it" class="link_mail"></a>
+					<a href="https://www.facebook.com/Syncloud-1502965600014317" target="_blank" class="link_facebook" onClick="_gaq.push(['_trackEvent', 'Landing', 'click', 'facebook']);"></a>
+				</div>
+				<div class="links">
+					<a href="faq.html">FAQ</a>
+					<a href="about.html">About</a>
+				</div>
+				<div class="copyrights">Copyright ©2015 Syncloud, Ltd. All Rights Reserved.</div>
+				<a href="http://feelspace.ru" target="_blank" class="feelink">Designed by: <font>feelspace.ru</font></a>
+		</footer>
+	</div>
 </div>
 
 <!-- Create your template -->
 <script type="text/html" id='app-template'>
-    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
-      <div><img class="center-block" src="appsimages/<%= info.app.id %>-128.png"/></div>
-      <div><p class="text-center"><%= info.app.name %></p></div>
-    </div>
-    <div class="col-6 col-md-6 col-sm-6 col-xs-6 col-lg-6">
-        <% _.each(actions, function(el) { %>
-            <button id="btn<%= el %>" name="btn<%= el %>"
-                    class="btn btn-primary center-block"
-                    style="width: 100%; margin-bottom: 10px;">
-                <%= el %>
-            </button>
-        <% }); %>
-        <% if (info.installed_version) { %>
-            <p class="text-nowrap text-center" style="width: 100%">
-                v<%= info.installed_version %>
-            </p>
-        <% } %>
-    </div>
-    <div class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12">
-        <div id="progress-bar" class="progress" style="height: 10px; margin-bottom: 5px; visibility: hidden">
-            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0"
-                 aria-valuemax="100" style="width: 100%">
-                <span class="sr-only">45% Complete</span>
-            </div>
-        </div>
-    </div>
-    <div id="errors_placeholder" class="col-12 col-md-12 col-sm-12 col-lg-12 col-xs-12"></div>
-</script>
+		<div class="appblock">
+			<div class="col30">
 
-<script type="text/html" id="error_template">
-    <div class="alert alert-danger">
-        Server error: <%= message %>
-    </div>
+				<div class="appimg">
+					<img src="appsimages/<%= info.app.icon %>" alt="">
+				</div>
+				<div class="appinfo">
+					<!--<h1>RoundCube</h1>-->
+        	<% if (info.installed_version !== null) { %>
+					<b>Installed version:</b> <%= info.installed_version %><br>
+        	<% } %>
+        	<% if (info.installed_version !== info.current_version) { %>
+					<b>Available version:</b> <%= info.current_version %><br>
+        	<% } %>
+					<!--<b>Size:</b> 17.0 MB-->
+				</div>
+			</div>
+			<div class="col70">
+				<h1><%= info.app.name %></h1>
+				<div class="buttonblock">
+        	<% if (info.installed_version !== null) { %>
+					<button id="btn_open" data-url="<%= info.app.url %>" class="buttonblue bwidth smbutton">Open</button>
+        	<% } %>
+        	<% if (info.installed_version === null) { %>
+					<button id="btn_install" class="buttonblue bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing...">Install</button>
+        	<% } %>
+        	<% if (info.installed_version !== null && info.installed_version !== info.current_version) { %>
+					<button id="btn_upgrade" class="buttongreen bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading...">Upgrade</button>
+        	<% } %>
+        	<% if (info.installed_version !== null) { %>
+					<button id="btn_remove"  class="buttongrey bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing...">Remove</button>
+        	<% } %>
+				</div>
+				<div class="btext">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborumLorem ipsum dolor sit amet, consectetur
+				</div>
+			</div>
+		</div>
 </script>
 
 <script type="text/javascript">
 
-    function get_actions(info) {
-        actions = [];
-        if (info.installed_version) {
-            actions.push('open');
-            if (info.current_version != info.installed_version) {
-                actions.push('upgrade');
-            }
-            actions.push('remove');
-        } else {
-            actions.push('install');
-        }
-        actions.push('check');
-
-        return actions;
-    }
-
-    function progress_start() {
-        $('#progress-bar').css('visibility', 'visible');
-    }
-
-    function progress_stop() {
-        $('#progress-bar').css('visibility', 'hidden');
-    }
-
-    function refresh(app_id) {
-        $.get( '/rest/app', {app_id: app_id})
-                .done( function(data) {
-                    var template = $("#app-template").html();
-                    data.actions = get_actions(data.info);
-                    $("#app").html(_.template(template)(data));
-                    register_events(app_id);
-                    register_url(data.info.app.url, 'open');
-                }).fail( onError );
-
-    }
-
-    function app_status(app_id) {
-        refresh(app_id);
-        progress_stop();
-    }
-
-    function run(action, app_id) {
-        $('#errors_placeholder').empty();
-        progress_start();
-        $.get("/rest/" + action, {app_id: app_id})
-                .fail(function(xhr, textStatus, errorThrown) {
-                    var template = $("#error_template").html();
-                    $('#errors_placeholder').html(_.template(template)(xhr.responseJSON));
-                })
-                .done(function() {
-                    run_after_sam_is_complete(function() {app_status(app_id)});
-                });
-    }
-
-    function register_events(app_id) {
-        register_event(app_id, 'install');
-        register_event(app_id, 'remove');
-        register_event(app_id, 'upgrade');
-        register_event(app_id, 'check');
-    }
-
-    function register_event(app_id, action) {
-        var btn = $("#btn" + action);
-        btn.click(function (event) {
-            btn.addClass('disabled');
-            event.preventDefault();
-            run(action, app_id);
-        });
-    }
-
-    function register_url(url, action) {
-        var btn = $("#btn" + action);
-        btn.click(function (event) {
-            event.preventDefault();
-            window.location.href = url
-        });
-    }
-
-    $(document).ready(function () {
-        refresh(new URI().query(true)['app_id']);
-    });
+function display_app(data) {
+		var template = $("#app-template").html();
+		$("#block_app").html(_.template(template)(data));
+}
 
 </script>
+
+<!-- Scripts-->
+<script src="js/lib/jquery-1.11.3.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/ui/menu.js"></script>
+<!--[if lt IE 9]> 
+<script src="js/lib/html5.js"></script>
+<script src="js/lib/IE9.js"></script>
+<![endif]-->
+<script src="js/backend/common.js"></script>
+<script src="js/backend/menu.js"></script>
+<script src="js/backend/app.js"></script>
+
+<!-- END SCRIPTS -->
+</body>
+</html>
