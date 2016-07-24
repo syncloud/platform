@@ -1,6 +1,8 @@
 function onError(xhr, textStatus, errorThrown) {
     if (xhr.status === 401) {
         window.location.href = "/login.html";
+    } else if (xhr.status === 0) {
+        console.log('user navigated away from the page');
     } else {
         window.location.href = "/error.html";
     }
