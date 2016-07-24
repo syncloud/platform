@@ -147,6 +147,15 @@
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/ui/menu.js"></script>
+<script src="js/ui/common.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/lib/html5.js"></script>
+<script src="js/lib/IE9.js"></script>
+<![endif]-->
+<script src="js/backend/common.js"></script>
+<script src="js/backend/menu.js"></script>
+<script src="js/backend/app.js"></script>
 
 <script type="text/javascript">
 
@@ -162,8 +171,16 @@ function register_btn_action_click(app_id, action) {
 		$("#btn_"+action).on('click', function () {
 				var btn = $(this);
 				btn.button('loading');
-				backend_app_action(app_id, action, function() {
-						btn.button('reset');
+				backend.app_action({
+						app_id: app_id,
+						action: action,
+						done: function(data) {
+								ui_load_app();
+						},
+						always: function() {
+								btn.button('reset');
+						},
+						fail: on_error
 				});
 		});
 }
@@ -178,21 +195,21 @@ function ui_display_app(data) {
 		register_btn_action_click(app_id, 'remove');
 }
 
-$( document ).ready(function () {
+function ui_load_app() {
 		var app_id = new URI().query(true)['app_id'];
 
-		backend_update_app(app_id);
+		backend.load_app({
+				app_id: app_id,
+				done: ui_display_app,
+				fail: on_error
+		});
+}
+
+$( document ).ready(function () {
+		ui_load_app();
 });
 
 </script>
-
-<!--[if lt IE 9]>
-<script src="js/lib/html5.js"></script>
-<script src="js/lib/IE9.js"></script>
-<![endif]-->
-<script src="js/backend/common.js"></script>
-<script src="js/backend/menu.js"></script>
-<script src="js/backend/app.js"></script>
 
 <!-- END SCRIPTS -->
 </body>
