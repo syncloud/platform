@@ -1,16 +1,24 @@
-function backend_send_log(on_completed) {
-    $.get('/rest/user')
-        .done(function() {
-            $.get('/rest/send_log')
-                .done(function (data) {
-                    window.location.href = "/";
-                })
-                .fail(onError)
-                .always(function() {
-                    on_completed();
-                });
-        })
-        .fail(function() {
-            window.location.href = "/sendlogs.html";
-        });
+var backend = {
+    send_log: function(parameters) {
+        $.get('/rest/send_log')
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            });
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    }
 }
