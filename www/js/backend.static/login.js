@@ -1,5 +1,7 @@
-function backend_login(values, on_error) {
-    setTimeout(function() {
-        window.location.href = "index.html";
-    }, 2000);
+var backend = {
+    login: function(parameters) {
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
+    }
 }

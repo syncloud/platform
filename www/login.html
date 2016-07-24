@@ -82,6 +82,16 @@
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/lib/bootstrap-switch.min.js"></script>
 <script src="js/ui/menu.js"></script>
+<script src="js/ui/common.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/lib/html5.js"></script>
+<script src="js/lib/IE9.js"></script>
+<![endif]-->
+
+<script src="js/backend/common.js"></script>
+<script src="js/backend/login.js"></script>
+
 
 <script type="text/javascript">
 
@@ -91,21 +101,20 @@ $(document).ready(function () {
         var btn = $("#btn_login");
         btn.button('loading');
         var values = $("#form-login").serializeArray();
-        backend_login(values, function() {
-        		btn.button('reset');
+        backend.login({
+        		values: values,
+        		always: function() {
+        				btn.button('reset');
+        		},
+        		done: function(data) {
+								window.location.href = "index.html";
+        		},
+        		fail: on_error
         });
     });
 });
 
 </script>
-
-<!--[if lt IE 9]> 
-<script src="js/lib/html5.js"></script>
-<script src="js/lib/IE9.js"></script>
-<![endif]-->
-
-<script src="js/backend/common.js"></script>
-<script src="js/backend/login.js"></script>
 
 <!-- END SCRIPTS -->
 </body>
