@@ -6,14 +6,6 @@ function onError(xhr, textStatus, errorThrown) {
     }
 }
 
-function on_error(status, error) {
-    if (status === 401) {
-        window.location.href = "/login.html";
-    } else {
-        window.location.href = "/error.html";
-    }
-}
-
 function run_after_sam_is_complete(on_complete) {
 
     var recheck_function = function () { run_after_sam_is_complete(on_complete); }

@@ -8,10 +8,6 @@ function find_app(apps_data, app_id) {
     return null;
 }
 
-function on_error(status, error) {
-    window.location.href = "/error.html";
-}
-
 function success_callbacks(parameters, data) {
     if (parameters.hasOwnProperty("done")) {
         parameters.done(data);

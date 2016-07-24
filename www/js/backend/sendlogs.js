@@ -1,16 +1,25 @@
-function backend_send_log(values, on_done, on_error, on_always) {
-    $.post("/rest/send_log", values)
-        .done(function (data) {
-            on_done();
-        })
-        .fail(function (xhr, textStatus, errorThrown) {
-            var error = null;
-            if (xhr.hasOwnProperty('responseJSON')) {
-                error = xhr.responseJSON;
-           }
-            on_error(error);
-        })
-        .always(function() {
-            on_always();
-        });
+var backend = {
+    send_logs: function(parameters) {
+        var values = parameters.values;
+        $.post("/rest/send_log", values)
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    }
 }
