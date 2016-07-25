@@ -20,8 +20,11 @@ class PlatformConfig:
     def data_root(self):
         return self.__get('data_root')
 
-    def www_root(self):
-        return self.__get('www_root')
+    def www_root_internal(self):
+        return self.__get('www_root_internal')
+
+    def www_root_public(self):
+        return self.__get('www_root_public')
 
     def app_dir(self):
         return self.__get('app_dir')

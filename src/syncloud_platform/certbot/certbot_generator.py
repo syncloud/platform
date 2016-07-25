@@ -51,7 +51,7 @@ class CertbotGenerator:
                               self.certbot_config_dir,
                               self.user_platform_config.get_user_email(),
                               test_cert,
-                              self.platform_config.www_root(),
+                              self.platform_config.www_root_public(),
                               domain_args), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)

@@ -15,7 +15,7 @@ class Public:
         self.device = device
         self.device_info = device_info
         self.sam = sam
-        self.www_dir = self.platform_config.www_root()
+        self.www_dir = self.platform_config.www_root_public()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
         self.certbot_generator = certbot_generator
