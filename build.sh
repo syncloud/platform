@@ -21,12 +21,16 @@ if [ "${ARCH}" == 'armv7l' ]; then
 fi
 
 
-cd www
-rm -rf _site
 hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit 1; }
 hash ruby 2>/dev/null || { echo >&2 "ruby (jekyll) is not installed. Aborting."; exit 1; }
+
+cd ${DIR}/www/public
+rm -rf _site
 jekyll build
-cd ..
+cd ${DIR}/www/internal
+rm -rf _site
+jekyll build
+cd ${DIR}
 
 BUILD_DIR=${DIR}/build/${NAME}
 rm -rf build

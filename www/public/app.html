@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Name of App | Syncloud.it</title>
+	<meta name="author" content="feelspace.ru">
+	<meta name="description" content="Your Personal Server">
+	<meta name="keywords" content="Your Personal Server">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="MobileOptimized" content="width" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	
+	<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+	<link rel="icon" type="image/png" href="/favicon-194x194.png" sizes="194x194">
+	<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+	<meta name="theme-color" content="#ffffff">
+
+  <script type="text/javascript" src="js/lib/underscore-min.js"></script>
+  <script type="text/javascript" src="js/lib/URI.js"></script>
+
+	<link rel="stylesheet" href="css/site.min.css" type="text/css">
+	<!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.css" rel="stylesheet">
+
+	</head>
+<body>
+<div class="wrapper">
+<div class="content">
+<!--HEADER-->
+	<div class="headblock">
+		<header class="wd12">
+			<div class="logo">Syncloud</div>
+			<div class="menulinks">
+				<a href="index.html" class="apps hlink">Apps</a>
+				<a href="appcenter.html" class="appcenter hlink active">App Center</a>
+				<a href="settings.html" class="settings hlink">Settings</a>
+			</div>
+			<div class="menuoff">
+				<a href="#" id="btn_logout_large" class="logout hlink">Log out</a>
+				<div class="dropdowncontainer hlink">
+					<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
+					<div id="myDropdown" class="dropdown-content">
+					<a href="#" id="btn_restart_large">Restart</a>
+					<a href="#" id="btn_shutdown_large">Shutdown</a>
+					</div>
+				</div>
+			</div>
+			<div class="menubutton">
+				<span></span>
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+		</header>
+		<div class="navi">
+			<a href="index.html">Apps</a>
+			<a href="appcenter.html">App Center</a>
+			<a href="settings.html">Settings</a>
+			<div class="menucolor2">
+			<a href="#" id="btn_logout_small">Log out</a>
+			<a href="#" id="btn_restart_small">Restart</a>
+			<a href="#" id="btn_shutdown_small">Shutdown</a>
+			</div>
+		</div>
+	</div>
+	<!--Login_block1-->
+	<div class="block1 wd12" id="block_app">
+	</div>
+</div>
+<!--footer-->
+	<div class="footerblock">
+		<footer class="wd12">
+				<div class="contacts">
+					<a href="mailto:syncloud@syncloud.it" class="link_mail"></a>
+					<a href="https://www.facebook.com/Syncloud-1502965600014317" target="_blank" class="link_facebook" onClick="_gaq.push(['_trackEvent', 'Landing', 'click', 'facebook']);"></a>
+				</div>
+				<div class="links">
+					<a href="faq.html">FAQ</a>
+					<a href="about.html">About</a>
+				</div>
+				<div class="copyrights">Copyright ©2015 Syncloud, Ltd. All Rights Reserved.</div>
+				<a href="http://feelspace.ru" target="_blank" class="feelink">Designed by: <font>feelspace.ru</font></a>
+		</footer>
+	</div>
+</div>
+
+<!-- Create your template -->
+<script type="text/html" id='app-template'>
+		<div class="appblock">
+			<div class="col30">
+
+				<div class="appimg">
+					<img src="appsimages/<%= info.app.icon %>" alt="">
+				</div>
+				<div class="appinfo">
+					<!--<h1>RoundCube</h1>-->
+        	<% if (info.installed_version !== null) { %>
+					<b>Installed version:</b> <%= info.installed_version %><br>
+        	<% } %>
+        	<% if (info.installed_version !== info.current_version) { %>
+					<b>Available version:</b> <%= info.current_version %><br>
+        	<% } %>
+					<!--<b>Size:</b> 17.0 MB-->
+				</div>
+			</div>
+			<div class="col70">
+				<h1><%= info.app.name %></h1>
+				<div class="buttonblock">
+        	<% if (info.installed_version !== null) { %>
+					<button id="btn_open" data-url="<%= info.app.url %>" class="buttonblue bwidth smbutton">Open</button>
+        	<% } %>
+        	<% if (info.installed_version === null) { %>
+					<button id="btn_install" class="buttonblue bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing...">Install</button>
+        	<% } %>
+        	<% if (info.installed_version !== null && info.installed_version !== info.current_version) { %>
+					<button id="btn_upgrade" class="buttongreen bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading...">Upgrade</button>
+        	<% } %>
+        	<% if (info.installed_version !== null) { %>
+					<button id="btn_remove"  class="buttongrey bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing...">Remove</button>
+        	<% } %>
+				</div>
+				<div class="btext">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborumLorem ipsum dolor sit amet, consectetur
+				</div>
+			</div>
+		</div>
+</script>
+
+<!-- Scripts-->
+<script src="js/lib/jquery-1.11.3.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/ui/menu.js"></script>
+<script src="js/ui/common.js"></script>
+<script src="js/ui/ui-menu.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/lib/html5.js"></script>
+<script src="js/lib/IE9.js"></script>
+<![endif]-->
+<script src="js/backend/common.js"></script>
+<script src="js/backend/menu.js"></script>
+<script src="js/backend/app.js"></script>
+
+<script type="text/javascript">
+
+function register_btn_open_click() {
+    $("#btn_open").on('click', function () {
+        var btn = $(this);
+        var app_url = btn.data('url');
+        window.location.href = app_url;
+    });
+}
+
+function register_btn_action_click(app_id, action) {
+		$("#btn_"+action).on('click', function () {
+				var btn = $(this);
+				btn.button('loading');
+				backend.app_action({
+						app_id: app_id,
+						action: action,
+						done: function(data) {
+								ui_load_app();
+						},
+						always: function() {
+								btn.button('reset');
+						},
+						fail: on_error
+				});
+		});
+}
+
+function ui_display_app(data) {
+		var template = $("#app-template").html();
+		$("#block_app").html(_.template(template)(data));
+		var app_id = data.info.app.id;
+		register_btn_open_click();
+		register_btn_action_click(app_id, 'install');
+		register_btn_action_click(app_id, 'upgrade');
+		register_btn_action_click(app_id, 'remove');
+}
+
+function ui_load_app() {
+		var app_id = new URI().query(true)['app_id'];
+
+		backend.load_app({
+				app_id: app_id,
+				done: ui_display_app,
+				fail: on_error
+		});
+}
+
+$( document ).ready(function () {
+		ui_load_app();
+});
+
+</script>
+
+<!-- END SCRIPTS -->
+</body>
+</html>
