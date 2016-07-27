@@ -53,7 +53,7 @@
 	<div class="block1 wd12" id="block1">
 		<h1>Send Logs</h1>
 		<div class="formblock">
-			<form id="form-logs">
+			<form id="form_logs">
 				<h2>Syncloud Account:</h2>
 				<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
 				<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
@@ -114,13 +114,13 @@ function ui_display_error(status, error) {
 
 $(document).ready(function () {
 
-    $("#form-logs").submit(function (event) {
+    $("#form_logs").submit(function (event) {
         event.preventDefault();
 
         var btn = $('#btn_send');
         btn.button('loading');
 
-        var values = $("#form-logs").serializeArray();
+        var values = $("#form_logs").serializeArray();
 
 				backend.send_logs({
 						values: values,
