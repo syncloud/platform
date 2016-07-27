@@ -125,9 +125,6 @@ class PlatformConfig:
     def get_platform_log(self):
         return self.__get('platform_log')
 
-    def is_certbot_enabled(self):
-        return self.parser.getboolean('platform', 'certbot_enabled')
-
     def is_certbot_test_cert(self):
         return self.parser.getboolean('platform', 'certbot_test_cert')
 
@@ -219,7 +216,6 @@ class PlatformUserConfig:
         external_access = False
         if self.parser.has_option('platform', 'external_access'):
             external_access = self.parser.getboolean('platform', 'external_access')
-        self.log.info('external_access = {0}'.format(external_access))
         return external_access
 
     def get_protocol(self):

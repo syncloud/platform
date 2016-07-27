@@ -135,7 +135,7 @@ class NonePortDrill:
         pass
 
     def sync_new_port(self, local_port, protocol):
-        pass
+        self.logger.info('port drill is not enabled, not adding {0} {1} mapping'.format(local_port, protocol))
 
     def sync(self):
         pass

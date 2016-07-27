@@ -21,12 +21,7 @@ class Tls:
 
     def generate_real_certificate(self):
 
-        if not self.platform_config.is_certbot_enabled():
-            self.log.info('certbot is not enabled, not running')
-            return
-
         try:
-
             self.log.info('running certbot')
             result = self.certbot_generator.generate_certificate(self.platform_config.is_certbot_test_cert())
 
