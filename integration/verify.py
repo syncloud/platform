@@ -240,7 +240,7 @@ def disk_writable():
     run_ssh("su - platform -s /bin/bash -c 'touch /data/platform/test.file'", password=DEVICE_PASSWORD)
 
 
-@pytest.mark.parametrize("fs_type", ['ntfs', 'vfat', 'exfat', 'ext2', 'ext3', 'ext4'])
+@pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):
     disk_create(loop_device, fs_type)
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
