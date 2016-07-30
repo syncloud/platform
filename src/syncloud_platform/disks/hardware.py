@@ -8,10 +8,10 @@ from syncloud_platform.gaplib import fs
 
 
 supported_fs_options = {
-    'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,'
-            'shortname=mixed,showexec,utf8,flush,errors=remount-ro',
-    'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096',
-    'exfat': 'rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other,blksize=4096',
+    # 'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,'
+    #         'shortname=mixed,showexec,utf8,flush,errors=remount-ro',
+    # 'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096',
+    # 'exfat': 'rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other,blksize=4096',
     'ext2': 'rw,nosuid,nodev,relatime',
     'ext3': 'rw,nosuid,nodev,relatime',
     'ext4': 'rw,nosuid,relatime,data=ordered'
@@ -36,13 +36,16 @@ class Hardware:
 
         partition = self.lsblk.find_partition_by_device(device)
         if not partition:
-            self.log.error('unable to find device: {0}'.format(device))
-            return
+            error_message = 'unable to find device: {0}'.format(device)
+            self.log.error(error_message)
+            raise Exception(error_message)
 
         fs_type = partition.fs_type
         if fs_type not in supported_fs_options:
-            self.log.error('filesystems type is not supported: {0}'.format(fs_type))
-            return
+            error_message = 'Filesystem type is not supported: {0}' \
+                            ', use on of the following: {1}'.format(fs_type, supported_fs_options.keys())
+            self.log.error(error_message)
+            raise Exception(error_message)
 
         systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
 
