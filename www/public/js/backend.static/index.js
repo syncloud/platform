@@ -10,6 +10,10 @@ var backend = {
       ]
     },
 
+//    apps_data: {
+//      "apps": []
+//    },
+
     installed_apps: function(parameters) {
         var that = this;
         setTimeout(function() {
