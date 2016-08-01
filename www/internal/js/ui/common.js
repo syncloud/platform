@@ -31,6 +31,8 @@ function ui_display_error(status, error) {
             if (!('message' in error && error.message)) {
                 error['message'] = 'Server Error'
             }
+            $("#txt_error").text(error.message);
+            $('#block_error').modal();
         }
     } else {
         window.location.href = "error.html";

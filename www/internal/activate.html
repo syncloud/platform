@@ -57,12 +57,33 @@
 	</div>
 </div>
 </div>
+
+<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Error</h4>
+      </div>
+      <div class="modal-body">
+		<div class="bodymod">
+			<div id="txt_error" class="btext">Some error happened?</div>
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+        <button id="btn_error_send_logs" type="button" class="btn buttonblue bwidth smbutton">Send logs</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/lib/bootstrap-switch.min.js"></script>
 <script src="js/ui/font.js"></script>
 <script src="js/ui/common.js"></script>
+<script src="js/ui/error.js"></script>
 
 <!--[if lt IE 9]> 
 <script src="js/lib/html5.js"></script>
@@ -73,24 +94,6 @@
 <script src="js/backend/activate.js"></script>
 
 <script type="text/javascript">
-
-function ui_display_error(status, error) {
-		if (error) {
-				if ('parameters_messages' in error) {
-						for (var i = 0; i < error.parameters_messages.length; i++) {
-								var pm = error.parameters_messages[i];
-								var message_text = pm.messages.join('\n');
-								show_field_error(pm.parameter, message_text);
-						}
-				} else {
-						if (!('message' in error && error.message)) {
-								error['message'] = 'Server Error'
-						}
-				}
-		} else {
-				window.location.href = "error.html";
-		}
-}
 
 $(document).ready(function () {
 		$("#form_activate").submit(function (event) {
@@ -111,9 +114,7 @@ $(document).ready(function () {
 					done: function() {
         		window.location.href = "login.html";
 					},
-					fail: function(status, error) {
-						ui_display_error(error);
-					}
+					fail: ui_display_error
 				});
 		});
 });
