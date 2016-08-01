@@ -65,6 +65,26 @@
 		</footer>
 	</div>
 </div>
+
+<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Error</h4>
+      </div>
+      <div class="modal-body">
+		<div class="bodymod">
+			<div id="txt_error" class="btext">Some error happened!</div>
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+        <button id="btn_error_send_logs" type="button" class="btn buttonblue bwidth smbutton">Send logs</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -89,16 +109,19 @@ $(document).ready(function () {
         event.preventDefault();
         var btn = $("#btn_login");
         btn.button('loading');
+				$("#form-login input").prop("disabled", true);
+
         var values = $("#form-login").serializeArray();
         backend.login({
         		values: values,
         		always: function() {
         				btn.button('reset');
+								$("#form-login input").prop("disabled", false);
         		},
         		done: function(data) {
 								window.location.href = "index.html";
         		},
-        		fail: on_error
+        		fail: ui_display_error
         });
     });
 });

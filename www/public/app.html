@@ -168,7 +168,7 @@ function register_btn_action_click(app_id, action) {
 						always: function() {
 								btn.button('reset');
 						},
-						fail: on_error
+						fail: ui_display_error
 				});
 		});
 }
@@ -189,7 +189,7 @@ function ui_load_app() {
 		backend.load_app({
 				app_id: app_id,
 				done: ui_display_app,
-				fail: on_error
+				fail: ui_display_error
 		});
 }
 

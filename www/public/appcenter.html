@@ -125,7 +125,7 @@ function display_apps(data) {
 $( document ).ready(function() {
 		backend.available_apps({
 			done: display_apps,
-			fail: on_error
+			fail: ui_display_error
 		});
 });
 
