@@ -102,7 +102,7 @@ $(document).ready(function () {
 				var btn = $('#btn_activate');
 				btn.button('loading');
 				$("#form_activate input").prop("disabled", true);
-
+				hide_fields_errors("form_activate");
 				var values = $("#form_activate").serializeArray();
 
 				backend.activate({
