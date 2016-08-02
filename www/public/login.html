@@ -110,7 +110,7 @@ $(document).ready(function () {
         var btn = $("#btn_login");
         btn.button('loading');
 				$("#form-login input").prop("disabled", true);
-
+				hide_fields_errors("form-login");
         var values = $("#form-login").serializeArray();
         backend.login({
         		values: values,

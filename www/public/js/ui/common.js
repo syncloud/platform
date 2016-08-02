@@ -19,6 +19,11 @@ function hide_field_error(txt_field) {
     $( error_block_selector ).remove();
 }
 
+function hide_fields_errors(form) {
+    error_blocks_selector = "#"+form+" .alert";
+    $( error_blocks_selector ).remove();
+}
+
 function ui_display_error(status, error) {
     if (error) {
         if ('parameters_messages' in error) {
