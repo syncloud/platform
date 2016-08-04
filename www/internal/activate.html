@@ -99,11 +99,12 @@ $(document).ready(function () {
 		$("#form_activate").submit(function (event) {
 				event.preventDefault();
 
+				var values = $("#form_activate").serializeArray();
+
 				var btn = $('#btn_activate');
 				btn.button('loading');
 				$("#form_activate input").prop("disabled", true);
 				hide_fields_errors("form_activate");
-				var values = $("#form_activate").serializeArray();
 
 				backend.activate({
 					values: values,

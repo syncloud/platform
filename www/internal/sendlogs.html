@@ -72,11 +72,11 @@ $(document).ready(function () {
     $("#form_logs").submit(function (event) {
         event.preventDefault();
 
+        var values = $("#form_logs").serializeArray();
+
         var btn = $('#btn_send');
         btn.button('loading');
 				$("#form_logs input").prop("disabled", true);
-
-        var values = $("#form_logs").serializeArray();
 
 				backend.send_logs({
 						values: values,
