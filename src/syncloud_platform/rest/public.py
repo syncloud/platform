@@ -202,7 +202,6 @@ def versions():
     return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
 
 
-
 @app.route(rest_prefix + "/settings/system_upgrade", methods=["GET"])
 @login_required
 def system_upgrade():
@@ -227,6 +226,7 @@ def sam_status():
 @login_required
 def disk_deactivate():
     return jsonify(success=True, disks=public.disk_deactivate()), 200
+
 
 @app.route(rest_prefix + "/settings/regenerate_certificate", methods=["GET"])
 @login_required

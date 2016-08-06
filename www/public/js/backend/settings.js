@@ -89,7 +89,7 @@ function backend_platform_upgrade(on_complete) {
 }
 
 function backend_sam_upgrade(on_complete) {
-    $.get('/rest/settings/system_upgrade')
+    $.get('/rest/settings/sam_upgrade')
             .always(function() {
                 run_after_sam_is_complete(function() {
                     update_versions(on_complete);

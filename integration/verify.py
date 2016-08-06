@@ -220,6 +220,10 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
     assert 'max-age=0' in cache_control
 
 
+def test_sam_upgrade(public_web_session):
+    __upgrade(public_web_session, 'sam')
+
+
 @pytest.yield_fixture(scope='function')
 def loop_device():
 
@@ -331,8 +335,12 @@ def test_reinstall(auth):
 
 
 def test_public_web_platform_upgrade(public_web_session):
+    __upgrade(public_web_session, 'system')
 
-    public_web_session.get('http://localhost/rest/settings/system_upgrade')
+
+def __upgrade(public_web_session, upgrade_type):
+
+    public_web_session.get('http://localhost/rest/settings/{0}_upgrade'.format(upgrade_type))
     sam_running = True
     while sam_running:
         try:

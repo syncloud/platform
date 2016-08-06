@@ -13,6 +13,7 @@ SAM_BIN = '/opt/app/sam/bin/sam'
 TEMP_SAM_PATH = '/tmp/sam-copy'
 TEMP_SAM_BIN = join(TEMP_SAM_PATH, 'bin/sam')
 
+
 class SamStub:
 
     def __init__(self, platform_config, info):
@@ -47,7 +48,9 @@ class SamStub:
 
     def list(self):
         result = self.__run([SAM_BIN, 'list'])
-        return [self._add_url(app_versions) for app_versions in convertible.to_object(result, convertible.List(item_type=AppVersions))]
+        return [self._add_url(app_versions)
+                for app_versions
+                in convertible.to_object(result, convertible.List(item_type=AppVersions))]
 
     def _add_url(self, app_versions):
         app_versions.app.url = self.info.url(app_versions.app.id)
