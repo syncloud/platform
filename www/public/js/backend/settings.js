@@ -1,11 +1,128 @@
-function backend_device_url(on_complete) {
-    $.get('/rest/settings/device_domain')
+var backend = {
+    device_url: function(parameters) {
+        $.get('/rest/settings/device_domain')
             .done(function (data) {
-                display_device_url(data);
-                on_complete();
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
             })
-            .fail(onError);
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
+    send_logs: function(parameters) {
+        $.get('/rest/send_log')
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
+    reactivate: function() {
+        var internal_web = (new URI()).port(81).directory("").filename("").query("");
+        window.location.href = internal_web;
+    },
+
+    check_access: function(parameters) {
+        $.get('/rest/settings/access')
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
+    external_access: function(parameters) {
+        var state = parameters.state;
+        $.get('/rest/settings/set_external_access?external_access=' + state)
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
+    protocol: function(parameters) {
+        var new_protocol = parameters.new_protocol;
+        $.get('/rest/settings/set_protocol?protocol=' + new_protocol)
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
 }
+
 
 function backend_update_disks(on_complete) {
     $.get('/rest/settings/disks')
@@ -21,40 +138,6 @@ function backend_disk_action(disk_device, is_activate, on_complete) {
     $.get('/rest/settings/' + mode, {device: disk_device})
             .done(function () {
                 backend_update_disks(on_complete);
-            })
-            .fail(onError);
-}
-
-function backend_send_logs(on_complete) {
-    $.get('/rest/send_log').always(on_complete);
-}
-
-function backend_reactivate() {
-    var internal_web = (new URI()).port(81).directory("").filename("").query("");
-    window.location.href = internal_web;
-}
-
-function backend_check_access(on_complete) {
-    $.get('/rest/settings/access')
-            .done(function (data) {
-                display_access(data.data);
-            })
-            .fail(onError)
-            .always(on_complete);
-}
-
-function backend_external_access(state, on_complete) {
-    $.get('/rest/settings/set_external_access?external_access=' + state)
-            .done(function (data) {
-                backend_check_access(on_complete);
-            })
-            .fail(onError);
-}
-
-function backend_protocol(new_protocol, on_complete) {
-    $.get('/rest/settings/set_protocol?protocol=' + new_protocol)
-            .done(function (data) {
-                backend_check_access(on_complete);
             })
             .fail(onError);
 }

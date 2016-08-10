@@ -251,11 +251,13 @@ function display_device_url(data) {
 }
 
 function display_access(data) {
-		$('#tgl_external_access').bootstrapSwitch('state', data.external_access, true)
+		var access_data = data.data;
+		$('#tgl_external_access').bootstrapSwitch('state', access_data.external_access, true)
 		$('#tgl_external_access').bootstrapSwitch('disabled', false);
 		$("#tgl_external_access_loading").removeClass('opacity1');
-		$('#tgl_protocol').bootstrapSwitch('state', data.protocol === 'https', true)
-		$('#tgl_protocol').bootstrapSwitch('disabled', !data.external_access);
+		var https_enabled = access_data.protocol === 'https';
+		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
+		$('#tgl_protocol').bootstrapSwitch('disabled', !access_data.external_access);
 		$("#tgl_protocol_loading").removeClass('opacity1');
 }
 
@@ -282,18 +284,27 @@ function ui_check_versions() {
 }
 
 function ui_check_device_url() {
-		backend_device_url(function() {});
+		backend.device_url({
+			done: display_device_url,
+			fail: ui_display_error
+		});
 }
 
 function ui_check_access() {
-		backend_check_access(function() {});
+		backend.check_access({
+				done: display_access,
+				fail: ui_display_error
+		});
 }
 
 function ui_send_logs() {
 		var btn = $("#btn_send_logs");
 		btn.button('loading');
-		backend_send_logs(function() {
-			btn.button('reset');
+		backend.send_logs({
+				always: function() {
+						btn.button('reset');
+				},
+				fail: ui_display_error
 		});
 }
 
@@ -302,7 +313,10 @@ function ui_toggle_external_access() {
 		var state = toggle.bootstrapSwitch('state');
 		disable_access_controls();
 		$("#tgl_external_access_loading").addClass('opacity1');
-		backend_external_access(state, function() {
+		backend.external_access({
+				state: state,
+				always: ui_check_access,
+				fail: ui_display_error
 		});
 }
 
@@ -312,7 +326,10 @@ function ui_toggle_protocol() {
 		var new_protocol = state ? 'https' : 'http'
 		disable_access_controls();
 		$("#tgl_protocol_loading").addClass('opacity1');
-		backend_protocol(new_protocol, function() {
+		backend.protocol({
+				new_protocol: new_protocol,
+				always: ui_check_access,
+				fail: ui_display_error
 		});
 }
 
@@ -348,7 +365,7 @@ $(document).ready(function () {
     });
 
     $("#btn_reactivate").on('click', function () {
-    		backend_reactivate();
+    		backend.reactivate();
     });
 
     $("#tgl_external_access").on('switchChange.bootstrapSwitch', function(event, state) {
