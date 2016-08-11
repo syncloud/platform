@@ -207,29 +207,6 @@ function display_toggles() {
 
 display_toggles();
 
-function display_versions(data) {
-		platform_data = find_app(data.data, "platform")
-		sam_data = find_app(data.data, "sam")
-
-		$("#txt_platform_version").html(platform_data.installed_version);
-		$("#txt_system_version_available").html(platform_data.current_version);
-
-		if (platform_data.installed_version != platform_data.current_version) {
-				$("#block_system_upgrade").show();
-		} else {
-				$("#block_system_upgrade").hide();
-		}
-
-		$("#txt_sam_version").html(sam_data.installed_version);
-		$("#txt_sam_version_available").html(sam_data.current_version);
-
-		if (sam_data.installed_version != sam_data.current_version) {
-				$("#block_sam_upgrade").show();
-		} else {
-				$("#block_sam_upgrade").hide();
-		}
-}
-
 function display_disks(data) {
 		var template = $("#template-disks").html();
 		$("#block_disks").html(_.template(template)(data));
@@ -271,16 +248,6 @@ function upgrade_buttons_enabled(is_enabled) {
 		var btn_sam = $("#btn_sam_upgrade");
 		btn_platform.prop('disabled', !is_enabled);
 		btn_sam.prop('disabled', !is_enabled);
-}
-
-function ui_check_versions() {
-		var btn = $("#btn_check_updates");
-		upgrade_buttons_enabled(false);
-		btn.button('loading');
-		backend_check_versions(function() {
-			btn.button('reset');
-			upgrade_buttons_enabled(true);
-		});
 }
 
 function ui_check_device_url() {
@@ -333,19 +300,72 @@ function ui_toggle_protocol() {
 		});
 }
 
+function display_versions(data) {
+		platform_data = find_app(data.data, "platform")
+		sam_data = find_app(data.data, "sam")
+
+		$("#txt_platform_version").html(platform_data.installed_version);
+		$("#txt_system_version_available").html(platform_data.current_version);
+
+		if (platform_data.installed_version != platform_data.current_version) {
+				$("#block_system_upgrade").show();
+		} else {
+				$("#block_system_upgrade").hide();
+		}
+
+		$("#txt_sam_version").html(sam_data.installed_version);
+		$("#txt_sam_version_available").html(sam_data.current_version);
+
+		if (sam_data.installed_version != sam_data.current_version) {
+				$("#block_sam_upgrade").show();
+		} else {
+				$("#block_sam_upgrade").hide();
+		}
+}
+
+function ui_get_versions(callback) {
+		backend.get_versions({
+				done: display_versions,
+				fail: ui_display_error,
+				always: callback
+		});
+}
+
+function ui_check_versions() {
+		var btn = $("#btn_check_updates");
+		upgrade_buttons_enabled(false);
+		btn.button('loading');
+		backend.check_versions({
+				always: function() {
+						ui_get_versions(function() {
+								btn.button('reset');
+								upgrade_buttons_enabled(true);
+						});
+				}
+		});
+}
+
 function ui_platform_upgrade() {
 		var btn = $("#btn_platform_upgrade");
 		btn.button('loading');
-		backend_platform_upgrade(function() {
-			btn.button('reset');
+		backend.platform_upgrade({
+				always: function() {
+					ui_get_versions(function() {
+							btn.button('reset');
+					});
+				}
 		});
 }
 
 function ui_sam_upgrade() {
 		var btn = $("#btn_sam_upgrade");
 		btn.button('loading');
-		backend_sam_upgrade(function() {
-			btn.button('reset');
+		backend.sam_upgrade({
+				always: function() {
+					ui_get_versions(function() {
+							btn.button('reset');
+					});
+				}
 		});
 }
 

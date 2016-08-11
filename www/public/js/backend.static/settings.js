@@ -12,6 +12,34 @@ var backend = {
       "success": true
     },
 
+    versions_data: {
+      "data": [
+        {
+          "app": {
+            "id": "platform",
+            "name": "Platform",
+            "required": true,
+            "ui": false,
+            "url": "http://platform.odroid-c2.syncloud.it"
+          },
+          "current_version": "880",
+          "installed_version": "876"
+        },
+        {
+          "app": {
+            "id": "sam",
+            "name": "Syncloud App Manager",
+            "required": true,
+            "ui": false,
+            "url": "http://sam.odroid-c2.syncloud.it"
+          },
+          "current_version": "78",
+          "installed_version": "75"
+        }
+      ],
+      "success": true
+    },
+
     disks_data: {
       "disks": [
         {
@@ -85,6 +113,31 @@ var backend = {
             that.access_data.data.protocol = parameters.new_protocol;
             success_callbacks(parameters);
         }, 2000);
+    },
+
+    get_versions: function(parameters) {
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.versions_data);
+        }, 2000);
+    },
+
+    check_versions: function(parameters) {
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
+    },
+
+    platform_upgrade: function(parameters) {
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
+    },
+
+    sam_upgrade: function(parameters) {
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
     }
 
 }
@@ -121,55 +174,6 @@ var disks_data = {
   "success": true
 };
 
-var versions_data = {
-  "data": [
-    {
-      "app": {
-        "id": "platform",
-        "name": "Platform",
-        "required": true,
-        "ui": false,
-        "url": "http://platform.odroid-c2.syncloud.it"
-      },
-      "current_version": "880",
-      "installed_version": "876"
-    },
-    {
-      "app": {
-        "id": "sam",
-        "name": "Syncloud App Manager",
-        "required": true,
-        "ui": false,
-        "url": "http://sam.odroid-c2.syncloud.it"
-      },
-      "current_version": "78",
-      "installed_version": "75"
-    }
-  ],
-  "success": true
-};
-
-
-function backend_check_versions(on_complete) {
-    setTimeout(function() {
-        display_versions(versions_data);
-        on_complete();
-    }, 2000);
-}
-
-function backend_platform_upgrade(on_complete) {
-    setTimeout(function() {
-        display_versions(versions_data);
-        on_complete();
-    }, 2000);
-}
-
-function backend_sam_upgrade(on_complete) {
-    setTimeout(function() {
-        display_versions(versions_data);
-        on_complete();
-    }, 2000);
-}
 
 function backend_update_disks(on_complete) {
     setTimeout(function() {

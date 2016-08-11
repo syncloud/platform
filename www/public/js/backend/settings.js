@@ -121,8 +121,112 @@ var backend = {
             });
     },
 
-}
+    get_versions: function(parameters) {
+        $.get('/rest/settings/versions')
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
 
+    check_versions: function(parameters) {
+        $.get('/rest/check')
+            .done(function (data) {
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("done")) {
+                        parameters.done(data);
+                    }
+                });
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("always")) {
+                        parameters.always();
+                    }
+                });
+            });
+    },
+
+    platform_upgrade: function(parameters) {
+        $.get('/rest/settings/system_upgrade')
+            .done(function (data) {
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("done")) {
+                        parameters.done(data);
+                    }
+                });
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("always")) {
+                        parameters.always();
+                    }
+                });
+            });
+    },
+
+    sam_upgrade: function(parameters) {
+        $.get('/rest/settings/sam_upgrade')
+            .done(function (data) {
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("done")) {
+                        parameters.done(data);
+                    }
+                });
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("always")) {
+                        parameters.always();
+                    }
+                });
+            });
+    }
+
+
+}
 
 function backend_update_disks(on_complete) {
     $.get('/rest/settings/disks')
@@ -140,42 +244,4 @@ function backend_disk_action(disk_device, is_activate, on_complete) {
                 backend_update_disks(on_complete);
             })
             .fail(onError);
-}
-
-function update_versions(on_complete) {
-    $.get('/rest/settings/versions')
-            .done(function (data) {
-                display_versions(data);
-            })
-            .fail(onError)
-            .always(function() {
-            		typeof on_complete === 'function' && on_complete();
-            });
-}
-
-function backend_check_versions(on_complete) {
-    $.get('/rest/check')
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                        update_versions(on_complete);
-                });
-            });
-}
-
-function backend_platform_upgrade(on_complete) {
-    $.get('/rest/settings/system_upgrade')
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    update_versions(on_complete);
-                });
-            });
-}
-
-function backend_sam_upgrade(on_complete) {
-    $.get('/rest/settings/sam_upgrade')
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    update_versions(on_complete);
-                });
-            });
 }
