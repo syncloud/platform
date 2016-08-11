@@ -138,65 +138,13 @@ var backend = {
         setTimeout(function() {
             success_callbacks(parameters);
         }, 2000);
-    }
-
-}
-
-var disks_data = {
-  "disks": [
-    {
-      "name": "My Passport 0837",
-      "partitions": [
-        {
-          "active": true,
-          "device": "/dev/sdb1",
-          "fs_type": "ntfs",
-          "mount_point": "/opt/disk/external",
-          "mountable": true,
-          "size": "931.5G"
-        }
-      ]
     },
-    {
-      "name": "My Passport 0990",
-      "partitions": [
-        {
-          "active": false,
-          "device": "/dev/sdc1",
-          "fs_type": "ntfs",
-          "mount_point": "",
-          "mountable": true,
-          "size": "931.5G"
-        }
-      ]
+
+    update_disks: function(parameters) {
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.disks_data);
+        }, 2000);
     }
-  ],
-  "success": true
-};
 
-
-function backend_update_disks(on_complete) {
-    setTimeout(function() {
-        display_disks(disks_data);
-        on_complete();
-    }, 2000);
-}
-
-function backend_disk_action(disk_device, is_activate, on_complete) {
-    setTimeout(function() {
-        var disks = disks_data.disks;
-        for (i=0; i < disks.length; i++) {
-            var disk = disks[i];
-            partitions = disk.partitions;
-            for (j=0; j < partitions.length; j++) {
-                var partition = partitions[j];
-                if (partition.device == disk_device) {
-                    partition.active = is_activate;
-                } else if (is_activate) {
-                    partition.active = false;
-                }
-            }
-        }
-        display_disks(disks_data);
-    }, 2000);
 }

@@ -199,35 +199,40 @@
 
 <script type="text/javascript">
 
-function display_toggles() {
+function ui_display_toggles() {
 	$("[type='checkbox']").each(function() {
 		$(this).bootstrapSwitch();
 	});
 }
 
-display_toggles();
+ui_display_toggles();
 
-function display_disks(data) {
+function ui_display_disks(data) {
 		var template = $("#template-disks").html();
 		$("#block_disks").html(_.template(template)(data));
-		display_toggles();
+		ui_display_toggles();
 
 		$("#block_disks").find("[type='checkbox']").each(function() {
 						$(this).on('switchChange.bootstrapSwitch', function(event, state) {
 								var state = $(this).bootstrapSwitch('state');
 								var disk_device = $(this).data('device');
 
-								backend_disk_action(disk_device, state, function() {
+								backend.disk_action({
+										disk_device: disk_device,
+										state: state,
+										always: function() {
+												ui_check_disks(function() {});
+										}
 								});
 						})
 		});
 }
 
-function display_device_url(data) {
+function ui_display_device_url(data) {
 		$("#txt_device_domain").html(data.device_domain);
 }
 
-function display_access(data) {
+function ui_display_access(data) {
 		var access_data = data.data;
 		$('#tgl_external_access').bootstrapSwitch('state', access_data.external_access, true)
 		$('#tgl_external_access').bootstrapSwitch('disabled', false);
@@ -252,14 +257,14 @@ function upgrade_buttons_enabled(is_enabled) {
 
 function ui_check_device_url() {
 		backend.device_url({
-			done: display_device_url,
+			done: ui_display_device_url,
 			fail: ui_display_error
 		});
 }
 
 function ui_check_access() {
 		backend.check_access({
-				done: display_access,
+				done: ui_display_access,
 				fail: ui_display_error
 		});
 }
@@ -300,7 +305,7 @@ function ui_toggle_protocol() {
 		});
 }
 
-function display_versions(data) {
+function ui_display_versions(data) {
 		platform_data = find_app(data.data, "platform")
 		sam_data = find_app(data.data, "sam")
 
@@ -325,7 +330,7 @@ function display_versions(data) {
 
 function ui_get_versions(callback) {
 		backend.get_versions({
-				done: display_versions,
+				done: ui_display_versions,
 				fail: ui_display_error,
 				always: callback
 		});
@@ -369,9 +374,11 @@ function ui_sam_upgrade() {
 		});
 }
 
-function ui_check_disks() {
-	backend_update_disks(function() {
-	});
+function ui_check_disks(callback) {
+		backend.update_disks({
+				done: ui_display_disks,
+				always: callback
+		});
 }
 
 $(document).ready(function () {
@@ -408,7 +415,7 @@ $(document).ready(function () {
 
 		ui_check_device_url();
 		ui_check_access();
-		ui_check_disks();
+		ui_check_disks(function() {});
 		ui_check_versions();
 });
 

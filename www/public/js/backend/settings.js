@@ -223,25 +223,54 @@ var backend = {
                     }
                 });
             });
-    }
+    },
 
-
-}
-
-function backend_update_disks(on_complete) {
-    $.get('/rest/settings/disks')
+    update_disks: function(parameters) {
+        $.get('/rest/settings/disks')
             .done(function (data) {
-                display_disks(data);
-                on_complete();
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
             })
-            .fail(onError);
-}
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
 
-function backend_disk_action(disk_device, is_activate, on_complete) {
-    var mode = is_activate ? "disk_activate" : "disk_deactivate";
-    $.get('/rest/settings/' + mode, {device: disk_device})
-            .done(function () {
-                backend_update_disks(on_complete);
+    disk_action: function(parameters) {
+        var disk_device = parameters.disk_device;
+        var is_activate = parameters.is_activate;
+        var mode = is_activate ? "disk_activate" : "disk_deactivate";
+        $.get('/rest/settings/' + mode, {device: disk_device})
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
             })
-            .fail(onError);
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    }
 }
