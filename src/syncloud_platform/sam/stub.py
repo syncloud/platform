@@ -70,8 +70,8 @@ class SamStub:
 
     def __run_detached(self, command):
         # Think about adding twisted
-        ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >/dev/null 2>&1 &'".format(
-            self.platform_config.get_ssh_port(), command)
+        ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >{2} 2>&1 &'".format(
+            self.platform_config.get_ssh_port(), command, self.platform_config.get_platform_log())
         self.logger.info('ssh command: {0}'.format(ssh_command))
         output = check_output(ssh_command, shell=True)
         self.logger.info(output)

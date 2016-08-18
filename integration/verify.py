@@ -349,7 +349,7 @@ def __upgrade(public_web_session, upgrade_type):
                 json = convertible.from_json(response.text)
                 sam_running = json.is_running
         except Exception, e:
-            pass
+            print(e.message)
         time.sleep(1)
 
 
