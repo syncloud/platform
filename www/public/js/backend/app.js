@@ -43,9 +43,11 @@ var backend = {
                 }
             })
             .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
+                run_after_sam_is_complete(function() {
+                    if (parameters.hasOwnProperty("always")) {
+                        parameters.always();
+                    }
+                });
             });
     }
 }
