@@ -38,9 +38,10 @@ class Lsblk:
                 disk_name = lsblk_entry.model
                 disk = Disk(disk_name, [])
                 if lsblk_entry.type == 'loop':
-                    self.log.info('adding loop')
+                    disk_name = lsblk_entry.type
+                    self.log.info('adding loop: {0}'.format(lsblk_entry.name))
                     self.add_partition(disk, lsblk_entry)
-                self.log.info('addinf disk: {0}'.format(disk_name))
+                self.log.info('adding disk: {0}'.format(disk_name))
                 disks.append(disk)
 
             elif lsblk_entry.type == 'part':
