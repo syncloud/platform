@@ -86,6 +86,7 @@ class SamStub:
     def is_running(self):
         for p in psutil.process_iter():
             for arg in p.cmdline():
+                self.logger.info('cmd line: {0}'.format(arg))
                 if SAM_BIN_SHORT in arg:
                     return True
         return False
