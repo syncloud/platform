@@ -8,10 +8,11 @@ from shutil import rmtree, copytree
 
 import convertible
 
-SAM_BIN = '/opt/app/sam/bin/sam'
+SAM_BIN_SHORT = 'bin/sam'
+SAM_BIN = join('/opt/app/sam', SAM_BIN_SHORT)
 
 TEMP_SAM_PATH = '/tmp/sam-copy'
-TEMP_SAM_BIN = join(TEMP_SAM_PATH, 'bin/sam')
+TEMP_SAM_BIN = join(TEMP_SAM_PATH, SAM_BIN_SHORT)
 
 
 class SamStub:
@@ -84,8 +85,19 @@ class SamStub:
         return result['data']
 
     def is_running(self):
-        for p in psutil.process_iter():
-            for arg in p.cmdline():
-                if SAM_BIN in arg or TEMP_SAM_PATH in arg:
-                    return True
-        return False
+
+        results = check_output('ps auxfw | grep {0} | grep -v grep || true'.format(SAM_BIN_SHORT),  shell=True)\
+            .splitlines()
+
+        if len(results) > 0:
+            # for line in results:
+            #     self.logger.info(line)
+            return True
+        else:
+            return False
+
+        # for p in psutil.process_iter():
+        #     for arg in p.cmdline():
+        #         if SAM_BIN in arg or TEMP_SAM_PATH in arg:
+        #             return True
+        # return False
