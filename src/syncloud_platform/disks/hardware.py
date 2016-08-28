@@ -6,6 +6,7 @@ from syncloud_app import logger
 from syncloud_platform.control import systemctl
 from syncloud_platform.gaplib import fs
 
+from syncloud_platform.rest.service_exception import ServiceException
 
 supported_fs_options = {
     # 'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,'
@@ -45,7 +46,7 @@ class Hardware:
             error_message = 'Filesystem type is not supported: {0}' \
                             ', use on of the following: {1}'.format(fs_type, supported_fs_options.keys())
             self.log.error(error_message)
-            raise Exception(error_message)
+            raise ServiceException(error_message)
 
         systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
 

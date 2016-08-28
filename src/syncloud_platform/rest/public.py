@@ -13,6 +13,8 @@ from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_act
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 
+from syncloud_platform.rest.service_exception import ServiceException
+
 injector = get_injector()
 public = injector.public
 device = injector.device
@@ -240,6 +242,10 @@ def handle_exception(error):
     print '-'*60
     traceback.print_exc(file=sys.stdout)
     print '-'*60
-    response = jsonify(success=False, message=error.message)
     status_code = 500
+
+    if isinstance(error, ServiceException):
+        status_code = 200
+
+    response = jsonify(success=False, message=error.message)
     return response, status_code
