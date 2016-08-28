@@ -155,7 +155,8 @@
 <script type="text/html" id='template-disks'>
 
     <%
-      if (disks.length == 0) {
+		var index = 0;
+		if (disks.length == 0) {
     %>
 
 		<span class="span">No disk found</span>
@@ -180,11 +181,15 @@
 		<div class="setline">
 				<span class="span"><%=partition.device %> (<%=partition.size %>)</span>
 				<div class="spandiv">
-						<input type="checkbox" data-device="<%=partition.device %>" <% if (partition.active) { %>checked<% } %> data-on-text="Active" data-off-text="Not active" data-label-width="8"/>
+						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity0" id="tgl_device_<%=index%>_loading"></i>
 				</div>
 		</div>
 
-    <% } %>
+    <%
+				index = index + 1;
+				}
+		%>
 
     <% } %>
 </script>
@@ -213,18 +218,26 @@ function ui_display_disks(data) {
 		ui_display_toggles();
 
 		$("#block_disks").find("[type='checkbox']").each(function() {
-						$(this).on('switchChange.bootstrapSwitch', function(event, state) {
-								var state = $(this).bootstrapSwitch('state');
-								var disk_device = $(this).data('device');
+				var tgl_device = $(this);
+				$(this).on('switchChange.bootstrapSwitch', function(event, state) {
+						var state = tgl_device.bootstrapSwitch('state');
+						var disk_device = tgl_device.data('device');
+						var device_index = tgl_device.data('index');
 
-								backend.disk_action({
-										disk_device: disk_device,
-										state: state,
-										always: function() {
-												ui_check_disks(function() {});
-										}
-								});
-						})
+						$("#block_disks").find("[type='checkbox']").each(function() {
+								$(this).bootstrapSwitch('disabled', true);
+						});
+						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
+						$(tgl_loading_id).addClass('opacity1');
+
+						backend.disk_action({
+								disk_device: disk_device,
+								state: state,
+								always: function() {
+										ui_check_disks(function() {});
+								}
+						});
+				})
 		});
 }
 
