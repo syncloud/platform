@@ -232,7 +232,7 @@ function ui_display_disks(data) {
 
 						backend.disk_action({
 								disk_device: disk_device,
-								state: state,
+								is_activate: state,
 								always: function() {
 										ui_check_disks(function() {});
 								}
