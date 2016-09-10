@@ -168,6 +168,7 @@ header{text-align:left;width:94%}
 .block1{padding:40px 0}
 .colapp{width:125px;margin:0 15px 15px}
 .appminimg{width:125px;height:125px}
+.col70 .buttonblock button {min-width:90px}
 }
 @media (min-width:320px) and (max-width:400px) {
 header{width:94%;text-align:left}
@@ -175,15 +176,18 @@ header{width:94%;text-align:left}
 .colapp{width:115px;margin:0 15px 15px}
 .colapp img{width:100%}
 .appminimg{width:125px;height:125px}
+.col70 .buttonblock button {min-width:90px}
 }
 @media (min-width:400px) and (max-width:480px) {
 header{width:94%;text-align:left}
 .block1{padding:40px 0}
 .colapp{width:125px;margin:0 15px 15px}
 .appminimg{width:125px;height:125px}
+.col70 .buttonblock button {min-width:90px}
 }
 @media (min-width:480px) and (max-width:550px) {
 .block1{padding:40px 0}
+.col70 .buttonblock button {min-width:90px}
 }
 @media (max-width: 549px) {
 footer{width:90%}
@@ -195,12 +199,13 @@ footer{width:90%}
 .col70{width:auto}
 .appimg{width:34%;display:inline-block;vertical-align:top}
 .appinfo{display:inline-block;vertical-align:top;width:64%;font-size:14px}
-.col30 h1{display:block;font-size:30px;margin-bottom:5px}
+.col30 h1{display:block;font-size:32px;margin-bottom:5px;margin-top:5px}
 .col70 h1{display:none}
 .col70 .buttonblock button{line-height:40px;padding:0 18px;margin:0 3px 4px;font-size:14px}
 .col70 .buttonblock{margin-bottom:10px}
 .btext{font-size:16px!important}
 .settingsblock .col2{width:70%;margin:0 auto}
+.col70 .buttonblock button {min-width:90px}
 }
 @media (min-width: 550px) and (max-width: 750px) {
 footer{width:90%}
