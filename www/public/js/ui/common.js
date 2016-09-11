@@ -25,21 +25,25 @@ function hide_fields_errors(form) {
 }
 
 function ui_display_error(status, error) {
-    if (error) {
-        if ('parameters_messages' in error) {
-            for (var i = 0; i < error.parameters_messages.length; i++) {
-                var pm = error.parameters_messages[i];
-                var message_text = pm.messages.join('\n');
-                show_field_error(pm.parameter, message_text);
+    if (status === 401) {
+        window.location.href = "login.html";
+    } else {
+        if (error) {
+            if ('parameters_messages' in error) {
+                for (var i = 0; i < error.parameters_messages.length; i++) {
+                    var pm = error.parameters_messages[i];
+                    var message_text = pm.messages.join('\n');
+                    show_field_error(pm.parameter, message_text);
+                }
+            } else {
+                if (!('message' in error && error.message)) {
+                    error['message'] = 'Server Error'
+                }
+                $("#txt_error").text(error.message);
+                $('#block_error').modal();
             }
         } else {
-            if (!('message' in error && error.message)) {
-                error['message'] = 'Server Error'
-            }
-            $("#txt_error").text(error.message);
-            $('#block_error').modal();
+            window.location.href = "error.html";
         }
-    } else {
-        window.location.href = "error.html";
     }
 }
