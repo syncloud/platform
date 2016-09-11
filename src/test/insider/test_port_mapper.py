@@ -29,12 +29,14 @@ if mapper is not None:
     mappers.append(mapper)
 
 
+@pytest.mark.skip(reason="Port mapping is very unstable on build server")
 @pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_external_ip(mapper):
     external_ip = mapper.external_ip()
     assert external_ip is not None
 
 
+@pytest.mark.skip(reason="Port mapping is very unstable on build server")
 @pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_add_mapping_simple(http_server, mapper):
     external_port = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
@@ -45,6 +47,7 @@ def test_add_mapping_simple(http_server, mapper):
     assert response is not None
 
 
+@pytest.mark.skip(reason="Port mapping is very unstable on build server")
 @pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_add_mapping_twice(http_server, mapper):
     external_port_first = mapper.add_mapping(http_server.port, http_server.port, 'TCP')
@@ -52,6 +55,7 @@ def test_add_mapping_twice(http_server, mapper):
     assert external_port_first == external_port_second
 
 
+@pytest.mark.skip(reason="Port mapping is very unstable on build server")
 @pytest.mark.parametrize("mapper", mappers, ids=ids)
 def test_remove_mapping(http_server, mapper):
     external_ip = mapper.external_ip()
