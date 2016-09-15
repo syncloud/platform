@@ -10,6 +10,8 @@ var backend = {
             parameters.always();
             parameters.fail(400, {message: "Some real error"})
         }, 2000);
+    },
+    login: function(name, password) {
+        window.location.href = "login.html";
     }
-
-}
+};

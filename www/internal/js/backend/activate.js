@@ -21,5 +21,19 @@ var backend = {
                     parameters.always();
                 }
             });
+    },
+    login: function(name, password) {
+        var url = (new URI())
+                .port(80)
+                .filename("/rest/login")
+                .query("");
+
+        var form = $(
+                '<form action="' + url + '" method="post">' +
+                '<input type="hidden" name="name" value="' + name + '" />' +
+                '<input type="hidden" name="password" value="' + password + '" />' +
+                '</form>');
+        $('body').append(form);
+        form.submit();
     }
-}
+};

@@ -19,8 +19,6 @@
 	<link rel="manifest" href="/manifest.json">
 	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
 	<meta name="theme-color" content="#3e454e">
-	
-  <script type="text/javascript" src="js/lib/URI.js"></script>
 
 	<link rel="stylesheet" href="css/site.min.css" type="text/css">
 
@@ -81,6 +79,7 @@
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
 <script src="js/lib/bootstrap-switch.min.js"></script>
+<script src="js/lib/URI.js"></script>
 <script src="js/ui/font.js"></script>
 <script src="js/ui/common.js"></script>
 <script src="js/ui/error.js"></script>
@@ -113,7 +112,7 @@ $(document).ready(function () {
 						$("#form_activate input").prop("disabled", false);
 					},
 					done: function() {
-        		window.location.href = "login.html";
+                        backend.login($('#device_username').val(), $('#device_password').val());
 					},
 					fail: ui_display_error
 				});
