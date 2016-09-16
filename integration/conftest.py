@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-
+SYNCLOUD_INFO = 'syncloud.info'
 DEVICE_USER = "user"
 DEVICE_PASSWORD = "password"
 
@@ -37,5 +37,14 @@ def public_web_session():
             retry += 1
             print(e.message)
             print('retry {0} of {1}'.format(retry, retries))
-    
+ 
+
+@pytest.fixture(scope='module')
+def user_domain(auth):
+    email, password, domain, path = auth
+    return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
+
+
+
 

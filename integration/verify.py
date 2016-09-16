@@ -44,11 +44,6 @@ def module_teardown():
     print('-------------------------------------------------------')
 
 
-@pytest.fixture(scope="module")
-def user_domain(auth):
-    email, password, domain, app_archive_path = auth
-    return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
-
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
