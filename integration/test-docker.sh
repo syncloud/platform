@@ -11,7 +11,7 @@ export TMP=/tmp
 export DEBIAN_FRONTEND=noninteractive
 
 if [ "$#" -eq 7 ]; then
-    TEST_SUITE=$7
+    TEST_SUITE=$7.py
 else
     TEST_SUITE="verify.py test-ui.py"
 fi
@@ -32,4 +32,4 @@ coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodri
 mv ${DIR}/geckodriver/geckodriver ${DIR}/geckodriver/wires
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
-xvfb-run py.test -x -s ${TEST_SUITE}.py --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH}
+xvfb-run py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH}
