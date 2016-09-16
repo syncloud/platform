@@ -32,4 +32,4 @@ coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodri
 mv ${DIR}/geckodriver/geckodriver ${DIR}/geckodriver/wires
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
-pxvfb-run y.test -x -s ${TEST_SUITE}.py --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH}
+xvfb-run y.test -x -s ${TEST_SUITE}.py --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH}
