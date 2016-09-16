@@ -28,16 +28,20 @@ def test_web_with_selenium(user_domain):
     profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
     driver = webdriver.Firefox(profile, capabilities=caps)
 
-    driver.get("http://{0}:81".format(user_domain))
-    wait_driver = WebDriverWait(driver, 10)
-
     screenshot_dir = join(DIR, 'screenshot')
     if exists(screenshot_dir):
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
 
+    driver.get("http://{0}:81".format(user_domain))
+    wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'activate.png'))
+
+    driver.get("http://{0}".format(user_domain))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(2)
+    driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
 
 
 
