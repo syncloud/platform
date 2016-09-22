@@ -86,14 +86,14 @@
 						<span class="span">External Access:</span>
 						<div class="spandiv">
 							<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading invisible" id="tgl_external_loading"></i>
+							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
 						</div>
 					</div>
 					<div class="setline">
 						<span class="span">Access Protocol:</span>
 						<div class="spandiv">
 							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading invisible" id="tgl_protocol_loading"></i>
+							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
 						</div>
 					</div>
 					<h3>Storage</h3>
@@ -202,7 +202,7 @@
 				<span class="span"><%=partition.device %> (<%=partition.size %>)</span>
 				<div class="spandiv">
 						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
-						<i class="fa fa-circle-o-notch fa-spin switchloading invisible" id="tgl_device_<%=index%>_loading"></i>
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
 				</div>
 		</div>
 
@@ -248,7 +248,7 @@ function ui_display_disks(data) {
 								$(this).bootstrapSwitch('disabled', true);
 						});
 						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
-						$(tgl_loading_id).addClass('visible');
+						$(tgl_loading_id).addClass('opacity-visible');
 
 						backend.disk_action({
 								disk_device: disk_device,
@@ -270,11 +270,11 @@ function ui_display_access(data) {
 		var access_data = data.data;
 		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
 		$('#tgl_external').bootstrapSwitch('disabled', false);
-		$("#tgl_external_loading").removeClass('visible');
+		$("#tgl_external_loading").removeClass('opacity-visible');
 		var https_enabled = access_data.protocol === 'https';
 		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
 		$('#tgl_protocol').bootstrapSwitch('disabled', false);
-		$("#tgl_protocol_loading").removeClass('visible');
+		$("#tgl_protocol_loading").removeClass('opacity-visible');
 }
 
 function disable_access_controls() {
@@ -318,7 +318,7 @@ function ui_toggle_external_access() {
 		var toggle = $("#tgl_external")
 		var state = toggle.bootstrapSwitch('state');
 		disable_access_controls();
-		$("#tgl_external_loading").addClass('visible');
+		$("#tgl_external_loading").addClass('opacity-visible');
 		backend.external_access({
 				state: state,
 				always: ui_check_access,
@@ -331,7 +331,7 @@ function ui_toggle_protocol() {
 		var state = toggle.bootstrapSwitch('state');
 		var new_protocol = state ? 'https' : 'http'
 		disable_access_controls();
-		$("#tgl_protocol_loading").addClass('visible');
+		$("#tgl_protocol_loading").addClass('opacity-visible');
 		backend.protocol({
 				new_protocol: new_protocol,
 				always: ui_check_access,
