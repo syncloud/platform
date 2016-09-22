@@ -85,8 +85,8 @@
 					<div class="setline">
 						<span class="span">External Access:</span>
 						<div class="spandiv">
-							<input type="checkbox" id="tgl_external_access" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity0" id="tgl_external_access_loading"></i>
+							<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+							<i class="fa fa-circle-o-notch fa-spin switchloading opacity0" id="tgl_external_loading"></i>
 						</div>
 					</div>
 					<div class="setline">
@@ -268,17 +268,17 @@ function ui_display_device_url(data) {
 
 function ui_display_access(data) {
 		var access_data = data.data;
-		$('#tgl_external_access').bootstrapSwitch('state', access_data.external_access, true)
-		$('#tgl_external_access').bootstrapSwitch('disabled', false);
-		$("#tgl_external_access_loading").removeClass('opacity1');
+		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
+		$('#tgl_external').bootstrapSwitch('disabled', false);
+		$("#tgl_external_loading").removeClass('opacity1');
 		var https_enabled = access_data.protocol === 'https';
 		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
-		$('#tgl_protocol').bootstrapSwitch('disabled', !access_data.external_access);
+		$('#tgl_protocol').bootstrapSwitch('disabled', false);
 		$("#tgl_protocol_loading").removeClass('opacity1');
 }
 
 function disable_access_controls() {
-		$('#tgl_external_access').bootstrapSwitch('disabled', true);
+		$('#tgl_external').bootstrapSwitch('disabled', true);
 		$('#tgl_protocol').bootstrapSwitch('disabled', true);
 }
 
@@ -315,10 +315,10 @@ function ui_send_logs() {
 }
 
 function ui_toggle_external_access() {
-		var toggle = $("#tgl_external_access")
+		var toggle = $("#tgl_external")
 		var state = toggle.bootstrapSwitch('state');
 		disable_access_controls();
-		$("#tgl_external_access_loading").addClass('opacity1');
+		$("#tgl_external_loading").addClass('opacity1');
 		backend.external_access({
 				state: state,
 				always: ui_check_access,
@@ -429,7 +429,7 @@ $(document).ready(function () {
     		backend.reactivate();
     });
 
-    $("#tgl_external_access").on('switchChange.bootstrapSwitch', function(event, state) {
+    $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
 				event.preventDefault();
 				ui_toggle_external_access();
 		});
