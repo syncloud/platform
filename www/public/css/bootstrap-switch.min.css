@@ -170,9 +170,9 @@
 .switchloading {
 	vertical-align:middle;
 }
-.opacity0 {
+.opacity-invisible {
 	opacity:0;
 }
-.opacity1 {
+.opacity-visible {
 	opacity:1!important;
 }

@@ -254,7 +254,11 @@ var backend = {
         var mode = is_activate ? "disk_activate" : "disk_deactivate";
         $.get('/rest/settings/' + mode, {device: disk_device})
             .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
+                if (data.hasOwnProperty('success') && !data.success) {
+                    if (parameters.hasOwnProperty("fail")) {
+                        parameters.fail(200, data);
+                    }
+                } else if (parameters.hasOwnProperty("done")) {
                     parameters.done(data);
                 }
             })

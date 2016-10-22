@@ -85,15 +85,15 @@
 					<div class="setline">
 						<span class="span">External Access:</span>
 						<div class="spandiv">
-							<input type="checkbox" id="tgl_external_access" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity0" id="tgl_external_access_loading"></i>
+							<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
 						</div>
 					</div>
 					<div class="setline">
 						<span class="span">Access Protocol:</span>
 						<div class="spandiv">
 							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity0" id="tgl_protocol_loading"></i>
+							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
 						</div>
 					</div>
 					<h3>Storage</h3>
@@ -131,25 +131,30 @@
 			</div>
 		</div>
 	</div>
-<!--footer-->
-	<div class="footerblock">
-		<footer class="wd12">
-				<div class="contacts">
-					<a href="mailto:syncloud@syncloud.it" class="link_mail"></a>
-					<a href="https://www.facebook.com/Syncloud-1502965600014317" target="_blank" class="link_facebook" onClick="_gaq.push(['_trackEvent', 'Landing', 'click', 'facebook']);"></a>
-				</div>
-				<div class="links">
-					<a href="faq.html">FAQ</a>
-					<a href="about.html">About</a>
-				</div>
-				<div class="copyrights">Copyright ©2015 Syncloud, Ltd. All Rights Reserved.</div>
-				<a href="http://feelspace.ru" target="_blank" class="feelink">Designed by: <font>feelspace.ru</font></a>
-		</footer>
-	</div>
 </div>
 <!--<div class="loadingblock" id="loadingblock">-->
 	<!--<div class="spanloading"><i class="fa fa-circle-o-notch fa-spin switchloading" id="tgl_page_loading"></i>Loading...</div>-->
 <!--</div>-->
+
+<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Error</h4>
+      </div>
+      <div class="modal-body">
+          <div class="bodymod">
+              <div id="txt_error" class="btext">Some error happened!</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Create your template -->
 <script type="text/html" id='template-disks'>
@@ -182,7 +187,7 @@
 				<span class="span"><%=partition.device %> (<%=partition.size %>)</span>
 				<div class="spandiv">
 						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
-						<i class="fa fa-circle-o-notch fa-spin switchloading opacity0" id="tgl_device_<%=index%>_loading"></i>
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
 				</div>
 		</div>
 
@@ -228,14 +233,15 @@ function ui_display_disks(data) {
 								$(this).bootstrapSwitch('disabled', true);
 						});
 						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
-						$(tgl_loading_id).addClass('opacity1');
+						$(tgl_loading_id).addClass('opacity-visible');
 
 						backend.disk_action({
 								disk_device: disk_device,
 								is_activate: state,
 								always: function() {
 										ui_check_disks(function() {});
-								}
+								},
+                                fail: ui_display_error
 						});
 				})
 		});
@@ -247,17 +253,17 @@ function ui_display_device_url(data) {
 
 function ui_display_access(data) {
 		var access_data = data.data;
-		$('#tgl_external_access').bootstrapSwitch('state', access_data.external_access, true)
-		$('#tgl_external_access').bootstrapSwitch('disabled', false);
-		$("#tgl_external_access_loading").removeClass('opacity1');
+		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
+		$('#tgl_external').bootstrapSwitch('disabled', false);
+		$("#tgl_external_loading").removeClass('opacity-visible');
 		var https_enabled = access_data.protocol === 'https';
 		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
-		$('#tgl_protocol').bootstrapSwitch('disabled', !access_data.external_access);
-		$("#tgl_protocol_loading").removeClass('opacity1');
+		$('#tgl_protocol').bootstrapSwitch('disabled', false);
+		$("#tgl_protocol_loading").removeClass('opacity-visible');
 }
 
 function disable_access_controls() {
-		$('#tgl_external_access').bootstrapSwitch('disabled', true);
+		$('#tgl_external').bootstrapSwitch('disabled', true);
 		$('#tgl_protocol').bootstrapSwitch('disabled', true);
 }
 
@@ -294,10 +300,10 @@ function ui_send_logs() {
 }
 
 function ui_toggle_external_access() {
-		var toggle = $("#tgl_external_access")
+		var toggle = $("#tgl_external")
 		var state = toggle.bootstrapSwitch('state');
 		disable_access_controls();
-		$("#tgl_external_access_loading").addClass('opacity1');
+		$("#tgl_external_loading").addClass('opacity-visible');
 		backend.external_access({
 				state: state,
 				always: ui_check_access,
@@ -310,7 +316,7 @@ function ui_toggle_protocol() {
 		var state = toggle.bootstrapSwitch('state');
 		var new_protocol = state ? 'https' : 'http'
 		disable_access_controls();
-		$("#tgl_protocol_loading").addClass('opacity1');
+		$("#tgl_protocol_loading").addClass('opacity-visible');
 		backend.protocol({
 				new_protocol: new_protocol,
 				always: ui_check_access,
@@ -408,7 +414,7 @@ $(document).ready(function () {
     		backend.reactivate();
     });
 
-    $("#tgl_external_access").on('switchChange.bootstrapSwitch', function(event, state) {
+    $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
 				event.preventDefault();
 				ui_toggle_external_access();
 		});
