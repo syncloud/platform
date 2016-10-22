@@ -1,6 +1,12 @@
 server {
     listen 80;
     server_name ${app}.*;
+
+    #certbot auth dir
+    location /.well-known {
+        alias /opt/app/platform/www/public/_site/.well-known
+    }
+
     location / {
         proxy_set_header X-Forwarded-Proto $$scheme ;
         proxy_set_header X-Forwarded-Host $$http_host ;
@@ -15,6 +21,11 @@ server {
     server_name ${app}.*;
 
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
+
+    #certbot auth dir
+    location /.well-known {
+        alias /opt/app/platform/www/public/_site/.well-known
+    }
 
     location / {
         proxy_set_header X-Forwarded-Proto $$scheme ;
