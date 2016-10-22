@@ -14,7 +14,7 @@ from requests.adapters import HTTPAdapter
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_platform_web
+from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -336,16 +336,7 @@ def test_public_web_platform_upgrade(public_web_session):
 def __upgrade(public_web_session, upgrade_type):
 
     public_web_session.get('http://localhost/rest/settings/{0}_upgrade'.format(upgrade_type))
-    sam_running = True
-    while sam_running:
-        try:
-            response = public_web_session.get('http://localhost/rest/settings/sam_status')
-            if response.status_code == 200:
-                json = convertible.from_json(response.text)
-                sam_running = json.is_running
-        except Exception, e:
-            print(e.message)
-        time.sleep(1)
+    wait_for_sam(public_web_session)
 
 
 def test_reinstall_local_after_upgrade(auth):

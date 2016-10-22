@@ -7,7 +7,7 @@ from subprocess import check_output
 import pytest
 import requests
 from requests.adapters import HTTPAdapter
-from integration.util.helper import local_install, wait_for_platform_web
+from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
 
@@ -77,6 +77,12 @@ def test_platform_rest():
     session.mount('http://localhost', HTTPAdapter(max_retries=5))
     response = session.get('http://localhost', timeout=60)
     assert response.status_code == 200
+
+
+def test_install_one_app(public_web_session, user_domain):
+
+    response = public_web_session.get('http://localhost/rest/install', params={'app_id': 'files'})
+    wait_for_sam(public_web_session)
 
 
 def test_external_mode(public_web_session, user_domain):
