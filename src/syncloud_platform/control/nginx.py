@@ -17,12 +17,12 @@ class Nginx:
         webapp = self.__app_file(app)
         self.log.info('creating {0}'.format(webapp))
         with open(webapp, 'w') as f:
-            f.write(self.proxy_definition(app, port, self.config.nginx_config_dir(), 'app.server'))
+            f.write(self.proxy_definition(app, port, self.config.nginx_config_dir(), 'app.server', self.config.www_root_public()))
 
         reload_service('platform-nginx')
 
-    def proxy_definition(self, app, port, template_dir, template):
-        return Template(open(join(template_dir, template)).read().strip()).substitute({'app': app, 'port': port})
+    def proxy_definition(self, app, port, template_dir, template, www_root_public):
+        return Template(open(join(template_dir, template)).read().strip()).substitute({'app': app, 'port': port, 'www_root_public': www_root_public})
 
     def remove_app(self, app, reload=True):
 
