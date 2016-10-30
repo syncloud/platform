@@ -49,7 +49,7 @@ def test_web_with_selenium(user_domain):
     password.send_keys(DEVICE_PASSWORD)
     password.submit()
     wait_driver = WebDriverWait(driver, 10)
-    wait_driver.until(EC.presents_of_element_located((By.CLASS_NAME, 'menubutton'))
+    wait_driver.until(EC.presents_of_element_located((By.CLASS_NAME, 'menubutton')))
 
     driver.get_screenshot_as_file(join(screenshot_dir, 'index.png'))
 
