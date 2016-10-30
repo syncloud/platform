@@ -43,5 +43,22 @@ def test_web_with_selenium(user_domain):
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
 
+    user = driver.find_element_by_id("name")
+    user.send_keys(DEVICE_USER)
+    password = driver.find_element_by_id("password")
+    password.send_keys(DEVICE_PASSWORD)
+    password.submit()
+    wait_driver = WebDriverWait(driver, 10)
+    wait_driver.until(EC.presents_of_element_located((By.CLASS_NAME, 'menubutton'))
+
+    driver.get_screenshot_as_file(join(screenshot_dir, 'index.png'))
+
+    driver.get("http://{0}/settings.html".format(user_domain))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(2)
+    driver.get_screenshot_as_file(join(screenshot_dir, 'settings.png'))
+
+
+
 
 
