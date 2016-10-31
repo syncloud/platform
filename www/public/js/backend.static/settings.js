@@ -142,6 +142,12 @@ var backend = {
         }, 2000);
     },
 
+    boot_extend: function(parameters) {
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
+    },
+
     sam_upgrade: function(parameters) {
         setTimeout(function() {
             success_callbacks(parameters);

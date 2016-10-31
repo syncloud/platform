@@ -230,6 +230,18 @@ def sam_status():
     return jsonify(is_running=public.sam_status()), 200
 
 
+@app.route(rest_prefix + "/settings/boot_extend", methods=["GET"])
+@login_required
+def boot_extend():
+    return jsonify(is_running=public.boot_extend()), 200
+
+
+@app.route(rest_prefix + "/settings/boot_extend_status", methods=["GET"])
+@login_required
+def boot_extend_status():
+    return jsonify(is_running=public.boot_extend_status()), 200
+
+
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])
 @login_required
 def disk_deactivate():

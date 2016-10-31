@@ -402,6 +402,18 @@ function ui_platform_upgrade() {
 		});
 }
 
+function ui_boot_extend() {
+		var btn = $("#btn_boot_extend");
+		btn.button('loading');
+		backend.boot_extend({
+				always: function() {
+					ui_check_boot_disk(function() {
+							btn.button('reset');
+					});
+				}
+		});
+}
+
 function ui_sam_upgrade() {
 		var btn = $("#btn_sam_upgrade");
 		btn.button('loading');
@@ -460,8 +472,8 @@ $(document).ready(function () {
     		ui_sam_upgrade();
     });
 
-     $("#btn_boot_extend").on('click', function () {
-    		ui_platform_upgrade();
+    $("#btn_boot_extend").on('click', function () {
+    		ui_boot_extend();
     });
     ui_check_device_url();
     ui_check_access();
