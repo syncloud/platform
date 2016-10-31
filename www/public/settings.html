@@ -97,6 +97,8 @@
 						</div>
 					</div>
 					<h3>Storage</h3>
+         <div id="block_boot_disk">
+					</div>
 					<div id="block_disks">
 					</div>
 				</div>
@@ -199,6 +201,22 @@
     <% } %>
 </script>
 
+<script type="text/html" id='template-boot-disk'>
+
+		<div class="setline">
+				<span class="span">Boot disk</span>
+    </div>
+
+		<div class="setline">
+				<span class="span"><%=device %> (<%=size %>)</span>
+				<div class="spandiv">
+						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
+				</div>
+		</div>
+
+</script>
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -245,6 +263,11 @@ function ui_display_disks(data) {
 						});
 				})
 		});
+}
+
+function ui_display_boot_disk(data) {
+		var template = $("#template-boot-disk").html();
+		$("#block_boot-disks").html(_.template(template)(data.data));
 }
 
 function ui_display_device_url(data) {
@@ -400,6 +423,13 @@ function ui_check_disks(callback) {
 		});
 }
 
+function ui_check_boot_disk(callback) {
+		backend.update_boot_disk({
+				done: ui_display_boot_disk,
+				always: callback
+		});
+}
+
 $(document).ready(function () {
 
     $("#btn_check_updates").on('click', function () {
@@ -435,6 +465,7 @@ $(document).ready(function () {
 		ui_check_device_url();
 		ui_check_access();
 		ui_check_disks(function() {});
+    ui_check_boot_disk(function() {});
 		ui_check_versions();
 });
 

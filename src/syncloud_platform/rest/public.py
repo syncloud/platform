@@ -192,6 +192,12 @@ def disks():
     return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
 
 
+@app.route(rest_prefix + "/settings/boot_disk", methods=["GET"])
+@login_required
+def boot_disk():
+    return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
+
+
 @app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])
 @login_required
 def disk_activate():

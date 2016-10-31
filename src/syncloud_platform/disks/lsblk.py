@@ -124,6 +124,9 @@ class Partition:
     def permissions_support(self):
         return self.fs_type not in ['vfat', 'exfat']
 
+    def is_root_fs(self):
+        return self.mount_point == '/'
+
     def __str__(self):
         return '{0}, {1}, {2}, {3}'.format(self.device, self.size, self.mount_point, self.active)
 
@@ -132,6 +135,9 @@ class Disk:
     def __init__(self, name, partitions):
         self.partitions = partitions
         self.name = name
+
+    def find_root_partition(self):
+        return next((p for p in disk.partitions if p.is_root_fs()), Nome)
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, ','.join(map(str, self.partitions)))

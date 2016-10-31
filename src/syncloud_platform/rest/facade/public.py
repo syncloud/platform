@@ -89,6 +89,9 @@ class Public:
     def disks(self):
         return self.hardware.available_disks()
 
+    def boot_disk(self):
+        return self.hardware.boot_disk()
+
     def send_logs(self):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()

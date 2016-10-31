@@ -72,6 +72,14 @@ var backend = {
       "success": true
     },
 
+    boot_disk_data: {
+      "data": {
+          "device": "/dev/mmcblk0p2",
+          "size": "16G"
+        },
+      "success": true
+    },
+
     device_url: function(parameters) {
         var that = this;
         setTimeout(function() {
@@ -144,6 +152,13 @@ var backend = {
         var that = this;
         setTimeout(function() {
             success_callbacks(parameters, that.disks_data);
+        }, 2000);
+    },
+
+    update_boot_disk: function(parameters) {
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.boot_disk_data);
         }, 2000);
     },
 
