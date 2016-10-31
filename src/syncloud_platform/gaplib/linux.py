@@ -40,7 +40,7 @@ def local_ip():
 
 
 def pgrep(pattern):
-    return call('pgrep -f {0}'.format(pattern), shell=True) == 0
+    return call(['pgrep', '-f', pattern]) == 0
 
 
 def run_detached(command, log_file, ssh_port):
