@@ -47,3 +47,7 @@ def run_detached(command, log_file, ssh_port):
     ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >>{2} 2>&1 &'".format(
         ssh_port, command, log_file)
     return check_output(ssh_command, shell=True)
+
+
+def parted(device):
+    return check_output('parted {0} unit % print free --script --machine'.format(device).split(" "))

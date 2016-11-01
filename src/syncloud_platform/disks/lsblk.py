@@ -120,6 +120,7 @@ class Partition:
         self.active = active
         self.fs_type = fs_type
         self.mountable = mountable
+        self.extendable = False
 
     def permissions_support(self):
         return self.fs_type not in ['vfat', 'exfat']

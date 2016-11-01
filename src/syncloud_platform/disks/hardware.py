@@ -5,6 +5,7 @@ from os import path
 from syncloud_app import logger
 from syncloud_platform.control import systemctl
 from syncloud_platform.gaplib import fs
+from syncloud_platform.gaplib.linux import parted
 
 from syncloud_platform.rest.service_exception import ServiceException
 
@@ -17,6 +18,16 @@ supported_fs_options = {
     'ext3': 'rw,nosuid,nodev,relatime',
     'ext4': 'rw,nosuid,relatime,data=ordered'
 }
+
+EXTENDABLE_FREE_PERCENT = 10
+
+
+def has_unallocated_space_at_the_end(parted_output):
+    last_line = parted_output.splitlines()[-1]
+    if 'free' not in last_line:
+        return False
+    free = float(last_line.split(':')[3][:-1])
+    return free > EXTENDABLE_FREE_PERCENT
 
 
 class Hardware:
@@ -34,7 +45,11 @@ class Hardware:
     def root_partition(self):
         disks = self.lsblk.all_disks()
         partitions = map(lambda p: p.find_root_partition(), disks)
-        return next((p for p in partitions if p is not None), None)
+        partition = next((p for p in partitions if p is not None), None)
+        if partition:
+            parted_output = parted(partition.device)
+            partition.extendable = has_unallocated_space_at_the_end(parted_output)
+        return partition
 
     def activate_disk(self, device):
         self.log.info('activate disk: {0}'.format(device))
