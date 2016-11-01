@@ -18,7 +18,7 @@ function run_after_boot_extend_is_complete(on_complete) {
 
 function run_after_job_is_complete(on_complete, job) {
 
-    var recheck_function = function () { run_after_job_is_complete(on_complete); };
+    var recheck_function = function () { run_after_job_is_complete(on_complete, job); };
 
     var recheck_timeout = 2000;
     $.get('/rest/settings/' + job + '_status')

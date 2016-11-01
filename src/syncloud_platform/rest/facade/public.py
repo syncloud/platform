@@ -5,7 +5,6 @@ from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
 from syncloud_platform.sam.stub import SAM_BIN_SHORT
 
-RESIZE_SCRIPT = 'resize-sd-partition.sh'
 
 class Public:
 
@@ -87,7 +86,7 @@ class Public:
         return pgrep(SAM_BIN_SHORT)
 
     def boot_extend_status(self):
-        return pgrep('resize-sd-partition.sh')
+        return pgrep(self.resize_script)
 
     def boot_extend(self):
         run_detached(self.resize_script, self.platform_config.get_platform_log(), self.platform_config.get_ssh_port())
@@ -99,7 +98,7 @@ class Public:
         return self.hardware.available_disks()
 
     def boot_disk(self):
-        return self.hardware.boot_disk()
+        return self.hardware.root_partition()
 
     def send_logs(self):
         user_token = self.user_platform_config.get_user_update_token()

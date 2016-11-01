@@ -137,7 +137,7 @@ class Disk:
         self.name = name
 
     def find_root_partition(self):
-        return next((p for p in disk.partitions if p.is_root_fs()), Nome)
+        return next((p for p in self.partitions if p.is_root_fs()), None)
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, ','.join(map(str, self.partitions)))

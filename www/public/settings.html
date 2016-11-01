@@ -97,7 +97,7 @@
 						</div>
 					</div>
 					<h3>Storage</h3>
-         <div id="block_boot_disk">
+                    <div id="block_boot_disk">
 					</div>
 					<div id="block_disks">
 					</div>
@@ -266,6 +266,9 @@ function ui_display_disks(data) {
 function ui_display_boot_disk(data) {
 		var template = $("#template-boot-disk").html();
 		$("#block_boot_disk").html(_.template(template)(data.data));
+        $("#btn_boot_extend").on('click', function () {
+    		ui_boot_extend();
+        });
 }
 
 function ui_display_device_url(data) {
@@ -472,9 +475,6 @@ $(document).ready(function () {
     		ui_sam_upgrade();
     });
 
-    $("#btn_boot_extend").on('click', function () {
-    		ui_boot_extend();
-    });
     ui_check_device_url();
     ui_check_access();
     ui_check_disks(function() {});
