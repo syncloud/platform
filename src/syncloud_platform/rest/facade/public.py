@@ -1,10 +1,12 @@
 from syncloud_app import logger
 
-from syncloud_platform.rest.props import html_prefix
-from syncloud_platform.rest.model.app import app_from_sam_app, App
-
+from syncloud_platform.gaplib.linux import pgrep, run_detached
+from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
-from syncloud_platform.certbot import certbot_generator
+from syncloud_platform.sam.stub import SAM_BIN_SHORT
+
+RESIZE_SCRIPT = 'resize-sd-partition.sh'
+
 class Public:
 
     def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator):
@@ -19,6 +21,7 @@ class Public:
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
         self.certbot_generator = certbot_generator
+        self.resize_script = self.platform_config.get_boot_extend_script()
 
     def domain(self):
         return self.device_info.domain()
@@ -81,13 +84,22 @@ class Public:
         self.sam.upgrade('sam')
 
     def sam_status(self):
-        return self.sam.is_running()
+        return pgrep(SAM_BIN_SHORT)
+
+    def boot_extend_status(self):
+        return pgrep('resize-sd-partition.sh')
+
+    def boot_extend(self):
+        run_detached(self.resize_script, self.platform_config.get_platform_log(), self.platform_config.get_ssh_port())
 
     def disk_deactivate(self):
         return self.hardware.deactivate_disk()
 
     def disks(self):
         return self.hardware.available_disks()
+
+    def boot_disk(self):
+        return self.hardware.boot_disk()
 
     def send_logs(self):
         user_token = self.user_platform_config.get_user_update_token()

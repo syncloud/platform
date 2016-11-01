@@ -1,4 +1,4 @@
-from subprocess import check_output
+from subprocess import check_output, call
 import pwd
 from os import environ
 import massedit
@@ -37,3 +37,13 @@ def local_ip():
     if not ip:
         raise(Exception("Can't get local ip address"))
     return ip
+
+
+def pgrep(pattern):
+    return call(['pgrep', '-f', pattern]) == 0
+
+
+def run_detached(command, log_file, ssh_port):
+    ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >>{2} 2>&1 &'".format(
+        ssh_port, command, log_file)
+    return check_output(ssh_command, shell=True)

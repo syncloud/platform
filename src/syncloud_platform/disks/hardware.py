@@ -31,6 +31,11 @@ class Hardware:
     def available_disks(self):
         return self.lsblk.available_disks()
 
+    def root_partition(self):
+        disks = self.lsblk.all_disks()
+        partitions = map(lambda p: p.find_root_partition(), disks)
+        return next((p for p in partitions if p is not None), None)
+
     def activate_disk(self, device):
         self.log.info('activate disk: {0}'.format(device))
         self.deactivate_disk()

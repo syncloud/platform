@@ -128,6 +128,9 @@ class PlatformConfig:
     def is_certbot_test_cert(self):
         return self.parser.getboolean('platform', 'certbot_test_cert')
 
+    def get_boot_extend_script(self):
+        return self.__get('boot_extend_script')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 

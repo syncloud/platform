@@ -192,6 +192,12 @@ def disks():
     return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
 
 
+@app.route(rest_prefix + "/settings/boot_disk", methods=["GET"])
+@login_required
+def boot_disk():
+    return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
+
+
 @app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])
 @login_required
 def disk_activate():
@@ -222,6 +228,18 @@ def sam_upgrade():
 @login_required
 def sam_status():
     return jsonify(is_running=public.sam_status()), 200
+
+
+@app.route(rest_prefix + "/settings/boot_extend", methods=["GET"])
+@login_required
+def boot_extend():
+    return jsonify(is_running=public.boot_extend()), 200
+
+
+@app.route(rest_prefix + "/settings/boot_extend_status", methods=["GET"])
+@login_required
+def boot_extend_status():
+    return jsonify(is_running=public.boot_extend_status()), 200
 
 
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])

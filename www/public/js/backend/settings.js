@@ -248,6 +248,29 @@ var backend = {
             });
     },
 
+    update_boot_disk: function(parameters) {
+        $.get('/rest/settings/boot_disk')
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
     disk_action: function(parameters) {
         var disk_device = parameters.disk_device;
         var is_activate = parameters.is_activate;
@@ -276,5 +299,32 @@ var backend = {
                     parameters.always();
                 }
             });
-    }
-}
+    },
+    
+    boot_extend: function(parameters) {
+        $.get('/rest/settings/boot_extend')
+            .done(function (data) {
+                run_after_boot_extend_is_complete(function() {
+                    if (parameters.hasOwnProperty("done")) {
+                        parameters.done(data);
+                    }
+                });
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                run_after_boot_extend_is_complete(function() {
+                    if (parameters.hasOwnProperty("always")) {
+                        parameters.always();
+                    }
+                });
+            });
+    }  
+};

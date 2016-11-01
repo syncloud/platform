@@ -9,13 +9,21 @@ function onError(xhr, textStatus, errorThrown) {
 }
 
 function run_after_sam_is_complete(on_complete) {
+    run_after_job_is_complete(on_complete, 'sam');
+}
 
-    var recheck_function = function () { run_after_sam_is_complete(on_complete); }
+function run_after_boot_extend_is_complete(on_complete) {
+    run_after_job_is_complete(on_complete, 'boot_extend');
+}
+
+function run_after_job_is_complete(on_complete, job) {
+
+    var recheck_function = function () { run_after_job_is_complete(on_complete); };
 
     var recheck_timeout = 2000;
-    $.get('/rest/settings/sam_status')
-            .done(function(sam) {
-                if (sam.is_running)
+    $.get('/rest/settings/' + job + '_status')
+            .done(function(status) {
+                if (status.is_running)
                     setTimeout(recheck_function, recheck_timeout);
                 else
                     on_complete();

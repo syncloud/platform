@@ -97,6 +97,8 @@
 						</div>
 					</div>
 					<h3>Storage</h3>
+         <div id="block_boot_disk">
+					</div>
 					<div id="block_disks">
 					</div>
 				</div>
@@ -199,6 +201,20 @@
     <% } %>
 </script>
 
+<script type="text/html" id='template-boot-disk'>
+
+    <div class="setline">
+            <span class="span">Boot disk</span>
+    </div>
+    <div class="setline">
+        <span class="span"><%=device %> (<%=size %>)</span>
+        <div class="spandiv">
+            <button class="buttongreen bwidth smbutton btn-lg" id="btn_boot_extend" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
+        </div>
+    </div>
+
+</script>
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -224,7 +240,7 @@ function ui_display_disks(data) {
 
 		$("#block_disks").find("[type='checkbox']").each(function() {
 				var tgl_device = $(this);
-				$(this).on('switchChange.bootstrapSwitch', function(event, state) {
+				$(this).on('switchChange.bootstrapSwitch', function(e, s) {
 						var state = tgl_device.bootstrapSwitch('state');
 						var disk_device = tgl_device.data('device');
 						var device_index = tgl_device.data('index');
@@ -245,6 +261,11 @@ function ui_display_disks(data) {
 						});
 				})
 		});
+}
+
+function ui_display_boot_disk(data) {
+		var template = $("#template-boot-disk").html();
+		$("#block_boot_disk").html(_.template(template)(data.data));
 }
 
 function ui_display_device_url(data) {
@@ -312,9 +333,9 @@ function ui_toggle_external_access() {
 }
 
 function ui_toggle_protocol() {
-		var toggle = $("#tgl_protocol")
+		var toggle = $("#tgl_protocol");
 		var state = toggle.bootstrapSwitch('state');
-		var new_protocol = state ? 'https' : 'http'
+		var new_protocol = state ? 'https' : 'http';
 		disable_access_controls();
 		$("#tgl_protocol_loading").addClass('opacity-visible');
 		backend.protocol({
@@ -325,8 +346,8 @@ function ui_toggle_protocol() {
 }
 
 function ui_display_versions(data) {
-		platform_data = find_app(data.data, "platform")
-		sam_data = find_app(data.data, "sam")
+		var platform_data = find_app(data.data, "platform");
+		var sam_data = find_app(data.data, "sam");
 
 		$("#txt_platform_version").html(platform_data.installed_version);
 		$("#txt_system_version_available").html(platform_data.current_version);
@@ -381,6 +402,18 @@ function ui_platform_upgrade() {
 		});
 }
 
+function ui_boot_extend() {
+		var btn = $("#btn_boot_extend");
+		btn.button('loading');
+		backend.boot_extend({
+				always: function() {
+					ui_check_boot_disk(function() {
+							btn.button('reset');
+					});
+				}
+		});
+}
+
 function ui_sam_upgrade() {
 		var btn = $("#btn_sam_upgrade");
 		btn.button('loading');
@@ -396,6 +429,13 @@ function ui_sam_upgrade() {
 function ui_check_disks(callback) {
 		backend.update_disks({
 				done: ui_display_disks,
+				always: callback
+		});
+}
+
+function ui_check_boot_disk(callback) {
+		backend.update_boot_disk({
+				done: ui_display_boot_disk,
 				always: callback
 		});
 }
@@ -417,12 +457,12 @@ $(document).ready(function () {
     $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
 				event.preventDefault();
 				ui_toggle_external_access();
-		});
+    });
 
-		$("#tgl_protocol").on('switchChange.bootstrapSwitch', function(event, state) {
-				event.preventDefault();
-				ui_toggle_protocol();
-		});
+    $("#tgl_protocol").on('switchChange.bootstrapSwitch', function(event, state) {
+            event.preventDefault();
+            ui_toggle_protocol();
+    });
 
     $("#btn_platform_upgrade").on('click', function () {
     		ui_platform_upgrade();
@@ -432,10 +472,14 @@ $(document).ready(function () {
     		ui_sam_upgrade();
     });
 
-		ui_check_device_url();
-		ui_check_access();
-		ui_check_disks(function() {});
-		ui_check_versions();
+    $("#btn_boot_extend").on('click', function () {
+    		ui_boot_extend();
+    });
+    ui_check_device_url();
+    ui_check_access();
+    ui_check_disks(function() {});
+    ui_check_boot_disk(function() {});
+    ui_check_versions();
 });
 
 </script>

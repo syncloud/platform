@@ -3,10 +3,11 @@ from syncloud_app import logger
 from models import AppVersions
 from os.path import join, isdir
 import jsonpickle
-import psutil
 from shutil import rmtree, copytree
 
 import convertible
+
+from syncloud_platform.gaplib.linux import run_detached
 
 SAM_BIN_SHORT = 'bin/sam'
 SAM_BIN = join('/opt/app/sam', SAM_BIN_SHORT)
@@ -70,11 +71,8 @@ class SamStub:
         return next(a for a in self.list() if a.app.id == app_id)
 
     def __run_detached(self, command):
-        # Think about adding twisted
-        ssh_command = "ssh localhost -p {0} -o StrictHostKeyChecking=no 'nohup {1} </dev/null >>{2} 2>&1 &'".format(
-            self.platform_config.get_ssh_port(), command, self.platform_config.get_platform_log())
-        self.logger.info('ssh command: {0}'.format(ssh_command))
-        output = check_output(ssh_command, shell=True)
+        self.logger.info('ssh command: {0}'.format(command))
+        output = run_detached(command, self.platform_config.get_platform_log(), self.platform_config.get_ssh_port())
         self.logger.info(output)
 
     def __run(self, cmd_args):
@@ -83,21 +81,3 @@ class SamStub:
         output = check_output(cmd_line, shell=True)
         result = jsonpickle.decode(output)
         return result['data']
-
-    def is_running(self):
-
-        results = check_output('ps auxfw | grep {0} | grep -v grep || true'.format(SAM_BIN_SHORT),  shell=True)\
-            .splitlines()
-
-        if len(results) > 0:
-            # for line in results:
-            #     self.logger.info(line)
-            return True
-        else:
-            return False
-
-        # for p in psutil.process_iter():
-        #     for arg in p.cmdline():
-        #         if SAM_BIN in arg or TEMP_SAM_PATH in arg:
-        #             return True
-        # return False
