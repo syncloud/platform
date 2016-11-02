@@ -14,7 +14,7 @@ class Lsblk:
 
     def available_disks(self, lsblk_output=None):
         disks = self.all_disks(lsblk_output)
-        disks_with_mountable_partitions = [Disk(d.name, [p for p in d.partitions if p.mountable]) for d in disks]
+        disks_with_mountable_partitions = [Disk(d.name, d.device, [p for p in d.partitions if p.mountable]) for d in disks]
         disks_with_partitions = [d for d in disks_with_mountable_partitions if d.partitions]
         return disks_with_partitions
 
