@@ -44,10 +44,11 @@ class Hardware:
 
     def root_partition(self):
         disks = self.lsblk.all_disks()
-        partitions = map(lambda p: p.find_root_partition(), disks)
-        partition = next((p for p in partitions if p is not None), None)
-        if partition:
-            parted_output = parted(partition.device)
+        partition = None
+        boot_disk = next((d for d in disks if d.find_root_partition() is not None), None)
+        if boot_disk:
+            partition = boot_disk.find_root_partition()
+            parted_output = parted(boot_disk.device)
             partition.extendable = has_unallocated_space_at_the_end(parted_output)
         return partition
 

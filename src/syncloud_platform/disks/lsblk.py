@@ -36,7 +36,7 @@ class Lsblk:
 
             if lsblk_entry.type in ('disk', 'loop'):
                 disk_name = lsblk_entry.model
-                disk = Disk(disk_name, [])
+                disk = Disk(disk_name, lsblk_entry.name, [])
                 if lsblk_entry.type == 'loop':
                     disk_name = lsblk_entry.type
                     self.log.info('adding loop: {0}'.format(lsblk_entry.name))
@@ -133,9 +133,10 @@ class Partition:
 
 
 class Disk:
-    def __init__(self, name, partitions):
-        self.partitions = partitions
+    def __init__(self, name, device, partitions):
         self.name = name
+        self.partitions = partitions
+        self.device = device
 
     def find_root_partition(self):
         return next((p for p in self.partitions if p.is_root_fs()), None)
