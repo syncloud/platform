@@ -8,6 +8,18 @@ function onError(xhr, textStatus, errorThrown) {
     }
 }
 
+function check_for_service_error(data, parameters, on_complete) {
+    
+    if (data.hasOwnProperty('success') && !data.success) {
+        if (parameters.hasOwnProperty("fail")) {
+            parameters.fail(200, data);
+        }
+    } else {
+        on_complete();
+    }
+    
+}
+
 function run_after_sam_is_complete(on_complete) {
     run_after_job_is_complete(on_complete, 'sam');
 }

@@ -1,3 +1,4 @@
+import os
 from subprocess import check_output
 from syncloud_app import logger
 from models import AppVersions
@@ -8,12 +9,14 @@ from shutil import rmtree, copytree
 import convertible
 
 from syncloud_platform.gaplib.linux import run_detached
+from syncloud_platform.rest.service_exception import ServiceException
 
 SAM_BIN_SHORT = 'bin/sam'
 SAM_BIN = join('/opt/app/sam', SAM_BIN_SHORT)
 
 TEMP_SAM_PATH = '/tmp/sam-copy'
 TEMP_SAM_BIN = join(TEMP_SAM_PATH, SAM_BIN_SHORT)
+ROOTFS_MINIMUM_MB = 1024
 
 
 class SamStub:
@@ -22,6 +25,18 @@ class SamStub:
         self.info = info
         self.platform_config = platform_config
         self.logger = logger.get_logger('SamStub')
+
+    def __get_rootfs_available_mb(self):
+        rootfs_stat = os.statvfs('/')
+        return rootfs_stat.f_bavail * rootfs_stat.f_bsize / 1024 / 1024
+
+    def __is_space_available_or_exception(self):
+        available_mb = self.__get_rootfs_available_mb()
+        if available_mb < ROOTFS_MINIMUM_MB:
+            message = 'not enough space left: {0} MB, required space is {1}'.format(available_mb, ROOTFS_MINIMUM_MB)
+            self.logger.error('not running sam action, {0}'.format(message))
+            self.logger.error(message)
+            raise ServiceException(message)
 
     def __get_sam_bin(self, app_id):
         sam_bin = SAM_BIN
@@ -39,9 +54,11 @@ class SamStub:
         return self.__run(args)
 
     def install(self, app_id):
+        self.__is_space_available_or_exception()
         self.__run_detached('{0} install {1}'.format(SAM_BIN, app_id))
 
     def upgrade(self, app_id):
+        self.__is_space_available_or_exception()
         sam_bin = self.__get_sam_bin(app_id)
         self.__run_detached('{0} upgrade {1}'.format(sam_bin, app_id))
 

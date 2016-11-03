@@ -174,10 +174,12 @@ var backend = {
     platform_upgrade: function(parameters) {
         $.get('/rest/settings/system_upgrade')
             .done(function (data) {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("done")) {
-                        parameters.done(data);
-                    }
+                check_for_service_error(data, parameters, function() {
+                    run_after_sam_is_complete(function() {
+                        if (parameters.hasOwnProperty("done")) {
+                            parameters.done(data);
+                        }
+                    });    
                 });
             })
             .fail(function (xhr, textStatus, errorThrown) {
@@ -201,10 +203,12 @@ var backend = {
     sam_upgrade: function(parameters) {
         $.get('/rest/settings/sam_upgrade')
             .done(function (data) {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("done")) {
-                        parameters.done(data);
-                    }
+                check_for_service_error(data, parameters, function() {
+                    run_after_sam_is_complete(function () {
+                        if (parameters.hasOwnProperty("done")) {
+                            parameters.done(data);
+                        }
+                    });
                 });
             })
             .fail(function (xhr, textStatus, errorThrown) {
@@ -277,13 +281,11 @@ var backend = {
         var mode = is_activate ? "disk_activate" : "disk_deactivate";
         $.get('/rest/settings/' + mode, {device: disk_device})
             .done(function (data) {
-                if (data.hasOwnProperty('success') && !data.success) {
-                    if (parameters.hasOwnProperty("fail")) {
-                        parameters.fail(200, data);
+                check_for_service_error(data, parameters, function() {
+                    if (parameters.hasOwnProperty("done")) {
+                        parameters.done(data);
                     }
-                } else if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
+                });
             })
             .fail(function (xhr, textStatus, errorThrown) {
                 var error = null;
