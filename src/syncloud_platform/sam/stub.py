@@ -30,6 +30,7 @@ class SamStub:
         rootfs_stat = os.statvfs('/')
         return rootfs_stat.f_bavail * rootfs_stat.f_bsize / 1024 / 1024
 
+    # TODO: Remove when we have a proper sam server
     def __is_space_available_or_exception(self):
         available_mb = self.__get_rootfs_available_mb()
         if available_mb < ROOTFS_MINIMUM_MB:
