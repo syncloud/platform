@@ -33,7 +33,7 @@ class SamStub:
     def __is_space_available_or_exception(self):
         available_mb = self.__get_rootfs_available_mb()
         if available_mb < ROOTFS_MINIMUM_MB:
-            message = 'not enough space left: {0} MB, required space is {1}'.format(available_mb, ROOTFS_MINIMUM_MB)
+            message = 'Not enough space left: {0} MB, required space is {1} MB'.format(available_mb, ROOTFS_MINIMUM_MB)
             self.logger.error('not running sam action, {0}'.format(message))
             self.logger.error(message)
             raise ServiceException(message)
