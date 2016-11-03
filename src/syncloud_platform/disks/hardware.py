@@ -105,7 +105,7 @@ class Hardware:
             unlink(link)
         os.symlink(target, link)
 
-        self.event_trigger.trigger_app_event_disk(self.platform_config.apps_root())
+        self.event_trigger.trigger_app_event_disk()
 
     def check_external_disk(self):
         self.log.info('checking external disk')

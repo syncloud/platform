@@ -66,7 +66,7 @@ class Injector:
         self.sam = SamStub(self.platform_config, self.info)
         self.platform_cron = PlatformCron(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config)
-        self.event_trigger = EventTrigger(self.sam)
+        self.event_trigger = EventTrigger(self.sam, self.platform_config)
         self.nginx = Nginx(self.platform_config)
         self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config, self.info, self.sam)
         self.tls = Tls(self.platform_config, self.user_platform_config, self.info, self.nginx, self.certbot_genetator)

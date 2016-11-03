@@ -90,7 +90,7 @@ class Device:
 
         self.redirect_service.sync(drill, update_token, protocol, external_access, http_network_protocol)
         self.user_platform_config.update_device_access(external_access, protocol)
-        self.event_trigger.trigger_app_event_domain(self.platform_config.apps_root())
+        self.event_trigger.trigger_app_event_domain()
 
     def sync_all(self):
         update_token = self.user_platform_config.get_domain_update_token()
