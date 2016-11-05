@@ -21,8 +21,7 @@ def get_script_path(apps_root, app_id, action):
         return (join(apps_root, app_id, 'bin', hook_script), False)
 
 
-def run_hook_script(platform_config, action, app_id):
-    apps_root = platform_config.apps_root()
+def run_hook_script(apps_root, app_id, action):
     app_event_script, add_location_to_sys_path = get_script_path(apps_root, app_id, action)
     log = logger.get_logger('events')
     if isfile(app_event_script):
@@ -50,4 +49,4 @@ class EventTrigger:
     def __trigger_app_event(self, action):
         for app in self.sam.installed_all_apps():
             app_id = app.app.id
-            run_hook_script(self.platform_config, action, app_id)
+            run_hook_script(self.platform_config.apps_root(), app_id, action)
