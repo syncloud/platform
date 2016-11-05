@@ -15,29 +15,25 @@ action_to_old_script = {
 def get_script_path(apps_root, app_id, action):
     hooks_path = join(apps_root, 'hooks')
     if isdir(hooks_path):
-        return join(hooks_path, action+'.py')
+        return (join(hooks_path, action+'.py'), True)
     else:
         hook_script = action_to_old_script[action]
-        return join(apps_root, app_id, 'bin', hook_script)
+        return (join(apps_root, app_id, 'bin', hook_script), False)
 
 
-def try_run_script(app_event_script):
+def run_hook_script(platform_config, action, app_id):
+    apps_root = platform_config.apps_root()
+    app_event_script, add_location_to_sys_path = get_script_path(apps_root, app_id, action)
     log = logger.get_logger('events')
     if isfile(app_event_script):
         log.info('executing {0}'.format(app_event_script))
         try:
-            run_script(app_event_script)
+            run_script(app_event_script, add_location_to_sys_path)
         except:
             log.error('error in script')
             log.error(traceback.format_exc())
     else:
         log.info('{0} not found'.format(app_event_script))
-
-
-def run_hook_script(platform_config, action, app_id):
-    apps_root = platform_config.apps_root()
-    app_event_script = get_script_path(apps_root, app_id, action)
-    try_run_script(app_event_script)
 
 
 class EventTrigger:
