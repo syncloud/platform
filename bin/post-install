@@ -21,14 +21,6 @@ linux.useradd(USER_NAME)
 platform_paths = api.get_app_paths(APP_NAME)
 log.info(fs.chownpath(platform_paths.get_install_dir(), USER_NAME, recursive=True))
 
-# TODO: only for migration from pre-protocol version (< v240), remove after upgrading test users
-user_config_file = '/opt/data/platform/user_platform.cfg'
-if os.path.isfile(user_config_file):
-    check_output("sed -i 's/external_access.*=.*http.*/external_access = True/g' {0}".format(user_config_file), shell=True)
-    check_output("sed -i 's/external_access.*=.*None.*/external_access = False/g' {0}".format(user_config_file), shell=True)
-
-# TODO: User specific cron remove as we did not have proper cleanup in post-remove, remove after upgrading test users
-print(check_output("echo "" | crontab - -u platform", shell=True))
 
 data_dir = platform_paths.get_data_dir()
 fs.chownpath(data_dir, USER_NAME)
