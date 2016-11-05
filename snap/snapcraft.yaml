@@ -1,0 +1,74 @@
+name: syncloud-platform
+version: 16.11
+summary: Syncloud Platform
+description: Syncloud service store.
+grade: stable
+confinement: strict
+
+apps:
+  nginx:
+    command: nginx/sbin/nginx -c config/nginx/nginx.conf
+    stop-command: nginx/sbin/nginx -c config/nginx/nginx.conf -s stop
+    daemon: forking
+    restart-condition: always
+    plugs: [network, network-bind]
+  uwsgi:
+    command: uwsgi/bin/uwsgi --ini config/uwsgi/public.ini
+    daemon: simple
+    restart-condition: always
+    plugs: [network, network-bind]
+  openldap:
+    command: openldap/libexec/slapd -h "ldap:/// ldapi:///" -F $SNAP_COMMON/slapd.d
+    daemon: forking
+    restart-condition: always
+    plugs: [network, network-bind]
+
+parts:
+  nginx:
+    plugin: dump
+    source: http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_nginx_x86_64/lastSuccessful/nginx-x86_64.tar.gz
+    organize:
+      '*': nginx/
+
+  uwsgi:
+    plugin: dump
+    source: http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_uwsgi_x86_64/lastSuccessful/uwsgi-x86_64.tar.gz
+    organize:
+      '*': uwsgi/
+
+  openldap:
+    plugin: dump
+    source: http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openldap_x86_64/lastSuccessful/openldap-x86_64.tar.gz
+    organize:
+      '*': openldap/
+
+  openssl:
+    plugin: dump
+    source: http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_openssl_x86_64/lastSuccessful/openssl-x86_64.tar.gz
+    organize:
+      '*': openssl/
+
+  python:
+    plugin: dump
+    source: http://build.syncloud.org:8111/guestAuth/repository/download/thirdparty_python_x86_64/lastSuccessful/python-x86_64.tar.gz
+    organize:
+      '*': python/
+
+  platform-bin:
+    plugin: dump
+    source: ../bin
+    organize:
+      '*': bin/
+
+  platform-config:
+    plugin: dump
+    source: ../config
+    organize:
+      '*': config/
+
+  platform-www:
+    plugin: dump
+    source: ../www
+    organize:
+      '*': www/
+
