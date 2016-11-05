@@ -7,13 +7,13 @@ confinement: strict
 
 apps:
   nginx:
-    command: nginx/sbin/nginx -c config/nginx/nginx.conf
-    stop-command: nginx/sbin/nginx -c config/nginx/nginx.conf -s stop
+    command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf
+    stop-command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf -s stop
     daemon: forking
     restart-condition: always
     plugs: [network, network-bind]
   uwsgi:
-    command: uwsgi/bin/uwsgi --ini config/uwsgi/public.ini
+    command: uwsgi/bin/uwsgi --ini $SNAP/config/uwsgi/public.ini
     daemon: simple
     restart-condition: always
     plugs: [network, network-bind]
