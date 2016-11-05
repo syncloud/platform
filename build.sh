@@ -52,7 +52,7 @@ ${BUILD_DIR}/python/bin/python setup.py install
 cd ..
 
 cp -r ${DIR}/bin ${BUILD_DIR}
-cp -r ${DIR}/config ${BUILD_DIR}/config.templates
+cp -r ${DIR}/config ${BUILD_DIR}
 cp -r ${DIR}/www ${BUILD_DIR}
 
 mkdir ${BUILD_DIR}/META
