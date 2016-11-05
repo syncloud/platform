@@ -10,4 +10,4 @@ apps_dir = sys.argv[1]
 app_id = sys.argv[2]
 hook_script = sys.argv[3]
 
-run_hook_script(apps_dir, hook_script, app_id)
+run_hook_script(apps_dir, app_id, hook_script)
