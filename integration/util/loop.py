@@ -3,7 +3,7 @@ from integration.util.ssh import run_ssh
 
 def loop_device_cleanup(dev_file, password):
     print('cleanup')
-    for loop in run_ssh('losetup -j {0} -O NAME'.f format(dev_file), password=password).splitlines():
+    for loop in run_ssh('losetup -j {0} -O NAME'.format(dev_file), password=password).splitlines():
         if 'loop' in loop:
             print(loop)
             run_ssh('umount {0}'.format(loop), throw=False, password=password)
