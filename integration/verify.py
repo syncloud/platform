@@ -221,17 +221,17 @@ def test_sam_upgrade(public_web_session):
 
 @pytest.yield_fixture(scope='function')
 def loop_device():
-
-    loop_device_cleanup(password=DEVICE_PASSWORD)
+    dev_file = '/tmp/disk'
+    loop_device_cleanup(dev_file, password=DEVICE_PASSWORD)
 
     print('adding loop device')
-    run_ssh('dd if=/dev/zero bs=1M count=10 of=/tmp/disk', password=DEVICE_PASSWORD)
-    run_ssh('losetup /dev/loop0 /tmp/disk', password=DEVICE_PASSWORD)
-    run_ssh('file -s /dev/loop0', password=DEVICE_PASSWORD)
+    run_ssh('dd if=/dev/zero bs=1M count=10 of={0}'.format(dev_file), password=DEVICE_PASSWORD)
+    loop = run_ssh('losetup -f --show {0}'.format(dev_file), password=DEVICE_PASSWORD)
+    run_ssh('file -s {0}'.format(loop), password=DEVICE_PASSWORD)
 
-    yield '/dev/loop0'
+    yield loop
 
-    loop_device_cleanup(password=DEVICE_PASSWORD)
+    loop_device_cleanup(dev_file, password=DEVICE_PASSWORD)
 
 
 def disk_writable():
