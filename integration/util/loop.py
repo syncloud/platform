@@ -3,11 +3,18 @@ from integration.util.ssh import run_ssh
 
 def loop_device_cleanup(dev_file, password):
     print('cleanup')
-    for loop in run_ssh('losetup -j {0} -O NAME'.format(dev_file), password=password).splitlines():
-        if 'loop' in loop:
-            print(loop)
-            run_ssh('umount {0}'.format(loop), throw=False, password=password)
-            run_ssh('losetup -d {0}'.format(loop), throw=False, password=password)
+    for mount in run_ssh('mount', password=password).splitlines():
+        if dev_file in mount:
+            print(mount)
+            for i in range(0, 5):
+                if 'loop{0}'.format(i) in mount:
+                    run_ssh('umount /dev/loop{0}'.format(i), throw=False, password=password)
+
+    for loop in run_ssh('losetup', password=password).splitlines():
+        if dev_file in mount:
+            for i in range(0, 5):
+                if 'loop{0}'.format(i) in loop:
+                    run_ssh('losetup -d /dev/loop{0}'.format(i), throw=False, password=password) 
 
     run_ssh('losetup', password=password)
 

@@ -250,7 +250,7 @@ def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_typ
 def test_disk_physical_remove(loop_device, public_web_session):
     disk_create(loop_device, 'ext4')
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
-    loop_device_cleanup(password=DEVICE_PASSWORD)
+    loop_device_cleanup('/tmp/disk', password=DEVICE_PASSWORD)
     run_ssh('udevadm trigger --action=remove -y loop0', password=DEVICE_PASSWORD)
     run_ssh('udevadm settle', password=DEVICE_PASSWORD)
     assert current_disk_link() == '/opt/disk/internal/platform'
@@ -267,12 +267,6 @@ def disk_create(loop_device, fs):
         if 'loop' in mount:
             print(mount)
     run_ssh('umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
-
-    run_ssh('udisksctl mount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
-    for mount in run_ssh('mount', debug=True, password=DEVICE_PASSWORD).splitlines():
-        if 'loop' in mount:
-            print(mount)
-    run_ssh('udisksctl unmount -b {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
 def disk_activate(loop_device, public_web_session):
