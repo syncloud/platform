@@ -17,4 +17,4 @@ def loop_device_cleanup(dev_file, password):
         if 'loop0p2' in loop:
             run_ssh('sudo dmsetup remove loop0p2', password=password)
 
-    run_ssh('rm -rf {0}'.format(dev_disk), throw=False, password=password)
+    run_ssh('rm -rf {0}'.format(dev_file), throw=False, password=password)
