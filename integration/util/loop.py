@@ -6,13 +6,13 @@ def loop_device_cleanup(dev_file, password):
     for mount in run_ssh('mount', password=password).splitlines():
         if dev_file in mount:
             print(mount)
-            for i in range(0, 5):
+            for i in range(0, 10):
                 if 'loop{0}'.format(i) in mount:
                     run_ssh('umount /dev/loop{0}'.format(i), throw=False, password=password)
 
     for loop in run_ssh('losetup', password=password).splitlines():
         if dev_file in loop:
-            for i in range(0, 5):
+            for i in range(0, 10):
                 if 'loop{0}'.format(i) in loop:
                     run_ssh('losetup -d /dev/loop{0}'.format(i), throw=False, password=password) 
 
