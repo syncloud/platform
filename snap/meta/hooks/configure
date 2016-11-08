@@ -13,13 +13,15 @@ from syncloud_platform.gaplib import fs, linux, gen
 
 log = logger.get_logger('platform_post_install')
 
-install_dir = join(apps_root, APP_NAME)
+install_dir = os.environ['SNAP']
 templates_path = join(install_dir, 'config.templates')
 config_path = join(install_dir, 'config')
 
 variables = {
     'apps_root': apps_root,
-    'data_root': data_root
+    'data_root': data_root,
+    'app_dir': install_dir,
+    'data_dir': os.environ['SNAP_COMMON']
 }
 gen.generate_files(templates_path, config_path, variables)
 
