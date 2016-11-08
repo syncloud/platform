@@ -28,7 +28,9 @@ config_path = join(install_dir, 'config')
 
 variables = {
     'apps_root': apps_root,
-    'data_root': data_root
+    'data_root': data_root,
+    'app_dir': install_dir,
+    'app_data': join(data_root, APP_NAME)
 }
 gen.generate_files(templates_path, config_path, variables)
 
