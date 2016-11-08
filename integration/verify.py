@@ -242,7 +242,7 @@ def disk_writable():
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):
     disk_create(loop_device, fs_type)
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform''
     disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
 
