@@ -21,7 +21,7 @@ variables = {
     'apps_root': apps_root,
     'data_root': data_root,
     'app_dir': install_dir,
-    'app_data: os.environ['SNAP_COMMON']
+    'app_data': os.environ['SNAP_COMMON']
 }
 gen.generate_files(templates_path, config_path, variables)
 
