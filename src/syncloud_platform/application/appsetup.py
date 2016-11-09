@@ -2,13 +2,14 @@ from syncloud_platform.control import systemctl
 
 class AppSetup:
 
-    def __init__(self, app_name, app_paths, nginx, storage, device_info, device):
+    def __init__(self, app_name, app_paths, nginx, storage, device_info, device, user_platform_config):
         self.app_name = app_name
         self.app_paths = app_paths
         self.nginx = nginx
         self.storage = storage
         self.device_info = device_info
         self.device = device
+        self.user_platform_config = user_platform_config
 
     def get_install_dir(self):
         return self.app_paths.get_install_dir()
@@ -54,3 +55,6 @@ class AppSetup:
 
     def reload_service(self, service_name):
         systemctl.reload_service(service_name)
+
+    def redirect_email(self):
+        return self.user_platform_config.get_user_email()
