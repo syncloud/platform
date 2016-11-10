@@ -7,7 +7,7 @@ confinement: strict
 
 apps:
   configure:
-    command: configure
+    command: bin/snap-configure
   #nginx:
     #command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf
     #stop-command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf -s stop
