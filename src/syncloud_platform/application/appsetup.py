@@ -56,5 +56,11 @@ class AppSetup:
     def reload_service(self, service_name):
         systemctl.reload_service(service_name)
 
+    def start_service(self, service_name):
+        systemctl.start_service(service_name)
+
+    def stop_service(self, service_name):
+        systemctl.stop_service(service_name)
+
     def redirect_email(self):
         return self.user_platform_config.get_user_email()
