@@ -6,17 +6,19 @@ grade: stable
 confinement: strict
 
 apps:
-  nginx:
-    command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf
-    stop-command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf -s stop
-    daemon: forking
-    restart-condition: always
-    plugs: [network, network-bind]
-  uwsgi:
-    command: uwsgi/bin/uwsgi --ini $SNAP/config/uwsgi/public.ini
-    daemon: simple
-    restart-condition: always
-    plugs: [network, network-bind]
+  configure:
+    command: configure
+  #nginx:
+    #command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf
+    #stop-command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf -s stop
+    #daemon: forking
+    #restart-condition: always
+    #plugs: [network, network-bind]
+  #uwsgi:
+    #command: uwsgi/bin/uwsgi --ini $SNAP/config/uwsgi/public.ini
+    #daemon: simple
+    #restart-condition: always
+    #plugs: [network, network-bind]
   #openldap:
    # command: openldap/libexec/slapd -h "ldap:/// ldapi:///" -F $SNAP_COMMON/slapd.d
    # daemon: forking
