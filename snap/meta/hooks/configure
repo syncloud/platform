@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/sh
 
 DIR=$( cd "$( dirname "${SNAP}" )" && pwd )
 cd ${DIR}/bin
