@@ -11,6 +11,7 @@ from syncloud_platform.application import api
 
 from syncloud_platform.gaplib import fs, linux, gen
 
+logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 log = logger.get_logger('platform_post_install')
 
 install_dir = os.environ['SNAP']
