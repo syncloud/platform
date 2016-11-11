@@ -25,7 +25,10 @@ apps:
    # restart-condition: always
    # plugs: [network, network-bind]
 
-parts:
+hooks:
+  configure: configure
+
+parts: 
   nginx:
     plugin: dump
     source: ../build/platform/nginx
