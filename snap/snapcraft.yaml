@@ -25,9 +25,6 @@ apps:
    # restart-condition: always
    # plugs: [network, network-bind]
 
-hooks:
-  configure: configure
-
 parts: 
   nginx:
     plugin: dump
