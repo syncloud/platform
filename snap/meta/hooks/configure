@@ -1,5 +1,4 @@
 #!/bin/sh
 
-DIR=$( cd "$( dirname "${SNAP}" )" && pwd )
-cd ${DIR}/bin
+cd ${SNAP}/bin
 ./snap-configure
