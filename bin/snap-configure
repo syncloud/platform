@@ -15,8 +15,8 @@ templates_path = join(install_dir, 'config.templates')
 config_path = join(app_data, 'config')
 
 variables = {
-    'apps_root': apps_root,
-    'data_root': data_root,
+    'apps_root': install_dir,
+    'data_root': app_data,
     'app_dir': install_dir,
     'app_data': app_data
 }
