@@ -9,8 +9,8 @@ apps:
   configure:
     command: bin/snap-configure
   nginx:
-    command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf
-    stop-command: nginx/sbin/nginx -c $SNAP/config/nginx/nginx.conf -s stop
+    command: nginx/sbin/nginx -c ${SNAP _COMMON}/config/nginx/nginx.conf
+    stop-command: nginx/sbin/nginx -c ${SNAP _COMMON}/config/nginx/nginx.conf -s stop
     daemon: forking
     restart-condition: always
     plugs: [network, network-bind]
