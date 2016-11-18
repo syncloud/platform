@@ -1,0 +1,20 @@
+#!/bin/bash -xe
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd ${DIR}
+NAME="platform"
+
+if [[ -z "$1" || -z "$2" ]]; then
+    echo "usage $0 app_arch app_version"
+    exit 1
+fi
+
+cd ${DIR}/..
+./build.sh $1 $2
+
+cd snap
+snapcraft clean 
+snapcraft prime
+cp -r meta prime/
+snapcraft snap
+snap install syncloud-platform_16.11_amd64.snap --devmode
