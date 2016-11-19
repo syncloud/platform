@@ -8,7 +8,7 @@ SCP = 'scp -o StrictHostKeyChecking=no -P {0}'.format(DOCKER_SSH_PORT)
 
 
 def set_docker_ssh_port(password):
-    run_ssh("sed -i 's/ssh_port.*/ssh_port = {0}/g' /opt/app/platform/config/platform.cfg".format(DOCKER_SSH_PORT),
+    run_ssh("sed -i 's/ssh_port.*/ssh_port = {0}/g' /opt/data/platform/config/platform.cfg".format(DOCKER_SSH_PORT),
             password=password)
 
 
