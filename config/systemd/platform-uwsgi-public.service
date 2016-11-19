@@ -4,7 +4,7 @@ After=syslog.target
 
 [Service]
 ;User=platform
-ExecStart=/opt/app/platform/uwsgi/bin/uwsgi --ini /opt/app/platform/config/uwsgi/public.ini
+ExecStart=/opt/app/platform/uwsgi/bin/uwsgi --ini {{ app_data }}/config/uwsgi/public.ini
 Restart=always
 KillSignal=SIGQUIT
 Type=notify
