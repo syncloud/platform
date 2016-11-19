@@ -5,12 +5,11 @@ After=platform-uwsgi-internal.service platform-uwsgi-public.service
 
 [Service]
 Type=forking
-PIDFile=/opt/data/platform/log/nginx.pid
-#RootDirectory=/opt/app/platform/nginx
-ExecStartPre=/opt/app/platform/nginx/sbin/nginx -t -c /opt/app/platform/config/nginx/nginx.conf
-ExecStart=/opt/app/platform/nginx/sbin/nginx -c /opt/app/platform/config/nginx/nginx.conf
-ExecReload=/opt/app/platform/nginx/sbin/nginx -c /opt/app/platform/config/nginx/nginx.conf -s reload
-ExecStop=/opt/app/platform/nginx/sbin/nginx -c /opt/app/platform/config/nginx/nginx.conf -s stop
+PIDFile={{ app_data }}/log/nginx.pid
+ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ app_data }}/config/nginx/nginx.conf
+ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ app_data }}/config/nginx/nginx.conf
+ExecReload={{ app_dir }}/nginx/sbin/nginx -c {{ app_data }}/config/nginx/nginx.conf -s reload
+ExecStop={{ app_dir }}/nginx/sbin/nginx -c {{ app_data }}/config/nginx/nginx.conf -s stop
 
 [Install]
 WantedBy=multi-user.target
