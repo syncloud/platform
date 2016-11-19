@@ -35,14 +35,14 @@ def __remove(filename):
 def add_service(app_id, service, include_socket=False, start=True):
 
     config = PlatformConfig()
-    app_dir = join(config.apps_root(), app_id)
+    data_dir = join(config.data_root(), app_id)
 
     log = logger.get_logger('systemctl')
 
-    shutil.copyfile(__app_service_file(app_dir, service), __systemd_service_file(service))
+    shutil.copyfile(__app_service_file(data_dir, service), __systemd_service_file(service))
 
     if include_socket:
-        shutil.copyfile(__app_socket_file(app_dir, service), __systemd_socket_file(service))
+        shutil.copyfile(__app_socket_file(data_dir, service), __systemd_socket_file(service))
 
     log.info('enabling {0}'.format(service))
     check_output('systemctl enable {0} 2>&1'.format(service), shell=True)
