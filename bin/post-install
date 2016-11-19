@@ -36,7 +36,7 @@ variables = {
 }
 gen.generate_files(templates_path, config_path, variables)
 
-platform_paths = api.get_app_paths(APP_NAME)
+platform_paths = api.get_app_paths(APP_NAME, config_path)
 log.info(fs.chownpath(platform_paths.get_install_dir(), USER_NAME, recursive=True))
 
 data_dir = platform_paths.get_data_dir()

@@ -3,8 +3,13 @@ from syncloud_platform.application.apppaths import AppPaths
 from syncloud_platform.application.appsetup import AppSetup
 from syncloud_platform.injector import get_injector
 
-def get_app_paths(app_name):
-    return AppPaths(app_name, PlatformConfig())
+def get_app_paths(app_name, config_path=None):
+    config = None
+    if config_path:
+        config = PlatformConfig(config_path)
+    else:
+        config = PlatformConfig()
+    return AppPaths(app_name, config)
 
 def get_app_setup(app_name):
     app_paths = get_app_paths(app_name)

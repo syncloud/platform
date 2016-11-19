@@ -2,7 +2,7 @@ from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
 
-PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
+PLATFORM_CONFIG_DIR = '/opt/data/platform/config'
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
 
