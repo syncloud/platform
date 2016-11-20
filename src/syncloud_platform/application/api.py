@@ -4,11 +4,7 @@ from syncloud_platform.application.appsetup import AppSetup
 from syncloud_platform.injector import get_injector
 
 def get_app_paths(app_name, config_path=None):
-    config = None
-    if config_path:
-        config = PlatformConfig(config_path)
-    else:
-        config = PlatformConfig()
+    config = get_injector(config_path).platform_config()
     return AppPaths(app_name, config)
 
 def get_app_setup(app_name):

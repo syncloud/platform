@@ -2,14 +2,13 @@ from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
 
-PLATFORM_CONFIG_DIR = '/opt/data/platform/config'
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
 
 
 class PlatformConfig:
 
-    def __init__(self, config_dir=PLATFORM_CONFIG_DIR):
+    def __init__(self, config_dir):
         self.parser = ConfigParser()
         self.filename = join(config_dir, PLATFORM_CONFIG_NAME)
         self.parser.read(self.filename)

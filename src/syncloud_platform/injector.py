@@ -30,18 +30,20 @@ from syncloud_platform.version import platform_version
 from syncloud_platform.application.apppaths import AppPaths
 
 default_injector = None
+PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 
-
-def get_injector():
+def get_injector(config_dir=None):
     global default_injector
     if default_injector is None:
-        default_injector = Injector()
+        default_injector = Injector(config_dir)
     return default_injector
 
 
 class Injector:
-    def __init__(self, debug=False):
-        self.platform_config = PlatformConfig()
+    def __init__(self, debug=False, config_dir=None):
+        if not config_dir:
+            config_dir = PLATFORM_CONFIG_DIR
+        self.platform_config = PlatformConfig(config_dir = config_dir)
 
         if not logger.factory_instance:
             console = True if debug else False
