@@ -4,6 +4,11 @@ from string import Template
 from syncloud_app import logger
 
 
+def proxy_definition(app, port, template_dir, template, www_root_public):
+    return Template(open(join(template_dir, template)).read().strip()).substitute(
+        {'app': app, 'port': port, 'www_root_public': www_root_public})
+
+
 class Nginx:
     def __init__(self, platform_config, systemctl):
         self.systemctl = systemctl
@@ -17,12 +22,10 @@ class Nginx:
         webapp = self.__app_file(app)
         self.log.info('creating {0}'.format(webapp))
         with open(webapp, 'w') as f:
-            f.write(self.proxy_definition(app, port, self.config.nginx_config_dir(), 'app.server', self.config.www_root_public()))
+            f.write(proxy_definition(
+                app, port, self.config.nginx_config_dir(), 'app.server', self.config.www_root_public()))
 
         self.systemctl.reload_service('platform-nginx')
-
-    def proxy_definition(self, app, port, template_dir, template, www_root_public):
-        return Template(open(join(template_dir, template)).read().strip()).substitute({'app': app, 'port': port, 'www_root_public': www_root_public})
 
     def remove_app(self, app, reload=True):
 
