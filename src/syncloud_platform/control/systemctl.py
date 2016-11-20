@@ -5,150 +5,133 @@ from string import Template
 import string
 from subprocess import check_output, CalledProcessError
 from syncloud_app import logger
-from syncloud_platform.config.config import PlatformConfig
 
 SYSTEMD_DIR = join('/lib', 'systemd', 'system')
 
 
-def reload_service(service):
+class Systemctl:
 
-    log = logger.get_logger('systemctl')
-    log.info('reloading {0}'.format(service))
-    check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
+    def __init__(self, platform_config):
+        self.platform_config = platform_config
 
+    def reload_service(self, service):
 
-def remove_service(service):
-    __remove('{0}.service'.format(service))
+        log = logger.get_logger('systemctl')
+        log.info('reloading {0}'.format(service))
+        check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
 
+    def remove_service(self, service):
+        self.__remove('{0}.service'.format(service))
 
-def __remove(filename):
+    def __remove(self, filename):
 
-    if "unknown" == __stop(filename):
-        return
+        if "unknown" == self.__stop(filename):
+            return
 
-    check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
-    systemd_file = __systemd_file(filename)
-    if os.path.isfile(systemd_file):
-        os.remove(systemd_file)
+        check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
+        systemd_file = self.__systemd_file(filename)
+        if os.path.isfile(systemd_file):
+            os.remove(systemd_file)
 
+    def add_service(self, app_id, service, include_socket=False, start=True):
 
-def add_service(app_id, service, include_socket=False, start=True):
+        configs_root = join(self.platform_config.configs_root(), app_id)
 
-    config = PlatformConfig()
-    data_dir = join(config.data_root(), app_id)
+        log = logger.get_logger('systemctl')
 
-    log = logger.get_logger('systemctl')
+        shutil.copyfile(self.__app_service_file(configs_root, service), self.__systemd_service_file(service))
 
-    shutil.copyfile(__app_service_file(data_dir, service), __systemd_service_file(service))
+        if include_socket:
+            shutil.copyfile(self.__app_socket_file(configs_root, service), self.__systemd_socket_file(service))
 
-    if include_socket:
-        shutil.copyfile(__app_socket_file(data_dir, service), __systemd_socket_file(service))
+        log.info('enabling {0}'.format(service))
+        check_output('systemctl enable {0} 2>&1'.format(service), shell=True)
+        if start:
+            self.start_service(service)
 
-    log.info('enabling {0}'.format(service))
-    check_output('systemctl enable {0} 2>&1'.format(service), shell=True)
-    if start:
-        start_service(service)
+    def add_mount(self, device, fs_type, options):
 
+        log = logger.get_logger('systemctl')
 
-def add_mount(device, fs_type, options):
+        mount_template_file = join(self.platform_config.config_dir(), 'mount', 'mount.template')
+        mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
+            'what': device,
+            'where': self.platform_config.get_external_disk_dir(),
+            # 'type': fs_type,
+            'type': 'auto',
+            'options': options})
 
-    log = logger.get_logger('systemctl')
+        mount_filename = dir_to_systemd_mount_filename(self.platform_config.get_external_disk_dir())
+        with open(self.__systemd_file(mount_filename), 'w') as f:
+            f.write(mount_definition)
 
-    config = PlatformConfig()
-    mount_template_file = join(config.config_dir(), 'mount', 'mount.template')
-    mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
-        'what': device,
-        'where': config.get_external_disk_dir(),
-        # 'type': fs_type,
-        'type': 'auto',
-        'options': options})
+        log.info('enabling {0}'.format(mount_filename))
+        check_output('systemctl enable {0} 2>&1'.format(mount_filename), shell=True)
+        self.__start(mount_filename)
 
-    config = PlatformConfig()
-    mount_filename = __dir_to_systemd_mount_filename(config.get_external_disk_dir())
-    with open(__systemd_file(mount_filename), 'w') as f:
-        f.write(mount_definition)
+    def remove_mount(self, ):
+        self.__remove(dir_to_systemd_mount_filename(self.platform_config.get_external_disk_dir()))
 
-    log.info('enabling {0}'.format(mount_filename))
-    check_output('systemctl enable {0} 2>&1'.format(mount_filename), shell=True)
-    __start(mount_filename)
+    def restart_service(self, service):
 
+        self.stop_service(service)
+        self.start_service(service)
 
-def __dir_to_systemd_mount_filename(directory):
-    return string.join(filter(None, directory.split('/')), '-') + '.mount'
+    def start_service(self, service):
+        self.__start('{0}.service'.format(service))
 
+    def start_mount(self, mount):
+        self.__start('{0}.mount'.format(mount))
 
-def remove_mount():
-    config = PlatformConfig()
-    __remove(__dir_to_systemd_mount_filename(config.get_external_disk_dir()))
+    def __start(self, service):
+        log = logger.get_logger('systemctl')
 
-
-def restart_service(service):
-
-    stop_service(service)
-    start_service(service)
-
-
-def start_service(service):
-    __start('{0}.service'.format(service))
-
-
-def start_mount(mount):
-    __start('{0}.mount'.format(mount))
-
-
-def __start(service):
-    log = logger.get_logger('systemctl')
-
-    try:
-        log.info('starting {0}'.format(service))
-        check_output('systemctl start {0} 2>&1'.format(service), shell=True)
-    except CalledProcessError, e:
         try:
-            log.error(check_output('systemctl status {0}'.format(service), shell=True))
-            log.error(check_output('journalctl | grep {0}'.format(service), shell=True))
+            log.info('starting {0}'.format(service))
+            check_output('systemctl start {0} 2>&1'.format(service), shell=True)
         except CalledProcessError, e:
-            log.error(e.output)
-        raise e
+            try:
+                log.error(check_output('systemctl status {0}'.format(service), shell=True))
+                log.error(check_output('journalctl | grep {0}'.format(service), shell=True))
+            except CalledProcessError, e:
+                log.error(e.output)
+            raise e
+
+    def stop_service(self, service):
+        return self.__stop('{0}.service'.format(service))
+
+    def stop_mount(self, service):
+        return self.__stop('{0}.mount'.format(service))
+
+    def __stop(self, service):
+        log = logger.get_logger('systemctl')
+
+        try:
+            log.info('checking {0}'.format(service))
+            result = check_output('systemctl is-active {0} 2>&1'.format(service), shell=True).strip()
+            log.info('stopping {0}'.format(service))
+            check_output('systemctl stop {0} 2>&1'.format(service), shell=True)
+        except CalledProcessError, e:
+            result = e.output.strip()
+
+        log.info("{0}: {1}".format(service, result))
+        return result
+
+    def __systemd_file(self, filename):
+        return join(SYSTEMD_DIR, filename)
+
+    def __systemd_service_file(self, service):
+        return self.__systemd_file("{0}.service".format(service))
+
+    def __systemd_socket_file(self, service):
+        return join(SYSTEMD_DIR, "{0}.socket".format(service))
+
+    def __app_service_file(self, app_dir, service):
+        return join(app_dir, 'config', 'systemd', "{0}.service".format(service))
+
+    def __app_socket_file(self, app_dir, service):
+        return join(app_dir, 'config', 'systemd', "{0}.socket".format(service))
 
 
-def stop_service(service):
-    return __stop('{0}.service'.format(service))
-
-
-def stop_mount(service):
-    return __stop('{0}.mount'.format(service))
-
-
-def __stop(service):
-    log = logger.get_logger('systemctl')
-
-    try:
-        log.info('checking {0}'.format(service))
-        result = check_output('systemctl is-active {0} 2>&1'.format(service), shell=True).strip()
-        log.info('stopping {0}'.format(service))
-        check_output('systemctl stop {0} 2>&1'.format(service), shell=True)
-    except CalledProcessError, e:
-        result = e.output.strip()
-
-    log.info("{0}: {1}".format(service, result))
-    return result
-
-
-def __systemd_file(filename):
-    return join(SYSTEMD_DIR, filename)
-
-
-def __systemd_service_file(service):
-    return __systemd_file("{0}.service".format(service))
-
-
-def __systemd_socket_file(service):
-    return join(SYSTEMD_DIR, "{0}.socket".format(service))
-
-
-def __app_service_file(app_dir, service):
-    return join(app_dir, 'config', 'systemd', "{0}.service".format(service))
-
-
-def __app_socket_file(app_dir, service):
-    return join(app_dir, 'config', 'systemd', "{0}.socket".format(service))
+def dir_to_systemd_mount_filename(directory):
+    return string.join(filter(None, directory.split('/')), '-') + '.mount'

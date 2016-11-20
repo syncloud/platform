@@ -32,8 +32,9 @@ def has_unallocated_space_at_the_end(parted_output):
 
 class Hardware:
 
-    def __init__(self, platform_config, event_trigger, lsblk, path_checker):
+    def __init__(self, platform_config, event_trigger, lsblk, path_checker, systemctl):
         self.platform_config = platform_config
+        self.systemctl = systemctl
         self.event_trigger = event_trigger
         self.lsblk = lsblk
         self.path_checker = path_checker
@@ -69,7 +70,7 @@ class Hardware:
             self.log.error(error_message)
             raise ServiceException(error_message)
 
-        systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
+        self.systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
 
         self.relink_disk(
             self.platform_config.get_disk_link(),
@@ -80,7 +81,7 @@ class Hardware:
         self.relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_internal_disk_dir())
-        systemctl.remove_mount()
+        self.systemctl.remove_mount()
 
     def get_app_storage_dir(self, app_id):
         app_storage_dir = join(self.platform_config.get_disk_link(), app_id)

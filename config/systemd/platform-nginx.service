@@ -6,10 +6,10 @@ After=platform-uwsgi-internal.service platform-uwsgi-public.service
 [Service]
 Type=forking
 PIDFile={{ app_data }}/log/nginx.pid
-ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ config_root }}/config/nginx/nginx.conf -g "error_log {{ app_data }}/log/nginx_error.log warn;"
-ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/nginx.conf
-ExecReload={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/nginx.conf -s reload
-ExecStop={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/nginx.conf -s stop
+ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ config_root }}/config/nginx/nginx.conf -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
+ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/nginx.conf -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
+ExecReload={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/nginx.conf -s reload -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
+ExecStop={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/nginx.conf -s stop -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
 
 [Install]
 WantedBy=multi-user.target

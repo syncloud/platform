@@ -10,7 +10,6 @@ import ldap
 from syncloud_app import util
 from syncloud_app.logger import get_logger
 import time
-from syncloud_platform.control.systemctl import stop_service, start_service
 
 from syncloud_platform.gaplib import fs, linux
 from syncloud_platform.application.apppaths import AppPaths
@@ -20,7 +19,8 @@ platform_user = 'platform'
 
 
 class LdapAuth:
-    def __init__(self, platform_config):
+    def __init__(self, platform_config, systemctl):
+        self.systemctl = systemctl
         self.log = get_logger('ldap')
         self.config = platform_config
         self.app_paths = AppPaths('platform', platform_config)
@@ -37,7 +37,7 @@ class LdapAuth:
         fs.makepath(user_conf_dir)
         fs.chownpath(user_conf_dir, platform_user)
 
-        stop_service('platform-openldap')
+        self.systemctl.stop_service('platform-openldap')
 
         files = glob.glob('/opt/data/platform/openldap-data/*')
         for f in files:
@@ -51,7 +51,7 @@ class LdapAuth:
 
         check_output('chown -R {0}. {1}'.format(platform_user, user_conf_dir), shell=True)
 
-        start_service('platform-openldap')
+        self.systemctl.start_service('platform-openldap')
 
         fd, filename = tempfile.mkstemp()
         util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {

@@ -4,6 +4,7 @@ from syncloud_app import logger
 
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
+PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 
 
 class PlatformConfig:
@@ -18,6 +19,12 @@ class PlatformConfig:
 
     def data_root(self):
         return self.__get('data_root')
+
+    def configs_root(self):
+        return self.__get('configs_root')
+
+    def config_root(self):
+        return self.__get('config_root')
 
     def www_root_internal(self):
         return self.__get('www_root_internal')

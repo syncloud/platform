@@ -1,12 +1,12 @@
 import os
 from os.path import join
 from string import Template
-from syncloud_platform.control.systemctl import reload_service
 from syncloud_app import logger
 
 
 class Nginx:
-    def __init__(self, platform_config):
+    def __init__(self, platform_config, systemctl):
+        self.systemctl = systemctl
         self.config = platform_config
         self.log = logger.get_logger('nginx')
 
@@ -19,7 +19,7 @@ class Nginx:
         with open(webapp, 'w') as f:
             f.write(self.proxy_definition(app, port, self.config.nginx_config_dir(), 'app.server', self.config.www_root_public()))
 
-        reload_service('platform-nginx')
+        self.systemctl.reload_service('platform-nginx')
 
     def proxy_definition(self, app, port, template_dir, template, www_root_public):
         return Template(open(join(template_dir, template)).read().strip()).substitute({'app': app, 'port': port, 'www_root_public': www_root_public})
@@ -32,11 +32,11 @@ class Nginx:
             os.remove(webapp)
 
         if reload:
-            reload_service('platform-nginx')
+            self.systemctl.reload_service('platform-nginx')
 
     def __app_file(self, app):
         return join(self.config.nginx_webapps(), '{0}.server'.format(app))
 
     def reload(self):
-        reload_service('platform-nginx')
+        self.systemctl.reload_service('platform-nginx')
 

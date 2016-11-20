@@ -5,7 +5,8 @@ from os.path import join
 from syncloud_app import logger
 
 from syncloud_platform.auth.ldapauth import LdapAuth
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME
+from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME, PLATFORM_CONFIG_DIR
+from syncloud_platform.control.systemctl import Systemctl
 from syncloud_platform.device import Device
 from syncloud_platform.insider.cron import PlatformCron
 from syncloud_platform.insider.device_info import DeviceInfo
@@ -30,7 +31,7 @@ from syncloud_platform.version import platform_version
 from syncloud_platform.application.apppaths import AppPaths
 
 default_injector = None
-PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
+
 
 def get_injector(config_dir=None):
     global default_injector
@@ -43,7 +44,7 @@ class Injector:
     def __init__(self, debug=False, config_dir=None):
         if not config_dir:
             config_dir = PLATFORM_CONFIG_DIR
-        self.platform_config = PlatformConfig(config_dir = config_dir)
+        self.platform_config = PlatformConfig(config_dir=config_dir)
 
         if not logger.factory_instance:
             console = True if debug else False
@@ -67,9 +68,10 @@ class Injector:
         self.info = DeviceInfo(self.user_platform_config, self.port_config)
         self.sam = SamStub(self.platform_config, self.info)
         self.platform_cron = PlatformCron(self.platform_config)
-        self.ldap_auth = LdapAuth(self.platform_config)
+        self.systemctl = Systemctl(self.platform_config)
+        self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.sam, self.platform_config)
-        self.nginx = Nginx(self.platform_config)
+        self.nginx = Nginx(self.platform_config, self.systemctl)
         self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config, self.info, self.sam)
         self.tls = Tls(self.platform_config, self.user_platform_config, self.info, self.nginx, self.certbot_genetator)
         
@@ -80,8 +82,9 @@ class Injector:
         self.internal = Internal(self.platform_config, self.device, self.redirect_service, self.log_aggregator)
         self.path_checker = PathChecker(self.platform_config)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
-        self.hardware = Hardware(self.platform_config, self.event_trigger, self.lsblk, self.path_checker)
+        self.hardware = Hardware(self.platform_config, self.event_trigger,
+                                 self.lsblk, self.path_checker, self.systemctl)
 
-        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam, self.hardware,
-                             self.redirect_service, self.log_aggregator, self.certbot_genetator)
+        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam,
+                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator)
         self.udev = Udev(self.platform_config)

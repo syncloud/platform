@@ -4,7 +4,6 @@ from os.path import isdir, join
 import shutil
 from syncloud_app import logger
 from syncloud_platform.injector import get_injector
-from syncloud_platform.control.systemctl import add_service
 from syncloud_platform.application import api
 
 from syncloud_platform.gaplib import fs, linux, gen
@@ -24,14 +23,14 @@ linux.useradd(USER_NAME)
 
 install_dir = join(apps_root, APP_NAME)
 data_dir = join(data_root, APP_NAME)
-config_root = install_dir
 templates_path = join(install_dir, 'config.templates')
-config_path = join(config_root, 'config')
+config_path = join(install_dir, 'config')
 
 variables = {
     'apps_root': apps_root,
     'data_root': data_root,
-    'config_root': config_root,
+    'configs_root': apps_root,
+    'config_root': install_dir,
     'app_dir': install_dir,
     'app_data': data_dir
 }
@@ -84,10 +83,11 @@ udev = injector.udev
 udev.remove()
 udev.add()
 
-add_service(APP_NAME, 'platform-cpu-frequency')
-add_service(APP_NAME, 'platform-insider-sync')
-add_service(APP_NAME, 'platform-ntpdate')
-add_service(APP_NAME, 'platform-uwsgi-internal')
-add_service(APP_NAME, 'platform-uwsgi-public')
-add_service(APP_NAME, 'platform-nginx')
-add_service(APP_NAME, 'platform-openldap', start=ldap_auth.installed())
+systemctl = injector.systemctl
+systemctl.add_service(APP_NAME, 'platform-cpu-frequency')
+systemctl.add_service(APP_NAME, 'platform-insider-sync')
+systemctl.add_service(APP_NAME, 'platform-ntpdate')
+systemctl.add_service(APP_NAME, 'platform-uwsgi-internal')
+systemctl.add_service(APP_NAME, 'platform-uwsgi-public')
+systemctl.add_service(APP_NAME, 'platform-nginx')
+systemctl.add_service(APP_NAME, 'platform-openldap', start=ldap_auth.installed())
