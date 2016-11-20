@@ -24,7 +24,7 @@ def run_ssh(command, throw=True, debug=True, password='syncloud', retries=0, sle
         except Exception, e:
             if retry >= retries:
                 raise e
-            retry = retry + 1
+            retry += 1
             time.sleep(sleep)
             print('retrying {0}'.format(retry))
 
