@@ -31,6 +31,7 @@ config_path = join(data_dir, 'config')
 variables = {
     'apps_root': apps_root,
     'data_root': data_root,
+    'config_root': apps_root,
     'app_dir': install_dir,
     'app_data': data_dir
 }
