@@ -7,7 +7,7 @@ dir = dirname(__file__)
 
 
 def test_proxy_server():
-    assert Nginx(PlatformConfig()).proxy_definition('test', 80, join(dir, '..', '..', '..', 'config', 'nginx'), 'app.server', '/_site') == """
+    assert Nginx(PlatformConfig('')).proxy_definition('test', 80, join(dir, '..', '..', '..', 'config', 'nginx'), 'app.server', '/_site') == """
 server {
     listen 80;
     server_name test.*;
