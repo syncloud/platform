@@ -13,7 +13,8 @@ cd ${DIR}/..
 ./build.sh $1 $2
 
 cd snap
-snapcraft clean 
+snapcraft clean
+rm -rf *.snap
 snapcraft prime
 cp -r meta prime/
 snapcraft snap
