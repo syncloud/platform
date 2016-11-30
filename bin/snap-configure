@@ -29,6 +29,7 @@ data_dirs = [
     join(app_data, 'webapps'),
     join(app_data, 'log'),
     join(app_data, 'nginx'),
+    join(app_data, 'openldap'),
     join(app_data, 'openldap-data'),
     join(app_data, 'certbot')
 ]

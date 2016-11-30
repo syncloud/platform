@@ -12,9 +12,9 @@ from syncloud_platform.gaplib import linux
 
 class RedirectService:
 
-    def __init__(self, user_platform_config, version_func):
+    def __init__(self, user_platform_config, versions):
+        self.versions = versions
         self.user_platform_config = user_platform_config
-        self.version_func = version_func
 
         self.logger = logger.get_logger('RedirectService')
 
@@ -64,7 +64,7 @@ class RedirectService:
         if mapping:
             web_port = mapping.external_port
 
-        version = self.version_func()
+        version = self.versions.platform_version()
 
         local_ip = linux.local_ip()
         data = {

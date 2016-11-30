@@ -28,8 +28,8 @@ from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.certbot.certbot_generator import CertbotGenerator
 from syncloud_platform.control.tls import Tls
 from syncloud_platform.disks.udev import Udev
-from syncloud_platform.version import platform_version
 from syncloud_platform.application.apppaths import AppPaths
+from syncloud_platform.versions import Versions
 
 default_injector = None
 
@@ -61,8 +61,8 @@ class Injector:
 
         self.platform_app_paths = AppPaths(PLATFORM_APP_NAME, self.platform_config)
         self.platform_app_paths.get_data_dir()
-
-        self.redirect_service = RedirectService(self.user_platform_config, platform_version)
+        self.versions = Versions(self.platform_config)
+        self.redirect_service = RedirectService(self.user_platform_config, self.versions)
         self.port_config = PortConfig(self.platform_app_paths.get_data_dir())
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()
