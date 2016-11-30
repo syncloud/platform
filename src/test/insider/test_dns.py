@@ -20,8 +20,12 @@ from test.insider.helpers import get_port_config, get_user_platform_config
 
 from syncloud_app.main import PassthroughJsonError
 
-def test_version():
-    return 'test'
+class TestVersions:
+    def __init__(self, version):
+        self.version = version
+    def platform_version(self):
+        return self.version
+
 
 def assertSingleRequest(expected_request):
     expected_request = reformat(expected_request)
@@ -55,7 +59,7 @@ def test_sync_success():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, TestVersions('test'))
     dns.sync(port_drill, 'some_update_token', 'http', True, 'TCP')
 
     expected_request = '''
@@ -87,7 +91,7 @@ def test_sync_server_side_client_ip():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, TestVersions('test'))
     dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
 
     expected_request = '''
@@ -118,7 +122,7 @@ def test_sync_server_error():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
     user_platform_config.update_domain('boris', 'some_update_token')
-    dns = RedirectService(user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, TestVersions('test'))
 
     with pytest.raises(PassthroughJsonError) as context:
         dns.sync(port_drill, 'some_update_token', 'http', False, 'TCP')
@@ -138,7 +142,7 @@ def test_link_success():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, TestVersions('test'))
     result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
 
     assert result is not None
@@ -170,7 +174,7 @@ def test_link_server_error():
 
     user_platform_config = get_user_platform_config()
     user_platform_config.update_redirect('domain.com', 'http://api.domain.com')
-    dns = RedirectService(user_platform_config, test_version)
+    dns = RedirectService(user_platform_config, TestVersions('test'))
 
     with pytest.raises(PassthroughJsonError) as context:
         result = dns.acquire('boris@mail.com', 'pass1234', 'boris')
