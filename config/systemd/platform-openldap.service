@@ -5,8 +5,8 @@ After=syslog.target
 [Service]
 ;User=platform
 Type=forking
-PIDFile=/opt/app/platform/openldap/var/run/slapd.pid
-ExecStart=/opt/app/platform/openldap/libexec/slapd -h "ldap:/// ldapi:///" -u platform -g platform -F /opt/data/platform/slapd.d
+PIDFile={{ app_data }}/openldap/slapd.pid
+ExecStart={{ app_dir }}/openldap/libexec/slapd -h "ldap:/// ldapi:///" -u platform -g platform -F {{ app_data }}/slapd.d
 ;TimeoutSec=3
 
 [Install]
