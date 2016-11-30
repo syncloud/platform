@@ -8,14 +8,13 @@ confinement: strict
 apps:
   configure:
     command: bin/snap-configure
-  #nginx:
-    #command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
-    #stop-command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
-    #daemon: forking
-    #restart-condition: always
-    #plugs: [network, network-bind]
-  uwsgi:
+  uwsgi-public:
     command: uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/public.ini
+    daemon: notify
+    restart-condition: always
+    plugs: [network, network-bind]
+ uwsgi-internal:
+    command: uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/internal.ini
     daemon: notify
     restart-condition: always
     plugs: [network, network-bind]
@@ -24,7 +23,12 @@ apps:
    # daemon: forking
    # restart-condition: always
    # plugs: [network, network-bind]
-
+ #nginx:
+    #command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
+    #stop-command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
+    #daemon: forking
+    #restart-condition: always
+    #plugs: [network, network-bind]
 parts: 
   nginx:
     plugin: dump

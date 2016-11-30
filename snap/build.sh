@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -x
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
@@ -19,3 +19,6 @@ snapcraft prime
 cp -r meta prime/
 snapcraft snap
 snap install syncloud-platform_16.11_amd64.snap --devmode
+exit_code=$?
+journalctl | tail -200
+exit $exit_code
