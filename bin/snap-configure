@@ -2,4 +2,4 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
-${DIR}/python/bin/python ${DIR}/bin/snap-configure
+${DIR}/python/bin/python ${DIR}/bin/snap-configure.py
