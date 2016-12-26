@@ -20,15 +20,15 @@ apps:
     plugs: [network, network-bind]
   openldap:
     command: openldap/libexec/slapd -h "ldap:/// ldapi:///" -F ${SNAP_COMMON}/slapd.d
-    #daemon: forking
+    daemon: forking
     restart-condition: always
     plugs: [network, network-bind]
- #nginx:
-    #command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
-    #stop-command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
-    #daemon: forking
-    #restart-condition: always
-    #plugs: [network, network-bind]
+ nginx:
+    command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
+    stop-command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
+    daemon: forking
+    restart-condition: always
+    plugs: [network, network-bind]
 parts: 
   nginx:
     plugin: dump
