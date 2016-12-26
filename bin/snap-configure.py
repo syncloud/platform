@@ -38,7 +38,7 @@ data_dirs = [
 for data_dir in data_dirs:
     fs.makepath(data_dir)
 
-injector = get_injector()
+injector = get_injector(config_dir=app_data)
 
 platform_config = injector.platform_config
 hardware = injector.hardware
