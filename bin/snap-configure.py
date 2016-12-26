@@ -3,6 +3,8 @@ import os
 from os.path import isdir, join
 from syncloud_app import logger
 from syncloud_platform.gaplib import fs, linux, gen
+import shutil
+from syncloud_platform.injector import get_injector
 
 logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 log = logger.get_logger('platform_post_install')
@@ -35,3 +37,25 @@ data_dirs = [
 
 for data_dir in data_dirs:
     fs.makepath(data_dir)
+
+injector = get_injector()
+
+platform_config = injector.platform_config
+hardware = injector.hardware
+path_checker = injector.path_checker
+ldap_auth = injector.ldap_auth
+
+if not isdir(platform_config.get_disk_root()):
+    os.mkdir(platform_config.get_disk_root())
+
+if not isdir(platform_config.get_internal_disk_dir()):
+    os.mkdir(platform_config.get_internal_disk_dir())
+
+if not path_checker.external_disk_link_exists():
+    hardware.relink_disk(
+        platform_config.get_disk_link(),
+        platform_config.get_internal_disk_dir())
+
+if not os.path.exists(platform_config.get_ssl_certificate_file()):
+    shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
+    shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
