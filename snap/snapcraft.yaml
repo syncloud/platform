@@ -23,7 +23,7 @@ apps:
     daemon: forking
     restart-condition: always
     plugs: [network, network-bind]
- nginx:
+  nginx:
     command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
     stop-command: nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
     daemon: forking
