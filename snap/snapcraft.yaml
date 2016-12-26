@@ -10,12 +10,12 @@ apps:
     command: bin/snap-configure
   uwsgi-public:
     command: uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/public.ini
-    #daemon: notify
+    daemon: notify
     restart-condition: always
     plugs: [network, network-bind]
   uwsgi-internal:
     command: uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/internal.ini
-    #daemon: notify
+    daemon: notify
     restart-condition: always
     plugs: [network, network-bind]
   openldap:
