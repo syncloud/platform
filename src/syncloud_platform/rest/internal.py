@@ -1,5 +1,6 @@
 import traceback
 import sys
+from os import environ
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
@@ -8,7 +9,7 @@ from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
 
-injector = get_injector()
+injector = get_injector(environ['CONFIG_DIR'])
 internal = injector.internal
 device = injector.device
 

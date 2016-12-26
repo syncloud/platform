@@ -44,10 +44,7 @@ def get_injector(config_dir=None):
 class Injector:
     def __init__(self, debug=False, config_dir=None):
         if not config_dir:
-            if 'CONFIG_ROOT' in environ:
-                config_dir = join(environ['CONFIG_ROOT'], 'config')
-            else:
-                config_dir = PLATFORM_CONFIG_DIR
+            config_dir = PLATFORM_CONFIG_DIR
         self.platform_config = PlatformConfig(config_dir=config_dir)
 
         if not logger.factory_instance:

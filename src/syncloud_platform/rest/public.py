@@ -1,6 +1,6 @@
 import sys
 import traceback
-
+from os import environ
 import convertible
 from flask import jsonify, send_from_directory, request, redirect, send_file, Flask
 from flask.ext.login import login_user, logout_user, current_user, login_required
@@ -15,7 +15,7 @@ from syncloud_platform.rest.model.user import User
 
 from syncloud_platform.rest.service_exception import ServiceException
 
-injector = get_injector()
+injector = get_injector(environ['CONFIG_DIR'])
 public = injector.public
 device = injector.device
 

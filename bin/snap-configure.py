@@ -20,6 +20,7 @@ variables = {
     # not used in snap
     'configs_root': 'not_used',
     'config_root': app_data,
+    'config_dir': config_dir,
     'app_dir': install_dir,
     'app_data': app_data
 }
