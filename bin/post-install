@@ -85,7 +85,7 @@ udev = injector.udev
 udev.remove()
 udev.add()
 
-ldap_auth.init()
+ldap_auth.init(fix_permissions=True)
 
 systemctl = injector.systemctl
 systemctl.add_service(APP_NAME, 'platform-cpu-frequency')

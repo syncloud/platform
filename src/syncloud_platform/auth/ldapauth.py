@@ -28,7 +28,7 @@ class LdapAuth:
     def installed(self):
         return os.path.isdir(join(self.config.data_dir(), ldap_user_conf_dir))
 
-    def init(self):
+    def init(self, fix_permissions=False):
         if self.installed():
             self.log.info('already initialized')
             return
@@ -39,21 +39,21 @@ class LdapAuth:
         check_output(
             '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(ldap_root, self.user_conf_dir, init_script), shell=True)
 
+        if fix_permissions:
+            fs.chownpath(self.user_conf_dir, platform_user)
+
     def reset(self, user, password):
+
+        self.systemctl.stop_service('platform-openldap')
 
         fs.removepath(self.user_conf_dir)
         fs.makepath(self.user_conf_dir)
-        fs.chownpath(self.user_conf_dir, platform_user)
-
-        self.systemctl.stop_service('platform-openldap')
 
         files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
         for f in files:
             os.remove(f)
 
         self.init()
-
-        check_output('chown -R {0}. {1}'.format(platform_user, self.user_conf_dir), shell=True)
 
         self.systemctl.start_service('platform-openldap')
 
