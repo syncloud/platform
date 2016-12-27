@@ -23,33 +23,36 @@ class LdapAuth:
         self.systemctl = systemctl
         self.log = get_logger('ldap')
         self.config = platform_config
-        self.app_paths = AppPaths('platform', platform_config)
+        self.user_conf_dir = join(self.data_dir, ldap_user_conf_dir)
 
     def installed(self):
-        data_dir = self.app_paths.get_data_dir()
-        return os.path.isdir(join(data_dir, ldap_user_conf_dir))
+        return os.path.isdir(join(self.config.data_dir(/, self.ldap_user_conf_dir))
 
-    def reset(self, user, password):
-
-        data_dir = self.app_paths.get_data_dir()
-        user_conf_dir = join(data_dir, ldap_user_conf_dir)
-        fs.removepath(user_conf_dir)
-        fs.makepath(user_conf_dir)
-        fs.chownpath(user_conf_dir, platform_user)
-
-        self.systemctl.stop_service('platform-openldap')
-
-        files = glob.glob('/opt/data/platform/openldap-data/*')
-        for f in files:
-            os.remove(f)
-
+    def init(self):
+        if self.installed():
+            self.log.info('already initialized')
+            return
         init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
         ldap_root = '{0}/openldap'.format(self.config.app_dir())
 
         check_output(
-            '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(ldap_root, user_conf_dir, init_script), shell=True)
+            '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(ldap_root, self.user_conf_dir, init_script), shell=True)
 
-        check_output('chown -R {0}. {1}'.format(platform_user, user_conf_dir), shell=True)
+    def reset(self, user, password):
+
+        fs.removepath(self.user_conf_dir)
+        fs.makepath(self.user_conf_dir)
+        fs.chownpath(self.user_conf_dir, platform_user)
+
+        self.systemctl.stop_service('platform-openldap')
+
+        files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
+        for f in files:
+            os.remove(f)
+
+        self.init()
+
+        check_output('chown -R {0}. {1}'.format(platform_user, self.user_conf_dir), shell=True)
 
         self.systemctl.start_service('platform-openldap')
 

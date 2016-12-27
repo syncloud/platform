@@ -60,3 +60,5 @@ ldap_auth = injector.ldap_auth
 if not os.path.exists(platform_config.get_ssl_certificate_file()):
     shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
     shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
+
+ldap_auth.init()
