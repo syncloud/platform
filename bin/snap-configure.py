@@ -32,13 +32,11 @@ data_dirs = [
     join(app_data, 'nginx'),
     join(app_data, 'openldap'),
     join(app_data, 'openldap-data'),
-    join(app_data, 'certbot'),
-    join(app_data, 'slapd.d')
+    join(app_data, 'certbot')
 ]
 
 for data_dir in data_dirs:
     fs.makepath(data_dir)
-
 
 injector = get_injector(config_dir=config_dir)
 
