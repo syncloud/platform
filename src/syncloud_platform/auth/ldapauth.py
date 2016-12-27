@@ -24,6 +24,7 @@ class LdapAuth:
         self.log = get_logger('ldap')
         self.config = platform_config
         self.user_conf_dir = join(self.config.data_dir(), ldap_user_conf_dir)
+        self.ldap_root = '{0}/openldap'.format(self.config.app_dir())
 
     def installed(self):
         return os.path.isdir(join(self.config.data_dir(), ldap_user_conf_dir))
@@ -36,10 +37,9 @@ class LdapAuth:
         self.log.info('initializing ldap config')
         fs.makepath(self.user_conf_dir)
         init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
-        ldap_root = '{0}/openldap'.format(self.config.app_dir())
-
+        
         check_output(
-            '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(ldap_root, self.user_conf_dir, init_script), shell=True)
+            '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(self.ldap_root, self.user_conf_dir, init_script), shell=True)
 
         if fix_permissions:
             self.log.info('fixing permissions for ldap user conf')
@@ -65,7 +65,7 @@ class LdapAuth:
             'password': make_secret(password)
         })
 
-        self.__init_db(filename, ldap_root)
+        self.__init_db(filename, self.ldap_root)
 
         check_output('echo "root:{0}" | chpasswd'.format(password), shell=True)
 
