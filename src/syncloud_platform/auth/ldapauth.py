@@ -30,8 +30,10 @@ class LdapAuth:
 
     def init(self, fix_permissions=False):
         if self.installed():
-            self.log.info('already initialized')
+            self.log.info('ldap config already initialized')
             return
+
+        self.log.info('initializing ldap config')
         fs.makepath(self.user_conf_dir)
         init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
         ldap_root = '{0}/openldap'.format(self.config.app_dir())
@@ -40,7 +42,8 @@ class LdapAuth:
             '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(ldap_root, self.user_conf_dir, init_script), shell=True)
 
         if fix_permissions:
-            fs.chownpath(self.user_conf_dir, platform_user)
+            self.log.info('fixing permissions for ldap user conf')
+            fs.chownpath(self.user_conf_dir, platform_user, recursive=True)
 
     def reset(self, user, password):
 
