@@ -55,7 +55,7 @@ class LdapAuth:
         for f in files:
             os.remove(f)
 
-        self.init()
+        self.init(fix_permissions=True)
 
         self.systemctl.start_service('platform-openldap')
 
