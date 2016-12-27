@@ -32,6 +32,7 @@ class LdapAuth:
         if self.installed():
             self.log.info('already initialized')
             return
+        fs.makepath(self.user_conf_dir)
         init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
         ldap_root = '{0}/openldap'.format(self.config.app_dir())
 
