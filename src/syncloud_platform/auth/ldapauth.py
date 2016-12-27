@@ -23,10 +23,10 @@ class LdapAuth:
         self.systemctl = systemctl
         self.log = get_logger('ldap')
         self.config = platform_config
-        self.user_conf_dir = join(self.data_dir, ldap_user_conf_dir)
+        self.user_conf_dir = join(self.config.data_dir(), ldap_user_conf_dir)
 
     def installed(self):
-        return os.path.isdir(join(self.config.data_dir(/, self.ldap_user_conf_dir))
+        return os.path.isdir(join(self.config.data_dir(), self.ldap_user_conf_dir))
 
     def init(self):
         if self.installed():
