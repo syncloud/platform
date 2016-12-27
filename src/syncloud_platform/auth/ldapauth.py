@@ -50,7 +50,6 @@ class LdapAuth:
         self.systemctl.stop_service('platform-openldap')
 
         fs.removepath(self.user_conf_dir)
-        fs.makepath(self.user_conf_dir)
 
         files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
         for f in files:
