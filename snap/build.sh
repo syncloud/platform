@@ -18,9 +18,4 @@ rm -rf *.snap
 snapcraft prime
 cp -r meta prime/
 snapcraft snap
-snap --version
-snap install syncloud-platform_16.11_amd64.snap --devmode
-exit_code=$?
-journalctl --sync
-journalctl | tail -200
-exit $exit_code
+
