@@ -3,13 +3,13 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [[ -z "$1" ]]; then
-    echo "usage $0 version"
+    echo "usage $0 snapd_file"
     exit 1
 fi
 
-VERSION=$1
+SNAPD_FILE=$1
 
-tar xzvf snapd-${VERSION}-amd64.tar.gz
+tar xzvf ${SNAPD_FILE}
 systemctl stop snapd.service snapd.socket || true
 systemctl disable snapd.service snapd.socket || true
 
