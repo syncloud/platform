@@ -14,7 +14,7 @@ cd ${DIR}/..
 ./build.sh $1 $VERSION
 
 cd snap
-sed 's/VERSION/$VERSION/g' -i snapcraft.yaml
+sed 's/VERSION/'$VERSION'/g' -i snapcraft.yaml
 snapcraft clean
 rm -rf *.snap
 snapcraft prime
