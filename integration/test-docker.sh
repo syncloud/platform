@@ -24,7 +24,19 @@ fi
 SAM_VERSION=$5
 RELEASE=$6
 
-./docker.sh ${SAM_VERSION} ${RELEASE}
+./docker.sh ${RELEASE}
+
+SAM=sam-${SAM_VERSION}-${ARCH}.tar.gz
+if [ ! -f ${SAM} ]; then
+  wget http://apps.syncloud.org/apps/${SAM} --progress=dot:giga
+else
+  echo "skipping sam"
+fi
+sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 $SAM root@localhost:/sam.tar.gz
+
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "tar xzf /sam.tar.gz -C ${ROOTFS}/opt/app
+
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/opt/app/sam/bin/sam update --release ${RELEASE}"
 
 apt-get install -y sshpass xvfb firefox
 

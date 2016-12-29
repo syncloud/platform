@@ -8,12 +8,11 @@ if [ "$#" -lt 3 ]; then
     exit 1
 fi
 
-SAM_VERSION=none
 RELEASE=$1
 SNAPD_FILE=$2
 SNAP_FILE=$3
 
-${DIR}/../integration/docker.sh ${SAM_VERSION} ${RELEASE}
+${DIR}/../integration/docker.sh ${RELEASE}
 
 sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 $SNAPD_FILE root@localhost:/snapd.tar.gz
 
