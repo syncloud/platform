@@ -21,6 +21,7 @@ if [ "$#" -lt 6 ]; then
     exit 1
 fi
 
+ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 SAM_VERSION=$5
 RELEASE=$6
 
