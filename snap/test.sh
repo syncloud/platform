@@ -20,7 +20,7 @@ sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 $SNAP_FILE  root@loc
 
 sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 install-snapd.sh root@localhost:/
 
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/install-snapd.sh"
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/install-snapd.sh /snapd.tar.gz"
 
 set +e
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "snap install /platform.snap --devmode"
