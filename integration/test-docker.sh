@@ -35,7 +35,7 @@ else
 fi
 sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 $SAM root@localhost:/sam.tar.gz
 
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "tar xzf /sam.tar.gz -C ${ROOTFS}/opt/app
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "tar xzf /sam.tar.gz -C /opt/app"
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/opt/app/sam/bin/sam update --release ${RELEASE}"
 
