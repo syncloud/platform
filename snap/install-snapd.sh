@@ -18,12 +18,14 @@ mkdir /var/lib/snapd
 
 rm -rf /usr/lib/snapd
 mkdir -p /usr/lib/snapd
-cp snapd/bin/snapd /usr/lib/snapd/snapd
-cp snapd/bin/snap-exec /usr/lib/snapd/snap-exec
-cp snapd/bin/snap-confine /usr/lib/snapd/snap-confine
-cp snapd/bin/snap-discard-ns /usr/lib/snapd/snap-discard-ns
-cp snapd/bin/snap /usr/bin/snap
-cp snapd/bin/snapctl /usr/bin/snapctl
+cp snapd/bin/snapd /usr/lib/snapd
+cp snapd/bin/snap-exec /usr/lib/snapd
+cp snapd/bin/snap-confine /usr/lib/snapd
+cp snapd/bin/snap-discard-ns /usr/lib/snapd
+cp snapd/bin/snap /usr/bin
+cp snapd/bin/snapctl /usr/bin
+cp snapd/bin/mksquashfs /usr/bin
+cp snapd/bin/unsquashfs /usr/bin
 
 cp snapd/conf/snapd.service /lib/systemd/system/
 cp snapd/conf/snapd.socket /lib/systemd/system/
