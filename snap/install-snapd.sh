@@ -9,7 +9,7 @@ fi
 
 SNAPD_FILE=$1
 
-apt-get install -y dpgk-dev
+apt-get install -y dpkg-dev
 
 tar xzvf ${SNAPD_FILE}
 systemctl stop snapd.service snapd.socket || true
