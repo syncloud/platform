@@ -9,7 +9,7 @@ cn: config
 #
 # Define global ACLs to disable default read access.
 #
-olcArgsFile: {{ app_data }}/openldap/var/run/slapd.args
+olcArgsFile: {{ app_data }}/openldap/slapd.args
 olcPidFile: {{ app_data }}/openldap/slapd.pid
 #
 # Do not enable referrals until AFTER you have a working directory
