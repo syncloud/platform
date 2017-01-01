@@ -9,7 +9,7 @@ cn: config
 #
 # Define global ACLs to disable default read access.
 #
-olcArgsFile: /opt/app/platform/openldap/var/run/slapd.args
+olcArgsFile: {{ app_data }}/openldap/var/run/slapd.args
 olcPidFile: {{ app_data }}/openldap/slapd.pid
 #
 # Do not enable referrals until AFTER you have a working directory
@@ -29,7 +29,7 @@ olcPidFile: {{ app_data }}/openldap/slapd.pid
 #dn: cn=module,cn=config
 #objectClass: olcModuleList
 #cn: module
-#olcModulepath:	/opt/app/platform/openldap/libexec/openldap
+#olcModulepath:{{ app_dir }}/openldap/libexec/openldap
 #olcModuleload:	back_bdb.la
 #olcModuleload:	back_hdb.la
 #olcModuleload:	back_ldap.la
