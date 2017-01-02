@@ -6,7 +6,7 @@ After=syslog.target
 ;User=platform
 Type=forking
 PIDFile={{ app_data }}/openldap/slapd.pid
-ExecStart={{ app_dir }}/openldap/libexec/slapd -h ldap://127.0.0.1:389 -u platform -g platform -F {{ app_data }}/slapd.d
+ExecStart={{ app_dir }}/openldap/libexec/slapd -h "ldap://127.0.0.1:389 ldapi://{{ app_data }}/openldap/ldap.socket" -u platform -g platform -F {{ app_data }}/slapd.d
 ;TimeoutSec=3
 
 [Install]

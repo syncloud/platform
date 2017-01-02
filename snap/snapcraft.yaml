@@ -19,7 +19,7 @@ apps:
     restart-condition: always
     plugs: [network, network-bind]
   openldap:
-    command: openldap/libexec/slapd -h ldap://127.0.0.1:389 -F ${SNAP_COMMON}/slapd.d
+    command: openldap/libexec/slapd -h "ldap://127.0.0.1:389 ldapi://${SNAP_COMMON}/openldap/ldap.socket" -F ${SNAP_COMMON}/slapd.d
     daemon: forking
     restart-condition: always
     plugs: [network, network-bind]
