@@ -73,7 +73,7 @@ class LdapAuth:
         success = False
         for i in range(0, 3):
             try:
-                check_output('{0}/bin/ldapadd -Y EXTERNAL -H ldapi://{1}/openldap/ldap.socket -f {2}'.format(ldap_root, self.config.data_dir(), filename), shell=True)
+                check_output('{0}/bin/ldapadd -Y EXTERNAL -H ldapi:/{1}/openldap/ldap.socket -f {2}'.format(ldap_root, self.config.data_dir(), filename), shell=True)
                 success = True
                 break
             except Exception, e:
