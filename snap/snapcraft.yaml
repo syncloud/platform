@@ -30,51 +30,7 @@ apps:
     restart-condition: always
     plugs: [network, network-bind]
 parts: 
-  nginx:
+  platform:
     plugin: dump
-    source: ../build/platform/nginx
-    organize:
-      '*': nginx/
-
-  uwsgi:
-    plugin: dump
-    source: ../build/platform/uwsgi
-    organize:
-      '*': uwsgi/
-
-  openldap:
-    plugin: dump
-    source: ../build/platform/openldap
-    organize:
-      '*': openldap/
-
-  openssl:
-    plugin: dump
-    source: ../build/platform//openssl
-    organize:
-      '*': openssl/
-
-  python:
-    plugin: dump
-    source: ../build/platform/python
-    organize:
-      '*': python/
-
-  platform-bin:
-    plugin: dump
-    source: ../build/platform/bin
-    organize:
-      '*': bin/
-
-  platform-config:
-    plugin: dump
-    source: ../build/platform/config.templates 
-    organize:
-      '*': config.templates/
-
-  platform-www:
-    plugin: dump
-    source: ../build/platform/www
-    organize:
-      '*': www/
+    source: ../build/platform
 
