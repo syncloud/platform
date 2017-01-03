@@ -20,10 +20,6 @@ if [ "${ARCH}" == 'armv7l' ]; then
     ARCH_DEB="armhf"
 fi
 
-
-hash jekyll 2>/dev/null || { echo >&2 "jekyll is not installed. Aborting."; exit 1; }
-hash ruby 2>/dev/null || { echo >&2 "ruby (jekyll) is not installed. Aborting."; exit 1; }
-
 cd ${DIR}/www/public
 rm -rf _site
 jekyll build
