@@ -19,6 +19,7 @@ cd snap
 rm -rf build
 mkdir build
 rm -rf *.snap
+cp -r ../build/platform/* build/
 cp -r meta build/
 cp snapcraft.yaml build/meta/snap.yaml
 echo "version: $VERSION" >> build/meta/snap.yaml
