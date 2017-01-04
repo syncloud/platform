@@ -9,16 +9,8 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 fi
 
-ARCH=$1
+ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 VERSION=$2
-
-ARCH_DEB="unknown"
-if [ "${ARCH}" == 'x86_64' ]; then
-    ARCH_DEB="amd64"
-fi
-if [ "${ARCH}" == 'armv7l' ]; then
-    ARCH_DEB="armhf"
-fi
 
 cd ${DIR}/www/public
 rm -rf _site

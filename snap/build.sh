@@ -5,12 +5,12 @@ cd ${DIR}
 NAME="platform"
 
 if [[ -z "$1" || -z "$2" ]]; then
-    echo "usage $0 app_arch app_version"
+    echo "usage $0 version"
     exit 1
 fi
 
-ARCH=$1
-VERSION=$2
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH_CPU)
+VERSION=$1
 cd ${DIR}/..
 ./build.sh $ARCH $VERSION
 
