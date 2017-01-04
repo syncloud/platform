@@ -9,7 +9,11 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 fi
 
-ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+#temp fix until we move to cpu arch
+if [ "${ARCH}" == 'armhf' ]; then
+    ARCH="armv7l"
+fi
 VERSION=$2
 
 cd ${DIR}/www/public

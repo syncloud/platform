@@ -9,7 +9,7 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 fi
 
-ARCH=$(dpkg-architecture -q DEB_HOST_ARCH_CPU)
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 VERSION=$1
 cd ${DIR}/..
 ./build.sh $ARCH $VERSION
