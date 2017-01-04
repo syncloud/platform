@@ -9,15 +9,20 @@ if [[ -z "$1" || -z "$2" ]]; then
     exit 1
 fi
 
+ARCH=$1
 VERSION=$2
 cd ${DIR}/..
-./build.sh $1 $VERSION
+./build.sh $ARCH $VERSION
 
 cd snap
-sed 's/VERSION/'$VERSION'/g' -i snapcraft.yaml
-snapcraft clean
+
+rm -rf build
+mkdir build
 rm -rf *.snap
-snapcraft prime
-cp -r meta prime/
-snapcraft snap
+cp -r meta build/
+cp snapcraft.yaml build/meta/snap.yaml
+echo "version: $VERSION" >> build/meta/snap.yaml
+echo "arch: $ARCH" >> build/meta/snap.yaml
+
+mksquashfs build/ syncloud-platform_$VERSION_$ARCH.snap -noappend -comp xz -no-xattrs -all-root
 
