@@ -25,6 +25,7 @@ jekyll build
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/${NAME}
+SNAP_DIR=${DIR}/build/snap
 rm -rf build
 mkdir -p ${BUILD_DIR}
 
@@ -54,3 +55,18 @@ echo ${VERSION} >> ${BUILD_DIR}/META/version
 echo "zipping"
 rm -rf ${NAME}*.tar.gz
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
+
+echo "snapping"
+rm -rf ${DIR}/*.snap
+mkdir ${SNAP_DIR}
+cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
+cp -r ${DIR}/snap/meta ${SNAP_DIR}/
+cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
+echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
+echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
+echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+
+mksquashfs ${SNAP_DIR} ${DIR}/syncloud-platform_$VERSION_$ARCH.snap -noappend -comp xz -no-xattrs -all-root
+
+
+

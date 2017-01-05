@@ -1,5 +1,4 @@
 name: syncloud-platform
-version: VERSION
 summary: Syncloud Platform
 description: Syncloud service store.
 grade: stable

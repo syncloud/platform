@@ -1,0 +1,35 @@
+apps:
+  nginx:
+    command: command-nginx.wrapper
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    stop-command: stop-command-nginx.wrapper
+  openldap:
+    command: command-openldap.wrapper
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+  uwsgi-internal:
+    command: command-uwsgi-internal.wrapper
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+  uwsgi-public:
+    command: command-uwsgi-public.wrapper
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+confinement: strict
+description: Syncloud service store.
+grade: stable
+name: syncloud-platform
+summary: Syncloud Platform
