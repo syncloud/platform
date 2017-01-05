@@ -1,12 +1,12 @@
 apps:
   nginx:
-    command: uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/public.ini
+    command: bin/service.nginx.sh start
     daemon: forking
     plugs:
     - network
     - network-bind
     restart-condition: always
-    stop-command: stop-command-nginx.wrapper
+    stop-command: bin/service.nginx.sh stop
   openldap:
     command: command-openldap.wrapper
     daemon: forking
