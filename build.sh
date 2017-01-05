@@ -57,6 +57,7 @@ rm -rf ${NAME}*.tar.gz
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
 
 echo "snapping"
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 rm -rf ${DIR}/*.snap
 mkdir ${SNAP_DIR}
 cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
@@ -66,7 +67,6 @@ echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
 echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
-ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 mksquashfs ${SNAP_DIR} ${DIR}/syncloud-platform_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
 
 
