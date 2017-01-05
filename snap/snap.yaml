@@ -1,6 +1,6 @@
 apps:
   nginx:
-    command: command-nginx.wrapper
+    command: uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/public.ini
     daemon: forking
     plugs:
     - network
