@@ -66,7 +66,7 @@ echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
 echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
-VERSION=$(dpkg-architecture -q DEB_HOST_ARCH)
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 mksquashfs ${SNAP_DIR} ${DIR}/syncloud-platform_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
 
 
