@@ -7,6 +7,8 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
+export LD_LIBRARY_PATH=$DIR/python/lib
+
 $DIR/uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/$1.ini
 
 
