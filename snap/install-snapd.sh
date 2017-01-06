@@ -33,16 +33,10 @@ cp snapd/lib/* /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)
 cp snapd/conf/snapd.service /lib/systemd/system/
 cp snapd/conf/snapd.socket /lib/systemd/system/
 
-
 systemctl enable snapd.service
 systemctl enable snapd.socket
 systemctl start snapd.service snapd.socket
 
-snap install hello-world
-
 snap --version
 
-#TESTSLIB=${DIR}/snapd/scripts
-#. ${DIR}/snapd/scripts/prepare.sh
-#update_core_snap_with_snap_exec_snapctl
 
