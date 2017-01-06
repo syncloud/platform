@@ -1,8 +1,5 @@
 #!/bin/bash
 
-APP_ARCHIVE_PATH=$(realpath "$4")
-echo ${APP_ARCHIVE_PATH}
-
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
@@ -10,34 +7,31 @@ export TMPDIR=/tmp
 export TMP=/tmp
 export DEBIAN_FRONTEND=noninteractive
 
-if [ "$#" -eq 7 ]; then
-    TEST_SUITE=$7.py
-else
-    TEST_SUITE="verify.py test-ui.py"
-fi
-
-if [ "$#" -lt 6 ]; then
-    echo "usage $0 redirect_user redirect_password redirect_domain app_archive_path sam_version release"
+if [ "$#" -lt 8 ]; then
+    echo "usage $0 redirect_user redirect_password redirect_domain app_archive_path installer_version release [sam|snapd] [all|test_suite]"
     exit 1
 fi
 
 ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
-SAM_VERSION=$5
+APP_ARCHIVE_PATH=$(realpath "$4")
+INSTALLER_VERSION=$5
 RELEASE=$6
+TEST=$7
+INSTALLER=$8
+
+echo ${APP_ARCHIVE_PATH}
+
+if [ "$TEST" == "all" ]; then
+    TEST_SUITE="verify.py test-ui.py"
+else
+    TEST_SUITE=${TEST}.py
+fi
 
 ./docker.sh ${RELEASE}
 
-SAM=sam-${SAM_VERSION}-${ARCH}.tar.gz
-if [ ! -f ${SAM} ]; then
-  wget http://apps.syncloud.org/apps/${SAM} --progress=dot:giga
-else
-  echo "skipping sam"
-fi
-sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 $SAM root@localhost:/sam.tar.gz
+sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 install-${INSTALLER}.sh root@localhost:/installer.sh
 
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "tar xzf /sam.tar.gz -C /opt/app"
-
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost "/opt/app/sam/bin/sam update --release ${RELEASE}"
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost /installer.sh ${INSTALLER_VERSION} ${RELEASE}
 
 apt-get install -y sshpass xvfb firefox
 
