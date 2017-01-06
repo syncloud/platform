@@ -3,21 +3,10 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
 if [[ -z "$1" ]]; then
-    echo "usage $0 [start|stop]"
+    echo "usage $0 [internal|public]"
     exit 1
 fi
 
-case $1 in
-start)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
-    ;;
-stop)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
-    ;;
-*)
-    echo "not valid command"
-    exit 1
-    ;;
-esac
+$DIR/uwsgi/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/$1.ini
 
 

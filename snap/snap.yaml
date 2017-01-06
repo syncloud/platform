@@ -8,21 +8,21 @@ apps:
     restart-condition: always
     stop-command: bin/service.nginx.sh stop
   openldap:
-    command: command-openldap.wrapper
+    command: bin/service.openldap.sh
     daemon: forking
     plugs:
     - network
     - network-bind
     restart-condition: always
   uwsgi-internal:
-    command: command-uwsgi-internal.wrapper
+    command: bin/service.uwsgi.sh internal
     daemon: notify
     plugs:
     - network
     - network-bind
     restart-condition: always
   uwsgi-public:
-    command: command-uwsgi-public.wrapper
+    command: bin/service.uwsgi.sh public
     daemon: notify
     plugs:
     - network
