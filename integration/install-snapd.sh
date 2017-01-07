@@ -7,9 +7,7 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
-apt-get install -y dpkg-dev
-
-ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+ARCH=$(dpkg --print-architecture)
 VERSION=$1
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz

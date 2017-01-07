@@ -46,7 +46,7 @@ def user_domain(auth):
     return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
-pytest.fixture(scope='session')
+@pytest.fixture(scope='session')
 def installer(request):
     config = request.config
     return config.getoption("--installer")
