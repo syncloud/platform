@@ -7,7 +7,7 @@ export TMP=/tmp
 export DEBIAN_FRONTEND=noninteractive
 
 if [ "$#" -lt 8 ]; then
-    echo "usage $0 redirect_user redirect_password redirect_domain app_archive_path installer_version release [sam|snapd] [all|test_suite]"
+    echo "usage $0 redirect_user redirect_password redirect_domain app_archive_path installer_version release [all|test_suite] [sam|snapd]"
     exit 1
 fi
 
@@ -39,4 +39,4 @@ coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodri
 mv ${DIR}/geckodriver/geckodriver ${DIR}/geckodriver/wires
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
-xvfb-run --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH}
+xvfb-run --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER}

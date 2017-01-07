@@ -11,6 +11,7 @@ def pytest_addoption(parser):
     parser.addoption("--password", action="store")
     parser.addoption("--domain", action="store")
     parser.addoption("--app-archive-path", action="store")
+    parser.addoption("--indtaller", action="store")
 
 @pytest.fixture(scope="session")
 def auth(request):
@@ -45,6 +46,9 @@ def user_domain(auth):
     return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
-
+pytest.fixture(scope='session')
+def installer(request):
+    config = request.config
+    return config.getoption("--installer")
 
 

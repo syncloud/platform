@@ -6,10 +6,16 @@ import convertible
 import requests
 
 
-def local_install(password, app_archive_path):
+SAM_CMD='/opt/app/sam/bin/sam --debug install'
+SNAP_CMD='snap install --devmode'
+
+def local_install(password, app_archive_path, use_snap=False):
     _, app_archive = split(app_archive_path)
     run_scp('{0} root@localhost:/'.format(app_archive_path), password=password)
-    run_ssh('/opt/app/sam/bin/sam --debug install /{0}'.format(app_archive), password=password)
+    installer=SAM_CMD
+    if use_snap:
+        installer=SNAPD_CMD
+    run_ssh('{0} {1}'.format(installer, app_archive), password=password)
     set_docker_ssh_port(password)
     run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/app/platform/config/platform.cfg ",
             password=password)
