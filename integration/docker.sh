@@ -60,7 +60,7 @@ rm -rf ${ROOTFS}
 mkdir -p ${ROOTFS}
 tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C ${ROOTFS}
 
-sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
+#sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
 
 cp -r ${APP_DIR}/integration ${ROOTFS}
 
@@ -68,7 +68,7 @@ echo "importing rootfs"
 tar -C ${ROOTFS} -c . | docker import - syncloud
 
 echo "starting rootfs"
-docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL
+docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL -p 22:2222
 
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
