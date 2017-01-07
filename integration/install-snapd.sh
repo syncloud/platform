@@ -10,8 +10,9 @@ fi
 apt-get install -y dpkg-dev
 
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+VERSION=$1
 
-SNAPD=sam-${VERSION}-${ARCH}.tar.gz
+SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
 
 tar xzvf ${SNAPD}
