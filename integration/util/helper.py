@@ -13,7 +13,7 @@ def local_install(password, app_archive_path, installer):
     _, app_archive = split(app_archive_path)
     run_scp('{0} root@localhost:/'.format(app_archive_path), password=password)
     installer=SAM_CMD
-    if installer == 'snapd:
+    if installer == 'snapd':
         installer=SNAPD_CMD
     run_ssh('{0} /{1}'.format(installer, app_archive), password=password)
     set_docker_ssh_port(password)
