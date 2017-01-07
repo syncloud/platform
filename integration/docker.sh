@@ -68,7 +68,7 @@ echo "importing rootfs"
 tar -C ${ROOTFS} -c . | docker import - syncloud
 
 echo "starting rootfs"
-docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL -p 22:2222
+docker run -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init --cap-add=ALL -p 22:2222
 
 ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
