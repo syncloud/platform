@@ -48,9 +48,9 @@ def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
-def test_install(auth):
+def test_install(auth, installer):
     email, password, domain, app_archive_path = auth
-    local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path)
+    local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_non_activated_device_main_page_redirect_to_activation():
@@ -215,7 +215,7 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
     assert 'max-age=0' in cache_control
 
 
-def test_sam_upgrade(public_web_session):
+def test_installer_upgrade(public_web_session, installer):
     __upgrade(public_web_session, 'sam')
 
 
@@ -318,9 +318,9 @@ def test_remove():
     time.sleep(3)
 
 
-def test_reinstall(auth):
+def test_reinstall(auth, installer):
     email, password, domain, app_archive_path = auth
-    local_install(DEVICE_PASSWORD, app_archive_path)
+    local_install(DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_public_web_platform_upgrade(public_web_session):
@@ -333,9 +333,9 @@ def __upgrade(public_web_session, upgrade_type):
     wait_for_sam(public_web_session)
 
 
-def test_reinstall_local_after_upgrade(auth):
+def test_reinstall_local_after_upgrade(auth, installer):
     email, password, domain, app_archive_path = auth
-    local_install(DEVICE_PASSWORD, app_archive_path)
+    local_install(DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_if_cron_is_enabled_after_upgrade():
