@@ -11,7 +11,7 @@ def pytest_addoption(parser):
     parser.addoption("--password", action="store")
     parser.addoption("--domain", action="store")
     parser.addoption("--app-archive-path", action="store")
-    parser.addoption("--indtaller", action="store")
+    parser.addoption("--installer", action="store")
 
 @pytest.fixture(scope="session")
 def auth(request):
