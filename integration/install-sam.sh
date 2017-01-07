@@ -6,6 +6,8 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi
 
+apt-get install -y dpkg-dev
+
 ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 VERSION=$1
 RELEASE=$2

@@ -7,12 +7,12 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
+apt-get install -y dpkg-dev
+
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 
 SNAPD=sam-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
-
-apt-get install -y dpkg-dev
 
 tar xzvf ${SNAPD}
 systemctl stop snapd.service snapd.socket || true
