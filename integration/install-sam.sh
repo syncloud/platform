@@ -14,5 +14,5 @@ RELEASE=$2
 
 SAM=sam-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SAM} --progress=dot:giga
-tar xzf $SAM -C /opt/app"
-/opt/app/sam/bin/sam update --release ${RELEASE}"
+tar xzf $SAM -C /opt/app
+/opt/app/sam/bin/sam update --release ${RELEASE}
