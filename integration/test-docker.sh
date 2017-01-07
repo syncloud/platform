@@ -1,7 +1,6 @@
 #!/bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
 
 export TMPDIR=/tmp
 export TMP=/tmp
@@ -27,6 +26,7 @@ else
     TEST_SUITE=${TEST}.py
 fi
 
+cd ${DIR}
 ./docker.sh ${RELEASE}
 
 sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 install-${INSTALLER}.sh root@localhost:/installer.sh
