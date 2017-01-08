@@ -133,6 +133,9 @@ class PlatformConfig:
     def get_platform_log(self):
         return self.__get('platform_log')
 
+    def get_installer(self):
+        return self.__get('installer')
+
     def is_certbot_test_cert(self):
         return self.parser.getboolean('platform', 'certbot_test_cert')
 

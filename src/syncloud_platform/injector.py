@@ -20,6 +20,7 @@ from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.sam.stub import SamStub
+from syncloud_platform.snap.snap import Snap
 from syncloud_platform.disks.lsblk import Lsblk
 from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.events import EventTrigger
@@ -67,7 +68,10 @@ class Injector:
         self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
                                                    self.nat_pmp_port_mapper, self.upnp_port_mapper)
         self.info = DeviceInfo(self.user_platform_config, self.port_config)
-        self.sam = SamStub(self.platform_config, self.info)
+        if self.platform_config.get_installer() == 'sam':
+            self.sam = SamStub(self.platform_config, self.info)
+        else:
+            self.sam = Snap(self.platform_config, self.info)
         self.platform_cron = PlatformCron(self.platform_config)
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)

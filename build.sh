@@ -61,6 +61,7 @@ ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 rm -rf ${DIR}/*.snap
 mkdir ${SNAP_DIR}
 cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
+sed -i 's/installer:.*/installer: snapd/g' ${SNAP_DIR}/config.templates/platform.cfg
 cp -r ${DIR}/snap/meta ${SNAP_DIR}/
 cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
 echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
