@@ -1,6 +1,6 @@
 from syncloud_app import logger
 import jsonpickle
-mport requests_unixsocket
+import requests_unixsocket
 from syncloud_platform.rest.service_exception import ServiceException
 
 SOCKET='http+unix//%2Frun%2Fsnapd.socket'
