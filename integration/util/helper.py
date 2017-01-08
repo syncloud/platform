@@ -16,10 +16,6 @@ def local_install(password, app_archive_path, installer):
     if installer == 'snapd':
         cmd=SNAP_CMD
     run_ssh('{0} /{1}'.format(cmd, app_archive), password=password)
-    #set_docker_ssh_port(password)
-    #run_ssh("sed -i 's/certbot_test_cert.*/certbot_test_cert: true/g' /opt/app/platform/config/platform.cfg ", password=password)
-    #run_ssh('systemctl restart platform-uwsgi-public', password=password)
-    #time.sleep(3)
 
 
 def wait_for_platform_web():

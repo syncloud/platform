@@ -1,8 +1,9 @@
 from syncloud_app import logger
 import jsonpickle
-import requests
+mport requests_unixsocket
 from syncloud_platform.rest.service_exception import ServiceException
 
+SOCKET='http+unix//%2Frun%2Fsnapd.socket'
 
 class Snap:
 
@@ -15,25 +16,44 @@ class Snap:
         return None
         
     def install(self, app_id):
-        requests.post('https://localhost:8181/v2/snaps/{0}'.format(app_id), data={'action': 'install'})
+        session = requests_unixsocket.Session()
+        session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
 
     def upgrade(self, app_id):
-        requests.post('https://localhost:8181/v2/snaps/{0}'.format(app_id), data={'action': 'install'})
+        session = requests_unixsocket.Session()
+        session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
 
     def remove(self, app_id):
-        requests.post('https://localhost:8181/v2/snaps/{0}'.format(app_id), data={'action': 'remove'})
+        session = requests_unixsocket.Session()
+        session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'remove'})
 
     def list(self):
-        return requests.get('https://localhost:8181/v2/snaps')
+        session = requests_unixsocket.Session()
+        response = session.get('{0}/v2/snaps'.format(SOCKET))
+        self.logger.info(response)
+        return response
 
     def user_apps(self):
-        return requests.get('https://localhost:8181/v2/snaps')
+        session = requests_unixsocket.Session()
+        response = session..get('{0}/v2/snaps'.format(SOCKET))
+        self.logger.info(response)
+        return response
 
     def installed_user_apps(self):
-        return requests.get('https://localhost:8181/v2/snaps')
+        session = requests_unixsocket.Session()
+        response = session..get('{0}/v2/snaps'.format(SOCKET))
+        self.logger.info(response)
+        return response
 
     def installed_all_apps(self):
-        return requests.get('https://localhost:8181/v2/snaps')
+        session = requests_unixsocket.Session()
+        response = session..get('{0}/v2/snaps'.format(SOCKET))
+        self.logger.info(response)
+        return response
 
     def get_app(self, app_id):
-        requests.get('https://localhost:8181/v2/snaps/{0}'.format(app_id))
+        session = requests_unixsocket.Session()
+        response = session..get('{0}/v2/snaps/{1}'.format(SOCKET, app_od))
+        self.logger.info(response)
+        return response
+
