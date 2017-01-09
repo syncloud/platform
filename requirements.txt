@@ -1,5 +1,5 @@
 urllib3==1.10.4
-requests==2.7.0
+requests==2.11.1
 beautifulsoup4==4.3.2
 IPy==0.83
 python-crontab==1.7.2
