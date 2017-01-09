@@ -37,6 +37,7 @@ def data_dir(installer):
 
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir):
+    global DATA_DIR
     DATA_DIR=data_dir
     request.addfinalizer(module_teardown)
 
