@@ -40,6 +40,7 @@ def module_setup(request):
     request.addfinalizer(module_teardown)
 
 
+@pytest.fixture(scope="method")
 def module_teardown(data_dir):
     os.mkdir(LOG_DIR)
     run_scp('root@localhost:{0}/log/* {1}'.format(data_dir, LOG_DIR), password=LOGS_SSH_PASSWORD)
