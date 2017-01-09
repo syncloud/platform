@@ -24,16 +24,25 @@ DEVICE_PASSWORD = "password"
 DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
+SAM_DATA_DIR='/opt/data/platform'
+SNAPD_DATA_DIR='/var/snap/syncloud-platform/common'
 
+
+@pytest.fixture(scope="session")
+def data_dir(installer):
+    if installer == 'sam'
+        return SAM_DATA_DIR
+    else:
+        return SNAPD_DATA_DIR
 
 @pytest.fixture(scope="session")
 def module_setup(request):
     request.addfinalizer(module_teardown)
 
 
-def module_teardown():
+def module_teardown(data_dir):
     os.mkdir(LOG_DIR)
-    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=LOGS_SSH_PASSWORD)
+    run_scp('root@localhost:{0}/log/* {1}'.format(data_dir, LOG_DIR), password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
     run_ssh('journalctl | grep platform', password=LOGS_SSH_PASSWORD)
