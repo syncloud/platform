@@ -75,11 +75,11 @@ def test_activate_device(auth):
 
     email, password, domain, app_archive_path = auth
     global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://localhost:81/rest/activate',
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
+    LOGS_SSH_PASSWORD = 'password1'
 
 
 def test_reactivate(auth):
