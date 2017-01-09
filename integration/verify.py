@@ -30,7 +30,7 @@ SNAPD_DATA_DIR='/var/snap/syncloud-platform/common'
 
 @pytest.fixture(scope="session")
 def data_dir(installer):
-    if installer == 'sam'
+    if installer == 'sam':
         return SAM_DATA_DIR
     else:
         return SNAPD_DATA_DIR
