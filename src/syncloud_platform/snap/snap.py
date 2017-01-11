@@ -1,9 +1,10 @@
 from syncloud_app import logger
-import jsonpickle
+import json
 import requests_unixsocket
 from syncloud_platform.rest.service_exception import ServiceException
+from syncloud_platform.sam.models import AppVersions, App
 
-SOCKET='http://unixsocket.requests-unixsocket.github.io//%2Frun%2Fsnapd.socket'
+SOCKET='http://unixsocket.requests-unixsocket.github.io//℅2Fvar%2Frun%2Fsnapd.socket'
 
 class Snap:
 
@@ -49,11 +50,25 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
         self.logger.info(response)
-        return response
+        apps = parse_snaps_response(response)
+        return apps
 
     def get_app(self, app_id):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
         self.logger.info(response)
         return response
+
+
+def parse_snaps_response(json):
+    response = json.loads(json)
+    return [to_app(app) for app in response['result']]
+
+def to_app(app):
+    app_version = AppVersions()
+    app_version.installed_version = app['version']
+    app_version.current_version = app['version']
+    app_version.app = App()
+    app_version.app.id = app['name']
+    return app_version
 
