@@ -3,7 +3,7 @@ import jsonpickle
 import requests_unixsocket
 from syncloud_platform.rest.service_exception import ServiceException
 
-SOCKET='http+unix//%2Frun%2Fsnapd.socket'
+SOCKET='http://unixsocket.requests-unixsocket.github.io//%2Frun%2Fsnapd.socket'
 
 class Snap:
 
