@@ -47,7 +47,7 @@ def module_teardown():
     run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
-    run_ssh('journalctl | grep platform', password=LOGS_SSH_PASSWORD)
+    run_ssh('journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
     print('-------------------------------------------------------')
     print('syncloud docker image is running')
