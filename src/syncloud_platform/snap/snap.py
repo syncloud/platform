@@ -60,8 +60,8 @@ class Snap:
         return response
 
 
-def parse_snaps_response(json):
-    response = json.loads(json)
+def parse_snaps_response(response_json):
+    response = json.loads(response_json)
     return [to_app(app) for app in response['result']]
 
 def to_app(app):
