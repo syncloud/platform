@@ -50,7 +50,7 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
         self.logger.info(response)
-        apps = parse_snaps_response(response)
+        apps = parse_snaps_response(response.text)
         return apps
 
     def get_app(self, app_id):
