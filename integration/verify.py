@@ -25,7 +25,7 @@ DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
 SAM_DATA_DIR='/opt/data/platform'
-SNAPD_DATA_DIR='/var/snap/syncloud-platform/common'
+SNAPD_DATA_DIR='/var/snap/platform/common'
 DATA_DIR=''
 
 @pytest.fixture(scope="session")
