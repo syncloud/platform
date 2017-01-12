@@ -53,7 +53,8 @@ class Device:
         self.set_access('http', False)
 
         self.logger.info("activating ldap")
-        self.auth.reset(device_username, device_password)
+        fix_permissions = self.platform_config.get_installer() == 'sam'
+        self.auth.reset(device_username, device_password, fix_permissions)
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()

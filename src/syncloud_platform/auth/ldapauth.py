@@ -45,7 +45,7 @@ class LdapAuth:
             self.log.info('fixing permissions for ldap user conf')
             fs.chownpath(self.user_conf_dir, platform_user, recursive=True)
 
-    def reset(self, user, password):
+    def reset(self, user, password, fix_permissions=True):
 
         self.systemctl.stop_service('platform-openldap')
 
@@ -55,7 +55,7 @@ class LdapAuth:
         for f in files:
             os.remove(f)
 
-        self.init(fix_permissions=True)
+        self.init(fix_permissions)
 
         self.systemctl.start_service('platform-openldap')
 
