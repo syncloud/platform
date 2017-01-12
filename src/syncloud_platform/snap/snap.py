@@ -4,7 +4,7 @@ import requests_unixsocket
 from syncloud_platform.rest.service_exception import ServiceException
 from syncloud_platform.sam.models import AppVersions, App
 
-SOCKET='http://unixsocket.requests-unixsocket.github.io//℅2Fvar%2Frun%2Fsnapd.socket'
+SOCKET="http://unixsocket.requests-unixsocket.github.io//℅2Fvar%2Frun%2Fsnapd.socket"
 
 class Snap:
 
