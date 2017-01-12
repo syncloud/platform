@@ -29,7 +29,7 @@ apps:
     - network-bind
     restart-condition: always
 confinement: strict
-description: Syncloud service store.
+description: Syncloud Platform
 grade: stable
-name: syncloud-platform
+name: platform
 summary: Syncloud Platform
