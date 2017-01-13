@@ -1,7 +1,7 @@
 [Unit]
 Description=Platform nginx
-Requires=platform-uwsgi-internal.service platform-uwsgi-public.service
-After=platform-uwsgi-internal.service platform-uwsgi-public.service
+Requires=platform.uwsgi-internal.service platform.uwsgi-public.service
+After=platform.uwsgi-internal.service platform.uwsgi-public.service
 
 [Service]
 Type=forking
