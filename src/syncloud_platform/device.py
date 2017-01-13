@@ -54,10 +54,11 @@ class Device:
 
         self.logger.info("activating ldap")
         fix_permissions = self.platform_config.get_installer() == 'sam'
-        self.auth.reset(device_username, device_password, fix_permissions)
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
+
+        self.auth.reset(device_username, device_password, fix_permissions)
 
         self.logger.info("activation completed")
 
