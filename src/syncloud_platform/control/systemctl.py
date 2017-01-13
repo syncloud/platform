@@ -120,7 +120,7 @@ class Systemctl:
         return result
 
     def service_name(self, service):
-        if self.platform_config == 'snap':
+        if self.platform_config() == 'snapd':
             service = "snap.{0}".format(service)
         return service
 
