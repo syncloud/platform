@@ -47,7 +47,8 @@ class LdapAuth:
 
     def reset(self, user, password, fix_permissions=True):
 
-        self.systemctl.stop_service('platform-openldap')
+        self.systemctl.stop_service('platform.openldap')
+
 
         fs.removepath(self.user_conf_dir)
 
@@ -57,7 +58,7 @@ class LdapAuth:
 
         self.init(fix_permissions)
 
-        self.systemctl.start_service('platform-openldap')
+        self.systemctl.start_service('platform.openldap')
 
         fd, filename = tempfile.mkstemp()
         util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
