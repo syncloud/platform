@@ -84,6 +84,7 @@ class Systemctl:
         self.__start('{0}.mount'.format(mount))
 
     def __start(self, service):
+        service = self.service_name(service)
         log = logger.get_logger('systemctl')
 
         try:
@@ -104,6 +105,7 @@ class Systemctl:
         return self.__stop('{0}.mount'.format(service))
 
     def __stop(self, service):
+        service = self.service_name(service)
         log = logger.get_logger('systemctl')
 
         try:
@@ -116,6 +118,11 @@ class Systemctl:
 
         log.info("{0}: {1}".format(service, result))
         return result
+
+    def service_name(service):
+        if self.platform_config == 'snap':
+            service = "snap.{0}".format(service)
+        return service
 
     def __systemd_file(self, filename):
         return join(SYSTEMD_DIR, filename)
