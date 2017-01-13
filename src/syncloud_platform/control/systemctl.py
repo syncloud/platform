@@ -15,7 +15,7 @@ class Systemctl:
         self.platform_config = platform_config
 
     def reload_service(self, service):
-
+        service = self.service_name(service)
         log = logger.get_logger('systemctl')
         log.info('reloading {0}'.format(service))
         check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
