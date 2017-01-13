@@ -119,7 +119,7 @@ class Systemctl:
         log.info("{0}: {1}".format(service, result))
         return result
 
-    def service_name(service):
+    def service_name(self, service):
         if self.platform_config == 'snap':
             service = "snap.{0}".format(service)
         return service
