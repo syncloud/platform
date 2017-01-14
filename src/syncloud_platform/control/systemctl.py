@@ -20,7 +20,7 @@ class Systemctl:
         
         self.log.info('reloading {0}'.format(service))
         try:
-            check_output('systemctl reload-or-restart {0} 2>&1'.format(service), shell=True)
+            check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
         except CalledProcessError, e:
             self.log.error(e.output)
             raise e

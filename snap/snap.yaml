@@ -7,6 +7,7 @@ apps:
     - network-bind
     restart-condition: always
     stop-command: bin/service.nginx.sh stop
+    reload-command: bin/service.nginx.sh reload
   openldap:
     command: bin/service.openldap.sh
     daemon: forking

@@ -11,6 +11,9 @@ case $1 in
 start)
     $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf
     ;;
+reload)
+    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s reload
+    ;;
 stop)
     $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/nginx.conf -s stop
     ;;
