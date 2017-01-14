@@ -13,12 +13,17 @@ class Systemctl:
 
     def __init__(self, platform_config):
         self.platform_config = platform_config
+        self.log = logger.get_logger('systemctl')
 
     def reload_service(self, service):
         service = self.service_name(service)
-        log = logger.get_logger('systemctl')
-        log.info('reloading {0}'.format(service))
-        check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
+        
+        self.log.info('reloading {0}'.format(service))
+        try:
+            check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
+        except CalledProcessError, e:
+            self.log.error(e.output)
+            raise e
 
     def remove_service(self, service):
         self.__remove('{0}.service'.format(service))
