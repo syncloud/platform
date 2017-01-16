@@ -24,9 +24,14 @@ DEVICE_PASSWORD = "password"
 DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
+
 SAM_DATA_DIR='/opt/data/platform'
 SNAPD_DATA_DIR='/var/snap/platform/common'
 DATA_DIR=''
+
+SAM_APP_DIR='/opt/app/platform'
+SNAPD_APP_DIR='/snap/platform/current'
+APP_DIR=''
 
 @pytest.fixture(scope="session")
 def data_dir(installer):
@@ -34,6 +39,15 @@ def data_dir(installer):
         return SAM_DATA_DIR
     else:
         return SNAPD_DATA_DIR
+
+
+@pytest.fixture(scope="session")
+def app_dir(installer):
+    if installer == 'sam':
+        return SAM_APP_DIR
+    else:
+        return SNAPD_APP_DIR
+
 
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir):
@@ -160,8 +174,8 @@ def _wait_for_ip(user_domain):
         retry += 1
         time.sleep(1)
 
-def test_certbot_cli():
-    run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
+def test_certbot_cli(app_dir):
+    run_ssh('{0}/bin/certbot --help'.format(app_dir), password=DEVICE_PASSWORD)
 
 
 def test_external_https_mode_with_certbot(public_web_session):
@@ -178,11 +192,11 @@ def test_show_https_certificate():
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_protocol(auth, public_web_session):
+def test_protocol(auth, public_web_session, app_dir):
 
     email, password, domain, app_archive_path = auth
 
-    run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+    run_ssh('cp /integration/event/on_domain_change.py {0}/bin'.format(app_dir), password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "https"' in response.text
@@ -210,7 +224,7 @@ def test_protocol(auth, public_web_session):
 
 
 def test_cron_job(auth, public_web_session):
-    assert '"success": true' in run_ssh('/opt/app/platform/bin/insider sync_all', password=DEVICE_PASSWORD)
+    assert '"success": true' in run_ssh('{0}/bin/insider sync_all'.format(app_dir), password=DEVICE_PASSWORD)
 
 
 def test_installed_apps(public_web_session):
