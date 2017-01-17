@@ -223,7 +223,7 @@ def test_protocol(auth, public_web_session, app_dir):
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
-def test_cron_job(auth, public_web_session):
+def test_cron_job(auth, public_web_session, app_dir):
     assert '"success": true' in run_ssh('{0}/bin/insider sync_all'.format(app_dir), password=DEVICE_PASSWORD)
 
 
