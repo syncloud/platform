@@ -49,4 +49,4 @@ class EventTrigger:
     def __trigger_app_event(self, action):
         for app in self.sam.installed_all_apps():
             app_id = app.app.id
-            run_hook_script(self.platform_config.apps_root(), app_id, action)
+            run_hook_script(self.platform_config.get_hooks_root(), app_id, action)
