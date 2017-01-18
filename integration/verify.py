@@ -50,6 +50,14 @@ def app_dir(installer):
 
 
 @pytest.fixture(scope="session")
+def service_prefix(installer):
+    if installer == 'sam':
+        return ''
+    else:
+        return 'snap.'
+
+
+@pytest.fixture(scope="session")
 def module_setup(request, data_dir):
     global DATA_DIR
     DATA_DIR=data_dir
@@ -192,11 +200,13 @@ def test_show_https_certificate():
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_protocol(auth, public_web_session, app_dir):
+def test_protocol(auth, public_web_session, data_dir, service_prefix):
 
     email, password, domain, app_archive_path = auth
 
-    run_ssh('cp /integration/event/on_domain_change.py {0}/bin'.format(app_dir), password=DEVICE_PASSWORD)
+    run_ssh('sed -i "s#hooks_root.*#hooks_root: /imtegration#g" {0}/config/platform.cfg'.format(data_dir), password=DEVICE_PASSWORD)
+
+    run_ssh('systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "https"' in response.text

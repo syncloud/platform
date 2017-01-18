@@ -12,13 +12,13 @@ action_to_old_script = {
 }
 
 
-def get_script_path(apps_root, app_id, action):
-    hooks_path = join(apps_root, app_id, 'hooks')
+def get_script_path(hooks_root, app_id, action):
+    hooks_path = join(hooks_root, app_id, 'hooks')
     if isdir(hooks_path):
         return (join(hooks_path, action+'.py'), True)
     else:
         hook_script = action_to_old_script[action]
-        return (join(apps_root, app_id, 'bin', hook_script), False)
+        return (join(hooks_root, app_id, 'bin', hook_script), False)
 
 
 def run_hook_script(apps_root, app_id, action):
