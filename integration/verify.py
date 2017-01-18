@@ -58,6 +58,14 @@ def service_prefix(installer):
 
 
 @pytest.fixture(scope="session")
+def conf_dir(installer):
+    if installer == 'sam':
+        return SAM_APP_DIR
+    else:
+        return SNAPD_DATA_DIR
+
+
+@pytest.fixture(scope="session")
 def module_setup(request, data_dir):
     global DATA_DIR
     DATA_DIR=data_dir
@@ -200,11 +208,11 @@ def test_show_https_certificate():
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_protocol(auth, public_web_session, data_dir, service_prefix):
+def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     email, password, domain, app_archive_path = auth
 
-    run_ssh('sed -i "s#hooks_root.*#hooks_root: /imtegration#g" {0}/config/platform.cfg'.format(data_dir), password=DEVICE_PASSWORD)
+    run_ssh('sed -i "s#hooks_root.*#hooks_root: /integration#g" {0}/config/platform.cfg'.format(conf_dir), password=DEVICE_PASSWORD)
 
     run_ssh('systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
