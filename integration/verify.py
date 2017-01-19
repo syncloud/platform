@@ -14,7 +14,7 @@ from requests.adapters import HTTPAdapter
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam
+from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -216,7 +216,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     run_ssh('systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
-    wait_for_sam(public_web_session)
+    wait_for_rest(public_web_session, '/', 200)
 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "https"' in response.text

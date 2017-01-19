@@ -34,3 +34,24 @@ def wait_for_sam(public_web_session):
         except Exception, e:
             print(e.message)
         time.sleep(1)
+
+
+def wait_for_rest(public_web_session, url, code):
+    
+    attempt=0
+    attempt_limit=10
+    while attempt < attempt_limit:
+        try:
+            response = public_web_session.get('http://localhost{0}'.format(url))
+            if response.text:
+                print(response.text)
+            print('code: {0}'.format(response.status_code)
+            if response.status_code == code:
+                return
+        except Exception, e:
+            print(e.message)
+        time.sleep(1)
+        attempt = attempt + 1
+
+
+
