@@ -216,7 +216,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     run_ssh('systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
-    wait_for_sam()
+    wait_for_sam(public_web_session)
 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "https"' in response.text
