@@ -208,9 +208,7 @@ def test_show_https_certificate():
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_protocol(auth, public_web_session, conf_dir, service_prefix):
-
-    email, password, domain, app_archive_path = auth
+def test_hook_override(public_web_session, conf_dir, service_prefix):
 
     run_ssh("sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir), password=DEVICE_PASSWORD)
 
@@ -218,6 +216,11 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     wait_for_rest(public_web_session, '/', 200)
 
+
+def test_protocol(auth, public_web_session, conf_dir, service_prefix):
+
+    email, password, domain, app_archive_path = auth
+ 
     response = public_web_session.get('http://localhost/rest/settings/protocol')
     assert '"protocol": "https"' in response.text
     assert response.status_code == 200
