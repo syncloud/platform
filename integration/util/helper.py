@@ -45,7 +45,7 @@ def wait_for_rest(public_web_session, url, code):
             response = public_web_session.get('http://localhost{0}'.format(url))
             if response.text:
                 print(response.text)
-            print('code: {0}'.format(response.status_code)
+            print('code: {0}'.format(response.status_code))
             if response.status_code == code:
                 return
         except Exception, e:
