@@ -319,8 +319,6 @@ def disk_create(loop_device, fs):
 
 def disk_activate(loop_device, public_web_session):
 
-    run_ssh('cp /integration/event/on_disk_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
-
     response = public_web_session.get('http://localhost/rest/settings/disks')
     print response.text
     assert loop_device in response.text
