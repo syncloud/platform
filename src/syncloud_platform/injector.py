@@ -35,11 +35,11 @@ from syncloud_platform.versions import Versions
 default_injector = None
 
 
-def get_injector(config_dir=None):
+def get_injector(config_dir=None, debug=False):
     global default_injector
     if default_injector is None:
         config_dir = detect_config_dir(config_dir)
-        default_injector = Injector(config_dir=config_dir)
+        default_injector = Injector(config_dir=config_dir, debug=debug)
     return default_injector
 
 

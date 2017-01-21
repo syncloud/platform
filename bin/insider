@@ -1,6 +1,6 @@
 #!/opt/app/platform/python/bin/python
 
-from syncloud_platform.injector import Injector
+from syncloud_platform.injector import get_injector
 import argparse
 from syncloud_app import main
 
@@ -18,6 +18,6 @@ if __name__ == '__main__':
     parser = create_args_parser()
     args = parser.parse_args()
 
-    device = Injector(args.debug).device
+    device = get_injector(debug=args.debug).device
 
     main.execute(device, args)
