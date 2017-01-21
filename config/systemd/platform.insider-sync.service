@@ -5,7 +5,7 @@ After=local-fs.target network.target
 [Service]
 ;User=platform
 Type=oneshot
-ExecStart=/opt/app/platform/bin/insider sync_all
+ExecStart={{ app_dir }}/bin/insider sync_all
 RemainAfterExit=yes
 
 [Install]
