@@ -39,7 +39,7 @@ def get_injector(config_dir=None):
     global default_injector
     if default_injector is None:
         config_dir = detect_config_dir(config_dir)
-        default_injector = Injector(config_dir)
+        default_injector = Injector(config_dir=config_dir)
     return default_injector
 
 
