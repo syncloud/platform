@@ -62,6 +62,7 @@ def conf_dir(installer):
     if installer == 'sam':
         return SAM_APP_DIR
     else:
+        os.environ['SNAP_COMMON'] = SNAPD_DATA_DIR
         return SNAPD_DATA_DIR
 
 
