@@ -5,7 +5,7 @@ from syncloud_platform.injector import get_injector, PLATFORM_CONFIG_DIR
 
 
 def get_app_paths(app_name, config_path=None):
-    config = PlatformConfig(PLATFORM_CONFIG_DIR)
+    config = get_injector().platform_config
     return AppPaths(app_name, config)
 
 
