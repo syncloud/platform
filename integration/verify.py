@@ -67,6 +67,14 @@ def conf_dir(installer):
 
 
 @pytest.fixture(scope="session")
+def ssh_env_vars(installer):
+    if installer == 'sam':
+        return ''
+    if installer == 'snapd':
+        return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
+
+
+@pytest.fixture(scope="session")
 def module_setup(request, data_dir):
     global DATA_DIR
     DATA_DIR=data_dir
@@ -247,8 +255,8 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
-def test_cron_job(auth, public_web_session, app_dir):
-    assert '"success": true' in run_ssh('{0}/bin/insider sync_all'.format(app_dir), password=DEVICE_PASSWORD)
+def test_cron_job(auth, public_web_session, app_dir, ssh_env_vars):
+    assert '"success": true' in run_ssh('{0}/bin/insider sync_all'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
 def test_installed_apps(public_web_session):
