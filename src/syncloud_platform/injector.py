@@ -52,7 +52,7 @@ def detect_config_dir(config_dir):
 
 
 class Injector:
-    def __init__(self, debug=False, config_dir):
+    def __init__(self, debug=False, config_dir=None):
         self.platform_config = PlatformConfig(config_dir=config_dir)
 
         if not logger.factory_instance:
