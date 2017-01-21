@@ -2,7 +2,7 @@ import logging
 from miniupnpc import UPnP
 from os import environ
 from os.path import join
-
+from os import environ
 from syncloud_app import logger
 
 from syncloud_platform.auth.ldapauth import LdapAuth
@@ -38,14 +38,21 @@ default_injector = None
 def get_injector(config_dir=None):
     global default_injector
     if default_injector is None:
-        default_injector = Injector(config_dir=config_dir)
+        config_dir = detect_config_dir(config_dir)
+        default_injector = Injector(config_dir)
     return default_injector
 
 
+def detect_config_dir(config_dir):
+    if config_dir:
+        return config_dir
+    if 'SNAP_COMMON' in environ:
+        return join(environ['SNAP_COMMON'], 'config')
+    return PLATFORM_CONFIG_DIR
+
+
 class Injector:
-    def __init__(self, debug=False, config_dir=None):
-        if not config_dir:
-            config_dir = PLATFORM_CONFIG_DIR
+    def __init__(self, debug=False, config_dir):
         self.platform_config = PlatformConfig(config_dir=config_dir)
 
         if not logger.factory_instance:
