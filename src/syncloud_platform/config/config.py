@@ -161,22 +161,12 @@ class PlatformUserConfig:
         self.parser = ConfigParser()
         self.filename = config_file
 
-        if not isfile(self.filename):
-            self.__save()
-
-        self.parser.read(self.filename)
-
-        if not self.parser.has_section('platform'):
-            self.parser.add_section('platform')
-        if not self.parser.has_section('redirect'):
-            self.parser.add_section('redirect')
-
     def update_redirect(self, domain, api_url):
         self.parser.read(self.filename)
         self.log.info('setting domain={0}, api_url={1}'.format(domain, api_url))
         
-        self.parser.set('redirect', 'domain', domain)
-        self.parser.set('redirect', 'api_url', api_url)
+        self.__set('redirect', 'domain', domain)
+        self.__set('redirect', 'api_url', api_url)
         self.__save()
 
     def get_redirect_domain(self):
@@ -193,7 +183,7 @@ class PlatformUserConfig:
 
     def set_user_update_token(self, user_update_token):
         self.parser.read(self.filename)
-        self.parser.set('redirect', 'user_update_token', user_update_token)
+        self.__set('redirect', 'user_update_token', user_update_token)
         self.__save()
 
     def get_user_update_token(self):
@@ -202,7 +192,7 @@ class PlatformUserConfig:
 
     def set_user_email(self, user_email):
         self.parser.read(self.filename)
-        self.parser.set('redirect', 'user_email', user_email)
+        self.__set('redirect', 'user_email', user_email)
         self.__save()
 
     def get_user_email(self):
@@ -224,8 +214,8 @@ class PlatformUserConfig:
     def update_domain(self, user_domain, domain_update_token):
         self.parser.read(self.filename)
         self.log.info('saving user_domain = {0}, domain_update_token = {0}'.format(user_domain, domain_update_token))
-        self.parser.set('platform', 'user_domain', user_domain)
-        self.parser.set('platform', 'domain_update_token', domain_update_token)
+        self.__set('platform', 'user_domain', user_domain)
+        self.__set('platform', 'domain_update_token', domain_update_token)
         self.__save()
 
     def get_external_access(self):
@@ -243,8 +233,8 @@ class PlatformUserConfig:
 
     def update_device_access(self, external_access, protocol):
         self.parser.read(self.filename)
-        self.parser.set('platform', 'external_access', external_access)
-        self.parser.set('platform', 'protocol', protocol)
+        self.__set('platform', 'external_access', external_access)
+        self.__set('platform', 'protocol', protocol)
         self.__save()
 
     def get_port_drilling_enabled(self):
@@ -254,6 +244,11 @@ class PlatformUserConfig:
             port_drilling_enabled = self.parser.getboolean('platform', 'port_drilling_enabled')
         self.log.info('port_drilling_enabled = {0}'.format(port_drilling_enabled))
         return port_drilling_enabled
+
+    def __set(self, section, key, value):
+        if not self.parser.has_section(section):
+            self.parser.add_section(section)
+        self.parser.set(section, key, value)
 
     def __save(self):
         with open(self.filename, 'wb') as f:
