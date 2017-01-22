@@ -16,11 +16,11 @@ def run_scp(command, throw=True, debug=True, password='syncloud'):
     return _run_command('{0} {1}'.format(SCP, command), throw, debug, password)
 
 
-def run_ssh(command, throw=True, debug=True, password='syncloud', retries=0, sleep=1):
+def run_ssh(command, throw=True, debug=True, password='syncloud', retries=0, sleep=1, env_vars=''):
     retry = 0
     while True:
         try:
-            return _run_command('{0} "{1}"'.format(SSH, command), throw, debug, password)
+            return _run_command('{0} "{1}"'.format(SSH, command), throw, debug, password, env_vars)
         except Exception, e:
             if retry >= retries:
                 raise e
@@ -33,7 +33,7 @@ def ssh_command(password, command):
     return 'sshpass -p {0} {1}'.format(password, command)
 
 
-def _run_command(command, throw, debug, password, env_vars=''):
+def _run_command(command, throw, debug, password, env_vars):
     try:
         command='{0}{1}'.format(env_vars, command)
         print('ssh command: {0}'.format(command))
