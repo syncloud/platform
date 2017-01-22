@@ -1,6 +1,6 @@
 from os import unlink
 import os
-from os.path import islink, join
+from os.path import islink, join, isdir
 from os import path
 from syncloud_app import logger
 from syncloud_platform.control import systemctl
@@ -112,6 +112,17 @@ class Hardware:
         self.log.info('checking external disk')
         if self.path_checker.external_disk_link_exists() and not self.lsblk.is_external_disk_attached():
             self.deactivate_disk()
+
+    def init_disk(self):
+
+        if not isdir(self.platform_config.get_disk_root()):
+            os.mkdir(self.platform_config.get_disk_root())
+
+        if not isdir(self.platform_config.get_internal_disk_dir()):
+            os.mkdir(self.platform_config.get_internal_disk_dir())
+
+        if not self.path_checker.external_disk_link_exists():
+            self.relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
 
     def __support_permissions(self):
         if self.path_checker.external_disk_link_exists():

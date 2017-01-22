@@ -121,3 +121,9 @@ class Tls:
         return filecmp.cmp(
             self.platform_config.get_ssl_certificate_file(),
             self.platform_config.get_default_ssl_certificate_file())
+
+    def init_certoficate(self):
+        platform_config = injector.platform_config
+        if not os.path.exists(platform_config.get_ssl_certificate_file()):
+            shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
+            shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())

@@ -40,23 +40,10 @@ for data_dir in data_dirs:
 
 injector = get_injector(config_dir=config_dir)
 
-platform_config = injector.platform_config
 hardware = injector.hardware
-path_checker = injector.path_checker
+hardware.init_disk()
+
+injector.tls.init_certificate()
+
 ldap_auth = injector.ldap_auth
-
-# depends on sam list, need to port to snap list
-#if not isdir(platform_config.get_disk_root()):
-#    os.mkdir(platform_config.get_disk_root())
-#if not isdir(platform_config.get_internal_disk_dir()):
-#    os.mkdir(platform_config.get_internal_disk_dir())
-#if not path_checker.external_disk_link_exists():
-#    hardware.relink_disk(
-#        platform_config.get_disk_link(),
-#        platform_config.get_internal_disk_dir())
-
-if not os.path.exists(platform_config.get_ssl_certificate_file()):
-    shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
-    shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
-
 ldap_auth.init()
