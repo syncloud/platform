@@ -1,5 +1,6 @@
 import filecmp
 import os
+import shutil
 import subprocess
 import tempfile
 from subprocess import check_output, CalledProcessError
@@ -122,8 +123,7 @@ class Tls:
             self.platform_config.get_ssl_certificate_file(),
             self.platform_config.get_default_ssl_certificate_file())
 
-    def init_certoficate(self):
-        platform_config = injector.platform_config
-        if not os.path.exists(platform_config.get_ssl_certificate_file()):
-            shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
-            shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
+    def init_certificate(self):
+        if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
+            shutil.copy(self.platform_config.get_default_ssl_certificate_file(), self.platform_config.get_ssl_certificate_file())
+            shutil.copy(self.platform_config.get_default_ssl_key_file(), self.platform_config.get_ssl_key_file())
