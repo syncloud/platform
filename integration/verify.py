@@ -293,7 +293,7 @@ def loop_device():
 
 def disk_writable():
     run_ssh('ls -la /data/', password=DEVICE_PASSWORD)
-    run_ssh("su - platform -s /bin/bash -c 'touch /data/platform/test.file'", password=DEVICE_PASSWORD)
+    run_ssh("touch /data/platform/test.file", password=DEVICE_PASSWORD)
 
 
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
