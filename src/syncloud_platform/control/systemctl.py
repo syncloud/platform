@@ -40,6 +40,8 @@ class Systemctl:
 
     def add_service(self, app_id, service, include_socket=False, start=True):
 
+        service = self.service_name(service)
+
         configs_root = join(self.platform_config.configs_root(), app_id)
 
         log = logger.get_logger('systemctl')
@@ -52,7 +54,7 @@ class Systemctl:
         log.info('enabling {0}'.format(service))
         check_output('systemctl enable {0} 2>&1'.format(service), shell=True)
         if start:
-            self.start_service(service)
+            self.__start('{0}.service'.format(service))
 
     def add_mount(self, device, fs_type, options):
 
@@ -83,13 +85,13 @@ class Systemctl:
         self.start_service(service)
 
     def start_service(self, service):
+        service = self.service_name(service)
         self.__start('{0}.service'.format(service))
 
     def start_mount(self, mount):
         self.__start('{0}.mount'.format(mount))
 
     def __start(self, service):
-        service = self.service_name(service)
         log = logger.get_logger('systemctl')
 
         try:
@@ -104,13 +106,13 @@ class Systemctl:
             raise e
 
     def stop_service(self, service):
+        service = self.service_name(service)
         return self.__stop('{0}.service'.format(service))
 
     def stop_mount(self, service):
         return self.__stop('{0}.mount'.format(service))
 
     def __stop(self, service):
-        service = self.service_name(service)
         log = logger.get_logger('systemctl')
 
         try:
