@@ -45,5 +45,12 @@ hardware.init_disk()
 
 injector.tls.init_certificate()
 
+injector.platform_cron.remove()
+injector.platform_cron.create()
+
+udev = injector.udev
+udev.remove()
+udev.add()
+
 ldap_auth = injector.ldap_auth
 ldap_auth.init()
