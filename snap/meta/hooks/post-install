@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd ${SNAP}/bin
+./snap-configure

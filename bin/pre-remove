@@ -1,15 +1,16 @@
-from syncloud_platform.di.injector import get_injector
-from syncloud_platform.systemd.systemctl import remove_service
-
-remove_service('platform-openldap')
-remove_service('platform-nginx')
-remove_service('platform-uwsgi-public')
-remove_service('platform-uwsgi-internal')
-remove_service('platform-ntpdate')
-remove_service('platform-insider-sync')
-remove_service('platform-cpu-frequency')
+from syncloud_platform.injector import get_injector
 
 injector = get_injector()
+systemctl = injector.systemctl
+
+systemctl.remove_service('platform.openldap')
+systemctl.remove_service('platform.nginx')
+systemctl.remove_service('platform.uwsgi-public')
+systemctl.remove_service('platform.uwsgi-internal')
+systemctl.remove_service('platform.ntpdate')
+systemctl.remove_service('platform.insider-sync')
+systemctl.remove_service('platform.cpu-frequency')
+
 injector.platform_cron.remove()
 injector.udev.remove()
 

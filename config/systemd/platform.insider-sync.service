@@ -1,0 +1,12 @@
+[Unit]
+Description=Syncloud insider sync on boot
+After=local-fs.target network.target
+
+[Service]
+;User=platform
+Type=oneshot
+ExecStart={{ app_dir }}/bin/insider sync_all
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

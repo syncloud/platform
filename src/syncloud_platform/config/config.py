@@ -2,16 +2,18 @@ from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
 
-PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
+PLATFORM_CONFIG_DIR = '/opt/app/platform/config'
 
 
 class PlatformConfig:
 
-    def __init__(self, config_dir=PLATFORM_CONFIG_DIR):
+    def __init__(self, config_dir):
         self.parser = ConfigParser()
         self.filename = join(config_dir, PLATFORM_CONFIG_NAME)
+        if (not isfile(self.filename)):
+            raise Exception('platform config does not exist: {0}'.format(self.filename))
         self.parser.read(self.filename)
 
     def apps_root(self):
@@ -20,8 +22,17 @@ class PlatformConfig:
     def data_root(self):
         return self.__get('data_root')
 
-    def www_root(self):
-        return self.__get('www_root')
+    def configs_root(self):
+        return self.__get('configs_root')
+
+    def config_root(self):
+        return self.__get('config_root')
+
+    def www_root_internal(self):
+        return self.__get('www_root_internal')
+
+    def www_root_public(self):
+        return self.__get('www_root_public')
 
     def app_dir(self):
         return self.__get('app_dir')
@@ -95,11 +106,23 @@ class PlatformConfig:
     def get_ssl_certificate_file(self):
         return self.__get('ssl_certificate_file')
 
+    def get_ssl_ca_certificate_file(self):
+        return self.__get('ssl_ca_certificate_file')
+
+    def get_ssl_ca_serial_file(self):
+        return self.__get('ssl_ca_serial_file')
+
+    def get_ssl_certificate_request_file(self):
+        return self.__get('ssl_certificate_request_file')
+
     def get_default_ssl_certificate_file(self):
         return self.__get('default_ssl_certificate_file')
 
     def get_ssl_key_file(self):
         return self.__get('ssl_key_file')
+
+    def get_ssl_ca_key_file(self):
+        return self.__get('ssl_ca_key_file')
 
     def get_default_ssl_key_file(self):
         return self.__get('default_ssl_key_file')
@@ -109,6 +132,18 @@ class PlatformConfig:
 
     def get_platform_log(self):
         return self.__get('platform_log')
+
+    def get_installer(self):
+        return self.__get('installer')
+
+    def get_hooks_root(self):
+        return self.__get('hooks_root')
+
+    def is_certbot_test_cert(self):
+        return self.parser.getboolean('platform', 'certbot_test_cert')
+
+    def get_boot_extend_script(self):
+        return self.__get('boot_extend_script')
 
     def __get(self, key):
         return self.parser.get('platform', key)
@@ -126,23 +161,12 @@ class PlatformUserConfig:
         self.parser = ConfigParser()
         self.filename = config_file
 
-        if not isfile(self.filename):
-            self.parser.add_section('platform')
-            self.__save()
-        else:
-            self.parser.read(self.filename)
-
-        if not self.parser.has_section('platform'):
-            self.parser.add_section('platform')
-
     def update_redirect(self, domain, api_url):
         self.parser.read(self.filename)
         self.log.info('setting domain={0}, api_url={1}'.format(domain, api_url))
-        if not self.parser.has_section('redirect'):
-            self.parser.add_section('redirect')
-
-        self.parser.set('redirect', 'domain', domain)
-        self.parser.set('redirect', 'api_url', api_url)
+        
+        self.__set('redirect', 'domain', domain)
+        self.__set('redirect', 'api_url', api_url)
         self.__save()
 
     def get_redirect_domain(self):
@@ -159,14 +183,21 @@ class PlatformUserConfig:
 
     def set_user_update_token(self, user_update_token):
         self.parser.read(self.filename)
-        if not self.parser.has_section('redirect'):
-            self.parser.add_section('redirect')
-        self.parser.set('redirect', 'user_update_token', user_update_token)
+        self.__set('redirect', 'user_update_token', user_update_token)
         self.__save()
 
     def get_user_update_token(self):
         self.parser.read(self.filename)
         return self.parser.get('redirect', 'user_update_token')
+
+    def set_user_email(self, user_email):
+        self.parser.read(self.filename)
+        self.__set('redirect', 'user_email', user_email)
+        self.__save()
+
+    def get_user_email(self):
+        self.parser.read(self.filename)
+        return self.parser.get('redirect', 'user_email')
 
     def get_user_domain(self):
         self.parser.read(self.filename)
@@ -183,8 +214,8 @@ class PlatformUserConfig:
     def update_domain(self, user_domain, domain_update_token):
         self.parser.read(self.filename)
         self.log.info('saving user_domain = {0}, domain_update_token = {0}'.format(user_domain, domain_update_token))
-        self.parser.set('platform', 'user_domain', user_domain)
-        self.parser.set('platform', 'domain_update_token', domain_update_token)
+        self.__set('platform', 'user_domain', user_domain)
+        self.__set('platform', 'domain_update_token', domain_update_token)
         self.__save()
 
     def get_external_access(self):
@@ -192,7 +223,6 @@ class PlatformUserConfig:
         external_access = False
         if self.parser.has_option('platform', 'external_access'):
             external_access = self.parser.getboolean('platform', 'external_access')
-        self.log.info('external_access = {0}'.format(external_access))
         return external_access
 
     def get_protocol(self):
@@ -203,9 +233,22 @@ class PlatformUserConfig:
 
     def update_device_access(self, external_access, protocol):
         self.parser.read(self.filename)
-        self.parser.set('platform', 'external_access', external_access)
-        self.parser.set('platform', 'protocol', protocol)
+        self.__set('platform', 'external_access', external_access)
+        self.__set('platform', 'protocol', protocol)
         self.__save()
+
+    def get_port_drilling_enabled(self):
+        self.parser.read(self.filename)
+        port_drilling_enabled = True
+        if self.parser.has_option('platform', 'port_drilling_enabled'):
+            port_drilling_enabled = self.parser.getboolean('platform', 'port_drilling_enabled')
+        self.log.info('port_drilling_enabled = {0}'.format(port_drilling_enabled))
+        return port_drilling_enabled
+
+    def __set(self, section, key, value):
+        if not self.parser.has_section(section):
+            self.parser.add_section(section)
+        self.parser.set(section, key, value)
 
     def __save(self):
         with open(self.filename, 'wb') as f:

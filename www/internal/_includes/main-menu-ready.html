@@ -1,0 +1,44 @@
+{% if page.show_main_menu %}
+<script type="text/javascript">
+
+$( document ).ready(function() {
+
+    {% if page.main_menu_item %}
+        $("#{{ page.main_menu_item }}").addClass("active");
+    {% endif %}
+
+    $("#menu_logout, #menu_logout_a").click(function(event) {
+        var posting = $.post( '/rest/logout' )
+            .done( function(data) {
+                window.location.href = "/login.html";
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+            });
+    });
+
+    $("#btn_restart").click(function(event) {
+        var posting = $.get( '/rest/restart' )
+            .done( function(data) {
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+            });
+    });
+
+    $("#btn_shutdown").click(function(event) {
+        var posting = $.get( '/rest/shutdown' )
+            .done( function(data) {
+            })
+            .fail( function(xhr, textStatus, errorThrown) {
+            });
+    });
+
+    $.get( "/rest/user" )
+        .done( function(data) {
+            var user = data;
+        })
+        .fail( function(xhr, textStatus, errorThrown) {
+        });
+});
+
+</script>
+{% endif %}

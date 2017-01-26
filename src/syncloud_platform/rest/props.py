@@ -1,2 +1,2 @@
-html_prefix = '/server/html'
-rest_prefix = '/server/rest'
+html_prefix = ''
+rest_prefix = '/rest'

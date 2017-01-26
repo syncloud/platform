@@ -1,11 +1,11 @@
-from syncloud_platform.tools import id
+from syncloud_platform.board import id
 
 
 class Internal:
     def __init__(self, platform_config, device, redirect_service, log_aggregator):
         self.device = device
         self.platform_config = platform_config
-        self.www_dir = self.platform_config.www_root()
+        self.www_dir = self.platform_config.www_root_internal()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
 

@@ -11,6 +11,6 @@ install
 _site
 3rdparty
 *.iml
-lib
 .cache
+.coin.cache
 version

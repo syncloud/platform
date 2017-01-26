@@ -1,0 +1,36 @@
+apps:
+  nginx:
+    command: bin/service.nginx.sh start
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    stop-command: bin/service.nginx.sh stop
+    reload-command: bin/service.nginx.sh reload
+  openldap:
+    command: bin/service.openldap.sh
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+  uwsgi-internal:
+    command: bin/service.uwsgi.sh internal
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+  uwsgi-public:
+    command: bin/service.uwsgi.sh public
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+confinement: strict
+description: Syncloud Platform
+grade: stable
+name: platform
+summary: Syncloud Platform

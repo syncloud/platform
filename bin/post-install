@@ -1,55 +1,67 @@
 import os
 from subprocess import check_output
-from os.path import isdir
+from os.path import isdir, join
 import shutil
 from syncloud_app import logger
-from syncloud_platform.di.injector import get_injector
-from syncloud_platform.systemd.systemctl import add_service
-from syncloud_platform.tools import app
-from syncloud_platform.tools.chown import chown
-from syncloud_platform.tools.locale import fix_locale
+from syncloud_platform.injector import get_injector
+from syncloud_platform.application import api
+
+from syncloud_platform.gaplib import fs, linux, gen
+
+# this makes config file paths relative
+apps_root = '/opt/app'
+data_root = '/opt/data'
+
+APP_NAME = 'platform'
+USER_NAME = 'platform'
 
 log = logger.get_logger('platform_post_install')
 
-fix_locale()
+linux.fix_locale()
 
-log.info(chown('platform', '/opt/app/platform'))
+linux.useradd(USER_NAME)
 
-# TODO: only for migration from pre-protocol version (< v240), remove after upgrading test users
-user_config_file = '/opt/data/platform/user_platform.cfg'
-if os.path.isfile(user_config_file):
-    check_output("sed -i 's/external_access.*=.*http.*/external_access = True/g' {0}".format(user_config_file), shell=True)
-    check_output("sed -i 's/external_access.*=.*None.*/external_access = False/g' {0}".format(user_config_file), shell=True)
+install_dir = join(apps_root, APP_NAME)
+data_dir = join(data_root, APP_NAME)
+templates_path = join(install_dir, 'config.templates')
+config_dir = join(install_dir, 'config')
 
-# TODO: User specific cron remove as we did not have proper cleanup in post-remove, remove after upgrading test users
-print(check_output("echo "" | crontab - -u platform", shell=True))
+variables = {
+    'apps_root': apps_root,
+    'data_root': data_root,
+    'configs_root': apps_root,
+    'config_root': install_dir,
+    'config_dir': config_dir,
+    'app_dir': install_dir,
+    'app_data': data_dir
+}
+gen.generate_files(templates_path, config_dir, variables)
 
-data_dir = app.get_app_data_root('platform', 'platform')
-app.create_data_dir(data_dir, 'webapps', 'platform')
-app.create_data_dir(data_dir, 'log', 'platform')
-app.create_data_dir(data_dir, 'openldap-data', 'platform')
+platform_paths = api.get_app_paths(APP_NAME, config_dir)
+log.info(fs.chownpath(platform_paths.get_install_dir(), USER_NAME, recursive=True))
+
+data_dir = platform_paths.get_data_dir()
+fs.chownpath(data_dir, USER_NAME)
+
+data_dirs = [
+    join(data_dir, 'webapps'),
+    join(data_dir, 'log'),
+    join(data_dir, 'nginx'),
+    join(data_dir, 'openldap'),
+    join(data_dir, 'openldap-data'),
+    join(data_dir, 'certbot')
+]
+
+for data_dir in data_dirs:
+    fs.makepath(data_dir)
+    fs.chownpath(data_dir, USER_NAME)
 
 injector = get_injector()
 
-platform_config = injector.platform_config
 hardware = injector.hardware
-path_checker = injector.path_checker
-ldap_auth = injector.ldap_auth
+hardware.init_disk()
 
-if not isdir(platform_config.get_disk_root()):
-    os.mkdir(platform_config.get_disk_root())
-
-if not isdir(platform_config.get_internal_disk_dir()):
-    os.mkdir(platform_config.get_internal_disk_dir())
-
-if not path_checker.external_disk_link_exists():
-    hardware.relink_disk(
-        platform_config.get_disk_link(),
-        platform_config.get_internal_disk_dir())
-
-if not os.path.isfile(platform_config.get_ssl_certificate_file()):
-    shutil.copy(platform_config.get_default_ssl_certificate_file(), platform_config.get_ssl_certificate_file())
-    shutil.copy(platform_config.get_default_ssl_key_file(), platform_config.get_ssl_key_file())
+injector.tls.init_certificate()
 
 injector.platform_cron.remove()
 injector.platform_cron.create()
@@ -58,12 +70,14 @@ udev = injector.udev
 udev.remove()
 udev.add()
 
-app_data_dir = app.get_app_data_root('platform')
+ldap_auth = injector.ldap_auth
+ldap_auth.init(fix_permissions=True)
 
-add_service('platform', 'platform-cpu-frequency')
-add_service('platform', 'platform-insider-sync')
-add_service('platform', 'platform-ntpdate')
-add_service('platform', 'platform-uwsgi-internal')
-add_service('platform', 'platform-uwsgi-public')
-add_service('platform', 'platform-nginx')
-add_service('platform', 'platform-openldap', start=ldap_auth.installed())
+systemctl = injector.systemctl
+systemctl.add_service(APP_NAME, 'platform.cpu-frequency')
+systemctl.add_service(APP_NAME, 'platform.insider-sync')
+systemctl.add_service(APP_NAME, 'platform.ntpdate')
+systemctl.add_service(APP_NAME, 'platform.uwsgi-internal')
+systemctl.add_service(APP_NAME, 'platform.uwsgi-public')
+systemctl.add_service(APP_NAME, 'platform.nginx')
+systemctl.add_service(APP_NAME, 'platform.openldap')

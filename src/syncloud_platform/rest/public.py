@@ -1,21 +1,21 @@
-import os
 import sys
 import traceback
-from os.path import join
-
+from os import environ
 import convertible
 from flask import jsonify, send_from_directory, request, redirect, send_file, Flask
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask_login import LoginManager
 
 from syncloud_platform.auth.ldapauth import authenticate
-from syncloud_platform.di.injector import get_injector
+from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import html_prefix, rest_prefix
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 
-injector = get_injector()
+from syncloud_platform.rest.service_exception import ServiceException
+
+injector = get_injector(environ['CONFIG_DIR'])
 public = injector.public
 device = injector.device
 
@@ -82,19 +82,6 @@ def user():
 def index():
     return static_file('index.html')
 
-files_prefix = rest_prefix + '/files/'
-
-
-@app.route(files_prefix)
-@app.route(files_prefix + '<path:path>')
-@login_required
-def browse(path=''):
-    filesystem_path = join('/', path)
-    if os.path.isfile(filesystem_path):
-        return send_file(filesystem_path, mimetype='text/plain')
-    else:
-        return jsonify(items=public.browse(filesystem_path), dir=filesystem_path)
-
 
 @app.route(rest_prefix + "/installed_apps", methods=["GET"])
 @login_required
@@ -121,6 +108,20 @@ def remove():
     return jsonify(message=public.remove(request.args['app_id'])), 200
 
 
+@app.route(rest_prefix + "/restart", methods=["GET"])
+@login_required
+def restart():
+    public.restart()
+    return 'OK', 200
+
+
+@app.route(rest_prefix + "/shutdown", methods=["GET"])
+@login_required
+def shutdown():
+    public.shutdown()
+    return 'OK', 200
+
+
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
@@ -138,6 +139,12 @@ def update():
 @login_required
 def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
+
+
+@app.route(rest_prefix + "/settings/access", methods=["GET"])
+@login_required
+def access():
+    return jsonify(success=True, data=public.access()), 200
 
 
 @app.route(rest_prefix + "/settings/external_access", methods=["GET"])
@@ -173,10 +180,22 @@ def send_log():
     return jsonify(success=True), 200
 
 
+@app.route(rest_prefix + "/settings/device_domain", methods=["GET"])
+@login_required
+def device_domain():
+    return jsonify(success=True, device_domain=public.domain()), 200
+
+
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():
     return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
+
+
+@app.route(rest_prefix + "/settings/boot_disk", methods=["GET"])
+@login_required
+def boot_disk():
+    return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
 
 
 @app.route(rest_prefix + "/settings/disk_activate", methods=["GET"])
@@ -185,10 +204,10 @@ def disk_activate():
     return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
 
 
-@app.route(rest_prefix + "/settings/version", methods=["GET"])
+@app.route(rest_prefix + "/settings/versions", methods=["GET"])
 @login_required
-def version():
-    return jsonify(convertible.to_dict(public.get_app('platform'))), 200
+def versions():
+    return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
 
 
 @app.route(rest_prefix + "/settings/system_upgrade", methods=["GET"])
@@ -198,10 +217,29 @@ def system_upgrade():
     return 'OK', 200
 
 
+@app.route(rest_prefix + "/settings/sam_upgrade", methods=["GET"])
+@login_required
+def sam_upgrade():
+    public.sam_upgrade()
+    return 'OK', 200
+
+
 @app.route(rest_prefix + "/settings/sam_status", methods=["GET"])
 @login_required
 def sam_status():
     return jsonify(is_running=public.sam_status()), 200
+
+
+@app.route(rest_prefix + "/settings/boot_extend", methods=["GET"])
+@login_required
+def boot_extend():
+    return jsonify(is_running=public.boot_extend()), 200
+
+
+@app.route(rest_prefix + "/settings/boot_extend_status", methods=["GET"])
+@login_required
+def boot_extend_status():
+    return jsonify(is_running=public.boot_extend_status()), 200
 
 
 @app.route(rest_prefix + "/settings/disk_deactivate", methods=["GET"])
@@ -210,11 +248,22 @@ def disk_deactivate():
     return jsonify(success=True, disks=public.disk_deactivate()), 200
 
 
+@app.route(rest_prefix + "/settings/regenerate_certificate", methods=["GET"])
+@login_required
+def regenerate_certificate():
+    public.regenerate_certificate()
+    return jsonify(success=True), 200
+
+
 @app.errorhandler(Exception)
 def handle_exception(error):
     print '-'*60
     traceback.print_exc(file=sys.stdout)
     print '-'*60
-    response = jsonify(success=False, message=error.message)
     status_code = 500
+
+    if isinstance(error, ServiceException):
+        status_code = 200
+
+    response = jsonify(success=False, message=error.message)
     return response, status_code

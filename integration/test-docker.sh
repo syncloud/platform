@@ -1,19 +1,42 @@
 #!/bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
 
 export TMPDIR=/tmp
 export TMP=/tmp
 export DEBIAN_FRONTEND=noninteractive
 
-if [ "$#" -ne 7 ]; then
-    echo "usage $0 redirect_user redirect_password redirect_domain app_version app_arch sam_version release"
+if [ "$#" -lt 8 ]; then
+    echo "usage $0 redirect_user redirect_password redirect_domain app_archive_path installer_version release [all|test_suite] [sam|snapd]"
     exit 1
 fi
 
-./docker.sh $6
+ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+APP_ARCHIVE_PATH=$(realpath "$4")
+INSTALLER_VERSION=$5
+RELEASE=$6
+TEST=$7
+INSTALLER=$8
 
-apt-get install -y sshpass
+echo ${APP_ARCHIVE_PATH}
+
+if [ "$TEST" == "all" ]; then
+    TEST_SUITE="verify.py test-ui.py"
+else
+    TEST_SUITE=${TEST}.py
+fi
+
+cd ${DIR}
+./docker.sh ${RELEASE}
+
+sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 install-${INSTALLER}.sh root@localhost:/installer.sh
+
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost /installer.sh ${INSTALLER_VERSION} ${RELEASE}
+
+apt-get install -y sshpass xvfb firefox
+
+coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v0.9.0/geckodriver-v0.9.0-linux64.tar.gz
+mv ${DIR}/geckodriver/geckodriver ${DIR}/geckodriver/wires
+
 pip2 install -r ${DIR}/../src/dev_requirements.txt
-py.test -x -s verify.py --email=$1 --password=$2 --domain=$3 --app-version=$4 --arch=$5 --release=$7
+xvfb-run --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$3 --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER}

@@ -135,7 +135,7 @@ class NonePortDrill:
         pass
 
     def sync_new_port(self, local_port, protocol):
-        pass
+        self.logger.info('port drill is not enabled, not adding {0} {1} mapping'.format(local_port, protocol))
 
     def sync(self):
         pass
@@ -152,7 +152,7 @@ class PortDrillFactory:
         self.upnp_port_mapper = upnp_port_mapper
 
     def get_drill(self, external_access):
-        if not external_access:
+        if not external_access or not self.user_platform_config.get_port_drilling_enabled():
             return NonePortDrill()
         drill = None
         mapper = provide_mapper(self.nat_pmp_port_mapper, self.upnp_port_mapper)

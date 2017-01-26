@@ -9,8 +9,8 @@ cn: config
 #
 # Define global ACLs to disable default read access.
 #
-olcArgsFile: /opt/app/platform/openldap/var/run/slapd.args
-olcPidFile: /opt/app/platform/openldap/var/run/slapd.pid
+olcArgsFile: {{ app_data }}/openldap/slapd.args
+olcPidFile: {{ app_data }}/openldap/slapd.pid
 #
 # Do not enable referrals until AFTER you have a working directory
 # service AND an understanding of referrals.
@@ -29,7 +29,7 @@ olcPidFile: /opt/app/platform/openldap/var/run/slapd.pid
 #dn: cn=module,cn=config
 #objectClass: olcModuleList
 #cn: module
-#olcModulepath:	/opt/app/platform/openldap/libexec/openldap
+#olcModulepath:{{ app_dir }}/openldap/libexec/openldap
 #olcModuleload:	back_bdb.la
 #olcModuleload:	back_hdb.la
 #olcModuleload:	back_ldap.la
@@ -41,10 +41,10 @@ dn: cn=schema,cn=config
 objectClass: olcSchemaConfig
 cn: schema
 
-include: file:///opt/app/platform/openldap/etc/openldap/schema/core.ldif
-include: file:///opt/app/platform/openldap/etc/openldap/schema/cosine.ldif
-include: file:///opt/app/platform/openldap/etc/openldap/schema/inetorgperson.ldif
-include: file:///opt/app/platform/openldap/etc/openldap/schema/nis.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/core.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/cosine.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/inetorgperson.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/nis.ldif
 
 # Frontend settings
 #
@@ -97,6 +97,6 @@ olcRootPW: syncloud
 # The database directory MUST exist prior to running slapd AND 
 # should only be accessible by the slapd and slap tools.
 # Mode 700 recommended.
-olcDbDirectory:	/opt/data/platform/openldap-data
+olcDbDirectory:	{{ app_data }}/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq

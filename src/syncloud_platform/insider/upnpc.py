@@ -89,10 +89,12 @@ UPPER_LIMIT = 65535
 
 class UpnpPortMapper:
 
-    def __init__(self, upnp, fail_attempts=50):
+    def __init__(self, upnp, fail_attempts=50, lower_limit=LOWER_LIMIT, upper_limit=UPPER_LIMIT):
         self.fail_attempts = fail_attempts
         self.logger = logger.get_logger('UpnpPortMapper')
         self.upnp_client = UpnpClient(upnp)
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
 
     def name(self):
         return 'UpnpPortMapper'
@@ -102,7 +104,8 @@ class UpnpPortMapper:
         return self.upnp_client
 
     def __find_available_ports(self, existing_ports, external_port):
-        port_range = range(external_port, UPPER_LIMIT)
+        port_range = range(self.lower_limit, self.upper_limit)
+        port_range.insert(0, external_port)
         available_ports = [x for x in port_range if x not in existing_ports]
         return available_ports[0:self.fail_attempts]
 

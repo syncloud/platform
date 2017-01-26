@@ -1,0 +1,15 @@
+urllib3==1.10.4
+requests==2.11.1
+beautifulsoup4==4.3.2
+IPy==0.83
+python-crontab==1.7.2
+massedit==0.67.1
+Flask==0.10.1
+flask-login==0.2.10
+psutil==4.3.0
+Jinja2==2.7.3
+miniupnpc==1.9
+python-ldap==2.4.25
+certbot==0.8.1
+syncloud-lib==2
+requests-unixsocket==0.1.5

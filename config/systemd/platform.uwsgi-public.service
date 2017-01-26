@@ -1,0 +1,16 @@
+[Unit]
+Description=uWSGI Public
+After=syslog.target
+
+[Service]
+;User=platform
+ExecStart={{ app_dir }}/uwsgi/bin/uwsgi --ini {{ config_root }}/config/uwsgi/public.ini
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+Environment=LD_LIBRARY_PATH={{ app_dir }}/python/lib
+
+[Install]
+WantedBy=multi-user.target

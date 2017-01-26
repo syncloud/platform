@@ -1,39 +1,45 @@
-import os
-from os.path import join
-
 from syncloud_app import logger
 
-from syncloud_platform.rest.props import html_prefix
-from syncloud_platform.rest.model.app import app_from_sam_app, App
+from syncloud_platform.gaplib.linux import pgrep, run_detached
+from syncloud_platform.rest.model.app import app_from_sam_app
+from syncloud_platform.control import power
+from syncloud_platform.sam.stub import SAM_BIN_SHORT
 
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, sam, hardware, redirect_service, log_aggregator):
+    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator):
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
         self.user_platform_config = user_platform_config
         self.device = device
+        self.device_info = device_info
         self.sam = sam
-        self.www_dir = self.platform_config.www_root()
+        self.www_dir = self.platform_config.www_root_public()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
+        self.certbot_generator = certbot_generator
+        self.resize_script = self.platform_config.get_boot_extend_script()
 
-    def browse(self, filesystem_path):
-        entries = sorted(os.listdir(filesystem_path))
-        return [{'name': entry, 'is_file': os.path.isfile(join(filesystem_path, entry))} for entry in entries]
+    def domain(self):
+        return self.device_info.domain()
+
+    def restart(self):
+        power.restart()
+
+    def shutdown(self):
+        power.shutdown()
 
     def installed_apps(self):
         apps = [app_from_sam_app(a) for a in self.sam.installed_user_apps()]
-
-        # TODO: Hack to add system apps, need to think about it
-        apps.append(App('store', 'App Store', html_prefix + '/store.html'))
-        apps.append(App('settings', 'Settings', html_prefix + '/settings.html'))
         return apps
 
     def get_app(self, app_id):
         return self.sam.get_app(app_id)
+
+    def list_apps(self):
+        return self.sam.list()
 
     def install(self, app_id):
         self.sam.install(app_id)
@@ -49,6 +55,11 @@ class Public:
 
     def available_apps(self):
         return [app_from_sam_app(a) for a in self.sam.user_apps()]
+
+    def access(self):
+        external_access = self.user_platform_config.get_external_access()
+        protocol = self.user_platform_config.get_protocol()
+        return dict(external_access=external_access, protocol=protocol)
 
     def external_access(self):
         return self.user_platform_config.get_external_access()
@@ -68,8 +79,17 @@ class Public:
     def system_upgrade(self):
         self.sam.upgrade('platform')
 
+    def sam_upgrade(self):
+        self.sam.upgrade('sam')
+
     def sam_status(self):
-        return self.sam.is_running()
+        return pgrep(SAM_BIN_SHORT)
+
+    def boot_extend_status(self):
+        return pgrep(self.resize_script)
+
+    def boot_extend(self):
+        run_detached(self.resize_script, self.platform_config.get_platform_log(), self.platform_config.get_ssh_port())
 
     def disk_deactivate(self):
         return self.hardware.deactivate_disk()
@@ -77,8 +97,13 @@ class Public:
     def disks(self):
         return self.hardware.available_disks()
 
+    def boot_disk(self):
+        return self.hardware.root_partition()
+
     def send_logs(self):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()
         self.redirect_service.send_log(user_token, logs)
 
+    def regenerate_certificate(self):
+        self.certbot_generator.generate_certificate()

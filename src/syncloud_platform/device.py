@@ -4,7 +4,7 @@ import uuid
 from syncloud_app import logger
 
 from syncloud_platform.insider.util import protocol_to_port
-from syncloud_platform.tools.chown import chown
+from syncloud_platform.gaplib import fs
 
 http_network_protocol = 'TCP'
 
@@ -32,6 +32,8 @@ class Device:
 
         self.sam.update()
         self.user_platform_config.update_redirect(main_domain, redirect_api_url)
+        self.user_platform_config.set_user_email(redirect_email)
+
         user = self.redirect_service.get_user(redirect_email, redirect_password)
         return user
 
@@ -51,20 +53,27 @@ class Device:
         self.set_access('http', False)
 
         self.logger.info("activating ldap")
-        self.auth.reset(device_username, device_password)
+        fix_permissions = self.platform_config.get_installer() == 'sam'
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
-        self.tls.generate_certificate()
+        self.tls.generate_self_signed_certificate()
+
+        self.auth.reset(device_username, device_password, fix_permissions)
 
         self.logger.info("activation completed")
 
     def set_access(self, protocol, external_access):
+        self.logger.info('set_access: protocol={0}, external_access={1}'.format(protocol, external_access))
+
         update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
             return
 
         new_web_local_port = protocol_to_port(protocol)
         old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
+
+        if protocol == 'https' and external_access:
+            self.tls.generate_real_certificate()
 
         drill = self.get_drill(external_access)
 
@@ -83,7 +92,7 @@ class Device:
 
         self.redirect_service.sync(drill, update_token, protocol, external_access, http_network_protocol)
         self.user_platform_config.update_device_access(external_access, protocol)
-        self.event_trigger.trigger_app_event_domain(self.platform_config.apps_root())
+        self.event_trigger.trigger_app_event_domain()
 
     def sync_all(self):
         update_token = self.user_platform_config.get_domain_update_token()
@@ -96,7 +105,7 @@ class Device:
         self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
 
         if not getpass.getuser() == self.platform_config.cron_user():
-            chown(self.platform_config.cron_user(), self.platform_config.data_dir())
+            fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())
 
     def add_port(self, local_port, protocol):
         external_access = self.user_platform_config.get_external_access()

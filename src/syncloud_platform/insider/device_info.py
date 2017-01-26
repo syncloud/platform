@@ -25,6 +25,9 @@ class DeviceInfo:
         else:
             return None
 
+    def app_domain(self, app_name):
+        return '{0}.{1}'.format(app_name, self.domain())
+
     def url(self, app=None):
         protocol = self.user_platform_config.get_protocol()
         port = protocol_to_port(protocol)

@@ -1,6 +1,6 @@
 from functools import update_wrapper
 from flask import make_response, redirect, request
-from syncloud_platform.di.injector import get_injector
+from syncloud_platform.injector import get_injector
 
 
 def nocache(f):

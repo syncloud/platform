@@ -1,0 +1,13 @@
+[Unit]
+Description=Platform Open LDAP
+After=syslog.target
+
+[Service]
+;User=platform
+Type=forking
+PIDFile={{ app_data }}/openldap/slapd.pid
+ExecStart={{ app_dir }}/openldap/libexec/slapd -h ldap://127.0.0.1:389 -u platform -g platform -F {{ app_data }}/slapd.d
+;TimeoutSec=3
+
+[Install]
+WantedBy=multi-user.target
