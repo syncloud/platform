@@ -2,7 +2,7 @@ import traceback
 from os.path import join, isfile, isdir
 from syncloud_app import logger
 from syncloud_platform.gaplib.scripts import run_script
-
+from subprocess import CalledProcessError
 
 action_to_old_script = {
     'post-install': 'post-install',
@@ -28,6 +28,9 @@ def run_hook_script(apps_root, app_id, action):
         log.info('executing {0}'.format(app_event_script))
         try:
             run_script(app_event_script, add_location_to_sys_path)
+        except CalledProcessError, e:
+            log.error('error in script: {0}'.format(e.output))
+            log.error(traceback.format_exc())
         except:
             log.error('error in script')
             log.error(traceback.format_exc())
