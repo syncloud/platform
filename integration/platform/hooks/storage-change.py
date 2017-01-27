@@ -12,5 +12,5 @@ try:
 
     with open('/tmp/on_disk_change.log', 'w+') as f:
         f.write(storage_dir)
- except Exception, e:
+except Exception, e:
     log.error('error {0}'.format(e.message))
