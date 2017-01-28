@@ -31,9 +31,8 @@ def run_hook_script(apps_root, app_id, action):
         except CalledProcessError, e:
             log.error('error in script: {0}'.format(e.output))
             log.error(traceback.format_exc())
-        except:
-            log.error('error in script')
-            log.error(traceback.format_exc())
+            if action == 'post-install':
+                raise e
     else:
         log.info('{0} not found'.format(app_event_script))
 
