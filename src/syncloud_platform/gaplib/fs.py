@@ -32,7 +32,7 @@ def chownpath(path, user, recursive=False):
 
 
 def chownrecursive(path, user):
-    return check_output('chown -RL {0}. {1}'.format(user, path), shell=True)
+    return check_output('chown -RLf {0}. {1}'.format(user, path), shell=True)
 
 
 def touchfile(file):
