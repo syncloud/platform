@@ -12,10 +12,10 @@ class Aggregator:
         log_files = glob.glob(self.platform_config.get_log_sender_pattern())
         log_files.append(self.platform_config.get_log_sender_sam_log())
         results  = map(read_log, log_files)
-        results.append(run('dmesg')
-        results.append(run('mount')
-        results.append(run('journalctl')
-        logs = '\n----------------------\n'.join()
+        results.append(run('dmesg'))
+        results.append(run('mount'))
+        results.append(run('journalctl'))
+        logs = '\n----------------------\n'.join(results)
         return logs
 
 
