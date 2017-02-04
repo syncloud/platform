@@ -11,9 +11,11 @@ class Aggregator:
 
         log_files = glob.glob(self.platform_config.get_log_sender_pattern())
         log_files.append(self.platform_config.get_log_sender_sam_log())
-
-        logs = '\n----------------------\n'.join(map(read_log, log_files))
-
+        results  = map(read_log, log_files)
+        results.append(run('dmesg')
+        results.append(run('mount')
+        results.append(run('journalctl')
+        logs = '\n----------------------\n'.join()
         return logs
 
 
@@ -23,5 +25,11 @@ def read_log(filename):
         log += check_output('tail -100 {0}'.format(filename), shell=True)
     else:
         log += '-- not found --'
+    return log
+
+
+def run(cmd):
+    log = 'file: {0}\n\n'.format(cmd)
+    log += check_output('{0} | tail -100'.format(cmd), shell=True)
     return log
 
