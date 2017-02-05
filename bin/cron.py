@@ -1,8 +1,8 @@
 #!/opt/app/platform/python/bin/python
 
-from syncloud_platform.injector import Injector
+from syncloud_platform.injector import get_injector
 
-injector = Injector()
+injector = get_injector()
 
 injector.device.sync_all()
 user_platform_config = injector.user_platform_config
