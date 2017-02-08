@@ -48,7 +48,7 @@ class LdapAuth:
 
     def fix_pre_17_01_pid_location(self):
         check_output(
-            "sed - i \"s#olcPidFile:.*#olcPidFile: /opt/data/platform/openldap/slapd.pid#g\" /opt/data/platform/slapd.d/cn\=config.ldif",
+            "sed -i \"s#olcPidFile:.*#olcPidFile: /opt/data/platform/openldap/slapd.pid#g\" /opt/data/platform/slapd.d/cn\=config.ldif",
             shell=True)
 
     def reset(self, user, password, fix_permissions=True):
