@@ -82,9 +82,10 @@ class RedirectService:
         if not external_ip:
             self.logger.warn("No external ip")
         else:
-            if IP(external_ip).iptype() != 'PUBLIC':
+            iptype=IP(external_ip).iptype()
+            if iptype != 'PUBLIC':
                 external_ip = None
-                self.logger.warn("External ip is not public")
+                self.logger.warn("External ip is not public: {0}".format(iptype))
 
         if not map_local_address:
             if external_ip:
