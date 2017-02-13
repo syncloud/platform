@@ -84,6 +84,7 @@ def module_setup(request, data_dir):
 def module_teardown():
     os.mkdir(LOG_DIR)
     run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), password=LOGS_SSH_PASSWORD)
+    run_scp('root@localhost:/var/log/sam.log {1}'.format(DATA_DIR, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
     run_ssh('journalctl | tail -200', password=LOGS_SSH_PASSWORD)
@@ -295,6 +296,9 @@ def disk_writable():
     run_ssh('ls -la /data/', password=DEVICE_PASSWORD)
     run_ssh("touch /data/platform/test.file", password=DEVICE_PASSWORD)
 
+
+def test_udev_script(app_dir):
+    run_ssh('{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
 
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):

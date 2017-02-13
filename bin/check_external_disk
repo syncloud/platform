@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-echo "udev event" >> ${SNAP_COMMON}/log/udev.log
-
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
 ${DIR}/python/bin/python ${DIR}/bin/check_external_disk.py 
