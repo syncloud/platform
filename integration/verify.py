@@ -372,14 +372,14 @@ def cron_is_enabled_after_install():
     assert not crontab.startswith('#'), crontab
 
 
-def test_remove(installer):
-    local_remove(DEVICE_PASSWORD, installer, 'platform')
-    time.sleep(3)
-
-
-def test_reinstall(auth, installer):
-    email, password, domain, app_archive_path = auth
-    local_install(DEVICE_PASSWORD, app_archive_path, installer)
+def test_local_upgrade(auth, installer):
+    _, _, _, app_archive_path = auth
+    if installer == 'sam':
+        local_remove(DEVICE_PASSWORD, installer, 'platform')
+        time.sleep(3)
+        local_install(DEVICE_PASSWORD, app_archive_path, installer)
+    else:
+        local_install(DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_public_web_platform_upgrade(public_web_session):

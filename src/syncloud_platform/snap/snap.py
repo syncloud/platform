@@ -1,10 +1,10 @@
 from syncloud_app import logger
 import json
 import requests_unixsocket
-from syncloud_platform.rest.service_exception import ServiceException
 from syncloud_platform.sam.models import AppVersions, App
 
-SOCKET="http+unix://%2Fvar%2Frun%2Fsnapd.socket"
+SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
+
 
 class Snap:
 
