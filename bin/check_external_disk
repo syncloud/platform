@@ -2,7 +2,7 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
-if [ -d /use/lob/snapd ]; then
+if [ -d /usr/lib/snapd ]; then
     export SNAP_COMMON=/var/snap/platform/common
 fi
 ${DIR}/python/bin/python ${DIR}/bin/check_external_disk.py 
