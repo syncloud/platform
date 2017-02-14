@@ -5,17 +5,24 @@ from os.path import split
 import convertible
 import requests
 
-
-SAM_CMD='/opt/app/sam/bin/sam --debug install'
-SNAP_CMD='snap install --devmode'
+SAM='/opt/app/sam/bin/sam --debug'
+SAM_INSTALL='{0} install'.format(SAM)
+SNAP='snapd'
+SNAP_INSTALL='{0} install --devmode'.format(SNAP)
 
 def local_install(password, app_archive_path, installer):
     _, app_archive = split(app_archive_path)
     run_scp('{0} root@localhost:/'.format(app_archive_path), password=password)
-    cmd=SAM_CMD
+    cmd=SAM_INSTALL
     if installer == 'snapd':
-        cmd=SNAP_CMD
+        cmd=SNAP_INSTALL
     run_ssh('{0} /{1}'.format(cmd, app_archive), password=password)
+
+def local_remove(password, installer, app):
+    cmd=SAM
+    if installer == 'snapd':
+        cmd=SNAP
+    run_ssh('{0} remove {1}'.format(cmd, app), password=password)
 
 
 def wait_for_platform_web():

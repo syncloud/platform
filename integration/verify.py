@@ -14,7 +14,7 @@ from requests.adapters import HTTPAdapter
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest
+from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest, local_remove
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -372,8 +372,8 @@ def cron_is_enabled_after_install():
     assert not crontab.startswith('#'), crontab
 
 
-def test_remove():
-    run_ssh('/opt/app/sam/bin/sam --debug remove platform', password=DEVICE_PASSWORD)
+def test_remove(installer):
+    local_remove(DEVICE_PASSWORD, installer, 'platform')
     time.sleep(3)
 
 
