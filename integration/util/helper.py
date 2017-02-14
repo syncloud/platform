@@ -7,7 +7,7 @@ import requests
 
 SAM='/opt/app/sam/bin/sam --debug'
 SAM_INSTALL='{0} install'.format(SAM)
-SNAP='snapd'
+SNAP='snap'
 SNAP_INSTALL='{0} install --devmode'.format(SNAP)
 
 def local_install(password, app_archive_path, installer):
