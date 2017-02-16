@@ -58,7 +58,8 @@ def test_web_with_selenium(user_domain):
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'settings.png'))
 
-
-
-
+    driver.get("http://{0}/access.html".format(user_domain))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(5)
+    driver.get_screenshot_as_file(join(screenshot_dir, 'access.png'))
 

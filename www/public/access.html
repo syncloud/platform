@@ -71,16 +71,10 @@
 		</div>
 		<!--block1-->
 		<div class="block1 wd12" id="block1">
-			<h1>Settings</h1>
+			<h1>Access</h1>
 			<div class="row settingsblock">
+
 				<div class="col2">
-					<h3>Activation</h3>
-					<div class="setline">
-						<span class="span">Activated to: </span><span id="txt_device_domain"></span>
-					</div>
-					<div class="setline">
-						<span class="span">You can assign different<br>domain name to your device</span><div class="spandiv"><button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button></div>
-					</div>
 					<h3>Access</h3>
 					<div class="setline">
 						<span class="span">External Access:</span>
@@ -96,40 +90,12 @@
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
 						</div>
 					</div>
-					<h3>Storage</h3>
-                    <div id="block_boot_disk">
-					</div>
-					<div id="block_disks">
-					</div>
 				</div>
+
 				<div class="col2">
-				<h3>Updates</h3>
-					<div class="setline">
-						<button class="buttongreen bwidth smbutton btn-lg" id="btn_check_updates" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Checking...">Check for updates</button>
-					</div>
-					<div class="setline">
-						<span class="span">Current system version: </span><span id="txt_platform_version"></span>
-						<div id="block_system_upgrade" style="display: none">
-							<span class="span">Available version: </span><span id="txt_system_version_available"></span>
-							<div class="spandiv">
-								<button class="buttongreen bwidth smbutton btn-lg" id="btn_platform_upgrade" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading...">Upgrade</button>
-							</div>
-						</div>
-					</div>
-					<div class="setline">
-						<span class="span">Current installer version: </span><span id="txt_sam_version"></span>
-						<div id="block_sam_upgrade" style="display: none">
-							<span class="span">Available installer version: </span><span id="txt_sam_version_available"></span>
-							<div class="spandiv">
-								<button class="buttongreen bwidth smbutton btn-lg" id="btn_sam_upgrade" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading...">Upgrade</button>
-							</div>
-						</div>
-					</div>
-					<h3>Feedback</h3>
-					<div class="setline">
-						<span class="span">Report Issue:</span><div class="spandiv"><button class="buttonblue bwidth smbutton" id="btn_send_logs" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs</button></div>
-					</div>
+
 				</div>
+
 			</div>
 		</div>
 	</div>
@@ -157,66 +123,6 @@
   </div>
 </div>
 
-
-<!-- Create your template -->
-<script type="text/html" id='template-disks'>
-
-    <%
-		var index = 0;
-		if (disks.length == 0) {
-    %>
-
-		<span class="span">No external disks found</span>
-
-    <% } %>
-
-    <%
-    for (i=0; i < disks.length; i++) {
-				var disk = disks[i];
-    %>
-
-		<div class="setline">
-				<span class="span"><%= disk.name %></span>
-    </div>
-
-    <%
-				partitions = disk.partitions;
-				for (j=0; j < partitions.length; j++) {
-				var partition = partitions[j];
-    %>
-
-		<div class="setline">
-				<span class="span"><%=partition.device %> (<%=partition.size %>)</span>
-				<div class="spandiv">
-						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
-						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
-				</div>
-		</div>
-
-    <%
-				index = index + 1;
-            }
-    %>
-
-    <% } %>
-</script>
-
-<script type="text/html" id='template-boot-disk'>
-
-    <div class="setline">
-            <span class="span">Boot disk</span>
-    </div>
-    <div class="setline">
-        <span class="span"><%=device %> (<%=size %>)</span>
-        <% if (extendable) { %>
-        <div class="spandiv">
-            <button class="buttongreen bwidth smbutton btn-lg" id="btn_boot_extend" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
-        </div>
-        <% } %>
-    </div>
-
-</script>
-
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -235,48 +141,6 @@ function ui_display_toggles() {
 
 ui_display_toggles();
 
-function ui_display_disks(data) {
-		var template = $("#template-disks").html();
-		$("#block_disks").html(_.template(template)(data));
-		ui_display_toggles();
-
-		$("#block_disks").find("[type='checkbox']").each(function() {
-				var tgl_device = $(this);
-				$(this).on('switchChange.bootstrapSwitch', function(e, s) {
-						var state = tgl_device.bootstrapSwitch('state');
-						var disk_device = tgl_device.data('device');
-						var device_index = tgl_device.data('index');
-
-						$("#block_disks").find("[type='checkbox']").each(function() {
-								$(this).bootstrapSwitch('disabled', true);
-						});
-						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
-						$(tgl_loading_id).addClass('opacity-visible');
-
-						backend.disk_action({
-								disk_device: disk_device,
-								is_activate: state,
-								always: function() {
-										ui_check_disks(function() {});
-								},
-                                fail: ui_display_error
-						});
-				})
-		});
-}
-
-function ui_display_boot_disk(data) {
-		var template = $("#template-boot-disk").html();
-		$("#block_boot_disk").html(_.template(template)(data.data));
-        $("#btn_boot_extend").on('click', function () {
-    		ui_boot_extend();
-        });
-}
-
-function ui_display_device_url(data) {
-		$("#txt_device_domain").html(data.device_domain);
-}
-
 function ui_display_access(data) {
 		var access_data = data.data;
 		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
@@ -293,34 +157,9 @@ function disable_access_controls() {
 		$('#tgl_protocol').bootstrapSwitch('disabled', true);
 }
 
-function upgrade_buttons_enabled(is_enabled) {
-		var btn_platform = $("#btn_platform_upgrade");
-		var btn_sam = $("#btn_sam_upgrade");
-		btn_platform.prop('disabled', !is_enabled);
-		btn_sam.prop('disabled', !is_enabled);
-}
-
-function ui_check_device_url() {
-		backend.device_url({
-			done: ui_display_device_url,
-			fail: ui_display_error
-		});
-}
-
 function ui_check_access() {
 		backend.check_access({
 				done: ui_display_access,
-				fail: ui_display_error
-		});
-}
-
-function ui_send_logs() {
-		var btn = $("#btn_send_logs");
-		btn.button('loading');
-		backend.send_logs({
-				always: function() {
-						btn.button('reset');
-				},
 				fail: ui_display_error
 		});
 }
@@ -350,114 +189,7 @@ function ui_toggle_protocol() {
 		});
 }
 
-function ui_display_versions(data) {
-		var platform_data = find_app(data.data, "platform");
-		var sam_data = find_app(data.data, "sam");
-
-		$("#txt_platform_version").html(platform_data.installed_version);
-		$("#txt_system_version_available").html(platform_data.current_version);
-
-		if (platform_data.installed_version != platform_data.current_version) {
-				$("#block_system_upgrade").show();
-		} else {
-				$("#block_system_upgrade").hide();
-		}
-
-		$("#txt_sam_version").html(sam_data.installed_version);
-		$("#txt_sam_version_available").html(sam_data.current_version);
-
-		if (sam_data.installed_version != sam_data.current_version) {
-				$("#block_sam_upgrade").show();
-		} else {
-				$("#block_sam_upgrade").hide();
-		}
-}
-
-function ui_get_versions(callback) {
-		backend.get_versions({
-				done: ui_display_versions,
-				fail: ui_display_error,
-				always: callback
-		});
-}
-
-function ui_check_versions() {
-		var btn = $("#btn_check_updates");
-		upgrade_buttons_enabled(false);
-		btn.button('loading');
-		backend.check_versions({
-				always: function() {
-						ui_get_versions(function() {
-								btn.button('reset');
-								upgrade_buttons_enabled(true);
-						});
-				}
-		});
-}
-
-function ui_platform_upgrade() {
-		var btn = $("#btn_platform_upgrade");
-		btn.button('loading');
-		backend.platform_upgrade({
-				always: function() {
-					ui_get_versions(function() {
-							btn.button('reset');
-					});
-				}
-		});
-}
-
-function ui_boot_extend() {
-		var btn = $("#btn_boot_extend");
-		btn.button('loading');
-		backend.boot_extend({
-				always: function() {
-					ui_check_boot_disk(function() {
-							btn.button('reset');
-					});
-				}
-		});
-}
-
-function ui_sam_upgrade() {
-		var btn = $("#btn_sam_upgrade");
-		btn.button('loading');
-		backend.sam_upgrade({
-				always: function() {
-					ui_get_versions(function() {
-							btn.button('reset');
-					});
-				}
-		});
-}
-
-function ui_check_disks(callback) {
-		backend.update_disks({
-				done: ui_display_disks,
-				always: callback
-		});
-}
-
-function ui_check_boot_disk(callback) {
-		backend.update_boot_disk({
-				done: ui_display_boot_disk,
-				always: callback
-		});
-}
-
 $(document).ready(function () {
-
-    $("#btn_check_updates").on('click', function () {
-    		ui_check_versions();
-    });
-
-    $("#btn_send_logs").on('click', function () {
-        ui_send_logs();
-    });
-
-    $("#btn_reactivate").on('click', function () {
-    		backend.reactivate();
-    });
 
     $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
 				event.preventDefault();
@@ -469,19 +201,8 @@ $(document).ready(function () {
             ui_toggle_protocol();
     });
 
-    $("#btn_platform_upgrade").on('click', function () {
-    		ui_platform_upgrade();
-    });
-
-    $("#btn_sam_upgrade").on('click', function () {
-    		ui_sam_upgrade();
-    });
-
-    ui_check_device_url();
     ui_check_access();
-    ui_check_disks(function() {});
-    ui_check_boot_disk(function() {});
-    ui_check_versions();
+    
 });
 
 </script>
@@ -493,7 +214,7 @@ $(document).ready(function () {
 
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/settings.js"></script>
+<script src="js/backend/access.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>
