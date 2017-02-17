@@ -81,21 +81,7 @@
 					<div class="setline">
 						<span class="span">You can assign different<br>domain name to your device</span><div class="spandiv"><button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button></div>
 					</div>
-					<h3>Access</h3>
-					<div class="setline">
-						<span class="span">External Access:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
-						</div>
-					</div>
-					<div class="setline">
-						<span class="span">Access Protocol:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
-						</div>
-					</div>
+					<h3><a href="access.html" class="hlink">Access</a></h3>
 					<h3>Storage</h3>
                     <div id="block_boot_disk">
 					</div>
@@ -277,22 +263,6 @@ function ui_display_device_url(data) {
 		$("#txt_device_domain").html(data.device_domain);
 }
 
-function ui_display_access(data) {
-		var access_data = data.data;
-		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
-		$('#tgl_external').bootstrapSwitch('disabled', false);
-		$("#tgl_external_loading").removeClass('opacity-visible');
-		var https_enabled = access_data.protocol === 'https';
-		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
-		$('#tgl_protocol').bootstrapSwitch('disabled', false);
-		$("#tgl_protocol_loading").removeClass('opacity-visible');
-}
-
-function disable_access_controls() {
-		$('#tgl_external').bootstrapSwitch('disabled', true);
-		$('#tgl_protocol').bootstrapSwitch('disabled', true);
-}
-
 function upgrade_buttons_enabled(is_enabled) {
 		var btn_platform = $("#btn_platform_upgrade");
 		var btn_sam = $("#btn_sam_upgrade");
@@ -307,13 +277,6 @@ function ui_check_device_url() {
 		});
 }
 
-function ui_check_access() {
-		backend.check_access({
-				done: ui_display_access,
-				fail: ui_display_error
-		});
-}
-
 function ui_send_logs() {
 		var btn = $("#btn_send_logs");
 		btn.button('loading');
@@ -321,31 +284,6 @@ function ui_send_logs() {
 				always: function() {
 						btn.button('reset');
 				},
-				fail: ui_display_error
-		});
-}
-
-function ui_toggle_external_access() {
-		var toggle = $("#tgl_external")
-		var state = toggle.bootstrapSwitch('state');
-		disable_access_controls();
-		$("#tgl_external_loading").addClass('opacity-visible');
-		backend.external_access({
-				state: state,
-				always: ui_check_access,
-				fail: ui_display_error
-		});
-}
-
-function ui_toggle_protocol() {
-		var toggle = $("#tgl_protocol");
-		var state = toggle.bootstrapSwitch('state');
-		var new_protocol = state ? 'https' : 'http';
-		disable_access_controls();
-		$("#tgl_protocol_loading").addClass('opacity-visible');
-		backend.protocol({
-				new_protocol: new_protocol,
-				always: ui_check_access,
 				fail: ui_display_error
 		});
 }
@@ -459,16 +397,6 @@ $(document).ready(function () {
     		backend.reactivate();
     });
 
-    $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
-				event.preventDefault();
-				ui_toggle_external_access();
-    });
-
-    $("#tgl_protocol").on('switchChange.bootstrapSwitch', function(event, state) {
-            event.preventDefault();
-            ui_toggle_protocol();
-    });
-
     $("#btn_platform_upgrade").on('click', function () {
     		ui_platform_upgrade();
     });
@@ -478,7 +406,6 @@ $(document).ready(function () {
     });
 
     ui_check_device_url();
-    ui_check_access();
     ui_check_disks(function() {});
     ui_check_boot_disk(function() {});
     ui_check_versions();
