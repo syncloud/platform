@@ -25,8 +25,8 @@ def test_web_with_selenium(user_domain):
     caps["binary"] = "/usr/bin/firefox"
 
     profile = webdriver.FirefoxProfile()
-    profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
-    driver = webdriver.Firefox(profile, capabilities=caps)
+    #profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
+    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(log_dir))
 
     screenshot_dir = join(DIR, 'screenshot')
     if exists(screenshot_dir):
