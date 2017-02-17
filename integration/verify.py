@@ -206,7 +206,7 @@ def test_certbot_cli(app_dir):
 
 def test_external_https_mode_with_certbot(public_web_session):
 
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+    response = public_web_session.get('http://localhost/rest/access/set_protocol',
                                       params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
@@ -231,25 +231,25 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     email, password, domain, app_archive_path = auth
  
-    response = public_web_session.get('http://localhost/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/rest/access/protocol')
     assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+    response = public_web_session.get('http://localhost/rest/access/set_protocol',
                                       params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/rest/access/protocol')
     assert '"protocol": "https"' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
+    response = public_web_session.get('http://localhost/rest/access/set_protocol',
                                       params={'protocol': 'http'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/protocol')
+    response = public_web_session.get('http://localhost/rest/access/protocol')
     assert '"protocol": "http"' in response.text
     assert response.status_code == 200
 
