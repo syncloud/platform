@@ -1,25 +1,15 @@
 var backend = {
     login: function(parameters) {
-        var values = parameters.values;
-        $.post("/rest/login", values)
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
     }
+
+//    login: function(parameters) {
+//        setTimeout(function() {
+//            parameters.always();
+//            parameters.fail(400, {parameters_messages: [{parameter: "name", messages: ["Login name can't be empty"]}]});
+//        }, 2000);
+//    }
+
 }

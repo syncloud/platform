@@ -1,332 +1,179 @@
 var backend = {
+    device_data: {
+      "device_domain": "test.syncloud.it",
+      "success": true
+    },
+
+    access_data: {
+      "data": {
+        "external_access": true,
+        "protocol": "https"
+      },
+      "success": true
+    },
+
+    versions_data: {
+      "data": [
+        {
+          "app": {
+            "id": "platform",
+            "name": "Platform",
+            "required": true,
+            "ui": false,
+            "url": "http://platform.odroid-c2.syncloud.it"
+          },
+          "current_version": "880",
+          "installed_version": "876"
+        },
+        {
+          "app": {
+            "id": "sam",
+            "name": "Syncloud App Manager",
+            "required": true,
+            "ui": false,
+            "url": "http://sam.odroid-c2.syncloud.it"
+          },
+          "current_version": "78",
+          "installed_version": "75"
+        }
+      ],
+      "success": true
+    },
+
+    disks_data: {
+      "disks": [
+        {
+          "name": "My Passport 0837",
+          "partitions": [
+            {
+              "active": true,
+              "device": "/dev/sdb1",
+              "fs_type": "ntfs",
+              "mount_point": "/opt/disk/external",
+              "mountable": true,
+              "size": "931.5G"
+            }
+          ]
+        },
+        {
+          "name": "My Passport 0990",
+          "partitions": [
+            {
+              "active": false,
+              "device": "/dev/sdc1",
+              "fs_type": "ntfs",
+              "mount_point": "",
+              "mountable": true,
+              "size": "931.5G"
+            }
+          ]
+        }
+      ],
+      "success": true
+    },
+
+    boot_disk_data: {
+      "data": {
+          "device": "/dev/mmcblk0p2",
+          "size": "16G"
+        },
+      "success": true
+    },
+
     device_url: function(parameters) {
-        $.get('/rest/settings/device_domain')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.device_data);
+        }, 2000);
     },
 
     send_logs: function(parameters) {
-        $.get('/rest/send_log')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
     },
 
     reactivate: function() {
-        var internal_web = (new URI()).port(81).directory("").filename("").query("");
-        window.location.href = internal_web;
+        window.location.href = "activate.html";
     },
 
     check_access: function(parameters) {
-        $.get('/rest/settings/access')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.access_data);
+        }, 2000);
     },
 
     external_access: function(parameters) {
-        var state = parameters.state;
-        $.get('/rest/settings/set_external_access?external_access=' + state)
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            that.access_data.data.external_access = parameters.state;
+            if (!that.access_data.data.external_access) {
+                that.access_data.data.protocol = "http";
+            }
+            success_callbacks(parameters);
+        }, 2000);
     },
 
     protocol: function(parameters) {
-        var new_protocol = parameters.new_protocol;
-        $.get('/rest/settings/set_protocol?protocol=' + new_protocol)
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            that.access_data.data.protocol = parameters.new_protocol;
+            success_callbacks(parameters);
+        }, 2000);
     },
 
     get_versions: function(parameters) {
-        $.get('/rest/settings/versions')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.versions_data);
+        }, 2000);
     },
 
     check_versions: function(parameters) {
-        $.get('/rest/check')
-            .done(function (data) {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("done")) {
-                        parameters.done(data);
-                    }
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
-            });
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
     },
 
     platform_upgrade: function(parameters) {
-        $.get('/rest/settings/system_upgrade')
-            .done(function (data) {
-                check_for_service_error(data, parameters, function() {
-                    run_after_sam_is_complete(function() {
-                        if (parameters.hasOwnProperty("done")) {
-                            parameters.done(data);
-                        }
-                    });    
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
-            });
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
+    },
+
+    boot_extend: function(parameters) {
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
     },
 
     sam_upgrade: function(parameters) {
-        $.get('/rest/settings/sam_upgrade')
-            .done(function (data) {
-                check_for_service_error(data, parameters, function() {
-                    run_after_sam_is_complete(function () {
-                        if (parameters.hasOwnProperty("done")) {
-                            parameters.done(data);
-                        }
-                    });
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
-            });
+        setTimeout(function() {
+            success_callbacks(parameters);
+        }, 2000);
     },
 
     update_disks: function(parameters) {
-        $.get('/rest/settings/disks')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.disks_data);
+        }, 2000);
     },
 
     update_boot_disk: function(parameters) {
-        $.get('/rest/settings/boot_disk')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.boot_disk_data);
+        }, 2000);
     },
 
     disk_action: function(parameters) {
-        var disk_device = parameters.disk_device;
-        var is_activate = parameters.is_activate;
-        var mode = is_activate ? "disk_activate" : "disk_deactivate";
-        $.get('/rest/settings/' + mode, {device: disk_device})
-            .done(function (data) {
-                check_for_service_error(data, parameters, function() {
-                    if (parameters.hasOwnProperty("done")) {
-                        parameters.done(data);
-                    }
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
-    },
-    
-    boot_extend: function(parameters) {
-        $.get('/rest/settings/boot_extend')
-            .done(function (data) {
-                run_after_boot_extend_is_complete(function() {
-                    if (parameters.hasOwnProperty("done")) {
-                        parameters.done(data);
-                    }
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                run_after_boot_extend_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
-            });
-    }  
+        var that = this;
+        setTimeout(function() {
+            that.disks_data
+            success_callbacks(parameters);
+        }, 2000);
+    }
+
 };

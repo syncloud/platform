@@ -177,3 +177,18 @@ var backend = {
     }
 
 };
+
+    port_mapper_data: {
+        "data": {
+            "port_mapper_working": true
+        },
+        "success": true
+    },
+
+    access_change: function(parameters) {
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.port_mapper_data);
+        }, 2000);
+    }
+}

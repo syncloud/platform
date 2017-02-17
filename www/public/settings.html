@@ -96,8 +96,11 @@
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
 						</div>
 					</div>
+					<div class="setline">
+						<button class="buttonblue bwidth smbutton" id="btn_access_change">Change</button>
+					</div>
 					<h3>Storage</h3>
-                    <div id="block_boot_disk">
+					<div id="block_boot_disk">
 					</div>
 					<div id="block_disks">
 					</div>
@@ -445,6 +448,10 @@ function ui_check_boot_disk(callback) {
 		});
 }
 
+function ui_access_change() {
+    window.location.href = "access.html";
+}
+
 $(document).ready(function () {
 
     $("#btn_check_updates").on('click', function () {
@@ -457,6 +464,10 @@ $(document).ready(function () {
 
     $("#btn_reactivate").on('click', function () {
     		backend.reactivate();
+    });
+
+    $("#btn_access_change").on('click', function () {
+    		ui_access_change();
     });
 
     $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {

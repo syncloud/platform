@@ -6,7 +6,6 @@
 	<meta name="author" content="syncloud.org">
 	<meta name="description" content="Your Personal Server">
 	<meta name="keywords" content="Your Personal Server">
-	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 	<meta name="HandheldFriendly" content="true" />
 	<meta name="MobileOptimized" content="width" />
@@ -28,7 +27,8 @@
     <link href="css/bootstrap-switch.min.css" rel="stylesheet">
     <link href="css/font-awesome.css" rel="stylesheet">
 
-	</head>	
+	</head>
+	</head>
 <body>
 <div class="wrapper">
 	<div class="content">
@@ -95,6 +95,41 @@
 				<div class="col2">
 
 				</div>
+
+			<div class="col2">
+				<div class="setline">
+					<span class="span">Your device is not accessible from outside of your local network.</span>
+					<span class="span">Activate external access to use your device through Internet.</span>
+				</div>
+				<div class="setline">
+					<button class="buttongreen bwidth smbutton btn-lg" id="btn_start">Start</button>
+				</div>
+
+				<div id="step_mapper_info" class="setline" style="display: none">
+					<div class="setline">
+						<span>1. First of all let's check if port mapper works on your router.</span>
+					</div>
+					<div class="setline">
+						<button class="buttonblue bwidth smbutton btn-lg" id="btn_mapper_check" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Checking port mapper...">Check port mapper</button>
+					</div>
+				</div>
+				<div id="step_mapper_result" class="setline" style="display: none">
+					<span id="txt_mapper_result">1. Port mapper is working.</span>
+				</div>
+
+				<div id="step_protocol_info" class="setline" style="display: none">
+					<div class="setline">
+						<span>2. Select protocol that you want to use for accessing your device.</span>
+					</div>
+					<div class="setline">
+						<button class="buttonblue bwidth smbutton btn-lg" id="btn_protocol_http">HTTP</button>
+						<button class="buttonblue bwidth smbutton btn-lg" id="btn_protocol_https">HTTPS</button>
+					</div>
+				</div>
+				<div id="step_protocol_result" class="setline" style="display: none">
+					<span id="txt_protocol_result">2. HTTP access is enabled on port blah.</span>
+				</div>
+
 
 			</div>
 		</div>
@@ -203,6 +238,45 @@ $(document).ready(function () {
 
     ui_check_access();
     
+
+function ui_start() {
+		var btn = $("#btn_start");
+		$("#btn_start").text("Start over");
+
+		$("#step_mapper_info").hide();
+		$("#step_mapper_result").hide();
+
+		$("#step_protocol_info").hide();
+		$("#step_protocol_result").hide();
+
+		$("#step_mapper_info").show();
+}
+
+function ui_mapper_check() {
+		var btn = $("#btn_mapper_check");
+		btn.button('loading');
+		backend.access_change({
+				always: function() {
+						btn.button('reset');
+						$("#step_mapper_info").hide();
+						$("#step_mapper_result").show();
+
+						$("#step_protocol_info").show();
+				}
+		});
+}
+
+
+$(document).ready(function () {
+
+    $("#btn_start").on('click', function () {
+    		ui_start();
+    });
+
+    $("#btn_mapper_check").on('click', function () {
+    		ui_mapper_check();
+    });
+
 });
 
 </script>

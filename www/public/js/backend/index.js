@@ -1,24 +1,23 @@
 var backend = {
+    apps_data: {
+      "apps": [
+        {
+          "id": "owncloud",
+          "name": "ownCloud",
+          "icon": "penguin.png",
+          "url": "http://owncloud.odroid-c2.syncloud.it"
+        }
+      ]
+    },
+
+//    apps_data: {
+//      "apps": []
+//    },
+
     installed_apps: function(parameters) {
-        $.get( '/rest/installed_apps')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+        var that = this;
+        setTimeout(function() {
+            success_callbacks(parameters, that.apps_data);
+        }, 2000);
     }
 }
