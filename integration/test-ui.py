@@ -13,7 +13,6 @@ DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
-log_dir = join(LOG_DIR, 'log')
 
 
 def test_web_with_selenium(user_domain):
@@ -25,8 +24,7 @@ def test_web_with_selenium(user_domain):
     caps["binary"] = "/usr/bin/firefox"
 
     profile = webdriver.FirefoxProfile()
-    #profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
-    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(log_dir))
+    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
 
     screenshot_dir = join(DIR, 'screenshot')
     if exists(screenshot_dir):

@@ -76,13 +76,13 @@ def ssh_env_vars(installer):
 
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir):
+    os.mkdir(LOG_DIR)
     global DATA_DIR
     DATA_DIR=data_dir
     request.addfinalizer(module_teardown)
 
 
 def module_teardown():
-    os.mkdir(LOG_DIR)
     run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), password=LOGS_SSH_PASSWORD)
     run_scp('root@localhost:/var/log/sam.log {1}'.format(DATA_DIR, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
