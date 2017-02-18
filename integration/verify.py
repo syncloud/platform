@@ -76,7 +76,6 @@ def ssh_env_vars(installer):
 
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir):
-    os.mkdir(LOG_DIR)
     global DATA_DIR
     DATA_DIR=data_dir
     request.addfinalizer(module_teardown)
@@ -97,6 +96,7 @@ def module_teardown():
 
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+    os.mkdir(LOG_DIR)
 
 
 def test_install(auth, installer):
