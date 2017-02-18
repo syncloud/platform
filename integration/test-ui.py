@@ -25,6 +25,10 @@ def test_web_with_selenium(user_domain):
     caps['loggingPrefs'] = {'browser': 'ALL'}
 
     profile = webdriver.FirefoxProfile()
+    profile.add_extension('JSErrorCollector.xpi')
+
+
+
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
 
     screenshot_dir = join(DIR, 'screenshot')
@@ -62,8 +66,7 @@ def test_web_with_selenium(user_domain):
     time.sleep(5)
     driver.get_screenshot_as_file(join(screenshot_dir, 'access.png'))
 
-    logs = driver.get_log('browser')
-    for log in logs:
-        print(log)
+    print(driver.execute_script('return window.JSErrorCollector_errors.pump()'))
+
 
 
