@@ -25,7 +25,7 @@ def test_web_with_selenium(user_domain):
     caps['loggingPrefs'] = {'browser': 'ALL'}
 
     profile = webdriver.FirefoxProfile()
-    profile.add_extension(join(DIR, 'JSErrorCollector.xpi'))
+    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
 
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
 
