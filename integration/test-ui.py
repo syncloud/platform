@@ -22,6 +22,7 @@ def test_web_with_selenium(user_domain):
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
     caps["binary"] = "/usr/bin/firefox"
+    caps['loggingPrefs'] = {'browser': 'ALL'}
 
     profile = webdriver.FirefoxProfile()
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
@@ -60,4 +61,9 @@ def test_web_with_selenium(user_domain):
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(5)
     driver.get_screenshot_as_file(join(screenshot_dir, 'access.png'))
+
+    logs = driver.get_log('browser')
+    for log in logs:
+        print(log)
+
 
