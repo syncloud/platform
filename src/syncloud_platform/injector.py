@@ -32,7 +32,7 @@ from syncloud_platform.control.tls import Tls
 from syncloud_platform.disks.udev import Udev
 from syncloud_platform.application.apppaths import AppPaths
 from syncloud_platform.versions import Versions
-from syncloud_platform.network import Network
+from syncloud_platform.network.network import Network
 
 default_injector = None
 
