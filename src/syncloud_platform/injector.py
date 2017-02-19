@@ -32,6 +32,7 @@ from syncloud_platform.control.tls import Tls
 from syncloud_platform.disks.udev import Udev
 from syncloud_platform.application.apppaths import AppPaths
 from syncloud_platform.versions import Versions
+from syncloud_platform.network import Network
 
 default_injector = None
 
@@ -97,7 +98,7 @@ class Injector:
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger,
                                  self.lsblk, self.path_checker, self.systemctl)
-
+        self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam,
-                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator, self.port_mapper_factory)
+                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator, self.port_mapper_factory, self.network)
         self.udev = Udev(self.platform_config)

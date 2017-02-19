@@ -8,7 +8,7 @@ from syncloud_platform.sam.stub import SAM_BIN_SHORT
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator, port_mapper_factory):
+    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator, port_mapper_factory, network):
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
@@ -21,6 +21,7 @@ class Public:
         self.log_aggregator = log_aggregator
         self.certbot_generator = certbot_generator
         self.port_mapper_factory = port_mapper_factory
+        self.network=network
         self.resize_script = self.platform_config.get_boot_extend_script()
 
     def domain(self):
@@ -114,3 +115,6 @@ class Public:
         if mapper:
             return dict(enabled=True, message=mapper.name())
         return dict(enabled=False, message='your router does not have Port Mapping feature enabled')
+
+    def network_interfaces(self):
+        return self.network.interfaces()

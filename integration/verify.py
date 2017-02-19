@@ -219,8 +219,14 @@ def test_show_https_certificate():
 
 
 def test_port_mapper(public_web_session):
-
     response = public_web_session.get('http://localhost/rest/access/port_mapper')
+    print(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
+def test_network_interfaces(public_web_session):
+    response = public_web_session.get('http://localhost/rest/access/network_interfaces')
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
