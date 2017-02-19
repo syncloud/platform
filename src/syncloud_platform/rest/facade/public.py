@@ -110,7 +110,7 @@ class Public:
         self.certbot_generator.generate_certificate()
 
     def port_mapper(self):
-        mapper = self.port_mapper_factory.port_mapper()
+        mapper = self.port_mapper_factory.provide_mapper()
         if mapper:
             return dict(enabled=True, message=mapper.name())
         return dict(enabled=False, message='your router does not have Port Mapping feature enabled')
