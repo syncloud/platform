@@ -7,7 +7,7 @@ class Address:
         self.ipv6=ipv6
 
 class Network:
-    def addresses(self):
+    def interfaces(self):
         ifaces=netifaces.interfaces()
         return [self.__convert(iface) for iface in ifaces]
 
