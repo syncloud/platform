@@ -97,7 +97,7 @@ class UpnpPortMapper:
         self.upper_limit = upper_limit
 
     def name(self):
-        return 'UpnpPortMapper'
+        return 'UPnP'
 
     def upnpc(self):
         self.upnp_client.init()

@@ -218,6 +218,14 @@ def test_show_https_certificate():
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
+def test_port_mapper(public_web_session):
+
+    response = public_web_session.get('http://localhost/rest/access/port_mapper')
+    print(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_hook_override(public_web_session, conf_dir, service_prefix):
 
     run_ssh("sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir), password=DEVICE_PASSWORD)
