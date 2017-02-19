@@ -1,7 +1,7 @@
 import netifaces
 
 class Address:
-    def __init__(self, card, ipv4, ipv6);
+    def __init__(self, card, ipv4, ipv6):
         self.card=card
         self.ipv4=ipv4
         self.ipv6=ipv6
