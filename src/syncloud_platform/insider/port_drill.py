@@ -107,7 +107,7 @@ class NonePortDrill:
 
 
 class PortDrillFactory:
-    def __init__(self, user_platform_config, port_config, nat_pmp_port_mapper_factory):
+    def __init__(self, user_platform_config, port_config, port_mapper_factory):
         self.port_config = port_config
         self.user_platform_config = user_platform_config
         self.port_mapper_factory = port_mapper_factory
