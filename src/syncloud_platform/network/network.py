@@ -9,8 +9,7 @@ class Address:
 class Network:
     def addresses(self):
         ifaces=netifaces.interfaces()
-        return [self
- __convert(iface) for iface in ifaces]
+        return [self.__convert(iface) for iface in ifaces]
 
     def __convert(self, iface):
         addrs=netifaces.ifaddresses(iface)
