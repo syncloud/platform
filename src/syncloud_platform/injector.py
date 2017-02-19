@@ -14,6 +14,7 @@ from syncloud_platform.insider.device_info import DeviceInfo
 from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.port_drill import PortDrillFactory
+from syncloud_platform.insider.port_mapper_factory import PortMapperFactory
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.log.aggregator import Aggregator
@@ -72,8 +73,8 @@ class Injector:
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()
         self.upnp_port_mapper = UpnpPortMapper(UPnP())
-        self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
-                                                   self.nat_pmp_port_mapper, self.upnp_port_mapper)
+        self.port_mapper_factory = PortMapperFactory(self.nat_pmp_port_mapper, self.upnp_port_mapper)
+        self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config, self.port_mapper_factory)
         self.info = DeviceInfo(self.user_platform_config, self.port_config)
         if self.platform_config.get_installer() == 'sam':
             self.sam = SamStub(self.platform_config, self.info)
