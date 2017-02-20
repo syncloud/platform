@@ -38,11 +38,13 @@ def test_web_with_selenium(user_domain):
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'activate.png'))
+    print(driver.execute_script('return window.JSErrorCollector_errors.pump()'))
 
     driver.get("http://{0}".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
+    print(driver.execute_script('return window.JSErrorCollector_errors.pump()'))
 
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
@@ -53,18 +55,19 @@ def test_web_with_selenium(user_domain):
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
 
     driver.get_screenshot_as_file(join(screenshot_dir, 'index.png'))
+    assert not driver.execute_script('return window.JSErrorCollector_errors.pump()')
 
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'settings.png'))
+    assert not driver.execute_script('return window.JSErrorCollector_errors.pump()')
 
     driver.get("http://{0}/access.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(5)
     driver.get_screenshot_as_file(join(screenshot_dir, 'access.png'))
-
-    print(driver.execute_script('return window.JSErrorCollector_errors.pump()'))
+    assert not driver.execute_script('return window.JSErrorCollector_errors.pump()')
 
 
 

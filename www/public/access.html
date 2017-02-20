@@ -239,8 +239,9 @@ function ui_toggle_protocol() {
 }
 
 function ui_check_network() {
-		backend.update_network({
-				done: ui_display_network
+		backend.network_interfaces({
+				done: ui_display_network,
+				fail: ui_display_error
 		});
 }
 
