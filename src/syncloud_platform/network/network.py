@@ -11,14 +11,7 @@ class Network:
 
     def __convert(self, iface):
         addrs=netifaces.ifaddresses(iface)
-        ipv4=self.__addr(addrs[netifaces.AF_INET])
-        self.log.info(addrs[netifaces.AF_INET])
-        ipv6=self.__addr(addrs[netifaces.AF_INET6])
-        self.log.info(addrs[netifaces.AF_INET6])
+        ipv4=addrs[netifaces.AF_INET]
+        ipv6=addrs[netifaces.AF_INET6]
         return dict(iface=iface, ipv4=ipv4, ipv6=ipv6)
-
-    def __addr(self, info):
-        if 'addr' in info:
-            return info['addr']
-        return None
 
