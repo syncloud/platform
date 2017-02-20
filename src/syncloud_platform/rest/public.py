@@ -156,7 +156,7 @@ def port_mapper():
 @app.route(rest_prefix + "/access/network_interfaces", methods=["GET"])
 @login_required
 def network_interfaces():
-    return jsonify(success=True, data=public.network_interfaces()), 200
+    return jsonify(success=True, data=dict(interfaces=public.network_interfaces())), 200
 
 
 @app.route(rest_prefix + "/access/external_access", methods=["GET"])
