@@ -14,11 +14,11 @@ var backend = {
                 if (parameters.hasOwnProperty("fail")) {
                     parameters.fail(xhr.status, error);
                 }
-            });
+            })
             .always(function() {
                 if (parameters.hasOwnProperty("always")) {
                     parameters.always();
                 }
             });
     }
-}
+};

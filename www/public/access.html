@@ -76,17 +76,16 @@
 
 				<div class="col2">
 
-					<h3>Info</h3>
-         <div class="setline">
-						<span class="span"> Network info: </span>
-           <div id="block_network"></div>
-					</div>
-					
+					<h3>Network info</h3>
+                    <div class="setline">
+                        <div id="block_network"></div>
+                    </div>
+
 				</div>
 
 				<div class="col2">
 
-         <h3>Access</h3>
+                    <h3>Access</h3>
 					<div class="setline">
 						<span class="span">External Access:</span>
 						<div class="spandiv">
@@ -139,30 +138,81 @@
 		if (interfaces.length == 0) {
     %>
 
-		<span class="span">No network found</span>
+		<span class="span">No networks found</span>
 
     <% } %>
 
     <%
     for (i=0; i < interfaces.length; i++) {
-				var interface = interfaces[i];
+        var interface = interfaces[i];
     %>
 
-		<div class="setline">
-				<span class="span"><%= interface.name %></span>
-    </div>
+        <div class="setline">
+				<span class="span">Network IPv4 (<%= interface.name %>): </span>
 
-    <%
-				ipv4_adressess = interface.ipv4;
-				for (j=0; j < ipv4_adressess.length; j++) {
-				var ipv4 = ipv4_adressess[j];
-    %>
+            <%
+                if (interface.ipv4) {
+            %>
 
-		<div class="setline">
-				<span class="span"><%=ipv4.addr %> 
-		</div>
+                <%
+                    addresses = interface.ipv4;
+                    for (j=0; j < addresses.length; j++) {
+                        var address = addresses[j];
+                %>
 
-    <% } %>
+                    <%
+                        if (j > 0) {
+                    %>
+
+                        <span class="span">, </span>
+
+                    <% } %>
+
+
+                    <span class="span"><%=address.addr %></span>
+
+                <% } %>
+
+            <% } else {  %>
+
+                <span class="span">No IPv6</span>
+
+            <% } %>
+
+        </div>
+        <div class="setline">
+				<span class="span">Network IPv6 (<%= interface.name %>): </span>
+
+            <%
+                if (interface.ipv6) {
+            %>
+
+                <%
+                    addresses = interface.ipv6;
+                    for (j=0; j < addresses.length; j++) {
+                        var address = addresses[j];
+                %>
+
+                    <%
+                        if (j > 0) {
+                    %>
+
+                        <span class="span">, </span>
+
+                    <% } %>
+
+
+                    <span class="span"><%=address.addr %></span>
+
+                <% } %>
+
+            <% } else {  %>
+
+                <span class="span">No IPv6</span>
+
+            <% } %>
+
+        </div>
 
     <% } %>
 </script>
@@ -187,7 +237,7 @@ ui_display_toggles();
 
 function ui_display_network(data) {
 		var template = $("#template-network").html();
-		$("#block_network").html(_.template(template)(data));
+		$("#block_network").html(_.template(template)(data.data));
 }
 
 function ui_display_access(data) {
