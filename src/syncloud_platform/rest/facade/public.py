@@ -113,9 +113,14 @@ class Public:
     def port_mapper(self):
         enabled = self.user_platform_config.get_upnp()
         mapper = self.port_mapper_factory.provide_mapper()
-        if mapper:
-            return dict(available=True, enabled=enabled, message='Your router has {} enabled'.format( mapper.name()))
-        return dict(available=False, enabled=enabled, message='your router does not have Port Mapping feature enabled')
+        available = mapper is not None
+
+        if available:
+            message = 'Your router has {} enabled'.format(mapper.name())
+        else:
+            message = 'Your router does not have port mapping feature enabled at the moment'
+
+        return dict(available=available, enabled=enabled, message=message)
 
     def network_interfaces(self):
         return self.network.interfaces()

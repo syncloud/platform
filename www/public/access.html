@@ -83,18 +83,18 @@
 
 				</div>
 
-       <div class="col2">
+                <div class="col2">
 
 					<h3>Router</h3>
-         <div class="setline">
-						<span class="span">Auto port mapping:</span>
+                    <div class="setline">
+						<span class="span">Prefer auto port mapping when available:</span>
 						<div class="spandiv">
 							<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
 						</div>
 					</div>
 
-         <div class="setline">
+                    <div class="setline">
 						<span class="span" id="label_upnp"></span>
 					</div>
 
@@ -253,51 +253,64 @@ function ui_display_toggles() {
 ui_display_toggles();
 
 function ui_display_network(data) {
-		var template = $("#template-network").html();
-		$("#block_network").html(_.template(template)(data.data));
+    var template = $("#template-network").html();
+    $("#block_network").html(_.template(template)(data.data));
 }
 
 function ui_display_upnp(data) {
-		var upnp_data = data.data;
-		$('#tgl_upnp').bootstrapSwitch('state', upnp_data.enabled, true)
-		$('#tgl_upnp').bootstrapSwitch('disabled', false);
-		$("#tgl_upnp_loading").removeClass('opacity-visible');
-    	$("#label_upnp").html(upnp_data.message);
-    
+    var upnp_data = data.data;
+    $('#tgl_upnp').bootstrapSwitch('disabled', false);
+    $('#tgl_upnp').bootstrapSwitch('state', upnp_data.enabled, true);
+    $("#tgl_upnp_loading").removeClass('opacity-visible');
+    $("#label_upnp").html(upnp_data.message);
+    if (upnp_data.available) {
+        $("#label_upnp").css("color", "black");
+    } else {
+        $("#label_upnp").css("color", "red");
+    }
+
 }
 
 function ui_display_access(data) {
-		var access_data = data.data;
-		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
-		$('#tgl_external').bootstrapSwitch('disabled', false);
-		$("#tgl_external_loading").removeClass('opacity-visible');
-		var https_enabled = access_data.protocol === 'https';
-		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
-		$('#tgl_protocol').bootstrapSwitch('disabled', false);
-		$("#tgl_protocol_loading").removeClass('opacity-visible');
+    var access_data = data.data;
+    $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
+    $('#tgl_external').bootstrapSwitch('disabled', false);
+    $("#tgl_external_loading").removeClass('opacity-visible');
+    var https_enabled = access_data.protocol === 'https';
+    $('#tgl_protocol').bootstrapSwitch('state', https_enabled, true);
+    $('#tgl_protocol').bootstrapSwitch('disabled', false);
+    $("#tgl_protocol_loading").removeClass('opacity-visible');
 }
 
 function disable_access_controls() {
-		$('#tgl_external').bootstrapSwitch('disabled', true);
-		$('#tgl_protocol').bootstrapSwitch('disabled', true);
+    $('#tgl_external').bootstrapSwitch('disabled', true);
+    $('#tgl_protocol').bootstrapSwitch('disabled', true);
 }
 
 function ui_check_access() {
-		backend.check_access({
-				done: ui_display_access,
-				fail: ui_display_error
-		});
+    disable_access_controls();
+
+    $("#tgl_external_loading").addClass('opacity-visible');
+    $("#tgl_protocol_loading").addClass('opacity-visible');
+
+    backend.check_access({
+            done: ui_display_access,
+            fail: ui_display_error
+    });
 }
 
 function ui_check_upnp() {
-		backend.check_upnp({
-				done: ui_display_upnp,
-				fail: ui_display_error
-		});
+    $('#tgl_upnp').bootstrapSwitch('disabled', true);
+    $("#tgl_upnp_loading").addClass('opacity-visible');
+
+    backend.check_upnp({
+            done: ui_display_upnp,
+            fail: ui_display_error
+    });
 }
 
 function ui_toggle_external_access() {
-		var toggle = $("#tgl_external")
+		var toggle = $("#tgl_external");
 		var state = toggle.bootstrapSwitch('state');
 		disable_access_controls();
 		$("#tgl_external_loading").addClass('opacity-visible');

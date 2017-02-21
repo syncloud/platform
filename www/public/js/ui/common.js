@@ -27,6 +27,8 @@ function hide_fields_errors(form) {
 function ui_display_error(status, error) {
     if (status === 401) {
         window.location.href = "login.html";
+    } else if (status === 0) {
+        console.log('user navigated away from the page');
     } else {
         if (error) {
             if ('parameters_messages' in error) {
