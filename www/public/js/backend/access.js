@@ -70,6 +70,30 @@ var backend = {
             });
     },
 
+    check_upnp: function(parameters) {
+        var state = parameters.state;
+        $.get('/rest/access/port_mapper')
+            .done(function (data) {
+                if (parameters.hasOwnProperty("done")) {
+                    parameters.done(data);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                var error = null;
+                if (xhr.hasOwnProperty('responseJSON')) {
+                    var error = xhr.responseJSON;
+                }
+                if (parameters.hasOwnProperty("fail")) {
+                    parameters.fail(xhr.status, error);
+                }
+            })
+            .always(function() {
+                if (parameters.hasOwnProperty("always")) {
+                    parameters.always();
+                }
+            });
+    },
+
     protocol: function(parameters) {
         var new_protocol = parameters.new_protocol;
         $.get('/rest/access/set_protocol?protocol=' + new_protocol)
