@@ -111,10 +111,11 @@ class Public:
         self.certbot_generator.generate_certificate()
 
     def port_mapper(self):
+        enabled = self.user_platform_config.get_upnp()
         mapper = self.port_mapper_factory.provide_mapper()
         if mapper:
-            return dict(enabled=True, message=mapper.name())
-        return dict(enabled=False, message='your router does not have Port Mapping feature enabled')
+            return dict(available=True, enabled=enabled, message='Your router has {} enabled'.format( mapper.name()))
+        return dict(available=False, enabled=enabled, message='your router does not have Port Mapping feature enabled')
 
     def network_interfaces(self):
         return self.network.interfaces()

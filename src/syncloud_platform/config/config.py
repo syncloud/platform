@@ -237,6 +237,17 @@ class PlatformUserConfig:
         self.__set('platform', 'protocol', protocol)
         self.__save()
 
+    def get_upnp(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'upnp'):
+            return True
+        return self.parser.get('platform', 'upnp')
+
+    def set_upnp(self, enabled):
+        self.parser.read(self.filename)
+        self.__set('platform', 'upnp', enabled)
+        self.__save()
+
     def get_port_drilling_enabled(self):
         self.parser.read(self.filename)
         port_drilling_enabled = True
