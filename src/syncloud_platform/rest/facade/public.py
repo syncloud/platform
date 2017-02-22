@@ -119,7 +119,7 @@ class Public:
             message = 'Your router has {0} enabled, public ip: {1}'.format(mapper.name(),  mapper.external_ip())
         else:
             message = 'Your router does not have port mapping feature enabled at the moment'
-        manual_public_ip = self.platforn_user_config.public_ip()
+        manual_public_ip = self.platforn_user_config.get_public_ip()
         return dict(available=available, enabled=enabled, message=message, public_ip = manual_public_ip)
 
     def network_interfaces(self):
