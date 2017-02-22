@@ -115,13 +115,12 @@ class Public:
         enabled = self.user_platform_config.get_upnp()
         mapper = self.port_mapper_factory.provide_mapper()
         available = mapper is not None
-
         if available:
-            message = 'Your router has {} enabled'.format(mapper.name())
+            message = 'Your router has {0} enabled, public ip: {1}'.format(mapper.name(),  mapper.external_ip())
         else:
             message = 'Your router does not have port mapping feature enabled at the moment'
-
-        return dict(available=available, enabled=enabled, message=message, public_ip=self.platforn_user_config.public_ip())
+        manual_public_ip = self.platforn_user_config.public_ip()
+        return dict(available=available, enabled=enabled, message=message, public_ip = manual_public_ip)
 
     def network_interfaces(self):
         return self.network.interfaces()

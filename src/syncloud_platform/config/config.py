@@ -251,12 +251,12 @@ class PlatformUserConfig:
     def get_public_ip(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'public_ip'):
-            return True
+            return None
         return self.parser.get('platform', 'public_ip')
 
     def set_public_ip(self, public_ip):
         self.parser.read(self.filename)
-        self.__set('platform', "public_ip', public_ip)
+        self.__set('platform', 'public_ip', public_ip)
         self.__save()
 
 
