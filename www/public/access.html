@@ -92,6 +92,14 @@
 							<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
 						</div>
+
+               <div class="spandiv">
+
+                 Public address: <input placeholder="Public IP" class="nameinput" name="public_ip" id=" public_ip " type="text">:
+                 <input placeholder="Port" class="nameinput" name="public_port" id=" public_port " type="text">
+
+               </div>
+
 					</div>
 
                     <div class="setline">
@@ -268,6 +276,8 @@ function ui_display_upnp(data) {
     } else {
         $("#label_upnp").css("color", "red");
     }
+    $("#public_ip").html(upnp_data.public_ip);
+    $("#public_port").html(upnp_data.public_port);
 
 }
 
