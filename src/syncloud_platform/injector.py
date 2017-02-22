@@ -100,5 +100,5 @@ class Injector:
                                  self.lsblk, self.path_checker, self.systemctl)
         self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam,
-                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator, self.port_mapper_factory, self.network, self.user_platforn_config )
+                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator, self.port_mapper_factory, self.network, self.user_platform_config )
         self.udev = Udev(self.platform_config)
