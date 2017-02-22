@@ -256,7 +256,7 @@ class PlatformUserConfig:
 
     def set_public_ip(self, public_ip):
         self.parser.read(self.filename)
-        self.__set('platform', "public_ip', public_ip
+        self.__set('platform', "public_ip', public_ip)
         self.__save()
 
 
