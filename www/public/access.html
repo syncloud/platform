@@ -363,6 +363,24 @@ $(document).ready(function () {
             event.preventDefault();
             ui_toggle_protocol();
     });
+    
+    $("#btn_save").click(function ( event ) {
+        event.preventDefault();
+        
+        var protocol_toggle = $("#tgl_protocol");
+		     var protocol_state = toggle.bootstrapSwitch('state');
+		     var new_protocol = state ? 'https' : 'http';
+
+        this.button('loading');
+        backend.external_access({
+        		use_upnp: use_upnp,
+        		protocol: protocol,
+        		public_ip: public_ip,
+        		public_port: public_port,
+        		done: ui_check_access,
+        		fail: ui_display_error
+        });
+    });
 
     ui_check_access();
     ui_check_network();
