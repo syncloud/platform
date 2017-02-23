@@ -1,113 +1,55 @@
 var backend = {
-    device_data: {
-      "device_domain": "test.syncloud.it",
-      "success": true
-    },
 
     access_data: {
-      "data": {
-        "external_access": true,
-        "protocol": "https"
-      },
-      "success": true
-    },
-
-    versions_data: {
-      "data": [
-        {
-          "app": {
-            "id": "platform",
-            "name": "Platform",
-            "required": true,
-            "ui": false,
-            "url": "http://platform.odroid-c2.syncloud.it"
-          },
-          "current_version": "880",
-          "installed_version": "876"
+        "data": {
+            "external_access": true,
+            "protocol": "https",
+            "upnp": false,
+            "upnp_enabled": true,
+            "message": "Your router does not have port mapping feature enabled at the moment",
+            "public_ip": null
         },
-        {
-          "app": {
-            "id": "sam",
-            "name": "Syncloud App Manager",
-            "required": true,
-            "ui": false,
-            "url": "http://sam.odroid-c2.syncloud.it"
-          },
-          "current_version": "78",
-          "installed_version": "75"
-        }
-      ],
-      "success": true
+        "success": true
     },
 
-    disks_data: {
-      "disks": [
-        {
-          "name": "My Passport 0837",
-          "partitions": [
-            {
-              "active": true,
-              "device": "/dev/sdb1",
-              "fs_type": "ntfs",
-              "mount_point": "/opt/disk/external",
-              "mountable": true,
-              "size": "931.5G"
-            }
-          ]
+    network_interfaces_data: {
+        "data": {
+            "interfaces": [
+                {
+                    "ipv4": [
+                        {
+                            "addr": "172.17.0.2",
+                            "broadcast": "172.17.0.2",
+                            "netmask": "255.255.0.0"
+                        }
+                    ],
+                    "ipv6": [
+                        {
+                            "addr": "fe80::42:acff:fe11:2%eth0",
+                            "netmask": "ffff:ffff:ffff:ffff::"
+                        }
+                    ],
+                    "name": "eth0"
+                }
+            ]
         },
-        {
-          "name": "My Passport 0990",
-          "partitions": [
-            {
-              "active": false,
-              "device": "/dev/sdc1",
-              "fs_type": "ntfs",
-              "mount_point": "",
-              "mountable": true,
-              "size": "931.5G"
-            }
-          ]
-        }
-      ],
-      "success": true
+        "success": true
     },
 
-    boot_disk_data: {
-      "data": {
-          "device": "/dev/mmcblk0p2",
-          "size": "16G"
-        },
-      "success": true
-    },
-
-    device_url: function(parameters) {
+    check_access: function (parameters) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.device_data);
-        }, 2000);
-    },
-
-    send_logs: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    reactivate: function() {
-        window.location.href = "activate.html";
-    },
-
-    check_access: function(parameters) {
-        var that = this;
-        setTimeout(function() {
+        setTimeout(function () {
             success_callbacks(parameters, that.access_data);
         }, 2000);
     },
 
-    external_access: function(parameters) {
+    save_access: function (parameters) {
         var that = this;
-        setTimeout(function() {
-            that.access_data.data.external_access = parameters.state;
+        setTimeout(function () {
+            that.access_data.data.external_access = parameters.access;
+            that.access_data.data.upnp_enabled = parameters.upnp;
+            that.access_data.data.public_ip = parameters.public_ip;
+            that.access_data.data.public_port = parameters.public_port;
             if (!that.access_data.data.external_access) {
                 that.access_data.data.protocol = "http";
             }
@@ -115,65 +57,18 @@ var backend = {
         }, 2000);
     },
 
-    protocol: function(parameters) {
+    protocol: function (parameters) {
         var that = this;
-        setTimeout(function() {
+        setTimeout(function () {
             that.access_data.data.protocol = parameters.new_protocol;
             success_callbacks(parameters);
         }, 2000);
     },
 
-    get_versions: function(parameters) {
+    network_interfaces: function (parameters) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.versions_data);
-        }, 2000);
-    },
-
-    check_versions: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    platform_upgrade: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    boot_extend: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    sam_upgrade: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    update_disks: function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.disks_data);
-        }, 2000);
-    },
-
-    update_boot_disk: function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.boot_disk_data);
-        }, 2000);
-    },
-
-    disk_action: function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            that.disks_data
-            success_callbacks(parameters);
+        setTimeout(function () {
+            success_callbacks(parameters, that.network_interfaces_data);
         }, 2000);
     }
-
 };

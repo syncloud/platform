@@ -76,7 +76,7 @@
 
 				<div class="col2">
 
-					<h3>Network</h3>
+					<h3>Local Info</h3>
                     <div class="setline">
                         <div id="block_network"></div>
                     </div>
@@ -85,25 +85,24 @@
 
                 <div class="col2">
 
-					<h3>Router</h3>
+					<h3>Public Info</h3>
+
+                    <div class="setline">
+                        <span class="span" id="label_upnp"></span>
+                    </div>
+
                     <div class="setline">
 						<span class="span">Always use auto port mapping:</span>
-						<div class="spandiv" style="margin-bottom: 10px">
+						<div class="spandiv">
 							<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
 						</div>
 					</div>
-				 <div class="spandiv">
-						<span class="span" id="label_upnp"></span>
-					</div>
 
-                   <div class="spandiv">
-
-                     Public address: <input placeholder="Public IP" name="public_ip" id=" public_ip " type="text" style="width: 200px; height: 30px">:
-                     <input placeholder="Port" name="public_port" id="public_port " type="text" style="display:inline; width: 100px; height: 30px">
-
-                   </div>
-
+                    <div class="setline" id="public_address">
+                        <span class="span">Public address: </span><input placeholder="Public IP" name="public_ip" id=" public_ip " type="text" style="width: 200px; height: 30px"> :
+                        <input placeholder="Port" name="public_port" id="public_port " type="text" style="display:inline; width: 100px; height: 30px">
+                    </div>
                     
 					<div class="setline">
 						<span class="span">External Access:</span>
@@ -118,12 +117,11 @@
 							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
 						</div>
-						 </div>
-						 <div class="setline">
-						<div class="spandiv">
-						 <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 50px">Save</button>
-						
-						 </div>
+                    </div>
+                    <div class="setline">
+                        <div class="spandiv">
+                            <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
+                        </div>
 					</div>
 
 				</div>
@@ -265,36 +263,37 @@ function ui_display_network(data) {
     $("#block_network").html(_.template(template)(data.data));
 }
 
-function ui_display_upnp(data) {
-    var upnp_data = data.data;
-    $('#tgl_upnp').bootstrapSwitch('disabled', false);
-    $('#tgl_upnp').bootstrapSwitch('state', upnp_data.enabled, true);
-    $("#tgl_upnp_loading").removeClass('opacity-visible');
-    $("#label_upnp").html(upnp_data.message);
-    if (upnp_data.available) {
-        $("#label_upnp").css("color", "black");
-    } else {
-        $("#label_upnp").css("color", "red");
-    }
-    $("#public_ip").html(upnp_data.public_ip);
-    $("#public_port").html(upnp_data.public_port);
-
-}
-
 function ui_display_access(data) {
     var access_data = data.data;
     $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $('#tgl_external').bootstrapSwitch('disabled', false);
     $("#tgl_external_loading").removeClass('opacity-visible');
+
     var https_enabled = access_data.protocol === 'https';
     $('#tgl_protocol').bootstrapSwitch('state', https_enabled, true);
     $('#tgl_protocol').bootstrapSwitch('disabled', false);
     $("#tgl_protocol_loading").removeClass('opacity-visible');
+
+    $('#tgl_upnp').bootstrapSwitch('state', access_data.enabled, true);
+    $('#tgl_upnp').bootstrapSwitch('disabled', false);
+    $("#tgl_upnp_loading").removeClass('opacity-visible');
+    $("#label_upnp").html(access_data.message);
+    if (access_data.available) {
+        $("#label_upnp").css("color", "black");
+    } else {
+        $("#label_upnp").css("color", "red");
+    }
+    $("#public_ip").html(access_data.public_ip);
+    $("#public_port").html(access_data.public_port);
+
+    $("#btn_save").button('reset')
+
 }
 
 function disable_access_controls() {
     $('#tgl_external').bootstrapSwitch('disabled', true);
     $('#tgl_protocol').bootstrapSwitch('disabled', true);
+    $('#tgl_upnp').bootstrapSwitch('disabled', true);
 }
 
 function ui_check_access() {
@@ -302,46 +301,12 @@ function ui_check_access() {
 
     $("#tgl_external_loading").addClass('opacity-visible');
     $("#tgl_protocol_loading").addClass('opacity-visible');
+    $("#tgl_upnp_loading").addClass('opacity-visible');
 
     backend.check_access({
             done: ui_display_access,
             fail: ui_display_error
     });
-}
-
-function ui_check_upnp() {
-    $('#tgl_upnp').bootstrapSwitch('disabled', true);
-    $("#tgl_upnp_loading").addClass('opacity-visible');
-
-    backend.check_upnp({
-            done: ui_display_upnp,
-            fail: ui_display_error
-    });
-}
-
-function ui_toggle_external_access() {
-		var toggle = $("#tgl_external");
-		var state = toggle.bootstrapSwitch('state');
-		disable_access_controls();
-		$("#tgl_external_loading").addClass('opacity-visible');
-		backend.external_access({
-				state: state,
-				always: ui_check_access,
-				fail: ui_display_error
-		});
-}
-
-function ui_toggle_protocol() {
-		var toggle = $("#tgl_protocol");
-		var state = toggle.bootstrapSwitch('state');
-		var new_protocol = state ? 'https' : 'http';
-		disable_access_controls();
-		$("#tgl_protocol_loading").addClass('opacity-visible');
-		backend.protocol({
-				new_protocol: new_protocol,
-				always: ui_check_access,
-				fail: ui_display_error
-		});
 }
 
 function ui_check_network() {
@@ -351,29 +316,28 @@ function ui_check_network() {
 		});
 }
 
-
 $(document).ready(function () {
-
-    $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
-				event.preventDefault();
-				ui_toggle_external_access();
-    });
-
-    $("#tgl_protocol").on('switchChange.bootstrapSwitch', function(event, state) {
-            event.preventDefault();
-            ui_toggle_protocol();
-    });
     
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
         
         var protocol_toggle = $("#tgl_protocol");
-		     var protocol_state = toggle.bootstrapSwitch('state');
-		     var new_protocol = state ? 'https' : 'http';
+        var protocol_state = protocol_toggle.bootstrapSwitch('state');
+        var protocol = protocol_state ? 'https' : 'http';
 
-        this.button('loading');
-        backend.external_access({
-        		use_upnp: use_upnp,
+        var access_toggle = $("#tgl_external");
+		var access = access_toggle.bootstrapSwitch('state');
+
+        var upnp_toggle = $("#tgl_upnp");
+		var upnp = upnp_toggle.bootstrapSwitch('state');
+
+        var public_ip = $("#public_ip").val();
+        var public_port = $("#public_port").val();
+
+        $(this).button('loading');
+        backend.save_access({
+        		upnp: upnp,
+                access: access,
         		protocol: protocol,
         		public_ip: public_ip,
         		public_port: public_port,
@@ -384,8 +348,7 @@ $(document).ready(function () {
 
     ui_check_access();
     ui_check_network();
-    ui_check_upnp();
-    
+
 });
 
 </script>
@@ -395,9 +358,9 @@ $(document).ready(function () {
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
-<script src="js/backend/common.js"></script>
+<script src="js/backend.static/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/access.js"></script>
+<script src="js/backend.static/access.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

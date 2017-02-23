@@ -171,8 +171,7 @@ var backend = {
     disk_action: function(parameters) {
         var that = this;
         setTimeout(function() {
-            that.disks_data
-            success_callbacks(parameters);
+            success_callbacks(parameters, that.disks_data);
         }, 2000);
     }
 
