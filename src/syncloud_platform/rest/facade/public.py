@@ -60,9 +60,19 @@ class Public:
         return [app_from_sam_app(a) for a in self.sam.user_apps()]
 
     def access(self):
+    
+        upnp_enabled = self.user_platform_config.get_upnp()
+        mapper = self.port_mapper_factory.provide_mapper()
+        upnp_available = mapper is not None
+        if upnp_available:
+            upnp_message = 'Your router has {0} enabled, public ip: {1}'.format(mapper.name(),  mapper.external_ip())
+        else:
+            upnp_message = 'Your router does not have port mapping feature enabled at the moment'
+        manual_public_ip = self.platforn_user_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
         protocol = self.user_platform_config.get_protocol()
-        return dict(external_access=external_access, protocol=protocol)
+        return dict( external_access=external_access, protocol=protocol,  upnp_available=upnp_available, upnp_enabled=upnp_enabled, upnp_message=upnp_message, public_ip = manual_public_ip)
+        
 
     def external_access(self):
         return self.user_platform_config.get_external_access()
@@ -111,16 +121,6 @@ class Public:
     def regenerate_certificate(self):
         self.certbot_generator.generate_certificate()
 
-    def port_mapper(self):
-        enabled = self.user_platform_config.get_upnp()
-        mapper = self.port_mapper_factory.provide_mapper()
-        available = mapper is not None
-        if available:
-            message = 'Your router has {0} enabled, public ip: {1}'.format(mapper.name(),  mapper.external_ip())
-        else:
-            message = 'Your router does not have port mapping feature enabled at the moment'
-        manual_public_ip = self.platforn_user_config.get_public_ip()
-        return dict(available=available, enabled=enabled, message=message, public_ip = manual_public_ip)
 
     def network_interfaces(self):
         return self.network.interfaces()

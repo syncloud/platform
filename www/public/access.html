@@ -274,11 +274,11 @@ function ui_display_access(data) {
     $('#tgl_protocol').bootstrapSwitch('disabled', false);
     $("#tgl_protocol_loading").removeClass('opacity-visible');
 
-    $('#tgl_upnp').bootstrapSwitch('state', access_data.enabled, true);
+    $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled, true);
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
     $("#tgl_upnp_loading").removeClass('opacity-visible');
-    $("#label_upnp").html(access_data.message);
-    if (access_data.available) {
+    $("#label_upnp").html(access_data.upnp_message);
+    if (access_data.upnp_available) {
         $("#label_upnp").css("color", "black");
     } else {
         $("#label_upnp").css("color", "red");
@@ -358,9 +358,9 @@ $(document).ready(function () {
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
-<script src="js/backend.static/common.js"></script>
+<script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend.static/access.js"></script>
+<script src="js/backend/access.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

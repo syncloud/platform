@@ -4,9 +4,9 @@ var backend = {
         "data": {
             "external_access": true,
             "protocol": "https",
-            "upnp": false,
+            "upnp_available": false,
             "upnp_enabled": true,
-            "message": "Your router does not have port mapping feature enabled at the moment",
+            "upnp_message": "Your router does not have port mapping feature enabled at the moment",
             "public_ip": null
         },
         "success": true
