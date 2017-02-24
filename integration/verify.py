@@ -218,8 +218,8 @@ def test_show_https_certificate():
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_port_mapper(public_web_session):
-    response = public_web_session.get('http://localhost/rest/access/port_mapper')
+def test_access(public_web_session):
+    response = public_web_session.get('http://localhost/rest/access/access')
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200

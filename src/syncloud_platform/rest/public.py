@@ -147,12 +147,6 @@ def access():
     return jsonify(success=True, data=public.access()), 200
 
 
-@app.route(rest_prefix + "/access/port_mapper", methods=["GET"])
-@login_required
-def port_mapper():
-    return jsonify(success=True, data=public.port_mapper()), 200
-
-
 @app.route(rest_prefix + "/access/network_interfaces", methods=["GET"])
 @login_required
 def network_interfaces():
