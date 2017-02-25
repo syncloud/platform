@@ -268,9 +268,7 @@ function ui_display_access(data) {
     $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $('#tgl_external').bootstrapSwitch('disabled', false);
     $("#tgl_external_loading").removeClass('opacity-visible');
-
-    var https_enabled = access_data.protocol === 'https';
-    $('#tgl_protocol').bootstrapSwitch('state', https_enabled, true);
+    $('#tgl_protocol').bootstrapSwitch('state', access_data.protocol , true);
     $('#tgl_protocol').bootstrapSwitch('disabled', false);
     $("#tgl_protocol_loading").removeClass('opacity-visible');
 
@@ -322,8 +320,7 @@ $(document).ready(function () {
         event.preventDefault();
         
         var protocol_toggle = $("#tgl_protocol");
-        var protocol_state = protocol_toggle.bootstrapSwitch('state');
-        var protocol = protocol_state ? 'https' : 'http';
+        var protocol = protocol_toggle.bootstrapSwitch('state');
 
         var access_toggle = $("#tgl_external");
 		var access = access_toggle.bootstrapSwitch('state');

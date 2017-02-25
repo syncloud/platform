@@ -228,12 +228,16 @@ class PlatformUserConfig:
     def get_protocol(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'protocol'):
-            return 'http'
-        return self.parser.get('platform', 'protocol')
+            return False
+        return self.parser.get('platform', 'protocol') == 'https'
 
-    def update_device_access(self, external_access, protocol):
+    def update_device_access(self, external_access, https):
         self.parser.read(self.filename)
         self.__set('platform', 'external_access', external_access)
+        if https:
+            protocol = 'https'
+        else:
+            protocol = 'http'
         self.__set('platform', 'protocol', protocol)
         self.__save()
 
@@ -258,15 +262,6 @@ class PlatformUserConfig:
         self.parser.read(self.filename)
         self.__set('platform', 'public_ip', public_ip)
         self.__save()
-
-
-    def get_port_drilling_enabled(self):
-        self.parser.read(self.filename)
-        port_drilling_enabled = True
-        if self.parser.has_option('platform', 'port_drilling_enabled'):
-            port_drilling_enabled = self.parser.getboolean('platform', 'port_drilling_enabled')
-        self.log.info('port_drilling_enabled = {0}'.format(port_drilling_enabled))
-        return port_drilling_enabled
 
     def __set(self, section, key, value):
         if not self.parser.has_section(section):

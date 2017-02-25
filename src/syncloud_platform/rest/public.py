@@ -159,24 +159,10 @@ def external_access():
     return jsonify(external_access=public.external_access()), 200
 
 
-@app.route(rest_prefix + "/access/set_external_access", methods=["GET"])
-@login_required
-def external_access_enable():
-    public.external_access_enable(request.args['external_access'] == 'true')
-    return jsonify(success=True), 200
-
-
 @app.route(rest_prefix + "/access/protocol", methods=["GET"])
 @login_required
 def protocol():
     return jsonify(protocol=public.protocol()), 200
-
-
-@app.route(rest_prefix + "/access/set_protocol", methods=["GET"])
-@login_required
-def set_protocol():
-    public.set_protocol(request.args['protocol'])
-    return jsonify(success=True), 200
 
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])

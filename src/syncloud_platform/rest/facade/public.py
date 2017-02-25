@@ -77,14 +77,8 @@ class Public:
     def external_access(self):
         return self.user_platform_config.get_external_access()
 
-    def external_access_enable(self, external_access):
-        self.device.set_access(self.user_platform_config.get_protocol(), external_access)
-
     def protocol(self):
         return self.user_platform_config.get_protocol()
-
-    def set_protocol(self, protocol):
-        self.device.set_access(protocol, self.user_platform_config.get_external_access())
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
