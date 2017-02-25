@@ -1,4 +1,4 @@
-from syncloud_platform.insider.util import protocol_to_port
+from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 
 
 def construct_url(protocol, external_port, domain, app=None):
@@ -29,7 +29,7 @@ class DeviceInfo:
         return '{0}.{1}'.format(app_name, self.domain())
 
     def url(self, app=None):
-        protocol = self.user_platform_config.get_protocol()
+        protocol = secure_to_protocol(self.user_platform_config.is_https())
         port = protocol_to_port(protocol)
         if self.user_platform_config.get_external_access():
             mapping = self.port_config.get(port, 'TCP')

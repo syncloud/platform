@@ -3,7 +3,7 @@ import uuid
 
 from syncloud_app import logger
 
-from syncloud_platform.insider.util import protocol_to_port
+from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 from syncloud_platform.gaplib import fs
 
 http_network_protocol = 'TCP'
@@ -62,17 +62,19 @@ class Device:
 
         self.logger.info("activation completed")
 
-    def set_access(self, protocol, external_access):
-        self.logger.info('set_access: protocol={0}, external_access={1}'.format(protocol, external_access))
+    def set_access(self, https, external_access):
+        self.logger.info('set_access: https={0}, external_access={1}'.format(https, external_access))
 
         update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
             return
 
+        protocol = secure_to_protocol(https)
         new_web_local_port = protocol_to_port(protocol)
-        old_web_local_port = protocol_to_port(self.user_platform_config.get_protocol())
+        old_web_protocol = secure_to_protocol(self.user_platform_config.is_https())
+        old_web_local_port = protocol_to_port(old_web_protocol)
 
-        if protocol == 'https' and external_access:
+        if https and external_access:
             self.tls.generate_real_certificate()
 
         drill = self.get_drill(external_access)
@@ -101,7 +103,7 @@ class Device:
 
         external_access = self.user_platform_config.get_external_access()
         drill = self.get_drill(external_access)
-        web_protocol = self.user_platform_config.get_protocol()
+        web_protocol = secure_to_protocol(self.user_platform_config.is_https())
         self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
 
         if not getpass.getuser() == self.platform_config.cron_user():

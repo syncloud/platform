@@ -225,7 +225,7 @@ class PlatformUserConfig:
             external_access = self.parser.getboolean('platform', 'external_access')
         return external_access
 
-    def get_protocol(self):
+    def is_https(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'protocol'):
             return False

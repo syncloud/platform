@@ -1,6 +1,7 @@
 from syncloud_app import logger
 
 from syncloud_platform.gaplib.linux import pgrep, run_detached
+from syncloud_platform.insider.util import secure_to_protocol
 from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
 from syncloud_platform.sam.stub import SAM_BIN_SHORT
@@ -70,15 +71,14 @@ class Public:
             upnp_message = 'Your router does not have port mapping feature enabled at the moment'
         manual_public_ip = self.platforn_user_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
-        protocol = self.user_platform_config.get_protocol()
-        return dict( external_access=external_access, protocol=protocol,  upnp_available=upnp_available, upnp_enabled=upnp_enabled, upnp_message=upnp_message, public_ip = manual_public_ip)
-        
+        is_https = self.user_platform_config.is_https()
+        return dict(external_access=external_access, protocol=is_https,  upnp_available=upnp_available, upnp_enabled=upnp_enabled, upnp_message=upnp_message, public_ip = manual_public_ip)
 
     def external_access(self):
         return self.user_platform_config.get_external_access()
 
     def protocol(self):
-        return self.user_platform_config.get_protocol()
+        return self.user_platform_config.is_https()
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
