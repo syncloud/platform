@@ -90,7 +90,7 @@ class Device:
         drill.sync_new_port(new_web_local_port, http_network_protocol)
 
         self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
-        self.user_platform_config.update_device_access(external_access, web_protocol)
+        self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access, manual_public_ip)
         self.event_trigger.trigger_app_event_domain()
 
     def sync_all(self):
