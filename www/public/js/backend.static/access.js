@@ -43,7 +43,7 @@ var backend = {
         }, 2000);
     },
 
-    save_access: function (parameters) {
+    set_access: function (parameters) {
         var that = this;
         setTimeout(function () {
             that.access_data.data.external_access = parameters.external_access;
@@ -55,13 +55,6 @@ var backend = {
         }, 2000);
     },
 
-    protocol: function (parameters) {
-        var that = this;
-        setTimeout(function () {
-            that.access_data.data.protocol = parameters.new_protocol;
-            success_callbacks(parameters);
-        }, 2000);
-    },
 
     network_interfaces: function (parameters) {
         var that = this;

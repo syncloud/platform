@@ -332,7 +332,7 @@ $(document).ready(function () {
         var public_port = $("#public_port").val();
 
         $(this).button('loading');
-        backend.save_access({
+        backend.set_access({
         		upnp_enabled: upnp_enabled,
                 external_access: external_access,
         		is_https: is_https,
