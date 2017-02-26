@@ -207,7 +207,7 @@ def test_certbot_cli(app_dir):
 def test_external_https_mode_with_certbot(public_web_session):
 
     response = public_web_session.get('http://localhost/rest/access/set_protocol',
-                                      params={'protocol': 'https'})
+                                      params={'protocol': 'true'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
