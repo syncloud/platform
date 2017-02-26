@@ -3,6 +3,7 @@ import time
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
+from syncloud_platform.insider.manual import ManualPortMapper
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import port_to_protocol, is_web_port
 
@@ -45,6 +46,7 @@ class PortDrill:
             self.logger.info('Trying {0}'.format(port_to_try))
             external_port = self.port_mapper.add_mapping(local_port, port_to_try, protocol)
             if not is_web_port(local_port):
+                self.logger.info('not probing non http(s) ports')
                 found_external_port = external_port
                 break
             if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
@@ -58,7 +60,7 @@ class PortDrill:
                 port_to_try = external_port + 1
 
         if not found_external_port:
-            raise Exception('Unable to add mapping, tried {0} times'.format(retries))
+            raise Exception('Unable to verify open ports, tried {0} times'.format(retries))
 
         mapping = Port(local_port, found_external_port, protocol)
         self.port_config.add_or_update(mapping)
@@ -112,11 +114,15 @@ class PortDrillFactory:
         self.user_platform_config = user_platform_config
         self.port_mapper_factory = port_mapper_factory
 
-    def get_drill(self, external_access):
+    def get_drill(self, upnp_enabled, external_access, manual_public_ip, manual_public_port):
         if not external_access or not self.user_platform_config.get_port_drilling_enabled():
             return NonePortDrill()
         drill = None
-        mapper = self.port_mapper_factory.provide_mapper()
+        if upnp_enabled:
+            mapper = self.port_mapper_factory.provide_mapper()
+        else:
+            mapper = ManualPortMapper(manual_public_ip, manual_public_port)
+
         if mapper:
             prober = PortProber(
                 self.user_platform_config.get_redirect_api_url(),

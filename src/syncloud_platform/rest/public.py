@@ -147,22 +147,23 @@ def access():
     return jsonify(success=True, data=public.access()), 200
 
 
+@app.route(rest_prefix + "/access/set_access", methods=["GET"])
+@login_required
+def set_access():
+    public.set_accesss(
+        request.args['upnp_enabled'] == 'true',
+        request.args['is_https'] == 'true',
+        request.args['external_access'] == 'true',
+        request.args['public_ip'],
+        request.args['public_port']
+    )
+    return jsonify(success=True), 200
+
+
 @app.route(rest_prefix + "/access/network_interfaces", methods=["GET"])
 @login_required
 def network_interfaces():
     return jsonify(success=True, data=dict(interfaces=public.network_interfaces())), 200
-
-
-@app.route(rest_prefix + "/access/external_access", methods=["GET"])
-@login_required
-def external_access():
-    return jsonify(external_access=public.external_access()), 200
-
-
-@app.route(rest_prefix + "/access/protocol", methods=["GET"])
-@login_required
-def protocol():
-    return jsonify(protocol=public.protocol()), 200
 
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])

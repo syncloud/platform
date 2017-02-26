@@ -268,7 +268,7 @@ function ui_display_access(data) {
     $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $('#tgl_external').bootstrapSwitch('disabled', false);
     $("#tgl_external_loading").removeClass('opacity-visible');
-    $('#tgl_protocol').bootstrapSwitch('state', access_data.protocol , true);
+    $('#tgl_protocol').bootstrapSwitch('state', access_data.is_https, true);
     $('#tgl_protocol').bootstrapSwitch('disabled', false);
     $("#tgl_protocol_loading").removeClass('opacity-visible');
 
@@ -320,22 +320,22 @@ $(document).ready(function () {
         event.preventDefault();
         
         var protocol_toggle = $("#tgl_protocol");
-        var protocol = protocol_toggle.bootstrapSwitch('state');
+        var is_https = protocol_toggle.bootstrapSwitch('state');
 
         var access_toggle = $("#tgl_external");
-		var access = access_toggle.bootstrapSwitch('state');
+		var external_access = access_toggle.bootstrapSwitch('state');
 
         var upnp_toggle = $("#tgl_upnp");
-		var upnp = upnp_toggle.bootstrapSwitch('state');
+		var upnp_enabled = upnp_toggle.bootstrapSwitch('state');
 
         var public_ip = $("#public_ip").val();
         var public_port = $("#public_port").val();
 
         $(this).button('loading');
         backend.save_access({
-        		upnp: upnp,
-                access: access,
-        		protocol: protocol,
+        		upnp_enabled: upnp_enabled,
+                external_access: external_access,
+        		is_https: is_https,
         		public_ip: public_ip,
         		public_port: public_port,
         		done: ui_check_access,

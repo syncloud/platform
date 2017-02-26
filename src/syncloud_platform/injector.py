@@ -1,6 +1,5 @@
 import logging
 from miniupnpc import UPnP
-from os import environ
 from os.path import join
 from os import environ
 from syncloud_app import logger
@@ -75,7 +74,8 @@ class Injector:
         self.nat_pmp_port_mapper = NatPmpPortMapper()
         self.upnp_port_mapper = UpnpPortMapper(UPnP())
         self.port_mapper_factory = PortMapperFactory(self.nat_pmp_port_mapper, self.upnp_port_mapper)
-        self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config, self.port_mapper_factory)
+        self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
+                                                   self.port_mapper_factory)
         self.info = DeviceInfo(self.user_platform_config, self.port_config)
         if self.platform_config.get_installer() == 'sam':
             self.sam = SamStub(self.platform_config, self.info)
@@ -100,5 +100,6 @@ class Injector:
                                  self.lsblk, self.path_checker, self.systemctl)
         self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam,
-                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator, self.port_mapper_factory, self.network, self.user_platform_config )
+                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator,
+                             self.port_mapper_factory, self.network, self.port_config)
         self.udev = Udev(self.platform_config)

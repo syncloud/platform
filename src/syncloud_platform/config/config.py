@@ -231,10 +231,12 @@ class PlatformUserConfig:
             return False
         return self.parser.get('platform', 'protocol') == 'https'
 
-    def update_device_access(self, external_access, https):
+    def update_device_access(self, upnp_enabled, is_https, external_access, public_ip):
         self.parser.read(self.filename)
         self.__set('platform', 'external_access', external_access)
-        if https:
+        self.__set('platform', 'upnp', upnp_enabled)
+        self.__set('platform', 'public_ip', public_ip)
+        if is_https:
             protocol = 'https'
         else:
             protocol = 'http'
@@ -247,21 +249,11 @@ class PlatformUserConfig:
             return True
         return self.parser.get('platform', 'upnp')
 
-    def set_upnp(self, enabled):
-        self.parser.read(self.filename)
-        self.__set('platform', 'upnp', enabled)
-        self.__save()
-
     def get_public_ip(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'public_ip'):
             return None
         return self.parser.get('platform', 'public_ip')
-
-    def set_public_ip(self, public_ip):
-        self.parser.read(self.filename)
-        self.__set('platform', 'public_ip', public_ip)
-        self.__save()
 
     def __set(self, section, key, value):
         if not self.parser.has_section(section):

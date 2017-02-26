@@ -8,7 +8,7 @@ def test_url_with_external_access():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_domain('device', 'token')
     user_platform_config.update_redirect('syncloud.it', 'api.url')
-    user_platform_config.update_device_access(True, False)
+    user_platform_config.update_device_access(False, False, True, '1.1.1.1')
 
     port_config = get_port_config([Port(80, 10000, 'TCP')])
 

@@ -2,8 +2,8 @@ var backend = {
 
     access_data: {
         "data": {
-            "external_access": true,
-            "protocol": "https",
+            "external_access": false,
+            "is_https": false,
             "upnp_available": false,
             "upnp_enabled": true,
             "upnp_message": "Your router does not have port mapping feature enabled at the moment",
@@ -46,13 +46,11 @@ var backend = {
     save_access: function (parameters) {
         var that = this;
         setTimeout(function () {
-            that.access_data.data.external_access = parameters.access;
-            that.access_data.data.upnp_enabled = parameters.upnp;
+            that.access_data.data.external_access = parameters.external_access;
+            that.access_data.data.upnp_enabled = parameters.upnp_enabled;
             that.access_data.data.public_ip = parameters.public_ip;
             that.access_data.data.public_port = parameters.public_port;
-            if (!that.access_data.data.external_access) {
-                that.access_data.data.protocol = "http";
-            }
+            that.access_data.data.is_https = parameters.is_https;
             success_callbacks(parameters);
         }, 2000);
     },
