@@ -246,25 +246,25 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     email, password, domain, app_archive_path = auth
  
     response = public_web_session.get('http://localhost/rest/access/protocol')
-    assert '"protocol": "https"' in response.text
+    assert '"protocol": "true"' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_protocol',
-                                      params={'protocol': 'https'})
+                                      params={'protocol': 'true'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/protocol')
-    assert '"protocol": "https"' in response.text
+    assert '"protocol": "true"' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_protocol',
-                                      params={'protocol': 'http'})
+                                      params={'protocol': 'false'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/protocol')
-    assert '"protocol": "http"' in response.text
+    assert '"protocol": "false"' in response.text
     assert response.status_code == 200
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
