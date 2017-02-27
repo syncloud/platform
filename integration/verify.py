@@ -246,7 +246,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     email, password, domain, app_archive_path = auth
  
     response = public_web_session.get('http://localhost/rest/access/access')
-    assert '"is_https": false' in response.text
+    assert '"is_https": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
