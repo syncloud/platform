@@ -207,7 +207,7 @@ def test_certbot_cli(app_dir):
 def test_external_https_mode_with_certbot(public_web_session):
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={'is_https': True, 'upnp_enabled': False, 'external_access': False, 'public_ip': 0, 'public_port': 0 })
+                                      params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -250,7 +250,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={ 'is_https': True, 'upnp_enabled': False, 'external_access': False, 'public_ip': 0, 'public_port': 0 })
+                                      params={ 'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -259,7 +259,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={ 'is_https': False, 'upnp_enabled': False, 'external_access': False, 'public_ip': 0, 'public_port': 0 })
+                                      params={ 'is_https': 'false', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
