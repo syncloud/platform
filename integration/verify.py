@@ -254,7 +254,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/access/protocol')
+    response = public_web_session.get('http://localhost/rest/access/access')
     assert '"is_https": true' in response.text
     assert response.status_code == 200
 
@@ -263,7 +263,7 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/access/protocol')
+    response = public_web_session.get('http://localhost/rest/access/access')
     assert '"is_https": false' in response.text
     assert response.status_code == 200
 
