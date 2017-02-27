@@ -100,8 +100,7 @@
 					</div>
 
                     <div class="setline" id="public_address">
-                        <span class="span">Public address: </span><input placeholder="Public IP" name="public_ip" id=" public_ip " type="text" style="width: 150px; height: 30px; padding: 0 10px 0 10px"> :
-                        <input placeholder="Port" name="public_port" id="public_port " type="text" style="display:inline; width: 70px; height: 30px; padding: 0 10px 0 10px ">
+                        <span class="span">Public address:</span> <span style='white-space: nowrap;' ><input placeholder="Public IP" name="public_ip" id="public_ip" type="text" style="width: 150px; height: 30px; padding: 0 10px 0 10px"> : <input placeholder="Port" name="public_port" id="public_port" type="text" style="display:inline; width: 70px; height: 30px; padding: 0 10px 0 10px "></span>
                     </div>
                     
 					<div class="setline">
@@ -314,7 +313,24 @@ function ui_check_network() {
 		});
 }
 
+function ui_toggle_upnp() {
+		var toggle = $("#tgl_external");
+		var state = toggle.bootstrapSwitch('state');
+		disable_access_controls();
+		$("#tgl_external_loading").addClass('opacity-visible');
+		backend.external_access({
+				state: state,
+				always: ui_check_access,
+				fail: ui_display_error
+		});
+}
+
 $(document).ready(function () {
+
+    $("#tgl_upnp").on('switchChange.bootstrapSwitch', function(event, state) {
+				event.preventDefault();
+			  ui_toggle_upnp();
+			});
     
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
@@ -355,9 +371,9 @@ $(document).ready(function () {
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
-<script src="js/backend/common.js"></script>
+<script src="js/backend.static/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/access.js"></script>
+<script src="js/backend.static/access.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>
