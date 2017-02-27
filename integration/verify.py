@@ -207,7 +207,7 @@ def test_certbot_cli(app_dir):
 def test_external_https_mode_with_certbot(public_web_session):
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={'protocol': True})
+                                      params={'is_https': True, 'upnp_enabled': False, ' external_access': False, ' public_ip': 0, ' public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -245,26 +245,26 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     email, password, domain, app_archive_path = auth
  
-    response = public_web_session.get('http://localhost/rest/access/protocol')
-    assert '"protocol": true' in response.text
+    response = public_web_session.get('http://localhost/rest/access/access')
+    assert '"is_https": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={'protocol': True})
+                                      params={ 'is_https': True, 'upnp_enabled': False, ' external_access': False, ' public_ip': 0, ' public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/protocol')
-    assert '"protocol": true' in response.text
+    assert '"is_https": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={'protocol': False})
+                                      params={ 'is_https': False, 'upnp_enabled': False, ' external_access': False, ' public_ip': 0, ' public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://localhost/rest/access/protocol')
-    assert '"protocol": false' in response.text
+    assert '"is_https": false' in response.text
     assert response.status_code == 200
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)

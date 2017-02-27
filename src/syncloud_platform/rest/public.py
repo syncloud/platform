@@ -150,7 +150,7 @@ def access():
 @app.route(rest_prefix + "/access/set_access", methods=["GET"])
 @login_required
 def set_access():
-    public.set_accesss(
+    public.set_access(
         request.args['upnp_enabled'] == 'true',
         request.args['is_https'] == 'true',
         request.args['external_access'] == 'true',
