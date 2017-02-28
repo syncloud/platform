@@ -73,15 +73,19 @@ def test_web_with_selenium(user_domain):
 
 
 def screenshots(driver, dir, name):
+    desktop_w = 1280
+    desktoo_h = 2000
     driver.set_window_position(0, 0)
-    driver.set_window_size(1024, 2000)
+    driver.set_window_size(desktop_w, desktop_h)
 
     driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
 
+    mobile_w = 400
+    mobile_h = 1024
     driver.set_window_position(0, 0)
-    driver.set_window_size(400, 1024)
+    driver.set_window_size(mobile_w, mobile_h)
     driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
     
     driver.set_window_position(0, 0)
-    driver.set_window_size(1024, 2000)
+    driver.set_window_size(desktop_w, desktoo_h)
 
