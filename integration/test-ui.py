@@ -81,7 +81,7 @@ def screenshots(driver, dir, name):
     driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
 
     mobile_w = 400
-    mobile_h = 1024
+    mobile_h = 2000
     driver.set_window_position(0, 0)
     driver.set_window_size(mobile_w, mobile_h)
     driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
