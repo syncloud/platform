@@ -320,9 +320,9 @@ function ui_prepare_address() {
 		var toggle = $("#tgl_upnp");
 		var state = toggle.bootstrapSwitch('state');
 		if (state) {
-            $("#public_address").hide();
+            $("#public_address").hide('slow');
         } else {
-            $("#public_address").show();
+            $("#public_address").show('slow');
         }
 }
 
