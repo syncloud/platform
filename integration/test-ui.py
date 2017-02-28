@@ -39,9 +39,9 @@ def test_web_with_selenium(user_domain):
     time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'activate.png'))
     driver.set_window_position(0, 0)
-    driver.set_window_size(400, 800)
+    driver.set_window_size(400, 1024)
     driver.get_screenshot_as_file(join(screenshot_dir, 'activate-mobile.png'))
-    driver.maximize_window()
+    driver.set_window_size(1024, 4096)
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
     driver.get("http://{0}".format(user_domain))
