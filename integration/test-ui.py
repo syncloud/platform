@@ -37,17 +37,13 @@ def test_web_with_selenium(user_domain):
     driver.get("http://{0}:81".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'activate.png'))
-    driver.set_window_position(0, 0)
-    driver.set_window_size(400, 1024)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'activate-mobile.png'))
-    driver.set_window_size(1024, 4096)
+    screenshots(driver, screenshot_dir, 'activate')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
     driver.get("http://{0}".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
+    screenshots(driver, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
     user = driver.find_element_by_id("name")
@@ -57,21 +53,35 @@ def test_web_with_selenium(user_domain):
     password.submit()
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
+    screenshots(driver, screenshot_dir, 'index')
 
-    driver.get_screenshot_as_file(join(screenshot_dir, 'index.png'))
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(5)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'settings.png'))
+    screenshots(driver, screenshot_dir, 'settings')
+ 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
     driver.get("http://{0}/access.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'access.png'))
+    screenshots(driver, screenshot_dir, 'access')
+ 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
+def screenshots(driver, dir, name):
+    driver.set_window_position(0, 0)
+    driver.set_window_size(1024, 4096)
+
+    driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
+
+    driver.set_window_position(0, 0)
+    driver.set_window_size(400, 1024)
+    driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
+    
+    driver.set_window_position(0, 0)
+    driver.set_window_size(1024, 4096)
 
