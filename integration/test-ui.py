@@ -74,7 +74,7 @@ def test_web_with_selenium(user_domain):
 
 def screenshots(driver, dir, name):
     driver.set_window_position(0, 0)
-    driver.set_window_size(1024, 4096)
+    driver.set_window_size(1024, 2000)
 
     driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
 
@@ -83,5 +83,5 @@ def screenshots(driver, dir, name):
     driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
     
     driver.set_window_position(0, 0)
-    driver.set_window_size(1024, 4096)
+    driver.set_window_size(1024, 2000)
 
