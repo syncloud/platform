@@ -115,7 +115,7 @@ class PortDrillFactory:
         self.port_mapper_factory = port_mapper_factory
 
     def get_drill(self, upnp_enabled, external_access, manual_public_ip, manual_public_port):
-        if not external_access or not self.user_platform_config.get_port_drilling_enabled():
+        if not external_access:
             return NonePortDrill()
         drill = None
         if upnp_enabled:

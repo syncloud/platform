@@ -20,15 +20,15 @@ function check_for_service_error(data, parameters, on_complete) {
     
 }
 
-function run_after_sam_is_complete(on_complete) {
-    run_after_job_is_complete(on_complete, 'sam');
+function run_after_sam_is_complete(on_complete, on_error) {
+    run_after_job_is_complete(on_complete, on_error, 'sam');
 }
 
 function run_after_boot_extend_is_complete(on_complete) {
-    run_after_job_is_complete(on_complete, 'boot_extend');
+    run_after_job_is_complete(on_complete, on_error, 'boot_extend');
 }
 
-function run_after_job_is_complete(on_complete, job) {
+function run_after_job_is_complete(on_complete, on_error, job) {
 
     var recheck_function = function () { run_after_job_is_complete(on_complete, job); };
 
@@ -40,8 +40,13 @@ function run_after_job_is_complete(on_complete, job) {
                 else
                     on_complete();
             })
-            .fail(function() {
-                setTimeout(recheck_function, recheck_timeout);
+            .fail(function(xhr, textStatus, errorThrown) {
+                //Auth error means job is finished
+                if (xhr.status == 401){
+                    on_error(xhr, textStatus, errorThrown)
+                } else {
+                    setTimeout(recheck_function, recheck_timeout);
+                }
             })
 }
 

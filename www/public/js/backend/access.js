@@ -24,7 +24,13 @@ var backend = {
     },
 
     set_access: function(parameters) {
-        $.get('/rest/access/set_access')
+        $.get('/rest/access/set_access', {
+            upnp_enabled: parameters.upnp_enabled,
+            external_access: parameters.external_access,
+            is_https: parameters.is_https,
+            public_ip: parameters.public_ip,
+            public_port: parameters.public_port
+        })
             .done(function (data) {
                 if (parameters.hasOwnProperty("done")) {
                     parameters.done(data);

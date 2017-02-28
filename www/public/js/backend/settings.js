@@ -103,12 +103,23 @@ var backend = {
     platform_upgrade: function(parameters) {
         $.get('/rest/settings/system_upgrade')
             .done(function (data) {
-                check_for_service_error(data, parameters, function() {
-                    run_after_sam_is_complete(function() {
-                        if (parameters.hasOwnProperty("done")) {
-                            parameters.done(data);
+                check_for_service_error(data, parameters, function () {
+                    run_after_sam_is_complete(
+                        function () {
+                            if (parameters.hasOwnProperty("done")) {
+                                parameters.done(data);
+                            }
+                        },
+                        function (xhr, textStatus, errorThrown) {
+                            var error = null;
+                            if (xhr.hasOwnProperty('responseJSON')) {
+                                var error = xhr.responseJSON;
+                            }
+                            if (parameters.hasOwnProperty("done")) {
+                                parameters.fail(xhr.status, error);
+                            }
                         }
-                    });    
+                    );
                 });
             })
             .fail(function (xhr, textStatus, errorThrown) {
@@ -119,25 +130,29 @@ var backend = {
                 if (parameters.hasOwnProperty("fail")) {
                     parameters.fail(xhr.status, error);
                 }
-            })
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
             });
     },
 
     sam_upgrade: function(parameters) {
         $.get('/rest/settings/sam_upgrade')
             .done(function (data) {
-                check_for_service_error(data, parameters, function() {
-                    run_after_sam_is_complete(function () {
-                        if (parameters.hasOwnProperty("done")) {
-                            parameters.done(data);
+                check_for_service_error(data, parameters, function () {
+                    run_after_sam_is_complete(
+                        function () {
+                            if (parameters.hasOwnProperty("done")) {
+                                parameters.done(data);
+                            }
+                        },
+                        function (xhr, textStatus, errorThrown) {
+                            var error = null;
+                            if (xhr.hasOwnProperty('responseJSON')) {
+                                var error = xhr.responseJSON;
+                            }
+                            if (parameters.hasOwnProperty("done")) {
+                                parameters.fail(xhr.status, error);
+                            }
                         }
-                    });
+                    );
                 });
             })
             .fail(function (xhr, textStatus, errorThrown) {
@@ -148,13 +163,6 @@ var backend = {
                 if (parameters.hasOwnProperty("fail")) {
                     parameters.fail(xhr.status, error);
                 }
-            })
-            .always(function() {
-                run_after_sam_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
             });
     },
 
@@ -235,11 +243,22 @@ var backend = {
     boot_extend: function(parameters) {
         $.get('/rest/settings/boot_extend')
             .done(function (data) {
-                run_after_boot_extend_is_complete(function() {
-                    if (parameters.hasOwnProperty("done")) {
-                        parameters.done(data);
+                run_after_boot_extend_is_complete(
+                    function () {
+                        if (parameters.hasOwnProperty("done")) {
+                            parameters.done(data);
+                        }
+                    },
+                    function(xhr, textStatus, errorThrown) {
+                        var error = null;
+                        if (xhr.hasOwnProperty('responseJSON')) {
+                            var error = xhr.responseJSON;
+                        }
+                        if (parameters.hasOwnProperty("done")) {
+                            parameters.fail(xhr.status, error);
+                        }
                     }
-                });
+                );
             })
             .fail(function (xhr, textStatus, errorThrown) {
                 var error = null;
@@ -249,13 +268,6 @@ var backend = {
                 if (parameters.hasOwnProperty("fail")) {
                     parameters.fail(xhr.status, error);
                 }
-            })
-            .always(function() {
-                run_after_boot_extend_is_complete(function() {
-                    if (parameters.hasOwnProperty("always")) {
-                        parameters.always();
-                    }
-                });
             });
     }  
 };

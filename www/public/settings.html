@@ -340,11 +340,12 @@ function ui_platform_upgrade() {
 		var btn = $("#btn_platform_upgrade");
 		btn.button('loading');
 		backend.platform_upgrade({
-				always: function() {
+				done: function() {
 					ui_get_versions(function() {
 							btn.button('reset');
 					});
-				}
+				},
+                fail: ui_display_error
 		});
 }
 
@@ -352,11 +353,12 @@ function ui_boot_extend() {
 		var btn = $("#btn_boot_extend");
 		btn.button('loading');
 		backend.boot_extend({
-				always: function() {
+				done: function() {
 					ui_check_boot_disk(function() {
 							btn.button('reset');
 					});
-				}
+				},
+                fail: ui_display_error
 		});
 }
 
@@ -364,11 +366,12 @@ function ui_sam_upgrade() {
 		var btn = $("#btn_sam_upgrade");
 		btn.button('loading');
 		backend.sam_upgrade({
-				always: function() {
+				done: function() {
 					ui_get_versions(function() {
 							btn.button('reset');
 					});
-				}
+				},
+                fail: ui_display_error
 		});
 }
 
