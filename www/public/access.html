@@ -264,17 +264,20 @@ function ui_display_network(data) {
 
 function ui_display_access(data) {
     var access_data = data.data;
-    $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $('#tgl_external').bootstrapSwitch('disabled', false);
+    $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $("#tgl_external_loading").removeClass('opacity-visible');
-    $('#tgl_protocol').bootstrapSwitch('state', access_data.is_https, true);
+   
     $('#tgl_protocol').bootstrapSwitch('disabled', false);
+    $('#tgl_protocol').bootstrapSwitch('state', access_data.is_https, true);
     $("#tgl_protocol_loading").removeClass('opacity-visible');
 
-    $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled, true);
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
+    $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
     $("#tgl_upnp_loading").removeClass('opacity-visible');
+  
     $("#label_upnp").html(access_data.upnp_message);
+    
     if (access_data.upnp_available) {
         $("#label_upnp").css("color", "black");
     } else {
@@ -336,14 +339,16 @@ $(document).ready(function () {
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
         
+        disable_access_controls();
+        
         var protocol_toggle = $("#tgl_protocol");
         var is_https = protocol_toggle.bootstrapSwitch('state');
 
         var access_toggle = $("#tgl_external");
-		var external_access = access_toggle.bootstrapSwitch('state');
+        var external_access = access_toggle.bootstrapSwitch('state');
 
         var upnp_toggle = $("#tgl_upnp");
-		var upnp_enabled = upnp_toggle.bootstrapSwitch('state');
+        var upnp_enabled = upnp_toggle.bootstrapSwitch('state');
 
         var public_ip = $("#public_ip").val();
         var public_port = $("#public_port").val();
@@ -351,7 +356,7 @@ $(document).ready(function () {
         $(this).button('loading');
         backend.set_access({
         		upnp_enabled: upnp_enabled,
-                external_access: external_access,
+         external_access: external_access,
         		is_https: is_https,
         		public_ip: public_ip,
         		public_port: public_port,

@@ -2,7 +2,7 @@ var backend = {
 
     access_data: {
         "data": {
-            "external_access": false,
+            "external_access": true,
             "is_https": false,
             "upnp_available": false,
             "upnp_enabled": true,
