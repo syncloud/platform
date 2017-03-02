@@ -220,10 +220,9 @@ class PlatformUserConfig:
 
     def get_external_access(self):
         self.parser.read(self.filename)
-        external_access = False
-        if self.parser.has_option('platform', 'external_access'):
-            external_access = self.parser.getboolean('platform', 'external_access')
-        return external_access
+        if not self.parser.has_option('platform', 'external_access'):
+            retuen False
+        return self.parser.getboolean('platform', 'external_access')
 
     def is_https(self):
         self.parser.read(self.filename)
@@ -247,7 +246,7 @@ class PlatformUserConfig:
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'upnp'):
             return True
-        return self.parser.get('platform', 'upnp')
+        return self.parser.getboolean('platform', 'upnp')
 
     def get_public_ip(self):
         self.parser.read(self.filename)
