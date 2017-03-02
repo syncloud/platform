@@ -23,7 +23,9 @@ var backend = {
     },
 
     send_logs: function(parameters) {
-        $.get('/rest/send_log')
+        $.get('/rest/send_log',
+          { include_suppprt: parameters.include_suppprt }
+        )
             .done(function (data) {
                 if (parameters.hasOwnProperty("done")) {
                     parameters.done(data);

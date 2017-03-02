@@ -169,7 +169,8 @@ def network_interfaces():
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    public.send_logs()
+    include_support = request.args['include_support'] == 'true'
+    public.send_logs(include_support)
     return jsonify(success=True), 200
 
 

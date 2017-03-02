@@ -118,10 +118,10 @@ class Public:
     def boot_disk(self):
         return self.hardware.root_partition()
 
-    def send_logs(self):
+    def send_logs(self, include_support):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()
-        self.redirect_service.send_log(user_token, logs)
+        self.redirect_service.send_log(user_token, logs, include_support)
 
     def regenerate_certificate(self):
         self.certbot_generator.generate_certificate()
