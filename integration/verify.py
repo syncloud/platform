@@ -222,6 +222,7 @@ def test_access(public_web_session):
     response = public_web_session.get('http://localhost/rest/access/access')
     print(response.text)
     assert '"success": true' in response.text
+    assert '"upnp_enabled": true' in response.text
     assert response.status_code == 200
 
 
