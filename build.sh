@@ -18,10 +18,10 @@ VERSION=$2
 
 cd ${DIR}/www/public
 rm -rf _site
-jekyll build
+/usr/local/bin/jekyll build
 cd ${DIR}/www/internal
 rm -rf _site
-jekyll build
+/usr/local/bin/jekyll build
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/${NAME}
