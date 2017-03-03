@@ -24,7 +24,7 @@ function run_after_sam_is_complete(on_complete, on_error) {
     run_after_job_is_complete(on_complete, on_error, 'sam');
 }
 
-function run_after_boot_extend_is_complete(on_complete) {
+function run_after_boot_extend_is_complete(on_complete, on_error) {
     run_after_job_is_complete(on_complete, on_error, 'boot_extend');
 }
 

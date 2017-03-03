@@ -75,7 +75,8 @@ var backend = {
     boot_disk_data: {
       "data": {
           "device": "/dev/mmcblk0p2",
-          "size": "16G"
+          "size": "2G",
+          "extendable": true
         },
       "success": true
     },
@@ -143,7 +144,10 @@ var backend = {
     },
 
     boot_extend: function(parameters) {
+        var that = this;
         setTimeout(function() {
+            that.boot_disk_data.data.extendable = parameters.extendable;
+            that.boot_disk_data.data.size = '16G';
             success_callbacks(parameters);
         }, 2000);
     },
