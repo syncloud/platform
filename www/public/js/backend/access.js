@@ -1,78 +1,29 @@
 var backend = {
 
-    check_access: function(parameters) {
-        $.get('/rest/access/access')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+    check_access: function(on_complete, on_error) {
+        $.get('/rest/access/access').done(on_complete).fail(on_error);
     },
 
-    set_access: function(parameters) {
+    set_access: function(
+        upnp_enabled,
+        external_access,
+        is_https,
+        public_ip,
+        public_port,
+        on_complete,
+        on_error) {
+        
         $.get('/rest/access/set_access', {
-            upnp_enabled: parameters.upnp_enabled,
-            external_access: parameters.external_access,
-            is_https: parameters.is_https,
-            public_ip: parameters.public_ip,
-            public_port: parameters.public_port
-        })
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+            upnp_enabled: upnp_enabled,
+            external_access: external_access,
+            is_https: is_https,
+            public_ip: public_ip,
+            public_port: public_port
+        }).done(on_complete).fail(on_error);
     },
 
-    network_interfaces: function(parameters) {
-        $.get('/rest/access/network_interfaces')
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+    network_interfaces: function(on_complete, on_error) {
+        $.get('/rest/access/network_interfaces').done(on_complete).fail(on_error);
     }
 
 };

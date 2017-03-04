@@ -242,14 +242,9 @@ function ui_display_disks(data) {
 						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
 						$(tgl_loading_id).addClass('opacity-visible');
 
-						backend.disk_action({
-								disk_device: disk_device,
-								is_activate: state,
-								always: function() {
-										ui_check_disks(function() {});
-								},
-                                fail: ui_display_error
-						});
+						backend.disk_action(disk_device, state,
+                                ui_check_disks,
+                                ui_display_error);
 				})
 		});
 }
@@ -274,21 +269,13 @@ function upgrade_buttons_enabled(is_enabled) {
 }
 
 function ui_check_device_url() {
-		backend.device_url({
-			done: ui_display_device_url,
-			fail: ui_display_error
-		});
+		backend.device_url(ui_display_device_url, ui_display_error);
 }
 
 function ui_send_logs() {
 		var btn = $("#btn_send_logs");
 		btn.button('loading');
-		backend.send_logs({
-				always: function() {
-						btn.button('reset');
-				},
-				fail: ui_display_error
-		});
+		backend.send_logs(function() { btn.button('reset'); }, ui_display_error);
 }
 
 function ui_display_versions(data) {
@@ -314,93 +301,86 @@ function ui_display_versions(data) {
 		}
 }
 
-function ui_get_versions(callback) {
-		backend.get_versions({
-				done: ui_display_versions,
-				fail: ui_display_error,
-				always: callback
-		});
+function ui_get_versions(on_always) {
+		backend.get_versions(ui_display_versions, on_always, ui_display_error);
 }
 
 function ui_check_versions() {
-		var btn = $("#btn_check_updates");
-		upgrade_buttons_enabled(false);
-		btn.button('loading');
-		backend.check_versions({
-				always: function() {
-						ui_get_versions(function() {
-								btn.button('reset');
-								upgrade_buttons_enabled(true);
-						});
-				}
-		});
+    var btn = $("#btn_check_updates");
+    upgrade_buttons_enabled(false);
+    btn.button('loading');
+    backend.check_versions(function () {
+                run_after_sam_is_complete(function () {
+                            ui_get_versions(function () {
+                                btn.button('reset');
+                                upgrade_buttons_enabled(true);
+                            });
+                        },
+                        ui_display_error
+                );
+            },
+            ui_display_error);
 }
 
 function ui_platform_upgrade() {
-		var btn = $("#btn_platform_upgrade");
-		btn.button('loading');
+    var btn = $("#btn_platform_upgrade");
+    btn.button('loading');
 
-        var on_complete = function (data) {
-                check_for_service_error(data, function () {
-                    run_after_sam_is_complete( function() {
-                            ui_get_versions(function() {
+    backend.platform_upgrade(function (data) {
+        check_for_service_error(data, function () {
+                    run_after_sam_is_complete(function () {
+                                ui_get_versions(function () {
                                     btn.button('reset');
-                            });
-                        },
-                        ui_display_error
+                                });
+                            },
+                            ui_display_error
                     );
                 },
                 ui_display_error);
-            };
-
-		backend.platform_upgrade(on_complete, ui_display_error);
+    }, ui_display_error);
 }
 
 function ui_boot_extend() {
-		var btn = $("#btn_boot_extend");
-		btn.button('loading');
-		backend.boot_extend({
-				done: function() {
-					ui_check_boot_disk(function() {
-							btn.button('reset');
-					});
-				},
-                fail: ui_display_error
-		});
-}
-
-function ui_sam_upgrade() {
-		var btn = $("#btn_sam_upgrade");
-		btn.button('loading');
-
-        var on_complete = function (data) {
-                check_for_service_error(data, function () {
-                    run_after_sam_is_complete( function() {
-                            ui_get_versions(function() {
+    var btn = $("#btn_boot_extend");
+    btn.button('loading');
+    backend.boot_extend(function (data) {
+        check_for_service_error(data, function () {
+                    run_after_boot_extend_is_complete(function () {
+                                ui_check_boot_disk(function () {
                                     btn.button('reset');
-                            });
-                        },
-                        ui_display_error
+                                });
+                            },
+                            ui_display_error
                     );
                 },
                 ui_display_error);
-            };
-
-		backend.sam_upgrade(on_complete, ui_display_error);
+    }, ui_display_error);
 }
 
-function ui_check_disks(callback) {
-		backend.update_disks({
-				done: ui_display_disks,
-				always: callback
-		});
+function ui_sam_upgrade() {
+    var btn = $("#btn_sam_upgrade");
+    btn.button('loading');
+
+    backend.sam_upgrade(function (data) {
+        check_for_service_error(data, function () {
+                    run_after_sam_is_complete(function () {
+                                ui_get_versions(function () {
+                                    btn.button('reset');
+                                });
+                            },
+                            ui_display_error
+                    );
+                },
+                ui_display_error);
+    }, ui_display_error);
 }
 
-function ui_check_boot_disk(callback) {
-		backend.update_boot_disk({
-				done: ui_display_boot_disk,
-				always: callback
-		});
+function ui_check_disks() {
+		backend.update_disks(ui_display_disks, ui_display_error);
+}
+
+function ui_check_boot_disk(on_always) {
+		backend.update_boot_disk(ui_display_boot_disk, on_always, ui_display_error);
 }
 
 $(document).ready(function () {
@@ -426,7 +406,7 @@ $(document).ready(function () {
     });
 
     ui_check_device_url();
-    ui_check_disks(function() {});
+    ui_check_disks();
     ui_check_boot_disk(function() {});
     ui_check_versions();
 });
@@ -439,9 +419,9 @@ $(document).ready(function () {
 <![endif]-->
 
 <script src="js/common.js"></script>
-<script src="js/backend/common.js"></script>
+<script src="js/backend.static/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/settings.js"></script>
+<script src="js/backend.static/settings.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

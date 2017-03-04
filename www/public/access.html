@@ -286,7 +286,7 @@ function ui_display_access(data) {
     $("#public_ip").html(access_data.public_ip);
     $("#public_port").html(access_data.public_port);
 
-    $("#btn_save").button('reset')
+    $("#btn_save").button('reset');
 
     ui_prepare_address();
 
@@ -306,17 +306,11 @@ function ui_check_access() {
     $("#tgl_upnp_loading").addClass('opacity-visible');
     $('#btn_save').button('loading');
 
-    backend.check_access({
-            done: ui_display_access,
-            fail: ui_display_error
-    });
+    backend.check_access(ui_display_access, ui_display_error);
 }
 
 function ui_check_network() {
-		backend.network_interfaces({
-				done: ui_display_network,
-				fail: ui_display_error
-		});
+    backend.network_interfaces(ui_display_network, ui_display_error);
 }
 
 function ui_prepare_address() {
@@ -342,27 +336,19 @@ $(document).ready(function () {
         disable_access_controls();
         
         var protocol_toggle = $("#tgl_protocol");
-        var is_https = protocol_toggle.bootstrapSwitch('state');
-
         var access_toggle = $("#tgl_external");
-        var external_access = access_toggle.bootstrapSwitch('state');
-
         var upnp_toggle = $("#tgl_upnp");
-        var upnp_enabled = upnp_toggle.bootstrapSwitch('state');
-
-        var public_ip = $("#public_ip").val();
-        var public_port = $("#public_port").val();
-
         $(this).button('loading');
-        backend.set_access({
-        		upnp_enabled: upnp_enabled,
-         external_access: external_access,
-        		is_https: is_https,
-        		public_ip: public_ip,
-        		public_port: public_port,
-        		done: ui_check_access,
-        		fail: ui_display_error
-        });
+
+        backend.set_access(
+                upnp_toggle.bootstrapSwitch('state'),
+                access_toggle.bootstrapSwitch('state'),
+                protocol_toggle.bootstrapSwitch('state'),
+                $("#public_ip").val(),
+                $("#public_port").val(),
+                ui_check_access,
+                ui_display_error
+        );
     });
 
     ui_check_access();

@@ -36,30 +36,32 @@ var backend = {
         "success": true
     },
 
-    check_access: function (parameters) {
+    check_access: function (on_complete, on_error) {
+        var that = this;
+        setTimeout(function () { on_complete(that.access_data); }, 2000);
+    },
+
+    set_access: function (upnp_enabled,
+                          external_access,
+                          is_https,
+                          public_ip,
+                          public_port,
+                          on_complete,
+                          on_error) {
         var that = this;
         setTimeout(function () {
-            success_callbacks(parameters, that.access_data);
+            that.access_data.data.external_access = external_access;
+            that.access_data.data.upnp_enabled = upnp_enabled;
+            that.access_data.data.public_ip = public_ip;
+            that.access_data.data.public_port = public_port;
+            that.access_data.data.is_https = is_https;
+            on_complete({success: true});
         }, 2000);
     },
 
-    set_access: function (parameters) {
-        var that = this;
-        setTimeout(function () {
-            that.access_data.data.external_access = parameters.external_access;
-            that.access_data.data.upnp_enabled = parameters.upnp_enabled;
-            that.access_data.data.public_ip = parameters.public_ip;
-            that.access_data.data.public_port = parameters.public_port;
-            that.access_data.data.is_https = parameters.is_https;
-            success_callbacks(parameters);
-        }, 2000);
-    },
 
-
-    network_interfaces: function (parameters) {
+    network_interfaces: function (on_complete, on_error) {
         var that = this;
-        setTimeout(function () {
-            success_callbacks(parameters, that.network_interfaces_data);
-        }, 2000);
+        setTimeout(function () { on_complete(that.network_interfaces_data); }, 2000);
     }
 };
