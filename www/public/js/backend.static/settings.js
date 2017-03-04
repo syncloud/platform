@@ -137,10 +137,8 @@ var backend = {
         }, 2000);
     },
 
-    platform_upgrade: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
+    platform_upgrade: function(on_complete, on_error) {
+        setTimeout(on_complete({success: true}), 2000);
     },
 
     boot_extend: function(parameters) {
@@ -152,10 +150,8 @@ var backend = {
         }, 2000);
     },
 
-    sam_upgrade: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
+    sam_upgrade: function(on_complete, ui_display_error) {
+        setTimeout(on_complete({success: true}), 2000);
     },
 
     update_disks: function(parameters) {
@@ -177,6 +173,10 @@ var backend = {
         setTimeout(function() {
             success_callbacks(parameters, that.disks_data);
         }, 2000);
+    },
+    
+    job_status: function (job, on_complete, on_error) {
+        setTimeout(on_complete({success: true, is_running: false}), 2000);
     }
 
 };

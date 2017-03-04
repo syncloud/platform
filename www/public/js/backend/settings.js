@@ -46,8 +46,7 @@ var backend = {
     },
 
     reactivate: function() {
-        var internal_web = (new URI()).port(81).directory("").filename("").query("");
-        window.location.href = internal_web;
+        window.location.href = (new URI()).port(81).directory("").filename("").query("");
     },
 
     get_versions: function(parameters) {
@@ -100,70 +99,12 @@ var backend = {
             });
     },
 
-    platform_upgrade: function(parameters) {
-        $.get('/rest/settings/system_upgrade')
-            .done(function (data) {
-                check_for_service_error(data, parameters, function () {
-                    run_after_sam_is_complete(
-                        function () {
-                            if (parameters.hasOwnProperty("done")) {
-                                parameters.done(data);
-                            }
-                        },
-                        function (xhr, textStatus, errorThrown) {
-                            var error = null;
-                            if (xhr.hasOwnProperty('responseJSON')) {
-                                var error = xhr.responseJSON;
-                            }
-                            if (parameters.hasOwnProperty("done")) {
-                                parameters.fail(xhr.status, error);
-                            }
-                        }
-                    );
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            });
+    platform_upgrade: function(on_complete, on_error) {
+        $.get('/rest/settings/system_upgrade').done(on_complete).fail(on_error);
     },
 
-    sam_upgrade: function(parameters) {
-        $.get('/rest/settings/sam_upgrade')
-            .done(function (data) {
-                check_for_service_error(data, parameters, function () {
-                    run_after_sam_is_complete(
-                        function () {
-                            if (parameters.hasOwnProperty("done")) {
-                                parameters.done(data);
-                            }
-                        },
-                        function (xhr, textStatus, errorThrown) {
-                            var error = null;
-                            if (xhr.hasOwnProperty('responseJSON')) {
-                                var error = xhr.responseJSON;
-                            }
-                            if (parameters.hasOwnProperty("done")) {
-                                parameters.fail(xhr.status, error);
-                            }
-                        }
-                    );
-                });
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            });
+    sam_upgrade: function(on_complete, on_error) {
+        $.get('/rest/settings/sam_upgrade').done(on_complete).fail(on_error);
     },
 
     update_disks: function(parameters) {
@@ -269,5 +210,9 @@ var backend = {
                     parameters.fail(xhr.status, error);
                 }
             });
-    }  
+    },
+
+    job_status: function (job, on_complete, on_error) {
+        $.get('/rest/settings/' + job + '_status').done(on_complete).fail(on_error);
+    }
 };

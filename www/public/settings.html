@@ -339,14 +339,21 @@ function ui_check_versions() {
 function ui_platform_upgrade() {
 		var btn = $("#btn_platform_upgrade");
 		btn.button('loading');
-		backend.platform_upgrade({
-				done: function() {
-					ui_get_versions(function() {
-							btn.button('reset');
-					});
-				},
-                fail: ui_display_error
-		});
+
+        var on_complete = function (data) {
+                check_for_service_error(data, function () {
+                    run_after_sam_is_complete( function() {
+                            ui_get_versions(function() {
+                                    btn.button('reset');
+                            });
+                        },
+                        ui_display_error
+                    );
+                },
+                ui_display_error);
+            };
+
+		backend.platform_upgrade(on_complete, ui_display_error);
 }
 
 function ui_boot_extend() {
@@ -365,14 +372,21 @@ function ui_boot_extend() {
 function ui_sam_upgrade() {
 		var btn = $("#btn_sam_upgrade");
 		btn.button('loading');
-		backend.sam_upgrade({
-				done: function() {
-					ui_get_versions(function() {
-							btn.button('reset');
-					});
-				},
-                fail: ui_display_error
-		});
+
+        var on_complete = function (data) {
+                check_for_service_error(data, function () {
+                    run_after_sam_is_complete( function() {
+                            ui_get_versions(function() {
+                                    btn.button('reset');
+                            });
+                        },
+                        ui_display_error
+                    );
+                },
+                ui_display_error);
+            };
+
+		backend.sam_upgrade(on_complete, ui_display_error);
 }
 
 function ui_check_disks(callback) {
@@ -424,6 +438,7 @@ $(document).ready(function () {
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
+<script src="js/common.js"></script>
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
 <script src="js/backend/settings.js"></script>
