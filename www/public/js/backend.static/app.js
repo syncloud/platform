@@ -14,16 +14,12 @@ var backend = {
         "installed_version": "210"
       }
     },
-    load_app: function(parameters) {
+    load_app: function(app_id, on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.app_data);
-        }, 2000);
+        setTimeout(function() { on_complete(that.app_data); }, 2000);
 s   },
-    app_action: function(parameters) {
+    app_action: function(app_id, action, on_always, on_error) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
+        setTimeout(on_always, 2000);
     }
-}
+};
