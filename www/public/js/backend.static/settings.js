@@ -86,7 +86,7 @@ var backend = {
         setTimeout(function() { on_complete(that.device_data); }, 2000);
     },
 
-    send_logs: function(on_always, on_error) {
+    send_logs: function(include_support, on_always, on_error) {
         setTimeout(on_always, 2000);
     },
 

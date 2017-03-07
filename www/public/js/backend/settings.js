@@ -3,8 +3,10 @@ var backend = {
         $.get('/rest/settings/device_domain').done(on_complete).fail(on_error);
     },
 
-    send_logs: function(on_always, on_error) {
-        $.get('/rest/send_log').always(on_always).fail(on_error);
+    send_logs: function(include_suppprt, on_always, on_error) {
+        $.get('/rest/send_log',
+          { include_suppprt: parameters.include_suppprt }
+        ).always(on_always).fail(on_error);
     },
 
     reactivate: function() {
