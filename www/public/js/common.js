@@ -1,3 +1,7 @@
+var backend = {
+    async: true
+};
+
 function check_for_service_error(data, on_complete, on_error) {
     
     if (data.hasOwnProperty('success') && !data.success) {

@@ -1,6 +1,4 @@
-var backend = {
-
-    access_data: {
+backend.access_data = {
         "data": {
             "external_access": true,
             "is_https": false,
@@ -10,9 +8,9 @@ var backend = {
             "public_ip": null
         },
         "success": true
-    },
+    };
 
-    network_interfaces_data: {
+backend.network_interfaces_data = {
         "data": {
             "interfaces": [
                 {
@@ -34,14 +32,14 @@ var backend = {
             ]
         },
         "success": true
-    },
+    };
 
-    check_access: function (on_complete, on_error) {
+backend.check_access = function (on_complete, on_error) {
         var that = this;
         setTimeout(function () { on_complete(that.access_data); }, 2000);
-    },
+    };
 
-    set_access: function (upnp_enabled,
+backend.set_access = function (upnp_enabled,
                           external_access,
                           is_https,
                           public_ip,
@@ -57,11 +55,10 @@ var backend = {
             that.access_data.data.is_https = is_https;
             on_complete({success: true});
         }, 2000);
-    },
+    };
 
 
-    network_interfaces: function (on_complete, on_error) {
+backend.network_interfaces = function (on_complete, on_error) {
         var that = this;
         setTimeout(function () { on_complete(that.network_interfaces_data); }, 2000);
-    }
-};
+    };

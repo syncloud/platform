@@ -1,9 +1,8 @@
-var backend = {
-    login: function(parameters) {
+backend.login = function(parameters) {
         setTimeout(function() {
             success_callbacks(parameters);
         }, 2000);
-    }
+    };
 
 //    login: function(parameters) {
 //        setTimeout(function() {
@@ -12,4 +11,3 @@ var backend = {
 //        }, 2000);
 //    }
 
-}

@@ -1,5 +1,4 @@
-var backend = {
-    apps_data: {
+backend.apps_data = {
       "apps": [
         {
           "id": "owncloud",
@@ -27,12 +26,11 @@ var backend = {
           "icon": "penguin.png"
         }
       ]
-    },
+    };
 
-    available_apps: function(parameters) {
+backend.available_apps = function(parameters) {
         var that = this;
         setTimeout(function() {
             success_callbacks(parameters, that.apps_data);
         }, 2000);
-    }
-}
+    };

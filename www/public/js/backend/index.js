@@ -1,5 +1,4 @@
-var backend = {
-    installed_apps: function(parameters) {
+backend.installed_apps = function(parameters) {
         $.get( '/rest/installed_apps')
             .done(function (data) {
                 if (parameters.hasOwnProperty("done")) {
@@ -20,5 +19,4 @@ var backend = {
                     parameters.always();
                 }
             });
-    }
-};
+    };
