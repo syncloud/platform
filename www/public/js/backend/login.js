@@ -1,4 +1,4 @@
-backend.login { function(parameters) {
+backend.login = function(parameters) {
         var values = parameters.values;
         $.post("/rest/login", values)
             .done(function (data) {
