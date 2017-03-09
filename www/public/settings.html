@@ -320,17 +320,14 @@ function ui_check_versions() {
     var btn = $("#btn_check_updates");
     upgrade_buttons_enabled(false);
     btn.button('loading');
-    backend.check_versions(function () {
-                run_after_sam_is_complete(function () {
-                            ui_get_versions(function () {
-                                btn.button('reset');
-                                upgrade_buttons_enabled(true);
-                            });
-                        },
-                        ui_display_error
-                );
-            },
-            ui_display_error);
+    
+    check_versions(
+        ui_display_versions, 
+        function () {
+            btn.button('reset');
+            upgrade_buttons_enabled(true);
+        }, 
+        ui_display_error);
 }
 
 function ui_platform_upgrade() {
@@ -430,6 +427,7 @@ $(document).ready(function () {
 <![endif]-->
 
 <script src="js/common.js"></script>
+<script src="js/settings.js"></script>
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
 <script src="js/backend/settings.js"></script>

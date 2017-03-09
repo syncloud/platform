@@ -1,4 +1,4 @@
-QUnit.test( "app new version available action", function( assert ) {
+QUnit.test( "app", function( assert ) {
 
   backend.async = false;
   run_app_action('owncloud', 'install', function() {}, function(a, b, c) {});
