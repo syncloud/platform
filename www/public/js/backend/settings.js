@@ -4,7 +4,7 @@ backend.device_url = function(on_complete, on_error) {
 
 backend.send_logs = function(include_suppprt, on_always, on_error) {
         $.get('/rest/send_log',
-          { include_suppprt: parameters.include_suppprt }
+          { include_suppprt: include_suppprt }
         ).always(on_always).fail(on_error);
     };
 
