@@ -335,18 +335,13 @@ function ui_platform_upgrade() {
     var btn = $("#btn_platform_upgrade");
     btn.button('loading');
 
-    backend.platform_upgrade(function (data) {
-        check_for_service_error(data, function () {
-                    run_after_sam_is_complete(function () {
-                                ui_get_versions(function () {
-                                    btn.button('reset');
-                                });
-                            },
-                            ui_display_error
-                    );
-                },
-                ui_display_error);
-    }, ui_display_error);
+    platform_upgrade(
+        ui_display_versions,
+        function () {
+            btn.button('reset');
+        },
+        ui_display_error);
+ 
 }
 
 function ui_boot_extend() {
