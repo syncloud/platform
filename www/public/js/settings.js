@@ -20,7 +20,22 @@ function platform_upgrade(on_complete, on_always, on_error) {
                      on_always, 
                      on_error);
                  }, on_error);
-         }, on_error);
+        }, on_error);
     }, on_error);
     
+}
+
+function boot_extend(on_complete, on_always, on_error) {
+
+    backend.boot_extend(function (data) {
+        check_for_service_error(data, function () {
+             run_after_boot_extend_is_complete(function () {
+                   backend.update_boot_disk(
+                        on_complete, 
+                        on_always, 
+                        on_error);
+                   }, on_error);
+        }, on_error);
+    }, on_error);
+
 }

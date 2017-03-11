@@ -13,3 +13,11 @@ QUnit.test( "settings platform upgrade", function( assert ) {
 
   assert.deepEqual( true, true);
 });
+
+QUnit.test( "settings boot disk extend", function( assert ) {
+
+  backend.async = false;
+  boot_extend(function(data) {}, function() {}, function(a, b, c) {});
+
+  assert.deepEqual( true, true);
+});
