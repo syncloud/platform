@@ -287,19 +287,20 @@ function ui_display_access(data) {
     $("#public_port").html(access_data.public_port);
 
     $("#btn_save").button('reset');
+    disable_access_controls(false);
 
     ui_prepare_address();
 
 }
 
-function disable_access_controls() {
-    $('#tgl_external').bootstrapSwitch('disabled', true);
-    $('#tgl_protocol').bootstrapSwitch('disabled', true);
-    $('#tgl_upnp').bootstrapSwitch('disabled', true);
+function disable_access_controls(disabled) {
+    $('#tgl_external').bootstrapSwitch('disabled', disabled);
+    $('#tgl_protocol').bootstrapSwitch('disabled', disabled);
+    $('#tgl_upnp').bootstrapSwitch('disabled', disabled);
 }
 
 function ui_check_access() {
-    disable_access_controls();
+    disable_access_controls(true);
 
     $("#tgl_external_loading").addClass('opacity-visible');
     $("#tgl_protocol_loading").addClass('opacity-visible');
@@ -333,12 +334,13 @@ $(document).ready(function () {
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
         
-        disable_access_controls();
+        disable_access_controls(true);
         
         var protocol_toggle = $("#tgl_protocol");
         var access_toggle = $("#tgl_external");
         var upnp_toggle = $("#tgl_upnp");
-        $(this).button('loading');
+        var btn = $(this);
+        btn.button('loading');
 
         backend.set_access(
                 upnp_toggle.bootstrapSwitch('state'),
@@ -347,7 +349,10 @@ $(document).ready(function () {
                 $("#public_ip").val(),
                 $("#public_port").val(),
                 ui_check_access,
-                ui_display_error
+                function (xhr, textStatus, errorThrown) {
+                    ui_display_error(xhr, textStatus, errorThrown);
+                    ui_check_access();
+                }
         );
     });
 
