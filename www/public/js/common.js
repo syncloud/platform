@@ -26,7 +26,7 @@ function run_after_boot_extend_is_complete(on_complete, on_error) {
 
 function run_after_job_is_complete(on_complete, on_error, job) {
 
-    var recheck_function = function () { run_after_job_is_complete(on_complete, job); };
+    var recheck_function = function () { run_after_job_is_complete(on_complete, on_error, job); };
 
     var recheck_timeout = 2000;
     backend.job_status(job,
