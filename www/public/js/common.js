@@ -16,23 +16,23 @@ function check_for_service_error(data, on_complete, on_error) {
     
 }
 
-function run_after_sam_is_complete(on_complete, on_error) {
-    run_after_job_is_complete(on_complete, on_error, 'sam');
+function run_after_sam_is_complete(status_checker, timeout_func, on_complete, on_error) {
+    run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, 'sam');
 }
 
-function run_after_boot_extend_is_complete(on_complete, on_error) {
-    run_after_job_is_complete(on_complete, on_error, 'boot_extend');
+function run_after_boot_extend_is_complete(status_checker, timeout_func, on_complete, on_error) {
+    run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, 'boot_extend');
 }
 
-function run_after_job_is_complete(on_complete, on_error, job) {
+function run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job) {
 
-    var recheck_function = function () { run_after_job_is_complete(on_complete, on_error, job); };
+    var recheck_function = function () { run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job); };
 
     var recheck_timeout = 2000;
-    backend.job_status(job,
+    status_checker(job,
         function (status) {
             if (status.is_running)
-                setTimeout(recheck_function, recheck_timeout);
+                timeout_func(recheck_function, recheck_timeout);
             else
                 on_complete();
         },
@@ -41,7 +41,7 @@ function run_after_job_is_complete(on_complete, on_error, job) {
             if (xhr.status == 401) {
                 on_error(xhr, textStatus, errorThrown)
             } else {
-                setTimeout(recheck_function, recheck_timeout);
+                timeout_func(recheck_function, recheck_timeout);
             }
         }
     );
