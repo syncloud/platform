@@ -283,8 +283,8 @@ function ui_display_access(data) {
     } else {
         $("#label_upnp").css("color", "red");
     }
-    $("#public_ip").html(access_data.public_ip);
-    $("#public_port").html(access_data.public_port);
+    $("#public_ip").val(access_data.public_ip);
+    $("#public_port").val(access_data.public_port);
 
     $("#btn_save").button('reset');
     disable_access_controls(false);
