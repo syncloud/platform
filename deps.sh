@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get install -y ruby
+sudo apt-get install -y ruby ruby-dev
 sudo gem install jekyll
 
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
