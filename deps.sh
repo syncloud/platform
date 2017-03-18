@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 
+apt-get install -y squashfs-tools
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 if [ $ARCH == "amd64" ]; then
   wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
