@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 sudo apt-get install -y ruby ruby-dev
 sudo gem install jekyll
