@@ -10,3 +10,4 @@ else
   wget https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie-armv6/phantomjs
   cp phantomjs /usr/bin
 fi
+chmod +x /usr/bin/phantomjs
