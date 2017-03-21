@@ -15,7 +15,7 @@ class ManualPortMapper:
         return self.manual_public_ip
 
     def add_mapping(self, local_port, external_port, protocol):
-        self.logger.warn('adding port mapping is not available in manual mode')
+        self.logger.warn('adding port mapping is not available in manual mode {0}:{1}'.format(self.manual_public_ip, self.manual_public_port))
         return self.manual_public_port
 
     def remove_mapping(self, local_port, external_port, protocol):
