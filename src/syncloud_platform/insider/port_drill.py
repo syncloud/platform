@@ -57,6 +57,7 @@ class PortDrill:
             if port_to_try == local_port:
                 port_to_try = lower_limit
             else:
+                self.logger.info('external port: {0}'.format(external_port))
                 port_to_try = external_port + 1
 
         if not found_external_port:
