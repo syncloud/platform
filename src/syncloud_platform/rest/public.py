@@ -155,7 +155,7 @@ def set_access():
         request.args['is_https'] == 'true',
         request.args['external_access'] == 'true',
         request.args['public_ip'],
-        request.args['public_port']
+        int(request.args['public_port'])
     )
     return jsonify(success=True), 200
 
