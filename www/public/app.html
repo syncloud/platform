@@ -161,19 +161,19 @@ function register_btn_open_click() {
 }
 
 function register_btn_action_click(app_id, action) {
-    $("#btn_"+action).on('click', function () {
+    $("#btn_" + action).on('click', function () {
         var btn = $(this);
         var on_complete = function () {
             btn.button('reset');
             ui_load_app();
         };
         var on_error = ui_display_error;
-                                        
+
         btn.button('loading');
-        
+
         run_app_action(app_id, action, on_complete, on_error);
-        
-		   });
+
+    });
 }
 
 function ui_display_app(data) {
