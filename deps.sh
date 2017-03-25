@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-apt-get install -y squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev libssl-dev
+apt-get install -y squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev libssl-dev libffi-dev
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 pip install coin
