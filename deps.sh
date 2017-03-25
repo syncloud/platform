@@ -1,6 +1,8 @@
 #!/bin/bash -xe
 
 apt-get install -y squashfs-tools dpkg-dev
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
 pip install coin
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 if [ $ARCH == "amd64" ]; then
