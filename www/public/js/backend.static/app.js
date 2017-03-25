@@ -16,11 +16,10 @@ backend.app_data = {
     
 backend.load_app = function(app_id, on_complete, on_error) {
         var that = this;
-        test_timeout(function() { on_complete(that.app_data); }, 2000);
+        backend.test_timeout(function() { on_complete(that.app_data); }, 2000);
     };
    
 backend.app_action = function(app_id, action, on_complete, on_error) {
         var that = this;
-        
         backend.test_timeout(function() {on_complete({success: true, is_running: false});}, 2000);
     };

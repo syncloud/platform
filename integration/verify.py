@@ -315,6 +315,7 @@ def disk_writable():
 def test_udev_script(app_dir):
     run_ssh('{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
 
+
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):
     disk_create(loop_device, fs_type)
