@@ -338,16 +338,20 @@ $(document).ready(function () {
         
         var protocol_toggle = $("#tgl_protocol");
         var access_toggle = $("#tgl_external");
-        var upnp_toggle = $("#tgl_upnp");
+        var upnp_enabled = $("#tgl_upnp").bootstrapSwitch('state');
+        var public_port = $("#public_port").val();
+        if (upnp_enabled) {
+            public_port = 0;
+        }
         var btn = $(this);
         btn.button('loading');
 
         backend.set_access(
-                upnp_toggle.bootstrapSwitch('state'),
+                upnp_enabled,
                 access_toggle.bootstrapSwitch('state'),
                 protocol_toggle.bootstrapSwitch('state'),
                 $("#public_ip").val(),
-                $("#public_port").val(),
+                public_port,
                 ui_check_access,
                 function (xhr, textStatus, errorThrown) {
                     ui_display_error(xhr, textStatus, errorThrown);
