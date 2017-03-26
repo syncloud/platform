@@ -334,15 +334,28 @@ $(document).ready(function () {
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
         
-        disable_access_controls(true);
-        
         var protocol_toggle = $("#tgl_protocol");
         var access_toggle = $("#tgl_external");
         var upnp_enabled = $("#tgl_upnp").bootstrapSwitch('state');
-        var public_port = $("#public_port").val();
+        var public_port_string = $("#public_port").val();
+        var public_port = parseInt(public_port_string);
         if (upnp_enabled) {
             public_port = 0;
+        } else {
+            
+            if (Number.isNaN(public_port) || public_port < 1 || public_port > 65535) {
+                var xhr = {
+                    status: 200,
+                    responseJSON: {
+                        message: "port (" + public_port_string + ") has to be between 1 and 65535"
+                    }
+                };
+                ui_display_error(xhr, {}, {});
+                return;
+            }
         }
+        
+        disable_access_controls(true);
         var btn = $(this);
         btn.button('loading');
 
