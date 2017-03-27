@@ -31,7 +31,6 @@ class LdapAuth:
 
     def init(self, fix_permissions=False):
         if self.installed():
-            self.fix_pre_17_01_pid_location()
             self.log.info('ldap config already initialized')
             return
 
@@ -46,15 +45,9 @@ class LdapAuth:
             self.log.info('fixing permissions for ldap user conf')
             fs.chownpath(self.user_conf_dir, platform_user, recursive=True)
 
-    def fix_pre_17_01_pid_location(self):
-        check_output(
-            "sed -i \"s#olcPidFile:.*#olcPidFile: /opt/data/platform/openldap/slapd.pid#g\" /opt/data/platform/slapd.d/cn\=config.ldif",
-            shell=True)
-
     def reset(self, user, password, fix_permissions=True):
 
         self.systemctl.stop_service('platform.openldap')
-
 
         fs.removepath(self.user_conf_dir)
 

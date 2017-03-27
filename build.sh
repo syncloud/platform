@@ -16,12 +16,6 @@ if [ "${ARCH}" == 'arm' ]; then
 fi
 VERSION=$2
 
-cd ${DIR}/www/public
-rm -rf _site
-jekyll build
-cd ${DIR}/www/internal
-rm -rf _site
-jekyll build
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/${NAME}
@@ -69,6 +63,8 @@ echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
 mksquashfs ${SNAP_DIR} ${DIR}/platform_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
+
+${DIR}/unit-test.sh
 
 
 

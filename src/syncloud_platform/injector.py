@@ -1,6 +1,5 @@
 import logging
 from miniupnpc import UPnP
-from os import environ
 from os.path import join
 from os import environ
 from syncloud_app import logger
@@ -14,6 +13,7 @@ from syncloud_platform.insider.device_info import DeviceInfo
 from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from syncloud_platform.insider.port_config import PortConfig
 from syncloud_platform.insider.port_drill import PortDrillFactory
+from syncloud_platform.insider.port_mapper_factory import PortMapperFactory
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.log.aggregator import Aggregator
@@ -31,6 +31,7 @@ from syncloud_platform.control.tls import Tls
 from syncloud_platform.disks.udev import Udev
 from syncloud_platform.application.apppaths import AppPaths
 from syncloud_platform.versions import Versions
+from syncloud_platform.network.network import Network
 
 default_injector = None
 
@@ -72,8 +73,9 @@ class Injector:
 
         self.nat_pmp_port_mapper = NatPmpPortMapper()
         self.upnp_port_mapper = UpnpPortMapper(UPnP())
+        self.port_mapper_factory = PortMapperFactory(self.nat_pmp_port_mapper, self.upnp_port_mapper)
         self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
-                                                   self.nat_pmp_port_mapper, self.upnp_port_mapper)
+                                                   self.port_mapper_factory)
         self.info = DeviceInfo(self.user_platform_config, self.port_config)
         if self.platform_config.get_installer() == 'sam':
             self.sam = SamStub(self.platform_config, self.info)
@@ -96,7 +98,8 @@ class Injector:
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger,
                                  self.lsblk, self.path_checker, self.systemctl)
-
+        self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam,
-                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator)
+                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator,
+                             self.port_mapper_factory, self.network, self.port_config)
         self.udev = Udev(self.platform_config)

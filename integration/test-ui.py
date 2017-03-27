@@ -13,7 +13,6 @@ DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
-log_dir = join(LOG_DIR, 'log')
 
 
 def test_web_with_selenium(user_domain):
@@ -23,10 +22,12 @@ def test_web_with_selenium(user_domain):
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
     caps["binary"] = "/usr/bin/firefox"
+    caps['loggingPrefs'] = {'browser': 'ALL'}
 
     profile = webdriver.FirefoxProfile()
-    profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
-    driver = webdriver.Firefox(profile, capabilities=caps)
+    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
+
+    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
 
     screenshot_dir = join(DIR, 'screenshot')
     if exists(screenshot_dir):
@@ -36,12 +37,14 @@ def test_web_with_selenium(user_domain):
     driver.get("http://{0}:81".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'activate.png'))
+    screenshots(driver, screenshot_dir, 'activate')
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
     driver.get("http://{0}".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
+    screenshots(driver, screenshot_dir, 'login')
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
@@ -50,15 +53,39 @@ def test_web_with_selenium(user_domain):
     password.submit()
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
+    screenshots(driver, screenshot_dir, 'index')
 
-    driver.get_screenshot_as_file(join(screenshot_dir, 'index.png'))
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
-    time.sleep(2)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'settings.png'))
+    time.sleep(5)
+    screenshots(driver, screenshot_dir, 'settings')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+    driver.get("http://{0}/access.html".format(user_domain))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'access')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
+def screenshots(driver, dir, name):
+    desktop_w = 1280
+    desktop_h = 2000
+    driver.set_window_position(0, 0)
+    driver.set_window_size(desktop_w, desktop_h)
 
+    driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
 
+    mobile_w = 400
+    mobile_h = 2000
+    driver.set_window_position(0, 0)
+    driver.set_window_size(mobile_w, mobile_h)
+    driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
+    
+    driver.set_window_position(0, 0)
+    driver.set_window_size(desktop_w, desktop_h)
 

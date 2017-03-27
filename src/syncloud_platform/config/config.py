@@ -220,30 +220,39 @@ class PlatformUserConfig:
 
     def get_external_access(self):
         self.parser.read(self.filename)
-        external_access = False
-        if self.parser.has_option('platform', 'external_access'):
-            external_access = self.parser.getboolean('platform', 'external_access')
-        return external_access
+        if not self.parser.has_option('platform', 'external_access'):
+            return False
+        return self.parser.getboolean('platform', 'external_access')
 
-    def get_protocol(self):
+    def is_https(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'protocol'):
-            return 'http'
-        return self.parser.get('platform', 'protocol')
+            return False
+        return self.parser.get('platform', 'protocol') == 'https'
 
-    def update_device_access(self, external_access, protocol):
+    def update_device_access(self, upnp_enabled, is_https, external_access, public_ip):
         self.parser.read(self.filename)
         self.__set('platform', 'external_access', external_access)
+        self.__set('platform', 'upnp', upnp_enabled)
+        self.__set('platform', 'public_ip', public_ip)
+        if is_https:
+            protocol = 'https'
+        else:
+            protocol = 'http'
         self.__set('platform', 'protocol', protocol)
         self.__save()
 
-    def get_port_drilling_enabled(self):
+    def get_upnp(self):
         self.parser.read(self.filename)
-        port_drilling_enabled = True
-        if self.parser.has_option('platform', 'port_drilling_enabled'):
-            port_drilling_enabled = self.parser.getboolean('platform', 'port_drilling_enabled')
-        self.log.info('port_drilling_enabled = {0}'.format(port_drilling_enabled))
-        return port_drilling_enabled
+        if not self.parser.has_option('platform', 'upnp'):
+            return True
+        return self.parser.getboolean('platform', 'upnp')
+
+    def get_public_ip(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'public_ip'):
+            return None
+        return self.parser.get('platform', 'public_ip')
 
     def __set(self, section, key, value):
         if not self.parser.has_section(section):

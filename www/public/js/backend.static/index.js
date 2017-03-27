@@ -1,5 +1,4 @@
-var backend = {
-    apps_data: {
+backend.apps_data = {
       "apps": [
         {
           "id": "owncloud",
@@ -8,16 +7,15 @@ var backend = {
           "url": "http://owncloud.odroid-c2.syncloud.it"
         }
       ]
-    },
+    };
 
 //    apps_data: {
 //      "apps": []
 //    },
 
-    installed_apps: function(parameters) {
+backend.installed_apps = function(parameters) {
         var that = this;
         setTimeout(function() {
             success_callbacks(parameters, that.apps_data);
         }, 2000);
-    }
-}
+    };

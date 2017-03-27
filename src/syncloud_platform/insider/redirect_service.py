@@ -25,10 +25,14 @@ class RedirectService:
         user = convertible.from_json(response.text).data
         return user
 
-    def send_log(self, user_update_token, logs):
+    def send_log(self, user_update_token, logs, include_support):
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/user/log")
-        response = requests.post(url, {'token': user_update_token, 'data': logs})
+        response = requests.post(url, {
+            'token': user_update_token,
+            'data': logs,
+            'include_support': include_support
+        })
         util.check_http_error(response)
         user = convertible.from_json(response.text)
 
@@ -82,9 +86,10 @@ class RedirectService:
         if not external_ip:
             self.logger.warn("No external ip")
         else:
-            if IP(external_ip).iptype() != 'PUBLIC':
+            iptype=IP(external_ip).iptype()
+            if iptype != 'PUBLIC':
                 external_ip = None
-                self.logger.warn("External ip is not public")
+                self.logger.warn("External ip is not public: {0}".format(iptype))
 
         if not map_local_address:
             if external_ip:

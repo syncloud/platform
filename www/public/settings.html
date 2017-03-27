@@ -82,19 +82,8 @@
 						<span class="span">You can assign different<br>domain name to your device</span><div class="spandiv"><button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button></div>
 					</div>
 					<h3>Access</h3>
-					<div class="setline">
-						<span class="span">External Access:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
-						</div>
-					</div>
-					<div class="setline">
-						<span class="span">Access Protocol:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
-						</div>
+                    <div class="setline">
+                        <a href="access.html" class="hlink">More settings <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i></a>
 					</div>
 					<h3>Storage</h3>
                     <div id="block_boot_disk">
@@ -127,8 +116,15 @@
 					</div>
 					<h3>Feedback</h3>
 					<div class="setline">
-						<span class="span">Report Issue:</span><div class="spandiv"><button class="buttonblue bwidth smbutton" id="btn_send_logs" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs</button></div>
-					</div>
+						  	<span class="span">Send a copy to support</span>
+						  	<input type="checkbox" id="tgl_support_logs" data-on-text="ON" data-off-text="OFF" data-label-width="8" />
+						</div>
+					<div class="setline">
+					  	<span class="span">Report Issue:</span>
+						 <button class="buttonblue bwidth smbutton" id="btn_send_logs" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs</button>
+						</div>
+						
+					
 				</div>
 			</div>
 		</div>
@@ -253,14 +249,9 @@ function ui_display_disks(data) {
 						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
 						$(tgl_loading_id).addClass('opacity-visible');
 
-						backend.disk_action({
-								disk_device: disk_device,
-								is_activate: state,
-								always: function() {
-										ui_check_disks(function() {});
-								},
-                                fail: ui_display_error
-						});
+						backend.disk_action(disk_device, state,
+                                ui_check_disks,
+                                ui_display_error);
 				})
 		});
 }
@@ -277,22 +268,6 @@ function ui_display_device_url(data) {
 		$("#txt_device_domain").html(data.device_domain);
 }
 
-function ui_display_access(data) {
-		var access_data = data.data;
-		$('#tgl_external').bootstrapSwitch('state', access_data.external_access, true)
-		$('#tgl_external').bootstrapSwitch('disabled', false);
-		$("#tgl_external_loading").removeClass('opacity-visible');
-		var https_enabled = access_data.protocol === 'https';
-		$('#tgl_protocol').bootstrapSwitch('state', https_enabled, true)
-		$('#tgl_protocol').bootstrapSwitch('disabled', false);
-		$("#tgl_protocol_loading").removeClass('opacity-visible');
-}
-
-function disable_access_controls() {
-		$('#tgl_external').bootstrapSwitch('disabled', true);
-		$('#tgl_protocol').bootstrapSwitch('disabled', true);
-}
-
 function upgrade_buttons_enabled(is_enabled) {
 		var btn_platform = $("#btn_platform_upgrade");
 		var btn_sam = $("#btn_sam_upgrade");
@@ -301,53 +276,18 @@ function upgrade_buttons_enabled(is_enabled) {
 }
 
 function ui_check_device_url() {
-		backend.device_url({
-			done: ui_display_device_url,
-			fail: ui_display_error
-		});
-}
-
-function ui_check_access() {
-		backend.check_access({
-				done: ui_display_access,
-				fail: ui_display_error
-		});
+		backend.device_url(ui_display_device_url, ui_display_error);
 }
 
 function ui_send_logs() {
-		var btn = $("#btn_send_logs");
-		btn.button('loading');
-		backend.send_logs({
-				always: function() {
-						btn.button('reset');
-				},
-				fail: ui_display_error
-		});
-}
+    var tgl_support_logs = $("#tgl_support_logs");
+    var btn = $("#btn_send_logs");
+    btn.button('loading');
 
-function ui_toggle_external_access() {
-		var toggle = $("#tgl_external")
-		var state = toggle.bootstrapSwitch('state');
-		disable_access_controls();
-		$("#tgl_external_loading").addClass('opacity-visible');
-		backend.external_access({
-				state: state,
-				always: ui_check_access,
-				fail: ui_display_error
-		});
-}
-
-function ui_toggle_protocol() {
-		var toggle = $("#tgl_protocol");
-		var state = toggle.bootstrapSwitch('state');
-		var new_protocol = state ? 'https' : 'http';
-		disable_access_controls();
-		$("#tgl_protocol_loading").addClass('opacity-visible');
-		backend.protocol({
-				new_protocol: new_protocol,
-				always: ui_check_access,
-				fail: ui_display_error
-		});
+    backend.send_logs(
+        tgl_support_logs.bootstrapSwitch('state'),
+        function() { btn.button('reset'); },
+        ui_display_error);
 }
 
 function ui_display_versions(data) {
@@ -373,76 +313,69 @@ function ui_display_versions(data) {
 		}
 }
 
-function ui_get_versions(callback) {
-		backend.get_versions({
-				done: ui_display_versions,
-				fail: ui_display_error,
-				always: callback
-		});
+function ui_get_versions(on_always) {
+		backend.get_versions(ui_display_versions, on_always, ui_display_error);
 }
 
 function ui_check_versions() {
-		var btn = $("#btn_check_updates");
-		upgrade_buttons_enabled(false);
-		btn.button('loading');
-		backend.check_versions({
-				always: function() {
-						ui_get_versions(function() {
-								btn.button('reset');
-								upgrade_buttons_enabled(true);
-						});
-				}
-		});
+    var btn = $("#btn_check_updates");
+    upgrade_buttons_enabled(false);
+    btn.button('loading');
+    
+    check_versions(
+        ui_display_versions, 
+        function () {
+            btn.button('reset');
+            upgrade_buttons_enabled(true);
+        }, 
+        ui_display_error);
 }
 
 function ui_platform_upgrade() {
-		var btn = $("#btn_platform_upgrade");
-		btn.button('loading');
-		backend.platform_upgrade({
-				always: function() {
-					ui_get_versions(function() {
-							btn.button('reset');
-					});
-				}
-		});
+    var btn = $("#btn_platform_upgrade");
+    btn.button('loading');
+
+    platform_upgrade(
+        ui_display_versions,
+        function () {
+            btn.button('reset');
+        },
+        ui_display_error);
+ 
 }
 
 function ui_boot_extend() {
-		var btn = $("#btn_boot_extend");
-		btn.button('loading');
-		backend.boot_extend({
-				always: function() {
-					ui_check_boot_disk(function() {
-							btn.button('reset');
-					});
-				}
-		});
+    var btn = $("#btn_boot_extend");
+    btn.button('loading');
+    
+    boot_extend(
+        ui_display_boot_disk,
+        function () {
+            btn.button('reset');
+        }, 
+        ui_display_error);
+
 }
 
 function ui_sam_upgrade() {
-		var btn = $("#btn_sam_upgrade");
-		btn.button('loading');
-		backend.sam_upgrade({
-				always: function() {
-					ui_get_versions(function() {
-							btn.button('reset');
-					});
-				}
-		});
+    var btn = $("#btn_sam_upgrade");
+    btn.button('loading');
+
+    sam_upgrade(
+        ui_display_versions,
+        function () {
+            btn.button('reset');
+        },
+        ui_display_error);
+ 
 }
 
-function ui_check_disks(callback) {
-		backend.update_disks({
-				done: ui_display_disks,
-				always: callback
-		});
+function ui_check_disks() {
+		backend.update_disks(ui_display_disks, ui_display_error);
 }
 
-function ui_check_boot_disk(callback) {
-		backend.update_boot_disk({
-				done: ui_display_boot_disk,
-				always: callback
-		});
+function ui_check_boot_disk(on_always) {
+		backend.update_boot_disk(ui_display_boot_disk, on_always, ui_display_error);
 }
 
 $(document).ready(function () {
@@ -459,16 +392,6 @@ $(document).ready(function () {
     		backend.reactivate();
     });
 
-    $("#tgl_external").on('switchChange.bootstrapSwitch', function(event, state) {
-				event.preventDefault();
-				ui_toggle_external_access();
-    });
-
-    $("#tgl_protocol").on('switchChange.bootstrapSwitch', function(event, state) {
-            event.preventDefault();
-            ui_toggle_protocol();
-    });
-
     $("#btn_platform_upgrade").on('click', function () {
     		ui_platform_upgrade();
     });
@@ -478,8 +401,7 @@ $(document).ready(function () {
     });
 
     ui_check_device_url();
-    ui_check_access();
-    ui_check_disks(function() {});
+    ui_check_disks();
     ui_check_boot_disk(function() {});
     ui_check_versions();
 });
@@ -491,6 +413,8 @@ $(document).ready(function () {
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
+<script src="js/common.js"></script>
+<script src="js/settings.js"></script>
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
 <script src="js/backend/settings.js"></script>

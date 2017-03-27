@@ -1,5 +1,4 @@
-var backend = {
-    app_data: {
+backend.app_data = {
       "info": {
         "app": {
           "id": "owncloud",
@@ -13,17 +12,14 @@ var backend = {
         "current_version": "212",
         "installed_version": "210"
       }
-    },
-    load_app: function(parameters) {
+    };
+    
+backend.load_app = function(app_id, on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.app_data);
-        }, 2000);
-s   },
-    app_action: function(parameters) {
+        backend.test_timeout(function() { on_complete(that.app_data); }, 2000);
+    };
+   
+backend.app_action = function(app_id, action, on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    }
-}
+        backend.test_timeout(function() {on_complete({success: true, is_running: false});}, 2000);
+    };

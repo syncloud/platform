@@ -14,7 +14,7 @@ from requests.adapters import HTTPAdapter
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest
+from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest, local_remove
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -82,8 +82,8 @@ def module_setup(request, data_dir):
 
 
 def module_teardown():
-    os.mkdir(LOG_DIR)
     run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), password=LOGS_SSH_PASSWORD)
+    run_scp('root@localhost:/var/log/sam.log {1}'.format(DATA_DIR, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
     run_ssh('journalctl | tail -200', password=LOGS_SSH_PASSWORD)
@@ -96,6 +96,7 @@ def module_teardown():
 
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+    os.mkdir(LOG_DIR)
 
 
 def test_install(auth, installer):
@@ -205,8 +206,8 @@ def test_certbot_cli(app_dir):
 
 def test_external_https_mode_with_certbot(public_web_session):
 
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
-                                      params={'protocol': 'https'})
+    response = public_web_session.get('http://localhost/rest/access/set_access',
+                                      params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -215,6 +216,21 @@ def test_show_https_certificate():
     run_ssh("echo | "
             "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
+
+
+def test_access(public_web_session):
+    response = public_web_session.get('http://localhost/rest/access/access')
+    print(response.text)
+    assert '"success": true' in response.text
+    assert '"upnp_enabled": false' in response.text
+    assert response.status_code == 200
+
+
+def test_network_interfaces(public_web_session):
+    response = public_web_session.get('http://localhost/rest/access/network_interfaces')
+    print(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
 
 
 def test_hook_override(public_web_session, conf_dir, service_prefix):
@@ -230,26 +246,26 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix):
 
     email, password, domain, app_archive_path = auth
  
-    response = public_web_session.get('http://localhost/rest/settings/protocol')
-    assert '"protocol": "https"' in response.text
+    response = public_web_session.get('http://localhost/rest/access/access')
+    assert '"is_https": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
-                                      params={'protocol': 'https'})
+    response = public_web_session.get('http://localhost/rest/access/set_access',
+                                      params={ 'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/protocol')
-    assert '"protocol": "https"' in response.text
+    response = public_web_session.get('http://localhost/rest/access/access')
+    assert '"is_https": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/set_protocol',
-                                      params={'protocol': 'http'})
+    response = public_web_session.get('http://localhost/rest/access/set_access',
+                                      params={ 'is_https': 'false', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/protocol')
-    assert '"protocol": "http"' in response.text
+    response = public_web_session.get('http://localhost/rest/access/access')
+    assert '"is_https": false' in response.text
     assert response.status_code == 200
 
     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
@@ -294,6 +310,10 @@ def loop_device():
 def disk_writable():
     run_ssh('ls -la /data/', password=DEVICE_PASSWORD)
     run_ssh("touch /data/platform/test.file", password=DEVICE_PASSWORD)
+
+
+def test_udev_script(app_dir):
+    run_ssh('{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
 
 
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
@@ -368,14 +388,14 @@ def cron_is_enabled_after_install():
     assert not crontab.startswith('#'), crontab
 
 
-def test_remove():
-    run_ssh('/opt/app/sam/bin/sam --debug remove platform', password=DEVICE_PASSWORD)
-    time.sleep(3)
-
-
-def test_reinstall(auth, installer):
-    email, password, domain, app_archive_path = auth
-    local_install(DEVICE_PASSWORD, app_archive_path, installer)
+def test_local_upgrade(auth, installer):
+    _, _, _, app_archive_path = auth
+    if installer == 'sam':
+        local_remove(DEVICE_PASSWORD, installer, 'platform')
+        time.sleep(3)
+        local_install(DEVICE_PASSWORD, app_archive_path, installer)
+    else:
+        local_install(DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_public_web_platform_upgrade(public_web_session):

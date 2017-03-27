@@ -1,18 +1,11 @@
-function find_app(apps_data, app_id) {
-    for (s=0; s < apps_data.length; s++) {
-        var app_data = apps_data[s];
-        if (app_data.app.id == app_id) {
-            return app_data;
-        }
-    }
-    return null;
-}
+backend.job_status = function (job, on_complete, on_error) {
+    backend.test_timeout(function() { on_complete({success: true, is_running: false}) }, 2000);
+};
 
-function success_callbacks(parameters, data) {
-    if (parameters.hasOwnProperty("done")) {
-        parameters.done(data);
+backend.test_timeout = function(on_complete, timeout) {
+    if (backend.async) {
+        setTimeout(on_complete, timeout);
+    } else {
+        on_complete();
     }
-    if (parameters.hasOwnProperty("always")) {
-        parameters.always();
-    }
-}
+};

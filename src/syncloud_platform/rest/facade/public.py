@@ -1,6 +1,7 @@
 from syncloud_app import logger
 
 from syncloud_platform.gaplib.linux import pgrep, run_detached
+from syncloud_platform.insider.util import secure_to_protocol, protocol_to_port
 from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
 from syncloud_platform.sam.stub import SAM_BIN_SHORT
@@ -8,7 +9,8 @@ from syncloud_platform.sam.stub import SAM_BIN_SHORT
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator):
+    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator, port_mapper_factory, network, port_config):
+        self.port_config = port_config
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
@@ -20,6 +22,8 @@ class Public:
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
         self.certbot_generator = certbot_generator
+        self.port_mapper_factory = port_mapper_factory
+        self.network=network
         self.resize_script = self.platform_config.get_boot_extend_script()
 
     def domain(self):
@@ -57,21 +61,35 @@ class Public:
         return [app_from_sam_app(a) for a in self.sam.user_apps()]
 
     def access(self):
+    
+        upnp_enabled = self.user_platform_config.get_upnp()
+        mapper = self.port_mapper_factory.provide_mapper()
+        upnp_available = mapper is not None
+        if upnp_available:
+            upnp_message = 'Your router has {0} enabled, public ip: {1}'.format(mapper.name(),  mapper.external_ip())
+        else:
+            upnp_message = 'Your router does not have port mapping feature enabled at the moment'
+        manual_public_ip = self.user_platform_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
-        protocol = self.user_platform_config.get_protocol()
-        return dict(external_access=external_access, protocol=protocol)
+        is_https = self.user_platform_config.is_https()
+        existing_public_port = self.__get_existing_public_port(is_https)
+        return dict(external_access=external_access,
+                    is_https=is_https,
+                    upnp_available=upnp_available,
+                    upnp_enabled=upnp_enabled,
+                    upnp_message=upnp_message,
+                    public_ip=manual_public_ip,
+                    public_port=existing_public_port)
 
-    def external_access(self):
-        return self.user_platform_config.get_external_access()
+    def __get_existing_public_port(self, is_https):
+        port = protocol_to_port(secure_to_protocol(is_https))
+        mapping = self.port_config.get(port, 'TCP')
+        if mapping:
+            return mapping.external_port
+        return None
 
-    def external_access_enable(self, external_access):
-        self.device.set_access(self.user_platform_config.get_protocol(), external_access)
-
-    def protocol(self):
-        return self.user_platform_config.get_protocol()
-
-    def set_protocol(self, protocol):
-        self.device.set_access(protocol, self.user_platform_config.get_external_access())
+    def set_access(self, upnp_enabled, is_https, external_access, public_ip, public_port):
+        self.device.set_access(upnp_enabled, is_https, external_access, public_ip, public_port)
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
@@ -100,10 +118,13 @@ class Public:
     def boot_disk(self):
         return self.hardware.root_partition()
 
-    def send_logs(self):
+    def send_logs(self, include_support):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()
-        self.redirect_service.send_log(user_token, logs)
+        self.redirect_service.send_log(user_token, logs, include_support)
 
     def regenerate_certificate(self):
         self.certbot_generator.generate_certificate()
+
+    def network_interfaces(self):
+        return self.network.interfaces()

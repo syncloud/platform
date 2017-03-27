@@ -141,42 +141,36 @@ def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
-@app.route(rest_prefix + "/settings/access", methods=["GET"])
+@app.route(rest_prefix + "/access/access", methods=["GET"])
 @login_required
 def access():
     return jsonify(success=True, data=public.access()), 200
 
 
-@app.route(rest_prefix + "/settings/external_access", methods=["GET"])
+@app.route(rest_prefix + "/access/set_access", methods=["GET"])
 @login_required
-def external_access():
-    return jsonify(external_access=public.external_access()), 200
-
-
-@app.route(rest_prefix + "/settings/set_external_access", methods=["GET"])
-@login_required
-def external_access_enable():
-    public.external_access_enable(request.args['external_access'] == 'true')
+def set_access():
+    public.set_access(
+        request.args['upnp_enabled'] == 'true',
+        request.args['is_https'] == 'true',
+        request.args['external_access'] == 'true',
+        request.args['public_ip'],
+        int(request.args['public_port'])
+    )
     return jsonify(success=True), 200
 
 
-@app.route(rest_prefix + "/settings/protocol", methods=["GET"])
+@app.route(rest_prefix + "/access/network_interfaces", methods=["GET"])
 @login_required
-def protocol():
-    return jsonify(protocol=public.protocol()), 200
-
-
-@app.route(rest_prefix + "/settings/set_protocol", methods=["GET"])
-@login_required
-def set_protocol():
-    public.set_protocol(request.args['protocol'])
-    return jsonify(success=True), 200
+def network_interfaces():
+    return jsonify(success=True, data=dict(interfaces=public.network_interfaces())), 200
 
 
 @app.route(rest_prefix + "/send_log", methods=["GET"])
 @login_required
 def send_log():
-    public.send_logs()
+    include_support = request.args['include_support'] == 'true'
+    public.send_logs(include_support)
     return jsonify(success=True), 200
 
 

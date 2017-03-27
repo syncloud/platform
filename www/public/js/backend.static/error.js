@@ -1,7 +1,3 @@
-var backend = {
-    send_log: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    }
-}
+backend.send_log = function(on_always, on_error) {
+        setTimeout(on_always, 2000);
+    };

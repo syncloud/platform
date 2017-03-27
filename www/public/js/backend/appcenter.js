@@ -1,5 +1,4 @@
-var backend = {
-    available_apps: function(parameters) {
+backend.available_apps = function(parameters) {
         $.get( '/rest/available_apps')
             .done(function (data) {
                 if (parameters.hasOwnProperty("done")) {
@@ -20,5 +19,4 @@ var backend = {
                     parameters.always();
                 }
             });
-    }
-}
+    };

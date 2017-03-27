@@ -24,9 +24,18 @@ function hide_fields_errors(form) {
     $( error_blocks_selector ).remove();
 }
 
-function ui_display_error(status, error) {
+function ui_display_error(xhr, textStatus, errorThrown) {
+
+    var status = xhr.status;
+    var error = null;
+    if (xhr.hasOwnProperty('responseJSON')) {
+        error = xhr.responseJSON;
+    }
+    
     if (status === 401) {
         window.location.href = "login.html";
+    } else if (status === 0) {
+        console.log('user navigated away from the page');
     } else {
         if (error) {
             if ('parameters_messages' in error) {

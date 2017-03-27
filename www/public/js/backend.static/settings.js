@@ -1,18 +1,17 @@
-var backend = {
-    device_data: {
+backend.device_data = {
       "device_domain": "test.syncloud.it",
       "success": true
-    },
+    };
 
-    access_data: {
+backend.access_data = {
       "data": {
         "external_access": true,
         "protocol": "https"
       },
       "success": true
-    },
+    };
 
-    versions_data: {
+backend.versions_data = {
       "data": [
         {
           "app": {
@@ -38,9 +37,9 @@ var backend = {
         }
       ],
       "success": true
-    },
+    };
 
-    disks_data: {
+backend.disks_data = {
       "disks": [
         {
           "name": "My Passport 0837",
@@ -70,110 +69,70 @@ var backend = {
         }
       ],
       "success": true
-    },
+    };
 
-    boot_disk_data: {
+backend.boot_disk_data = {
       "data": {
           "device": "/dev/mmcblk0p2",
-          "size": "16G"
+          "size": "2G",
+          "extendable": true
         },
       "success": true
-    },
+    };
 
-    device_url: function(parameters) {
+backend.device_url = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.device_data);
-        }, 2000);
-    },
+        setTimeout(function() { on_complete(that.device_data); }, 2000);
+    };
 
-    send_logs: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
+backend.send_logs = function(include_support, on_always, on_error) {
+        setTimeout(on_always, 2000);
+    };
 
-    reactivate: function() {
+backend.reactivate = function() {
         window.location.href = "activate.html";
+    };
+
+backend.get_versions = function(on_complete, on_always, on_error) {
+        var that = this;
+        setTimeout(function() { 
+            on_complete(that.versions_data); 
+            on_always();
+        }, 2000);
+    };
+
+backend.check_versions = function(on_always, on_error) {
+        setTimeout(on_always, 2000);
+    };
+
+backend.platform_upgrade = function(on_complete, on_error) {
+        setTimeout(on_complete({success: true}), 2000);
     },
 
-    check_access: function(parameters) {
+backend.boot_extend = function(on_complete, on_error) {
         var that = this;
         setTimeout(function() {
-            success_callbacks(parameters, that.access_data);
+            that.boot_disk_data.data.extendable = false;
+            that.boot_disk_data.data.size = '16G';
+            on_complete({success: true});
         }, 2000);
-    },
+    };
 
-    external_access: function(parameters) {
+backend.sam_upgrade = function(on_complete, on_error) {
+        setTimeout(function() { on_complete({success: true}) }, 2000);
+    };
+
+backend.update_disks = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            that.access_data.data.external_access = parameters.state;
-            if (!that.access_data.data.external_access) {
-                that.access_data.data.protocol = "http";
-            }
-            success_callbacks(parameters);
-        }, 2000);
-    },
+        setTimeout(function() { on_complete(that.disks_data); }, 2000);
+    };
 
-    protocol: function(parameters) {
+backend.update_boot_disk = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            that.access_data.data.protocol = parameters.new_protocol;
-            success_callbacks(parameters);
-        }, 2000);
-    },
+        setTimeout(function() { on_complete(that.boot_disk_data); }, 2000);
+    };
 
-    get_versions: function(parameters) {
+backend.disk_action = function(disk_device, is_activate, on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.versions_data);
-        }, 2000);
-    },
-
-    check_versions: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    platform_upgrade: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    boot_extend: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    sam_upgrade: function(parameters) {
-        setTimeout(function() {
-            success_callbacks(parameters);
-        }, 2000);
-    },
-
-    update_disks: function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.disks_data);
-        }, 2000);
-    },
-
-    update_boot_disk: function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.boot_disk_data);
-        }, 2000);
-    },
-
-    disk_action: function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            that.disks_data
-            success_callbacks(parameters);
-        }, 2000);
-    }
-
-};
+        setTimeout(function() { on_complete(that.disks_data); }, 2000);
+    };

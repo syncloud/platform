@@ -3,7 +3,7 @@ import os
 from os.path import islink, join, isdir
 from os import path
 from syncloud_app import logger
-from syncloud_platform.control import systemctl
+from syncloud_platform.disks.lsblk import Partition
 from syncloud_platform.gaplib import fs
 from syncloud_platform.gaplib.linux import parted
 
@@ -45,12 +45,15 @@ class Hardware:
 
     def root_partition(self):
         disks = self.lsblk.all_disks()
-        partition = None
+
+        partition = Partition(0, 'unknown', '/', True, 'unknown', False)
+
         boot_disk = next((d for d in disks if d.find_root_partition() is not None), None)
         if boot_disk:
             partition = boot_disk.find_root_partition()
             parted_output = parted(boot_disk.device)
             partition.extendable = has_unallocated_space_at_the_end(parted_output)
+
         return partition
 
     def activate_disk(self, device):
