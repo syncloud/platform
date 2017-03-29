@@ -1,17 +1,17 @@
 var backend_menu = {
-    logout: function(parameters) {
+    logout: function(on_complete, on_error) {
         setTimeout(function() {
-            success_callbacks(parameters);
+            on_complete({});
         }, 2000);
     },
-    restart: function(parameters) {
+    restart: function(on_complete, on_error) {
         setTimeout(function() {
-            success_callbacks(parameters);
+            on_complete({});
         }, 2000);
     },
-    shutdown: function(parameters) {
+    shutdown: function(on_complete, on_error) {
         setTimeout(function() {
-            success_callbacks(parameters);
+            on_complete({});
         }, 2000);
     }
-}
+};

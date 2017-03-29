@@ -6,7 +6,7 @@
 	<meta name="author" content="syncloud.org">
 	<meta name="description" content="Your Personal Server">
 	<meta name="keywords" content="Your Personal Server">
-	
+
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 	<meta name="HandheldFriendly" content="true" />
 	<meta name="MobileOptimized" content="width" />
@@ -22,7 +22,7 @@
   <script type="text/javascript" src="js/lib/underscore-min.js"></script>
 
 	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-	</head>	
+	</head>
 <body>
 <div class="wrapper">
 <div class="content">
@@ -109,10 +109,10 @@ function display_apps(data) {
 }
 
 $( document ).ready(function() {
-		backend.available_apps({
-			done: display_apps,
-			fail: ui_display_error
-		});
+		backend.available_apps(
+                display_apps,
+                ui_display_error
+		);
 });
 
 </script>

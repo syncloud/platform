@@ -1,21 +1,21 @@
 backend.apps_data = {
-      "apps": [
+    "apps": [
         {
-          "id": "owncloud",
-          "name": "ownCloud",
-          "icon": "penguin.png",
-          "url": "http://owncloud.odroid-c2.syncloud.it"
+            "id": "owncloud",
+            "name": "ownCloud",
+            "icon": "penguin.png",
+            "url": "http://owncloud.odroid-c2.syncloud.it"
         }
-      ]
-    };
+    ]
+};
 
 //    apps_data: {
 //      "apps": []
 //    },
 
-backend.installed_apps = function(parameters) {
-        var that = this;
-        setTimeout(function() {
-            success_callbacks(parameters, that.apps_data);
-        }, 2000);
-    };
+backend.installed_apps = function (on_complete, on_error) {
+    var that = this;
+    setTimeout(function () {
+        on_complete(that.apps_data);
+    }, 2000);
+};
