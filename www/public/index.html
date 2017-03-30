@@ -124,10 +124,10 @@ function display_apps(data) {
 }
 
 $( document ).ready(function() {
-		backend.installed_apps({
-				done: display_apps,
-				fail: ui_display_error
-		});
+		backend.installed_apps(
+				display_apps,
+				ui_display_error
+		);
 });
 
 </script>

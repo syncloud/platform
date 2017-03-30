@@ -12,7 +12,6 @@ fi
 
 ARCH=$1
 ROOTFS=rootfs
-#ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 
 function cleanup {
     mount | grep rootfs

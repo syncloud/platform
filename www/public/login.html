@@ -99,19 +99,20 @@ $(document).ready(function () {
 
         var btn = $("#btn_login");
         btn.button('loading');
-				$("#form-login input").prop("disabled", true);
-				hide_fields_errors("form-login");
-        backend.login({
-        		values: values,
-        		always: function() {
-        				btn.button('reset');
-								$("#form-login input").prop("disabled", false);
+        $("#form-login input").prop("disabled", true);
+        hide_fields_errors("form-login");
+
+        backend.login(
+                values,
+        		function(data) {
+                    window.location.href = "index.html";
         		},
-        		done: function(data) {
-								window.location.href = "index.html";
-        		},
-        		fail: ui_display_error
-        });
+                ui_display_error,
+                function() {
+                    btn.button('reset');
+                    $("#form-login input").prop("disabled", false);
+        		}
+        );
     });
 });
 
