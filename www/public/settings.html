@@ -323,7 +323,11 @@ function ui_check_versions() {
     btn.button('loading');
     
     check_versions(
-        ui_display_versions, 
+        function (data) {
+            ui_display_versions(data);
+            btn.button('reset');
+            upgrade_buttons_enabled(true);
+        }, 
         function (a, b, c) {
             ui_display_error(a, b, c);
             btn.button('reset');
@@ -336,7 +340,10 @@ function ui_platform_upgrade() {
     btn.button('loading');
 
     platform_upgrade(
-        ui_display_versions,
+        function (data) {
+            ui_display_versions(data);
+            btn.button('reset');
+        }, 
         function (a, b, c) {
             ui_display_error(a, b, c);
             btn.button('reset');
@@ -349,7 +356,10 @@ function ui_boot_extend() {
     btn.button('loading');
     
     boot_extend(
-        ui_display_boot_disk,
+        function (data) {
+            ui_display_boot_disk(data);
+            btn.button('reset');
+        },
         function (a, b, c) {
             ui_display_error(a, b, c);
             btn.button('reset');
@@ -362,7 +372,10 @@ function ui_sam_upgrade() {
     btn.button('loading');
 
     sam_upgrade(
-        ui_display_versions,
+        function (data) {
+            ui_display_versions(data);
+            btn.button('reset');
+        },
         function (a, b, c) {
             ui_display_error(a, b, c);
             btn.button('reset');
