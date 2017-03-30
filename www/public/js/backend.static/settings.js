@@ -93,11 +93,10 @@ backend.reactivate = function() {
         window.location.href = "activate.html";
     };
 
-backend.get_versions = function(on_complete, on_always, on_error) {
+backend.get_versions = function(on_complete, on_error) {
         var that = this;
         setTimeout(function() { 
-            on_complete(that.versions_data); 
-            on_always();
+            on_complete(that.versions_data);
         }, 2000);
     };
 

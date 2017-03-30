@@ -12,8 +12,8 @@ backend.reactivate = function() {
         window.location.href = (new URI()).port(81).directory("").filename("").query("");
     };
 
-backend.get_versions = function(on_complete, on_always, on_error) {
-        $.get('/rest/settings/versions').done(on_complete).always(on_always).fail(on_error);
+backend.get_versions = function(on_complete, on_error) {
+        $.get('/rest/settings/versions').done(on_complete).fail(on_error);
     };
 
 backend.check_versions = function(on_always, on_error) {
@@ -32,8 +32,8 @@ backend.update_disks = function(on_complete, on_error) {
         $.get('/rest/settings/disks').done(on_complete).fail(on_error);
     };
 
-backend.update_boot_disk = function(on_complete, on_always, on_error) {
-        $.get('/rest/settings/boot_disk').done(on_complete).always(on_always).fail(on_error);
+backend.update_boot_disk = function(on_complete, on_error) {
+        $.get('/rest/settings/boot_disk').done(on_complete).fail(on_error);
     };
 
 backend.disk_action = function(disk_device, is_activate, on_always, on_error) {
