@@ -363,7 +363,7 @@ $(document).ready(function () {
                 upnp_enabled,
                 access_toggle.bootstrapSwitch('state'),
                 protocol_toggle.bootstrapSwitch('state'),
-                $("#public_ip").val(),
+                $("#public_ip").val().trim(),
                 public_port,
                 ui_check_access,
                 function (xhr, textStatus, errorThrown) {
