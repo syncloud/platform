@@ -67,7 +67,7 @@ class LdapAuth:
 
         self.__init_db(filename, self.ldap_root)
 
-        check_output('echo "root:{0}" | chpasswd'.format(password), shell=True)
+        check_output(generate_change_password_cmd(password), shell=True)
 
     def __init_db(self, filename, ldap_root):
         success = False
@@ -83,6 +83,10 @@ class LdapAuth:
 
         if not success:
             raise Exception("Unable to initialize ldap db")
+
+
+def generate_change_password_cmd(password):
+    return 'echo "root:{0}" | chpasswd'.format(password.replace('"', '\\"'))
 
 
 def to_ldap_dc(full_domain):
