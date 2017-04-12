@@ -11,7 +11,6 @@ if [ "$#" -lt 8 ]; then
     exit 1
 fi
 
-ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 APP_ARCHIVE_PATH=$(realpath "$4")
 INSTALLER_VERSION=$5
 RELEASE=$6
