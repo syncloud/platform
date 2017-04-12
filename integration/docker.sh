@@ -8,7 +8,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+ARCH=$(uname -m)
 RELEASE=$1
 
 if [ ! -d 3rdparty ]; then
