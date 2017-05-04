@@ -15,7 +15,13 @@ DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 
 
-def test_web_with_selenium(user_domain):
+@pytest.fixture(scope="module")
+def driver():
+
+    screenshot_dir = join(DIR, 'screenshot')
+    if exists(screenshot_dir):
+        shutil.rmtree(screenshot_dir)
+    os.mkdir(screenshot_dir)
 
     os.environ['PATH'] = os.environ['PATH'] + ":" + join(DIR, 'geckodriver')
 
@@ -27,12 +33,19 @@ def test_web_with_selenium(user_domain):
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
 
-    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
+    return webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
 
-    screenshot_dir = join(DIR, 'screenshot')
-    if exists(screenshot_dir):
-        shutil.rmtree(screenshot_dir)
-    os.mkdir(screenshot_dir)
+
+@pytest.fixture(scope="module")
+def module_setup(request):
+    request.addfinalizer(module_teardown)
+
+
+def module_teardown(driver):
+    driver.close()
+    
+
+def test_internal_ui(driver, user_domain):
 
     driver.get("http://{0}:81".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
@@ -40,11 +53,17 @@ def test_web_with_selenium(user_domain):
     screenshots(driver, screenshot_dir, 'activate')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
+
+def test_external_ui(driver, user_domain):
+
     driver.get("http://{0}".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+
+
+def test_login(driver, user_domain):
 
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
@@ -57,12 +76,18 @@ def test_web_with_selenium(user_domain):
 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
+
+def test_settings(driver, user_domain):
+
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(5)
     screenshots(driver, screenshot_dir, 'settings')
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+
+def test_access(driver, user_domain):
 
     driver.get("http://{0}/access.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
