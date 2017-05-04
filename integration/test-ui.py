@@ -13,12 +13,12 @@ DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
-
+screenshot_dir = join(DIR, 'screenshot')
+ 
 
 @pytest.fixture(scope="module")
 def driver():
 
-    screenshot_dir = join(DIR, 'screenshot')
     if exists(screenshot_dir):
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
