@@ -58,5 +58,6 @@ fi
 chroot ${ROOTFS} /build/build.sh $@
 
 cp ${ROOTFS}/build/*.tar.gz .
+cp ${ROOTFS}/build/*.snap .
 
 cleanup || true
