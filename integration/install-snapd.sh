@@ -30,7 +30,7 @@ cp snapd/bin/snap /usr/bin
 cp snapd/bin/snapctl /usr/bin
 cp snapd/bin/mksquashfs /usr/bin
 cp snapd/bin/unsquashfs /usr/bin
-cp snapd/lib/* /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)
+cp snapd/lib/* /lib/$HOSTTYPE-$OSTYPE
 
 cp snapd/conf/snapd.service /lib/systemd/system/
 cp snapd/conf/snapd.socket /lib/systemd/system/
