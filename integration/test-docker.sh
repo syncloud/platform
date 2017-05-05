@@ -33,8 +33,8 @@ sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 install-${INSTALLER}
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost /installer.sh ${INSTALLER_VERSION} ${RELEASE}
 
 apt-get install -y sshpass xvfb firefox
-
-coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v0.14.0/geckodriver-v0.14.0-linux64.tar.gz
+geckodriver=0.16.0
+coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v${geckodriver}/geckodriver-v${$geckodriver}-linux64.tar.gz
 
 curl https://raw.githubusercontent.com/mguillem/JSErrorCollector/master/dist/JSErrorCollector.xpi -o  JSErrorCollector.xpi
 
