@@ -32,8 +32,9 @@ def driver():
 
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
-
-    return webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
+    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
+    driver.set_page_load_timeout(30)
+    return driver
 
 
 @pytest.fixture(scope="module")
