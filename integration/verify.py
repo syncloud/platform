@@ -82,7 +82,7 @@ def module_setup(request, data_dir):
 
 
 def module_teardown():
-    run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), password=LOGS_SSH_PASSWORD)
+    run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@localhost:/var/log/sam.log {1}'.format(DATA_DIR, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
