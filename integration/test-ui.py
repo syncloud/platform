@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
@@ -27,12 +28,16 @@ def driver():
 
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
-    caps["binary"] = "/usr/bin/firefox"
+    #caps["binary"] = "/usr/bin/firefox"
     caps['loggingPrefs'] = {'browser': 'ALL'}
+
+    binary = FirefoxBinary('{0}/firefox/firefox'.format(DIR))
 
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
-    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR))
+    profile.set_preference('app.update.auto', False)
+    profile.set_preference('app.update.enabled', False)
+    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary)
     driver.set_page_load_timeout(30)
     return driver
 

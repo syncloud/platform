@@ -17,6 +17,9 @@ RELEASE=$6
 TEST=$7
 INSTALLER=$8
 
+GECKODRIVER=0.16.1
+FIREFOX=52.0
+
 echo ${APP_ARCHIVE_PATH}
 
 if [ "$TEST" == "all" ]; then
@@ -33,9 +36,9 @@ sshpass -p syncloud scp -o StrictHostKeyChecking=no -P 2222 install-${INSTALLER}
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost /installer.sh ${INSTALLER_VERSION} ${RELEASE}
 
 apt-get install -y sshpass xvfb firefox
-geckodriver=0.16.1
-coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v${geckodriver}/geckodriver-v${geckodriver}-linux64.tar.gz
 
+coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER}/geckodriver-v${GECKODRIVER}-linux64.tar.gz
+coin --to ${DIR} raw https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX}/linux-x86_64/en-US/firefox-${FIREFOX}.tar.bz2
 curl https://raw.githubusercontent.com/mguillem/JSErrorCollector/master/dist/JSErrorCollector.xpi -o  JSErrorCollector.xpi
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
