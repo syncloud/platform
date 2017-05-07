@@ -31,7 +31,7 @@ def driver():
     caps["binary"] = firefox_path
     caps['loggingPrefs'] = {'browser': 'ALL'}
 
-    binary = FirefoxBinary(firofox_path)
+    binary = FirefoxBinary(firefox_path)
 
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
