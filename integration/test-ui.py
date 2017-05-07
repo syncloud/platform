@@ -25,13 +25,13 @@ def driver():
     os.mkdir(screenshot_dir)
 
     os.environ['PATH'] = os.environ['PATH'] + ":" + join(DIR, 'geckodriver')
-
+    firefox_path = '{0}/firefox/firefox'.format(DIR)
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
-    #caps["binary"] = "/usr/bin/firefox"
+    caps["binary"] = firefox_path
     caps['loggingPrefs'] = {'browser': 'ALL'}
 
-    binary = FirefoxBinary('{0}/firefox/firefox'.format(DIR))
+    binary = FirefoxBinary(firofox_path)
 
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
