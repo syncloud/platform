@@ -31,7 +31,7 @@ def driver():
     binary = FirefoxBinary(firefox_path)
 
     profile = webdriver.FirefoxProfile()
-    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
+    #profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
@@ -55,7 +55,7 @@ def test_internal_ui(driver, user_domain):
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'activate')
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+    #print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
 def test_external_ui(driver, user_domain):
