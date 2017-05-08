@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 
+apt-get update
 apt-get install -y squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev libssl-dev libffi-dev apache2-utils
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
