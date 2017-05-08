@@ -24,12 +24,9 @@ def driver():
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
 
-    #os.environ['PATH'] = os.environ['PATH'] + ":" + join(DIR, 'geckodriver')
     firefox_path = '{0}/firefox/firefox'.format(DIR)
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
-    #caps["binary"] = firefox_path
-    #caps['loggingPrefs'] = {'browser': 'ALL'}
 
     binary = FirefoxBinary(firefox_path)
 
@@ -64,9 +61,8 @@ def test_internal_ui(driver, user_domain):
 def test_external_ui(driver, user_domain):
 
     driver.get("http://localhost")
-    #wait_driver = WebDriverWait(driver, 10)
-    #time.sleep(2)
-    #screenshots(driver, screenshot_dir, 'login')
+    time.sleep(2)
+    screenshots(driver, screenshot_dir, 'login')
     #print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
