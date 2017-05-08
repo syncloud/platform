@@ -29,7 +29,7 @@ def driver():
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
     #caps["binary"] = firefox_path
-    caps['loggingPrefs'] = {'browser': 'ALL'}
+    #caps['loggingPrefs'] = {'browser': 'ALL'}
 
     binary = FirefoxBinary(firefox_path)
 
