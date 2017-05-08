@@ -39,6 +39,7 @@ def driver():
     profile.set_preference('app.update.enabled', False)
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary)
     driver.set_page_load_timeout(30)
+    print driver.capabilities['version']
     return driver
 
 
@@ -53,7 +54,7 @@ def module_teardown(driver):
 
 def _test_internal_ui(driver, user_domain):
 
-    driver.get("http://localhost:81")
+    driver.get("http://localhost")
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'activate')
