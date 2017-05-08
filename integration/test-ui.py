@@ -51,7 +51,7 @@ def module_teardown(driver):
     driver.close()
     
 
-def test_internal_ui(driver, user_domain):
+def _test_internal_ui(driver, user_domain):
 
     driver.get("http://localhost:81")
     wait_driver = WebDriverWait(driver, 10)
@@ -60,7 +60,7 @@ def test_internal_ui(driver, user_domain):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_external_ui(driver, user_domain):
+def _test_external_ui(driver, user_domain):
 
     driver.get("http://localhost")
     wait_driver = WebDriverWait(driver, 10)
@@ -69,7 +69,7 @@ def test_external_ui(driver, user_domain):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_login(driver, user_domain):
+def _test_login(driver, user_domain):
 
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
@@ -83,7 +83,7 @@ def test_login(driver, user_domain):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def test_settings(driver, user_domain):
+def _test_settings(driver, user_domain):
 
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
@@ -93,7 +93,7 @@ def test_settings(driver, user_domain):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def test_access(driver, user_domain):
+def _test_access(driver, user_domain):
 
     driver.get("http://{0}/access.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
