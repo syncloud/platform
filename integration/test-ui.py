@@ -39,7 +39,7 @@ def driver():
     profile.set_preference('app.update.enabled', False)
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
     driver.set_page_load_timeout(30)
-    print driver.capabilities['version']
+    #print driver.capabilities['version']
     return driver
 
 
