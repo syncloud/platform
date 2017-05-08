@@ -24,7 +24,7 @@ def driver():
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
 
-    os.environ['PATH'] = os.environ['PATH'] + ":" + join(DIR, 'geckodriver')
+    #os.environ['PATH'] = os.environ['PATH'] + ":" + join(DIR, 'geckodriver')
     firefox_path = '{0}/firefox/firefox'.format(DIR)
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
@@ -37,7 +37,7 @@ def driver():
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
-    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary)
+    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
     driver.set_page_load_timeout(30)
     print driver.capabilities['version']
     return driver
@@ -52,7 +52,7 @@ def module_teardown(driver):
     driver.close()
     
 
-def _test_internal_ui(driver, user_domain):
+def test_internal_ui(driver, user_domain):
 
     driver.get("http://localhost")
     wait_driver = WebDriverWait(driver, 10)
