@@ -31,7 +31,7 @@ def driver():
     binary = FirefoxBinary(firefox_path)
 
     profile = webdriver.FirefoxProfile()
-    #profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
+    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
@@ -55,7 +55,7 @@ def test_internal_ui(driver, user_domain):
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'activate')
-    #print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
 def test_external_ui(driver, user_domain):
@@ -63,10 +63,10 @@ def test_external_ui(driver, user_domain):
     driver.get("http://localhost")
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'login')
-    #print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def _test_login(driver, user_domain):
+def test_login(driver, user_domain):
 
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
@@ -80,7 +80,7 @@ def _test_login(driver, user_domain):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def _test_settings(driver, user_domain):
+def test_settings(driver, user_domain):
 
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
@@ -90,7 +90,7 @@ def _test_settings(driver, user_domain):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def _test_access(driver, user_domain):
+def test_access(driver, user_domain):
 
     driver.get("http://{0}/access.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
