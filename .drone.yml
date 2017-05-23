@@ -1,0 +1,26 @@
+platform: ${platform}
+
+clone:
+  git:
+    image: ${git}
+    depth: 50
+
+pipeline:
+  build:
+    image: ${container}
+    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
+    commands:
+      - VERSION=$(date +%y%m%d)
+      - ./deps.sh
+      - ./build.sh $VERSION
+      - ./unit-test.sh
+      - ./upload.sh $DRONE_BRANCH $VERSION
+
+matrix:
+  include:
+    - platform: linux/arm
+      container: armv7/armhf-debian:8
+      git: syncloud/armhf-drone-git
+    - platform: linux/amd64
+      container: debian:8
+      git: plugins/git
