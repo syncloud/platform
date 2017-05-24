@@ -4,8 +4,8 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 NAME="platform"
 
-if [[ -z "$1" || -z "$2" ]]; then
-    echo "usage $0 app_arch app_version"
+if [[ -z "$1" ]]; then
+    echo "usage $0 version"
     exit 1
 fi
 
@@ -14,7 +14,7 @@ ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 if [ "${ARCH}" == 'arm' ]; then
     ARCH="armv7l"
 fi
-VERSION=$2
+VERSION=$1
 
 cd ${DIR}
 
