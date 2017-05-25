@@ -20,11 +20,14 @@ pipeline:
     detach: true
     commands:
       - /sbin/init
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+      
   integration:
     image: ${container}
     commands:
       - sleep 10
-      - ssh device
+      - ping device
       
 
 matrix:
