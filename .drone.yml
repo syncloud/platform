@@ -22,6 +22,7 @@ pipeline:
       - /sbin/init
     volumes:
       - /var/run/dbus:/var/run/dbus
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       
   integration:
     image: ${container}
