@@ -15,16 +15,7 @@ pipeline:
     #  - ./build.sh $VERSION
     #  - ./unit-test.sh
       #- ./upload.sh $DRONE_BRANCH $VERSION
-  device:
-    image: ${container}
-    detach: true
-    commands:
-      - apt-get update
-      - apt-get install systemd
-      - /sbin/init
-    volumes:
-      - /var/run/dbus:/var/run/dbus
-      
+
   integration:
     image: ${container}
     commands:
@@ -32,11 +23,17 @@ pipeline:
       - ping device
       
 
+services:
+  device:
+    image: dramaturg/debian-systemd
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+ 
 matrix:
   include:
-    - platform: linux/arm
-      container: armv7/armhf-debian:8
-      git: syncloud/armhf-drone-git
+    #- platform: linux/arm
+    #  container: armv7/armhf-debian:8
+    #  git: syncloud/armhf-drone-git
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
