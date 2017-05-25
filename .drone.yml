@@ -19,10 +19,11 @@ pipeline:
     image: ${container}
     detach: true
     commands:
+      - apt-get update
+      - apt-get install systemd
       - /sbin/init
     volumes:
       - /var/run/dbus:/var/run/dbus
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
       
   integration:
     image: ${container}
