@@ -6,15 +6,20 @@ clone:
     depth: 50
 
 pipeline:
-  build:
+  #build:
+    #image: ${container}
+    #secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
+    #commands:
+    #  - VERSION=$(date +%y%m%d)
+    #  - ./deps.sh
+    #  - ./build.sh $VERSION
+    #  - ./unit-test.sh
+      #- ./upload.sh $DRONE_BRANCH $VERSION
+  device:
     image: ${container}
-    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
+    detach: true
     commands:
-      - VERSION=$(date +%y%m%d)
-      - ./deps.sh
-      - ./build.sh $VERSION
-      - ./unit-test.sh
-      - ./upload.sh $DRONE_BRANCH $VERSION
+      - ./integragion/test-docker.sh
 
 matrix:
   include:
