@@ -19,7 +19,13 @@ pipeline:
     image: ${container}
     detach: true
     commands:
-      - ./integragion/test-docker.sh
+      - /sbin/init
+  integration:
+    image: ${container}
+    commands:
+      - sleep 10
+      - ssh device
+      
 
 matrix:
   include:
