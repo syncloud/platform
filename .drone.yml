@@ -19,8 +19,7 @@ pipeline:
   integration:
     image: ${container}
     commands:
-      - sleep 10
-      - ping device
+      - ./integration/test-docker.sh teamcity teamcity teamcity master all sam device
       
 
 services:
