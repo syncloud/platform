@@ -33,9 +33,9 @@ cd ${DIR}
 #./docker.sh ${RELEASE}
 
 apt-get -qq update
-apt-get -qq install ssh
+apt-get -qq install ssh sshpass
 
-ssh-keygen -f "/root/.ssh/known_hosts" -R [${DEVICE_HOST}]
+#ssh-keygen -f "/root/.ssh/known_hosts" -R [${DEVICE_HOST}]
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
 attempts=100
 attempt=0
