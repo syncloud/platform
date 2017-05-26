@@ -32,13 +32,22 @@ fi
 cd ${DIR}
 #./docker.sh ${RELEASE}
 
+apt-get -qq update
+apt-get -qq install ssh
+
 ssh-keygen -f "/root/.ssh/known_hosts" -R [${DEVICE_HOST}]
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
+attempts=100
+attempt=0
 while test $? -gt 0
 do
+  if [ $attempt -gt $attempts ]; then
+    exit 1
+  fi
   sleep 3
-  echo "Waiting for SSH ..."
+  echo "Waiting for SSH $attempt"
   sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
+  attempt=$((attempt+1))
 done
 
 
