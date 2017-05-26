@@ -48,8 +48,8 @@ do
   fi
   sleep 3
   echo "Waiting for SSH $attempt"
-  sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
   attempt=$((attempt+1))
+  sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
 done
 set -e
 
