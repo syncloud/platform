@@ -19,7 +19,7 @@ pipeline:
   integration:
     image: ${container}
     commands:
-      - ./integration/test-docker.sh teamcity teamcity teamcity master all sam device
+      - ./integration/test-docker.sh teamcity teamcity teamcity file 89 master all sam device
       
 
 services:
