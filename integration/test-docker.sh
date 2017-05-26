@@ -36,9 +36,11 @@ apt-get -qq update
 apt-get -qq install ssh sshpass
 
 #ssh-keygen -f "/root/.ssh/known_hosts" -R [${DEVICE_HOST}]
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
 attempts=100
 attempt=0
+
+set -e
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
 while test $? -gt 0
 do
   if [ $attempt -gt $attempts ]; then
@@ -49,7 +51,7 @@ do
   sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
   attempt=$((attempt+1))
 done
-
+set -e
 
 sshpass -p syncloud scp -o StrictHostKeyChecking=no install-${INSTALLER}.sh root@${DEVICE_HOST}:/installer.sh
 
