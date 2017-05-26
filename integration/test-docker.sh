@@ -39,7 +39,7 @@ apt-get -qq install ssh sshpass
 attempts=100
 attempt=0
 
-set -e
+set +e
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
 while test $? -gt 0
 do
