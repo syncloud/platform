@@ -6,20 +6,23 @@ clone:
     depth: 50
 
 pipeline:
-  #build:
-    #image: ${container}
-    #secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
-    #commands:
-    #  - VERSION=$(date +%y%m%d)
-    #  - ./deps.sh
-    #  - ./build.sh $VERSION
-    #  - ./unit-test.sh
-      #- ./upload.sh $DRONE_BRANCH $VERSION
+  build:
+    image: ${container}
+    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
+    commands:
+      - VERSION=$(date +%y%m%d)
+      - ./deps.sh
+      - ./build.sh $VERSION
+      - ./unit-test.sh
+      - ./upload.sh $DRONE_BRANCH $VERSION
 
   integration:
     image: ${container}
     commands:
-      - ./integration/test-docker.sh teamcity teamcity teamcity file 89 master all sam device
+      - VERSION=$(date +%y%m%d)
+      - NAME=platform-$VERSION-$(uname -m).tar.gz
+      - ./deps.sh
+      - ./integration/test-docker.sh teamcity teamcity teamcity $NAME 89 master all sam device
       
 
 services:

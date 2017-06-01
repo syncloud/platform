@@ -30,12 +30,7 @@ else
 fi
 
 cd ${DIR}
-#./docker.sh ${RELEASE}
 
-apt-get -qq update
-apt-get -qq install ssh sshpass
-
-#ssh-keygen -f "/root/.ssh/known_hosts" -R [${DEVICE_HOST}]
 attempts=100
 attempt=0
 
@@ -57,7 +52,6 @@ sshpass -p syncloud scp -o StrictHostKeyChecking=no install-${INSTALLER}.sh root
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${INSTALLER_VERSION} ${RELEASE}
 
-apt-get install -y sshpass xvfb
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 
 coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER}/geckodriver-v${GECKODRIVER}-linux64.tar.gz
