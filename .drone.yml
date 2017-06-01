@@ -24,7 +24,7 @@ pipeline:
 
 services:
   device:
-    image: dramaturg/debian-systemd
+    image: syncloud/systemd-${arch}
     volumes:
       - /var/run/dbus:/var/run/dbus
  
@@ -36,3 +36,4 @@ matrix:
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
+      arch: amd64
