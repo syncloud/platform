@@ -25,6 +25,7 @@ pipeline:
 services:
   device:
     image: syncloud/systemd-${arch}
+    privileged: true
     volumes:
       - /var/run/dbus:/var/run/dbus
  
