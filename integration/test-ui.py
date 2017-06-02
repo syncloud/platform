@@ -49,9 +49,9 @@ def module_teardown(driver):
     driver.close()
     
 
-def test_internal_ui(driver, user_domain):
+def test_internal_ui(driver, user_domain, device_host):
 
-    driver.get("http://localhost:81")
+    driver.get("http://{0}:81".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'activate')
@@ -60,7 +60,7 @@ def test_internal_ui(driver, user_domain):
 
 def test_external_ui(driver, user_domain):
 
-    driver.get("http://localhost")
+    driver.get("http://{0}".format(device_host))
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))

@@ -1,5 +1,5 @@
 import time
-from integration.util.ssh import set_docker_ssh_port, run_scp, run_ssh
+from integration.util.ssh import run_scp, run_ssh
 from subprocess import check_output
 from os.path import split
 import convertible
