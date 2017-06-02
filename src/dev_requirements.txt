@@ -5,4 +5,3 @@ mockito==0.5.2
 selenium==3.3.1
 teamcity-messages
 syncloud-lib
-coin
