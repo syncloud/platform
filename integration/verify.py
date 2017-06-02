@@ -212,7 +212,7 @@ def test_external_https_mode_with_certbot(public_web_session, device_host):
 
 def test_show_https_certificate(device_host):
     run_ssh(device_host, "echo | "
-            "openssl s_client -showcerts -servername {0} -connect {0}:443 2>/dev/null | ".format(device_host)
+            "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
