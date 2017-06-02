@@ -14,7 +14,7 @@ from requests.adapters import HTTPAdapter
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import run_scp, SSH, ssh_command
 from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest, local_remove
+from integration.util.helper import local_install, wait_for_sam, wait_for_rest, local_remove
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -97,9 +97,9 @@ def test_start(module_setup):
     os.mkdir(LOG_DIR)
 
 
-def test_install(auth, installer):
+def test_install(auth, installer, device_host):
     email, password, domain, app_archive_path = auth
-    local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
+    local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_non_activated_device_main_page_redirect_to_activation(device_host):
@@ -237,7 +237,7 @@ def test_hook_override(public_web_session, conf_dir, service_prefix, device_host
 
     run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
-    wait_for_rest(public_web_session, '/', 200)
+    wait_for_rest(public_web_session, device_host, '/', 200)
 
 
 def test_protocol(auth, public_web_session, conf_dir, service_prefix, device_host):
@@ -386,14 +386,14 @@ def cron_is_enabled_after_install(device_host):
     assert not crontab.startswith('#'), crontab
 
 
-def test_local_upgrade(auth, installer):
+def test_local_upgrade(auth, installer, device_host):
     _, _, _, app_archive_path = auth
     if installer == 'sam':
-        local_remove(DEVICE_PASSWORD, installer, 'platform')
+        local_remove(device_host, DEVICE_PASSWORD, installer, 'platform', device_host)
         time.sleep(3)
-        local_install(DEVICE_PASSWORD, app_archive_path, installer)
+        local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
     else:
-        local_install(DEVICE_PASSWORD, app_archive_path, installer)
+        local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_public_web_platform_upgrade(public_web_session):
@@ -403,12 +403,12 @@ def test_public_web_platform_upgrade(public_web_session):
 def __upgrade(public_web_session, upgrade_type, device_host):
 
     public_web_session.get('http://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type))
-    wait_for_sam(public_web_session)
+    wait_for_sam(public_web_session, device_host)
 
 
-def test_reinstall_local_after_upgrade(auth, installer):
+def test_reinstall_local_after_upgrade(auth, installer, device_host):
     email, password, domain, app_archive_path = auth
-    local_install(DEVICE_PASSWORD, app_archive_path, installer)
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_if_cron_is_enabled_after_upgrade():
