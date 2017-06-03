@@ -92,8 +92,9 @@ def module_teardown(data_dir, device_host):
     print('-------------------------------------------------------')
 
 
-def test_start(module_setup):
+def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+    run_scp('-r {0} root@{1}:/'.format(DIR, device_host)
     os.mkdir(LOG_DIR)
 
 
