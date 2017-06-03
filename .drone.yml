@@ -23,7 +23,15 @@ pipeline:
       - NAME=platform-$VERSION-$(uname -m).tar.gz
       - ./deps.sh
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME 89 master all sam device
-      
+  
+  ci-artifact:
+    image: ${container}
+    secrets: [ARTIFACT_SSH_KEY]
+    commands:
+      - ./deps.sh
+      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER
+    when:
+      status: [ failure, success ] 
 
 services:
   device:
