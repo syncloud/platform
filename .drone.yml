@@ -8,13 +8,12 @@ clone:
 pipeline:
   build:
     image: ${container}
-    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(date +%y%m%d)
       - ./deps.sh
       - ./build.sh $VERSION
       - ./unit-test.sh
-      - ./upload.sh $DRONE_BRANCH $VERSION
+      - ./test/js/runner/run.sh
 
   integration:
     image: ${container}
@@ -23,7 +22,15 @@ pipeline:
       - NAME=platform-$VERSION-$(uname -m).tar.gz
       - ./deps.sh
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME 89 master all sam device
-  
+
+  upload:
+    image: ${container}
+    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
+    commands:
+      - VERSION=$(date +%y%m%d)
+      - ./deps.sh
+      - ./upload.sh $DRONE_BRANCH $VERSION
+
   ci-artifact:
     image: ${container}
     secrets: [ARTIFACT_SSH_KEY]
@@ -42,9 +49,10 @@ services:
  
 matrix:
   include:
-    #- platform: linux/arm
-    #  container: armv7/armhf-debian:8
-    #  git: syncloud/armhf-drone-git
+    - platform: linux/arm
+      container: armv7/armhf-debian:8
+      git: syncloud/armhf-drone-git
+      arch: armhf
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
