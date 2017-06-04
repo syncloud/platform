@@ -58,7 +58,7 @@ matrix:
       arch: armhf
       installer: sam
       installer_version: 89
-      installer_arch: x86_64
+      installer_arch: armv7l
       installer_ext: tar.gz
       separator: "-"
       
@@ -68,7 +68,7 @@ matrix:
       arch: amd64
       installer: sam
       installer_version: 89
-      installer_arch: armv7l
+      installer_arch: x86_64
       installer_ext: tar.gz
       separator: "-"
       
