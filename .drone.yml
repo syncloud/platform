@@ -60,7 +60,7 @@ matrix:
       installer_version: 89
       installer_arch: x86_64
       installer_ext: tar.gz
-      separator: -
+      separator: "-"
       
     - platform: linux/amd64
       container: debian:8
@@ -70,7 +70,7 @@ matrix:
       installer_version: 89
       installer_arch: armv7l
       installer_ext: tar.gz
-      separator: -
+      separator: "-"
       
     - platform: linux/arm
       container: armv7/armhf-debian:8
