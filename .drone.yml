@@ -58,9 +58,9 @@ matrix:
       arch: armhf
       installer: sam
       installer_version: 89
-      installer_arch=x86_64
-      installer_ext=tar.gz
-      separator=-
+      installer_arch: x86_64
+      installer_ext: tar.gz
+      separator: -
       
     - platform: linux/amd64
       container: debian:8
@@ -68,9 +68,9 @@ matrix:
       arch: amd64
       installer: sam
       installer_version: 89
-      installer_arch=armv7l
-      installer_ext=tar.gz
-      separator=-
+      installer_arch: armv7l
+      installer_ext: tar.gz
+      separator: -
       
     - platform: linux/arm
       container: armv7/armhf-debian:8
@@ -78,9 +78,9 @@ matrix:
       arch: armhf
       installer: snapd
       installer_version: 170523
-      installer_arch=armhf
-      installer_ext=snap
-      separator=_
+      installer_arch: armhf
+      installer_ext: snap
+      separator: _
       
     - platform: linux/amd64
       container: debian:8
@@ -88,6 +88,6 @@ matrix:
       arch: amd64
       installer: snapd
       installer_version: 170523
-      installer_arch=amd64
-      installer_ext=snap
-      separator=_
+      installer_arch: amd64
+      installer_ext: snap
+      separator: _
