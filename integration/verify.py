@@ -318,14 +318,14 @@ def test_udev_script(app_dir, device_host):
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host):
     disk_create(loop_device, fs_type, device_host)
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
     disk_writable()
-    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+    assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
 
 
 def test_disk_physical_remove(loop_device, public_web_session, device_host):
     disk_create(loop_device, 'ext4')
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
     loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
@@ -345,7 +345,7 @@ def disk_create(loop_device, fs, device_host):
     run_ssh(device_host, 'umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
-def disk_activate(loop_device, public_web_session, device_name):
+def disk_activate(loop_device, public_web_session, device_host):
 
     response = public_web_session.get('http://{0}/rest/settings/disks'.format(device_host))
     print response.text
