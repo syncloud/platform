@@ -294,7 +294,7 @@ def test_installer_upgrade(public_web_session, installer, device_host):
 @pytest.yield_fixture(scope='function')
 def loop_device(device_host):
     dev_file = '/tmp/disk'
-    loop_device_cleanup(dev_file, password=DEVICE_PASSWORD)
+    loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
     print('adding loop device')
     run_ssh(device_host, 'dd if=/dev/zero bs=1M count=10 of={0}'.format(dev_file), password=DEVICE_PASSWORD)
@@ -303,7 +303,7 @@ def loop_device(device_host):
 
     yield loop
 
-    loop_device_cleanup(dev_file, password=DEVICE_PASSWORD)
+    loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
 
 def disk_writable(device_host):
@@ -326,7 +326,7 @@ def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_typ
 def test_disk_physical_remove(loop_device, public_web_session, device_host):
     disk_create(loop_device, 'ext4')
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
-    loop_device_cleanup('/opt/disk/external', password=DEVICE_PASSWORD)
+    loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
     assert current_disk_link() == '/opt/disk/internal/platform'
