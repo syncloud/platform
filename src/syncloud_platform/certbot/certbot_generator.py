@@ -29,7 +29,7 @@ class CertbotGenerator:
         self.sam = sam
         self.certbot_certificate_file = '{0}/certbot/live/{1}/fullchain.pem'.format(
             self.platform_config.data_dir(), self.info.domain())
-        self.certbot_key_file = '{0}/certbot/keys/0000_key-certbot.pem'.format(
+        self.certbot_key_file = '{0}/certbot/live/{1}/privkey.pem'.format(
                 self.platform_config.data_dir(), self.info.domain())
 
     def generate_certificate(self, is_test_cert = False):
@@ -45,7 +45,7 @@ class CertbotGenerator:
 
             output = check_output(
                 '{0} --logs-dir={1} --config-dir={2} --agree-tos --email {3} '
-                'certonly {4} --webroot --webroot-path {5} '
+                'certonly --force-renewal {4} --webroot --webroot-path {5} '
                 '{6} '.format(self.certbot_bin,
                               self.log_dir,
                               self.certbot_config_dir,
