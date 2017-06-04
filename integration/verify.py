@@ -287,8 +287,8 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
     assert 'max-age=0' in cache_control
 
 
-def test_installer_upgrade(public_web_session, installer):
-    __upgrade(public_web_session, 'sam')
+def test_installer_upgrade(public_web_session, installer, device_host):
+    __upgrade(public_web_session, 'sam', device_host)
 
 
 @pytest.yield_fixture(scope='function')
@@ -397,8 +397,8 @@ def test_local_upgrade(auth, installer, device_host):
         local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_public_web_platform_upgrade(public_web_session):
-    __upgrade(public_web_session, 'system')
+def test_public_web_platform_upgrade(public_web_session, device_host):
+    __upgrade(public_web_session, 'system', device_host)
 
 
 def __upgrade(public_web_session, upgrade_type, device_host):
