@@ -19,7 +19,7 @@ pipeline:
     image: ${container}
     commands:
       - VERSION=$(date +%y%m%d)
-      - NAME=platform-$VERSION-$(uname -m).tar.gz
+      - NAME=platform${separator}$VERSION${separator}${installer_arch}.${installer_ext}
       - ./deps.sh
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
 
@@ -58,12 +58,19 @@ matrix:
       arch: armhf
       installer: sam
       installer_version: 89
+      installer_arch=x86_64
+      installer_ext=tar.gz
+      separator=-
+      
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
       arch: amd64
       installer: sam
       installer_version: 89
+      installer_arch=armv7l
+      installer_ext=tar.gz
+      separator=-
       
     - platform: linux/arm
       container: armv7/armhf-debian:8
@@ -71,9 +78,16 @@ matrix:
       arch: armhf
       installer: snapd
       installer_version: 170523
+      installer_arch=armhf
+      installer_ext=snap
+      separator=_
+      
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
       arch: amd64
       installer: snapd
       installer_version: 170523
+      installer_arch=amd64
+      installer_ext=snap
+      separator=_
