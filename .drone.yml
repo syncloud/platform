@@ -21,7 +21,7 @@ pipeline:
       - VERSION=$(date +%y%m%d)
       - NAME=platform-$VERSION-$(uname -m).tar.gz
       - ./deps.sh
-      - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME 89 master all ${installer} device
+      - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
 
   upload:
     image: ${container}
@@ -57,19 +57,23 @@ matrix:
       git: syncloud/armhf-drone-git
       arch: armhf
       installer: sam
+      installer_version: 89
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
       arch: amd64
       installer: sam
+      installer_version: 89
       
     - platform: linux/arm
       container: armv7/armhf-debian:8
       git: syncloud/armhf-drone-git
       arch: armhf
       installer: snapd
+      installer_version: 170523
     - platform: linux/amd64
       container: debian:8
       git: plugins/git
       arch: amd64
       installer: snapd
+      installer_version: 170523
