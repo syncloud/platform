@@ -316,8 +316,8 @@ def test_udev_script(app_dir, device_host):
 
 
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
-def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):
-    disk_create(loop_device, fs_type)
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host):
+    disk_create(loop_device, fs_type, device_host)
     assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
     disk_writable()
     assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
