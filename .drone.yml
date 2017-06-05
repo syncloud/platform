@@ -7,38 +7,38 @@ clone:
 
 pipeline:
   build:
-    image: ${container}
+    image: syncloud/platform-duild-deps-${arch}
     commands:
       - VERSION=$(date +%y%m%d)
-      - ./deps.sh
+      #- ./deps.sh
       - ./build.sh $VERSION
       - ./unit-test.sh
       - ./test/js/runner/run.sh
 
   integration:
-    image: ${container}
+    image: syncloud/platform-duild-deps-${arch}
     commands:
       - VERSION=$(date +%y%m%d)
       - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
-      - ./deps.sh
+      #- ./deps.sh
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
 
   upload:
-    image: ${container}
+    image: syncloud/platform-duild-deps-${arch}
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(date +%y%m%d)
-      - ./deps.sh
+      #- ./deps.sh
       - ./upload.sh $DRONE_BRANCH $VERSION
     when:
       matrix:
         installer: sam
 
   ci-artifact:
-    image: ${container}
+    image: syncloud/platform-duild-deps-${arch}
     secrets: [ARTIFACT_SSH_KEY]
     commands:
-      - ./deps.sh
+      #- ./deps.sh
       - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-${arch}
     when:
       status: [ failure, success ] 
@@ -53,7 +53,6 @@ services:
 matrix:
   include:
     - platform: linux/arm
-      container: armv7/armhf-debian:8
       git: syncloud/armhf-drone-git
       arch: armhf
       installer: sam
@@ -63,7 +62,6 @@ matrix:
       separator: "-"
       
     - platform: linux/amd64
-      container: debian:8
       git: plugins/git
       arch: amd64
       installer: sam
@@ -73,7 +71,6 @@ matrix:
       separator: "-"
       
     - platform: linux/arm
-      container: armv7/armhf-debian:8
       git: syncloud/armhf-drone-git
       arch: armhf
       installer: snapd
@@ -83,7 +80,6 @@ matrix:
       separator: _
       
     - platform: linux/amd64
-      container: debian:8
       git: plugins/git
       arch: amd64
       installer: snapd
