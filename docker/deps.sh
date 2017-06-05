@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 apt-get update
-apt-get install -qq squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev libssl-dev libffi-dev apache2-utils wget unzip sshpass xvfb curl netcat libfontconfig libgtk-3-0
+apt-get install -qq squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev libssl-dev libffi-dev apache2-utils wget unzip sshpass xvfb curl netcat libfontconfig libgtk-3-0 libasound2
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 pip install coin
