@@ -329,7 +329,7 @@ def test_disk_physical_remove(loop_device, public_web_session, device_host):
     loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
-    assert current_disk_link() == '/opt/disk/internal/platform'
+    assert current_disk_link(device_host) == '/opt/disk/internal/platform'
 
 
 def disk_create(loop_device, fs, device_host):
@@ -355,14 +355,14 @@ def disk_activate(loop_device, public_web_session, device_host):
     response = public_web_session.get('http://{0}/rest/settings/disk_activate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link()
+    return current_disk_link(device_host)
 
 
 def disk_deactivate(loop_device, public_web_session, device_host):
     response = public_web_session.get('http://{0}/rest/settings/disk_deactivate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link()
+    return current_disk_link(device_host)
 
 
 def current_disk_link(device_host):

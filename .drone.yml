@@ -39,7 +39,7 @@ pipeline:
     secrets: [ARTIFACT_SSH_KEY]
     commands:
       - ./deps.sh
-      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}
+      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-${arch}
     when:
       status: [ failure, success ] 
 
