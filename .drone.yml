@@ -7,7 +7,7 @@ clone:
 
 pipeline:
   build:
-    image: syncloud/platform-duild-deps-${arch}
+    image: syncloud/platform-build-deps-${arch}
     commands:
       - VERSION=$(date +%y%m%d)
       #- ./deps.sh
@@ -16,7 +16,7 @@ pipeline:
       - ./test/js/runner/run.sh
 
   integration:
-    image: syncloud/platform-duild-deps-${arch}
+    image: syncloud/platform-build-deps-${arch}
     commands:
       - VERSION=$(date +%y%m%d)
       - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
@@ -24,7 +24,7 @@ pipeline:
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
 
   upload:
-    image: syncloud/platform-duild-deps-${arch}
+    image: syncloud/platform-build-deps-${arch}
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(date +%y%m%d)
@@ -35,7 +35,7 @@ pipeline:
         installer: sam
 
   ci-artifact:
-    image: syncloud/platform-duild-deps-${arch}
+    image: syncloud/platform-build-deps-${arch}
     secrets: [ARTIFACT_SSH_KEY]
     commands:
       #- ./deps.sh
