@@ -376,8 +376,8 @@ def test_internal_web_id(device_host):
     assert response.status_code == 200
 
 
-def test_if_cron_is_enabled_after_install():
-    cron_is_enabled_after_install()
+def test_if_cron_is_enabled_after_install(device_host):
+    cron_is_enabled_after_install(device_host)
 
 
 def cron_is_enabled_after_install(device_host):
@@ -412,8 +412,8 @@ def test_reinstall_local_after_upgrade(auth, installer, device_host):
     local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_if_cron_is_enabled_after_upgrade():
-    cron_is_enabled_after_install()
+def test_if_cron_is_enabled_after_upgrade(device_host):
+    cron_is_enabled_after_install(device_host)
 
 
 def test_nginx_performance():
