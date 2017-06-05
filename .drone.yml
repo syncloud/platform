@@ -19,7 +19,7 @@ pipeline:
     image: ${container}
     commands:
       - VERSION=$(date +%y%m%d)
-      - NAME=platform${separator}${{VERSION}}${separator}${installer_arch}.${installer_ext}
+      - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
       - ./deps.sh
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
 
