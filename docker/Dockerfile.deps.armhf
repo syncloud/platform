@@ -1,0 +1,3 @@
+FROM syncloud/rootfs-armhf
+ADD deps.sh /
+RUN /deps.sh
