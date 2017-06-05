@@ -416,9 +416,9 @@ def test_if_cron_is_enabled_after_upgrade(device_host):
     cron_is_enabled_after_install(device_host)
 
 
-def test_nginx_performance():
-    print(check_output('ab -c 1 -n 1000 http://127.0.0.1/ping', shell=True))
+def test_nginx_performance(device_host):
+    print(check_output('ab -c 1 -n 1000 http://{0}/ping'.format(device_host), shell=True))
 
 
-def test_nginx_plus_flask_performance():
-    print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/rest/id', shell=True))
+def test_nginx_plus_flask_performance(device_host):
+    print(check_output('ab -c 1 -n 1000 http://{0}:81/rest/id'.format(device_host), shell=True))
