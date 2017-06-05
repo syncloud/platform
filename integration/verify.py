@@ -319,7 +319,7 @@ def test_udev_script(app_dir, device_host):
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host):
     disk_create(loop_device, fs_type, device_host)
     assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
-    disk_writable()
+    disk_writable(device_host)
     assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
 
 
