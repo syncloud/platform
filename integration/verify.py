@@ -390,7 +390,7 @@ def cron_is_enabled_after_install(device_host):
 def test_local_upgrade(auth, installer, device_host):
     _, _, _, app_archive_path = auth
     if installer == 'sam':
-        local_remove(device_host, DEVICE_PASSWORD, installer, 'platform', device_host)
+        local_remove(device_host, DEVICE_PASSWORD, installer, 'platform')
         time.sleep(3)
         local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
     else:
