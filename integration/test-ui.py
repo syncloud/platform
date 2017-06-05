@@ -58,7 +58,7 @@ def test_internal_ui(driver, user_domain, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_external_ui(driver, user_domain):
+def test_external_ui(driver, user_domain, device_host):
 
     driver.get("http://{0}".format(device_host))
     time.sleep(2)

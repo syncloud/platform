@@ -10,7 +10,6 @@ pipeline:
     image: syncloud/platform-build-deps-${arch}
     commands:
       - VERSION=$(date +%y%m%d)
-      #- ./deps.sh
       - ./build.sh $VERSION
       - ./unit-test.sh
       - ./test/js/runner/run.sh
@@ -20,7 +19,6 @@ pipeline:
     commands:
       - VERSION=$(date +%y%m%d)
       - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
-      #- ./deps.sh
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
 
   upload:
@@ -28,7 +26,6 @@ pipeline:
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(date +%y%m%d)
-      #- ./deps.sh
       - ./upload.sh $DRONE_BRANCH $VERSION
     when:
       matrix:
@@ -38,8 +35,8 @@ pipeline:
     image: syncloud/platform-build-deps-${arch}
     secrets: [ARTIFACT_SSH_KEY]
     commands:
-      #- ./deps.sh
       - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-${arch}
+      - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-${installer}-${arch}
     when:
       status: [ failure, success ] 
 
