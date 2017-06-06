@@ -19,7 +19,7 @@ pipeline:
     commands:
       - VERSION=$(date +%y%m%d)
       - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
-      - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master all ${installer} device
+      - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master ${integration_test} ${installer} device
 
   upload:
     image: syncloud/platform-build-deps-${arch}
@@ -57,6 +57,7 @@ matrix:
       installer_arch: armv7l
       installer_ext: tar.gz
       separator: "-"
+      integration_test: verify
       
     - platform: linux/amd64
       git: plugins/git
@@ -66,7 +67,8 @@ matrix:
       installer_arch: x86_64
       installer_ext: tar.gz
       separator: "-"
-      
+      integration_test: all
+
     - platform: linux/arm
       git: syncloud/armhf-drone-git
       arch: armhf
@@ -75,7 +77,8 @@ matrix:
       installer_arch: armhf
       installer_ext: snap
       separator: _
-      
+      integration_test: verify
+
     - platform: linux/amd64
       git: plugins/git
       arch: amd64
@@ -84,3 +87,4 @@ matrix:
       installer_arch: amd64
       installer_ext: snap
       separator: _
+      integration_test: all
