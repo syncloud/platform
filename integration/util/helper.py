@@ -32,7 +32,9 @@ def wait_for_platform_web(host):
 
 def wait_for_sam(public_web_session, host):
     sam_running = True
-    while sam_running:
+    attempts=200
+    attempt=0
+    while sam_running and attempt < attempts:
         try:
             response = public_web_session.get('http://{0}/rest/settings/sam_status'.format(host))
             if response.status_code == 200:
@@ -40,6 +42,9 @@ def wait_for_sam(public_web_session, host):
                 sam_running = json.is_running
         except Exception, e:
             print(e.message)
+
+        print("attempt: {0}/{1}".format(attempt, attempts))
+        attempt+=1
         time.sleep(1)
 
 
