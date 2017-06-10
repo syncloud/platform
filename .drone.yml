@@ -6,10 +6,15 @@ clone:
     depth: 50
 
 pipeline:
+  version:
+    image: syncloud/platform-build-deps-${arch}
+    commands:
+      - echo $(date +%y%m%d) > version
+      
   build:
     image: syncloud/platform-build-deps-${arch}
     commands:
-      - VERSION=$(date +%y%m%d)
+      - VERSION=$(<version)
       - ./build.sh $VERSION
       - ./unit-test.sh
       - ./test/js/runner/run.sh
@@ -17,7 +22,7 @@ pipeline:
   integration:
     image: syncloud/platform-build-deps-${arch}
     commands:
-      - VERSION=$(date +%y%m%d)
+      - VERSION=$(<version)
       - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master ${integration_test} ${installer} device
 
@@ -25,7 +30,7 @@ pipeline:
     image: syncloud/platform-build-deps-${arch}
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
-      - VERSION=$(date +%y%m%d)
+      - VERSION=$(<version)
       - ./upload.sh $DRONE_BRANCH $VERSION
     when:
       matrix:
@@ -69,22 +74,24 @@ matrix:
       separator: "-"
       integration_test: all
 
-    - platform: linux/arm
-      git: syncloud/armhf-drone-git
-      arch: armhf
-      installer: snapd
-      installer_version: 170523
-      installer_arch: armhf
-      installer_ext: snap
-      separator: _
-      integration_test: verify
+# disable snap until migration from Team City is done
 
-    - platform: linux/amd64
-      git: plugins/git
-      arch: amd64
-      installer: snapd
-      installer_version: 170523
-      installer_arch: amd64
-      installer_ext: snap
-      separator: _
-      integration_test: all
+#    - platform: linux/arm
+#      git: syncloud/armhf-drone-git
+#      arch: armhf
+#      installer: snapd
+#      installer_version: 170523
+#      installer_arch: armhf
+#      installer_ext: snap
+#      separator: _
+#      integration_test: verify
+
+#    - platform: linux/amd64
+#      git: plugins/git
+#      arch: amd64
+#      installer: snapd
+#      installer_version: 170523
+#      installer_arch: amd64
+#      installer_ext: snap
+#      separator: _
+#      integration_test: all
