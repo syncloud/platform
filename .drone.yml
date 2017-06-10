@@ -14,7 +14,7 @@ pipeline:
   build:
     image: syncloud/platform-build-deps-${arch}
     commands:
-      - VERSION=$(<version)
+      - VERSION=$(cat version)
       - ./build.sh $VERSION
       - ./unit-test.sh
       - ./test/js/runner/run.sh
@@ -22,7 +22,7 @@ pipeline:
   integration:
     image: syncloud/platform-build-deps-${arch}
     commands:
-      - VERSION=$(<version)
+      - VERSION=$(cat version)
       - NAME=platform${separator}$${VERSION}${separator}${installer_arch}.${installer_ext}
       - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $NAME ${installer_version} master ${integration_test} ${installer} device
 
@@ -30,7 +30,7 @@ pipeline:
     image: syncloud/platform-build-deps-${arch}
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
-      - VERSION=$(<version)
+      - VERSION=$(cat version)
       - ./upload.sh $DRONE_BRANCH $VERSION
     when:
       matrix:
