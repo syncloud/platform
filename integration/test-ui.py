@@ -65,9 +65,7 @@ def test_external_ui(driver, user_domain, device_host):
     screenshots(driver, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
-
-def test_login(driver, user_domain):
-
+def login(driver):
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
     password = driver.find_element_by_id("password")
@@ -75,13 +73,16 @@ def test_login(driver, user_domain):
     password.submit()
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
+
+def test_index(driver):
+    login(driver)
     screenshots(driver, screenshot_dir, 'index')
 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
 def test_settings(driver, user_domain):
-
+    login(driver)
     driver.get("http://{0}/settings.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(5)
@@ -91,7 +92,7 @@ def test_settings(driver, user_domain):
 
 
 def test_access(driver, user_domain):
-
+    login(driver)
     driver.get("http://{0}/access.html".format(user_domain))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
