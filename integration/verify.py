@@ -12,7 +12,7 @@ import pytest
 from requests.adapters import HTTPAdapter
 
 from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import run_scp, SSH, ssh_command
+from integration.util.ssh import run_scp, ssh_command
 from integration.util.ssh import run_ssh
 from integration.util.helper import local_install, wait_for_sam, wait_for_rest, local_remove
 
@@ -86,10 +86,6 @@ def module_teardown(data_dir, device_host):
     print('systemd logs')
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
-    print('-------------------------------------------------------')
-    print('syncloud docker image is running')
-    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
-    print('-------------------------------------------------------')
 
 
 def test_start(module_setup, device_host):
