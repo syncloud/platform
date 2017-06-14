@@ -58,14 +58,15 @@ def test_internal_ui(driver, user_domain, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_external_ui(driver, user_domain, device_host):
+def test_login(driver, user_domain, device_host):
 
     driver.get("http://{0}".format(device_host))
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
-def login(driver):
+    
+def test_index(driver, device_host):
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
     password = driver.find_element_by_id("password")
@@ -74,16 +75,14 @@ def login(driver):
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
 
-def test_index(driver):
-    login(driver)
     screenshots(driver, screenshot_dir, 'index')
 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def test_settings(driver, user_domain):
-    login(driver)
-    driver.get("http://{0}/settings.html".format(user_domain))
+def test_settings(driver, device_host):
+    
+    driver.get("http://{0}/settings.html".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(5)
     screenshots(driver, screenshot_dir, 'settings')
@@ -91,9 +90,9 @@ def test_settings(driver, user_domain):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def test_access(driver, user_domain):
-    login(driver)
-    driver.get("http://{0}/access.html".format(user_domain))
+def test_access(driver, device_host):
+
+    driver.get("http://{0}/access.html".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'access')
