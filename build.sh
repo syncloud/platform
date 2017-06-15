@@ -63,8 +63,3 @@ echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
 mksquashfs ${SNAP_DIR} ${DIR}/platform_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
-
-${DIR}/unit-test.sh
-
-
-
