@@ -33,6 +33,7 @@ SAM_APP_DIR='/opt/app/platform'
 SNAPD_APP_DIR='/snap/platform/current'
 APP_DIR=''
 
+
 @pytest.fixture(scope="session")
 def data_dir(installer):
     if installer == 'sam':
@@ -94,8 +95,7 @@ def test_start(module_setup, device_host):
     os.mkdir(LOG_DIR)
 
 
-def test_install(auth, installer, device_host):
-    email, password, domain, app_archive_path = auth
+def test_install(app_archive_path, installer, device_host):
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
@@ -119,7 +119,7 @@ def test_internal_web_open(device_host):
 
 def test_activate_device(auth, device_host):
 
-    email, password, domain, app_archive_path = auth
+    email, password, domain, release = auth
     global LOGS_SSH_PASSWORD
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
@@ -129,7 +129,7 @@ def test_activate_device(auth, device_host):
 
 
 def test_reactivate(auth, device_host):
-    email, password, domain, app_archive_path = auth
+    email, password, domain, release = auth
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
@@ -162,7 +162,7 @@ def test_platform_rest(device_host):
 
 # def test_external_mode(auth, public_web_session, user_domain, device_host):
 #
-#     email, password, domain, app_archive_path = auth
+#     email, password, domain, release = auth
 #
 #     run_ssh(device_host, 'cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 #
@@ -194,6 +194,7 @@ def _wait_for_ip(user_domain):
             return
         retry += 1
         time.sleep(1)
+
 
 def test_certbot_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=DEVICE_PASSWORD)
@@ -239,14 +240,15 @@ def test_hook_override(public_web_session, conf_dir, service_prefix, device_host
 
 def test_protocol(auth, public_web_session, conf_dir, service_prefix, device_host):
 
-    email, password, domain, app_archive_path = auth
+    email, password, domain, release = auth
  
     response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
     assert '"is_https": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={ 'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
+                                      params={'is_https': 'true', 'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -255,7 +257,8 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix, device_hos
     assert response.status_code == 200
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={ 'is_https': 'false', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
+                                      params={'is_https': 'false', 'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -263,11 +266,13 @@ def test_protocol(auth, public_web_session, conf_dir, service_prefix, device_hos
     assert '"is_https": false' in response.text
     assert response.status_code == 200
 
-    assert run_ssh(device_host, 'cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+    assert run_ssh(device_host, 'cat /tmp/on_domain_change.log',
+                   password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
-def test_cron_job(auth, public_web_session, app_dir, ssh_env_vars, device_host):
-    assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_cron_job(app_dir, ssh_env_vars, device_host):
+    assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
+                                        password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
 def test_installed_apps(public_web_session, device_host):
@@ -283,7 +288,7 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
     assert 'max-age=0' in cache_control
 
 
-def test_installer_upgrade(public_web_session, installer, device_host):
+def test_installer_upgrade(public_web_session, device_host):
     __upgrade(public_web_session, 'sam', device_host)
 
 
@@ -325,7 +330,8 @@ def test_disk_physical_remove(loop_device, public_web_session, device_host):
     disk_create(loop_device, 'ext4', device_host)
     assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
     loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
-    run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]),
+            password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
     assert current_disk_link(device_host) == '/opt/disk/internal/platform'
 
@@ -385,8 +391,7 @@ def cron_is_enabled_after_install(device_host):
     assert not crontab.startswith('#'), crontab
 
 
-def test_local_upgrade(auth, installer, device_host):
-    _, _, _, app_archive_path = auth
+def test_local_upgrade(app_archive_path, installer, device_host):
     if installer == 'sam':
         local_remove(device_host, DEVICE_PASSWORD, installer, 'platform')
         time.sleep(3)
@@ -405,8 +410,7 @@ def __upgrade(public_web_session, upgrade_type, device_host):
     wait_for_sam(public_web_session, device_host)
 
 
-def test_reinstall_local_after_upgrade(auth, installer, device_host):
-    email, password, domain, app_archive_path = auth
+def test_reinstall_local_after_upgrade(app_archive_path, installer, device_host):
     local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
