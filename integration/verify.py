@@ -294,6 +294,8 @@ def loop_device(device_host):
 
     print('adding loop device')
     run_ssh(device_host, 'dd if=/dev/zero bs=1M count=10 of={0}'.format(dev_file), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'sync', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'ls -la {0}'.format(dev_file), password=DEVICE_PASSWORD)
     loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'file -s {0}'.format(loop), password=DEVICE_PASSWORD)
 
