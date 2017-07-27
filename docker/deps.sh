@@ -4,7 +4,9 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
 apt-get update
-apt-get install -qq squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev libssl-dev libffi-dev apache2-utils wget unzip sshpass xvfb curl netcat libfontconfig libgtk-3-0 libasound2 libdbus-glib-1-2
+apt-get install -qq squashfs-tools dpkg-dev python-dev libsasl2-dev libldap2-dev \
+    libssl-dev libffi-dev apache2-utils wget unzip sshpass xvfb curl netcat libfontconfig \
+    libgtk-3-0 libasound2 libdbus-glib-1-2 python-dateutil python-magic
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 pip install coin
