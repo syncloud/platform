@@ -17,7 +17,7 @@ class Tls:
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.nginx = nginx
-        self.openssl_bin = '{0}/openssl/bin/openssl'.format(self.platform_config.app_dir())
+        self.openssl_bin = '{0}/bin/openssl'.format(self.platform_config.app_dir())
         self.certbot_generator = certbot_generator
 
     def generate_real_certificate(self):

@@ -201,6 +201,10 @@ def test_certbot_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/bin/certbot --help nginx'.format(app_dir), password=DEVICE_PASSWORD)
 
 
+def test_openssl_cli(app_dir, device_host):
+    run_ssh(device_host, '{0}/bin/openssl --help'.format(app_dir), password=DEVICE_PASSWORD)
+
+
 def test_external_https_mode_with_certbot(public_web_session, device_host):
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
