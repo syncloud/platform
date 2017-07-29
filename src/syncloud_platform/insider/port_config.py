@@ -18,11 +18,6 @@ class PortConfig:
         if not items:
             return []
 
-        # TODO: Remove it after 16.05
-        for item in items:
-            if not hasattr(item, 'protocol'):
-                item.protocol = 'TCP'
-
         return items
 
     def save(self, items):
