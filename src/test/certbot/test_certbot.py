@@ -15,5 +15,9 @@ def test_apps_to_certbot_domain_args():
     assert domain_args.startswith('-d domain '), 'master domain should be first'
 
 
-def test_expiry_date_string_to_days():
-    assert expiry_date_string_to_days('20171027120200Z', datetime(2017, 10, 31)) == 3
+def test_expiry_date_string_to_days_valid():
+    assert expiry_date_string_to_days('20171027120200Z', datetime(2017, 10, 20)) == 7
+
+
+def test_expiry_date_string_to_days_expired():
+    assert expiry_date_string_to_days('20171027120200Z', datetime(2017, 10, 31)) == -4

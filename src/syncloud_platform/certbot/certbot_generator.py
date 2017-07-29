@@ -75,7 +75,7 @@ class CertbotGenerator:
 
     def days_until_expiry(self):
 
-        self.log.info('getting expiry date')
+        self.log.info('getting expiry date of {}'.format(self.certbot_certificate_file))
         if not path.exists(self.certbot_certificate_file):
             self.log.info('certificate does not exist yet, {0}'.format(self.certbot_certificate_file))
             return 0
@@ -87,6 +87,6 @@ class CertbotGenerator:
 
 def expiry_date_string_to_days(expiry, today=datetime.today()):
     expiry_date = datetime.strptime(expiry, "%Y%m%d%H%M%SZ")
-    return (today - expiry_date).days
+    return (expiry_date - today).days
 
 
