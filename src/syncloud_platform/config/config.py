@@ -58,6 +58,12 @@ class PlatformConfig:
     def cron_cmd(self):
         return self.__get('cron_cmd')
 
+    def openssl(self):
+        return self.__get('openssl')
+
+    def nginx(self):
+        return self.__get('nginx')
+
     def cron_schedule(self):
         return self.__get('cron_schedule')
 

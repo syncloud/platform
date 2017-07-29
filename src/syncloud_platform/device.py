@@ -74,9 +74,6 @@ class Device:
         old_web_protocol = secure_to_protocol(self.user_platform_config.is_https())
         old_web_local_port = protocol_to_port(old_web_protocol)
 
-        if is_https and external_access:
-            self.tls.generate_real_certificate()
-
         drill = self.port_drill_factory.get_drill(upnp_enabled, external_access, manual_public_ip, manual_public_port)
 
         if drill is None:
