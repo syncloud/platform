@@ -10,8 +10,7 @@ class PlatformCron:
 
     def remove(self):
         self.log.info("remove crontab task")
-        for job in self.cron.find_command(self.platform_config.cron_cmd()):
-            self.cron.remove(job)
+        self.cron.remove_all()
         self.cron.write()
 
     def create(self):

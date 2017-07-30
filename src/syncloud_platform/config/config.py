@@ -58,6 +58,12 @@ class PlatformConfig:
     def cron_cmd(self):
         return self.__get('cron_cmd')
 
+    def openssl(self):
+        return self.__get('openssl')
+
+    def nginx(self):
+        return self.__get('nginx')
+
     def cron_schedule(self):
         return self.__get('cron_schedule')
 
@@ -230,11 +236,12 @@ class PlatformUserConfig:
             return False
         return self.parser.get('platform', 'protocol') == 'https'
 
-    def update_device_access(self, upnp_enabled, is_https, external_access, public_ip):
+    def update_device_access(self, upnp_enabled, is_https, external_access, public_ip, public_port):
         self.parser.read(self.filename)
         self.__set('platform', 'external_access', external_access)
         self.__set('platform', 'upnp', upnp_enabled)
         self.__set('platform', 'public_ip', public_ip)
+        self.__set('platform', 'manual_public_port', public_port)
         if is_https:
             protocol = 'https'
         else:
@@ -253,6 +260,12 @@ class PlatformUserConfig:
         if not self.parser.has_option('platform', 'public_ip'):
             return None
         return self.parser.get('platform', 'public_ip')
+
+    def get_manual_public_port(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'manual_public_port'):
+            return None
+        return self.parser.get('platform', 'manual_public_port')
 
     def __set(self, section, key, value):
         if not self.parser.has_section(section):

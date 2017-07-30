@@ -12,9 +12,9 @@ import pytest
 from requests.adapters import HTTPAdapter
 
 from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import run_scp, SSH, ssh_command
+from integration.util.ssh import run_scp, ssh_command
 from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_platform_web, wait_for_sam, wait_for_rest, local_remove
+from integration.util.helper import local_install, wait_for_sam, wait_for_rest, local_remove
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -32,6 +32,7 @@ DATA_DIR=''
 SAM_APP_DIR='/opt/app/platform'
 SNAPD_APP_DIR='/snap/platform/current'
 APP_DIR=''
+
 
 @pytest.fixture(scope="session")
 def data_dir(installer):
@@ -75,67 +76,61 @@ def ssh_env_vars(installer):
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir):
-    global DATA_DIR
-    DATA_DIR=data_dir
-    request.addfinalizer(module_teardown)
+def module_setup(request, data_dir, device_host):
+    request.addfinalizer(lambda: module_teardown(data_dir, device_host))
 
 
-def module_teardown():
-    run_scp('root@localhost:{0}/log/* {1}'.format(DATA_DIR, LOG_DIR), password=LOGS_SSH_PASSWORD)
-    run_scp('root@localhost:/var/log/sam.log {1}'.format(DATA_DIR, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
+def module_teardown(data_dir, device_host):
+    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
-    run_ssh('journalctl | tail -200', password=LOGS_SSH_PASSWORD)
-
-    print('-------------------------------------------------------')
-    print('syncloud docker image is running')
-    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
-    print('-------------------------------------------------------')
+    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
 
-def test_start(module_setup):
+
+def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+    run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
     os.mkdir(LOG_DIR)
 
 
-def test_install(auth, installer):
-    email, password, domain, app_archive_path = auth
-    local_install(DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
+def test_install(app_archive_path, installer, device_host):
+    local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_non_activated_device_main_page_redirect_to_activation():
-    response = requests.get('http://localhost', allow_redirects=False)
+def test_non_activated_device_main_page_redirect_to_activation(device_host):
+    response = requests.get('http://{0}'.format(device_host), allow_redirects=False)
     assert response.status_code == 302
-    assert response.headers['Location'] == 'http://localhost:81'
+    assert response.headers['Location'] == 'http://{0}:81'.format(device_host)
 
 
-def test_non_activated_device_login_redirect_to_activation():
-    response = requests.post('http://localhost/rest/login', allow_redirects=False)
+def test_non_activated_device_login_redirect_to_activation(device_host):
+    response = requests.post('http://{0}/rest/login'.format(device_host), allow_redirects=False)
     assert response.status_code == 302
-    assert response.headers['Location'] == 'http://localhost:81'
+    assert response.headers['Location'] == 'http://{0}:81'.format(device_host)
 
 
-def test_internal_web_open():
+def test_internal_web_open(device_host):
 
-    response = requests.get('http://localhost:81')
+    response = requests.get('http://{0}:81'.format(device_host))
     assert response.status_code == 200
 
 
-def test_activate_device(auth):
+def test_activate_device(auth, device_host):
 
-    email, password, domain, app_archive_path = auth
+    email, password, domain, release = auth
     global LOGS_SSH_PASSWORD
-    response = requests.post('http://localhost:81/rest/activate',
+    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
     LOGS_SSH_PASSWORD = 'password1'
 
 
-def test_reactivate(auth):
-    email, password, domain, app_archive_path = auth
-    response = requests.post('http://localhost:81/rest/activate',
+def test_reactivate(auth, device_host):
+    email, password, domain, release = auth
+    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
@@ -143,44 +138,44 @@ def test_reactivate(auth):
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
 
 
-def test_public_web_unauthorized_browser_redirect():
-    response = requests.get('http://localhost/rest/user', allow_redirects=False)
+def test_public_web_unauthorized_browser_redirect(device_host):
+    response = requests.get('http://{0}/rest/user'.format(device_host), allow_redirects=False)
     assert response.status_code == 302
 
 
-def test_public_web_unauthorized_ajax_not_redirect():
-    response = requests.get('http://localhost/rest/user',
+def test_public_web_unauthorized_ajax_not_redirect(device_host):
+    response = requests.get('http://{0}/rest/user'.format(device_host),
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
 
-def test_running_platform_web():
-    print(check_output('nc -zv -w 1 localhost 80', shell=True))
+def test_running_platform_web(device_host):
+    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True))
 
 
-def test_platform_rest():
+def test_platform_rest(device_host):
     session = requests.session()
-    session.mount('http://localhost', HTTPAdapter(max_retries=5))
-    response = session.get('http://localhost', timeout=60)
+    session.mount('http://{0}'.format(device_host), HTTPAdapter(max_retries=5))
+    response = session.get('http://{0}'.format(device_host), timeout=60)
     assert response.status_code == 200
 
 
-# def test_external_mode(auth, public_web_session, user_domain):
+# def test_external_mode(auth, public_web_session, user_domain, device_host):
 #
-#     email, password, domain, app_archive_path = auth
+#     email, password, domain, release = auth
 #
-#     run_ssh('cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
+#     run_ssh(device_host, 'cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
 #
-#     response = public_web_session.get('http://localhost/rest/settings/external_access')
+#     response = public_web_session.get('http://{0}/rest/settings/external_access'.format(device_host))
 #     assert '"external_access": false' in response.text
 #     assert response.status_code == 200
 #
-#     response = public_web_session.get('http://localhost/rest/settings/set_external_access',
+#     response = public_web_session.get('http://{0}/rest/settings/set_external_access'.format(device_host),
 #                                       params={'external_access': 'true'})
 #     assert '"success": true' in response.text
 #     assert response.status_code == 200
 #
-#     response = public_web_session.get('http://localhost/rest/settings/external_access')
+#     response = public_web_session.get('http://{0}/rest/settings/external_access'.format(device_host))
 #     assert '"external_access": true' in response.text
 #     assert response.status_code == 200
 #
@@ -200,226 +195,237 @@ def _wait_for_ip(user_domain):
         retry += 1
         time.sleep(1)
 
-def test_certbot_cli(app_dir):
-    run_ssh('{0}/bin/certbot --help'.format(app_dir), password=DEVICE_PASSWORD)
+
+def test_certbot_cli(app_dir, device_host):
+    run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=DEVICE_PASSWORD)
+    run_ssh(device_host, '{0}/bin/certbot --help nginx'.format(app_dir), password=DEVICE_PASSWORD)
 
 
-def test_external_https_mode_with_certbot(public_web_session):
+def test_openssl_cli(app_dir, device_host):
+    run_ssh(device_host, '{0}/bin/openssl --help'.format(app_dir), password=DEVICE_PASSWORD)
 
-    response = public_web_session.get('http://localhost/rest/access/set_access',
+
+def test_external_https_mode_with_certbot(public_web_session, device_host):
+
+    response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
                                       params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
-def test_show_https_certificate():
-    run_ssh("echo | "
+def test_show_https_certificate(device_host):
+    run_ssh(device_host, "echo | "
             "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_access(public_web_session):
-    response = public_web_session.get('http://localhost/rest/access/access')
+def test_access(public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
     print(response.text)
     assert '"success": true' in response.text
     assert '"upnp_enabled": false' in response.text
     assert response.status_code == 200
 
 
-def test_network_interfaces(public_web_session):
-    response = public_web_session.get('http://localhost/rest/access/network_interfaces')
+def test_network_interfaces(public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/access/network_interfaces'.format(device_host))
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
-def test_hook_override(public_web_session, conf_dir, service_prefix):
+def test_hook_override(public_web_session, conf_dir, service_prefix, device_host):
 
-    run_ssh("sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir), password=DEVICE_PASSWORD)
+    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir), password=DEVICE_PASSWORD)
 
-    run_ssh('systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
-    wait_for_rest(public_web_session, '/', 200)
+    wait_for_rest(public_web_session, device_host, '/', 200)
 
 
-def test_protocol(auth, public_web_session, conf_dir, service_prefix):
+def test_protocol(auth, public_web_session, conf_dir, service_prefix, device_host):
 
-    email, password, domain, app_archive_path = auth
+    email, password, domain, release = auth
  
-    response = public_web_session.get('http://localhost/rest/access/access')
+    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
     assert '"is_https": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={ 'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
+    response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
+                                      params={'is_https': 'true', 'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/access/access')
+    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
     assert '"is_https": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/access/set_access',
-                                      params={ 'is_https': 'false', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
+    response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
+                                      params={'is_https': 'false', 'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/access/access')
+    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
     assert '"is_https": false' in response.text
     assert response.status_code == 200
 
-    assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+    assert run_ssh(device_host, 'cat /tmp/on_domain_change.log',
+                   password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
-def test_cron_job(auth, public_web_session, app_dir, ssh_env_vars):
-    assert '"success": true' in run_ssh('{0}/bin/insider sync_all'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_cron_job(app_dir, ssh_env_vars, device_host):
+    assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
+                                        password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
-def test_installed_apps(public_web_session):
-    response = public_web_session.get('http://localhost/rest/installed_apps')
+def test_installed_apps(public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/installed_apps'.format(device_host))
     assert response.status_code == 200
 
 
-def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session):
+def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session, device_host):
 
-    response = public_web_session.get('http://localhost/settings.html')
+    response = public_web_session.get('http://{0}/settings.html'.format(device_host))
     cache_control = response.headers['Cache-Control']
     assert 'no-cache' in cache_control
     assert 'max-age=0' in cache_control
 
 
-def test_installer_upgrade(public_web_session, installer):
-    __upgrade(public_web_session, 'sam')
+def test_installer_upgrade(public_web_session, device_host):
+    __upgrade(public_web_session, 'sam', device_host)
 
 
 @pytest.yield_fixture(scope='function')
-def loop_device():
+def loop_device(device_host):
     dev_file = '/tmp/disk'
-    loop_device_cleanup(dev_file, password=DEVICE_PASSWORD)
+    loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
     print('adding loop device')
-    run_ssh('dd if=/dev/zero bs=1M count=10 of={0}'.format(dev_file), password=DEVICE_PASSWORD)
-    loop = run_ssh('losetup -f --show {0}'.format(dev_file), password=DEVICE_PASSWORD)
-    run_ssh('file -s {0}'.format(loop), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'dd if=/dev/zero bs=1M count=10 of={0}'.format(dev_file), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'sync', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'ls -la {0}'.format(dev_file), password=DEVICE_PASSWORD)
+    loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'file -s {0}'.format(loop), password=DEVICE_PASSWORD)
 
     yield loop
 
-    loop_device_cleanup(dev_file, password=DEVICE_PASSWORD)
+    loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
 
-def disk_writable():
-    run_ssh('ls -la /data/', password=DEVICE_PASSWORD)
-    run_ssh("touch /data/platform/test.file", password=DEVICE_PASSWORD)
+def disk_writable(device_host):
+    run_ssh(device_host, 'ls -la /data/', password=DEVICE_PASSWORD)
+    run_ssh(device_host, "touch /data/platform/test.file", password=DEVICE_PASSWORD)
 
 
-def test_udev_script(app_dir):
-    run_ssh('{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
+def test_udev_script(app_dir, device_host):
+    run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
 
 
 @pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
-def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type):
-    disk_create(loop_device, fs_type)
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
-    disk_writable()
-    assert disk_deactivate(loop_device, public_web_session) == '/opt/disk/internal/platform'
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host):
+    disk_create(loop_device, fs_type, device_host)
+    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
+    disk_writable(device_host)
+    assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
 
 
-def test_disk_physical_remove(loop_device, public_web_session):
-    disk_create(loop_device, 'ext4')
-    assert disk_activate(loop_device,  public_web_session) == '/opt/disk/external/platform'
-    loop_device_cleanup('/opt/disk/external', password=DEVICE_PASSWORD)
-    run_ssh('udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]), password=DEVICE_PASSWORD)
-    run_ssh('udevadm settle', password=DEVICE_PASSWORD)
-    assert current_disk_link() == '/opt/disk/internal/platform'
+def test_disk_physical_remove(loop_device, public_web_session, device_host):
+    disk_create(loop_device, 'ext4', device_host)
+    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
+    loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]),
+            password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
+    assert current_disk_link(device_host) == '/opt/disk/internal/platform'
 
 
-def disk_create(loop_device, fs):
-    run_ssh('mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
+def disk_create(loop_device, fs, device_host):
+    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
 
-    run_ssh('rm -rf /tmp/test', password=DEVICE_PASSWORD)
-    run_ssh('mkdir /tmp/test', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'rm -rf /tmp/test', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'mkdir /tmp/test', password=DEVICE_PASSWORD)
 
-    run_ssh('mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD)
-    for mount in run_ssh('mount', debug=True, password=DEVICE_PASSWORD).splitlines():
+    run_ssh(device_host, 'mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD)
+    for mount in run_ssh(device_host, 'mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
-    run_ssh('umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
-def disk_activate(loop_device, public_web_session):
+def disk_activate(loop_device, public_web_session, device_host):
 
-    response = public_web_session.get('http://localhost/rest/settings/disks')
+    response = public_web_session.get('http://{0}/rest/settings/disks'.format(device_host))
     print response.text
     assert loop_device in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://localhost/rest/settings/disk_activate',
+    response = public_web_session.get('http://{0}/rest/settings/disk_activate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link()
+    return current_disk_link(device_host)
 
 
-def disk_deactivate(loop_device, public_web_session):
-    response = public_web_session.get('http://localhost/rest/settings/disk_deactivate',
+def disk_deactivate(loop_device, public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/settings/disk_deactivate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link()
+    return current_disk_link(device_host)
 
 
-def current_disk_link():
-    return run_ssh('cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
+def current_disk_link(device_host):
+    return run_ssh(device_host, 'cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
 
 
-def test_internal_web_id():
+def test_internal_web_id(device_host):
 
-    response = requests.get('http://localhost:81/rest/id')
+    response = requests.get('http://{0}:81/rest/id'.format(device_host))
     assert 'mac_address' in response.text
     assert response.status_code == 200
 
 
-def test_if_cron_is_enabled_after_install():
-    cron_is_enabled_after_install()
+def test_if_cron_is_enabled_after_install(device_host):
+    cron_is_enabled_after_install(device_host)
 
 
-def cron_is_enabled_after_install():
-    crontab = run_ssh("crontab -l", password=DEVICE_PASSWORD)
+def cron_is_enabled_after_install(device_host):
+    crontab = run_ssh(device_host, "crontab -l", password=DEVICE_PASSWORD)
     assert len(crontab.splitlines()) == 1
-    assert 'cron.py' in crontab, crontab
+    assert 'cron' in crontab, crontab
     assert not crontab.startswith('#'), crontab
 
 
-def test_local_upgrade(auth, installer):
-    _, _, _, app_archive_path = auth
+def test_local_upgrade(app_archive_path, installer, device_host):
     if installer == 'sam':
-        local_remove(DEVICE_PASSWORD, installer, 'platform')
+        local_remove(device_host, DEVICE_PASSWORD, installer, 'platform')
         time.sleep(3)
-        local_install(DEVICE_PASSWORD, app_archive_path, installer)
+        local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
     else:
-        local_install(DEVICE_PASSWORD, app_archive_path, installer)
+        local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_public_web_platform_upgrade(public_web_session):
-    __upgrade(public_web_session, 'system')
+def test_public_web_platform_upgrade(public_web_session, device_host):
+    __upgrade(public_web_session, 'system', device_host)
 
 
-def __upgrade(public_web_session, upgrade_type):
+def __upgrade(public_web_session, upgrade_type, device_host):
 
-    public_web_session.get('http://localhost/rest/settings/{0}_upgrade'.format(upgrade_type))
-    wait_for_sam(public_web_session)
-
-
-def test_reinstall_local_after_upgrade(auth, installer):
-    email, password, domain, app_archive_path = auth
-    local_install(DEVICE_PASSWORD, app_archive_path, installer)
+    public_web_session.get('http://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type))
+    wait_for_sam(public_web_session, device_host)
 
 
-def test_if_cron_is_enabled_after_upgrade():
-    cron_is_enabled_after_install()
+def test_reinstall_local_after_upgrade(app_archive_path, installer, device_host):
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_nginx_performance():
-    print(check_output('ab -c 1 -n 1000 http://127.0.0.1/ping', shell=True))
+def test_if_cron_is_enabled_after_upgrade(device_host):
+    cron_is_enabled_after_install(device_host)
 
 
-def test_nginx_plus_flask_performance():
-    print(check_output('ab -c 1 -n 1000 http://127.0.0.1:81/rest/id', shell=True))
+def test_nginx_performance(device_host):
+    print(check_output('ab -c 1 -n 1000 http://{0}/ping'.format(device_host), shell=True))
+
+
+def test_nginx_plus_flask_performance(device_host):
+    print(check_output('ab -c 1 -n 1000 http://{0}:81/rest/id'.format(device_host), shell=True))

@@ -40,7 +40,7 @@ class Device:
     def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
 
         self.logger.info("activate {0}, {1}".format(user_domain, device_username))
-           
+
         user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
         self.user_platform_config.set_user_update_token(user.update_token)
 
@@ -74,9 +74,6 @@ class Device:
         old_web_protocol = secure_to_protocol(self.user_platform_config.is_https())
         old_web_local_port = protocol_to_port(old_web_protocol)
 
-        if is_https and external_access:
-            self.tls.generate_real_certificate()
-
         drill = self.port_drill_factory.get_drill(upnp_enabled, external_access, manual_public_ip, manual_public_port)
 
         if drill is None:
@@ -90,7 +87,8 @@ class Device:
         drill.sync_new_port(new_web_local_port, http_network_protocol)
 
         self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
-        self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access, manual_public_ip)
+        self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access,
+                                                       manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
 
     def sync_all(self):
@@ -101,7 +99,8 @@ class Device:
         external_access = self.user_platform_config.get_external_access()
         upnp = self.user_platform_config.get_upnp()
         public_ip = self.user_platform_config.get_public_ip()
-        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, None)
+        manual_public_port = self.user_platform_config.get_manual_public_port()
+        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         web_protocol = secure_to_protocol(self.user_platform_config.is_https())
         self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
 

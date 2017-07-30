@@ -11,7 +11,10 @@ def pytest_addoption(parser):
     parser.addoption("--password", action="store")
     parser.addoption("--domain", action="store")
     parser.addoption("--app-archive-path", action="store")
+    parser.addoption("--release", action="store")
     parser.addoption("--installer", action="store")
+    parser.addoption("--device-host", action="store")
+
 
 @pytest.fixture(scope="session")
 def auth(request):
@@ -19,36 +22,41 @@ def auth(request):
     return config.getoption("--email"), \
            config.getoption("--password"), \
            config.getoption("--domain"), \
-           config.getoption("--app-archive-path")
-
+           config.getoption("--release")
 
 
 @pytest.fixture(scope="function")
-def public_web_session():
+def public_web_session(device_host):
 
     retry = 0
     retries = 5
     while retry < retries:
         try:
             session = requests.session()
-            session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
-            assert session.get('http://localhost/rest/user', allow_redirects=False).status_code == 200
+            session.post('http://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+            assert session.get('http://{0}/rest/user'.format(device_host), allow_redirects=False).status_code == 200
             return session
         except Exception, e:
             retry += 1
             print(e.message)
             print('retry {0} of {1}'.format(retry, retries))
- 
 
-@pytest.fixture(scope='module')
-def user_domain(auth):
-    email, password, domain, path = auth
-    return '{0}.{1}'.format(domain, SYNCLOUD_INFO)
+
+@pytest.fixture(scope='session')
+def user_domain(request):
+    return 'gogs.{0}.{1}'.format(request.config.getoption("--domain"), SYNCLOUD_INFO)
+
+
+@pytest.fixture(scope='session')
+def app_archive_path(request):
+    return request.config.getoption("--app-archive-path")
 
 
 @pytest.fixture(scope='session')
 def installer(request):
-    config = request.config
-    return config.getoption("--installer")
+    return request.config.getoption("--installer")
 
 
+@pytest.fixture(scope='session')
+def device_host(request):
+    return request.config.getoption("--device-host")

@@ -17,10 +17,16 @@ class Tls:
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.nginx = nginx
-        self.openssl_bin = '{0}/openssl/bin/openssl'.format(self.platform_config.app_dir())
+        self.openssl_bin = platform_config.openssl()
         self.certbot_generator = certbot_generator
 
     def generate_real_certificate(self):
+
+        days_until_expiry = self.certbot_generator.days_until_expiry()
+        self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
+        if days_until_expiry > 30:
+            self.log.info("not regenerating")
+            return
 
         try:
             self.log.info('running certbot')
