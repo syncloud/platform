@@ -202,7 +202,7 @@ def test_certbot_cli(app_dir, device_host):
 
 
 def test_openssl_cli(app_dir, device_host):
-    run_ssh(device_host, '{0}/bin/openssl --help'.format(app_dir), password=DEVICE_PASSWORD)
+    run_ssh(device_host, '{0}/openssl/bin/openssl --help'.format(app_dir), password=DEVICE_PASSWORD)
 
 
 def test_external_https_mode_with_certbot(public_web_session, device_host):
