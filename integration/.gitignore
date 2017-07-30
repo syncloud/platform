@@ -2,3 +2,5 @@
 log
 geckodriver
 screenshot
+firefox
+*.xpi
