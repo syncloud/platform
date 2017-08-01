@@ -23,7 +23,7 @@ pipeline:
     image: syncloud/platform-build-deps-${arch}
     commands:
       - VERSION=$(cat version)
-      - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $VERSION master ${installer} device
+      - ./integration/test-docker.sh teamcity@syncloud.it password build-${arch} $VERSION master ${installer} device
 
   upload:
     image: syncloud/platform-build-deps-${arch}
