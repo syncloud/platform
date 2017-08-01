@@ -88,7 +88,6 @@ def module_teardown(data_dir, device_host):
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
 
-
 def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
