@@ -1,5 +1,3 @@
-from syncloud_platform.control import systemctl
-
 class AppSetup:
 
     def __init__(self, app_name, app_paths, nginx, storage, device_info, device, user_platform_config, systemctl):
