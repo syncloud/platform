@@ -111,12 +111,14 @@ class Device:
         external_access = self.user_platform_config.get_external_access()
         upnp = self.user_platform_config.get_upnp()
         public_ip = self.user_platform_config.get_public_ip()
-        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, None)
+        manual_public_port = self.user_platform_config.get_manual_public_port()
+        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         drill.sync_new_port(local_port, protocol)
 
     def remove_port(self, local_port, protocol):
         external_access = self.user_platform_config.get_external_access()
         upnp = self.user_platform_config.get_upnp()
         public_ip = self.user_platform_config.get_public_ip()
-        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, None)
+        manual_public_port = self.user_platform_config.get_manual_public_port()
+        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         drill.remove(local_port, protocol)
