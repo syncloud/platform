@@ -11,7 +11,8 @@ if [ "$#" -lt 7 ]; then
     exit 1
 fi
 
-DOMAIN=$3
+ARCH=$(uname -m)
+DOMAIN=$3-${ARCH}-${DRONE_BRANCH}
 VERSION=$4
 RELEASE=$5
 INSTALLER=$6
@@ -20,7 +21,6 @@ DEVICE_HOST=$7
 APP=platform
 GECKODRIVER=0.14.0
 FIREFOX=52.0
-ARCH=$(uname -m)
 
 if [ $ARCH == "x86_64" ]; then
     SNAP_ARCH=amd64
