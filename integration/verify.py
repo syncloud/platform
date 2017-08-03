@@ -88,7 +88,6 @@ def module_teardown(data_dir, device_host):
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
 
-
 def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
@@ -234,6 +233,13 @@ def test_network_interfaces(public_web_session, device_host):
     assert response.status_code == 200
 
 
+def test_device_url(public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/settings/device_url'.format(device_host))
+    print(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_activate_url(public_web_session, device_host):
     response = public_web_session.get('http://{0}/rest/settings/activate_url'.format(device_host))
     print(response.text)
@@ -243,14 +249,15 @@ def test_activate_url(public_web_session, device_host):
 
 def test_hook_override(public_web_session, conf_dir, service_prefix, device_host):
 
-    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir), password=DEVICE_PASSWORD)
+    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir),
+            password=DEVICE_PASSWORD)
 
     run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
     wait_for_rest(public_web_session, device_host, '/', 200)
 
 
-def test_protocol(auth, public_web_session, conf_dir, service_prefix, device_host):
+def test_protocol(auth, public_web_session, device_host):
 
     email, password, domain, release = auth
  

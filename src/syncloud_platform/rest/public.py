@@ -181,6 +181,12 @@ def device_domain():
     return jsonify(success=True, device_domain=public.domain()), 200
 
 
+@app.route(rest_prefix + "/settings/device_url", methods=["GET"])
+@login_required
+def device_url():
+    return jsonify(success=True, device_url=public.device_url()), 200
+
+
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():

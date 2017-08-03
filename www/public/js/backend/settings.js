@@ -1,5 +1,5 @@
 backend.device_url = function(on_complete, on_error) {
-        $.get('/rest/settings/device_domain').done(on_complete).fail(on_error);
+        $.get('/rest/settings/device_url').done(on_complete).fail(on_error);
     };
 
 backend.send_logs = function(include_support, on_always, on_error) {
