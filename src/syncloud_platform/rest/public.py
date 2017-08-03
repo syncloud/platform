@@ -253,7 +253,6 @@ def regenerate_certificate():
 @app.route(rest_prefix + "/settings/local_ip", methods=["GET"])
 @login_required
 def local_ip():
-    public.regenerate_certificate()
     return jsonify(local_ip=linux.local_ip(), success=True), 200
 
 
