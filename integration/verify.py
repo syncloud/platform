@@ -234,6 +234,13 @@ def test_network_interfaces(public_web_session, device_host):
     assert response.status_code == 200
 
 
+def test_local_ip(public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/settings/local_ip'.format(device_host))
+    print(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_hook_override(public_web_session, conf_dir, service_prefix, device_host):
 
     run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir), password=DEVICE_PASSWORD)

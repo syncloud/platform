@@ -12,6 +12,7 @@ from syncloud_platform.rest.props import html_prefix, rest_prefix
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
+from syncloud_platform.gaplib import linux
 
 from syncloud_platform.rest.service_exception import ServiceException
 
@@ -247,6 +248,13 @@ def disk_deactivate():
 def regenerate_certificate():
     public.regenerate_certificate()
     return jsonify(success=True), 200
+
+
+@app.route(rest_prefix + "/settings/local_ip", methods=["GET"])
+@login_required
+def local_ip():
+    public.regenerate_certificate()
+    return jsonify(local_ip=linux.local_ip(), success=True), 200
 
 
 @app.errorhandler(Exception)
