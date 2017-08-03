@@ -89,8 +89,8 @@ backend.send_logs = function(include_support, on_always, on_error) {
         setTimeout(on_always, 2000);
     };
 
-backend.reactivate = function() {
-        window.location.href = "activate.html";
+backend.reactivate = function(on_complete, on_error) {
+        on_complete({ activate_url: "../internal/activate.html", success: true});
     };
 
 backend.get_versions = function(on_complete, on_error) {

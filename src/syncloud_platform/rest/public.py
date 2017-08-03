@@ -250,10 +250,10 @@ def regenerate_certificate():
     return jsonify(success=True), 200
 
 
-@app.route(rest_prefix + "/settings/local_ip", methods=["GET"])
+@app.route(rest_prefix + "/settings/activate_url", methods=["GET"])
 @login_required
-def local_ip():
-    return jsonify(local_ip=linux.local_ip(), success=True), 200
+def activate_url():
+    return jsonify(activate_url='{0}:81'.format(linux.local_ip()), success=True), 200
 
 
 @app.errorhandler(Exception)

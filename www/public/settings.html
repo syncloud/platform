@@ -402,7 +402,14 @@ $(document).ready(function () {
     });
 
     $("#btn_reactivate").on('click', function () {
-    		backend.reactivate();
+    	    backend.reactivate(
+    		       function (data) {
+                window.location.href = data.activate_url;
+            },
+            function (a, b, c) {
+                ui_display_error(a, b, c);
+            }
+        );
     });
 
     $("#btn_platform_upgrade").on('click', function () {

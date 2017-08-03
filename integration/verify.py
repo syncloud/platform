@@ -234,8 +234,8 @@ def test_network_interfaces(public_web_session, device_host):
     assert response.status_code == 200
 
 
-def test_local_ip(public_web_session, device_host):
-    response = public_web_session.get('http://{0}/rest/settings/local_ip'.format(device_host))
+def test_activate_url(public_web_session, device_host):
+    response = public_web_session.get('http://{0}/rest/settings/activate_url'.format(device_host))
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
