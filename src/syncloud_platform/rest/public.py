@@ -253,7 +253,7 @@ def regenerate_certificate():
 @app.route(rest_prefix + "/settings/activate_url", methods=["GET"])
 @login_required
 def activate_url():
-    return jsonify(activate_url='{0}:81'.format(linux.local_ip()), success=True), 200
+    return jsonify(activate_url='http://{0}:81'.format(linux.local_ip()), success=True), 200
 
 
 @app.errorhandler(Exception)
