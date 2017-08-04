@@ -1,5 +1,5 @@
 backend.device_url = function(on_complete, on_error) {
-        $.get('/rest/settings/device_domain').done(on_complete).fail(on_error);
+        $.get('/rest/settings/device_url').done(on_complete).fail(on_error);
     };
 
 backend.send_logs = function(include_support, on_always, on_error) {
@@ -8,8 +8,8 @@ backend.send_logs = function(include_support, on_always, on_error) {
         ).always(on_always).fail(on_error);
     };
 
-backend.reactivate = function() {
-        window.location.href = (new URI()).port(81).directory("").filename("").query("");
+backend.reactivate = function(on_complete, on_error) {
+        $.get('/rest/settings/activate_url').done(on_complete).fail(on_error);
     };
 
 backend.get_versions = function(on_complete, on_error) {

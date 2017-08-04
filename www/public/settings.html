@@ -76,10 +76,13 @@
 				<div class="col2">
 					<h3>Activation</h3>
 					<div class="setline">
-						<span class="span">Activated to: </span><span id="txt_device_domain"></span>
+						<span class="span">Activated to: </span><a id="txt_device_domain">Loading ...</a>
 					</div>
 					<div class="setline">
-						<span class="span">You can assign different<br>domain name to your device</span><div class="spandiv"><button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button></div>
+						<span class="span">You can assign different<br>domain name to your device</span>
+						<div class="spandiv">
+							<button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button>
+						</div>
 					</div>
 					<h3>Access</h3>
                     <div class="setline">
@@ -265,7 +268,8 @@ function ui_display_boot_disk(data) {
 }
 
 function ui_display_device_url(data) {
-		$("#txt_device_domain").html(data.device_domain);
+		$("#txt_device_domain").attr('href', data.device_url);
+		$("#txt_device_domain").text(data.device_url);
 }
 
 function upgrade_buttons_enabled(is_enabled) {
@@ -276,7 +280,7 @@ function upgrade_buttons_enabled(is_enabled) {
 }
 
 function ui_check_device_url() {
-		backend.device_url(ui_display_device_url, ui_display_error);
+	backend.device_url(ui_display_device_url, ui_display_error);
 }
 
 function ui_send_logs() {
@@ -402,7 +406,14 @@ $(document).ready(function () {
     });
 
     $("#btn_reactivate").on('click', function () {
-    		backend.reactivate();
+    	    backend.reactivate(
+    		       function (data) {
+                window.location.href = data.activate_url;
+            },
+            function (a, b, c) {
+                ui_display_error(a, b, c);
+            }
+        );
     });
 
     $("#btn_platform_upgrade").on('click', function () {

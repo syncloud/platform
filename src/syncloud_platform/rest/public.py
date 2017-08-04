@@ -12,6 +12,7 @@ from syncloud_platform.rest.props import html_prefix, rest_prefix
 from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
+from syncloud_platform.gaplib import linux
 
 from syncloud_platform.rest.service_exception import ServiceException
 
@@ -180,6 +181,12 @@ def device_domain():
     return jsonify(success=True, device_domain=public.domain()), 200
 
 
+@app.route(rest_prefix + "/settings/device_url", methods=["GET"])
+@login_required
+def device_url():
+    return jsonify(success=True, device_url=public.device_url()), 200
+
+
 @app.route(rest_prefix + "/settings/disks", methods=["GET"])
 @login_required
 def disks():
@@ -247,6 +254,12 @@ def disk_deactivate():
 def regenerate_certificate():
     public.regenerate_certificate()
     return jsonify(success=True), 200
+
+
+@app.route(rest_prefix + "/settings/activate_url", methods=["GET"])
+@login_required
+def activate_url():
+    return jsonify(activate_url='http://{0}:81'.format(linux.local_ip()), success=True), 200
 
 
 @app.errorhandler(Exception)

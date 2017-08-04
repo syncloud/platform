@@ -29,6 +29,9 @@ class Public:
     def domain(self):
         return self.device_info.domain()
 
+    def device_url(self):
+        return self.device_info.url()
+
     def restart(self):
         power.restart()
 
