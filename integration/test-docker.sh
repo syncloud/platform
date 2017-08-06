@@ -30,7 +30,7 @@ fi
 
 if [ $INSTALLER == "snapd" ]; then
     ARCHIVE=${APP}_${VERSION}_${SNAP_ARCH}.snap
-    INSTALLER_VERSION=170805
+    INSTALLER_VERSION=170806
 else
     ARCHIVE=${APP}-${VERSION}-${ARCH}.tar.gz
     INSTALLER_VERSION=89
