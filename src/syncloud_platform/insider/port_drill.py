@@ -1,12 +1,10 @@
-import time
-
 from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.manual import ManualPortMapper
 from syncloud_platform.insider.port_prober import PortProber
 from syncloud_platform.insider.util import port_to_protocol, is_web_port
-
+from IPy import IP
 
 class PortDrill:
     def __init__(self, port_config, port_mapper, port_prober):
@@ -44,11 +42,19 @@ class PortDrill:
         retries = 10
         for i in range(1, retries):
             self.logger.info('Trying {0}'.format(port_to_try))
+
             external_port = self.port_mapper.add_mapping(local_port, port_to_try, protocol)
             if not is_web_port(local_port):
                 self.logger.info('not probing non http(s) ports')
                 found_external_port = external_port
                 break
+
+            ip_version = IP(self.port_mapper.external_ip()).version()
+            if ip_version == 6:
+                self.logger.info('probing of IPv6 is not supported yet')
+                found_external_port = external_port
+                break
+
             if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
                 found_external_port = external_port
                 break
