@@ -11,8 +11,15 @@ arch=$(uname -m)
 mkdir -p /opt/app
 SAMCMD=/opt/app/sam/bin/sam
 
+
+if [ "${branch}" == "no_ipv6_probe" ] ; then
+  s3cmd put ${app}-${build_number}-${arch}.tar.gz s3://${bucket}/apps/${app}-${build_number}-${arch}.tar.gz
+  branch=rc
+  ${SAMCMD} release $branch $branch --override ${app}=${build_number}
+fi
+
 if [ "${branch}" == "master" ] || [ "${branch}" == "stable" ] ; then
-  
+
   s3cmd put ${app}-${build_number}-${arch}.tar.gz s3://${bucket}/apps/${app}-${build_number}-${arch}.tar.gz
   
   if [ "${branch}" == "stable" ]; then
