@@ -30,7 +30,7 @@ class Systemctl:
 
     def __remove(self, filename):
 
-        if "unknown" == self.__stop(filename):
+        if self.__stop(filename) in ("unknown", "inactive"):
             return
 
         check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
