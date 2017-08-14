@@ -15,7 +15,7 @@ if [ "${ARCH}" == 'arm' ]; then
     ARCH="armv7l"
 fi
 VERSION=$1
-INSTALLER=$1
+INSTALLER=$2
 
 cd ${DIR}
 
