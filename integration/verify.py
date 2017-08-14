@@ -95,6 +95,8 @@ def test_start(module_setup, device_host):
 
 
 def test_install(app_archive_path, installer, device_host):
+    run_ssh(device_host, 'systemctl', password=LOGS_SSH_PASSWORD)
+
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
