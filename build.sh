@@ -9,11 +9,7 @@ if [[ -z "$2" ]]; then
     exit 1
 fi
 
-ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
-#temp fix until we move to cpu arch
-if [ "${ARCH}" == 'arm' ]; then
-    ARCH="armv7l"
-fi
+ARCH=$(uname -m)
 VERSION=$1
 INSTALLER=$2
 

@@ -30,10 +30,7 @@ pipeline:
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION
-    when:
-      matrix:
-        installer: sam
+      - ./upload.sh $DRONE_BRANCH $VERSION ${installer}
 
   ci-artifact:
     image: syncloud/platform-build-deps-${arch}
