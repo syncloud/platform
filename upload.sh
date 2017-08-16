@@ -13,7 +13,7 @@ mkdir -p /opt/app
 SAMCMD=/opt/app/sam/bin/sam
 
 FILE_NAME=${app}-${build_number}-${ARCH}.tar.gz
-if [ $installer == "snap" ]; then
+if [ $installer == "snapd" ]; then
   ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
   FILE_NAME=${app}_${build_number}_${ARCH}.snap
 fi
