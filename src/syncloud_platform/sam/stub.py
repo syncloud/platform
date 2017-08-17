@@ -10,6 +10,7 @@ import convertible
 
 from syncloud_platform.gaplib.linux import run_detached
 from syncloud_platform.rest.service_exception import ServiceException
+from syncloud_platform.gaplib.linux import pgrep
 
 SAM_BIN_SHORT = 'bin/sam'
 SAM_BIN = join('/opt/app/sam', SAM_BIN_SHORT)
@@ -62,6 +63,9 @@ class SamStub:
         self.__is_space_available_or_exception()
         sam_bin = self.__get_sam_bin(app_id)
         self.__run_detached('{0} upgrade {1}'.format(sam_bin, app_id))
+
+    def status(self):
+        return pgrep(SAM_BIN_SHORT)
 
     def remove(self, app_id):
         return self.__run([SAM_BIN, 'remove', app_id])

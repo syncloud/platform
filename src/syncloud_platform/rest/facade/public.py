@@ -4,7 +4,6 @@ from syncloud_platform.gaplib.linux import pgrep, run_detached
 from syncloud_platform.insider.util import secure_to_protocol, protocol_to_port
 from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
-from syncloud_platform.sam.stub import SAM_BIN_SHORT
 
 
 class Public:
@@ -104,7 +103,7 @@ class Public:
         self.sam.upgrade('sam')
 
     def sam_status(self):
-        return pgrep(SAM_BIN_SHORT)
+        return self.sam.status()
 
     def boot_extend_status(self):
         return pgrep(self.resize_script)

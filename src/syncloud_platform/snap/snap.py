@@ -26,6 +26,9 @@ class Snap:
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
 
+    def status(self):
+        return False
+
     def remove(self, app_id):
         self.logger.info('snap remove')
         session = requests_unixsocket.Session()
