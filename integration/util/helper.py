@@ -17,6 +17,7 @@ def local_install(host, password, app_archive_path, installer):
     cmd = SAM_INSTALL
     if installer == 'snapd':
         cmd = SNAP_INSTALL
+    run_ssh(host, 'ls -la /{0}'.format(app_archive), password=password)
     run_ssh(host, '{0} /{1}'.format(cmd, app_archive), password=password)
 
 
