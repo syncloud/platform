@@ -2,13 +2,8 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-if [[ -z "$1" ]]; then
-    echo "usage $0 version release"
-    exit 1
-fi
-
 ARCH=$(dpkg --print-architecture)
-VERSION=$1
+VERSION=170819
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
