@@ -1,0 +1,36 @@
+1server {
+    listen 80;
+    server_name ~^(?<domain>.+\..*)$;
+
+    #certbot auth dir
+    location /.well-known {
+        alias ${www_root_public}/.well-known;
+    }
+
+    location / {
+        proxy_set_header X-Forwarded-Proto $$scheme ;
+        proxy_set_header X-Forwarded-Host $$http_host ;
+        proxy_pass      http://unix:${data_root}/${domain}/common/nginx.socket ;
+        proxy_redirect  http://unix:${data_root}/${domain}/common/nginx.socket $$scheme://$$http_host ;
+    }
+}
+
+server {
+
+    listen 443 ssl;
+    server_name ~^(?<domain>.+\..*)$;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
+
+    #certbot auth dir
+    location /.well-known {
+        alias ${www_root_public}/.well-known;
+    }
+
+    location / {
+        proxy_set_header X-Forwarded-Proto $$scheme ;
+        proxy_set_header X-Forwarded-Host $$http_host ;
+        proxy_pass      http://unix:${data_root}/${domain}/common/nginx.socket ;
+        proxy_redirect  http://unix:${data_root}/${domain}/common/nginx.socket $$scheme://$$http_host ;
+    }
+}
