@@ -4,7 +4,7 @@ server {
 
     #certbot auth dir
     location /.well-known {
-        alias ${app_dir}/www/public/.well-known;
+        alias {{ app_dir }}/www/public/.well-known;
     }
 
     location / {
@@ -24,7 +24,7 @@ server {
 
     #certbot auth dir
     location /.well-known {
-        alias ${app_dir}/www/public/.well-known;
+        alias {{ app_dir }}/www/public/.well-known;
     }
 
     location / {
