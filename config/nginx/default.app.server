@@ -1,10 +1,10 @@
-1server {
+server {
     listen 80;
     server_name ~^(?<domain>.+\..*)$;
 
     #certbot auth dir
     location /.well-known {
-        alias ${www_root_public}/.well-known;
+        alias ${app_dir}/www/public/.well-known;
     }
 
     location / {
@@ -24,7 +24,7 @@ server {
 
     #certbot auth dir
     location /.well-known {
-        alias ${www_root_public}/.well-known;
+        alias ${app_dir}/www/public/.well-known;
     }
 
     location / {
