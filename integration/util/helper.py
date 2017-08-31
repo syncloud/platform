@@ -20,7 +20,7 @@ def local_install(host, password, app_archive_path, installer):
     run_ssh(host, 'ls -la /{0}'.format(app_archive), password=password)
     run_ssh(host, '{0} /{1}'.format(cmd, app_archive), password=password)
     if installer == 'snapd':
-        run_ssh(host, 'ls -la /var/lib/snap', password=password)
+        run_ssh(host, 'ls -la /var/lib/snap/platform', password=password)
 
 
 def local_remove(host, password, installer, app):
