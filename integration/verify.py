@@ -76,13 +76,13 @@ def ssh_env_vars(installer):
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device_host):
-    request.addfinalizer(lambda: module_teardown(data_dir, device_host))
+def module_setup(request, data_dir, device_host, conf_dir):
+    request.addfinalizer(lambda: module_teardown(data_dir, device_host, conf_dir))
 
 
-def module_teardown(data_dir, device_host):
+def module_teardown(data_dir, device_host, conf_dir):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
-    run_scp('root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:{1}/config {2}'.format(device_host, conf_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
