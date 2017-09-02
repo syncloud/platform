@@ -1,6 +1,6 @@
 [Unit]
 Description=External disk
-Before=local-fs.target
+After=local-fs.target
 
 [Mount]
 What=${what}
@@ -9,4 +9,4 @@ Type=${type}
 Options=${options}
 
 [Install]
-WantedBy=local-fs.target
+WantedBy=multi-user.target
