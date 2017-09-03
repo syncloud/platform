@@ -47,7 +47,7 @@ def user_domain(main_domain):
     return 'platform.{0}'.format(main_domain)
 
 
-pytest.fixture(scope='session')
+@pytest.fixture(scope='session')
 def main_domain(request):
     return '{0}.{1}'.format(request.config.getoption("--domain"), SYNCLOUD_INFO)
 
