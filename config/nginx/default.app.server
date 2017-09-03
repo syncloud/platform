@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name ~^(?U)(?<app>.+\..*)$;
+    server_name ~^(?U)(?<app>.*)\..*$;
 
     #certbot auth dir
     location /.well-known {
@@ -18,7 +18,7 @@ server {
 server {
 
     listen 443 ssl;
-    server_name ~^(?U)(?<app>.+\..*)$;
+    server_name ~^(?U)(?<app>.*)+\..*$;
 
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
 
