@@ -68,7 +68,7 @@ sshpass -p syncloud scp -o StrictHostKeyChecking=no install-${INSTALLER}.sh root
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${RELEASE}
 
-pip2 install -r ${DIR}/requirements.txt
+pip2 install -r ${DIR}/../requirements.txt
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 
