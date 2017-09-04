@@ -1,5 +1,5 @@
 import os
-from os.path import dirname, join
+from os.path import join, dirname, relpath, isdir, split
 import convertible
 import requests
 from subprocess import check_output
