@@ -180,7 +180,7 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
     run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf -g \'error_log {1}/log/nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf.runtime -g \'error_log {1}/log/nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
     response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
