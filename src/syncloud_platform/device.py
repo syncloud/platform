@@ -12,7 +12,7 @@ http_network_protocol = 'TCP'
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls):
+                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls, nginx):
         self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
@@ -23,6 +23,7 @@ class Device:
         self.platform_cron = platform_cron
         self.event_trigger = event_trigger
         self.logger = logger.get_logger('Device')
+        self.nginx = nginx
 
     def prepare_redirect(self, redirect_email, redirect_password, main_domain):
 
@@ -59,7 +60,10 @@ class Device:
         self.tls.generate_self_signed_certificate()
 
         self.auth.reset(device_username, device_password, fix_permissions)
-
+        
+        self.nginx.init_config('{0}.{1}'.format(user_domain, main_domain), force=True)
+        self.nginx.reload()
+        
         self.logger.info("activation completed")
 
     def set_access(self, upnp_enabled, is_https, external_access, manual_public_ip, manual_public_port):

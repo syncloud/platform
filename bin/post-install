@@ -73,6 +73,9 @@ udev.add()
 ldap_auth = injector.ldap_auth
 ldap_auth.init(fix_permissions=True)
 
+nginx = injector.nginx
+nginx.init_config('localhost')
+
 systemctl = injector.systemctl
 systemctl.add_service(APP_NAME, 'platform.cpu-frequency')
 systemctl.add_service(APP_NAME, 'platform.insider-sync')
