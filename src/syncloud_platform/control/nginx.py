@@ -45,7 +45,7 @@ class Nginx:
         self.systemctl.reload_service('platform.nginx')
 
     def init_config(self, domain, force=False):
-        nginx_public_template = join(self.config.config_root(), 'nginx', 'public.conf')
+        nginx_public_template = join(self.config.config_dir(), 'nginx', 'public.conf')
         nginx_public_runtime = join(self.config.data_dir(), 'config.runtime', 'nginx', 'public.conf')
         variables = { 'main_domain': domain }
         if not os.path.isfile(nginx_public_runtime) or force:
