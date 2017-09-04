@@ -47,6 +47,6 @@ class Nginx:
     def init_config(self, domain, force=False):
         nginx_public_template = join(self.config.config_dir(), 'nginx', 'public.conf')
         nginx_public_runtime = join(self.config.data_dir(), 'config.runtime', 'nginx', 'public.conf')
-        variables = { 'main_domain': domain }
+        variables = { 'user_domain': domain }
         if not os.path.isfile(nginx_public_runtime) or force:
             gen.generate_file_jinja(nginx_public_template, nginx_public_runtime, variables)
