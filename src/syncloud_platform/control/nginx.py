@@ -44,7 +44,7 @@ class Nginx:
     def reload(self):
         self.systemctl.reload_service('platform.nginx')
 
-    def init_config(self, domain, force=Falsr):
+    def init_config(self, domain, force=False):
         nginx_public_template = join(self.config.config_root(), 'nginx', 'public.conf')
         nginx_public_runtime = join(self.config.data_dir(), 'config.runtime', 'nginx', 'public.conf')
         vatiables = { 'main_domain': domain }
