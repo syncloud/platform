@@ -80,8 +80,7 @@ curl https://raw.githubusercontent.com/mguillem/JSErrorCollector/master/dist/JSE
 device_ip=$(getent hosts ${DEVICE_HOST} | awk '{ print $1 }')
 echo "$device_ip $DOMAIN.syncloud.info" >> /etc/hosts
 echo "$device_ip $APP.$DOMAIN.syncloud.info" >> /etc/hosts
-echo "$device_ip unix_socket_app.$DOMAIN.syncloud.info" >> /etc/hosts
-echo "$device_ip tcp_app.$DOMAIN.syncloud.info" >> /etc/hosts
+echo "$device_ip app.$DOMAIN.syncloud.info" >> /etc/hosts
 
 cat /etc/hosts
 
