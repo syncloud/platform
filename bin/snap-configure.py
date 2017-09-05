@@ -16,7 +16,7 @@ config_dir = join(app_data, 'config')
 
 variables = {
     'apps_root': '/var/lib/snap',
-    'data_root': '/var/lib/snap',
+    'data_root': '/var/snap',
     # not used in snap
     'configs_root': 'not_used',
     'config_root': app_data,
