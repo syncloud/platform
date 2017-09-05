@@ -99,7 +99,7 @@ def module_teardown(data_dir, device_host, conf_dir):
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
-    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD, throw=False)
 
 
 def test_start(module_setup, device_host):
