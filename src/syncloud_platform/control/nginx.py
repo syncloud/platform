@@ -26,7 +26,7 @@ class Nginx:
             f.write(proxy_definition(
                 app, port, self.config.nginx_config_dir(), 'app.server', self.config.www_root_public()))
 
-        self.systemctl.reload_service('platform.nginx')
+        self.systemctl.reload_service('platform.nginx-public')
 
     def remove_app(self, app, reload=True):
 
@@ -36,13 +36,16 @@ class Nginx:
             os.remove(webapp)
 
         if reload:
-            self.systemctl.reload_service('platform.nginx')
+            self.systemctl.reload_service('platform.nginx-public')
 
     def __app_file(self, app):
         return join(self.config.nginx_webapps(), '{0}.server'.format(app))
 
-    def reload(self):
-        self.systemctl.reload_service('platform.nginx')
+    def reload_internal(self):
+        self.systemctl.reload_service('platform.nginx-internal')
+    
+    def reload_public(self):
+        self.systemctl.reload_service('platform.nginx-public')
 
     def init_config(self, domain, force=False):
         nginx_public_template = join(self.config.config_dir(), 'nginx', 'public.conf')

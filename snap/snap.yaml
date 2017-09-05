@@ -1,13 +1,22 @@
 apps:
-  nginx:
-    command: bin/service.nginx.sh start
+  nginx-internal:
+    command: bin/service.nginx.sh internal start
     daemon: forking
     plugs:
     - network
     - network-bind
     restart-condition: always
-    stop-command: bin/service.nginx.sh stop
-    reload-command: bin/service.nginx.sh reload
+    stop-command: bin/service.nginx.sh internal stop
+    reload-command: bin/service.nginx.sh internal reload
+  nginx:
+    command: bin/service.nginx.sh public start
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    stop-command: bin/service.nginx.sh public stop
+    reload-command: bin/service.nginx.sh public reload
   openldap:
     command: bin/service.openldap.sh
     daemon: forking

@@ -41,7 +41,7 @@ class Tls:
                     os.remove(self.platform_config.get_ssl_key_file())
                 os.symlink(result.key_file, self.platform_config.get_ssl_key_file())
 
-                self.nginx.reload()
+                self.nginx.reload_public()
 
         except CalledProcessError, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e))
@@ -122,7 +122,7 @@ class Tls:
             self.log.warn(e.output)
             raise e
 
-        self.nginx.reload()
+        self.nginx.reload_public()
 
     def is_default_certificate_installed(self):
         return filecmp.cmp(
