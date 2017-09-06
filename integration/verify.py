@@ -71,15 +71,6 @@ def service_prefix(installer):
 
 
 @pytest.fixture(scope="session")
-def conf_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DIR
-    else:
-        os.environ['SNAP_COMMON'] = SNAPD_DATA_DIR
-        return SNAPD_DATA_DIR
-
-
-@pytest.fixture(scope="session")
 def ssh_env_vars(installer):
     if installer == 'sam':
         return ''
@@ -88,13 +79,13 @@ def ssh_env_vars(installer):
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device_host, conf_dir):
-    request.addfinalizer(lambda: module_teardown(data_dir, device_host, conf_dir))
+def module_setup(request, data_dir, device_host):
+    request.addfinalizer(lambda: module_teardown(data_dir, device_host))
 
 
-def module_teardown(data_dir, device_host, conf_dir):
+def module_teardown(data_dir, device_host):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
-    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, conf_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
+    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
@@ -295,9 +286,9 @@ def test_activate_url(public_web_session, device_host):
     assert response.status_code == 200
 
 
-def test_hook_override(public_web_session, conf_dir, service_prefix, device_host):
+def test_hook_override(public_web_session, data_dir, service_prefix, device_host):
 
-    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir),
+    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(data_dir),
             password=DEVICE_PASSWORD)
 
     run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
