@@ -24,13 +24,13 @@ linux.useradd(USER_NAME)
 install_dir = join(apps_root, APP_NAME)
 data_dir = join(data_root, APP_NAME)
 templates_path = join(install_dir, 'config.templates')
-config_dir = join(install_dir, 'config')
+config_dir = join(data_dir, 'config')
 
 variables = {
     'apps_root': apps_root,
     'data_root': data_root,
     'configs_root': apps_root,
-    'config_root': install_dir,
+    'config_root': data_dir,
     'config_dir': config_dir,
     'app_dir': install_dir,
     'app_data': data_dir,
