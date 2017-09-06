@@ -7,7 +7,7 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
-case $2 in
+case $1 in
 start)
     $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx/public.conf
     ;;
