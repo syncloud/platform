@@ -9,13 +9,13 @@ fi
 
 case $1 in
 start)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx/public.conf
+    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/public.conf
     ;;
 reload)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx/public.conf -s reload
+    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/public.conf -s reload
     ;;
 stop)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx/public.conf -s stop
+    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/public.conf -s stop
     ;;
 *)
     echo "not valid command"
