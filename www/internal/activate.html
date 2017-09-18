@@ -48,10 +48,10 @@
 				<h2>Device Setup</h2>
 				
 <ul class="nav nav-tabs" style="margin: 0 0 10px; width:100%;">
-  <li class="active" style="width:50%;"><a data-toggle="tab" href="#domain_syncloud">Syncloud.it</a></li>
-  <li style="width:50%;"><a data-toggle="tab" href="#domain_custom">Custom domain</a></li>
+  <li class="active" style="width:40%;"><a name="domain_type_syncloud" id="domain_type_syncloud" data-toggle="tab" href="#domain_syncloud">Syncloud.it</a></li>
+  <li style="width:60%;"><a name="domain_type_custom" id="domain_type_custom" data-toggle="tab" href="#domain_custom">I have my own domain</a></li>
 </ul>
-
+<input name="domain_type" id="domain_type" type="hidden" value="syncloud">
 <div class="tab-content">
   <div id="domain_syncloud" class="tab-pane fade in active">
     <input placeholder="Domain" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
@@ -61,7 +61,6 @@
   </div>
 </div>
 
-				
 				<input placeholder="Login" class="nameinput" name="device_username" id="device_username" type="text">
 				<input placeholder="Password" class="passinput" name="device_password" id="device_password" type="password">
 				<button id="btn_activate" class="submit buttonblue" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">Activate</button>
@@ -104,17 +103,27 @@
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
-<script src="js/backend/common.js"></script>
-<script src="js/backend/activate.js"></script>
+<script src="js/backend.static/common.js"></script>
+<script src="js/backend.static/activate.js"></script>
 
 <script type="text/javascript">
 
 $(document).ready(function () {
+  $("#domain_type_syncloud").click(function (event) {
+				event.preventDefault();
+				$("#domain_type").val('syncloud');
+		});
+				
+		$("#domain_type_custom").click(function (event) {
+				event.preventDefault();
+				$("#domain_type").val('custom');
+		});
+		
 		$("#form_activate").submit(function (event) {
 				event.preventDefault();
 
 				var values = $("#form_activate").serializeArray();
-
+   alert($("#domain_type").val())
 				var btn = $('#btn_activate');
 				btn.button('loading');
 				$("#form_activate input").prop("disabled", true);
