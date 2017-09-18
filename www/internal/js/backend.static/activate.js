@@ -8,7 +8,7 @@ var backend = {
     activate: function(parameters) {
         setTimeout(function() {
             parameters.always();
-            parameters.fail(400, {message: "Some real error"})
+            parameters.fail(400, {message: parameters.values})
         }, 2000);
     },
     login: function(name, password) {

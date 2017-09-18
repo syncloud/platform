@@ -46,7 +46,22 @@
 				<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
 				<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
 				<h2>Device Setup</h2>
-				<input placeholder="Domain" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
+				
+<ul class="nav nav-tabs" style="margin: 0 0 10px; width:100%;">
+  <li class="active" style="width:50%;"><a data-toggle="tab" href="#domain_syncloud">Syncloud.it</a></li>
+  <li style="width:50%;"><a data-toggle="tab" href="#domain_custom">Custom domain</a></li>
+</ul>
+
+<div class="tab-content">
+  <div id="domain_syncloud" class="tab-pane fade in active">
+    <input placeholder="Domain" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
+  </div>
+  <div id="domain_custom" class="tab-pane fade" style="width:100%;">
+    <input placeholder="Top level domain like example.com" class="domain" name="user_domain" id="user_domain" type="text" style="width:100% !important;">
+  </div>
+</div>
+
+				
 				<input placeholder="Login" class="nameinput" name="device_username" id="device_username" type="text">
 				<input placeholder="Password" class="passinput" name="device_password" id="device_password" type="password">
 				<button id="btn_activate" class="submit buttonblue" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">Activate</button>
