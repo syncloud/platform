@@ -254,25 +254,21 @@ header{width:95%}
 .menubutton,.navi{display:none}
 }
 
-.nav {
-background:url(../images/background.jpg) repeat-x center top !important:
-    #background-color: #000 !important;
+.nav-pills > .active > a,
+.nav-pills > .active > a:hover,.nav-pills > li > a:hover {
+    text-decoration: none;
+    border-radius:0px;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: #02a0dc;
+    color: #000 !important;
+    background-color: transparent !important;
+}
+.nav-pills > li > a{
+    border-radius:0px;
 }
 
-.nav>li>a {
-    background:url(../images/background.jpg) repeat-x center top !important:
-    #background-color: #666 !important;
-    #color: #fff;
-}
-
-nav-tabs > li > a{
-  background:url(../images/background.jpg) repeat-x center top !important:
-  border: medium none;
-}
-.nav-tabs > li > a:hover{
-   background:url(../images/background.jpg) repeat-x center top !important: 
- # background-color: #303136 !important;
-    border: medium none;
-    border-radius: 0;
-    color:#fff;
-}
+.centered-pills { text-align:center; }
+.centered-pills ul.nav-pills { display:inline-block; }
+.centered-pills li { display:inline; }
+.centered-pills a { float:left; }

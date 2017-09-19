@@ -42,29 +42,30 @@
 		<h1>Activate</h1>
 		<div class="formblock">
 			<form id="form_activate">
-						
-				
-<ul class="nav nav-tabs" style="margin: 0 0 10px; width:100%;">
-  <li class="active" style="width:40%;"><a name="domain_type_syncloud" id="domain_type_syncloud" data-toggle="tab" href="#domain_syncloud">Syncloud.it</a></li>
-  <li style="width:60%;"><a name="domain_type_custom" id="domain_type_custom" data-toggle="tab" href="#domain_custom">I have my own domain</a></li>
-</ul>
-<input name="domain_type" id="domain_type" type="hidden" value="syncloud">
+				<div class="centered-pills">
 
+					<ul class="nav nav-pills">
+					  <li class="active"><a name="domain_type_syncloud" id="domain_type_syncloud" data-toggle="tab" href="#domain_syncloud">Syncloud.it</a></li>
+					  <li><a name="domain_type_custom" id="domain_type_custom" data-toggle="tab" href="#domain_custom">I have my own domain</a></li>
+					</ul>
 
-<div class="tab-content">
-  <div id="domain_syncloud" class="tab-pane fade in active">
-  	<h2>Syncloud Account</h2>
-				<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
-				<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
-	
-	<h2>Device Setup</h2>
-    <input placeholder="Domain" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
-  </div>
-  <div id="domain_custom" class="tab-pane fade" style="width:100%;">
-  	<h2>Device Setup</h2>
-    <input placeholder="Top level domain like example.com" class="domain" name="user_domain" id="user_domain" type="text" style="width:100% !important;">
-  </div>
-</div>
+				</div>
+				<input name="domain_type" id="domain_type" type="hidden" value="syncloud">
+
+				<div class="tab-content">
+				  <div id="domain_syncloud" class="tab-pane fade in active">
+					<h2>Syncloud Account</h2>
+					<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
+					<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
+
+					<h2>Device Setup</h2>
+					<input placeholder="Domain" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
+				  </div>
+				  <div id="domain_custom" class="tab-pane fade" style="width:100%;">
+					<h2>Device Setup</h2>
+					<input placeholder="Top level domain like example.com" class="domain" name="user_domain" id="full_domain" type="text" style="width:100% !important;">
+				  </div>
+				</div>
 
 				<input placeholder="Login" class="nameinput" name="device_username" id="device_username" type="text">
 				<input placeholder="Password" class="passinput" name="device_password" id="device_password" type="password">
@@ -128,7 +129,7 @@ $(document).ready(function () {
 				event.preventDefault();
 
 				var values = $("#form_activate").serializeArray();
-   alert($("#domain_type").val())
+   				alert($("#domain_type").val())
 				var btn = $('#btn_activate');
 				btn.button('loading');
 				$("#form_activate input").prop("disabled", true);
