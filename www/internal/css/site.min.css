@@ -253,3 +253,26 @@ header{width:95%}
 @media (min-width:1299px) {
 .menubutton,.navi{display:none}
 }
+
+.nav {
+background:url(../images/background.jpg) repeat-x center top !important:
+    #background-color: #000 !important;
+}
+
+.nav>li>a {
+    background:url(../images/background.jpg) repeat-x center top !important:
+    #background-color: #666 !important;
+    #color: #fff;
+}
+
+nav-tabs > li > a{
+  background:url(../images/background.jpg) repeat-x center top !important:
+  border: medium none;
+}
+.nav-tabs > li > a:hover{
+   background:url(../images/background.jpg) repeat-x center top !important: 
+ # background-color: #303136 !important;
+    border: medium none;
+    border-radius: 0;
+    color:#fff;
+}
