@@ -20,13 +20,13 @@ class DeviceInfo:
 
     def domain(self):
         if self.user_platform_config.is_redirect_enabled():
-            return self.user_platform_config.get_custom_domain()
-        else:
             user_domain = self.user_platform_config.get_user_domain()
             if user_domain is not None:
                 return '{0}.{1}'.format(user_domain, self.user_platform_config.get_redirect_domain())
             else:
                 return None
+        else:
+            return self.user_platform_config.get_custom_domain()
  
 
     def app_domain(self, app_name):
