@@ -212,7 +212,9 @@ class PlatformUserConfig:
 
     def get_custom_domain(self):
         self.parser.read(self.filename)
-        return self.parser.get('platform', 'custom_domain')
+        if self.parser.has_option('platform', 'custom_domain'):
+            return self.parser.get('platform', 'custom_domain')
+        return None
 
     def get_user_domain(self):
         self.parser.read(self.filename)
