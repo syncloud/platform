@@ -45,8 +45,8 @@
 				<div class="centered-pills">
 
 					<ul class="nav nav-pills">
-					  <li class="active"><a name="domain_type_syncloud" id="domain_type_syncloud" data-toggle="tab" href="#domain_syncloud">Syncloud.it</a></li>
-					  <li><a name="domain_type_custom" id="domain_type_custom" data-toggle="tab" href="#domain_custom">I have my own domain</a></li>
+					  <li class="active"><a name="domain_type_syncloud" id="domain_type_syncloud" data-toggle="tab" href="#domain_syncloud">[name].syncloud.it</a></li>
+					  <li><a name="domain_type_custom" id="domain_type_custom" data-toggle="tab" href="#domain_custom">My own domain</a></li>
 					</ul>
 
 				</div>
@@ -54,16 +54,16 @@
 
 				<div class="tab-content">
 				  <div id="domain_syncloud" class="tab-pane fade in active">
-					<h2>Syncloud Account</h2>
-					<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
-					<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
+		    			<h2>Syncloud Account</h2>
+				    	<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
+			    		<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
 
-					<h2>Device Setup</h2>
-					<input placeholder="Domain" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
+					    <h2>Device Setup</h2>
+		    			<input placeholder="Name" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
 				  </div>
 				  <div id="domain_custom" class="tab-pane fade" style="width:100%;">
-					<h2>Device Setup</h2>
-					<input placeholder="Top level domain like example.com" class="domain" name="user_domain" id="full_domain" type="text" style="width:100% !important;">
+		    			<h2>Device Setup</h2>
+				    	<input placeholder="Top level domain like example.com" class="domain" name="full_domain" id="full_domain" type="text" style="width:100% !important;">
 				  </div>
 				</div>
 
@@ -109,8 +109,8 @@
 <script src="js/lib/IE9.js"></script>
 <![endif]-->
 
-<script src="js/backend.static/common.js"></script>
-<script src="js/backend.static/activate.js"></script>
+<script src="js/backend/common.js"></script>
+<script src="js/backend/activate.js"></script>
 
 <script type="text/javascript">
 
@@ -129,23 +129,34 @@ $(document).ready(function () {
 				event.preventDefault();
 
 				var values = $("#form_activate").serializeArray();
-   				alert($("#domain_type").val())
+   	
 				var btn = $('#btn_activate');
 				btn.button('loading');
 				$("#form_activate input").prop("disabled", true);
 				hide_fields_errors("form_activate");
-
-				backend.activate({
-					values: values,
-					always: function() {
+   if ( $("#domain_type").val() == 'syncloud') {
+				backend.activate(
+					values,
+					function() {
 						btn.button('reset');
 						$("#form_activate input").prop("disabled", false);
 					},
-					done: function() {
-                        backend.login($('#device_username').val(), $('#device_password').val());
+					function() {
+     backend.login($('#device_username').val(), $('#device_password').val());
 					},
-					fail: ui_display_error
-				});
+					ui_display_error);
+				} else {
+				backend.activate_custom_domain(
+					values,
+					function() {
+						btn.button('reset');
+						$("#form_activate input").prop("disabled", false);
+					},
+					function() {
+     backend.login($('#device_username').val(), $('#device_password').val());
+					},
+					ui_display_error);
+				}
 		});
 });
 </script>

@@ -1,3 +1,9 @@
+// debugging
+//window.onerror = function(msg, url, linenumber) {
+//    alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+//    return true;
+//};
+
 function get_error_block_id(txt_field) {
     return txt_field + "_alert";
 }
@@ -24,8 +30,10 @@ function hide_fields_errors(form) {
     $( error_blocks_selector ).remove();
 }
 
-function ui_display_error(status, error) {
-    if (error) {
+function ui_display_error(xhr, textStatus, exception) {
+
+    if (xhr.hasOwnProperty('responseJSON')) {
+        var error = xhr.responseJSON;
         if ('parameters_messages' in error) {
             for (var i = 0; i < error.parameters_messages.length; i++) {
                 var pm = error.parameters_messages[i];

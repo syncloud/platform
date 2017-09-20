@@ -21,3 +21,7 @@ class PortProber:
         except Exception, e:
             self.logger.info('{0} is not reachable, error: {1}'.format(port, e.message))
             return False
+
+class NoneProber:
+    def probe_port(self, port, protocol):
+        return True

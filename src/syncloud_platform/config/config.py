@@ -205,6 +205,15 @@ class PlatformUserConfig:
         self.parser.read(self.filename)
         return self.parser.get('redirect', 'user_email')
 
+    def set_custom_domain(self, custom_domain):
+        self.parser.read(self.filename)
+        self.__set('platform', 'custom_domain', custom_domain)
+        self.__save()
+
+    def get_custom_domain(self):
+        self.parser.read(self.filename)
+        return self.parser.get('platform', 'custom_domain')
+
     def get_user_domain(self):
         self.parser.read(self.filename)
         if self.parser.has_option('platform', 'user_domain'):
@@ -229,6 +238,17 @@ class PlatformUserConfig:
         if not self.parser.has_option('platform', 'external_access'):
             return False
         return self.parser.getboolean('platform', 'external_access')
+
+    def is_redirect_enabled(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'redirect_enabled'):
+            return False
+        return self.parser.getboolean('platform', 'redirect_enabled')
+    
+    def set_redirect_enabled(self, enabled):
+        self.parser.read(self.filename)
+        self.__set('platform', 'redirect_enabled', enabled)
+        self.__save()
 
     def is_https(self):
         self.parser.read(self.filename)

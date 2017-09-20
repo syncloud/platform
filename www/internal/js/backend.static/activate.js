@@ -1,14 +1,14 @@
 var backend = {
-//    activate: function(parameters) {
-//        setTimeout(function() {
-//            success_callbacks(parameters);
-//        }, 2000);
-//    }
-
-    activate: function(parameters) {
+    activate: function(parameters, on_always, on_done, on_error) {
         setTimeout(function() {
-            parameters.always();
-            parameters.fail(400, {message: parameters.values.domain_type})
+            on_always();
+            on_error({responseJSON: {message: JSON.stringify(parameters)}}, "error", {})
+        }, 2000);
+    },
+    activate_custom_domain: function(parameters, on_always, on_done, on_error) {
+        setTimeout(function() {
+            on_always();
+            on_error({responseJSON: {message: JSON.stringify(parameters)}}, "error", {})
         }, 2000);
     },
     login: function(name, password) {
