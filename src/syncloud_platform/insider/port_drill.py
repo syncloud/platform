@@ -2,7 +2,7 @@ from syncloud_app import logger
 
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.manual import ManualPortMapper
-from syncloud_platform.insider.port_prober import PortProber
+from syncloud_platform.insider.port_prober import PortProber, NoneProber
 from syncloud_platform.insider.util import port_to_protocol, is_web_port
 from IPy import IP
 
@@ -129,11 +129,17 @@ class PortDrillFactory:
             mapper = self.port_mapper_factory.provide_mapper()
         else:
             mapper = ManualPortMapper(manual_public_ip, manual_public_port)
-
+        
         if mapper:
-            prober = PortProber(
-                self.user_platform_config.get_redirect_api_url(),
-                self.user_platform_config.get_domain_update_token())
+            prober = self._get_port_prober()
             drill = PortDrill(self.port_config, mapper, prober)
         return drill
+        
+    def _get_port_prober(self):
+        if self.user_platform_config.is_redirect_enabled():
+            return PortProber(
+                self.user_platform_config.get_redirect_api_url(),
+                self.user_platform_config.get_domain_update_token())
+        else:
+            return NoneProber()
 

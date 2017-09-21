@@ -30,7 +30,7 @@ class Device:
         redirect_api_url = 'http://api.' + main_domain
 
         self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
-
+        self.user_platform_config.set_redirect_enabled(True)
         self.sam.update()
         self.user_platform_config.update_redirect(main_domain, redirect_api_url)
         self.user_platform_config.set_user_email(redirect_email)
@@ -62,6 +62,32 @@ class Device:
         self.auth.reset(device_username, device_password, fix_permissions)
         
         self.nginx.init_config('{0}.{1}'.format(user_domain, main_domain), force=True)
+        self.nginx.reload_public()
+        
+        self.logger.info("activation completed")
+
+    def activate_custom_domain(self, full_domain, device_username, device_password):
+
+        self.logger.info("activate custom {0}, {1}".format(full_domain, device_username))
+        self.sam.update()
+        
+        self.user_platform_config.set_redirect_enabled(False)
+        self.user_platform_config.set_custom_domain(full_domain)
+
+        self.platform_cron.remove()
+        self.platform_cron.create()
+
+        self.set_access(False, False, False, 0, 0)
+
+        self.logger.info("activating ldap")
+        fix_permissions = self.platform_config.get_installer() == 'sam'
+        self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
+
+        self.tls.generate_self_signed_certificate()
+
+        self.auth.reset(device_username, device_password, fix_permissions)
+        
+        self.nginx.init_config(full_domain, force=True)
         self.nginx.reload_public()
         
         self.logger.info("activation completed")

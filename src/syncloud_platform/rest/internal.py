@@ -44,6 +44,17 @@ def activate():
     )
     return identification()
 
+@app.route(rest_prefix + "/activate_custom_domain", methods=["POST"])
+def activate_custom_domain():
+
+    # TODO: validation
+
+    internal.activate_custom_domain(
+        request.form['full_domain'],
+        request.form['device_username'],
+        request.form['device_password']
+    )
+    return identification()
 
 def get_main_domain(request_form):
     
