@@ -47,6 +47,7 @@ services:
     privileged: true
     volumes:
       - /var/run/dbus:/var/run/dbus
+      - /dev:/dev
  
 matrix:
   arch:
