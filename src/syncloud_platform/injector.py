@@ -110,4 +110,4 @@ class Injector:
         return AppPaths(app_name, self.platform_config)
     
     def get_app_setup(self, app_name):
-        return AppSetup(app_name, self.app_paths(app_name), self.nginx, self.hardware, self.device_info, self.device, self.user_platform_config, self.systemctl)
+        return AppSetup(app_name, self.get_app_paths(app_name), self.nginx, self.hardware, self.device_info, self.device, self.user_platform_config, self.systemctl)
