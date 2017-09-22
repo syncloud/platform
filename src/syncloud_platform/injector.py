@@ -106,8 +106,8 @@ class Injector:
                              self.port_mapper_factory, self.network, self.port_config)
         self.udev = Udev(self.platform_config)
 
-    def get_app_paths(app_name):
+    def get_app_paths(self, app_name):
         return AppPaths(app_name, self.platform_config)
     
-    def get_app_setup(app_name):
+    def get_app_setup(self, app_name):
         return AppSetup(app_name, app_paths(app_name), self.nginx, self.hardware, self.device_info, self.device, self.user_platform_config, self.systemctl)
