@@ -14,7 +14,7 @@ class Nginx:
     def __init__(self, platform_config, systemctl, device_info):
         self.systemctl = systemctl
         self.config = platform_config
-        selg.device_info = device_info
+        self.device_info = device_info
         self.log = logger.get_logger('nginx')
 
     def add_app(self, app, port):
