@@ -361,7 +361,7 @@ def loop_device(device_host):
     run_ssh(device_host, 'ls -la {0}'.format(dev_file), password=DEVICE_PASSWORD)
     loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'file -s {0}'.format(loop), password=DEVICE_PASSWORD)
-
+    run_ssh(device_host, 'losetup | grep {0}'.format(loop), password=DEVICE_PASSWORD)
     yield loop
 
     loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
