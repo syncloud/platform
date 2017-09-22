@@ -32,6 +32,8 @@ from syncloud_platform.disks.udev import Udev
 from syncloud_platform.application.apppaths import AppPaths
 from syncloud_platform.versions import Versions
 from syncloud_platform.network.network import Network
+from syncloud_platform.application.apppaths import AppPaths
+from syncloud_platform.application.appsetup import AppSetup
 
 default_injector = None
 
@@ -103,3 +105,9 @@ class Injector:
                              self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator,
                              self.port_mapper_factory, self.network, self.port_config)
         self.udev = Udev(self.platform_config)
+
+    def get_app_paths(app_name):
+        return AppPaths(app_name, self.platform_config)
+    
+    def get_app_setup(app_name):
+        return AppSetup(app_name, app_paths(app_name), self.nginx, self.hardware, self.device_info, self.device, self.user_platform_config, self.systemctl)
