@@ -75,7 +75,7 @@ ldap_auth = injector.ldap_auth
 ldap_auth.init(fix_permissions=True)
 
 nginx = injector.nginx
-nginx.init_config('localhost')
+nginx.init_config()
 
 systemctl = injector.systemctl
 systemctl.add_service(APP_NAME, 'platform.cpu-frequency')

@@ -61,7 +61,7 @@ class Device:
 
         self.auth.reset(device_username, device_password, fix_permissions)
         
-        self.nginx.init_config('{0}.{1}'.format(user_domain, main_domain), force=True)
+        self.nginx.init_config()
         self.nginx.reload_public()
         
         self.logger.info("activation completed")
@@ -87,7 +87,7 @@ class Device:
 
         self.auth.reset(device_username, device_password, fix_permissions)
         
-        self.nginx.init_config(full_domain, force=True)
+        self.nginx.init_config()
         self.nginx.reload_public()
         
         self.logger.info("activation completed")

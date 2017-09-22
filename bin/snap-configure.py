@@ -57,4 +57,4 @@ ldap_auth = injector.ldap_auth
 ldap_auth.init()
 
 nginx = injector.nginx
-nginx.init_config('localhost')
+nginx.init_config()

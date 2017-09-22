@@ -76,18 +76,18 @@ class Injector:
         self.port_mapper_factory = PortMapperFactory(self.nat_pmp_port_mapper, self.upnp_port_mapper)
         self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
                                                    self.port_mapper_factory)
-        self.info = DeviceInfo(self.user_platform_config, self.port_config)
+        self.device_info = DeviceInfo(self.user_platform_config, self.port_config)
         if self.platform_config.get_installer() == 'sam':
-            self.sam = SamStub(self.platform_config, self.info)
+            self.sam = SamStub(self.platform_config, self.device_info)
         else:
-            self.sam = Snap(self.platform_config, self.info)
+            self.sam = Snap(self.platform_config, self.device_info)
         self.platform_cron = PlatformCron(self.platform_config)
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.sam, self.platform_config)
-        self.nginx = Nginx(self.platform_config, self.systemctl)
-        self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config, self.info, self.sam)
-        self.tls = Tls(self.platform_config, self.user_platform_config, self.info, self.nginx, self.certbot_genetator)
+        self.nginx = Nginx(self.platform_config, self.systemctl, self.device_info)
+        self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config, self.device_info, self.sam)
+        self.tls = Tls(self.platform_config, self.user_platform_config, self.device_info, self.nginx, self.certbot_genetator)
         
         self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service,
                              self.port_drill_factory, self.sam, self.platform_cron, self.ldap_auth,
@@ -99,7 +99,7 @@ class Injector:
         self.hardware = Hardware(self.platform_config, self.event_trigger,
                                  self.lsblk, self.path_checker, self.systemctl)
         self.network = Network()
-        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.info, self.sam,
+        self.public = Public(self.platform_config, self.user_platform_config, self.device, self.device_info, self.sam,
                              self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator,
                              self.port_mapper_factory, self.network, self.port_config)
         self.udev = Udev(self.platform_config)
