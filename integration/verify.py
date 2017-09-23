@@ -395,7 +395,7 @@ def test_disk_physical_remove(loop_device, public_web_session, device_host):
 
 
 def disk_create(loop_device, fs, device_host):
-    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD, retries=3)
 
     run_ssh(device_host, 'rm -rf /tmp/test', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'mkdir /tmp/test', password=DEVICE_PASSWORD)
