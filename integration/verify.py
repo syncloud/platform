@@ -399,8 +399,9 @@ def disk_create(loop_device, fs, device_host):
 
     run_ssh(device_host, 'rm -rf /tmp/test', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'mkdir /tmp/test', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'sync', password=DEVICE_PASSWORD)
 
-    run_ssh(device_host, 'mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD, retries=3)
     for mount in run_ssh(device_host, 'mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
