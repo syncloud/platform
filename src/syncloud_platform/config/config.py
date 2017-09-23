@@ -244,7 +244,7 @@ class PlatformUserConfig:
     def is_redirect_enabled(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'redirect_enabled'):
-            return False
+            return True
         return self.parser.getboolean('platform', 'redirect_enabled')
     
     def set_redirect_enabled(self, enabled):
