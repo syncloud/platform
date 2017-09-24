@@ -55,7 +55,4 @@ class Nginx:
             join(self.config.config_dir(), 'nginx', 'public.conf'), 
             join(self.config.data_dir(), 'config.runtime', 'nginx', 'public.conf'), 
             variables)
-        gen.generate_file_jinja(
-            join(self.config.config_dir(), 'nginx', 'default.app.server'), 
-            join(self.config.data_dir(), 'config.runtime', 'nginx', 'default.app.server'), 
-            variables)
+   
