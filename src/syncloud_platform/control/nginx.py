@@ -50,7 +50,12 @@ class Nginx:
 
     def init_config(self):
         domain = self.device_info.domain()
-        nginx_public_template = join(self.config.config_dir(), 'nginx', 'public.conf')
-        nginx_public_runtime = join(self.config.data_dir(), 'config.runtime', 'nginx', 'public.conf')
         variables = { 'user_domain': domain }
-        gen.generate_file_jinja(nginx_public_template, nginx_public_runtime, variables)
+        gen.generate_file_jinja(
+            join(self.config.config_dir(), 'nginx', 'public.conf'), 
+            join(self.config.data_dir(), 'config.runtime', 'nginx', 'public.conf'), 
+            variables)
+        gen.generate_file_jinja(
+            join(self.config.config_dir(), 'nginx', 'default.app.server'), 
+            join(self.config.data_dir(), 'config.runtime', 'nginx', 'default.app.server'), 
+            variables)

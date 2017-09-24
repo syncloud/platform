@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name ~^(?U)(?<app>.*)\..*$;
+    server_name ~^(?<app>.*)\.{{ '{{' }} user_domain | replace(".", "\.") {{ '}}' }}$;
 
     #certbot auth dir
     location /.well-known {
