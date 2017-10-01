@@ -17,40 +17,47 @@ class Snap:
         return None
         
     def install(self, app_id):
+        self.logger.info('snap install')
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
 
     def upgrade(self, app_id):
+        self.logger.info('snap upgrade')
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
 
+    def status(self):
+        return False
+
     def remove(self, app_id):
+        self.logger.info('snap remove')
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'remove'})
 
     def list(self):
+        self.logger.info('snap list')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response)
+        self.logger.info(response.text)
         return response
 
     def user_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response)
+        self.logger.info(response.text)
         return response
 
     def installed_user_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response)
+        self.logger.info(response.text)
         apps = parse_snaps_response(response.text)
         return apps
 
     def installed_all_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response)
+        self.logger.info(response.text)
         apps = parse_snaps_response(response.text)
         return apps
 
@@ -64,6 +71,7 @@ class Snap:
 def parse_snaps_response(response_json):
     response = json.loads(response_json)
     return [to_app(app) for app in response['result']]
+
 
 def to_app(app):
     app_version = AppVersions()

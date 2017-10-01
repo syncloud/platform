@@ -1,26 +1,15 @@
 var backend = {
-    activate: function(parameters) {
-        var values = parameters.values;
-        $.post("/rest/activate", values)
-            .done(function (data) {
-                if (parameters.hasOwnProperty("done")) {
-                    parameters.done(data);
-                }
-            })
-            .fail(function (xhr, textStatus, errorThrown) {
-                var error = null;
-                if (xhr.hasOwnProperty('responseJSON')) {
-                    var error = xhr.responseJSON;
-                }
-                if (parameters.hasOwnProperty("fail")) {
-                    parameters.fail(xhr.status, error);
-                }
-            })
-            .always(function() {
-                if (parameters.hasOwnProperty("always")) {
-                    parameters.always();
-                }
-            });
+    activate: function(parameters, on_always, on_done, on_error) {
+        $.post("/rest/activate", parameters)
+            .done(on_done)
+            .fail(on_error)
+            .always(on_always);
+    },
+    activate_custom_domain: function(parameters, on_always, on_done, on_error) {
+        $.post("/rest/activate_custom_domain", parameters)
+            .done(on_done)
+            .fail(on_error)
+            .always(on_always);
     },
     login: function(name, password) {
         var url = (new URI())

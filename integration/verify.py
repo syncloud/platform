@@ -1,5 +1,5 @@
 import os
-from os.path import dirname, join
+from os.path import join, dirname, relpath, isdir, split
 import convertible
 import requests
 from subprocess import check_output
@@ -8,6 +8,7 @@ import time
 import shutil
 import socket
 import pytest
+import jinja2
 
 from requests.adapters import HTTPAdapter
 
@@ -32,6 +33,17 @@ DATA_DIR=''
 SAM_APP_DIR='/opt/app/platform'
 SNAPD_APP_DIR='/snap/platform/current'
 APP_DIR=''
+
+SAM_APP_DATA_DIR='/opt/data/app'
+SNAPD_APP_DATA_DIR='/var/snap/app/common'
+
+
+@pytest.fixture(scope="session")
+def app_data_dir(installer):
+    if installer == 'sam':
+        return SAM_APP_DATA_DIR
+    else:
+        return SNAPD_APP_DATA_DIR
 
 
 @pytest.fixture(scope="session")
@@ -59,15 +71,6 @@ def service_prefix(installer):
 
 
 @pytest.fixture(scope="session")
-def conf_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DIR
-    else:
-        os.environ['SNAP_COMMON'] = SNAPD_DATA_DIR
-        return SNAPD_DATA_DIR
-
-
-@pytest.fixture(scope="session")
 def ssh_env_vars(installer):
     if installer == 'sam':
         return ''
@@ -82,10 +85,12 @@ def module_setup(request, data_dir, device_host):
 
 def module_teardown(data_dir, device_host):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
+    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
+    run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
-    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD, throw=False)
 
 
 def test_start(module_setup, device_host):
@@ -95,6 +100,8 @@ def test_start(module_setup, device_host):
 
 
 def test_install(app_archive_path, installer, device_host):
+    run_ssh(device_host, 'systemctl', password=LOGS_SSH_PASSWORD)
+
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
@@ -120,11 +127,12 @@ def test_activate_device(auth, device_host):
 
     email, password, domain, release = auth
     global LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
-    LOGS_SSH_PASSWORD = 'password1'
+    
 
 
 def test_reactivate(auth, device_host):
@@ -157,6 +165,37 @@ def test_platform_rest(device_host):
     session.mount('http://{0}'.format(device_host), HTTPAdapter(max_retries=5))
     response = session.get('http://{0}'.format(device_host), timeout=60)
     assert response.status_code == 200
+
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
+    nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
+    nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
+    generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
+    run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf.runtime -g \'error_log {1}/log/nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
+    response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
+    assert response.status_code == 200
+    assert response.text == 'OK', response.text
+
+def generate_file_jinja(from_path, to_path, variables):
+    from_path_dir, from_path_filename = split(from_path)
+    loader = jinja2.FileSystemLoader(searchpath=from_path_dir)
+
+    env_parameters = dict(
+        loader=loader,
+        # some files like udev rules want empty lines at the end
+        # trim_blocks=True,
+        # lstrip_blocks=True,
+        undefined=jinja2.StrictUndefined
+    )
+    environment = jinja2.Environment(**env_parameters)
+    template = environment.get_template(from_path_filename)
+    output = template.render(variables)
+    to_path_dir = dirname(to_path)
+    if not isdir(to_path_dir):
+        makedirs(to_path_dir)
+    with open(to_path, 'wb+') as fh:
+        fh.write(output.encode("UTF-8"))
 
 
 # def test_external_mode(auth, public_web_session, user_domain, device_host):
@@ -247,9 +286,9 @@ def test_activate_url(public_web_session, device_host):
     assert response.status_code == 200
 
 
-def test_hook_override(public_web_session, conf_dir, service_prefix, device_host):
+def test_hook_override(public_web_session, data_dir, service_prefix, device_host):
 
-    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(conf_dir),
+    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(data_dir),
             password=DEVICE_PASSWORD)
 
     run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
@@ -322,7 +361,8 @@ def loop_device(device_host):
     run_ssh(device_host, 'ls -la {0}'.format(dev_file), password=DEVICE_PASSWORD)
     loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'file -s {0}'.format(loop), password=DEVICE_PASSWORD)
-
+    run_ssh(device_host, 'partprobe {0}'.format(loop), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'losetup -j {0}'.format(dev_file), password=DEVICE_PASSWORD)
     yield loop
 
     loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
@@ -356,12 +396,13 @@ def test_disk_physical_remove(loop_device, public_web_session, device_host):
 
 
 def disk_create(loop_device, fs, device_host):
-    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD, retries=3)
 
     run_ssh(device_host, 'rm -rf /tmp/test', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'mkdir /tmp/test', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'sync', password=DEVICE_PASSWORD)
 
-    run_ssh(device_host, 'mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD, retries=3)
     for mount in run_ssh(device_host, 'mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)

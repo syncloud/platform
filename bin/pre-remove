@@ -4,7 +4,8 @@ injector = get_injector()
 systemctl = injector.systemctl
 
 systemctl.remove_service('platform.openldap')
-systemctl.remove_service('platform.nginx')
+systemctl.remove_service('platform.nginx-public')
+systemctl.remove_service('platform.nginx-internal')
 systemctl.remove_service('platform.uwsgi-public')
 systemctl.remove_service('platform.uwsgi-internal')
 systemctl.remove_service('platform.ntpdate')

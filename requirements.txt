@@ -7,7 +7,7 @@ massedit==0.67.1
 Flask==0.10.1
 flask-login==0.2.10
 psutil==4.3.0
-Jinja2==2.7.3
+Jinja2==2.9.6
 miniupnpc==1.9
 python-ldap==2.4.25
 certbot-nginx==0.16.0

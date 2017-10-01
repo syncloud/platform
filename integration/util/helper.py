@@ -5,21 +5,26 @@ from os.path import split
 import convertible
 import requests
 
-SAM='/opt/app/sam/bin/sam --debug'
-SAM_INSTALL='{0} install'.format(SAM)
-SNAP='snap'
-SNAP_INSTALL='{0} install --devmode'.format(SNAP)
+SAM = '/opt/app/sam/bin/sam --debug'
+SAM_INSTALL = '{0} install'.format(SAM)
+SNAP = 'snap'
+SNAP_INSTALL = '{0} install --devmode'.format(SNAP)
+
 
 def local_install(host, password, app_archive_path, installer):
     _, app_archive = split(app_archive_path)
     run_scp('{0} root@{1}:/'.format(app_archive_path, host), password=password)
-    cmd=SAM_INSTALL
+    cmd = SAM_INSTALL
     if installer == 'snapd':
-        cmd=SNAP_INSTALL
+        cmd = SNAP_INSTALL
+    run_ssh(host, 'ls -la /{0}'.format(app_archive), password=password)
     run_ssh(host, '{0} /{1}'.format(cmd, app_archive), password=password)
+    if installer == 'snapd':
+        run_ssh(host, 'ls -la /var/snap/platform', password=password)
+
 
 def local_remove(host, password, installer, app):
-    cmd=SAM
+    cmd = SAM
     if installer == 'snapd':
         cmd=SNAP
     run_ssh(host, '{0} remove {1}'.format(cmd, app), password=password)
@@ -32,8 +37,8 @@ def wait_for_platform_web(host):
 
 def wait_for_sam(public_web_session, host):
     sam_running = True
-    attempts=200
-    attempt=0
+    attempts = 200
+    attempt = 0
     while sam_running and attempt < attempts:
         try:
             response = public_web_session.get('http://{0}/rest/settings/sam_status'.format(host))
@@ -44,7 +49,7 @@ def wait_for_sam(public_web_session, host):
             print(e.message)
 
         print("attempt: {0}/{1}".format(attempt, attempts))
-        attempt+=1
+        attempt += 1
         time.sleep(1)
 
 

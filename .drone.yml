@@ -15,7 +15,7 @@ pipeline:
     image: syncloud/platform-build-deps-${arch}
     commands:
       - VERSION=$(cat version)
-      - ./build.sh $VERSION
+      - ./build.sh $VERSION ${installer}
       - ./unit-test.sh
       - ./test/js/runner/run.sh
 
@@ -30,10 +30,7 @@ pipeline:
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION
-    when:
-      matrix:
-        installer: sam
+      - ./upload.sh $DRONE_BRANCH $VERSION ${installer}
 
   ci-artifact:
     image: syncloud/platform-build-deps-${arch}
@@ -50,6 +47,7 @@ services:
     privileged: true
     volumes:
       - /var/run/dbus:/var/run/dbus
+      - /dev:/dev
  
 matrix:
   arch:
@@ -57,4 +55,4 @@ matrix:
     - amd64
   installer:
     - sam
-#    - snapd
+    - snapd

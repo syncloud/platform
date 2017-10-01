@@ -2,13 +2,8 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-if [[ -z "$1" ]]; then
-    echo "usage $0 version release"
-    exit 1
-fi
-
 ARCH=$(dpkg --print-architecture)
-VERSION=$1
+VERSION=170819
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
@@ -25,6 +20,9 @@ mkdir -p /usr/lib/snapd
 cp snapd/bin/snapd /usr/lib/snapd
 cp snapd/bin/snap-exec /usr/lib/snapd
 cp snapd/bin/snap-confine /usr/lib/snapd
+cp snapd/bin/snap-seccomp /usr/lib/snapd
+cp snapd/bin/snap-repair /usr/lib/snapd
+cp snapd/bin/snap-update-ns /usr/lib/snapd
 cp snapd/bin/snap-discard-ns /usr/lib/snapd
 cp snapd/bin/snap /usr/bin
 cp snapd/bin/snapctl /usr/bin
@@ -40,5 +38,4 @@ systemctl enable snapd.socket
 systemctl start snapd.service snapd.socket
 
 snap --version
-
 

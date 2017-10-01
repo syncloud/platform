@@ -15,14 +15,15 @@ templates_path = join(install_dir, 'config.templates')
 config_dir = join(app_data, 'config')
 
 variables = {
-    'apps_root': install_dir,
-    'data_root': app_data,
+    'apps_root': '/var/lib/snap',
+    'data_root': '/var/snap',
     # not used in snap
     'configs_root': 'not_used',
     'config_root': app_data,
     'config_dir': config_dir,
     'app_dir': install_dir,
-    'app_data': app_data
+    'app_data': app_data,
+    'app_data_prefix': 'common/'
 }
 gen.generate_files(templates_path, config_dir, variables)
 
@@ -54,3 +55,6 @@ udev.add()
 
 ldap_auth = injector.ldap_auth
 ldap_auth.init()
+
+nginx = injector.nginx
+nginx.init_config()

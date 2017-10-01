@@ -7,7 +7,6 @@ build
 *.egg-info
 *.tar.gz
 rootfs*
-install
 _site
 3rdparty
 *.iml
