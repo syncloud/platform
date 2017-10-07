@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import tempfile
 from subprocess import check_output, CalledProcessError
+from OpenSSL import crypto
 
 import datetime
 from syncloud_app import util
@@ -23,8 +24,9 @@ class Tls:
     def generate_real_certificate(self):
 
         days_until_expiry = self.certbot_generator.days_until_expiry()
+        self_signed = is_default_certificate_installed()
         self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
-        if days_until_expiry > 30:
+        if not self_signed and days_until_expiry > 30:
             self.log.info("not regenerating")
             return
 
@@ -86,6 +88,9 @@ class Tls:
 
             self.log.info('generating Server Key')
             key_file = self.platform_config.get_ssl_key_file()
+            if os.path.exists(key_file):
+                os.remove(key_file)
+                
             output = check_output('OPENSSL_CONF={2} {0} genrsa -out {1} 4096 2>&1'
                                   .format(self.openssl_bin,
                                           key_file,
@@ -94,7 +99,8 @@ class Tls:
             self.log.info(output)
 
             self.log.info('generating Server Certificate Request')
-            key_file = self.platform_config.get_ssl_key_file()
+            
+                
             certificate_request_file = self.platform_config.get_ssl_certificate_request_file()
             output = check_output('OPENSSL_CONF={1} {0} req -config {1} -key {2} -new -sha256 -out {3} 2>&1'
                                   .format(self.openssl_bin,
@@ -106,6 +112,9 @@ class Tls:
 
             self.log.info('generating Server Certificate')
             cert_file = self.platform_config.get_ssl_certificate_file()
+            if os.path.exists(cert_file):
+                os.remove(cert_file)
+                
             output = check_output(
                 'OPENSSL_CONF={1} {0} ca -config {1} '
                 '-extensions server_cert -days 3650 '
@@ -125,9 +134,8 @@ class Tls:
         self.nginx.reload_public()
 
     def is_default_certificate_installed(self):
-        return filecmp.cmp(
-            self.platform_config.get_ssl_certificate_file(),
-            self.platform_config.get_default_ssl_certificate_file())
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
+        return cert.get_issuer().CN == cert.get_subject().CN
 
     def init_certificate(self):
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
