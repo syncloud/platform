@@ -24,7 +24,7 @@ class Tls:
     def generate_real_certificate(self):
 
         days_until_expiry = self.certbot_generator.days_until_expiry()
-        self_signed = is_default_certificate_installed()
+        self_signed = self.is_default_certificate_installed()
         self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
         if not self_signed and days_until_expiry > 30:
             self.log.info("not regenerating")
