@@ -351,8 +351,8 @@ def test_installer_upgrade(public_web_session, device_host):
 
 
 @pytest.yield_fixture(scope='function')
-def loop_device(device_host):
-    dev_file = '/tmp/disk'
+def loop_device(device_host, installer):
+    dev_file = '/tmp/disk_{0}'.format(installer)
     loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
     print('adding loop device')
