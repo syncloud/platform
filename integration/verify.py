@@ -379,16 +379,16 @@ def test_udev_script(app_dir, device_host):
     run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
 
 
-@pytest.mark.parametrize("fs_type", ['ext2', 'ext3', 'ext4'])
-def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host):
-    disk_create(loop_device, fs_type, device_host)
+@pytest.mark.parametrize("fs_type", ['ext4'])
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer):
+    disk_create(loop_device, fs_type, device_host, installer)
     assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
     disk_writable(device_host)
     assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
 
 
-def test_disk_physical_remove(loop_device, public_web_session, device_host):
-    disk_create(loop_device, 'ext4', device_host)
+def test_disk_physical_remove(loop_device, public_web_session, device_host, installer):
+    disk_create(loop_device, 'ext4', device_host, installer)
     assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
     loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]),
@@ -397,14 +397,15 @@ def test_disk_physical_remove(loop_device, public_web_session, device_host):
     assert current_disk_link(device_host) == '/opt/disk/internal/platform'
 
 
-def disk_create(loop_device, fs, device_host):
+def disk_create(loop_device, fs, device_host, installer):
+    tmp_disk = '/tmp/test_{0}'.format(installer)
     run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD, retries=3)
 
-    run_ssh(device_host, 'rm -rf /tmp/test', password=DEVICE_PASSWORD)
-    run_ssh(device_host, 'mkdir /tmp/test', password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'rm -rf {0}'.format(tmp_disk), password=DEVICE_PASSWORD)
+    run_ssh(device_host, 'mkdir {0}'.format(tmp_disk), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'sync', password=DEVICE_PASSWORD)
 
-    run_ssh(device_host, 'mount {0} /tmp/test'.format(loop_device), password=DEVICE_PASSWORD, retries=3)
+    run_ssh(device_host, 'mount {0} {1}'.format(loop_device, tmp_disk), password=DEVICE_PASSWORD, retries=3)
     for mount in run_ssh(device_host, 'mount', debug=True, password=DEVICE_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
