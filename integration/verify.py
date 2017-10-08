@@ -365,7 +365,7 @@ def loop_device(device_host):
     run_ssh(device_host, 'file -s {0}'.format(loop), password=DEVICE_PASSWORD)
     run_ssh(device_host, 'sync', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'partprobe {0}'.format(loop), password=DEVICE_PASSWORD, retries=3)
-     yield loop
+    yield loop
 
     loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
