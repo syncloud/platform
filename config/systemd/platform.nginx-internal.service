@@ -4,7 +4,7 @@ Requires=platform.uwsgi-internal.service
 After=platform.uwsgi-internal.service
 
 [Service]
-Type=forking
+Type=simple
 PIDFile={{ app_data }}/log/nginx_internal.pid
 ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ config_root }}/config/nginx/internal.conf -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
 ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config/nginx/internal.conf -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
