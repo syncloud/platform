@@ -1,7 +1,7 @@
 apps:
   nginx-internal:
     command: bin/service.nginx-internal.sh start
-    daemon: forking
+    daemon: simple
     plugs:
     - network
     - network-bind
@@ -10,7 +10,7 @@ apps:
     reload-command: bin/service.nginx-internal.sh reload
   nginx-public:
     command: bin/service.nginx-public.sh start
-    daemon: forking
+    daemon: simple
     plugs:
     - network
     - network-bind
