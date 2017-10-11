@@ -62,3 +62,8 @@ function sam_upgrade(on_complete, on_error) {
     }, on_error);
     
 }
+
+function disk_action(disk_device, is_activate, on_always, on_error) {
+    on_complete = function(data) { check_for_service_error(data, function() {}, on_error); }
+    backend.disk_action(disk_device, is_activate, on_complete, on_always, on_error);
+}

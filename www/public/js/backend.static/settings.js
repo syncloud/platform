@@ -71,6 +71,11 @@ backend.disks_data = {
       "success": true
     };
 
+backend.disks_data_error = {
+      "message": "error",
+      "success": false
+    };
+
 backend.boot_disk_data = {
       "data": {
           "device": "/dev/mmcblk0p2",
@@ -82,11 +87,11 @@ backend.boot_disk_data = {
 
 backend.device_url = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() { on_complete(that.device_data); }, 2000);
+        backend.test_timeout(function() { on_complete(that.device_data); }, 2000);
     };
 
 backend.send_logs = function(include_support, on_always, on_error) {
-        setTimeout(on_always, 2000);
+        backend.test_timeout(on_always, 2000);
     };
 
 backend.reactivate = function(on_complete, on_error) {
@@ -95,22 +100,22 @@ backend.reactivate = function(on_complete, on_error) {
 
 backend.get_versions = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() { 
+        backend.test_timeout(function() {
             on_complete(that.versions_data);
         }, 2000);
     };
 
 backend.check_versions = function(on_always, on_error) {
-        setTimeout(on_always, 2000);
+        backend.test_timeout(on_always, 2000);
     };
 
 backend.platform_upgrade = function(on_complete, on_error) {
-        setTimeout(on_complete({success: true}), 2000);
-    },
+        backend.test_timeout(function() { on_complete({success: true}) }, 2000);
+    };
 
 backend.boot_extend = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() {
+        backend.test_timeout(function() {
             that.boot_disk_data.data.extendable = false;
             that.boot_disk_data.data.size = '16G';
             on_complete({success: true});
@@ -118,7 +123,7 @@ backend.boot_extend = function(on_complete, on_error) {
     };
 
 backend.sam_upgrade = function(on_complete, on_error) {
-        setTimeout(function() { on_complete({success: true}) }, 2000);
+        backend.test_timeout(function() { on_complete({success: true}) }, 2000);
     };
 
 backend.update_disks = function(on_complete, on_error) {
@@ -128,10 +133,16 @@ backend.update_disks = function(on_complete, on_error) {
 
 backend.update_boot_disk = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() { on_complete(that.boot_disk_data); }, 2000);
+        backend.test_timeout(function() { on_complete(that.boot_disk_data); }, 2000);
     };
 
-backend.disk_action = function(disk_device, is_activate, on_complete, on_error) {
+backend.disk_action_success = true;
+
+backend.disk_action = function(disk_device, is_activate, on_complete, on_always, on_error) {
         var that = this;
-        setTimeout(function() { on_complete(that.disks_data); }, 2000);
+        if (backend.disk_action_success) {
+            backend.test_timeout(function() { on_complete(that.disks_data); on_always(); }, 2000);
+        } else {
+            backend.test_timeout(function() { on_complete(that.disks_data_error); on_always(); }, 2000);
+        }
     };

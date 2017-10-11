@@ -29,3 +29,31 @@ QUnit.test( "settings boot disk extend", function( assert ) {
 
   assert.deepEqual( true, true);
 });
+
+QUnit.test( "settings disk activate error", function( assert ) {
+
+  backend.async = false;
+  backend.disk_action_success = false
+  var error_counter = 0;
+  function on_error(a, b, c) {
+    error_counter += 1
+  }
+
+  disk_action('device', true, function() {}, on_error)
+
+  assert.deepEqual( error_counter, 1);
+});
+
+QUnit.test( "settings disk activate success", function( assert ) {
+
+  backend.async = false;
+  backend.disk_action_success = true
+  var success_counter = 0;
+  function on_success(a) {
+    success_counter += 1
+  }
+
+  disk_action('device', true, on_success, function() {});
+
+  assert.deepEqual( success_counter, 1);
+});
