@@ -83,12 +83,13 @@ def module_setup(request, data_dir, device_host):
     request.addfinalizer(lambda: module_teardown(data_dir, device_host))
 
 
-def module_teardown(data_dir, device_host):
+def module_teardown(data_dir, device_host, app_dir):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
+    run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=LOGS_SSH_PASSWORD, throw=False)
     print('systemd logs')
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD, throw=False)
 
