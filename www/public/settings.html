@@ -252,7 +252,7 @@ function ui_display_disks(data) {
 						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
 						$(tgl_loading_id).addClass('opacity-visible');
 
-						backend.disk_action(disk_device, state,
+						disk_action(disk_device, state,
                                 ui_check_disks,
                                 ui_display_error);
 				})

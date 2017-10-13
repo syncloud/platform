@@ -10,6 +10,7 @@ psutil==4.3.0
 Jinja2==2.9.6
 miniupnpc==1.9
 python-ldap==2.4.25
+cryptography==2.0
 certbot-nginx==0.19.0
 pyasn1
 ndg-httpsclient
