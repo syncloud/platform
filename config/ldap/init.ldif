@@ -33,6 +33,7 @@ sn:                    ${user}
 displayName:           ${user}
 description:           ${user}
 userPassword:          ${password}
+mail:                  ${email}
 
 
 # Subtree for Groups

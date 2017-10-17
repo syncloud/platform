@@ -59,7 +59,7 @@ class Device:
 
         self.tls.generate_self_signed_certificate()
 
-        self.auth.reset(device_username, device_password, fix_permissions)
+        self.auth.reset(device_username, device_password, fix_permissions, redirect_email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -73,6 +73,9 @@ class Device:
         
         self.user_platform_config.set_redirect_enabled(False)
         self.user_platform_config.set_custom_domain(full_domain)
+        
+        email = create_email(device_username, full_domain)
+        self.user_platform_config.set_user_email(email)
 
         self.platform_cron.remove()
         self.platform_cron.create()
@@ -85,7 +88,7 @@ class Device:
 
         self.tls.generate_self_signed_certificate()
 
-        self.auth.reset(device_username, device_password, fix_permissions)
+        self.auth.reset(device_username, device_password, fix_permissions, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -152,3 +155,10 @@ class Device:
         manual_public_port = self.user_platform_config.get_manual_public_port()
         drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         drill.remove(local_port, protocol)
+
+
+def create_email(device_username, full_domain):
+    mail = device_username
+    if '@' not in email:
+        email = '{0}@{1}'.format(device_username, full_domain)
+    return email
