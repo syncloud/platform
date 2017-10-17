@@ -157,8 +157,8 @@ class Device:
         drill.remove(local_port, protocol)
 
 
-def create_email(device_username, full_domain):
-    mail = device_username
-    if '@' not in email:
-        email = '{0}@{1}'.format(device_username, full_domain)
-    return email
+def create_email(username, domain):
+    if '@' not in username:
+        return '{0}@{1}'.format(username, domain)
+    else:
+        return username
