@@ -5,6 +5,7 @@ After=syslog.target
 [Service]
 ;User=platform
 Type=forking
+Environment=LD_LIBRARY_PATH={{ app_dir }}/openldap/lib
 PIDFile={{ app_data }}/openldap/slapd.pid
 ExecStart={{ app_dir }}/openldap/libexec/slapd -h ldap://127.0.0.1:389 -u platform -g platform -F {{ app_data }}/slapd.d
 ;TimeoutSec=3

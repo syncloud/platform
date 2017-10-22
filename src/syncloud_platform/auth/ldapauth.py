@@ -39,7 +39,7 @@ class LdapAuth:
         init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
         
         check_output(
-            '{0}/sbin/slapadd -F {1} -b "cn=config" -l {2}'.format(self.ldap_root, self.user_conf_dir, init_script), shell=True)
+            '{0}/sbin/slapadd.sh -F {1} -b "cn=config" -l {2}'.format(self.ldap_root, self.user_conf_dir, init_script), shell=True)
 
         if fix_permissions:
             self.log.info('fixing permissions for ldap user conf')
@@ -74,7 +74,7 @@ class LdapAuth:
         success = False
         for i in range(0, 3):
             try:
-                check_output('{0}/bin/ldapadd -x -w syncloud -D "dc=syncloud,dc=org" -f {2}'.format(ldap_root, self.config.data_dir(), filename), shell=True)
+                check_output('{0}/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f {2}'.format(ldap_root, self.config.data_dir(), filename), shell=True)
                 success = True
                 break
             except Exception, e:
