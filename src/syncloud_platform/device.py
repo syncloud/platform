@@ -58,8 +58,8 @@ class Device:
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
-
-        self.auth.reset(device_username, device_password, fix_permissions, redirect_email)
+        user, email = parse_username(device_username, '{0}.{1}'.format(user_domain, main_domain))
+        self.auth.reset(user, device_username, device_password, fix_permissions, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -74,7 +74,7 @@ class Device:
         self.user_platform_config.set_redirect_enabled(False)
         self.user_platform_config.set_custom_domain(full_domain)
         
-        email = create_email(device_username, full_domain)
+        user, email = parse_username(device_username, full_domain)
         self.user_platform_config.set_user_email(email)
 
         self.platform_cron.remove()
@@ -88,7 +88,7 @@ class Device:
 
         self.tls.generate_self_signed_certificate()
 
-        self.auth.reset(device_username, device_password, fix_permissions, email)
+        self.auth.reset(user, device_username, device_password, fix_permissions, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -157,8 +157,13 @@ class Device:
         drill.remove(local_port, protocol)
 
 
-def create_email(username, domain):
-    if '@' not in username:
-        return '{0}@{1}'.format(username, domain)
+def parse_username(username, domain):
+    if '@' in username:
+        result = username.split('@')
+        name = result[0]
+        return name, username
     else:
-        return username
+        email = '{0}@{1}'.format(username, domain)
+        return username, email
+
+        

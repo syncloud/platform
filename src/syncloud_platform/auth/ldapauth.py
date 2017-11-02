@@ -45,7 +45,7 @@ class LdapAuth:
             self.log.info('fixing permissions for ldap user conf')
             fs.chownpath(self.user_conf_dir, platform_user, recursive=True)
 
-    def reset(self, user, password, fix_permissions, email):
+    def reset(self, name, user, password, fix_permissions, email):
 
         self.systemctl.stop_service('platform.openldap')
 
@@ -61,6 +61,7 @@ class LdapAuth:
 
         fd, filename = tempfile.mkstemp()
         util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
+            'name': name,
             'user': user,
             'email': email,
             'password': make_secret(password)
