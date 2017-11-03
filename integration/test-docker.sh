@@ -83,5 +83,5 @@ echo "$device_ip $APP.$DOMAIN.syncloud.info" >> /etc/hosts
 echo "$device_ip app.$DOMAIN.syncloud.info" >> /etc/hosts
 
 cat /etc/hosts
-
+py.test --fixtures
 xvfb-run -l --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$DOMAIN --release=$RELEASE --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER} --device-host=${DEVICE_HOST}
