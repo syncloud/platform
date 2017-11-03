@@ -7,7 +7,7 @@ def test_parse_username_from_username():
     
     name, email = parse_username(username, domain)
     assert name == 'test'
-    assert name == 'test@test.com'
+    assert email == 'test@test.com'
 
 
 def test_parse_username_from_domain_fallback():
