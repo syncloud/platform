@@ -1,4 +1,4 @@
-pytest
+pytest==2.9.2
 responses==0.5.0
 mockito==0.5.2
 selenium==3.3.1
