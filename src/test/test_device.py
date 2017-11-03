@@ -15,6 +15,6 @@ def test_parse_username_from_domain_fallback():
     username = 'test'
     domain = 'example.com'
     
-    name, email = create_email(username, domain)
+    name, email = parse_username(username, domain)
     assert name == 'test'
     assert email == 'test@example.com'
