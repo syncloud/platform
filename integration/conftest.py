@@ -38,7 +38,7 @@ def public_web_session(device_host):
             return session
         except Exception, e:
             retry += 1
-            if retry > retries
+            if retry > retries:
                 raise e
             print(e.message)
             print('retry {0} of {1}'.format(retry, retries))
