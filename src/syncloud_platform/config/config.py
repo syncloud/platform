@@ -46,9 +46,6 @@ class PlatformConfig:
     def bin_dir(self):
         return self.__get('bin_dir')
 
-    def nginx_webapps(self):
-        return self.__get('nginx_webapps')
-
     def nginx_config_dir(self):
         return self.__get('nginx_config_dir')
 

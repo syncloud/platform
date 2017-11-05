@@ -16,12 +16,6 @@ class AppSetup:
     def get_data_dir(self, remove_existing=False):
         return self.app_paths.get_data_dir(remove_existing)
 
-    def register_web(self, port):
-        self.nginx.add_app(self.app_name, port)
-
-    def unregister_web(self):
-        self.nginx.remove_app(self.app_name)
-
     def get_storage_dir(self):
         return self.storage.get_app_storage_dir(self.app_name)
 
