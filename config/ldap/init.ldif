@@ -19,7 +19,7 @@ objectClass:           organizationalUnit
 objectClass:           top
 
 # administrator
-dn:                    uid=${user},ou=users,dc=syncloud,dc=org
+dn:                    cn=${user},ou=users,dc=syncloud,dc=org
 objectClass:           simpleSecurityObject
 objectClass:           Person
 objectClass:           inetOrgPerson

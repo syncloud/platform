@@ -98,7 +98,7 @@ def to_ldap_dc(full_domain):
 def authenticate(name, password):
     conn = ldap.initialize('ldap://localhost:389')
     try:
-        conn.simple_bind_s('uid={0},ou=users,dc=syncloud,dc=org'.format(name), password)
+        conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
     except Exception, e:
         conn.unbind()
         if 'desc' in e.message:
