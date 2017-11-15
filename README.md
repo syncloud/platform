@@ -18,6 +18,6 @@ watch -n 1 pstree -a $(pgrep -f dockerd)
 
 http://build.syncloud.org/syncloud/platform
 
-### Build artifacts
+### Build artifacts (screenshots, system logs)
 
 http://artifact.syncloud.org/platform/ci
