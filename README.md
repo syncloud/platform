@@ -14,7 +14,7 @@ Watch drone build processes:
 watch -n 1 pstree -a $(pgrep -f dockerd)
 ````
 
-#### Build server
+### Build server
 
 http://build.syncloud.org/syncloud/platform
 
