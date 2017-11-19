@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -xe
 #
 # Copyright (c) 2013-2014 Robert Nelson <robertcnelson@gmail.com>
 # Portions copyright (c) 2014 Charles Steinkuehler <charles@steinkuehler.net>
