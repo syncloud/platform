@@ -24,9 +24,11 @@ class Tls:
     def generate_real_certificate(self):
 
         days_until_expiry = self.certbot_generator.days_until_expiry()
-        self_signed = self.is_default_certificate_installed()
+        real_cert = not self.is_default_certificate_installed()
+        new_domains = self.certbot_generator.new_domains()
         self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
-        if not self_signed and days_until_expiry > 30:
+        self.log.info("new domains: {}".format(new_domains))
+        if real_cert and certificate_is_valid(days_until_expiry, new_domains):
             self.log.info("not regenerating")
             return
 
@@ -99,7 +101,6 @@ class Tls:
             self.log.info(output)
 
             self.log.info('generating Server Certificate Request')
-            
                 
             certificate_request_file = self.platform_config.get_ssl_certificate_request_file()
             output = check_output('OPENSSL_CONF={1} {0} req -config {1} -key {2} -new -sha256 -out {3} 2>&1'
@@ -141,3 +142,7 @@ class Tls:
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
             shutil.copy(self.platform_config.get_default_ssl_certificate_file(), self.platform_config.get_ssl_certificate_file())
             shutil.copy(self.platform_config.get_default_ssl_key_file(), self.platform_config.get_ssl_key_file())
+
+
+def certificate_is_valid(days_until_expiry, new_domains):
+    return days_until_expiry > 30 and not new_domains

@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from syncloud_platform.certbot.certbot_generator import apps_to_certbot_domain_args, expiry_date_string_to_days
+from syncloud_platform.certbot.certbot_generator import apps_to_certbot_domain_args, expiry_date_string_to_days, \
+    get_new_domains
 from syncloud_platform.sam.models import AppVersions, App
 
 
@@ -21,3 +22,15 @@ def test_expiry_date_string_to_days_valid():
 
 def test_expiry_date_string_to_days_expired():
     assert expiry_date_string_to_days('20171027120200Z', datetime(2017, 10, 31)) == -4
+
+
+def test_new_domains_more():
+    assert get_new_domains(["a", "b"], ["a"]) == ["b"], 'regenerate certificate for new apps'
+
+
+def test_new_domains_less():
+    assert get_new_domains(["a"], ["a", "b"]) == [], 'leave ald apps in the certificate'
+
+
+def test_new_domains_same():
+    assert get_new_domains(["a", "b"], ["a", "b"]) == [], 'do not regenerate with the same list of apps'
