@@ -59,15 +59,18 @@ class LdapAuth:
 
         self.systemctl.start_service('platform.openldap')
 
-        fd, filename = tempfile.mkstemp()
-        util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
-            'name': name,
-            'user': user,
-            'email': email,
-            'password': make_secret(password)
-        })
+        _, filename = tempfile.mkstemp()
+        try:
+            util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
+                'name': name,
+                'user': user,
+                'email': email,
+                'password': make_secret(password)
+            })
 
-        self.__init_db(filename, self.ldap_root)
+            self.__init_db(filename, self.ldap_root)
+        finally:
+            os.remove(filename)
 
         check_output(generate_change_password_cmd(password), shell=True)
 
@@ -75,7 +78,8 @@ class LdapAuth:
         success = False
         for i in range(0, 3):
             try:
-                check_output('{0}/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f {2}'.format(ldap_root, self.config.data_dir(), filename), shell=True)
+                check_output('{0}/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f {2}'.format(
+                    ldap_root, self.config.data_dir(), filename), shell=True)
                 success = True
                 break
             except Exception, e:
