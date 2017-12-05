@@ -180,13 +180,14 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
 
 
 def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
-    socket = "http+unix://%2Fopt%2Fdata%2Fplatform%2Fconfig%2Fuwsgi%2Fapi.wsgi.sock"
+    socket_file = '/opt/data/platform/config/uwsgi/socket/api.wsgi.sock'.replace('/', '%2F')
+    socket = "http+unix://{0}".format(socket_file)
 
     session = requests_unixsocket.Session()
     response = session.post('{0}/app/install_path?name=test'.format(socket))
 
     assert response.status_code == 200
-    assert response.text == '/opt/app/test', response.text
+    assert '/opt/app/test' in response.text, response.text
 
 
 def generate_file_jinja(from_path, to_path, variables):
