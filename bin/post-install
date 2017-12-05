@@ -81,6 +81,7 @@ systemctl = injector.systemctl
 systemctl.add_service(APP_NAME, 'platform.cpu-frequency')
 systemctl.add_service(APP_NAME, 'platform.insider-sync')
 systemctl.add_service(APP_NAME, 'platform.ntpdate')
+systemctl.add_service(APP_NAME, 'platform.uwsgi-api')
 systemctl.add_service(APP_NAME, 'platform.uwsgi-internal')
 systemctl.add_service(APP_NAME, 'platform.uwsgi-public')
 systemctl.add_service(APP_NAME, 'platform.nginx-internal')

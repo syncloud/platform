@@ -11,7 +11,7 @@ import pytest
 import jinja2
 
 from requests.adapters import HTTPAdapter
-
+import requests_unixsocket
 from integration.util.loop import loop_device_cleanup
 from integration.util.ssh import run_scp, ssh_command
 from integration.util.ssh import run_ssh
@@ -177,6 +177,17 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
+
+
+def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
+    socket = "http+unix://%2Fopt%2Fdata%2Fplatform%2Fconfig%2Fuwsgi%2Fapi.wsgi.sock"
+
+    session = requests_unixsocket.Session()
+    response = session.post('{0}/app/install_path?name=test'.format(socket))
+
+    assert response.status_code == 200
+    assert response.text == '/opt/app/test', response.text
+
 
 def generate_file_jinja(from_path, to_path, variables):
     from_path_dir, from_path_filename = split(from_path)

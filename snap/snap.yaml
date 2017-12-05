@@ -1,13 +1,13 @@
 apps:
   nginx-internal:
-    command: bin/service.nginx-internal.sh start
+    command: bin/service.nginx.sh start internal
     daemon: simple
     plugs:
     - network
     - network-bind
     restart-condition: always
-    stop-command: bin/service.nginx-internal.sh stop
-    reload-command: bin/service.nginx-internal.sh reload
+    stop-command: bin/service.nginx.sh stop internal
+    reload-command: bin/service.nginx.sh reload internal
   nginx-public:
     command: bin/service.nginx-public.sh start
     daemon: simple
@@ -26,6 +26,13 @@ apps:
     restart-condition: always
   uwsgi-internal:
     command: bin/service.uwsgi.sh internal
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+  uwsgi-api:
+    command: bin/service.uwsgi.sh api
     daemon: notify
     plugs:
     - network
