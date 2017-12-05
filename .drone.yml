@@ -24,6 +24,8 @@ pipeline:
     commands:
       - VERSION=$(cat version)
       - ./integration/test-docker.sh teamcity@syncloud.it password build $VERSION master ${installer} device
+    volimes:
+      - /var/run/api.wsgi.sock:/opt/data/platform/config/uwsgi/socket/api.wsgi.sock
 
   upload:
     image: syncloud/build-deps-${arch}
@@ -48,6 +50,7 @@ services:
     volumes:
       - /var/run/dbus:/var/run/dbus
       - /dev:/dev
+      - /var/run/api.wsgi.sock:/opt/data/platform/config/uwsgi/socket/api.wsgi.sock
  
 matrix:
   arch:
