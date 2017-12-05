@@ -24,7 +24,7 @@ pipeline:
     commands:
       - VERSION=$(cat version)
       - ./integration/test-docker.sh teamcity@syncloud.it password build $VERSION master ${installer} device
-    volimes:
+    volumes:
       - /var/run/api.wsgi.sock:/opt/data/platform/config/uwsgi/socket/api.wsgi.sock
 
   upload:
