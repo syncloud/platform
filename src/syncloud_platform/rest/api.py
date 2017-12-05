@@ -16,7 +16,7 @@ app = Flask(__name__)
 def app_install_path():
     app_name = request.args['name']
     install_dir = get_app_paths(app_name).get_install_dir()
-    return jsonify(success=True, message='', data=install_dir, 200
+    return jsonify(success=True, message='', data=install_dir, 200)
 
 
 @app.errorhandler(Exception)
