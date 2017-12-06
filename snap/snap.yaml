@@ -1,4 +1,13 @@
 apps:
+  nginx-api:
+    command: bin/service.nginx.sh start api
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    stop-command: bin/service.nginx.sh stop api
+    reload-command: bin/service.nginx.sh reload api
   nginx-internal:
     command: bin/service.nginx.sh start internal
     daemon: simple

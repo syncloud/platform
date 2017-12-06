@@ -1,0 +1,15 @@
+[Unit]
+Description=Platform nginx api
+Requires=platform.uwsgi-api.service
+After=platform.uwsgi-api.service
+
+[Service]
+Type=simple
+PIDFile={{ app_data }}/log/nginx_api.pid
+ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ app_data }}/config/nginx/api.conf -g 'error_log {{ app_data }}/log/nginx_api_error.log warn;'
+ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ app_data }}/config/nginx/api.conf -g 'error_log {{ app_data }}/log/nginx_api_error.log warn;'
+ExecReload={{ app_dir }}/nginx/sbin/nginx -c {{ app_data }}/config/nginx/api.conf -s reload -g 'error_log {{ app_data }}/log/nginx_api_error.log warn;'
+ExecStop={{ app_dir }}/nginx/sbin/nginx -c {{ app_data }}/config/nginx/api.conf -s stop -g 'error_log {{ app_data }}/log/nginx_api_error.log warn;'
+
+[Install]
+WantedBy=multi-user.target

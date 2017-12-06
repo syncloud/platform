@@ -180,7 +180,7 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
 
 
 def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
-    socket_file = '/opt/data/platform/config/uwsgi/socket/api.wsgi.sock'
+    socket_file = '/opt/data/platform/api.socket'
     run_ssh(main_domain, 'socat TCP-LISTEN:1234,reuseaddr,fork UNIX-CLIENT:{0}'.format(socket_file), password=DEVICE_PASSWORD)
     
     url = "http://{0}:1234".format(main_domain)
