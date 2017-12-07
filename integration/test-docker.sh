@@ -67,7 +67,6 @@ set -e
 sshpass -p syncloud scp -o StrictHostKeyChecking=no install-${INSTALLER}.sh root@${DEVICE_HOST}:/installer.sh
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${RELEASE}
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} apt -y install socat
 
 pip2 install -r ${DIR}/../requirements.txt
 

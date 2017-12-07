@@ -173,21 +173,21 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
     run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf.runtime -g \'error_log {1}/log/nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf.runtime -g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
     response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
 
 
 def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
-    run_ssh(main_domain, 'ls -la {0}'.format(data_dir), password=DEVICE_PASSWORD)
+    nginx_template = '{0}/nginx.api.test.conf'.format(DIR)
+    nginx_runtime = '{0}/nginx.api.test.conf.runtime'.format(DIR)
+    generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
+    run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.api.test.conf.runtime -g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
     
-    socket_file = '{0}/api.socket'.format(data_dir)
-    run_ssh(main_domain, '(socat TCP-LISTEN:1234,reuseaddr,fork UNIX-CLIENT:{0}) &'.format(socket_file), password=DEVICE_PASSWORD)
-    
-    url = "http://{0}:1234".format(main_domain)
-
-    response = requests.get('{0}/app/install_path?name=test'.format(url))
+    response = requests.get('http://{0}:82/app/install_path?name=test'.format(main_domain))
 
     assert response.status_code == 200
     assert '/opt/app/test' in response.text, response.text
