@@ -191,7 +191,7 @@ def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
     response = requests.get('http://{0}:82/app/install_path?name=test'.format(main_domain))
 
     assert response.status_code == 200
-    assert '/opt/app/test' in response.text, response.text
+    assert app_dir in response.text, response.text
 
 
 def generate_file_jinja(from_path, to_path, variables):

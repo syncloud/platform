@@ -15,7 +15,7 @@ templates_path = join(install_dir, 'config.templates')
 config_dir = join(app_data, 'config')
 
 variables = {
-    'apps_root': '/var/lib/snap',
+    'apps_root': '/snap',
     'data_root': '/var/snap',
     # not used in snap
     'configs_root': 'not_used',
