@@ -10,6 +10,7 @@ apps:
     reload-command: bin/service.nginx.sh reload api
   nginx-internal:
     command: bin/service.nginx.sh start internal
+    post-start-commamd: bin/service.nginx.sh post-start internal
     daemon: simple
     plugs:
     - network

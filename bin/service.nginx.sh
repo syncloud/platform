@@ -11,6 +11,9 @@ case $1 in
 start)
     $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/$2.conf
     ;;
+post-start)
+    timeout 5 /bin/bash -c 'until echo > /dev/tcp/localhost/81; do sleep 1; done'
+    ;;
 reload)
     $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/$2.conf -s reload
     ;;
