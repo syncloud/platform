@@ -48,7 +48,7 @@ def service_prefix(installer):
 
 @pytest.fixture(scope="session")
 def ssh_env_vars(installer):
-    return get_ssh_env_vars(installer)
+    return get_ssh_env_vars(installer, 'platform')
 
 
 @pytest.fixture(scope="session")
