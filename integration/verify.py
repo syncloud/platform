@@ -188,7 +188,7 @@ def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
     run_ssh(main_domain, '{0}/nginx/sbin/nginx -t -c /nginx.api.test.conf.runtime -g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
     run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.api.test.conf.runtime -g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
     
-    response = requests.get('http://{0}:82/app/install_path?name=test'.format(main_domain))
+    response = requests.get('http://{0}:82/app/install_path?name=platform'.format(main_domain))
 
     assert response.status_code == 200
     assert app_dir in response.text, response.text

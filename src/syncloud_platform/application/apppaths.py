@@ -10,7 +10,10 @@ class AppPaths:
         self.platform_config = platform_config
 
     def get_install_dir(self):
-        return join(self.platform_config.apps_root(), self.app_name)
+        if self.platform_config.get_installer() == 'sam':
+            return join(self.platform_config.apps_root(), self.app_name)
+        else:
+            return join(self.platform_config.apps_root(), self.app_name, 'current')
 
     def get_data_dir(self, remove_existing=False):
         config = self.platform_config
