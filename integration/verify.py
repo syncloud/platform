@@ -12,10 +12,9 @@ import jinja2
 
 from requests.adapters import HTTPAdapter
 import requests_unixsocket
-from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import run_scp, ssh_command
-from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_sam, wait_for_rest, local_remove
+from syncloudlib.integration.loop import loop_device_cleanup
+from syncloudlib.integration.ssh import run_scp, ssh_command, run_ssh
+from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -26,56 +25,30 @@ DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
 
-SAM_DATA_DIR='/opt/data/platform'
-SNAPD_DATA_DIR='/var/snap/platform/common'
-DATA_DIR=''
-
-SAM_APP_DIR='/opt/app/platform'
-SNAPD_APP_DIR='/snap/platform/current'
-APP_DIR=''
-
-SAM_APP_DATA_DIR='/opt/data/app'
-SNAPD_APP_DATA_DIR='/var/snap/app/common'
-
 
 @pytest.fixture(scope="session")
 def app_data_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DATA_DIR
-    else:
-        return SNAPD_APP_DATA_DIR
+    return get_data_dir(installer, 'app')
 
-
+       
 @pytest.fixture(scope="session")
 def data_dir(installer):
-    if installer == 'sam':
-        return SAM_DATA_DIR
-    else:
-        return SNAPD_DATA_DIR
-
+    return get_data_dir(installer, 'platform')
+         
 
 @pytest.fixture(scope="session")
 def app_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DIR
-    else:
-        return SNAPD_APP_DIR
+    return get_app_dir(installer, 'platform')
 
 
 @pytest.fixture(scope="session")
 def service_prefix(installer):
-    if installer == 'sam':
-        return ''
-    else:
-        return 'snap.'
+    return get_service_prefix(installer)
 
 
 @pytest.fixture(scope="session")
 def ssh_env_vars(installer):
-    if installer == 'sam':
-        return ''
-    if installer == 'snapd':
-        return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
+    return get_ssh_env_vars(installer)
 
 
 @pytest.fixture(scope="session")

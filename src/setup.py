@@ -1,19 +1,6 @@
 from setuptools import setup
 from os.path import join, dirname
 
-requirements = [
-    'urllib3==1.10.4',
-    'requests==2.7.0',
-    'beautifulsoup4==4.3.2',
-    'IPy==0.83',
-    'python-crontab==1.7.2',
-    'massedit==0.66',
-    'Flask==0.10.1',
-    'flask-login==0.2.10',
-    'syncloud-lib==2'
-]
-
-
 version = open(join(dirname(__file__), 'version')).read().strip()
 
 setup(
