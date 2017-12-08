@@ -22,7 +22,6 @@ setup(
               'syncloud_platform.log',
               'syncloud_platform.network'],
     namespace_packages=['syncloud_platform'],
-    install_requires=requirements,
     description='Syncloud platform',
     long_description='Syncloud platform',
     license='GPLv3',
