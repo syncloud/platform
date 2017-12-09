@@ -16,7 +16,11 @@ class AppPaths:
             return join(self.platform_config.apps_root(), self.app_name, 'current')
 
     def get_data_dir(self, remove_existing=False):
+
         config = self.platform_config
+        if self.platform_config.get_installer() != 'sam':
+            return join(config.data_root(), self.app_name, 'common')
+
         if not isdir(config.data_root()):
             print("creating app data root: {0}".format(config.data_root()))
             mkdir(config.data_root())
