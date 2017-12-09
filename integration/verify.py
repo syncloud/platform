@@ -1,20 +1,19 @@
 import os
-from os.path import join, dirname, relpath, isdir, split
-import convertible
-import requests
-from subprocess import check_output
-import time
-
 import shutil
 import socket
-import pytest
-import jinja2
+import time
+from os.path import join, dirname, isdir, split
+from subprocess import check_output
+from os import makedirs
 
+import jinja2
+import pytest
+import requests
 from requests.adapters import HTTPAdapter
-import requests_unixsocket
+from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, \
+    get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
 from syncloudlib.integration.loop import loop_device_cleanup
-from syncloudlib.integration.ssh import run_scp, ssh_command, run_ssh
-from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
+from syncloudlib.integration.ssh import run_scp, run_ssh
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -108,7 +107,6 @@ def test_activate_device(auth, device_host):
     assert response.status_code == 200, response.text
     
 
-
 def test_reactivate(auth, device_host):
     email, password, domain, release = auth
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
@@ -140,31 +138,49 @@ def test_platform_rest(device_host):
     response = session.get('http://{0}'.format(device_host), timeout=60)
     assert response.status_code == 200
 
+
 def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
     run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf.runtime -g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
+                         '-c /nginx.app.test.conf.runtime '
+                         '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
+            password=DEVICE_PASSWORD)
     response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
 
 
-def test_api_rest_socket(app_dir, data_dir, app_data_dir, main_domain):
+def test_api_rest_socket_setup(app_dir, data_dir, app_data_dir, main_domain):
+
     nginx_template = '{0}/nginx.api.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.api.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
     run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx -t -c /nginx.api.test.conf.runtime -g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.api.test.conf.runtime -g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
-    
-    response = requests.get('http://{0}:82/app/paths?name=platform'.format(main_domain))
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
+                         '-t -c /nginx.api.test.conf.runtime '
+                         '-g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir),
+            password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
+                         '-c /nginx.api.test.conf.runtime '
+                         '-g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir),
+            password=DEVICE_PASSWORD)
 
+
+def test_api_install_path(app_dir, main_domain):
+    response = requests.get('http://{0}:82/app/install_path?name=platform'.format(main_domain))
     assert response.status_code == 200
     assert app_dir in response.text, response.text
+
+
+def test_api_data_path(data_dir, main_domain):
+    response = requests.get('http://{0}:82/app/data_path?name=platform'.format(main_domain))
+    assert response.status_code == 200
+    assert data_dir in response.text, response.text
 
 
 def generate_file_jinja(from_path, to_path, variables):
@@ -236,7 +252,8 @@ def test_openssl_cli(app_dir, device_host):
 def test_external_https_mode_with_certbot(public_web_session, device_host):
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
+                                      params={'is_https': 'true', 'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
