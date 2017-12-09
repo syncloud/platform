@@ -12,11 +12,11 @@ from syncloud_platform.rest.flask_decorators import nocache
 app = Flask(__name__)
 
 
-@app.route("/app/install_path", methods=["GET"])
-def app_install_path():
+@app.route("/app/paths", methods=["GET"])
+def app_paths():
     app_name = request.args['name']
-    install_dir = get_app_paths(app_name).get_install_dir()
-    return jsonify(success=True, message='', data=install_dir), 200
+    paths = get_app_paths(app_name)
+    return jsonify(success=True, message='', data=paths), 200
 
 
 @app.errorhandler(Exception)
