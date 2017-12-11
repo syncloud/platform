@@ -15,6 +15,7 @@ from syncloudlib.integration.installer import local_install, wait_for_sam, wait_
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
 
+
 SYNCLOUD_INFO = 'syncloud.info'
 
 DIR = dirname(__file__)
@@ -172,11 +173,14 @@ def test_api_rest_socket_setup(app_dir, data_dir, app_data_dir, main_domain):
 
 
 def test_api_install_path(app_dir, main_domain):
-    response = requests.get('http://{0}:82/app/install_path?name=platform'.format(main_domain))
-    assert response.status_code == 200
-    assert app_dir in response.text, response.text
-
-
+    #response = requests.get('http://{0}:82/app/install_path?name=platform'.format(main_domain))
+    #assert response.status_code == 200
+    #assert app_dir in response.text, response.text
+    run_scp('{0}/api_wrapper_install_path.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_install_path.py platform'.format(app_dir), password=DEVICE_PASSWORD)
+    assert app_dir in response, response
+ 
+    
 def test_api_data_path(data_dir, main_domain):
     response = requests.get('http://{0}:82/app/data_path?name=platform'.format(main_domain))
     assert response.status_code == 200
