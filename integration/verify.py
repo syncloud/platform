@@ -155,37 +155,17 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     assert response.text == 'OK', response.text
 
 
-def test_api_rest_socket_setup(app_dir, data_dir, app_data_dir, main_domain):
-
-    nginx_template = '{0}/nginx.api.test.conf'.format(DIR)
-    nginx_runtime = '{0}/nginx.api.test.conf.runtime'.format(DIR)
-    generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
-    run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
-                         '-t -c /nginx.api.test.conf.runtime '
-                         '-g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir),
-            password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
-                         '-c /nginx.api.test.conf.runtime '
-                         '-g \'error_log {1}/log/test_nginx_api_error.log warn;\''.format(app_dir, data_dir),
-            password=DEVICE_PASSWORD)
-
-
 def test_api_install_path(app_dir, main_domain, ssh_env_vars):
-    #response = requests.get('http://{0}:82/app/install_path?name=platform'.format(main_domain))
-    #assert response.status_code == 200
-    #assert app_dir in response.text, response.text
     run_scp('{0}/api_wrapper_install_path.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_install_path.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert app_dir in response, response
  
     
 def test_api_data_path(data_dir, main_domain):
-    response = requests.get('http://{0}:82/app/data_path?name=platform'.format(main_domain))
-    assert response.status_code == 200
-    assert data_dir in response.text, response.text
-
+    run_scp('{0}/api_wrapper_data_path.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_data_path.py platform'.format(data_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    assert dats_dir in response, response
+ 
 
 def generate_file_jinja(from_path, to_path, variables):
     from_path_dir, from_path_filename = split(from_path)
