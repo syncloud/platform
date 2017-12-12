@@ -161,10 +161,10 @@ def test_api_install_path(app_dir, main_domain, ssh_env_vars):
     assert app_dir in response, response
  
     
-def test_api_data_path(data_dir, main_domain, ssh_env_vars):
+def test_api_data_path(app_dir, data_dir, main_domain, ssh_env_vars):
     run_scp('{0}/api_wrapper_data_path.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_data_path.py platform'.format(data_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
-    assert dats_dir in response, response
+    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_data_path.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    assert data_dir in response, response
  
 
 def generate_file_jinja(from_path, to_path, variables):
