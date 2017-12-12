@@ -172,7 +172,7 @@ def test_api_rest_socket_setup(app_dir, data_dir, app_data_dir, main_domain):
             password=DEVICE_PASSWORD)
 
 
-def test_api_install_path(app_dir, main_domain):
+def test_api_install_path(app_dir, main_domain, ssh_env_vars):
     #response = requests.get('http://{0}:82/app/install_path?name=platform'.format(main_domain))
     #assert response.status_code == 200
     #assert app_dir in response.text, response.text
