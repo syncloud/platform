@@ -1,4 +1,4 @@
 import sys
-from syncloudlib.application.paths import get_install_path
+from syncloudlib.application.path import get_install_path
 
 print get_install_path(sys.argv[1])
