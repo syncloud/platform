@@ -1,4 +1,4 @@
 import sys
-from syncloudlib.application.path import get_data_path
+from syncloudlib.application.path import get_data_dir
 
-print get_data_path(sys.argv[1])
+print get_data_dir(sys.argv[1])
