@@ -177,7 +177,7 @@ def test_api_install_path(app_dir, main_domain):
     #assert response.status_code == 200
     #assert app_dir in response.text, response.text
     run_scp('{0}/api_wrapper_install_path.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_install_path.py platform'.format(app_dir), password=DEVICE_PASSWORD)
+    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_install_path.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert app_dir in response, response
  
     
