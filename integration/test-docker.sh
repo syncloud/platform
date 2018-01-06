@@ -22,13 +22,13 @@ APP=platform
 GECKODRIVER=0.14.0
 FIREFOX=52.0
 
-if [ $ARCH == "x86_64" ]; then
+if [ ${ARCH} == "x86_64" ]; then
     SNAP_ARCH=amd64
 else
     SNAP_ARCH=armhf
 fi
 
-if [ $INSTALLER == "snapd" ]; then
+if [ ${INSTALLER} == "snapd" ]; then
     ARCHIVE=${APP}_${VERSION}_${SNAP_ARCH}.snap
 else
     ARCHIVE=${APP}-${VERSION}-${ARCH}.tar.gz
@@ -54,7 +54,7 @@ set +e
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} date
 while test $? -gt 0
 do
-  if [ $attempt -gt $attempts ]; then
+  if [ ${attempt} -gt ${attempts} ]; then
     exit 1
   fi
   sleep 3
@@ -72,9 +72,11 @@ pip2 install -r ${DIR}/../requirements.txt
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 
-coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER}/geckodriver-v${GECKODRIVER}-linux64.tar.gz
-coin --to ${DIR} raw https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX}/linux-x86_64/en-US/firefox-${FIREFOX}.tar.bz2
-curl https://raw.githubusercontent.com/mguillem/JSErrorCollector/master/dist/JSErrorCollector.xpi -o  JSErrorCollector.xpi
+coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/\
+    v${GECKODRIVER}/geckodriver-v${GECKODRIVER}-linux64.tar.gz
+coin --to ${DIR} raw https://ftp.mozilla.org/pub/firefox/releases/${FIREFOX}/linux-x86_64/en-US/\
+    firefox-${FIREFOX}.tar.bz2
+wget https://raw.githubusercontent.com/mguillem/JSErrorCollector/master/dist/JSErrorCollector.xpi
 
 #fix dns
 device_ip=$(getent hosts ${DEVICE_HOST} | awk '{ print $1 }')
@@ -84,4 +86,6 @@ echo "$device_ip app.$DOMAIN.syncloud.info" >> /etc/hosts
 
 cat /etc/hosts
 py.test --fixtures
-xvfb-run -l --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$DOMAIN --release=$RELEASE --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER} --device-host=${DEVICE_HOST}
+xvfb-run -l --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} \
+    --email=$1 --password=$2 --domain=${DOMAIN} --release=${RELEASE} \
+    --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER} --device-host=${DEVICE_HOST}
