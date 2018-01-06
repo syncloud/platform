@@ -4,7 +4,7 @@ import traceback
 from flask import Flask, jsonify, request, Response
 from syncloud_app.main import PassthroughJsonError
 
-from syncloud_platform.application.api import get_app_paths
+from syncloud_platform.application.api import get_app_paths, get_app_setup
 
 app = Flask(__name__)
 
@@ -22,6 +22,12 @@ def app_data_path():
     dir = get_app_paths(app_name).get_data_dir()
     return jsonify(success=True, message='', data=dir), 200
 
+
+@app.route("/app/url", methods=["GET"])
+def app_url():
+    app_name = request.args['name']
+    url = get_app_setup(app_name).app_url()
+    return jsonify(success=True, message='', data=url), 200
 
 @app.errorhandler(Exception)
 def handle_exception(error):
