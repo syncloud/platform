@@ -73,7 +73,7 @@ def test_start(module_setup, device_host):
     os.mkdir(LOG_DIR)
 
 
-def test_install(app_archive_path, installer, device_host):
+def test_install(app_archive_path, installer, device_host, data_dir):
     run_ssh(device_host, 'systemctl > {0}/log/systemctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD)
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
