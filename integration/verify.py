@@ -57,14 +57,14 @@ def module_setup(request, data_dir, device_host, app_dir):
 
 
 def module_teardown(data_dir, device_host, app_dir):
-    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    print('systemd logs')
-    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD, throw=False)
+   
+    run_ssh(device_host, 'journalctl > {0}/log/journalctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
 
 def test_start(module_setup, device_host):
@@ -74,8 +74,7 @@ def test_start(module_setup, device_host):
 
 
 def test_install(app_archive_path, installer, device_host):
-    run_ssh(device_host, 'systemctl', password=LOGS_SSH_PASSWORD)
-
+    run_ssh(device_host, 'systemctl > {0}/log/systemctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD)
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
