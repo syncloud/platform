@@ -169,7 +169,7 @@ def test_api_data_path(app_dir, data_dir, main_domain, ssh_env_vars):
  
 def test_api_url(app_dir, data_dir, main_domain, user_domain, ssh_env_vars):
     run_scp('{0}/api_wrapper_app_url.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_app_utl.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert user_domain in response, response
 
 
