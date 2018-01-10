@@ -60,7 +60,7 @@ class Public:
         return self.sam.update()
 
     def available_apps(self):
-        return [app_from_sam_app(a) for a in self.sam.user_apps() if a.enabled]
+        return [app_from_sam_app(a) for a in self.sam.user_apps() if a.app.enabled]
 
     def access(self):
     
