@@ -28,9 +28,18 @@ backend.apps_data = {
       ]
     };
 
-backend.available_apps = function(on_complete, on_error) {
-        var that = this;
-        setTimeout(function() {
-            on_complete(that.apps_data);
-        }, 2000);
+backend.apps_data_error = {
+      "message": "error",
+      "success": false
     };
+
+backend.available_apps_success = true;
+
+backend.available_apps = function(on_complete, on_error) {
+    var that = this;
+    if (backend.available_apps_success) {
+        backend.test_timeout(function() { on_complete(that.apps_data); }, 2000);
+    } else {
+        backend.test_timeout(function() { on_complete(that.apps_data_error); }, 2000);
+    }
+};
