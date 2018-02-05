@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request, Response
 from syncloud_app.main import PassthroughJsonError
 
 from syncloud_platform.application.api import get_app_paths, get_app_setup
+from syncloud_platform.injector import get_injector
 
 app = Flask(__name__)
 
@@ -12,15 +13,15 @@ app = Flask(__name__)
 @app.route("/app/install_path", methods=["GET"])
 def app_install_path():
     app_name = request.args['name']
-    dir = get_app_paths(app_name).get_install_dir()
-    return jsonify(success=True, message='', data=dir), 200
+    install_path = get_app_paths(app_name).get_install_dir()
+    return jsonify(success=True, message='', data=install_path), 200
 
 
 @app.route("/app/data_path", methods=["GET"])
 def app_data_path():
     app_name = request.args['name']
-    dir = get_app_paths(app_name).get_data_dir()
-    return jsonify(success=True, message='', data=dir), 200
+    data_path = get_app_paths(app_name).get_data_dir()
+    return jsonify(success=True, message='', data=data_path), 200
 
 
 @app.route("/app/url", methods=["GET"])
@@ -38,6 +39,12 @@ def init_storage():
     return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
+@app.route("/user/email", methods=["GET"])
+def user_email():
+    email = get_injector().user_platform_config.get_user_email()
+    return jsonify(success=True, message='', data=email), 200
+
+
 @app.errorhandler(Exception)
 def handle_exception(error):
     status_code = 500
@@ -48,6 +55,7 @@ def handle_exception(error):
         traceback.print_exc(file=sys.stdout)
         print '-'*60
         return jsonify(message=error.message), status_code
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)
