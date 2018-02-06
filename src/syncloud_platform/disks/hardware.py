@@ -128,8 +128,7 @@ class Hardware:
             self.relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
 
     def __support_permissions(self):
-        #if self.platform_config.get_installer() == 'snapd':
-        #    return False
+        
         if self.path_checker.external_disk_link_exists():
             disk_dir = self.platform_config.get_external_disk_dir()
             mount_point = self.lsblk.find_partition_by_dir(disk_dir)
@@ -138,4 +137,7 @@ class Hardware:
                 return mount_point.permissions_support()
 
         self.log.info('internal mount')
+        if self.platform_config.get_installer() == 'snapd':
+            self.log.info('under snapd internal mounts are read-only')
+            return False
         return True
