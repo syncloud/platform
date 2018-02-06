@@ -54,12 +54,11 @@ class Device:
         self.set_access(False, False, False, 0, 0)
 
         self.logger.info("activating ldap")
-        fix_permissions = self.platform_config.get_installer() == 'sam'
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
         name, email = parse_username(device_username, '{0}.{1}'.format(user_domain_lower, main_domain))
-        self.auth.reset(name, device_username, device_password, fix_permissions, email)
+        self.auth.reset(name, device_username, device_password, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -83,12 +82,11 @@ class Device:
         self.set_access(False, False, False, 0, 0)
 
         self.logger.info("activating ldap")
-        fix_permissions = self.platform_config.get_installer() == 'sam'
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
 
-        self.auth.reset(name, device_username, device_password, fix_permissions, email)
+        self.auth.reset(name, device_username, device_password, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()

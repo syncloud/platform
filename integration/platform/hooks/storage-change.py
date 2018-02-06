@@ -8,7 +8,7 @@ log = logger.get_logger('test_hook')
 try:
 
     app = api.get_app_setup('platform')
-    storage_dir = os.path.realpath(app.init_storage('platform'))
+    storage_dir = os.path.realpath(app.init_storage(None))
 
     with open('/tmp/on_disk_change.log', 'w+') as f:
         f.write(storage_dir)

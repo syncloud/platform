@@ -14,7 +14,6 @@ import time
 from syncloud_platform.gaplib import fs
 
 ldap_user_conf_dir = 'slapd.d'
-platform_user = 'platform'
 
 
 class LdapAuth:
@@ -28,7 +27,7 @@ class LdapAuth:
     def installed(self):
         return os.path.isdir(join(self.config.data_dir(), ldap_user_conf_dir))
 
-    def init(self, fix_permissions=False):
+    def init(self):
         if self.installed():
             self.log.info('ldap config already initialized')
             return
@@ -38,13 +37,10 @@ class LdapAuth:
         init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
         
         check_output(
-            '{0}/sbin/slapadd.sh -F {1} -b "cn=config" -l {2}'.format(self.ldap_root, self.user_conf_dir, init_script), shell=True)
+            '{0}/sbin/slapadd.sh -F {1} -b "cn=config" -l {2}'.format(
+                self.ldap_root, self.user_conf_dir, init_script), shell=True)
 
-        if fix_permissions:
-            self.log.info('fixing permissions for ldap user conf')
-            fs.chownpath(self.user_conf_dir, platform_user, recursive=True)
-
-    def reset(self, name, user, password, fix_permissions, email):
+    def reset(self, name, user, password, email):
 
         self.systemctl.stop_service('platform.openldap')
 
@@ -54,7 +50,7 @@ class LdapAuth:
         for f in files:
             os.remove(f)
 
-        self.init(fix_permissions)
+        self.init()
 
         self.systemctl.start_service('platform.openldap')
 
@@ -110,7 +106,7 @@ def authenticate(name, password):
             raise Exception(e.message)
 
 
-#https://gist.github.com/rca/7217540
+# https://gist.github.com/rca/7217540
 def make_secret(password):
     """
     Encodes the given password as a base64 SSHA hash+salt buffer

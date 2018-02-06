@@ -137,7 +137,4 @@ class Hardware:
                 return mount_point.permissions_support()
 
         self.log.info('internal mount')
-        if self.platform_config.get_installer() == 'snapd':
-            self.log.info('under snapd internal mounts are read-only')
-            return False
         return True
