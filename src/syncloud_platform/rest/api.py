@@ -32,7 +32,7 @@ def app_url():
 
 
 @app.route("/app/domain_name", methods=["GET"])
-def app_url():
+def app_domain_name():
     app_name = request.args['name']
     domain_name = get_app_setup(app_name).app_domain_name()
     return jsonify(success=True, message='', data=domain_name), 200
