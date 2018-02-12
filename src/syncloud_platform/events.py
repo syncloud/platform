@@ -13,8 +13,7 @@ action_to_old_script = {
 }
 
 
-def get_script_path(platform_config, app_id, action):
-    app_paths = AppPaths(app_id, platform_config)
+def get_script_path(app_paths, action):
     app_dir = app_paths.get_install_dir()
     hooks_path = join(app_dir, 'hooks')
     if isdir(hooks_path):
@@ -24,8 +23,8 @@ def get_script_path(platform_config, app_id, action):
         return (join(app_dir, 'bin', hook_script), False)
 
 
-def run_hook_script(platform_config, app_id, action):
-    app_event_script, add_location_to_sys_path = get_script_path(platform_config, app_id, action)
+def run_hook_script(app_paths, action):
+    app_event_script, add_location_to_sys_path = get_script_path(app_paths, action)
     log = logger.get_logger('events')
     if isfile(app_event_script):
         log.info('executing {0}'.format(app_event_script))
@@ -54,4 +53,5 @@ class EventTrigger:
     def __trigger_app_event(self, action):
         for app in self.sam.installed_all_apps():
             app_id = app.app.id
-            run_hook_script(self.platform_config, app_id, action)
+            app_paths = AppPaths(app_id, self.platform_config)
+            run_hook_script(app_paths, action)
