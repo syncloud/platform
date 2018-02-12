@@ -70,7 +70,7 @@ def module_teardown(data_dir, device_host, app_dir):
 def test_start(module_setup, device_host, app_dir):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
-    run_ssh(device_host, 'mkdir {0}/hooks'.format(app_die), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'mkdir {0}/hooks'.format(app_dir), password=LOGS_SSH_PASSWORD)
     run_scp('-r {0}/platform/hooks/* root@{1}:/{2}/hooks/'.format(DIR, device_host, app_dir))
     
     os.mkdir(LOG_DIR)
