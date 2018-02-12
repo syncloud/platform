@@ -14,7 +14,7 @@ action_to_old_script = {
 
 
 def get_script_path(platform_config, app_id, action):
-    app_paths = AppPaths(platform_config, app_id)
+    app_paths = AppPaths(app_id, platform_config)
     app_dir = app_paths.get_install_dir()
     hooks_path = join(app_dir, 'hooks')
     if isdir(hooks_path):
