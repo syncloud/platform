@@ -428,7 +428,7 @@ def disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, 
 
 def current_disk_link(device_host, ssh_env_vars, app_dir):
     return run_ssh(device_host,
-                   '{0}/python/bin/python /integration/api_wrapper_storage_init.py platform'.format(app_dir),
+                   '{0}/python/bin/python /integration/api_wrapper_storage_init.py platform root'.format(app_dir),
                    password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
