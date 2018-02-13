@@ -46,7 +46,7 @@ def init_storage():
     return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
-@app.route("/app/storage_dir", methods=["POST"])
+@app.route("/app/storage_dir", methods=["GET"])
 def storage_dir():
     app_name = request.form['app_name']
     app_storage_dir = get_app_setup(app_name).get_storage_dir()
