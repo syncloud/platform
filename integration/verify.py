@@ -377,11 +377,11 @@ def test_udev_script(app_dir, device_host):
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
-def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer):
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer, ssh_env_vars):
     disk_create(loop_device, fs_type, device_host, installer)
-    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device,  public_web_session, device_host, ssh_env_vars) == '/opt/disk/external/platform'
     disk_writable(device_host)
-    assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
+    assert disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars) == '/opt/disk/internal/platform'
 
 
 def test_disk_physical_remove(loop_device, public_web_session, device_host, installer, ssh_env_vars):
