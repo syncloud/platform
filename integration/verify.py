@@ -384,14 +384,14 @@ def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_typ
     assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
 
 
-def test_disk_physical_remove(loop_device, public_web_session, device_host, installer):
+def test_disk_physical_remove(loop_device, public_web_session, device_host, installer, ssh_env_vars):
     disk_create(loop_device, 'ext4', device_host, installer)
     assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
     loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]),
             password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
-    assert current_disk_link(device_host) == '/opt/disk/internal/platform'
+    assert current_disk_link(device_host, ssh_env_vars) == '/opt/disk/internal/platform'
 
 
 def disk_create(loop_device, fs, device_host, installer):
@@ -409,7 +409,7 @@ def disk_create(loop_device, fs, device_host, installer):
     run_ssh(device_host, 'umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
-def disk_activate(loop_device, public_web_session, device_host):
+def disk_activate(loop_device, public_web_session, device_host, ssh_env_vars):
 
     response = public_web_session.get('http://{0}/rest/settings/disks'.format(device_host))
     print response.text
@@ -419,18 +419,19 @@ def disk_activate(loop_device, public_web_session, device_host):
     response = public_web_session.get('http://{0}/rest/settings/disk_activate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link(device_host)
+    return current_disk_link(device_host, ssh_env_vars)
 
 
-def disk_deactivate(loop_device, public_web_session, device_host):
+def disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars):
     response = public_web_session.get('http://{0}/rest/settings/disk_deactivate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link(device_host)
+    return current_disk_link(device_host, ssh_env_vars)
 
 
-def current_disk_link(device_host):
-    return run_ssh(device_host, 'cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
+def current_disk_link(device_host, ssh_env_vars):
+    #return run_ssh(device_host, 'cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
+    retuen run_ssh(device_host, '{0}/python/bin/python /api_wrapper_storage_init.py platform root'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
 def test_internal_web_id(device_host):
