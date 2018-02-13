@@ -292,13 +292,10 @@ def test_activate_url(public_web_session, device_host):
     #wait_for_rest(public_web_session, device_host, '/', 200)
 
 
-def test_protocol(auth, public_web_session, device_host, app_dir):
+def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, main_domain):
 
     email, password, domain, release = auth
  
-    run_ssh(device_host, 'mkdir {0}/hooks'.format(app_dir), password=LOGS_SSH_PASSWORD)
-    run_scp('-r {0}/platform/hooks/* root@{1}:/{2}/hooks/'.format(DIR, device_host, app_dir))
-
     response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
     assert '"is_https": true' in response.text
     assert response.status_code == 200
@@ -323,9 +320,10 @@ def test_protocol(auth, public_web_session, device_host, app_dir):
     assert '"is_https": false' in response.text
     assert response.status_code == 200
 
-    assert run_ssh(device_host, 'cat /tmp/on_domain_change.log',
-                   password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
-
+    url = run_ssh(device_host, '{0}/python/bin/python /api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+   
+    assert main_domain in url, url
+   
 
 def test_cron_job(app_dir, ssh_env_vars, device_host):
     assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
