@@ -320,7 +320,7 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
     assert '"is_https": false' in response.text
     assert response.status_code == 200
 
-    url = run_ssh(device_host, '{0}/python/bin/python /api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
    
     assert main_domain in url, url
    
