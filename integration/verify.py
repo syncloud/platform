@@ -431,7 +431,7 @@ def disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars):
 
 def current_disk_link(device_host, ssh_env_vars):
     #return run_ssh(device_host, 'cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
-    return run_ssh(device_host, '{0}/python/bin/python /api_wrapper_storage_init.py platform root'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    return run_ssh(device_host, '{0}/python/bin/python /api_wrapper_storage_init.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
 def test_internal_web_id(device_host):

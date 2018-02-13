@@ -1,4 +1,4 @@
 import sys, os
-from syncloudlib.application.storage import init_storage
+from syncloudlib.application.storage import get_storage_dir
 
-print os.path.realpath(init_storage(sys.argv[1], sys.argv[2]))
+print os.path.realpath(get_storage_dir(sys.argv[1]))
