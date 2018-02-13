@@ -155,20 +155,17 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
 
 
 def test_api_install_path(app_dir, main_domain, ssh_env_vars):
-    run_scp('{0}/api_wrapper_app_dir.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_app_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert app_dir in response, response
  
     
 def test_api_data_path(app_dir, data_dir, main_domain, ssh_env_vars):
-    run_scp('{0}/api_wrapper_data_dir.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_data_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_data_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert data_dir in response, response
  
  
-def test_api_url(app_dir, data_dir, main_domain, user_domain, ssh_env_vars):
-    run_scp('{0}/api_wrapper_app_url.py root@{1}:/'.format(DIR, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    response = run_ssh(main_domain, '{0}/python/bin/python /api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_api_url(app_dir, main_domain, user_domain, ssh_env_vars):
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert user_domain in response, response
 
 
@@ -430,8 +427,9 @@ def disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, 
 
 
 def current_disk_link(device_host, ssh_env_vars, app_dir):
-    #return run_ssh(device_host, 'cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
-    return run_ssh(device_host, '{0}/python/bin/python /api_wrapper_storage_init.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    return run_ssh(device_host,
+                   '{0}/python/bin/python /integration/api_wrapper_storage_init.py platform'.format(app_dir),
+                   password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
 def test_internal_web_id(device_host):
