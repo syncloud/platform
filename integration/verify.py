@@ -1,21 +1,20 @@
 import os
-from os.path import join, dirname, relpath, isdir, split
-import convertible
-import requests
-from subprocess import check_output
-import time
-
 import shutil
 import socket
-import pytest
+import time
+from os.path import join, dirname, isdir, split
+from subprocess import check_output
+from os import makedirs
+
 import jinja2
-
+import pytest
+import requests
 from requests.adapters import HTTPAdapter
+from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, \
+    get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
+from syncloudlib.integration.loop import loop_device_cleanup
+from syncloudlib.integration.ssh import run_scp, run_ssh
 
-from integration.util.loop import loop_device_cleanup
-from integration.util.ssh import run_scp, ssh_command
-from integration.util.ssh import run_ssh
-from integration.util.helper import local_install, wait_for_sam, wait_for_rest, local_remove
 
 SYNCLOUD_INFO = 'syncloud.info'
 
@@ -26,56 +25,30 @@ DEFAULT_DEVICE_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 LOG_DIR = join(DIR, 'log')
 
-SAM_DATA_DIR='/opt/data/platform'
-SNAPD_DATA_DIR='/var/snap/platform/common'
-DATA_DIR=''
-
-SAM_APP_DIR='/opt/app/platform'
-SNAPD_APP_DIR='/snap/platform/current'
-APP_DIR=''
-
-SAM_APP_DATA_DIR='/opt/data/app'
-SNAPD_APP_DATA_DIR='/var/snap/app/common'
-
 
 @pytest.fixture(scope="session")
 def app_data_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DATA_DIR
-    else:
-        return SNAPD_APP_DATA_DIR
+    return get_data_dir(installer, 'app')
 
-
+       
 @pytest.fixture(scope="session")
 def data_dir(installer):
-    if installer == 'sam':
-        return SAM_DATA_DIR
-    else:
-        return SNAPD_DATA_DIR
-
+    return get_data_dir(installer, 'platform')
+         
 
 @pytest.fixture(scope="session")
 def app_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DIR
-    else:
-        return SNAPD_APP_DIR
+    return get_app_dir(installer, 'platform')
 
 
 @pytest.fixture(scope="session")
 def service_prefix(installer):
-    if installer == 'sam':
-        return ''
-    else:
-        return 'snap.'
+    return get_service_prefix(installer)
 
 
 @pytest.fixture(scope="session")
 def ssh_env_vars(installer):
-    if installer == 'sam':
-        return ''
-    if installer == 'snapd':
-        return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
+    return get_ssh_env_vars(installer, 'platform')
 
 
 @pytest.fixture(scope="session")
@@ -84,25 +57,24 @@ def module_setup(request, data_dir, device_host, app_dir):
 
 
 def module_teardown(data_dir, device_host, app_dir):
-    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
     run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    print('systemd logs')
-    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD, throw=False)
+   
+    run_ssh(device_host, 'journalctl > {0}/log/journalctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
 
-def test_start(module_setup, device_host):
+def test_start(module_setup, device_host, app_dir):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
+        
     os.mkdir(LOG_DIR)
 
 
 def test_install(app_archive_path, installer, device_host):
-    run_ssh(device_host, 'systemctl', password=LOGS_SSH_PASSWORD)
-
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
 
 
@@ -135,7 +107,6 @@ def test_activate_device(auth, device_host):
     assert response.status_code == 200, response.text
     
 
-
 def test_reactivate(auth, device_host):
     email, password, domain, release = auth
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
@@ -167,16 +138,36 @@ def test_platform_rest(device_host):
     response = session.get('http://{0}'.format(device_host), timeout=60)
     assert response.status_code == 200
 
+
 def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
     run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx -c /nginx.app.test.conf.runtime -g \'error_log {1}/log/nginx_app_error.log warn;\''.format(app_dir, data_dir), password=DEVICE_PASSWORD)
+    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
+                         '-c /nginx.app.test.conf.runtime '
+                         '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
+            password=DEVICE_PASSWORD)
     response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
+
+
+def test_api_install_path(app_dir, main_domain, ssh_env_vars):
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    assert app_dir in response, response
+ 
+    
+def test_api_data_path(app_dir, data_dir, main_domain, ssh_env_vars):
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_data_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    assert data_dir in response, response
+ 
+ 
+def test_api_url(app_dir, main_domain, user_domain, ssh_env_vars):
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    assert user_domain in response, response
+
 
 def generate_file_jinja(from_path, to_path, variables):
     from_path_dir, from_path_filename = split(from_path)
@@ -247,7 +238,8 @@ def test_openssl_cli(app_dir, device_host):
 def test_external_https_mode_with_certbot(public_web_session, device_host):
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
+                                      params={'is_https': 'true', 'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -287,17 +279,17 @@ def test_activate_url(public_web_session, device_host):
     assert response.status_code == 200
 
 
-def test_hook_override(public_web_session, data_dir, service_prefix, device_host):
+#def test_hook_override(public_web_session, data_dir, service_prefix, device_host):
 
-    run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(data_dir),
-            password=DEVICE_PASSWORD)
+    #run_ssh(device_host, "sed -i 's#hooks_root.*#hooks_root: /integration#g' {0}/config/platform.cfg".format(data_dir),
+    #        password=DEVICE_PASSWORD)
 
-    run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
+    #run_ssh(device_host, 'systemctl restart {0}platform.uwsgi-public'.format(service_prefix), password=DEVICE_PASSWORD)
 
-    wait_for_rest(public_web_session, device_host, '/', 200)
+    #wait_for_rest(public_web_session, device_host, '/', 200)
 
 
-def test_protocol(auth, public_web_session, device_host):
+def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, main_domain):
 
     email, password, domain, release = auth
  
@@ -325,9 +317,10 @@ def test_protocol(auth, public_web_session, device_host):
     assert '"is_https": false' in response.text
     assert response.status_code == 200
 
-    assert run_ssh(device_host, 'cat /tmp/on_domain_change.log',
-                   password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
-
+    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+   
+    assert main_domain in url, url
+   
 
 def test_cron_job(app_dir, ssh_env_vars, device_host):
     assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
@@ -381,21 +374,21 @@ def test_udev_script(app_dir, device_host):
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
-def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer):
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer, ssh_env_vars, app_dir):
     disk_create(loop_device, fs_type, device_host, installer)
-    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device,  public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/external/platform'
     disk_writable(device_host)
-    assert disk_deactivate(loop_device, public_web_session, device_host) == '/opt/disk/internal/platform'
+    assert disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/internal/platform'
 
 
-def test_disk_physical_remove(loop_device, public_web_session, device_host, installer):
+def test_disk_physical_remove(loop_device, public_web_session, device_host, installer, ssh_env_vars, app_dir):
     disk_create(loop_device, 'ext4', device_host, installer)
-    assert disk_activate(loop_device,  public_web_session, device_host) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device,  public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/external/platform'
     loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]),
             password=DEVICE_PASSWORD)
     run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
-    assert current_disk_link(device_host) == '/opt/disk/internal/platform'
+    assert current_disk_link(device_host, ssh_env_vars, app_dir) == '/opt/disk/internal/platform'
 
 
 def disk_create(loop_device, fs, device_host, installer):
@@ -413,7 +406,7 @@ def disk_create(loop_device, fs, device_host, installer):
     run_ssh(device_host, 'umount {0}'.format(loop_device), password=DEVICE_PASSWORD)
 
 
-def disk_activate(loop_device, public_web_session, device_host):
+def disk_activate(loop_device, public_web_session, device_host, ssh_env_vars, app_dir):
 
     response = public_web_session.get('http://{0}/rest/settings/disks'.format(device_host))
     print response.text
@@ -423,18 +416,20 @@ def disk_activate(loop_device, public_web_session, device_host):
     response = public_web_session.get('http://{0}/rest/settings/disk_activate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link(device_host)
+    return current_disk_link(device_host, ssh_env_vars, app_dir)
 
 
-def disk_deactivate(loop_device, public_web_session, device_host):
+def disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, app_dir):
     response = public_web_session.get('http://{0}/rest/settings/disk_deactivate'.format(device_host),
                                       params={'device': loop_device})
     assert response.status_code == 200
-    return current_disk_link(device_host)
+    return current_disk_link(device_host, ssh_env_vars, app_dir)
 
 
-def current_disk_link(device_host):
-    return run_ssh(device_host, 'cat /tmp/on_disk_change.log', password=DEVICE_PASSWORD)
+def current_disk_link(device_host, ssh_env_vars, app_dir):
+    return run_ssh(device_host,
+                   '{0}/python/bin/python /integration/api_wrapper_storage_init.py platform root'.format(app_dir),
+                   password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
 
 def test_internal_web_id(device_host):

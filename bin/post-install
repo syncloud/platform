@@ -13,13 +13,10 @@ apps_root = '/opt/app'
 data_root = '/opt/data'
 
 APP_NAME = 'platform'
-USER_NAME = 'platform'
 
 log = logger.get_logger('platform_post_install')
 
 linux.fix_locale()
-
-linux.useradd(USER_NAME)
 
 install_dir = join(apps_root, APP_NAME)
 data_dir = join(data_root, APP_NAME)
@@ -38,12 +35,6 @@ variables = {
 }
 gen.generate_files(templates_path, config_dir, variables)
 
-platform_paths = api.get_app_paths(APP_NAME, config_dir)
-log.info(fs.chownpath(platform_paths.get_install_dir(), USER_NAME, recursive=True))
-
-data_dir = platform_paths.get_data_dir()
-fs.chownpath(data_dir, USER_NAME)
-
 data_dirs = [
     join(data_dir, 'webapps'),
     join(data_dir, 'log'),
@@ -55,7 +46,6 @@ data_dirs = [
 
 for data_dir in data_dirs:
     fs.makepath(data_dir)
-    fs.chownpath(data_dir, USER_NAME)
 
 injector = get_injector()
 
@@ -72,7 +62,7 @@ udev.remove()
 udev.add()
 
 ldap_auth = injector.ldap_auth
-ldap_auth.init(fix_permissions=True)
+ldap_auth.init()
 
 nginx = injector.nginx
 nginx.init_config()
@@ -81,8 +71,10 @@ systemctl = injector.systemctl
 systemctl.add_service(APP_NAME, 'platform.cpu-frequency')
 systemctl.add_service(APP_NAME, 'platform.insider-sync')
 systemctl.add_service(APP_NAME, 'platform.ntpdate')
+systemctl.add_service(APP_NAME, 'platform.uwsgi-api')
 systemctl.add_service(APP_NAME, 'platform.uwsgi-internal')
 systemctl.add_service(APP_NAME, 'platform.uwsgi-public')
+systemctl.add_service(APP_NAME, 'platform.nginx-api')
 systemctl.add_service(APP_NAME, 'platform.nginx-internal')
 systemctl.add_service(APP_NAME, 'platform.nginx-public')
 systemctl.add_service(APP_NAME, 'platform.openldap')

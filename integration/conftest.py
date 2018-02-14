@@ -30,7 +30,7 @@ def public_web_session(device_host):
 
     retry = 0
     retries = 5
-    while retry < retries:
+    while True:
         try:
             session = requests.session()
             session.post('http://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
@@ -38,9 +38,11 @@ def public_web_session(device_host):
             return session
         except Exception, e:
             retry += 1
+            if retry > retries:
+                raise e
             print(e.message)
             print('retry {0} of {1}'.format(retry, retries))
-
+    
 
 @pytest.fixture(scope='session')
 def user_domain(main_domain):

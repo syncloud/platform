@@ -10,30 +10,30 @@ logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 log = logger.get_logger('platform_post_install')
 
 install_dir = os.environ['SNAP']
-app_data = os.environ['SNAP_COMMON']
+data_dir = os.environ['SNAP_COMMON']
 templates_path = join(install_dir, 'config.templates')
-config_dir = join(app_data, 'config')
+config_dir = join(data_dir, 'config')
 
 variables = {
-    'apps_root': '/var/lib/snap',
+    'apps_root': '/snap',
     'data_root': '/var/snap',
     # not used in snap
     'configs_root': 'not_used',
-    'config_root': app_data,
+    'config_root': data_dir,
     'config_dir': config_dir,
     'app_dir': install_dir,
-    'app_data': app_data,
+    'app_data': data_dir,
     'app_data_prefix': 'common/'
 }
 gen.generate_files(templates_path, config_dir, variables)
 
 data_dirs = [
-    join(app_data, 'webapps'),
-    join(app_data, 'log'),
-    join(app_data, 'nginx'),
-    join(app_data, 'openldap'),
-    join(app_data, 'openldap-data'),
-    join(app_data, 'certbot')
+    join(data_dir, 'webapps'),
+    join(data_dir, 'log'),
+    join(data_dir, 'nginx'),
+    join(data_dir, 'openldap'),
+    join(data_dir, 'openldap-data'),
+    join(data_dir, 'certbot')
 ]
 
 for data_dir in data_dirs:

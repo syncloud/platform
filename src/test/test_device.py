@@ -1,16 +1,20 @@
-from syncloud_platform.device import create_email
+from syncloud_platform.device import parse_username
 
-def test_create_email_from_username():
+def test_parse_username_from_username():
    
     username = 'test@test.com'
     domain = 'example.com'
     
-    assert create_email(username, domain) == 'test@test.com'
+    name, email = parse_username(username, domain)
+    assert name == 'test'
+    assert email == 'test@test.com'
 
 
-def test_create_email_from_domain_fallback():
+def test_parse_username_from_domain_fallback():
    
     username = 'test'
     domain = 'example.com'
     
-    assert create_email(username, domain) == 'test@example.com'
+    name, email = parse_username(username, domain)
+    assert name == 'test'
+    assert email == 'test@example.com'

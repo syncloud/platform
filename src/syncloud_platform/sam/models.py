@@ -9,6 +9,7 @@ class App:
     url = Field(default='')
     icon = Field(default=None)
     description = Field(default='No description given yet')
+    enabled = Field(default=True)
 
 
 class Apps:

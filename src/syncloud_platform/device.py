@@ -39,13 +39,13 @@ class Device:
         return user
 
     def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
-
-        self.logger.info("activate {0}, {1}".format(user_domain, device_username))
+        user_domain_lower = user_domain.lower()
+        self.logger.info("activate {0}, {1}".format(user_domain_lower, device_username))
 
         user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
         self.user_platform_config.set_user_update_token(user.update_token)
 
-        response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain)
+        response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain_lower)
         self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
 
         self.platform_cron.remove()
@@ -54,12 +54,11 @@ class Device:
         self.set_access(False, False, False, 0, 0)
 
         self.logger.info("activating ldap")
-        fix_permissions = self.platform_config.get_installer() == 'sam'
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
-
-        self.auth.reset(device_username, device_password, fix_permissions, redirect_email)
+        name, email = parse_username(device_username, '{0}.{1}'.format(user_domain_lower, main_domain))
+        self.auth.reset(name, device_username, device_password, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -67,14 +66,14 @@ class Device:
         self.logger.info("activation completed")
 
     def activate_custom_domain(self, full_domain, device_username, device_password):
-
-        self.logger.info("activate custom {0}, {1}".format(full_domain, device_username))
+        full_domain_lower = full_domain.lower()
+        self.logger.info("activate custom {0}, {1}".format(full_domain_lower, device_username))
         self.sam.update()
         
         self.user_platform_config.set_redirect_enabled(False)
-        self.user_platform_config.set_custom_domain(full_domain)
+        self.user_platform_config.set_custom_domain(full_domain_lower)
         
-        email = create_email(device_username, full_domain)
+        name, email = parse_username(device_username, full_domain_lower)
         self.user_platform_config.set_user_email(email)
 
         self.platform_cron.remove()
@@ -83,12 +82,11 @@ class Device:
         self.set_access(False, False, False, 0, 0)
 
         self.logger.info("activating ldap")
-        fix_permissions = self.platform_config.get_installer() == 'sam'
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
 
-        self.auth.reset(device_username, device_password, fix_permissions, email)
+        self.auth.reset(name, device_username, device_password, email)
         
         self.nginx.init_config()
         self.nginx.reload_public()
@@ -157,8 +155,13 @@ class Device:
         drill.remove(local_port, protocol)
 
 
-def create_email(username, domain):
-    if '@' not in username:
-        return '{0}@{1}'.format(username, domain)
+def parse_username(username, domain):
+    if '@' in username:
+        result = username.split('@')
+        name = result[0]
+        return name, username
     else:
-        return username
+        email = '{0}@{1}'.format(username, domain)
+        return username, email
+
+        

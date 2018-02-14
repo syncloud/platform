@@ -1,8 +1,7 @@
-from syncloud_platform.config.config import PlatformConfig
-from syncloud_platform.injector import get_injector, PLATFORM_CONFIG_DIR
+from syncloud_platform.injector import get_injector
 
 
-def get_app_paths(app_name, config_path=None):
+def get_app_paths(app_name):
     return get_injector().get_app_paths(app_name)
 
 

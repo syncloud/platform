@@ -1,16 +1,27 @@
 apps:
-  nginx-internal:
-    command: bin/service.nginx-internal.sh start
-    daemon: simple
+  nginx-api:
+    command: bin/service.nginx.sh start api
+    daemon: forking
     plugs:
     - network
     - network-bind
     restart-condition: always
-    stop-command: bin/service.nginx-internal.sh stop
-    reload-command: bin/service.nginx-internal.sh reload
+    stop-command: bin/service.nginx.sh stop api
+    reload-command: bin/service.nginx.sh reload api
+  nginx-internal:
+    command: bin/service.nginx.sh start internal
+    post-start-commamd: bin/service.nginx.sh post-start internal
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    stop-command: bin/service.nginx.sh stop internal
+    reload-command: bin/service.nginx.sh reload internal
   nginx-public:
     command: bin/service.nginx-public.sh start
-    daemon: simple
+    post-start-commamd: bin/service.nginx.sh post-start internal
+    daemon: forking
     plugs:
     - network
     - network-bind
@@ -18,7 +29,7 @@ apps:
     stop-command: bin/service.nginx-public.sh stop
     reload-command: bin/service.nginx-public.sh reload
   openldap:
-    command: bin/service.openldap.sh
+    command: bin/service.openldap.sh start
     daemon: forking
     plugs:
     - network
@@ -26,6 +37,13 @@ apps:
     restart-condition: always
   uwsgi-internal:
     command: bin/service.uwsgi.sh internal
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+  uwsgi-api:
+    command: bin/service.uwsgi.sh api
     daemon: notify
     plugs:
     - network
