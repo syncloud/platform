@@ -53,23 +53,12 @@ class RedirectService:
         util.check_http_error(response)
         response_data = convertible.from_json(response.text)
         return response_data
-
-    def sync(self, port_drill, update_token, web_protocol, external_access, network_protocol):
-        try:
-            port_drill.sync()
-        except Exception, e:
-            self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
-
+        
+    def sync(self, external_ip, web_port, web_local_port, update_token, external_access):
+        
         map_local_address = not external_access
-
-        web_local_port = util.protocol_to_port(web_protocol)
-        web_port = None
-        mapping = port_drill.get(web_local_port, network_protocol)
-        if mapping:
-            web_port = mapping.external_port
-
+        
         version = self.versions.platform_version()
-
         local_ip = linux.local_ip()
         data = {
             'token': update_token,
@@ -80,8 +69,6 @@ class RedirectService:
             'web_port': web_port,
             'web_local_port': web_local_port
         }
-
-        external_ip = port_drill.external_ip()
 
         if not external_ip:
             self.logger.warn("No external ip")

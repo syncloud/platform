@@ -116,8 +116,8 @@ class Device:
             self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
 
         drill.sync_new_port(new_web_local_port, http_network_protocol)
-
-        self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
+        external_ip, web_port, web_local_port = self.sync_ports(drill, web_protocol, http_network_protocol)
+        self.redirect_service.sync(external_ip, web_port, web_local_port, update_token, external_access)
         self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access,
                                                        manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
@@ -133,7 +133,9 @@ class Device:
         manual_public_port = self.user_platform_config.get_manual_public_port()
         drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         web_protocol = secure_to_protocol(self.user_platform_config.is_https())
-        self.redirect_service.sync(drill, update_token, web_protocol, external_access, http_network_protocol)
+        
+        external_ip, web_port, web_local_port = self.sync_ports(drill, web_protocol, http_network_protocol)
+        self.redirect_service.sync(external_ip, web_port, web_local_port, update_token, external_access)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())
@@ -153,6 +155,22 @@ class Device:
         manual_public_port = self.user_platform_config.get_manual_public_port()
         drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         drill.remove(local_port, protocol)
+
+    def sync_ports(self, port_drill, web_protocol, network_protocol):
+            try:
+                port_drill.sync()
+            except Exception, e:
+                self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
+            
+            web_local_port = protocol_to_port(web_protocol)
+            web_port = None
+            mapping = port_drill.get(web_local_port, network_protocol)
+            if mapping:
+                web_port = mapping.external_port
+        
+            external_ip = port_drill.external_ip()
+        
+            return external_ip, web_port, web_local_port
 
 
 def parse_username(username, domain):
