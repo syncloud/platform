@@ -117,7 +117,7 @@ class Device:
 
         drill.sync_new_port(new_web_local_port, http_network_protocol)
         external_ip, web_port, web_local_port = self.sync_ports(drill, web_protocol, http_network_protocol)
-        self.redirect_service.sync(external_ip, web_port, web_local_port, update_token, external_access)
+        self.redirect_service.sync(external_ip, web_port, web_local_port, web_protocol, update_token, external_access)
         self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access,
                                                        manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
@@ -135,7 +135,7 @@ class Device:
         web_protocol = secure_to_protocol(self.user_platform_config.is_https())
         
         external_ip, web_port, web_local_port = self.sync_ports(drill, web_protocol, http_network_protocol)
-        self.redirect_service.sync(external_ip, web_port, web_local_port, update_token, external_access)
+        self.redirect_service.sync(external_ip, web_port, web_local_port, web_protocol, update_token, external_access)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())

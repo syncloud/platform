@@ -54,7 +54,7 @@ class RedirectService:
         response_data = convertible.from_json(response.text)
         return response_data
         
-    def sync(self, external_ip, web_port, web_local_port, update_token, external_access):
+    def sync(self, external_ip, web_port, web_local_port, web_protocol, update_token, external_access):
         
         map_local_address = not external_access
         
