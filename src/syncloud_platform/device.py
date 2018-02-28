@@ -157,20 +157,20 @@ class Device:
         drill.remove(local_port, protocol)
 
     def sync_ports(self, port_drill, web_protocol, network_protocol):
-            try:
-                port_drill.sync()
-            except Exception, e:
-                self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
+        try:
+            port_drill.sync()
+        except Exception, e:
+            self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
             
-            web_local_port = protocol_to_port(web_protocol)
-            web_port = None
-            mapping = port_drill.get(web_local_port, network_protocol)
-            if mapping:
-                web_port = mapping.external_port
+        web_local_port = protocol_to_port(web_protocol)
+        web_port = None
+        mapping = port_drill.get(web_local_port, network_protocol)
+        if mapping:
+            web_port = mapping.external_port
         
-            external_ip = port_drill.external_ip()
+        external_ip = port_drill.external_ip()
         
-            return external_ip, web_port, web_local_port
+        return external_ip, web_port, web_local_port
 
 
 def parse_username(username, domain):
