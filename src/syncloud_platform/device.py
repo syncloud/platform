@@ -131,10 +131,15 @@ class Device:
         upnp = self.user_platform_config.get_upnp()
         public_ip = self.user_platform_config.get_public_ip()
         manual_public_port = self.user_platform_config.get_manual_public_port()
-        drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
+        port_drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
+        try:
+            port_drill.sync()
+        except Exception, e:
+            self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
+
         web_protocol = secure_to_protocol(self.user_platform_config.is_https())
         
-        external_ip, web_port, web_local_port = self.sync_ports(drill, web_protocol, http_network_protocol)
+        external_ip, web_port, web_local_port = self.sync_ports(port_drill, web_protocol, http_network_protocol)
         self.redirect_service.sync(external_ip, web_port, web_local_port, web_protocol, update_token, external_access)
 
         if not getpass.getuser() == self.platform_config.cron_user():
@@ -157,11 +162,7 @@ class Device:
         drill.remove(local_port, protocol)
 
     def sync_ports(self, port_drill, web_protocol, network_protocol):
-        try:
-            port_drill.sync()
-        except Exception, e:
-            self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
-            
+                    
         web_local_port = protocol_to_port(web_protocol)
         web_port = None
         mapping = port_drill.get(web_local_port, network_protocol)
