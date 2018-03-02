@@ -153,7 +153,6 @@ def access():
 def set_access():
     public.set_access(
         request.args['upnp_enabled'] == 'true',
-        request.args['is_https'] == 'true',
         request.args['external_access'] == 'true',
         request.args['public_ip'],
         int(request.args['public_port'])

@@ -7,7 +7,9 @@ from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 from syncloud_platform.gaplib import fs
 
 http_network_protocol = 'TCP'
-
+local_port = 443
+web_protocol = 'https'
+certificate_validation_port = 80
 
 class Device:
 
@@ -51,7 +53,7 @@ class Device:
         self.platform_cron.remove()
         self.platform_cron.create()
 
-        self.set_access(False, False, False, 0, 0)
+        self.set_access(False, False, 0, 0)
 
         self.logger.info("activating ldap")
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
@@ -79,7 +81,7 @@ class Device:
         self.platform_cron.remove()
         self.platform_cron.create()
 
-        self.set_access(False, False, False, 0, 0)
+        self.set_access(False, False, 0, 0)
 
         self.logger.info("activating ldap")
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
@@ -93,31 +95,28 @@ class Device:
         
         self.logger.info("activation completed")
 
-    def set_access(self, upnp_enabled, is_https, external_access, manual_public_ip, manual_public_port):
-        self.logger.info('set_access: https={0}, external_access={1}'.format(is_https, external_access))
+    def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_public_port):
+        self.logger.info('set_access: external_access={1}'.format(external_access))
 
         update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
             return
-
-        web_protocol = secure_to_protocol(is_https)
-        new_web_local_port = protocol_to_port(web_protocol)
-        old_web_protocol = secure_to_protocol(self.user_platform_config.is_https())
-        old_web_local_port = protocol_to_port(old_web_protocol)
-
+        
         drill = self.port_drill_factory.get_drill(upnp_enabled, external_access, manual_public_ip, manual_public_port)
 
         if drill is None:
             self.logger.error('Will not change access mode. Was not able to get working port mapper.')
             return
-        try:
-            drill.remove(old_web_local_port, http_network_protocol)
-        except Exception, e:
-            self.logger.error('Unable to remove port {0}: {1}'.format(old_web_local_port, e.message))
 
-        drill.sync_new_port(new_web_local_port, http_network_protocol)
-        external_ip, web_port, web_local_port = self.sync_ports(drill, web_protocol, http_network_protocol)
-        self.redirect_service.sync(external_ip, web_port, web_local_port, web_protocol, update_token, external_access)
+        drill.sync_new_port(certificate_validation_port, http_network_protocol)
+        mapping = drill.sync_new_port(local_port, http_network_protocol)
+        if mapping:
+            router_port = mapping.external_port
+        
+        device_router_port = self.sync_ports(drill, local_port, http_network_protocol)
+        external_ip = port_drill.external_ip()
+        
+        self.redirect_service.sync(external_ip, device_router_port, local_port, web_protocol, update_token, external_access)
         self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access,
                                                        manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
@@ -133,14 +132,18 @@ class Device:
         manual_public_port = self.user_platform_config.get_manual_public_port()
         port_drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         try:
-            port_drill.sync()
+            port_drill.sync_existing_ports()
         except Exception, e:
             self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
 
-        web_protocol = secure_to_protocol(self.user_platform_config.is_https())
+        router_port = None
+        mapping = port_drill.get(local_port, network_protocol)
+        if mapping:
+            router_port = mapping.external_port
         
-        external_ip, web_port, web_local_port = self.sync_ports(port_drill, web_protocol, http_network_protocol)
-        self.redirect_service.sync(external_ip, web_port, web_local_port, web_protocol, update_token, external_access)
+        external_ip = port_drill.external_ip()
+        
+        self.redirect_service.sync(external_ip, router_port, local_port, web_protocol, update_token, external_access)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())
@@ -160,18 +163,6 @@ class Device:
         manual_public_port = self.user_platform_config.get_manual_public_port()
         drill = self.port_drill_factory.get_drill(upnp, external_access, public_ip, manual_public_port)
         drill.remove(local_port, protocol)
-
-    def sync_ports(self, port_drill, web_protocol, network_protocol):
-                    
-        web_local_port = protocol_to_port(web_protocol)
-        web_port = None
-        mapping = port_drill.get(web_local_port, network_protocol)
-        if mapping:
-            web_port = mapping.external_port
-        
-        external_ip = port_drill.external_ip()
-        
-        return external_ip, web_port, web_local_port
 
 
 def parse_username(username, domain):

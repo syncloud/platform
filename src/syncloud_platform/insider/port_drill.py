@@ -71,11 +71,12 @@ class PortDrill:
 
         mapping = Port(local_port, found_external_port, protocol)
         self.port_config.add_or_update(mapping)
+        return mapping
 
     def sync_new_port(self, local_port, protocol):
-        self.sync_one_mapping(local_port, protocol)
+        return self.sync_one_mapping(local_port, protocol)
 
-    def sync(self):
+    def sync_existing_ports(self):
         for mapping in self.list():
             self.sync_one_mapping(mapping.local_port, mapping.protocol)
 

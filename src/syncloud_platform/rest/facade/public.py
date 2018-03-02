@@ -90,8 +90,8 @@ class Public:
             return mapping.external_port
         return None
 
-    def set_access(self, upnp_enabled, is_https, external_access, public_ip, public_port):
-        self.device.set_access(upnp_enabled, is_https, external_access, public_ip, public_port)
+    def set_access(self, upnp_enabled, external_access, public_ip, public_port):
+        self.device.set_access(upnp_enabled, external_access, public_ip, public_port)
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
