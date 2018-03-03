@@ -110,13 +110,7 @@
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
 						</div>
 					</div>
-					<div class="setline">
-						<span class="span">Access Protocol:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
-						</div>
-                    </div>
+
                     <div class="setline">
                         <div class="spandiv">
                             <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
@@ -268,10 +262,6 @@ function ui_display_access(data) {
     $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $("#tgl_external_loading").removeClass('opacity-visible');
    
-    $('#tgl_protocol').bootstrapSwitch('disabled', false);
-    $('#tgl_protocol').bootstrapSwitch('state', access_data.is_https, true);
-    $("#tgl_protocol_loading").removeClass('opacity-visible');
-
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
     $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
     $("#tgl_upnp_loading").removeClass('opacity-visible');
@@ -295,7 +285,6 @@ function ui_display_access(data) {
 
 function disable_access_controls(disabled) {
     $('#tgl_external').bootstrapSwitch('disabled', disabled);
-    $('#tgl_protocol').bootstrapSwitch('disabled', disabled);
     $('#tgl_upnp').bootstrapSwitch('disabled', disabled);
 }
 
@@ -303,7 +292,6 @@ function ui_check_access() {
     disable_access_controls(true);
 
     $("#tgl_external_loading").addClass('opacity-visible');
-    $("#tgl_protocol_loading").addClass('opacity-visible');
     $("#tgl_upnp_loading").addClass('opacity-visible');
     $('#btn_save').button('loading');
 
@@ -334,7 +322,6 @@ $(document).ready(function () {
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
         
-        var protocol_toggle = $("#tgl_protocol");
         var access_toggle = $("#tgl_external");
         var upnp_enabled = $("#tgl_upnp").bootstrapSwitch('state');
         var public_port_string = $("#public_port").val();
@@ -362,7 +349,6 @@ $(document).ready(function () {
         backend.set_access(
                 upnp_enabled,
                 access_toggle.bootstrapSwitch('state'),
-                protocol_toggle.bootstrapSwitch('state'),
                 $("#public_ip").val().trim(),
                 public_port,
                 ui_check_access,
