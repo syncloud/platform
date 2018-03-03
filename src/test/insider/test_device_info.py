@@ -11,7 +11,7 @@ def test_url_with_external_access():
     user_platform_config.update_device_access(False, True, '1.1.1.1', 80)
     user_platform_config.set_redirect_enabled(True)
 
-    port_config = get_port_config([Port(80, 10000, 'TCP')])
+    port_config = get_port_config([Port(443, 10000, 'TCP')])
 
     device_info = DeviceInfo(user_platform_config, port_config)
 
