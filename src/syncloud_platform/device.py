@@ -110,13 +110,11 @@ class Device:
 
         drill.sync_new_port(certificate_validation_port, http_network_protocol)
         mapping = drill.sync_new_port(local_port, http_network_protocol)
-        if mapping:
-            router_port = mapping.external_port
+        router_port = mapping.external_port
         
-        device_router_port = self.sync_ports(drill, local_port, http_network_protocol)
         external_ip = port_drill.external_ip()
         
-        self.redirect_service.sync(external_ip, device_router_port, local_port, web_protocol, update_token, external_access)
+        self.redirect_service.sync(external_ip, router_port, local_port, web_protocol, update_token, external_access)
         self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access,
                                                        manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
