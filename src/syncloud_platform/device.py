@@ -110,7 +110,9 @@ class Device:
 
         drill.sync_new_port(certificate_validation_port, http_network_protocol)
         mapping = drill.sync_new_port(local_port, http_network_protocol)
-        router_port = mapping.external_port
+        router_port = None
+        if mapping:
+            router_port = mapping.external_port
         
         external_ip = port_drill.external_ip()
         
