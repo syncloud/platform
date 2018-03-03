@@ -96,7 +96,7 @@ class Device:
         self.logger.info("activation completed")
 
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_public_port):
-        self.logger.info('set_access: external_access={1}'.format(external_access))
+        self.logger.info('set_access: external_access={0}'.format(external_access))
 
         update_token = self.user_platform_config.get_domain_update_token()
         if update_token is None:
