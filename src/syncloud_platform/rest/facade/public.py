@@ -73,18 +73,16 @@ class Public:
             upnp_message = 'Your router does not have port mapping feature enabled at the moment'
         manual_public_ip = self.user_platform_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
-        is_https = self.user_platform_config.is_https()
-        existing_public_port = self.__get_existing_public_port(is_https)
+        existing_public_port = self.__get_existing_public_port()
         return dict(external_access=external_access,
-                    is_https=is_https,
                     upnp_available=upnp_available,
                     upnp_enabled=upnp_enabled,
                     upnp_message=upnp_message,
                     public_ip=manual_public_ip,
                     public_port=existing_public_port)
 
-    def __get_existing_public_port(self, is_https):
-        port = protocol_to_port(secure_to_protocol(is_https))
+    def __get_existing_public_port(self):
+        port = 443
         mapping = self.port_config.get(port, 'TCP')
         if mapping:
             return mapping.external_port
