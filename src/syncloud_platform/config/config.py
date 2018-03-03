@@ -246,23 +246,12 @@ class PlatformUserConfig:
         self.__set('platform', 'redirect_enabled', enabled)
         self.__save()
 
-    def is_https(self):
-        self.parser.read(self.filename)
-        if not self.parser.has_option('platform', 'protocol'):
-            return False
-        return self.parser.get('platform', 'protocol') == 'https'
-
-    def update_device_access(self, upnp_enabled, is_https, external_access, public_ip, public_port):
+    def update_device_access(self, upnp_enabled, external_access, public_ip, public_port):
         self.parser.read(self.filename)
         self.__set('platform', 'external_access', external_access)
         self.__set('platform', 'upnp', upnp_enabled)
         self.__set('platform', 'public_ip', public_ip)
         self.__set('platform', 'manual_public_port', public_port)
-        if is_https:
-            protocol = 'https'
-        else:
-            protocol = 'http'
-        self.__set('platform', 'protocol', protocol)
         self.__save()
 
     def get_upnp(self):

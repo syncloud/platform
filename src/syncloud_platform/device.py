@@ -117,7 +117,7 @@ class Device:
         external_ip = drill.external_ip()
         
         self.redirect_service.sync(external_ip, router_port, local_port, web_protocol, update_token, external_access)
-        self.user_platform_config.update_device_access(upnp_enabled, is_https, external_access,
+        self.user_platform_config.update_device_access(upnp_enabled, external_access,
                                                        manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
 
