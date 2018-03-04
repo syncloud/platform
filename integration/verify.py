@@ -298,7 +298,7 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
                                       params={'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 443, 'public_port': 0})
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 443})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -311,7 +311,7 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
    
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
                                       params={'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 10000, 'public_port': 0})
+                                              'external_access': 'false', 'public_ip': 0, 'public_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
