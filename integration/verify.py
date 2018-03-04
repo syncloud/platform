@@ -322,8 +322,6 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
    
     assert main_domain in url, url
     assert 'https' in url, url
-    assert '10000' in url, url
-   
    
 
 def test_cron_job(app_dir, ssh_env_vars, device_host):
