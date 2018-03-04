@@ -5,7 +5,7 @@ from syncloud_app import logger
 
 from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 from syncloud_platform.gaplib import fs
-from syncloud_platform.config import PlatformConfig
+from syncloud_platform.config.config import PlatformConfig
 
 http_network_protocol = 'TCP'
 certificate_validation_port = 80
