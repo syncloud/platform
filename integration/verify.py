@@ -294,32 +294,36 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
     email, password, domain, release = auth
  
     response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
-    assert '"is_https": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={'is_https': 'true', 'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
+                                      params={'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 443, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
-    assert '"is_https": true' in response.text
     assert response.status_code == 200
-
+    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+   
+    assert main_domain in url, url
+    assert 'https' in url, url
+   
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={'is_https': 'false', 'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 0, 'public_port': 0})
+                                      params={'upnp_enabled': 'false',
+                                              'external_access': 'false', 'public_ip': 10000, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
-    assert '"is_https": false' in response.text
     assert response.status_code == 200
 
     url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
    
     assert main_domain in url, url
+    assert 'https' in url, url
+    assert '10000' in url, url
+   
    
 
 def test_cron_job(app_dir, ssh_env_vars, device_host):
