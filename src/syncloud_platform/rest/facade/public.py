@@ -4,7 +4,7 @@ from syncloud_platform.gaplib.linux import pgrep, run_detached
 from syncloud_platform.insider.util import secure_to_protocol, protocol_to_port
 from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
-from syncloud_platform.config.config import PlatformConfig
+from syncloud_platform.config.config import WEB_PORT
 
 
 class Public:
@@ -83,7 +83,7 @@ class Public:
                     public_port=existing_public_port)
 
     def __get_existing_public_port(self):
-        mapping = self.port_config.get(PlatformConfig.WEB_PORT, 'TCP')
+        mapping = self.port_config.get(WEB_PORT, 'TCP')
         if mapping:
             return mapping.external_port
         return None

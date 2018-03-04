@@ -5,7 +5,7 @@ from syncloud_app import logger
 
 from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 from syncloud_platform.gaplib import fs
-from syncloud_platform.config.config import PlatformConfig
+from syncloud_platform.config.config import WEB_PORT, WEB_PROTOCOL
 
 http_network_protocol = 'TCP'
 certificate_validation_port = 80
@@ -108,14 +108,14 @@ class Device:
             return
 
         drill.sync_new_port(certificate_validation_port, http_network_protocol)
-        mapping = drill.sync_new_port(PlatformConfig.WEB_PORT, http_network_protocol)
+        mapping = drill.sync_new_port(WEB_PORT, http_network_protocol)
         router_port = None
         if mapping:
             router_port = mapping.external_port
         
         external_ip = drill.external_ip()
         
-        self.redirect_service.sync(external_ip, router_port, PlatformConfig.WEB_PORT, PlatformConfig.WEB_PROTOCOL, update_token, external_access)
+        self.redirect_service.sync(external_ip, router_port, WEB_PORT, WEB_PROTOCOL, update_token, external_access)
         self.user_platform_config.update_device_access(upnp_enabled, external_access,
                                                        manual_public_ip, manual_public_port)
         self.event_trigger.trigger_app_event_domain()
@@ -142,7 +142,7 @@ class Device:
         
         external_ip = port_drill.external_ip()
         
-        self.redirect_service.sync(external_ip, router_port, PlatformConfig.WEB_PORT, PlatformConfig.WEB_PROTOCOL, update_token, external_access)
+        self.redirect_service.sync(external_ip, router_port, WEB_PORT, WEB_PROTOCOL, update_token, external_access)
 
         if not getpass.getuser() == self.platform_config.cron_user():
             fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())
