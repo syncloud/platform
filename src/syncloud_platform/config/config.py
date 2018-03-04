@@ -5,6 +5,8 @@ from syncloud_app import logger
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
 PLATFORM_CONFIG_DIR = '/opt/data/platform/config'
+WEB_PORT = 443
+WEB_PROTOCOL = 'https'
 
 
 class PlatformConfig:

@@ -5,7 +5,6 @@ backend.check_access = function(on_complete, on_error) {
 backend.set_access = function(
         upnp_enabled,
         external_access,
-        is_https,
         public_ip,
         public_port,
         on_complete,
@@ -14,7 +13,6 @@ backend.set_access = function(
         $.get('/rest/access/set_access', {
             upnp_enabled: upnp_enabled,
             external_access: external_access,
-            is_https: is_https,
             public_ip: public_ip,
             public_port: public_port
         }).done(on_complete).fail(on_error);
