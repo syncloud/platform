@@ -136,7 +136,7 @@ class Device:
             self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
 
         router_port = None
-        mapping = port_drill.get(local_port, http_network_protocol)
+        mapping = port_drill.get(WEB_PORT, http_network_protocol)
         if mapping:
             router_port = mapping.external_port
         
