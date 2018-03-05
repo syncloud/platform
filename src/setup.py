@@ -19,6 +19,7 @@ setup(
               'syncloud_platform.sam',
               'syncloud_platform.snap',
               'syncloud_platform.control',
+              'syncloud_platform.certificate',
               'syncloud_platform.certificate.certbot',
               'syncloud_platform.disks',
               'syncloud_platform.log',
