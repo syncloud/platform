@@ -7,7 +7,7 @@ from datetime import datetime
 from os import path
 from syncloud_app.logger import get_logger
 
-from syncloud_platform.certbot.certbot_result import CertbotResult
+from syncloud_platform.certificate.certbot.certbot_result import CertbotResult
 from OpenSSL import crypto
 from urllib3.contrib.pyopenssl import get_subj_alt_name
 
@@ -51,14 +51,7 @@ class CertbotGenerator:
         if is_test_cert:
             test_cert = '--test-cert'
 
-        # TODO: Not sure if we need webroot as it supports only http way of getting certificates
-        # So it is possible to get real certificates while device is in external http mode
-        # and later use them when switched to https
         plugin = '--webroot --webroot-path {0}'.format(self.platform_config.www_root_public())
-        if self.user_platform_config.is_https():
-            plugin = '--nginx --nginx-server-root {0} --nginx-ctl {1}'.format(
-                self.platform_config.nginx_config_dir(),
-                self.platform_config.nginx())
 
         try:
 

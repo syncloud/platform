@@ -1,4 +1,3 @@
-import filecmp
 import os
 import shutil
 import subprocess
@@ -11,10 +10,10 @@ from syncloud_app import util
 from syncloud_app.logger import get_logger
 
 
-class Tls:
+class CertificateGenerator:
     def __init__(self, platform_config, user_platform_config, info, nginx, certbot_generator):
         self.info = info
-        self.log = get_logger('tls')
+        self.log = get_logger('certificate_generator')
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.nginx = nginx
@@ -135,13 +134,20 @@ class Tls:
         self.nginx.reload_public()
 
     def is_default_certificate_installed(self):
-        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
+        cert = crypto.load_certificate(
+            crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
         return cert.get_issuer().CN == cert.get_subject().CN
 
     def init_certificate(self):
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
-            shutil.copy(self.platform_config.get_default_ssl_certificate_file(), self.platform_config.get_ssl_certificate_file())
-            shutil.copy(self.platform_config.get_default_ssl_key_file(), self.platform_config.get_ssl_key_file())
+
+            shutil.copy(
+                self.platform_config.get_default_ssl_certificate_file(),
+                self.platform_config.get_ssl_certificate_file())
+
+            shutil.copy(
+                self.platform_config.get_default_ssl_key_file(),
+                self.platform_config.get_ssl_key_file())
 
 
 def certificate_is_valid(days_until_expiry, new_domains):

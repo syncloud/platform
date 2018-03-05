@@ -238,7 +238,7 @@ def test_openssl_cli(app_dir, device_host):
 def test_external_https_mode_with_certbot(public_web_session, device_host):
 
     response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
-                                      params={'is_https': 'true', 'upnp_enabled': 'false',
+                                      params={'upnp_enabled': 'false',
                                               'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
