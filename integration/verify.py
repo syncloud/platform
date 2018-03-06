@@ -85,7 +85,7 @@ def test_non_activated_device_main_page_redirect_to_activation(device_host):
 
 
 def test_non_activated_device_login_redirect_to_activation(device_host):
-    response = requests.post('http://{0}/rest/login'.format(device_host), allow_redirects=False)
+    response = requests.post('https://{0}/rest/login'.format(device_host), allow_redirects=False)
     assert response.status_code == 302
     assert response.headers['Location'] == 'http://{0}:81'.format(device_host)
 
@@ -118,12 +118,12 @@ def test_reactivate(auth, device_host):
 
 
 def test_public_web_unauthorized_browser_redirect(device_host):
-    response = requests.get('http://{0}/rest/user'.format(device_host), allow_redirects=False)
+    response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False)
     assert response.status_code == 302
 
 
 def test_public_web_unauthorized_ajax_not_redirect(device_host):
-    response = requests.get('http://{0}/rest/user'.format(device_host),
+    response = requests.get('https://{0}/rest/user'.format(device_host),
                             allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
@@ -134,8 +134,8 @@ def test_running_platform_web(device_host):
 
 def test_platform_rest(device_host):
     session = requests.session()
-    session.mount('http://{0}'.format(device_host), HTTPAdapter(max_retries=5))
-    response = session.get('http://{0}'.format(device_host), timeout=60)
+    session.mount('https://{0}'.format(device_host), HTTPAdapter(max_retries=5))
+    response = session.get('https://{0}'.format(device_host), timeout=60)
     assert response.status_code == 200
 
 
@@ -149,7 +149,7 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
                          '-c /nginx.app.test.conf.runtime '
                          '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
             password=DEVICE_PASSWORD)
-    response = requests.get('http://app.{0}'.format(main_domain), timeout=60)
+    response = requests.get('https://app.{0}'.format(main_domain), timeout=60)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
 
