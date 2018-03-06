@@ -149,7 +149,7 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
                          '-c /nginx.app.test.conf.runtime '
                          '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
             password=DEVICE_PASSWORD)
-    response = requests.get('https://app.{0}'.format(main_domain), timeout=60)
+    response = requests.get('https://app.{0}'.format(main_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
 
@@ -200,7 +200,7 @@ def generate_file_jinja(from_path, to_path, variables):
 #     assert '"external_access": false' in response.text
 #     assert response.status_code == 200
 #
-#     response = public_web_session.get('http://{0}/rest/settings/set_external_access'.format(device_host),
+#     response = public_web_session.get('httpz://{0}/rest/settings/set_external_access'.format(device_host),
 #                                       params={'external_access': 'true'})
 #     assert '"success": true' in response.text
 #     assert response.status_code == 200
@@ -237,7 +237,7 @@ def test_openssl_cli(app_dir, device_host):
 
 def test_external_https_mode_with_certbot(public_web_session, device_host):
 
-    response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
+    response = public_web_session.get('httpz://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'upnp_enabled': 'false',
                                               'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
@@ -251,7 +251,7 @@ def test_show_https_certificate(device_host):
 
 
 def test_access(public_web_session, device_host):
-    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert '"upnp_enabled": false' in response.text
@@ -259,21 +259,21 @@ def test_access(public_web_session, device_host):
 
 
 def test_network_interfaces(public_web_session, device_host):
-    response = public_web_session.get('http://{0}/rest/access/network_interfaces'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/access/network_interfaces'.format(device_host), verify=False,)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
 def test_device_url(public_web_session, device_host):
-    response = public_web_session.get('http://{0}/rest/settings/device_url'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
 def test_activate_url(public_web_session, device_host):
-    response = public_web_session.get('http://{0}/rest/settings/activate_url'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/settings/activate_url'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
@@ -293,29 +293,29 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
 
     email, password, domain, release = auth
  
-    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
-    response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
+    response = public_web_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'upnp_enabled': 'false',
                                               'external_access': 'false', 'public_ip': 0, 'public_port': 443})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
     url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
    
     assert main_domain in url, url
     assert 'https' in url, url
    
-    response = public_web_session.get('http://{0}/rest/access/set_access'.format(device_host),
+    response = public_web_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'upnp_enabled': 'false',
                                               'external_access': 'false', 'public_ip': 0, 'public_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://{0}/rest/access/access'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
     url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
@@ -330,13 +330,13 @@ def test_cron_job(app_dir, ssh_env_vars, device_host):
 
 
 def test_installed_apps(public_web_session, device_host):
-    response = public_web_session.get('http://{0}/rest/installed_apps'.format(device_host))
+    response = public_web_session.get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
     assert response.status_code == 200
 
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session, device_host):
 
-    response = public_web_session.get('http://{0}/settings.html'.format(device_host))
+    response = public_web_session.get('https://{0}/settings.html'.format(device_host), verify=False)
     cache_control = response.headers['Cache-Control']
     assert 'no-cache' in cache_control
     assert 'max-age=0' in cache_control
@@ -415,14 +415,14 @@ def disk_activate(loop_device, public_web_session, device_host, ssh_env_vars, ap
     assert loop_device in response.text
     assert response.status_code == 200
 
-    response = public_web_session.get('http://{0}/rest/settings/disk_activate'.format(device_host),
+    response = public_web_session.get('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
                                       params={'device': loop_device})
     assert response.status_code == 200
     return current_disk_link(device_host, ssh_env_vars, app_dir)
 
 
 def disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, app_dir):
-    response = public_web_session.get('http://{0}/rest/settings/disk_deactivate'.format(device_host),
+    response = public_web_session.get('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
                                       params={'device': loop_device})
     assert response.status_code == 200
     return current_disk_link(device_host, ssh_env_vars, app_dir)
@@ -467,7 +467,7 @@ def test_public_web_platform_upgrade(public_web_session, device_host):
 
 def __upgrade(public_web_session, upgrade_type, device_host):
 
-    public_web_session.get('http://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type))
+    public_web_session.get('https://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type), verify=False)
     wait_for_sam(public_web_session, device_host)
 
 
@@ -480,8 +480,8 @@ def test_if_cron_is_enabled_after_upgrade(device_host):
 
 
 def test_nginx_performance(device_host):
-    print(check_output('ab -c 1 -n 1000 http://{0}/ping'.format(device_host), shell=True))
+    print(check_output('ab -c 1 -n 1000 https://{0}/ping'.format(device_host), shell=True))
 
 
 def test_nginx_plus_flask_performance(device_host):
-    print(check_output('ab -c 1 -n 1000 http://{0}:81/rest/id'.format(device_host), shell=True))
+    print(check_output('ab -c 1 -n 1000 https://{0}:81/rest/id'.format(device_host), shell=True))
