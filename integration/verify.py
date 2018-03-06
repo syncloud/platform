@@ -85,7 +85,7 @@ def test_non_activated_device_main_page_redirect_to_activation(device_host):
 
 
 def test_non_activated_device_login_redirect_to_activation(device_host):
-    response = requests.post('https://{0}/rest/login'.format(device_host), allow_redirects=False)
+    response = requests.post('https://{0}/rest/login'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 302
     assert response.headers['Location'] == 'http://{0}:81'.format(device_host)
 
@@ -118,13 +118,13 @@ def test_reactivate(auth, device_host):
 
 
 def test_public_web_unauthorized_browser_redirect(device_host):
-    response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False)
+    response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 302
 
 
 def test_public_web_unauthorized_ajax_not_redirect(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host),
-                            allow_redirects=False, headers={'X-Requested-With': 'XMLHttpRequest'})
+                            allow_redirects=False, verify=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
 
