@@ -33,8 +33,8 @@ def public_web_session(device_host):
     while True:
         try:
             session = requests.session()
-            session.post('https://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
-            assert session.get('https://{0}/rest/user'.format(device_host), allow_redirects=False).status_code == 200
+            session.post('https://{0}/rest/login'.format(device_host), verify=False, data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+            assert session.get('https://{0}/rest/user'.format(device_host), verify=False, allow_redirects=False).status_code == 200
             return session
         except Exception, e:
             retry += 1
