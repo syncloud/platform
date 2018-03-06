@@ -135,7 +135,7 @@ def test_running_platform_web(device_host):
 def test_platform_rest(device_host):
     session = requests.session()
     session.mount('https://{0}'.format(device_host), HTTPAdapter(max_retries=5))
-    response = session.get('https://{0}'.format(device_host), timeout=60)
+    response = session.get('https://{0}'.format(device_host), timeout=60, verify=False)
     assert response.status_code == 200
 
 
