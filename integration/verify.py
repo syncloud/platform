@@ -200,7 +200,7 @@ def generate_file_jinja(from_path, to_path, variables):
 #     assert '"external_access": false' in response.text
 #     assert response.status_code == 200
 #
-#     response = public_web_session.get('httpz://{0}/rest/settings/set_external_access'.format(device_host),
+#     response = public_web_session.get('https://{0}/rest/settings/set_external_access'.format(device_host),
 #                                       params={'external_access': 'true'})
 #     assert '"success": true' in response.text
 #     assert response.status_code == 200
@@ -237,7 +237,7 @@ def test_openssl_cli(app_dir, device_host):
 
 def test_external_https_mode_with_certbot(public_web_session, device_host):
 
-    response = public_web_session.get('httpz://{0}/rest/access/set_access'.format(device_host), verify=False,
+    response = public_web_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'upnp_enabled': 'false',
                                               'external_access': 'false', 'public_ip': 0, 'public_port': 0})
     assert '"success": true' in response.text
