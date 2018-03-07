@@ -81,6 +81,7 @@ class PlatformInstaller:
         nginx.init_config()
         
     def start(self):
+        injector = get_injector()
 
         systemctl = injector.systemctl
         systemctl.add_service(APP_NAME, 'platform.cpu-frequency')
