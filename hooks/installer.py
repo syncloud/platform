@@ -94,3 +94,22 @@ class PlatformInstaller:
         systemctl.add_service(APP_NAME, 'platform.nginx-internal')
         systemctl.add_service(APP_NAME, 'platform.nginx-public')
         systemctl.add_service(APP_NAME, 'platform.openldap')
+
+    def remove(self):
+        injector = get_injector()
+        systemctl = injector.systemctl
+
+        systemctl.remove_service('platform.openldap')
+        systemctl.remove_service('platform.nginx-public')
+        systemctl.remove_service('platform.nginx-internal')
+        systemctl.remove_service('platform.nginx-api')
+        systemctl.remove_service('platform.uwsgi-public')
+        systemctl.remove_service('platform.uwsgi-internal')
+        systemctl.remove_service('platform.uwsgi-api')
+        systemctl.remove_service('platform.ntpdate')
+        systemctl.remove_service('platform.insider-sync')
+        systemctl.remove_service('platform.cpu-frequency')
+
+        injector.platform_cron.remove()
+        injector.udev.remove()
+
