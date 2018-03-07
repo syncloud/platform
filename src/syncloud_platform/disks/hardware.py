@@ -78,12 +78,14 @@ class Hardware:
         self.relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_external_disk_dir())
+        self.event_trigger.trigger_app_event_disk()
 
     def deactivate_disk(self):
         self.log.info('deactivate disk')
         self.relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_internal_disk_dir())
+        self.event_trigger.trigger_app_event_disk()    
         self.systemctl.remove_mount()
 
     def get_app_storage_dir(self, app_id):
@@ -108,8 +110,6 @@ class Hardware:
         if islink(link):
             unlink(link)
         os.symlink(target, link)
-
-        self.event_trigger.trigger_app_event_disk()
 
     def check_external_disk(self):
         self.log.info('checking external disk')
