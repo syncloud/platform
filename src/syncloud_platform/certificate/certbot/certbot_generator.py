@@ -89,8 +89,10 @@ class CertbotGenerator:
 
         current_domains = domain_list_sorted(self.sam.list(), self.info.domain())
 
-        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file).read())
-        cert_domains = get_subj_alt_name(cert)
+        cert_domains = []
+        if path.isfile(self.certbot_certificate_file):
+            cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file).read())
+            cert_domains = get_subj_alt_name(cert)
 
         return get_new_domains(current_domains, cert_domains)
 
