@@ -36,6 +36,8 @@ class CertificateGenerator:
             result = self.certbot_generator.generate_certificate(self.platform_config.is_certbot_test_cert())
 
             if result.regenerated:
+                self.log.info('activating real certificate')
+            
                 if os.path.exists(self.platform_config.get_ssl_certificate_file()):
                     os.remove(self.platform_config.get_ssl_certificate_file())
                 os.symlink(result.certificate_file, self.platform_config.get_ssl_certificate_file())
