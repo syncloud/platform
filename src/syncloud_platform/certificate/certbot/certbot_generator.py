@@ -49,7 +49,7 @@ class CertbotGenerator:
 
         test_cert = ''
         if is_test_cert:
-            test_cert = '--test-cert'
+            test_cert = '--test-cert --break-my-certs'
 
         plugin = '--webroot --webroot-path {0}'.format(self.platform_config.www_root_public())
 
