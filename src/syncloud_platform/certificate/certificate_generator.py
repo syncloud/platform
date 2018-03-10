@@ -51,8 +51,8 @@ class CertificateGenerator:
             self.log.warn('unable to generate real certificate (process exceptuon): {0}'.format(e))
             self.log.warn(e.output)
         except Exception, e:
-            self.log.warn('unable to generate real certificate (general exception): {0}'.format(e))
-            self.log.warn(e.message)
+            self.log.warn('error')
+            self.log.exception(e)
 
     def generate_self_signed_certificate(self):
 
