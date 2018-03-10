@@ -35,22 +35,23 @@ class CertificateGenerator:
             self.log.info('running certbot')
             result = self.certbot_generator.generate_certificate(self.platform_config.is_certbot_test_cert())
 
-            if result.regenerated:
-                self.log.info('activating real certificate')
+            self.log.info('activating real certificate')
             
-                if os.path.exists(self.platform_config.get_ssl_certificate_file()):
-                    os.remove(self.platform_config.get_ssl_certificate_file())
-                os.symlink(result.certificate_file, self.platform_config.get_ssl_certificate_file())
+            if os.path.exists(self.platform_config.get_ssl_certificate_file()):
+                os.remove(self.platform_config.get_ssl_certificate_file())
+            os.symlink(result.certificate_file, self.platform_config.get_ssl_certificate_file())
 
-                if os.path.exists(self.platform_config.get_ssl_key_file()):
-                    os.remove(self.platform_config.get_ssl_key_file())
-                os.symlink(result.key_file, self.platform_config.get_ssl_key_file())
+            if os.path.exists(self.platform_config.get_ssl_key_file()):
+                os.remove(self.platform_config.get_ssl_key_file())
+            os.symlink(result.key_file, self.platform_config.get_ssl_key_file())
 
-                self.nginx.reload_public()
+            self.nginx.reload_public()
 
         except CalledProcessError, e:
             self.log.warn('unable to generate real certificate: {0}'.format(e))
             self.log.warn(e.output)
+        except Exception, e:
+            self.log.warn(e.message)
 
     def generate_self_signed_certificate(self):
 

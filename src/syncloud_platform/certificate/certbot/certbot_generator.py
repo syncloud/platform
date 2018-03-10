@@ -66,13 +66,13 @@ class CertbotGenerator:
 
             self.log.info(output)
             archive_dir = join(self.certbot_config_dir, 'archive')
-            if os.path.exists(archive_dir):
+            if path.exists(archive_dir):
                 check_output('chmod 755 {0}'.format(archive_dir))
             live_dir = join(self.certbot_config_dir, 'live')
-            if os.path.exists(live_dir):
+            if path.exists(live_dir):
                 check_output('chmod 755 {0}'.format(live_dir))
-            regenerated = True
-            return CertbotResult(self.certbot_certificate_file, self.certbot_key_file, regenerated)
+
+            return CertbotResult(self.certbot_certificate_file, self.certbot_key_file)
 
         except subprocess.CalledProcessError, e:
             self.log.warn(e.output)
