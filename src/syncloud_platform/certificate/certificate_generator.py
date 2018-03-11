@@ -140,7 +140,7 @@ class CertificateGenerator:
     def is_default_certificate_installed(self):
         cert = crypto.load_certificate(
             crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
-        return cert.get_issuer().CN == cert.get_subject().CN
+        return cert.get_issuer().CN == cert.get_subject().CN or 'Fake' in cert.get_issuer().CN
 
     def init_certificate(self):
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
