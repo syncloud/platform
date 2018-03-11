@@ -56,7 +56,7 @@ class CertbotGenerator:
         try:
 
             output = check_output(
-                '{0} --logs-dir={1} --config-dir={2} --agree-tos '
+                '{0} --logs-dir={1} --max-log-backups 5 --config-dir={2} --agree-tos '
                 '--email {3} certonly --force-renewal --cert-name {4} '
                 '{5} {6} {7} '.format(
                     self.certbot_bin, self.log_dir, self.certbot_config_dir,
