@@ -145,7 +145,7 @@ def available_apps():
 @app.route(rest_prefix + "/access/port_mappings", methods=["GET"])
 @login_required
 def port_mappings():
-    retuen jsonify(success=True, port_mappings=public.port_mappings()), 200
+    return jsonify(success=True, port_mappings=public.port_mappings()), 200
     
 
 @app.route(rest_prefix + "/access/access", methods=["GET"])
