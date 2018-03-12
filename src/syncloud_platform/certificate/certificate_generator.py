@@ -23,7 +23,7 @@ class CertificateGenerator:
     def generate_real_certificate(self):
 
         days_until_expiry = self.certbot_generator.days_until_expiry()
-        real_cert = not self.is_default_certificate_installed()
+        real_cert = self.is_real_certificate_installed()
         new_domains = self.certbot_generator.new_domains()
         self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
         self.log.info("new domains: {}".format(new_domains))
@@ -137,11 +137,23 @@ class CertificateGenerator:
 
         self.nginx.reload_public()
 
-    def is_default_certificate_installed(self):
+    def is_real_certificate_installed(self):
         cert = crypto.load_certificate(
             crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
-        return cert.get_issuer().CN == cert.get_subject().CN or 'Fake' in cert.get_issuer().CN
-
+        if cert.get_issuer().CN == cert.get_subject().CN:
+            self.log.info('issuer: {0}'.format(cert.get_issuer().CN))
+            self.log.info('self signed certificate')
+            return False
+        
+        if 'Fake' in cert.get_issuer().CN:
+            self.log.info('issuer: {0}'.format(cert.get_issuer().CN))
+            self.log.info('test certificate')
+            return False
+        
+        self.log.info('real certificate')
+        self.log.info('issuer: {0}, subject: {1}'.format(cert.get_issuer().CN, cert.get_subject().CN))
+        return True
+            
     def init_certificate(self):
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
 
