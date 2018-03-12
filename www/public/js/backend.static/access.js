@@ -33,6 +33,20 @@ backend.network_interfaces_data = {
         },
         "success": true
     };
+backend.port_mappings_data = {
+        "port_mappings": [
+             {
+                 "local_port": 80,
+                 "external_port": 10000                   
+             },
+             {
+                 "local_port": 443,
+                 "external_port": 10001                     
+             }
+                    
+        ],
+        "success": true
+    };
 
 backend.check_access = function (on_complete, on_error) {
         var that = this;
@@ -70,4 +84,9 @@ backend.set_access = function (upnp_enabled,
 backend.network_interfaces = function (on_complete, on_error) {
         var that = this;
         setTimeout(function () { on_complete(that.network_interfaces_data); }, 2000);
+    };
+    
+backend.port_mappings = function (on_complete, on_error) {
+        var that = this;
+        setTimeout(function () { on_complete(that.port_mappings_data); }, 2000);
     };

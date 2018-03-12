@@ -76,16 +76,16 @@
 
 				<div class="col2">
 
-					<h3>Local Info</h3>
+					<h3>Network</h3>
                     <div class="setline">
                         <div id="block_network"></div>
                     </div>
 
 				</div>
 
-                <div class="col2">
+   <div class="col2">
 
-					<h3>Public Info</h3>
+					<h3>Router</h3>
 
                     <div class="setline">
                         <span class="span" id="label_upnp"></span>
@@ -116,6 +116,11 @@
                             <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
                         </div>
 					</div>
+					
+					<div class="setline">
+					      <h3>Port mappings</h3>
+         <div id="block_port_mappings"></div>
+   </div>
 
 				</div>
 
@@ -233,6 +238,29 @@
     <% } %>
 </script>
 
+<script type="text/html" id='template-port-mappings'>
+
+    <%
+		  if (port_mappings.length == 0) {
+    %>
+
+		       <span class="span">No ports mapped</span>
+
+    <% } %>
+
+    <%
+    for (i=0; i < port_mappings.length; i++) {
+        var port_mapping = port_mappings[i];
+    %>
+
+        <div class="setline">
+				         <span class="span"><%= port_mapping.external_port %> -> <%= port_mapping.local_port %></span>
+        </div>
+        
+    <% } %>
+</script>
+
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -254,6 +282,11 @@ ui_display_toggles();
 function ui_display_network(data) {
     var template = $("#template-network").html();
     $("#block_network").html(_.template(template)(data.data));
+}
+
+function ui_display_port_mappings(data) {
+    var template = $("#template-port-mappings").html();
+    $("#block_port_mappings").html(_.template(template)(data));
 }
 
 function ui_display_access(data) {
@@ -300,6 +333,10 @@ function ui_check_access() {
 
 function ui_check_network() {
     backend.network_interfaces(ui_display_network, ui_display_error);
+}
+
+function ui_check_port_mappings() {
+    backend.port_mappings(ui_display_port_mappings, ui_display_error);
 }
 
 function ui_prepare_address() {
@@ -361,6 +398,7 @@ $(document).ready(function () {
 
     ui_check_access();
     ui_check_network();
+    ui_check_port_mappings();
 
 });
 

@@ -21,3 +21,7 @@ backend.set_access = function(
 backend.network_interfaces = function(on_complete, on_error) {
         $.get('/rest/access/network_interfaces').done(on_complete).fail(on_error);
     };
+    
+backend.port_mappings = function(on_complete, on_error) {
+        $.get('/rest/access/port_mappings').done(on_complete).fail(on_error);
+    };

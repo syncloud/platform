@@ -142,6 +142,12 @@ def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
+@app.route(rest_prefix + "/access/port_mappings", methods=["GET"])
+@login_required
+def port_mappings():
+    retuen jsonify(success=True, port_mappings=public.port_mappings()), 200
+    
+
 @app.route(rest_prefix + "/access/access", methods=["GET"])
 @login_required
 def access():

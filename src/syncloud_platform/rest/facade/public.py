@@ -63,6 +63,9 @@ class Public:
     def available_apps(self):
         return [app_from_sam_app(a) for a in self.sam.user_apps() if a.app.enabled]
 
+    def port_mappings(self):
+        return self.port_config.load()
+    
     def access(self):
     
         upnp_enabled = self.user_platform_config.get_upnp()
