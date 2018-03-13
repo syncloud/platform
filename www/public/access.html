@@ -87,21 +87,11 @@
 
 					<h3>Router</h3>
 
-                    <div class="setline">
-                        <span class="span" id="label_upnp"></span>
-                    </div>
+       <div class="setline">
+            <span class="span" id="label_upnp"></span>
+       </div>
 
-                    <div class="setline">
-						<span class="span">Always use auto port mapping:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
-						</div>
-					</div>
-
-                    <div class="setline" id="public_address" style="display: none">
-                        <span class="span">Public address:</span> <span style='white-space: nowrap;' ><input placeholder="Public IP" name="public_ip" id="public_ip" type="text" style="width: 150px; height: 30px; padding: 0 10px 0 10px"> : <input placeholder="Port" name="public_port" id="public_port" type="text" style="display:inline; width: 70px; height: 30px; padding: 0 10px 0 10px "></span>
-                    </div>
+      
                     
 					<div class="setline">
 						<span class="span">External Access:</span>
@@ -110,18 +100,37 @@
 							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
 						</div>
 					</div>
-
-                    <div class="setline">
-                        <div class="spandiv">
-                            <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
-                        </div>
-					</div>
 					
 					<div class="setline">
-					      <h3>Port mappings</h3>
+			      			<span class="span">Auto detect IP:</span>
+				  		    <div class="spandiv">
+						        	<input type="checkbox" id="tgl_ip_autodetect" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+							        <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_ip_autodetect_loading"></i>
+				      		</div>
+		 		</div>
+
+      <div class="setline" id="public_address" style="display: none">
+           <span class="span">Public IP:</span> <span style='white-space: nowrap;' ><input name="public_ip" id="public_ip" type="text" style="width: 150px; height: 30px; padding: 0 10px 0 10px"></span>
+      </div>
+      
+					<div class="setline">
+					      <h3>External ports</h3>
+					      <span class="span">Auto (UPnP) mode:</span>
+				  		    <div class="spandiv">
+						        	<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+							        <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
+				      		</div>
+				</div>
+				<div class="setline">
          <div id="block_port_mappings"></div>
    </div>
-
+   
+   <div class="setline">
+         <div class="spandiv">
+               <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
+         </div>
+					</div>
+					
 				</div>
 
 			</div>
@@ -152,7 +161,7 @@
 </div>
 
 
-<!-- Create your template -->
+<!-- Templates -->
 <script type="text/html" id='template-network'>
 
     <%
@@ -241,7 +250,7 @@
 <script type="text/html" id='template-port-mappings'>
 
     <%
-		  if (port_mappings.length == 0) {
+		   if (port_mappings.length == 0) {
     %>
 
 		       <span class="span">No ports mapped</span>
@@ -249,8 +258,49 @@
     <% } %>
 
     <%
-    for (i=0; i < port_mappings.length; i++) {
-        var port_mapping = port_mappings[i];
+    certificate_port = _.find(port_mappings, function(mapping) {return mapping.local_port == 80;});
+    if (certificate_port) {
+    %>
+
+        <div class="setline">
+				         <span class="span">External certificate port: <%= certificate_port.external_port %></span>
+        </div>
+        
+    <%
+        if (certificate_port.external_port != 80) {
+        %>
+
+            <div class="setline">
+				             <span class="span" style="color: red">Certificate can only be obtained if external port is 80. it is only used for certificate validation purposes.</span>
+            </div>
+        
+        <%
+        }
+    }
+    
+    access_port = _.find(port_mappings, function(mapping) {return mapping.local_port == 443;});
+    if (access_port) {
+    %>
+
+        <div class="setline">
+				         <span class="span">External access port: <%= access_port.external_port %></span>
+        </div>
+        
+    <%
+        if (access_port.external_port != 443) {
+        %>
+
+            <div class="setline">
+				             <span class="span" style="color: red">Access port is not default 443 port. Device will be accessible, but browsers will show warning.</span>
+            </div>
+        
+        <%
+        }
+    }
+    
+    other_ports = _.filter(port_mappings, function (mapping) { return !_.contains([80, 443], mapping.local_port); });
+    for (i=0; i < other_ports.length; i++) {
+        var port_mapping = other_ports[i];
     %>
 
         <div class="setline">

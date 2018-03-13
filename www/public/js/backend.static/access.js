@@ -37,7 +37,7 @@ backend.port_mappings_data = {
         "port_mappings": [
              {
                  "local_port": 80,
-                 "external_port": 10000                   
+                 "external_port": 80                 
              },
              {
                  "local_port": 443,
