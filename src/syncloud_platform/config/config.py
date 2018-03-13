@@ -5,7 +5,8 @@ from syncloud_app import logger
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
 PLATFORM_CONFIG_DIR = '/opt/data/platform/config'
-WEB_PORT = 443
+WEB_CERTIFICATE_PORT = 80
+WEB_ACCESS_PORT = 443
 WEB_PROTOCOL = 'https'
 
 
@@ -248,12 +249,13 @@ class PlatformUserConfig:
         self.__set('platform', 'redirect_enabled', enabled)
         self.__save()
 
-    def update_device_access(self, upnp_enabled, external_access, public_ip, public_port):
+    def update_device_access(self, upnp_enabled, external_access, public_ip, manual_certificate_port, manual_access_port):
         self.parser.read(self.filename)
         self.__set('platform', 'external_access', external_access)
         self.__set('platform', 'upnp', upnp_enabled)
         self.__set('platform', 'public_ip', public_ip)
-        self.__set('platform', 'manual_public_port', public_port)
+        self.__set('platform', 'manual_certificate_port', manual_certificate_port)
+        self.__set('platform', 'manual_access_port', manual_access_port)
         self.__save()
 
     def get_upnp(self):
@@ -268,11 +270,17 @@ class PlatformUserConfig:
             return None
         return self.parser.get('platform', 'public_ip')
 
-    def get_manual_public_port(self):
+    def get_manual_certificate_port(self):
         self.parser.read(self.filename)
-        if not self.parser.has_option('platform', 'manual_public_port'):
+        if not self.parser.has_option('platform', 'manual_certificate_port'):
             return None
-        return self.parser.get('platform', 'manual_public_port')
+        return self.parser.get('platform', 'manual_certificate_port')
+
+    def get_manual_access_port(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'manual_access_port'):
+            return None
+        return self.parser.get('platform', 'manual_access_port')
 
     def __set(self, section, key, value):
         if not self.parser.has_section(section):

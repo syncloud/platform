@@ -123,14 +123,14 @@ class PortDrillFactory:
         self.user_platform_config = user_platform_config
         self.port_mapper_factory = port_mapper_factory
 
-    def get_drill(self, upnp_enabled, external_access, manual_public_ip, manual_public_port):
+    def get_drill(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         if not external_access:
             return NonePortDrill()
         drill = None
         if upnp_enabled:
             mapper = self.port_mapper_factory.provide_mapper()
         else:
-            mapper = ManualPortMapper(manual_public_ip, manual_public_port)
+            mapper = ManualPortMapper(manual_public_ip, manual_certificate_port, manual_access_port)
         
         if mapper:
             prober = self._get_port_prober()

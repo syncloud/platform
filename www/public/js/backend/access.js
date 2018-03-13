@@ -6,7 +6,8 @@ backend.set_access = function(
         upnp_enabled,
         external_access,
         public_ip,
-        public_port,
+        certificate_port,
+        access_port,
         on_complete,
         on_error) {
         
@@ -14,7 +15,8 @@ backend.set_access = function(
             upnp_enabled: upnp_enabled,
             external_access: external_access,
             public_ip: public_ip,
-            public_port: public_port
+            certificate_port: certificate_port,
+            access_port: access_port
         }).done(on_complete).fail(on_error);
     };
     

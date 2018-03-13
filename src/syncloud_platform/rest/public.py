@@ -145,7 +145,7 @@ def available_apps():
 @app.route(rest_prefix + "/access/port_mappings", methods=["GET"])
 @login_required
 def port_mappings():
-    retuen jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
+    return jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
     
 
 @app.route(rest_prefix + "/access/access", methods=["GET"])
@@ -161,7 +161,8 @@ def set_access():
         request.args['upnp_enabled'] == 'true',
         request.args['external_access'] == 'true',
         request.args['public_ip'],
-        int(request.args['public_port'])
+        int(request.args['certificate_port']),
+        int(request.args['access_port'])
     )
     return jsonify(success=True), 200
 

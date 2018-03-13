@@ -1,15 +1,14 @@
 from syncloud_app import logger
 
 from syncloud_platform.gaplib.linux import pgrep, run_detached
-from syncloud_platform.insider.util import secure_to_protocol, protocol_to_port
 from syncloud_platform.rest.model.app import app_from_sam_app
 from syncloud_platform.control import power
-from syncloud_platform.config.config import WEB_PORT
 
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service, log_aggregator, certbot_generator, port_mapper_factory, network, port_config):
+    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service,
+                 log_aggregator, certbot_generator, port_mapper_factory, network, port_config):
         self.port_config = port_config
         self.hardware = hardware
         self.platform_config = platform_config
@@ -77,22 +76,14 @@ class Public:
             upnp_message = 'Your router does not have port mapping feature enabled at the moment'
         manual_public_ip = self.user_platform_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
-        existing_public_port = self.__get_existing_public_port()
         return dict(external_access=external_access,
                     upnp_available=upnp_available,
                     upnp_enabled=upnp_enabled,
                     upnp_message=upnp_message,
-                    public_ip=manual_public_ip,
-                    public_port=existing_public_port)
+                    public_ip=manual_public_ip)
 
-    def __get_existing_public_port(self):
-        mapping = self.port_config.get(WEB_PORT, 'TCP')
-        if mapping:
-            return mapping.external_port
-        return None
-
-    def set_access(self, upnp_enabled, external_access, public_ip, public_port):
-        self.device.set_access(upnp_enabled, external_access, public_ip, public_port)
+    def set_access(self, upnp_enabled, external_access, public_ip, certificate_port, access_port):
+        self.device.set_access(upnp_enabled, external_access, public_ip, certificate_port, access_port)
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)

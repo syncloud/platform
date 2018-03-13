@@ -5,7 +5,7 @@ backend.access_data = {
             "upnp_available": false,
             "upnp_enabled": true,
             "upnp_message": "Your router does not have port mapping feature enabled at the moment",
-            "public_ip": null
+            "public_ip": "111.111.111.111"
         },
         "success": true
     };
@@ -56,7 +56,8 @@ backend.check_access = function (on_complete, on_error) {
 backend.set_access = function (upnp_enabled,
                                external_access,
                                public_ip,
-                               public_port,
+                               certificate_port,
+                               access_port,
                                on_complete,
                                on_error) {
         var that = this;
@@ -65,7 +66,8 @@ backend.set_access = function (upnp_enabled,
                 that.access_data.data.external_access = external_access;
                 that.access_data.data.upnp_enabled = upnp_enabled;
                 that.access_data.data.public_ip = public_ip;
-                that.access_data.data.public_port = public_port;
+                that.port_mappings_data.port_mappings[0].external_port = certificate_port;
+                that.port_mappings_data.port_mappings[1].external_port = access_port;
                 on_complete({success: true});
             } else {
                 var xhr = {
