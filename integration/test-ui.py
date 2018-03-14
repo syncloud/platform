@@ -100,6 +100,16 @@ def test_access(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
+def test_app_center(driver, device_host):
+
+    driver.get("http://{0}/appcenter.html".format(device_host))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'appcenter')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+
 def screenshots(driver, dir, name):
     desktop_w = 1280
     desktop_h = 2000

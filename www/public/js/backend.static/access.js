@@ -66,8 +66,13 @@ backend.set_access = function (upnp_enabled,
                 that.access_data.data.external_access = external_access;
                 that.access_data.data.upnp_enabled = upnp_enabled;
                 that.access_data.data.public_ip = public_ip;
-                that.port_mappings_data.port_mappings[0].external_port = certificate_port;
-                that.port_mappings_data.port_mappings[1].external_port = access_port;
+                if (upnp_enabled) {
+                    that.port_mappings_data.port_mappings[0].external_port = 81;
+                    that.port_mappings_data.port_mappings[1].external_port = 444;
+                } else {
+                    that.port_mappings_data.port_mappings[0].external_port = certificate_port;
+                    that.port_mappings_data.port_mappings[1].external_port = access_port;
+                }
                 on_complete({success: true});
             } else {
                 var xhr = {
