@@ -159,7 +159,7 @@
    
                    <div class="setline">
                          <div class="spandiv">
-                               <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
+                               <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..." style="width: 150px">Save</button>
                          </div>
 					</div>
 					
@@ -369,6 +369,9 @@ function disable_access_controls(disabled) {
     $('#tgl_external').bootstrapSwitch('disabled', disabled);
     $('#tgl_ip_autodetect').bootstrapSwitch('disabled', disabled);
     $('#tgl_upnp').bootstrapSwitch('disabled', disabled);
+    $('#public_ip').prop('disabled', disabled);
+    $('#certificate_port').prop('disabled', disabled);
+    $('#access_port').prop('disabled', disabled);
 }
 
 function ui_check_access() {
