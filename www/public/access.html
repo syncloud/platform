@@ -126,34 +126,29 @@
                         </div>
 
                         <div class="setline">
-                            <span class="span">External certificate <span style='white-space: nowrap;' > HTTP port 80:
-                                <input name="certificate_port" id="certificate_port" type="text"
-                                       style="width: 80px; height: 30px; padding: 0 10px 0 10px"></span>
+                            <span class="span">External certificate
+                                <span style='white-space: nowrap;' > HTTP port 80:
+                                    <input name="certificate_port" id="certificate_port" type="text"
+                                           style="width: 80px; height: 30px; padding: 0 10px 0 10px">
+                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button style="vertical-align: super; background:transparent;">
+                                        <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                                    </button>
+                                </span>
                             </span>
-                        </div>
-
-                        <div class="setline" id="certificate_port_warning" style="display: none">
-                            <span class="span" style="color: red">
-                                Certificate can only be obtained if external port is 80.
-                                It is only used for certificate validation purposes.
-                            </span>
+                            
                         </div>
 
                         <div class="setline">
-                            <span class="span">External access <span style='white-space: nowrap;' > HTTPS port 443:
-                                <input name="access_port" id="access_port" type="text"
-                                       style="width: 80px; height: 30px; padding: 0 10px 0 10px"/></span>
+                            <span class="span">External access
+                                <span style='white-space: nowrap;' > HTTPS port 443:
+                                    <input name="access_port" id="access_port" type="text"
+                                           style="width: 80px; height: 30px; padding: 0 10px 0 10px"/>
+                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button style="vertical-align: super; background:transparent;">
+                                        <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                                    </button>
+                                </span>
                             </span>
                         </div>
-
-
-                        <div class="setline" id="access_port_warning" style="display: none">
-                            <span class="span" style="color: red">
-                                Access port is not default 443.
-                                You may not be able to access your device from networks with strict firewalls allowing only port 443.
-                            </span>
-                        </div>
-
 
                     </div>
    
@@ -192,6 +187,50 @@
   </div>
 </div>
 
+<div id="help_certificate_port_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Certificate warning</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						Certificate can only be obtained if external port is 80.
+    It is only used for certificate validation purposes.
+   </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="help_access_port_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Access port warning</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						Access port is not default 443.
+    You may not be able to access your device from networks with strict firewalls allowing only port 443.
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Templates -->
 <script type="text/html" id='template-network'>
@@ -337,8 +376,15 @@ function ui_display_access(data) {
     $("#tgl_external_loading").removeClass('opacity-visible');
    
     $('#tgl_ip_autodetect').bootstrapSwitch('disabled', false);
-    $('#tgl_ip_autodetect').bootstrapSwitch('state', access_data.ip_autodetect);
+    
     $("#tgl_ip_autodetect_loading").removeClass('opacity-visible');
+    
+    ip_autodetect_enabled = false;
+    if (access_data.public_ip == 0) {
+        ip_autodetect_enabled = true;
+    }
+    $('#tgl_ip_autodetect').bootstrapSwitch('state', ip_autodetect_enabled);
+    $("#public_ip").val(access_data.public_ip);
 
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
     $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
@@ -351,10 +397,8 @@ function ui_display_access(data) {
     } else {
         $("#label_upnp").css("color", "red");
     }
-    $("#public_ip").val(access_data.public_ip);
-
+    
     $("#btn_save").button('reset');
-    //disable_access_controls(false);
 
     $('#tgl_external').bootstrapSwitch('disabled', false);
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
