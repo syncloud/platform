@@ -4,7 +4,7 @@ backend.access_data = {
             "external_access": true,
             "upnp_available": false,
             "upnp_enabled": true,
-            "upnp_message": "Your router does not have port mapping feature enabled at the moment",
+            "upnp_message": "not used",
             "public_ip": "111.111.111.111"
         },
         "success": true

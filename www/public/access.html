@@ -88,10 +88,6 @@
                     <h3>Router</h3>
 
                     <div class="setline">
-                        <span class="span" id="label_upnp"></span>
-                    </div>
-
-                    <div class="setline">
                         <span class="span">External Access:</span>
                         <div class="spandiv">
                             <input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
@@ -122,6 +118,9 @@
                             <div class="spandiv">
                                 <input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
                                 <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
+                                <button id="upnp_warning" data-toggle="modal" data-target="#help_upnp_warning" type=button style="background:transparent;">
+                                    <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                                </button>
                             </div>
                         </div>
 
@@ -130,7 +129,7 @@
                                 <span style='white-space: nowrap;' > HTTP port 80:
                                     <input name="certificate_port" id="certificate_port" type="text"
                                            style="width: 80px; height: 30px; padding: 0 10px 0 10px">
-                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button style="vertical-align: super; background:transparent;">
+                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button style="background:transparent;">
                                         <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                                     </button>
                                 </span>
@@ -143,7 +142,7 @@
                                 <span style='white-space: nowrap;' > HTTPS port 443:
                                     <input name="access_port" id="access_port" type="text"
                                            style="width: 80px; height: 30px; padding: 0 10px 0 10px"/>
-                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button style="vertical-align: super; background:transparent;">
+                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button style="background:transparent;">
                                         <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                                     </button>
                                 </span>
@@ -221,6 +220,28 @@
 					<div class="btext">
 						Access port is not default 443.
     You may not be able to access your device from networks with strict firewalls allowing only port 443.
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="help_upnp_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">UPnP is not available</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						Your router does not have port mapping feature enabled.
 					</div>
 
 				</div>
@@ -390,7 +411,11 @@ function ui_display_access(data) {
     $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
     $("#tgl_upnp_loading").removeClass('opacity-visible');
 
-    $("#label_upnp").html(access_data.upnp_message);
+    if (access_data.upnp_available) {
+        $("#upnp_warning").hide('slow');
+    } else {
+        $("#upnp_warning").show('slow');
+    }
     
     if (access_data.upnp_available) {
         $("#label_upnp").css("color", "black");

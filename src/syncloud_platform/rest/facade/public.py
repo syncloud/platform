@@ -70,16 +70,12 @@ class Public:
         upnp_enabled = self.user_platform_config.get_upnp()
         mapper = self.port_mapper_factory.provide_mapper()
         upnp_available = mapper is not None
-        if upnp_available:
-            upnp_message = 'Your router has {0} enabled, public ip: {1}'.format(mapper.name(),  mapper.external_ip())
-        else:
-            upnp_message = 'Your router does not have port mapping feature enabled at the moment'
         manual_public_ip = self.user_platform_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
         return dict(external_access=external_access,
                     upnp_available=upnp_available,
                     upnp_enabled=upnp_enabled,
-                    upnp_message=upnp_message,
+                    upnp_message='not used',
                     public_ip=manual_public_ip)
 
     def set_access(self, upnp_enabled, external_access, public_ip, certificate_port, access_port):
