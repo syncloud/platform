@@ -1,4 +1,3 @@
-import filecmp
 import os
 import shutil
 import subprocess
@@ -11,10 +10,10 @@ from syncloud_app import util
 from syncloud_app.logger import get_logger
 
 
-class Tls:
+class CertificateGenerator:
     def __init__(self, platform_config, user_platform_config, info, nginx, certbot_generator):
         self.info = info
-        self.log = get_logger('tls')
+        self.log = get_logger('certificate_generator')
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.nginx = nginx
@@ -24,7 +23,7 @@ class Tls:
     def generate_real_certificate(self):
 
         days_until_expiry = self.certbot_generator.days_until_expiry()
-        real_cert = not self.is_default_certificate_installed()
+        real_cert = self.is_real_certificate_installed()
         new_domains = self.certbot_generator.new_domains()
         self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
         self.log.info("new domains: {}".format(new_domains))
@@ -36,20 +35,24 @@ class Tls:
             self.log.info('running certbot')
             result = self.certbot_generator.generate_certificate(self.platform_config.is_certbot_test_cert())
 
-            if result.regenerated:
-                if os.path.exists(self.platform_config.get_ssl_certificate_file()):
-                    os.remove(self.platform_config.get_ssl_certificate_file())
-                os.symlink(result.certificate_file, self.platform_config.get_ssl_certificate_file())
+            self.log.info('activating real certificate')
+            
+            if os.path.exists(self.platform_config.get_ssl_certificate_file()):
+                os.remove(self.platform_config.get_ssl_certificate_file())
+            os.symlink(result.certificate_file, self.platform_config.get_ssl_certificate_file())
 
-                if os.path.exists(self.platform_config.get_ssl_key_file()):
-                    os.remove(self.platform_config.get_ssl_key_file())
-                os.symlink(result.key_file, self.platform_config.get_ssl_key_file())
+            if os.path.exists(self.platform_config.get_ssl_key_file()):
+                os.remove(self.platform_config.get_ssl_key_file())
+            os.symlink(result.key_file, self.platform_config.get_ssl_key_file())
 
-                self.nginx.reload_public()
+            self.nginx.reload_public()
 
         except CalledProcessError, e:
-            self.log.warn('unable to generate real certificate: {0}'.format(e))
+            self.log.warn('unable to generate real certificate (process exceptuon): {0}'.format(e))
             self.log.warn(e.output)
+        except Exception, e:
+            self.log.warn('error')
+            self.log.exception(e)
 
     def generate_self_signed_certificate(self):
 
@@ -134,14 +137,33 @@ class Tls:
 
         self.nginx.reload_public()
 
-    def is_default_certificate_installed(self):
-        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
-        return cert.get_issuer().CN == cert.get_subject().CN
-
+    def is_real_certificate_installed(self):
+        cert = crypto.load_certificate(
+            crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
+        if cert.get_issuer().CN == cert.get_subject().CN:
+            self.log.info('issuer: {0}'.format(cert.get_issuer().CN))
+            self.log.info('self signed certificate')
+            return False
+        
+        if 'Fake' in cert.get_issuer().CN:
+            self.log.info('issuer: {0}'.format(cert.get_issuer().CN))
+            self.log.info('test certificate')
+            return False
+        
+        self.log.info('real certificate')
+        self.log.info('issuer: {0}, subject: {1}'.format(cert.get_issuer().CN, cert.get_subject().CN))
+        return True
+            
     def init_certificate(self):
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
-            shutil.copy(self.platform_config.get_default_ssl_certificate_file(), self.platform_config.get_ssl_certificate_file())
-            shutil.copy(self.platform_config.get_default_ssl_key_file(), self.platform_config.get_ssl_key_file())
+
+            shutil.copy(
+                self.platform_config.get_default_ssl_certificate_file(),
+                self.platform_config.get_ssl_certificate_file())
+
+            shutil.copy(
+                self.platform_config.get_default_ssl_key_file(),
+                self.platform_config.get_ssl_key_file())
 
 
 def certificate_is_valid(days_until_expiry, new_domains):

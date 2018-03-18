@@ -6,6 +6,7 @@ from syncloud_platform.insider.port_prober import PortProber, NoneProber
 from syncloud_platform.insider.util import port_to_protocol, is_web_port
 from IPy import IP
 
+
 class PortDrill:
     def __init__(self, port_config, port_mapper, port_prober):
         self.port_prober = port_prober
@@ -71,11 +72,12 @@ class PortDrill:
 
         mapping = Port(local_port, found_external_port, protocol)
         self.port_config.add_or_update(mapping)
+        return mapping
 
     def sync_new_port(self, local_port, protocol):
-        self.sync_one_mapping(local_port, protocol)
+        return self.sync_one_mapping(local_port, protocol)
 
-    def sync(self):
+    def sync_existing_ports(self):
         for mapping in self.list():
             self.sync_one_mapping(mapping.local_port, mapping.protocol)
 
@@ -121,14 +123,14 @@ class PortDrillFactory:
         self.user_platform_config = user_platform_config
         self.port_mapper_factory = port_mapper_factory
 
-    def get_drill(self, upnp_enabled, external_access, manual_public_ip, manual_public_port):
+    def get_drill(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         if not external_access:
             return NonePortDrill()
         drill = None
         if upnp_enabled:
             mapper = self.port_mapper_factory.provide_mapper()
         else:
-            mapper = ManualPortMapper(manual_public_ip, manual_public_port)
+            mapper = ManualPortMapper(manual_public_ip, manual_certificate_port, manual_access_port)
         
         if mapper:
             prober = self._get_port_prober()

@@ -142,6 +142,12 @@ def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
+@app.route(rest_prefix + "/access/port_mappings", methods=["GET"])
+@login_required
+def port_mappings():
+    return jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
+    
+
 @app.route(rest_prefix + "/access/access", methods=["GET"])
 @login_required
 def access():
@@ -153,10 +159,10 @@ def access():
 def set_access():
     public.set_access(
         request.args['upnp_enabled'] == 'true',
-        request.args['is_https'] == 'true',
         request.args['external_access'] == 'true',
         request.args['public_ip'],
-        int(request.args['public_port'])
+        int(request.args['certificate_port']),
+        int(request.args['access_port'])
     )
     return jsonify(success=True), 200
 

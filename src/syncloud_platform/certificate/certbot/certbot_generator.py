@@ -7,7 +7,7 @@ from datetime import datetime
 from os import path
 from syncloud_app.logger import get_logger
 
-from syncloud_platform.certbot.certbot_result import CertbotResult
+from syncloud_platform.certificate.certbot.certbot_result import CertbotResult
 from OpenSSL import crypto
 from urllib3.contrib.pyopenssl import get_subj_alt_name
 
@@ -49,33 +49,30 @@ class CertbotGenerator:
 
         test_cert = ''
         if is_test_cert:
-            test_cert = '--test-cert'
+            test_cert = '--test-cert --break-my-certs'
 
-        # TODO: Not sure if we need webroot as it supports only http way of getting certificates
-        # So it is possible to get real certificates while device is in external http mode
-        # and later use them when switched to https
         plugin = '--webroot --webroot-path {0}'.format(self.platform_config.www_root_public())
-        if self.user_platform_config.is_https():
-            plugin = '--nginx --nginx-server-root {0} --nginx-ctl {1}'.format(
-                self.platform_config.nginx_config_dir(),
-                self.platform_config.nginx())
 
         try:
 
             output = check_output(
-                '{0} --logs-dir={1} --config-dir={2} --agree-tos '
-                '--email {3} certonly --force-renewal {4} '
-                '{5} {6} '.format(
+                '{0} --logs-dir={1} --max-log-backups 5 --config-dir={2} --agree-tos '
+                '--email {3} certonly --force-renewal --cert-name {4} '
+                '{5} {6} {7} '.format(
                     self.certbot_bin, self.log_dir, self.certbot_config_dir,
-                    self.user_platform_config.get_user_email(), test_cert,
-                    plugin, domain_args
+                    self.user_platform_config.get_user_email(), self.info.domain(),
+                    test_cert, plugin, domain_args
                 ), stderr=subprocess.STDOUT, shell=True)
 
             self.log.info(output)
-            check_output('chmod 755 {0}/archive'.format(self.certbot_config_dir))
-            check_output('chmod 755 {0}/live'.format(self.certbot_config_dir))
-            regenerated = 'no action taken' not in output
-            return CertbotResult(self.certbot_certificate_file, self.certbot_key_file, regenerated)
+            archive_dir = join(self.certbot_config_dir, 'archive')
+            if path.exists(archive_dir):
+                check_output('chmod 755 {0}'.format(archive_dir), shell=True)
+            live_dir = join(self.certbot_config_dir, 'live')
+            if path.exists(live_dir):
+                check_output('chmod 755 {0}'.format(live_dir), shell=True)
+
+            return CertbotResult(self.certbot_certificate_file, self.certbot_key_file)
 
         except subprocess.CalledProcessError, e:
             self.log.warn(e.output)
@@ -96,8 +93,10 @@ class CertbotGenerator:
 
         current_domains = domain_list_sorted(self.sam.list(), self.info.domain())
 
-        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file).read())
-        cert_domains = get_subj_alt_name(cert)
+        cert_domains = []
+        if path.isfile(self.certbot_certificate_file):
+            cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file).read())
+            cert_domains = get_subj_alt_name(cert)
 
         return get_new_domains(current_domains, cert_domains)
 

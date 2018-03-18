@@ -74,55 +74,89 @@
 			<h1>Access</h1>
 			<div class="row settingsblock">
 
-				<div class="col2">
+                <div class="col2">
 
-					<h3>Local Info</h3>
+                    <h3>Network</h3>
                     <div class="setline">
                         <div id="block_network"></div>
                     </div>
 
-				</div>
+                </div>
 
                 <div class="col2">
 
-					<h3>Public Info</h3>
+                    <h3>Router</h3>
 
                     <div class="setline">
-                        <span class="span" id="label_upnp"></span>
-                    </div>
-
-                    <div class="setline">
-						<span class="span">Always use auto port mapping:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
-						</div>
-					</div>
-
-                    <div class="setline" id="public_address" style="display: none">
-                        <span class="span">Public address:</span> <span style='white-space: nowrap;' ><input placeholder="Public IP" name="public_ip" id="public_ip" type="text" style="width: 150px; height: 30px; padding: 0 10px 0 10px"> : <input placeholder="Port" name="public_port" id="public_port" type="text" style="display:inline; width: 70px; height: 30px; padding: 0 10px 0 10px "></span>
-                    </div>
-                    
-					<div class="setline">
-						<span class="span">External Access:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
-						</div>
-					</div>
-					<div class="setline">
-						<span class="span">Access Protocol:</span>
-						<div class="spandiv">
-							<input type="checkbox" id="tgl_protocol" data-on-text="HTTPS" data-off-text="HTTP" data-label-width="8"/>
-							<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_protocol_loading"></i>
-						</div>
-                    </div>
-                    <div class="setline">
+                        <span class="span">External Access:</span>
                         <div class="spandiv">
-                            <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving..." style="width: 150px">Save</button>
+                            <input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+                            <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
                         </div>
-					</div>
+                    </div>
+                    <div id="external_block" style="display: none">
+                        <div class="setline">
+                            <span class="span">Auto detect IP:</span>
+                            <div class="spandiv">
+                                <input type="checkbox" id="tgl_ip_autodetect" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+                                <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_ip_autodetect_loading"></i>
+                            </div>
+                        </div>
 
+                        <div class="setline">
+                            <span class="span">Public IP:</span>
+                            <input name="public_ip" id="public_ip" type="text"
+                                   style="width: 150px; height: 30px; padding: 0 10px 0 10px">
+                        </div>
+
+                        <div class="setline">
+                            <h3>External ports</h3>
+                        </div>
+
+                        <div class="setline">
+                            <span class="span">Auto mode (UPnP):</span>
+                            <div class="spandiv">
+                                <input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+                                <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
+                                <button id="upnp_warning" data-toggle="modal" data-target="#help_upnp_warning" type=button style="background:transparent;">
+                                    <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="setline">
+                            <span class="span">External certificate
+                                <span style='white-space: nowrap;' > HTTP port 80:
+                                    <input name="certificate_port" id="certificate_port" type="text"
+                                           style="width: 80px; height: 30px; padding: 0 10px 0 10px">
+                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button style="background:transparent;">
+                                        <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                                    </button>
+                                </span>
+                            </span>
+                            
+                        </div>
+
+                        <div class="setline">
+                            <span class="span">External access
+                                <span style='white-space: nowrap;' > HTTPS port 443:
+                                    <input name="access_port" id="access_port" type="text"
+                                           style="width: 80px; height: 30px; padding: 0 10px 0 10px"/>
+                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button style="background:transparent;">
+                                        <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                                    </button>
+                                </span>
+                            </span>
+                        </div>
+
+                    </div>
+   
+                   <div class="setline">
+                         <div class="spandiv">
+                               <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..." style="width: 150px">Save</button>
+                         </div>
+					</div>
+					
 				</div>
 
 			</div>
@@ -152,8 +186,74 @@
   </div>
 </div>
 
+<div id="help_certificate_port_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Certificate warning</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						Certificate can only be obtained if external port is 80.
+    It is only used for certificate validation purposes.
+   </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
-<!-- Create your template -->
+<div id="help_access_port_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">Access port warning</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						Access port is not default 443.
+    You may not be able to access your device from networks with strict firewalls allowing only port 443.
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="help_upnp_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">UPnP is not available</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						Your router does not have port mapping feature enabled.
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Templates -->
 <script type="text/html" id='template-network'>
 
     <%
@@ -262,95 +362,185 @@ function ui_display_network(data) {
     $("#block_network").html(_.template(template)(data.data));
 }
 
+function ui_display_port_mappings(data) {
+
+    certificate_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 80;});
+    certificate_port = 0;
+    if (certificate_port_mapping) {
+        certificate_port = certificate_port_mapping.external_port;
+    }
+    $("#certificate_port").val(certificate_port);
+    if (certificate_port != 80) {
+        $("#certificate_port_warning").show('slow');
+    } else {
+        $("#certificate_port_warning").hide('slow');
+    }
+
+    access_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 443;});
+    access_port = 0;
+    if (access_port_mapping) {
+        access_port = access_port_mapping.external_port
+    }
+    $("#access_port").val(access_port);
+    if (access_port != 443) {
+        $("#access_port_warning").show('slow');
+    } else {
+        $("#access_port_warning").hide('slow');
+    }
+
+}
+
 function ui_display_access(data) {
     var access_data = data.data;
     $('#tgl_external').bootstrapSwitch('disabled', false);
     $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $("#tgl_external_loading").removeClass('opacity-visible');
    
-    $('#tgl_protocol').bootstrapSwitch('disabled', false);
-    $('#tgl_protocol').bootstrapSwitch('state', access_data.is_https, true);
-    $("#tgl_protocol_loading").removeClass('opacity-visible');
+    $('#tgl_ip_autodetect').bootstrapSwitch('disabled', false);
+    
+    $("#tgl_ip_autodetect_loading").removeClass('opacity-visible');
+    
+    ip_autodetect_enabled = false;
+    if (access_data.public_ip == 0) {
+        ip_autodetect_enabled = true;
+    }
+    $('#tgl_ip_autodetect').bootstrapSwitch('state', ip_autodetect_enabled);
+    $("#public_ip").val(access_data.public_ip);
 
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
     $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
     $("#tgl_upnp_loading").removeClass('opacity-visible');
-  
-    $("#label_upnp").html(access_data.upnp_message);
+
+    if (access_data.upnp_available) {
+        $("#upnp_warning").hide('slow');
+    } else {
+        $("#upnp_warning").show('slow');
+    }
     
     if (access_data.upnp_available) {
         $("#label_upnp").css("color", "black");
     } else {
         $("#label_upnp").css("color", "red");
     }
-    $("#public_ip").val(access_data.public_ip);
-    $("#public_port").val(access_data.public_port);
-
+    
     $("#btn_save").button('reset');
-    disable_access_controls(false);
 
+    $('#tgl_external').bootstrapSwitch('disabled', false);
+    $('#tgl_upnp').bootstrapSwitch('disabled', false);
+
+    ui_prepare_external_access();
     ui_prepare_address();
+    ui_upnp();
 
 }
 
 function disable_access_controls(disabled) {
     $('#tgl_external').bootstrapSwitch('disabled', disabled);
-    $('#tgl_protocol').bootstrapSwitch('disabled', disabled);
+    $('#tgl_ip_autodetect').bootstrapSwitch('disabled', disabled);
     $('#tgl_upnp').bootstrapSwitch('disabled', disabled);
+    $('#public_ip').prop('disabled', disabled);
+    $('#certificate_port').prop('disabled', disabled);
+    $('#access_port').prop('disabled', disabled);
 }
 
 function ui_check_access() {
     disable_access_controls(true);
 
     $("#tgl_external_loading").addClass('opacity-visible');
-    $("#tgl_protocol_loading").addClass('opacity-visible');
     $("#tgl_upnp_loading").addClass('opacity-visible');
+    $("#tgl_ip_autodetect_loading").addClass('opacity-visible');
     $('#btn_save').button('loading');
 
     backend.check_access(ui_display_access, ui_display_error);
+    backend.port_mappings(ui_display_port_mappings, ui_display_error);
 }
 
 function ui_check_network() {
     backend.network_interfaces(ui_display_network, ui_display_error);
 }
 
-function ui_prepare_address() {
-		var toggle = $("#tgl_upnp");
-		var state = toggle.bootstrapSwitch('state');
-		if (state) {
-            $("#public_address").hide('slow');
+function ui_prepare_external_access() {
+		var toggle = $("#tgl_external");
+		var enabled = toggle.bootstrapSwitch('state');
+		if (enabled) {
+            $("#external_block").show('slow');
         } else {
-            $("#public_address").show('slow');
+            $("#external_block").hide('slow');
         }
+}
+
+function ui_prepare_address() {
+		var toggle = $("#tgl_ip_autodetect");
+		var enabled = toggle.bootstrapSwitch('state');
+		$('#public_ip').prop('disabled', enabled);
+}
+
+function ui_upnp() {
+		var toggle = $("#tgl_upnp");
+		var enabled = toggle.bootstrapSwitch('state');
+		$('#certificate_port').prop('disabled', enabled);
+		$('#access_port').prop('disabled', enabled);
+}
+
+function isValidPort(port) {
+    return Number.isNaN(port) || port < 1 || port > 65535
+}
+function error(message) {
+    return {
+        status: 200,
+        responseJSON: {
+            message: message
+        }
+    }
 }
 
 $(document).ready(function () {
 
-    $("#tgl_upnp").on('switchChange.bootstrapSwitch', function (event, state) {
+    $("#tgl_external").on('switchChange.bootstrapSwitch', function (event, state) {
+        event.preventDefault();
+        ui_prepare_external_access();
+    });
+
+    $("#tgl_ip_autodetect").on('switchChange.bootstrapSwitch', function (event, state) {
         event.preventDefault();
         ui_prepare_address();
     });
-    
+
+    $("#tgl_upnp").on('switchChange.bootstrapSwitch', function (event, state) {
+        event.preventDefault();
+        ui_upnp();
+    });
+
     $("#btn_save").click(function ( event ) {
         event.preventDefault();
         
-        var protocol_toggle = $("#tgl_protocol");
         var access_toggle = $("#tgl_external");
         var upnp_enabled = $("#tgl_upnp").bootstrapSwitch('state');
-        var public_port_string = $("#public_port").val();
-        var public_port = parseInt(public_port_string);
+        var ip_autodetect = $("#tgl_ip_autodetect").bootstrapSwitch('state');
+
+        var certificate_port_string = $("#certificate_port").val();
+        var certificate_port = parseInt(certificate_port_string);
+
+        var access_port_string = $("#access_port").val();
+        var access_port = parseInt(access_port_string);
+
+        var public_ip = $("#public_ip").val().trim();
+
+        if (ip_autodetect) {
+            public_ip = 0;
+        }
+
         if (upnp_enabled) {
-            public_port = 0;
+            certificate_port = 0;
+            access_port = 0;
         } else {
             
-            if (Number.isNaN(public_port) || public_port < 1 || public_port > 65535) {
-                var xhr = {
-                    status: 200,
-                    responseJSON: {
-                        message: "port (" + public_port_string + ") has to be between 1 and 65535"
-                    }
-                };
-                ui_display_error(xhr, {}, {});
+            if (isValidPort(certificate_port)) {
+                ui_display_error(error("certificate port (" + certificate_port_string + ") has to be between 1 and 65535"), {}, {});
+                return;
+            }
+            if (isValidPort(access_port)) {
+                ui_display_error(error("access port (" + access_port_string + ") has to be between 1 and 65535"), {}, {});
                 return;
             }
         }
@@ -362,9 +552,9 @@ $(document).ready(function () {
         backend.set_access(
                 upnp_enabled,
                 access_toggle.bootstrapSwitch('state'),
-                protocol_toggle.bootstrapSwitch('state'),
-                $("#public_ip").val().trim(),
-                public_port,
+                public_ip,
+                certificate_port,
+                access_port,
                 ui_check_access,
                 function (xhr, textStatus, errorThrown) {
                     ui_display_error(xhr, textStatus, errorThrown);

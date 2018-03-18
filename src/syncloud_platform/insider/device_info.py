@@ -1,8 +1,7 @@
 from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 
 
-def construct_url(protocol, external_port, domain, app=None):
-    protocol = protocol or 'http'
+def construct_url(external_port, domain, app=None):
     if external_port in [80, 443]:
         external_port = ''
     else:
@@ -10,7 +9,7 @@ def construct_url(protocol, external_port, domain, app=None):
     app_string = ''
     if app:
         app_string = app + '.'
-    return '{0}://{1}{2}{3}'.format(protocol, app_string, domain, external_port)
+    return 'https://{0}{1}{2}'.format(app_string, domain, external_port)
 
 
 class DeviceInfo:
@@ -33,8 +32,7 @@ class DeviceInfo:
         return '{0}.{1}'.format(app_name, self.domain())
 
     def url(self, app=None):
-        protocol = secure_to_protocol(self.user_platform_config.is_https())
-        port = protocol_to_port(protocol)
+        port = 443
         if self.user_platform_config.get_external_access():
             mapping = self.port_config.get(port, 'TCP')
             if mapping:
@@ -42,6 +40,6 @@ class DeviceInfo:
 
         domain_name = self.domain()
         if domain_name:
-            return construct_url(protocol, port, domain_name, app)
+            return construct_url(port, domain_name, app)
         else:
             ''

@@ -2,11 +2,10 @@ backend.access_data = {
         error_toggle: false,
         "data": {
             "external_access": true,
-            "is_https": false,
             "upnp_available": false,
             "upnp_enabled": true,
-            "upnp_message": "Your router does not have port mapping feature enabled at the moment",
-            "public_ip": null
+            "upnp_message": "not used",
+            "public_ip": "111.111.111.111"
         },
         "success": true
     };
@@ -34,6 +33,20 @@ backend.network_interfaces_data = {
         },
         "success": true
     };
+backend.port_mappings_data = {
+        "port_mappings": [
+             {
+                 "local_port": 80,
+                 "external_port": 80                 
+             },
+             {
+                 "local_port": 443,
+                 "external_port": 10001                     
+             }
+                    
+        ],
+        "success": true
+    };
 
 backend.check_access = function (on_complete, on_error) {
         var that = this;
@@ -42,9 +55,9 @@ backend.check_access = function (on_complete, on_error) {
 
 backend.set_access = function (upnp_enabled,
                                external_access,
-                               is_https,
                                public_ip,
-                               public_port,
+                               certificate_port,
+                               access_port,
                                on_complete,
                                on_error) {
         var that = this;
@@ -53,8 +66,13 @@ backend.set_access = function (upnp_enabled,
                 that.access_data.data.external_access = external_access;
                 that.access_data.data.upnp_enabled = upnp_enabled;
                 that.access_data.data.public_ip = public_ip;
-                that.access_data.data.public_port = public_port;
-                that.access_data.data.is_https = is_https;
+                if (upnp_enabled) {
+                    that.port_mappings_data.port_mappings[0].external_port = 81;
+                    that.port_mappings_data.port_mappings[1].external_port = 444;
+                } else {
+                    that.port_mappings_data.port_mappings[0].external_port = certificate_port;
+                    that.port_mappings_data.port_mappings[1].external_port = access_port;
+                }
                 on_complete({success: true});
             } else {
                 var xhr = {
@@ -73,4 +91,9 @@ backend.set_access = function (upnp_enabled,
 backend.network_interfaces = function (on_complete, on_error) {
         var that = this;
         setTimeout(function () { on_complete(that.network_interfaces_data); }, 2000);
+    };
+    
+backend.port_mappings = function (on_complete, on_error) {
+        var that = this;
+        setTimeout(function () { on_complete(that.port_mappings_data); }, 2000);
     };

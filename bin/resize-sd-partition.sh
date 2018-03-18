@@ -1,10 +1,9 @@
 #!/bin/bash
 
-DEVICE="/dev/mmcblk0"
-
-PARTED_LINES=$(parted -sm ${DEVICE} unit B print | wc -l)
-PARTITION_NUM=$(expr ${PARTED_LINES} - 2)
-PARTITION="${DEVICE}p${PARTITION_NUM}"
+BOOT_PARTITION_INFO=$(lsblk -pP -o PKNAME,NAME,MOUNTPOINT | grep 'MOUNTPOINT="/"')
+DEVICE=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f1 | cut -d'=' -f2 | tr -d '"')
+PARTITION=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f2 | cut -d'=' -f2 | tr -d '"')
+PARTITION_NUM=2
 
 DEVICE_SIZE_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "${DEVICE}:\K[0-9]*(?=B)")
 PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "^${PARTITION_NUM}:\K[0-9]*(?=B)")
