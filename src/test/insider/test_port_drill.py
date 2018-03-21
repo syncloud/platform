@@ -1,11 +1,12 @@
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.port_drill import PortDrill
+from syncloud_platform.insider.port_prober import NoneProber
 from test.insider.helpers import get_port_config
 
 
 def test_port_drill():
     port_config = get_port_config([Port(80, 80, 'TCP')])
-    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), MockPortProber())
+    port_drill = PortDrill(port_config, MockPortMapper(external_ip='192.167.44.52'), NoneProber())
     port_drill.sync_existing_ports()
     mapping = port_drill.get(80, 'TCP')
       
@@ -26,8 +27,3 @@ class MockPortMapper:
     def remove_mapping(self, local_port, external_port, protocol):
         pass
 
-
-class MockPortProber:
-
-    def probe_port(self, port, protocol):
-        return True, ''

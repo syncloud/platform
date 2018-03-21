@@ -33,6 +33,7 @@ class PortProber:
             self.logger.info('{0} is not reachable, error: {1}'.format(port, e.message))
             return False, 'unable to validate external port: {0}'.format(e.message)
 
+
 class NoneProber:
     def probe_port(self, port, protocol, ip):
         return True, ''
