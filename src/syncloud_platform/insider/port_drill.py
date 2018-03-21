@@ -41,6 +41,7 @@ class PortDrill:
         lower_limit = 10000
         found_external_port = None
         retries = 10
+        message = 'no message from dns service'
         for i in range(1, retries):
             self.logger.info('Trying {0}'.format(port_to_try))
 
@@ -56,7 +57,8 @@ class PortDrill:
                 found_external_port = external_port
                 break
 
-            if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
+            probe_success, messase = self.port_prober.probe_port(external_port, port_to_protocol(local_port))
+            if probe_success:
                 found_external_port = external_port
                 break
             self.port_mapper.remove_mapping(local_port, external_port, protocol)
@@ -68,7 +70,7 @@ class PortDrill:
                 port_to_try = external_port + 1
 
         if not found_external_port:
-            raise Exception('Unable to verify open ports, tried {0} times'.format(retries))
+            raise Exception('Unable to verify open ports, tried {0} times, {1}'.format(retries, message))
 
         mapping = Port(local_port, found_external_port, protocol)
         self.port_config.add_or_update(mapping)
