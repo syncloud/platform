@@ -57,7 +57,7 @@ class PortDrill:
                 found_external_port = external_port
                 break
 
-            probe_success, messase = self.port_prober.probe_port(external_port, port_to_protocol(local_port))
+            probe_success, messase = self.port_prober.probe_port(external_port, port_to_protocol(local_port), self.port_mapper.external_ip())
             if probe_success:
                 found_external_port = external_port
                 break

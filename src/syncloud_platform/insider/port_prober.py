@@ -11,11 +11,14 @@ class PortProber:
         self.update_token = update_token
         self.logger = logger.get_logger('PortProber')
 
-    def probe_port(self, port, protocol):
+    def probe_port(self, port, protocol, ip):
         self.logger.info('probing {0}'.format(port))
         url = urljoin(self.redirect_api_url, "/probe/port_v2")
         try:
-            response = requests.get(url, params={'token': self.update_token, 'port': port, 'protocol': protocol})
+            request = {'token': self.update_token, 'port': port, 'protocol': protocol}
+            if ip:
+                request['ip'] = ip
+            response = requests.get(url, params=request)
             self.logger.info('response status_code: {0}'.format(response.status_code))
             self.logger.info('response text: {0}'.format(response.text))
             result = json.loads(response.text)
@@ -31,5 +34,5 @@ class PortProber:
             return False, 'unable to validate external port: {0}'.format(e.message)
 
 class NoneProber:
-    def probe_port(self, port, protocol):
-        return True
+    def probe_port(self, port, protocol, ip):
+        return True, ''
