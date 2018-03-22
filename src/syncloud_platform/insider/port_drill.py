@@ -34,7 +34,7 @@ class PortDrill:
             self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port, protocol)
             self.port_config.remove(local_port, protocol)
 
-    def sync_one_mapping(self, local_port, protocol):
+    def sync_new_port(self, local_port, protocol):
 
         self.logger.info('Sync one mapping: {0}'.format(local_port))
         port_to_try = local_port
@@ -77,12 +77,10 @@ class PortDrill:
         self.port_config.add_or_update(mapping)
         return mapping
 
-    def sync_new_port(self, local_port, protocol):
-        return self.sync_one_mapping(local_port, protocol)
-
     def sync_existing_ports(self):
         for mapping in self.list():
-            self.sync_one_mapping(mapping.local_port, mapping.protocol)
+           self.logger.info('syncing existing port mapping: {0}'.format(mapping))
+           self.port_mapper.add_mapping(mapping.local_port, mapping.external_port, mapping.protocol)
 
     def available(self):
         return self.port_mapper is not None
