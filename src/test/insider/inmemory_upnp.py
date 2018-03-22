@@ -39,7 +39,7 @@ class InMemoryUPnP:
             raise self.external_port_to_fail[external_port]
 
         def filter_not(mapping):
-            return mapping.external_port == external_port and mapping.protocol == protocol
+            return not (mapping.external_port == external_port and mapping.protocol == protocol)
 
         self.mappings = filter(filter_not, self.mappings)
 

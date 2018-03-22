@@ -35,7 +35,7 @@ def test_port_taken():
     assert upnp.by_external_port(81).local_ip == '2.2.2.2'
 
 
-def test_multiple_external_ports_cleanup():
+def test_multiple_external_ports_with_preferred_cleanup():
 
     upnp = InMemoryUPnP('1.1.1.1', '2.2.2.2')
     upnp.mappings = [
@@ -50,6 +50,23 @@ def test_multiple_external_ports_cleanup():
 
     assert upnp.by_external_port(80).local_port == 80
     assert upnp.by_external_port(80).local_ip == '2.2.2.2'
+
+
+def test_multiple_external_ports_without_preferred_cleanup_all_except_lowest_port():
+
+    upnp = InMemoryUPnP('1.1.1.1', '2.2.2.2')
+    upnp.mappings = [
+        Mapping(81, 'TCP', '2.2.2.2', 80, '', True, '1.1.1.1', ''),
+        Mapping(82, 'TCP', '2.2.2.2', 80, '', True, '1.1.1.1', '')
+        ]
+
+    mapper = UpnpPortMapper(upnp, lower_limit=80)
+    mapper.add_mapping(80, 80, 'TCP')
+
+    assert len(upnp.mappings) == 1
+
+    assert upnp.by_external_port(81).local_port == 80
+    assert upnp.by_external_port(81).local_ip == '2.2.2.2'
 
 
 def test_fail_to_add():

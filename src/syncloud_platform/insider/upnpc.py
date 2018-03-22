@@ -128,16 +128,16 @@ class UpnpPortMapper:
 
     def __only_one_mapping(self, external_ports, protocol, preferred_external_port):
         if preferred_external_port in external_ports:
-            external_port_to_pteserve = preferred_external_port
+            external_port_to_preserve = preferred_external_port
             external_ports.remove(preferred_external_port)
         else:
             external_ports.sort(reverse=True)
-            external_port_to_pteserve = external_ports.pop()
-        
+            external_port_to_preserve = external_ports.pop()
+
         for port in external_ports:
             self.upnpc().remove(protocol, port)
-            
-        return external_port_to_pteserve
+
+        return external_port_to_preserve
 
     def add_mapping(self, local_port, external_port, protocol):
         external_ports = self.upnpc().get_external_ports(protocol, local_port)
