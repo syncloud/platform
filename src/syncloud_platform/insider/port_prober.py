@@ -4,6 +4,7 @@ from syncloud_app import logger
 import json
 from IPy import IP
 
+
 class PortProber:
 
     def __init__(self, redirect_api_url, update_token):
@@ -17,7 +18,11 @@ class PortProber:
         try:
             request = {'token': self.update_token, 'port': port, 'protocol': protocol}
             if ip:
+                iptype=IP(ip).iptype()
+                if iptype != 'PUBLIC':
+                    return False, 'IP: {0} is not public'.format(ip)
                 request['ip'] = ip
+
             response = requests.get(url, params=request)
             self.logger.info('response status_code: {0}'.format(response.status_code))
             self.logger.info('response text: {0}'.format(response.text))

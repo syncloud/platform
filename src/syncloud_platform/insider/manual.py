@@ -8,7 +8,8 @@ class ManualPortMapper:
     def __init__(self, manual_public_ip, manual_certificate_port, manual_access_port):
         self.manual_certificate_port = manual_certificate_port
         self.manual_access_port = manual_access_port
-        self.manual_public_ip = manual_public_ip
+        if manual_public_ip and manual_public_ip != '0':
+            self.manual_public_ip = manual_public_ip
         self.logger = logger.get_logger('ManualPortMapper')
 
     def name(self):
