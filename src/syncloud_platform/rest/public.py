@@ -158,7 +158,7 @@ def access():
 @login_required
 def set_access():
     public_ip = None
-    if request.args['public_ip'] != "0":
+    if 'public_ip' in request.args:
         public_ip = request.args['public_ip'],
     public.set_access(
         request.args['upnp_enabled'] == 'true',

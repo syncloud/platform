@@ -70,13 +70,18 @@ class Public:
         upnp_enabled = self.user_platform_config.get_upnp()
         mapper = self.port_mapper_factory.provide_mapper()
         upnp_available = mapper is not None
-        manual_public_ip = self.user_platform_config.get_public_ip()
         external_access = self.user_platform_config.get_external_access()
-        return dict(external_access=external_access,
-                    upnp_available=upnp_available,
-                    upnp_enabled=upnp_enabled,
-                    upnp_message='not used',
-                    public_ip=manual_public_ip)
+
+        result = dict(external_access=external_access,
+                      upnp_available=upnp_available,
+                      upnp_enabled=upnp_enabled,
+                      upnp_message='not used')
+
+        manual_public_ip = self.user_platform_config.get_public_ip()
+        if manual_public_ip is not None:
+            result['public_ip'] = manual_public_ip
+
+        return result
 
     def set_access(self, upnp_enabled, external_access, public_ip, certificate_port, access_port):
         self.device.set_access(upnp_enabled, external_access, public_ip, certificate_port, access_port)

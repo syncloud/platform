@@ -285,7 +285,10 @@ class PlatformUserConfig:
     def __set(self, section, key, value):
         if not self.parser.has_section(section):
             self.parser.add_section(section)
-        self.parser.set(section, key, value)
+        if value is None:
+            self.parser.remove_option(section, key)
+        else:
+            self.parser.set(section, key, value)
 
     def __save(self):
         with open(self.filename, 'wb') as f:

@@ -400,12 +400,14 @@ function ui_display_access(data) {
     
     $("#tgl_ip_autodetect_loading").removeClass('opacity-visible');
     
-    ip_autodetect_enabled = false;
-    if (access_data.public_ip == 0) {
+    if (access_data.hasOwnProperty('public_ip')) {
+        ip_autodetect_enabled = false;
+        $("#public_ip").val(access_data.public_ip);
+    } else {
         ip_autodetect_enabled = true;
+        $("#public_ip").val('');
     }
     $('#tgl_ip_autodetect').bootstrapSwitch('state', ip_autodetect_enabled);
-    $("#public_ip").val(access_data.public_ip);
 
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
     $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
@@ -526,10 +528,6 @@ $(document).ready(function () {
 
         var public_ip = $("#public_ip").val().trim();
 
-        if (ip_autodetect) {
-            public_ip = 0;
-        }
-
         if (upnp_enabled) {
             certificate_port = 0;
             access_port = 0;
@@ -552,6 +550,7 @@ $(document).ready(function () {
         backend.set_access(
                 upnp_enabled,
                 access_toggle.bootstrapSwitch('state'),
+                ip_autodetect,
                 public_ip,
                 certificate_port,
                 access_port,
