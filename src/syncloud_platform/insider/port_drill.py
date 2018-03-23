@@ -73,7 +73,7 @@ class PortDrill:
                 port_to_try = external_port + 1
 
         if not found_external_port:
-            raise Exception('Unable to verify open ports, tried {0} times, {1}'.format(retries, message))
+            raise Exception('Unable to verify open ports, {0}'.format(message))
 
         mapping = Port(local_port, found_external_port, protocol)
         self.port_config.add_or_update(mapping)
