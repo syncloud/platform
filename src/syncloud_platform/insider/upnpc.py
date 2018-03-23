@@ -126,18 +126,24 @@ class UpnpPortMapper:
 
         raise Exception('Unable to add mapping')
 
-    def __only_one_mapping(self, external_ports, protocol):
-        external_ports.sort(reverse=True)
-        first_external_port = external_ports.pop()
+    def __only_one_mapping(self, external_ports, protocol, preferred_external_port):
+        if preferred_external_port in external_ports:
+            external_port_to_preserve = preferred_external_port
+            external_ports.remove(preferred_external_port)
+        else:
+            external_ports.sort(reverse=True)
+            external_port_to_preserve = external_ports.pop()
+
         for port in external_ports:
             self.upnpc().remove(protocol, port)
-        return first_external_port
+
+        return external_port_to_preserve
 
     def add_mapping(self, local_port, external_port, protocol):
         external_ports = self.upnpc().get_external_ports(protocol, local_port)
         self.logger.info("existing router mappings for {0}: {1}".format(local_port, external_ports))
         if len(external_ports) > 0:
-            return self.__only_one_mapping(external_ports, protocol)
+            return self.__only_one_mapping(external_ports, protocol, external_port)
         else:
             return self.__add_new_mapping(local_port, external_port, protocol)
 

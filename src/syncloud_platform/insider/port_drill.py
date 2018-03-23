@@ -34,13 +34,14 @@ class PortDrill:
             self.port_mapper.remove_mapping(mapping.local_port, mapping.external_port, protocol)
             self.port_config.remove(local_port, protocol)
 
-    def sync_one_mapping(self, local_port, protocol):
+    def sync_new_port(self, local_port, protocol):
 
         self.logger.info('Sync one mapping: {0}'.format(local_port))
         port_to_try = local_port
         lower_limit = 10000
         found_external_port = None
         retries = 10
+        message = 'no message from dns service'
         for i in range(1, retries):
             self.logger.info('Trying {0}'.format(port_to_try))
 
@@ -49,14 +50,18 @@ class PortDrill:
                 self.logger.info('not probing non http(s) ports')
                 found_external_port = external_port
                 break
+                
+            external_ip = self.port_mapper.external_ip()
+            if external_ip is not None:
+                ip_version = IP(external_ip).version()
+                if ip_version == 6:
+                    self.logger.info('probing of IPv6 is not supported yet')
+                    found_external_port = external_port
+                    break
 
-            ip_version = IP(self.port_mapper.external_ip()).version()
-            if ip_version == 6:
-                self.logger.info('probing of IPv6 is not supported yet')
-                found_external_port = external_port
-                break
-
-            if self.port_prober.probe_port(external_port, port_to_protocol(local_port)):
+            probe_success, message = self.port_prober.probe_port(
+                external_port, port_to_protocol(local_port), external_ip)
+            if probe_success:
                 found_external_port = external_port
                 break
             self.port_mapper.remove_mapping(local_port, external_port, protocol)
@@ -68,18 +73,16 @@ class PortDrill:
                 port_to_try = external_port + 1
 
         if not found_external_port:
-            raise Exception('Unable to verify open ports, tried {0} times'.format(retries))
+            raise Exception('Unable to verify open ports, {0}'.format(message))
 
         mapping = Port(local_port, found_external_port, protocol)
         self.port_config.add_or_update(mapping)
         return mapping
 
-    def sync_new_port(self, local_port, protocol):
-        return self.sync_one_mapping(local_port, protocol)
-
     def sync_existing_ports(self):
         for mapping in self.list():
-            self.sync_one_mapping(mapping.local_port, mapping.protocol)
+           self.logger.info('syncing existing port mapping: {0}'.format(mapping))
+           self.port_mapper.add_mapping(mapping.local_port, mapping.external_port, mapping.protocol)
 
     def available(self):
         return self.port_mapper is not None

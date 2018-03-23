@@ -51,7 +51,7 @@ class Device:
         self.platform_cron.remove()
         self.platform_cron.create()
 
-        self.set_access(False, False, 0, 0, 0)
+        self.set_access(False, False, None, 0, 0)
 
         self.logger.info("activating ldap")
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
@@ -79,7 +79,7 @@ class Device:
         self.platform_cron.remove()
         self.platform_cron.create()
 
-        self.set_access(False, False, 0, 0, 0)
+        self.set_access(False, False, None, 0, 0)
 
         self.logger.info("activating ldap")
         self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
