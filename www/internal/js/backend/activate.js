@@ -13,6 +13,7 @@ var backend = {
     },
     login: function(name, password) {
         var url = (new URI())
+                .protocol('https')
                 .port(443)
                 .filename("/rest/login")
                 .query("");
