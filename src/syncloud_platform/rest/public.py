@@ -159,7 +159,7 @@ def access():
 def set_access():
     public_ip = None
     if 'public_ip' in request.args:
-        public_ip = request.args['public_ip'],
+        public_ip = request.args['public_ip']
     public.set_access(
         request.args['upnp_enabled'] == 'true',
         request.args['external_access'] == 'true',
