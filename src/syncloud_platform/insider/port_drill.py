@@ -50,15 +50,17 @@ class PortDrill:
                 self.logger.info('not probing non http(s) ports')
                 found_external_port = external_port
                 break
-
-            ip_version = IP(self.port_mapper.external_ip()).version()
-            if ip_version == 6:
-                self.logger.info('probing of IPv6 is not supported yet')
-                found_external_port = external_port
-                break
+                
+            external_ip = self.port_mapper.external_ip()
+            if external_ip is not None:
+                ip_version = IP(external_ip).version()
+                if ip_version == 6:
+                    self.logger.info('probing of IPv6 is not supported yet')
+                    found_external_port = external_port
+                    break
 
             probe_success, message = self.port_prober.probe_port(
-                external_port, port_to_protocol(local_port), self.port_mapper.external_ip())
+                external_port, port_to_protocol(local_port), external_ip)
             if probe_success:
                 found_external_port = external_port
                 break
