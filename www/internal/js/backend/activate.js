@@ -13,7 +13,7 @@ var backend = {
     },
     login: function(name, password) {
         var url = (new URI())
-                .port(80)
+                .port(443)
                 .filename("/rest/login")
                 .query("");
 
