@@ -157,10 +157,13 @@ def access():
 @app.route(rest_prefix + "/access/set_access", methods=["GET"])
 @login_required
 def set_access():
+    public_ip = None
+    if request.args['public_ip'] != "0":
+        public_ip = request.args['public_ip'],
     public.set_access(
         request.args['upnp_enabled'] == 'true',
         request.args['external_access'] == 'true',
-        request.args['public_ip'],
+        public_ip,
         int(request.args['certificate_port']),
         int(request.args['access_port'])
     )
