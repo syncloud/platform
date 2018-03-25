@@ -107,13 +107,10 @@ class NonePortDrill:
     def remove(self, local_port, protocol):
         pass
 
-    def sync_one_mapping(self, local_port, protocol):
-        pass
-
     def sync_new_port(self, local_port, protocol):
         self.logger.info('port drill is not enabled, not adding {0} {1} mapping'.format(local_port, protocol))
 
-    def sync(self):
+    def sync_existing_ports(self):
         pass
 
     def available(self):
