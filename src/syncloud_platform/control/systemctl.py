@@ -98,8 +98,9 @@ class Systemctl:
             log.info('starting {0}'.format(service))
             check_output('systemctl start {0} 2>&1'.format(service), shell=True)
         except CalledProcessError, e:
+            log.error(e.output)
             try:
-                log.error(check_output('journalctl -u {0}'.format(service), shell=True))
+                log.error(check_output('journalctl -u {0} 2>&1'.format(service), shell=True))
             except CalledProcessError, e:
                 log.error(e.output)
             raise e
