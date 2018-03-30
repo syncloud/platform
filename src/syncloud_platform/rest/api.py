@@ -59,6 +59,22 @@ def storage_dir():
     return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
+@app.route("/port/add", methods=["POST"])
+def port_add():
+    port = request.form['port']
+    protocol = request.form['protocol']
+    mapping = get_injector().device.add_port(port, protocol)
+    return jsonify(success=True, message='', data=mapping.external_port), 200
+
+
+@app.route("/port/remove", methods=["POST"])
+def port_remove():
+    port = request.form['port']
+    protocol = request.form['protocol']
+    get_injector().device.remove_port(port, protocol)
+    return jsonify(success=True, message='', data='OK'), 200
+
+
 @app.route("/user/email", methods=["GET"])
 def user_email():
     email = get_injector().user_platform_config.get_user_email()
