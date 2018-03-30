@@ -455,6 +455,12 @@ def cron_is_enabled_after_install(device_host):
     assert not crontab.startswith('#'), crontab
 
 
+def test_settings_versions(device_host):
+
+    response = requests.get('https://{0}/rest/settings/versions'.format(device_host), verify=False)
+    assert response.status_code == 200, response.text
+
+
 def test_local_upgrade(app_archive_path, installer, device_host):
     if installer == 'sam':
         local_remove(device_host, DEVICE_PASSWORD, installer, 'platform')
