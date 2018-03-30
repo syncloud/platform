@@ -40,7 +40,7 @@ def app_domain_name():
 
 @app.route("/app/device_domain_name", methods=["GET"])
 def device_domain_name():
-    device_domain_name = get_injector().device_info.device_domain_name()
+    device_domain_name = get_injector().device_info.domain()
     return jsonify(success=True, message='', data=device_domain_name), 200
 
 
