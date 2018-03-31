@@ -64,7 +64,10 @@ def port_add():
     port = request.form['port']
     protocol = request.form['protocol']
     mapping = get_injector().device.add_port(port, protocol)
-    return jsonify(success=True, message='', data=mapping.external_port), 200
+    if mapping:
+        return jsonify(success=True, message='', data=mapping.external_port), 200
+    else:
+        return jsonify(success=False, message='Not adding external port'), 200
 
 
 @app.route("/port/remove", methods=["POST"])
