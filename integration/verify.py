@@ -235,7 +235,7 @@ def test_openssl_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/openssl/bin/openssl --help'.format(app_dir), password=DEVICE_PASSWORD)
 
 
-def test_external_https_mode_with_certbot(public_web_session, device_host):
+def test_set_access_mode_with_certbot(public_web_session, device_host):
 
     response = public_web_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'upnp_enabled': 'false',
@@ -251,7 +251,7 @@ def test_show_https_certificate(device_host):
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_access(public_web_session, device_host):
+def test_get_access(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
@@ -266,16 +266,26 @@ def test_network_interfaces(public_web_session, device_host):
     assert response.status_code == 200
 
 
+def test_available_apps(public_web_session, device_host):
+    response = public_web_session.get('https://{0}/rest/access/available_apps'.format(device_host), verify=False)
+    with open('{0}/rest.available_apps.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_device_url(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
-    print(response.text)
+    with open('{0}/rest.settings.device_url.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
 def test_activate_url(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/settings/activate_url'.format(device_host), verify=False)
-    print(response.text)
+    with open('{0}/rest.settings.activate_url.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
