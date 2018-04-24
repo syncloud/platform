@@ -37,10 +37,11 @@ class Snap:
     def list(self):
         self.logger.info('snap list')
         session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/snaps'.format(SOCKET))
+        response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info(response.text)
-        apps = parse_snaps_response(response.text)
-        return apps
+        response = json.loads(response_json)
+        return [parse_found_app(app) for app in response]
+
 
     def user_apps(self):
         session = requests_unixsocket.Session()
@@ -68,11 +69,20 @@ class Snap:
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
         self.logger.info(response.text)
         return response
-
-
+        
+        
 def parse_snaps_response(response_json):
     response = json.loads(response_json)
     return [to_app(app) for app in response['result']]
+
+
+def parse_found_app(app):
+    app_version = AppVersions()
+    app_version.installed_version = app['version']
+    app_version.current_version = app['version']
+    app_version.app = App()
+    app_version.app.id = app['name']
+    return app_version
 
 
 def to_app(app):
