@@ -38,7 +38,7 @@ class Snap:
         self.logger.info('snap list')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
-        self.logger.info(response.text)
+        self.logger.info("find response: {0}".format(response.text))
         response = json.loads(response_json)
         return [parse_found_app(app) for app in response]
 
