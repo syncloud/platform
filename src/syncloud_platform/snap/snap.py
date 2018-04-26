@@ -44,11 +44,8 @@ class Snap:
 
 
     def user_apps(self):
-        session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response.text)
-        apps = parse_snaps_response(response.text)
-        return apps
+        return self.list()
+        
 
     def installed_user_apps(self):
         session = requests_unixsocket.Session()
