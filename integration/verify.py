@@ -5,6 +5,7 @@ import time
 from os.path import join, dirname, isdir, split
 from subprocess import check_output
 from os import makedirs
+import json
 
 import jinja2
 import pytest
@@ -272,6 +273,8 @@ def test_available_apps(public_web_session, device_host):
         the_file.write(response.text)
     #assert '"success": true' in response.text
     assert response.status_code == 200
+    assert len(json.loads(response.text)['apps']) > 1
+    
 
 
 def test_device_url(public_web_session, device_host):
