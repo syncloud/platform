@@ -70,15 +70,15 @@ class Snap:
 
     def to_app(self, app):
     
-        app = App()
-        app.id = app['id']
-        app.name = app['name']
-        app.url = self.info.url(app_version.app.id)
-        app.icon = "{0}-128.png".format(app.id)
+        newapp = App()
+        newapp.id = app['id']
+        newapp.name = app['name']
+        newapp.url = self.info.url(newapp.id)
+        newapp.icon = "{0}-128.png".format(newapp.id)
         
         app_version = AppVersions()
         app_version.installed_version = app['version']
         app_version.current_version = app['version']
-        app_version.app = app
+        app_version.app = newapp
         
         return app_version
