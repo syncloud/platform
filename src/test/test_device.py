@@ -1,5 +1,6 @@
 from syncloud_platform.device import parse_username
 
+
 def test_parse_username_from_username():
    
     username = 'test@test.com'

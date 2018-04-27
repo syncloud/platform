@@ -39,35 +39,36 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info("find response: {0}".format(response.text))
-        response = json.loads(response.text)
-        return [parse_found_app(app) for app in response['result']]
-
+        return self.parse_snaps_response(response.text)
 
     def user_apps(self):
         return self.list()
-        
 
     def installed_user_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response.text)
-        apps = parse_snaps_response(response.text)
+        self.logger.info("snaps response: ".format(response.text))
+        apps = self.parse_snaps_response(response.text)
         return apps
 
     def installed_all_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info(response.text)
+        self.logger.info("snaps response: ".format(response.text))
         apps = self.parse_snaps_response(response.text)
         return apps
 
     def get_app(self, app_id):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
-        self.logger.info(response.text)
+        self.logger.info("snap response: ".format(response.text))
         return response
-        
-    def parse_found_app(self, app):
+
+    def parse_snaps_response(self, response_json):
+        response = json.loads(response_json)
+        return [self.to_app(app) for app in response['result']]
+
+    def to_app(self, app):
         app_version = AppVersions()
         app_version.installed_version = app['version']
         app_version.current_version = app['version']
@@ -75,22 +76,5 @@ class Snap:
         app_version.app.id = app['id']
         app_version.app.name = app['name']
         app_version.app.url = self.info.url(app_version.app.id)
-        #app_version.app.icon = app['icon']
+        # app_version.app.icon = app['icon']
         return app_version
-
-
-        
-def parse_snaps_response(response_json):
-    response = json.loads(response_json)
-    return [to_app(app) for app in response['result']]
-
-
-
-def to_app(app):
-    app_version = AppVersions()
-    app_version.installed_version = app['version']
-    app_version.current_version = app['version']
-    app_version.app = App()
-    app_version.app.id = app['name']
-    return app_version
-
