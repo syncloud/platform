@@ -58,7 +58,7 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
         self.logger.info(response.text)
-        apps = parse_snaps_response(response.text)
+        apps = self.parse_snaps_response(response.text)
         return apps
 
     def get_app(self, app_id):
@@ -67,22 +67,23 @@ class Snap:
         self.logger.info(response.text)
         return response
         
+    def parse_found_app(self, app):
+        app_version = AppVersions()
+        app_version.installed_version = app['version']
+        app_version.current_version = app['version']
+        app_version.app = App()
+        app_version.app.id = app['id']
+        app_version.app.name = app['name']
+        app_version.app.url = self.info.url(app_version.app.id)
+        #app_version.app.icon = app['icon']
+        return app_version
+
+
         
 def parse_snaps_response(response_json):
     response = json.loads(response_json)
     return [to_app(app) for app in response['result']]
 
-
-def parse_found_app(app):
-    app_version = AppVersions()
-    app_version.installed_version = app['version']
-    app_version.current_version = app['version']
-    app_version.app = App()
-    app_version.app.id = app['id']
-    app_version.app.name = app['name']
-    app_version.app.url = self.info.url(app_version.app.id)
-    #app_version.app.icon = app['icon']
-    return app_version
 
 
 def to_app(app):
