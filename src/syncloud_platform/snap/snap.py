@@ -40,7 +40,7 @@ class Snap:
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info("find response: {0}".format(response.text))
         response = json.loads(response.text)
-        return [parse_found_app(app) for app in response]
+        return [parse_found_app(app) for app in response['result']]
 
 
     def user_apps(self):
