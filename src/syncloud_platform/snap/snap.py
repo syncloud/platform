@@ -78,7 +78,10 @@ def parse_found_app(app):
     app_version.installed_version = app['version']
     app_version.current_version = app['version']
     app_version.app = App()
-    app_version.app.id = app['name']
+    app_version.app.id = app['id']
+    app_version.app.name = app['name']
+    app_version.app.url = self.info.url(app_version.app.id)
+    #app_version.app.icon = app['icon']
     return app_version
 
 
