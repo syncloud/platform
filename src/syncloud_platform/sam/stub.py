@@ -72,7 +72,7 @@ class SamStub:
 
     def list(self):
         result = self.__run([SAM_BIN, 'list'])
-        return [self._add_url(app_versions)
+        return [self._fix_fields(app_versions)
                 for app_versions
                 in convertible.to_object(result, convertible.List(item_type=AppVersions))]
 
