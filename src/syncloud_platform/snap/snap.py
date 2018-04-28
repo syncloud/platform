@@ -74,7 +74,7 @@ class Snap:
         newapp.id = app['id']
         newapp.name = app['name']
         newapp.url = self.info.url(newapp.id)
-        newapp.icon = "{0}-128.png".format(newapp.id)
+        newapp.icon = "http://apps.syncloud.org/releases/{0}/images/{1}-128.png".format(app['channel'], newapp.id)
         
         app_version = AppVersions()
         app_version.installed_version = app['version']

@@ -76,8 +76,9 @@ class SamStub:
                 for app_versions
                 in convertible.to_object(result, convertible.List(item_type=AppVersions))]
 
-    def _add_url(self, app_versions):
+    def _fix_fields(self, app_versions):
         app_versions.app.url = self.info.url(app_versions.app.id)
+        app_versions.app.icon = "appsimages/{0}".format(app_versions.app.icon)
         return app_versions
 
     def user_apps(self):
