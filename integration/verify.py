@@ -357,7 +357,7 @@ def test_installed_apps(public_web_session, device_host):
         the_file.write(response.text)
     #assert '"success": true' in response.text
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) > 1
+    assert len(json.loads(response.text)['apps']) == 1
 
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session, device_host):
