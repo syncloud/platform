@@ -27,7 +27,12 @@ class Snap:
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
 
     def status(self):
-        return False
+        self.logger.info('snap changes')
+        session = requests_unixsocket.Session()
+        response = session.get('{0}/v2/changes?select=all'.format(SOCKET))
+        self.logger.info("changes response: {0}".format(response.text))
+        #snapd_response = json.loads(response.text)
+        return 'in-progress' in response.text
 
     def remove(self, app_id):
         self.logger.info('snap remove')
@@ -45,26 +50,25 @@ class Snap:
     def installed_user_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info("snaps response: ".format(response.text))
-        apps = self.parse_snaps_response(response.text)
-        return apps
+        self.logger.info("snaps response: {0}".format(response.text))
+        snapd_response = json.loads(response.text)
+        return [self.to_app(app) for app in snapd_response['result'] if app['type'] == 'app']
+
 
     def installed_all_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info("snaps response: ".format(response.text))
-        apps = self.parse_snaps_response(response.text)
-        return apps
+        self.logger.info("snaps response: {0}".format(response.text))
+        snapd_response = json.loads(response.text)
+        return [self.to_app(app) for app in snapd_response['result']]
+
 
     def get_app(self, app_id):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
-        self.logger.info("snap response: ".format(response.text))
+        self.logger.info("snap response: {0}".format(response.text))
         return response
 
-    def parse_snaps_response(self, response_json):
-        response = json.loads(response_json)
-        return [self.to_app(app) for app in response['result']]
 
     def to_app(self, app):
     
