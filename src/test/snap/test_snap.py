@@ -15,5 +15,5 @@ logger.init(logging.DEBUG, True)
 
 
 def test_parse_snaps_response():
-    apps = Snap(None, Info()).parse_snaps_response(snaps_json)
+    apps = Snap(None, Info()).parse_response(snaps_json, lambda app: True)
     assert len(apps) == 2
