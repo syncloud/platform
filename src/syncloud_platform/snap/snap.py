@@ -39,8 +39,8 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info("find response: {0}".format(response.text))
-        response = json.loads(response_json)
-        return [self.to_app(app) for app in response['result'] if app['type'] == 'app']
+        snapd_response = json.loads(response.json)
+        return [self.to_app(app) for app in snapd_response['result'] if app['type'] == 'app']
 
     def installed_user_apps(self):
         session = requests_unixsocket.Session()
