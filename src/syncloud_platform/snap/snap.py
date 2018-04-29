@@ -19,7 +19,9 @@ class Snap:
     def install(self, app_id):
         self.logger.info('snap install')
         session = requests_unixsocket.Session()
-        session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
+        response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
+        self.logger.info("install response: {0}".format(response.text))
+        
 
     def upgrade(self, app_id):
         self.logger.info('snap upgrade')
