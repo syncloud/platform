@@ -35,7 +35,7 @@ class Snap:
         self.logger.info("changes response: {0}".format(response.text))
         snapd_response = json.loads(response.text)
        
-        if snapd_response['status'] != 'OK':
+        if (snapd_response['status']) != 'OK':
             throw Exception(snapd_response['result']['message'])
             
         return len(snapd_response['result']) > 0
