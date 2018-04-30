@@ -31,10 +31,14 @@ class Snap:
     def status(self):
         self.logger.info('snap changes')
         session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/changes?select=all'.format(SOCKET))
+        response = session.get('{0}/v2/changes?select=in-progress'.format(SOCKET))
         self.logger.info("changes response: {0}".format(response.text))
-        #snapd_response = json.loads(response.text)
-        return 'in-progress' in response.text
+        snapd_response = json.loads(response.text)
+       
+        if snapd_response['status'] != 'OK':
+            throw Exception(snapd_response['result']['message'])
+            
+        return len(snapd_response['result']) > 0
 
     def remove(self, app_id):
         self.logger.info('snap remove')
