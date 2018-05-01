@@ -26,8 +26,9 @@ class Snap:
     def upgrade(self, app_id):
         self.logger.info('snap upgrade')
         session = requests_unixsocket.Session()
-        session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
-
+        response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
+        self.logger.info("install response: {0}".format(response.text))
+        
     def status(self):
         self.logger.info('snap changes')
         session = requests_unixsocket.Session()
@@ -77,8 +78,8 @@ class Snap:
     def to_app(self, app):
     
         newapp = App()
-        newapp.id = app['id']
-        newapp.name = app['name']
+        newapp.id = app['name']
+        newapp.name = app['Summary']
         newapp.url = self.info.url(newapp.id)
         newapp.icon = "http://apps.syncloud.org/releases/{0}/images/{1}-128.png".format(app['channel'], newapp.id)
         
