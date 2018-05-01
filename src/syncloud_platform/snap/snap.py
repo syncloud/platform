@@ -79,7 +79,7 @@ class Snap:
     
         newapp = App()
         newapp.id = app['name']
-        newapp.name = app['Summary']
+        newapp.name = app['summary']
         newapp.url = self.info.url(newapp.id)
         newapp.icon = "http://apps.syncloud.org/releases/{0}/images/{1}-128.png".format(app['channel'], newapp.id)
         
