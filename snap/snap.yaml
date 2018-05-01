@@ -59,5 +59,6 @@ apps:
 confinement: strict
 description: Syncloud Platform
 grade: stable
+type: core
 name: platform
 summary: Syncloud Platform
