@@ -46,8 +46,15 @@ class Snap:
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'remove'})
 
-    def user_apps(self):
+    def list(self):
         self.logger.info('snap list')
+        session = requests_unixsocket.Session()
+        response = session.get('{0}/v2/find?name=*'.format(SOCKET))
+        self.logger.info("find response: {0}".format(response.text))
+        return self.parse_response(response.text, lambda app: True)
+
+    def user_apps(self):
+        self.logger.info('snap user apps')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info("find response: {0}".format(response.text))
