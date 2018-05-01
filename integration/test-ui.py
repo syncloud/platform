@@ -74,7 +74,7 @@ def test_index(driver, device_host):
     password.submit()
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
-
+    time.sleep(5)
     screenshots(driver, screenshot_dir, 'index')
 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
