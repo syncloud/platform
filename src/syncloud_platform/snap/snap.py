@@ -56,7 +56,7 @@ class Snap:
     def find_in_store(self, app_id):
         self.logger.info('snap list')
         session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/find?name={0}'.format(SOCKET, app_id))
+        response = session.get('{0}/v2/find?name={1}'.format(SOCKET, app_id))
         self.logger.info("find app: {0}, response: {1}".format(app_id, response.text))
         
         found_apps = self.parse_response(response.text, lambda app: True)
