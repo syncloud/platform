@@ -350,7 +350,7 @@ def test_install_app(public_web_session, device_host):
     wait_for_sam(public_web_session, device_host)
 
 
-def test_installed_apps(public_web_session, device_host):
+def test_rest_installed_apps(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.installed_apps.json'.format(LOG_DIR), 'w') as the_file:
@@ -358,6 +358,15 @@ def test_installed_apps(public_web_session, device_host):
     #assert '"success": true' in response.text
     assert response.status_code == 200
     assert len(json.loads(response.text)['apps']) == 1
+
+
+def test_rest_app(public_web_session, device_host):
+    response = public_web_session.get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
+    #assert len(json.loads(response.text)['apps']) == 1
 
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session, device_host):
