@@ -62,7 +62,7 @@ class Snap:
         found_apps = self.parse_response(response.text, lambda app: True)
         if (len(found_apps) == 0):
             self.logger.warn("No app found")
-            retuen None
+            return None
             
         if (len(found_apps) > 1):
            self.logger.warn("More than one app found")
@@ -101,7 +101,7 @@ class Snap:
         store_app = self.find_in_store(app_id)
         if store_app:
             existing_app.current_version = store_app.current_version
-        retuen existing_app
+        return existing_app
 
     def parse_response(self, response_json, result_filter):
         response = json.loads(response_json)
