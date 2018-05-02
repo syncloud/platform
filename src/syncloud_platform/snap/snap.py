@@ -53,6 +53,22 @@ class Snap:
         self.logger.info("find response: {0}".format(response.text))
         return self.parse_response(response.text, lambda app: True)
 
+    def find_in_store(self, app_id):
+        self.logger.info('snap list')
+        session = requests_unixsocket.Session()
+        response = session.get('{0}/v2/find?name={0}'.format(SOCKET, app_id))
+        self.logger.info("find app: {0}, response: {1}".format(app_id, response.text))
+        
+        found_apps = self.parse_response(response.text, lambda app: True)
+        if (len(found_apps) == 0):
+            self.logger.warn("No app found")
+            retuen None
+            
+        if (len(found_apps) > 1):
+           self.logger.warn("More than one app found")
+        
+        return found_apps[0]
+
     def user_apps(self):
         self.logger.info('snap user apps')
         session = requests_unixsocket.Session()
@@ -72,13 +88,20 @@ class Snap:
         self.logger.info("snaps response: {0}".format(response.text))
         return self.parse_response(response.text, lambda app: True)
 
-    def get_app(self, app_id):
+    def find_installed(self, app_id):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
         self.logger.info("snap response: {0}".format(response.text))
         snap_response = json.loads(response.text)
-        return self.to_app(snap_response['result'])
-
+        existing_app = self.to_app(snap_response['result'])
+        return existing_app
+        
+    def get_app(self, app_id):
+        existing_app = self.find_installed(app_id)
+        store_app = self.find_in_store(app_id)
+        if store_app:
+            existing_app.current_version = store_app.current_version
+        retuen existing_app
 
     def parse_response(self, response_json, result_filter):
         response = json.loads(response_json)
