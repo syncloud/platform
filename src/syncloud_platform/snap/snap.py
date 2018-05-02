@@ -76,7 +76,9 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
         self.logger.info("snap response: {0}".format(response.text))
-        return response
+        snap_response = json.loads(response.text)
+        return self.to_app(snap_response['result'])
+
 
     def parse_response(self, response_json, result_filter):
         response = json.loads(response_json)
