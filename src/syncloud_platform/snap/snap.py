@@ -93,14 +93,24 @@ class Snap:
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
         self.logger.info("snap response: {0}".format(response.text))
         snap_response = json.loads(response.text)
+        if snap_response['status-code'] == 404:
+            return None
         existing_app = self.to_app(snap_response['result'])
         return existing_app
         
     def get_app(self, app_id):
         existing_app = self.find_installed(app_id)
         store_app = self.find_in_store(app_id)
-        if store_app:
-            existing_app.current_version = store_app.current_version
+        if not existing_app and not store_app:
+            raise Exception("not found")
+        
+        if not store_app:
+            return existing_app
+        
+        if not existing_app:
+            return store_app
+        
+        existing_app.current_version = store_app.current_version
         return existing_app
 
     def parse_response(self, response_json, result_filter):
