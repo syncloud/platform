@@ -60,7 +60,9 @@ class Snap:
         response = session.get('{0}/v2/find?name={1}'.format(SOCKET, app_id))
         self.logger.info("find app: {0}, response: {1}".format(app_id, response.text))
         
-        found_apps = self.parse_response(response.text, lambda app: True)
+        snap_response = json.loads(response.text)
+        found_apps = [self.to_app(app['name'], app['summary'], app['channel'], None, app['version']) for app in snap_response['result']]
+        
         if (len(found_apps) == 0):
             self.logger.warn("No app found")
             return None
