@@ -51,8 +51,9 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info("find response: {0}".format(response.text))
-        return self.parse_response(response.text, lambda app: True)
-
+        snap_response = json.loads(response.text)
+        return [self.to_app(app['name'], app['summary'], app['channel'], None, app['version']) for app in snap_response['result']]
+        
     def find_in_store(self, app_id):
         self.logger.info('snap list')
         session = requests_unixsocket.Session()
@@ -74,20 +75,23 @@ class Snap:
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
         self.logger.info("find response: {0}".format(response.text))
-        return self.parse_response(response.text, lambda app: app['type'] == 'app')
-
+        snap_response = json.loads(response.text)
+        return [self.to_app(app['name'], app['summary'], app['channel'], None, app['version']) for app in snap_response['result'] if app['type'] == 'app']
+        
     def installed_user_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
         self.logger.info("snaps response: {0}".format(response.text))
-        return self.parse_response(response.text, lambda app: app['type'] == 'app')
-
+        snap_response = json.loads(response.text)
+        return [self.to_app(app['name'], app['summary'], app['channel'], app['version'], None) for app in snap_response['result'] if app['type'] == 'app']
+        
     def installed_all_apps(self):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
         self.logger.info("snaps response: {0}".format(response.text))
-        return self.parse_response(response.text, lambda app: True)
-
+        snap_response = json.loads(response.text)
+        return [self.to_app(app['name'], app['summary'], app['channel'], app['version'], None) for app in snap_response['result']]
+        
     def find_installed(self, app_id):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
@@ -95,7 +99,9 @@ class Snap:
         snap_response = json.loads(response.text)
         if snap_response['status-code'] == 404:
             return None
-        existing_app = self.to_app(snap_response['result'])
+        app = snap_response['result']
+        existing_app = self.to_app(app['name'], app['summary'], app['channel'], app['version'], None)
+        
         return existing_app
         
     def get_app(self, app_id):
@@ -113,11 +119,7 @@ class Snap:
         existing_app.current_version = store_app.current_version
         return existing_app
 
-    def parse_response(self, response_json, result_filter):
-        response = json.loads(response_json)
-        return [self.to_app(app) for app in response['result'] if result_filter(app)]
-
-    def to_app(self, app):
+    def to_app(self, id, summary, channel, installed_version, store_version):
     
         newapp = App()
         newapp.id = app['name']
