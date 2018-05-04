@@ -110,12 +110,22 @@ def test_app_center(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def test_app(driver, device_host):
+def test_installed_app(driver, device_host):
 
     driver.get("http://{0}/app.html?app_id=files".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'app')
+    screenshots(driver, screenshot_dir, 'app_installed')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+
+def test_not_installed_app(driver, device_host):
+
+    driver.get("http://{0}/app.html?app_id=nextcloud".format(device_host))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'app_not_installed')
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 

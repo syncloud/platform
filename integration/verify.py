@@ -363,7 +363,7 @@ def test_rest_installed_apps(public_web_session, device_host):
 def test_rest_installed_app(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
     assert response.status_code == 200
-    with open('{0}/rest.installed.app.json'.format(LOG_DIR), 'w') as the_file:
+    with open('{0}/rest.app.installed.json'.format(LOG_DIR), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
     #assert len(json.loads(response.text)['apps']) == 1
@@ -371,7 +371,7 @@ def test_rest_installed_app(public_web_session, device_host):
 def test_rest_not_installed_app(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/app?app_id=nextcloud'.format(device_host), verify=False)
     assert response.status_code == 200
-    with open('{0}/rest.not.installed.app.json'.format(LOG_DIR), 'w') as the_file:
+    with open('{0}/rest.app.not.installed.json'.format(LOG_DIR), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
     #assert len(json.loads(response.text)['apps']) == 1
