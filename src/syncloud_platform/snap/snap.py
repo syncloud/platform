@@ -119,17 +119,17 @@ class Snap:
         existing_app.current_version = store_app.current_version
         return existing_app
 
-    def to_app(self, id, summary, channel, installed_version, store_version):
+    def to_app(self, id, name, channel, installed_version, store_version):
     
         newapp = App()
-        newapp.id = app['name']
-        newapp.name = app['summary']
+        newapp.id = id
+        newapp.name = name
         newapp.url = self.info.url(newapp.id)
-        newapp.icon = "http://apps.syncloud.org/releases/{0}/images/{1}-128.png".format(app['channel'], newapp.id)
+        newapp.icon = "http://apps.syncloud.org/releases/{0}/images/{1}-128.png".format(channel, newapp.id)
         
         app_version = AppVersions()
-        app_version.installed_version = app['version']
-        app_version.current_version = app['version']
+        app_version.installed_version = installed_version
+        app_version.current_version = store_version
         app_version.app = newapp
         
         return app_version
