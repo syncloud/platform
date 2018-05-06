@@ -340,10 +340,15 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
     assert 'https' in url, url
    
 
-def test_cron_job(app_dir, ssh_env_vars, device_host):
+def test_sync(app_dir, ssh_env_vars, device_host):
     assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
                                         password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+  
                                         
+def test_cron(app_dir, ssh_env_vars, device_host):
+    run_ssh(device_host, '{0}/bin/crom'.format(app_dir),
+            password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+
                                         
 def test_install_app(public_web_session, device_host):
     public_web_session.get('https://{0}/rest/install?app_id={1}'.format(device_host, 'files'), verify=False)
