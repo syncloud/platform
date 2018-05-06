@@ -520,7 +520,10 @@ def test_public_web_platform_upgrade(public_web_session, device_host):
 
 
 def __upgrade(public_web_session, upgrade_type, device_host):
-
+    if installer == 'snapd':
+        run_ssh(device_host, 'snap remove platform', password=DEVICE_PASSWORD)
+        run_ssh(device_host, 'snap install platform --channel=master', password=DEVICE_PASSWORD)
+   
     public_web_session.get('https://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type), verify=False)
     wait_for_sam(public_web_session, device_host)
 
