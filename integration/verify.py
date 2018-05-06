@@ -346,7 +346,7 @@ def test_sync(app_dir, ssh_env_vars, device_host):
   
                                         
 def test_cron(app_dir, ssh_env_vars, device_host):
-    run_ssh(device_host, '{0}/bin/crom'.format(app_dir),
+    run_ssh(device_host, '{0}/bin/cron'.format(app_dir),
             password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
 
                                         
