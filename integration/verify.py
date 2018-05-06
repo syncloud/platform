@@ -391,7 +391,8 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
 
 
 def test_installer_upgrade(public_web_session, device_host):
-    __upgrade(public_web_session, 'sam', device_host)
+    public_web_session.get('https://{0}/rest/settings/sam_upgrade'.format(device_host), verify=False)
+    wait_for_sam(public_web_session, device_host)
 
 
 @pytest.yield_fixture(scope='function')
@@ -515,16 +516,12 @@ def test_local_upgrade(app_archive_path, installer, device_host):
         local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_public_web_platform_upgrade(public_web_session, device_host):
-    __upgrade(public_web_session, 'system', device_host)
-
-
-def __upgrade(public_web_session, upgrade_type, device_host):
+def test_public_web_platform_upgrade(public_web_session, device_host, installer):
     if installer == 'snapd':
         run_ssh(device_host, 'snap remove platform', password=DEVICE_PASSWORD)
         run_ssh(device_host, 'snap install platform --channel=master', password=DEVICE_PASSWORD)
-   
-    public_web_session.get('https://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type), verify=False)
+
+    public_web_session.get('https://{0}/rest/settings/system_upgrade'.format(device_host), verify=False)
     wait_for_sam(public_web_session, device_host)
 
 
