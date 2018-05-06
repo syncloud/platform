@@ -26,8 +26,11 @@ class Snap:
     def upgrade(self, app_id):
         self.logger.info('snap upgrade')
         session = requests_unixsocket.Session()
-        response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), data={'action': 'install'})
-        self.logger.info("install response: {0}".format(response.text))
+        response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={'action': 'refresh'})
+        self.logger.info("refresh response: {0}".format(response.text))
+        snapd_response = json.loads(response.text)
+        if (snapd_response['status']) != 'OK':
+            raise Exception(snapd_response['result']['message'])
         
     def status(self):
         self.logger.info('snap changes')
