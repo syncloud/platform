@@ -1,6 +1,17 @@
-## Syncloud Platform
+## Syncloud
 
-Platform provides device Web UI and manages app installation using Sam (Syncloud app manager)
+Syncloud brings popular apps to your home.
+
+### Apps
+
+* Nextcloud: File sharing, calendar, contacts.
+* Diaspora: Social network.
+* Rocketchat: Text, voice and video messaging.
+* Mail: Email messaging.
+* GOGS: Git source code hosting.
+
+
+## For developers
 
 ### Running local drone build
 
