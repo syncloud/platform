@@ -517,10 +517,10 @@ def test_local_upgrade(app_archive_path, installer, device_host):
 
 
 def test_public_web_platform_upgrade(public_web_session, device_host, installer):
-    #if installer == 'snapd':
-        #run_ssh(device_host, 'snap remove platform', password=DEVICE_PASSWORD)
-        #run_ssh(device_host, 'snap install platform --channel=master', password=DEVICE_PASSWORD)
-        #run_ssh(device_host, 'snap refresh platform', password=DEVICE_PASSWORD)
+    if installer == 'snapd':
+        run_ssh(device_host, 'snap remove platform', password=DEVICE_PASSWORD)
+        run_ssh(device_host, 'snap install platform --channel=master', password=DEVICE_PASSWORD)
+        run_ssh(device_host, 'snap refresh platform', password=DEVICE_PASSWORD)
 
     public_web_session.get('https://{0}/rest/settings/system_upgrade'.format(device_host), verify=False)
     wait_for_sam(public_web_session, device_host)
