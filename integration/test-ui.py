@@ -67,11 +67,16 @@ def test_login(driver, user_domain, device_host):
 
     
 def test_index(driver, device_host):
+    wait_driver = WebDriverWait(driver, 10)
+    wait_driver.until(EC.presence_of_element_located((By.ID, 'name')))
+    time.sleep(5)
+   
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
     password = driver.find_element_by_id("password")
     password.send_keys(DEVICE_PASSWORD)
     password.submit()
+    
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
     time.sleep(5)
