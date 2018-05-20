@@ -118,6 +118,9 @@ class NonePortDrill:
 
     def available(self):
         return False
+    
+    def sync_existing_ports(self):
+        pass
 
 
 class PortDrillFactory:

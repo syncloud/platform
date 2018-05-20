@@ -89,7 +89,7 @@
 
 				<% if (app.id != "store" && app.id != "settings") { %>
 				<a href="<%= app.url %>" class="colapp app">
-					<img src="appsimages/<%= app.icon %>" class="appminimg">
+					<img src="<%= app.icon %>" class="appminimg">
 					<div class="appname"><%= app.name %></div>
 					<div class="appdesc"></div>
 				</a>

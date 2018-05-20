@@ -5,6 +5,7 @@ import time
 from os.path import join, dirname, isdir, split
 from subprocess import check_output
 from os import makedirs
+import json
 
 import jinja2
 import pytest
@@ -235,7 +236,7 @@ def test_openssl_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/openssl/bin/openssl --help'.format(app_dir), password=DEVICE_PASSWORD)
 
 
-def test_external_https_mode_with_certbot(public_web_session, device_host):
+def test_set_access_mode_with_certbot(public_web_session, device_host):
 
     response = public_web_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'upnp_enabled': 'false',
@@ -251,7 +252,7 @@ def test_show_https_certificate(device_host):
             "openssl x509 -inform pem -noout -text", password=DEVICE_PASSWORD)
 
 
-def test_access(public_web_session, device_host):
+def test_get_access(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
@@ -266,16 +267,28 @@ def test_network_interfaces(public_web_session, device_host):
     assert response.status_code == 200
 
 
+def test_available_apps(public_web_session, device_host):
+    response = public_web_session.get('https://{0}/rest/available_apps'.format(device_host), verify=False)
+    with open('{0}/rest.available_apps.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+    #assert '"success": true' in response.text
+    assert response.status_code == 200
+    assert len(json.loads(response.text)['apps']) > 1
+    
+
+
 def test_device_url(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
-    print(response.text)
+    with open('{0}/rest.settings.device_url.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
 def test_activate_url(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/settings/activate_url'.format(device_host), verify=False)
-    print(response.text)
+    with open('{0}/rest.settings.activate_url.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -327,14 +340,46 @@ def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, 
     assert 'https' in url, url
    
 
-def test_cron_job(app_dir, ssh_env_vars, device_host):
+def test_sync(app_dir, ssh_env_vars, device_host):
     assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
                                         password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+  
+                                        
+def test_cron(app_dir, ssh_env_vars, device_host):
+    run_ssh(device_host, '{0}/bin/cron'.format(app_dir),
+            password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+
+                                        
+def test_install_app(public_web_session, device_host):
+    public_web_session.get('https://{0}/rest/install?app_id={1}'.format(device_host, 'files'), verify=False)
+    wait_for_sam(public_web_session, device_host)
 
 
-def test_installed_apps(public_web_session, device_host):
+def test_rest_installed_apps(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
     assert response.status_code == 200
+    with open('{0}/rest.installed_apps.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+    #assert '"success": true' in response.text
+    assert response.status_code == 200
+    assert len(json.loads(response.text)['apps']) == 1
+
+
+def test_rest_installed_app(public_web_session, device_host):
+    response = public_web_session.get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.installed.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
+    #assert len(json.loads(response.text)['apps']) == 1
+
+def test_rest_not_installed_app(public_web_session, device_host):
+    response = public_web_session.get('https://{0}/rest/app?app_id=nextcloud'.format(device_host), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.not.installed.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
+    #assert len(json.loads(response.text)['apps']) == 1
 
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_session, device_host):
@@ -346,7 +391,8 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
 
 
 def test_installer_upgrade(public_web_session, device_host):
-    __upgrade(public_web_session, 'sam', device_host)
+    public_web_session.get('https://{0}/rest/settings/sam_upgrade'.format(device_host), verify=False)
+    wait_for_sam(public_web_session, device_host)
 
 
 @pytest.yield_fixture(scope='function')
@@ -455,6 +501,12 @@ def cron_is_enabled_after_install(device_host):
     assert not crontab.startswith('#'), crontab
 
 
+def test_settings_versions(device_host):
+
+    response = requests.get('https://{0}/rest/settings/versions'.format(device_host), verify=False)
+    assert response.status_code == 200, response.text
+
+
 def test_local_upgrade(app_archive_path, installer, device_host):
     if installer == 'sam':
         local_remove(device_host, DEVICE_PASSWORD, installer, 'platform')
@@ -464,13 +516,11 @@ def test_local_upgrade(app_archive_path, installer, device_host):
         local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_public_web_platform_upgrade(public_web_session, device_host):
-    __upgrade(public_web_session, 'system', device_host)
+def test_public_web_platform_upgrade(public_web_session, device_host, installer):
+    #if installer == 'snapd':
+        #run_ssh(device_host, 'snap refresh platform --amend --channel=master', password=DEVICE_PASSWORD)
 
-
-def __upgrade(public_web_session, upgrade_type, device_host):
-
-    public_web_session.get('https://{0}/rest/settings/{1}_upgrade'.format(device_host, upgrade_type), verify=False)
+    public_web_session.get('https://{0}/rest/settings/system_upgrade'.format(device_host), verify=False)
     wait_for_sam(public_web_session, device_host)
 
 

@@ -7,7 +7,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 ARCH=$(uname -m)
-VERSION=89
+VERSION=180326
 RELEASE=$1
 
 SAM=sam-${VERSION}-${ARCH}.tar.gz

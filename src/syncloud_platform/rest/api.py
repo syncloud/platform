@@ -38,6 +38,12 @@ def app_domain_name():
     return jsonify(success=True, message='', data=domain_name), 200
 
 
+@app.route("/app/device_domain_name", methods=["GET"])
+def device_domain_name():
+    device_domain_name = get_injector().device_info.domain()
+    return jsonify(success=True, message='', data=device_domain_name), 200
+
+
 @app.route("/app/init_storage", methods=["POST"])
 def init_storage():
     app_name = request.form['app_name']
@@ -51,6 +57,25 @@ def storage_dir():
     app_name = request.args['name']
     app_storage_dir = get_app_setup(app_name).get_storage_dir()
     return jsonify(success=True, message='', data=app_storage_dir), 200
+
+
+@app.route("/port/add", methods=["POST"])
+def port_add():
+    port = request.form['port']
+    protocol = request.form['protocol']
+    mapping = get_injector().device.add_port(port, protocol)
+    if mapping:
+        return jsonify(success=True, message='', data=mapping.external_port), 200
+    else:
+        return jsonify(success=False, message='Not adding external port'), 200
+
+
+@app.route("/port/remove", methods=["POST"])
+def port_remove():
+    port = request.form['port']
+    protocol = request.form['protocol']
+    get_injector().device.remove_port(port, protocol)
+    return jsonify(success=True, message='', data='OK'), 200
 
 
 @app.route("/user/email", methods=["GET"])
