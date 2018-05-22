@@ -3,7 +3,10 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 ARCH=$(dpkg --print-architecture)
-VERSION=180516
+VERSION=rc
+if [[ "$VERSION" == "rc" ]] || [[ "$VERSION" == "stable" ]] || [[ "$VERSION" == "master" ]]; then
+    VERSION=$(curl http://apps.syncloud.org/releases/$VERSION/snapd.version)
+fi
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
