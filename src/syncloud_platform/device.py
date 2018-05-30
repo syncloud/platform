@@ -31,7 +31,7 @@ class Device:
 
         self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
         self.user_platform_config.set_redirect_enabled(True)
-        self.sam.update()
+        
         self.user_platform_config.update_redirect(main_domain, redirect_api_url)
         self.user_platform_config.set_user_email(redirect_email)
 
@@ -44,38 +44,29 @@ class Device:
 
         user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
         self.user_platform_config.set_user_update_token(user.update_token)
-
+      
+        name, email = parse_username(device_username, '{0}.{1}'.format(user_domain_lower, main_domain))
+     
         response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain_lower)
         self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
-
-        self.platform_cron.remove()
-        self.platform_cron.create()
-
-        self.set_access(False, False, None, 0, 0)
-
-        self.logger.info("activating ldap")
-        self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
-
-        self.tls.generate_self_signed_certificate()
-        name, email = parse_username(device_username, '{0}.{1}'.format(user_domain_lower, main_domain))
-        self.auth.reset(name, device_username, device_password, email)
-        
-        self.nginx.init_config()
-        self.nginx.reload_public()
-        
-        self.logger.info("activation completed")
+   
+        self._activate_common(name, device_username, device_password, email)
 
     def activate_custom_domain(self, full_domain, device_username, device_password):
         full_domain_lower = full_domain.lower()
         self.logger.info("activate custom {0}, {1}".format(full_domain_lower, device_username))
-        self.sam.update()
+        
         
         self.user_platform_config.set_redirect_enabled(False)
         self.user_platform_config.set_custom_domain(full_domain_lower)
         
         name, email = parse_username(device_username, full_domain_lower)
         self.user_platform_config.set_user_email(email)
-
+       
+        self._activate_common(name, device_username, device_password, email)
+        
+    def _activate_common(self, name, device_username, device_password, email):
+    
         self.platform_cron.remove()
         self.platform_cron.create()
 
