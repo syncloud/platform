@@ -2,7 +2,7 @@ import getpass
 import uuid
 
 from syncloud_app import logger
-
+import requests
 from syncloud_platform.gaplib import fs
 from syncloud_platform.config.config import WEB_CERTIFICATE_PORT, WEB_ACCESS_PORT, WEB_PROTOCOL
 
@@ -87,7 +87,21 @@ class Device:
         self.logger.info("activation completed")
 
     def _check_internet_connection(self):
-        pass
+        check_url = 'http://apps.syncloud.org/releases/stable/index'
+        internet_ok = True
+        try:
+            response = requests.get(check_url, params=request)
+            self.logger.info('Internet check, response status_code: {0}'.format(response.status_code))
+            if response.status_code != 200:
+                internet_ok = False
+         
+        except Exception, e:
+            self.logger.error('Internet check url {0} is not reachable, error: {1}'.format(check_url, e.message))
+            internet_ok = False
+        
+        if !internet_ok:
+            raise Exception('Internet is not available, check your device connection')
+
         
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         self.logger.info('set_access: external_access={0}'.format(external_access))
