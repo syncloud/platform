@@ -12,13 +12,12 @@ http_network_protocol = 'TCP'
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, sam, platform_cron, ldap_auth, event_trigger, tls, nginx):
+                 port_drill_factory, platform_cron, ldap_auth, event_trigger, tls, nginx):
         self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.redirect_service = redirect_service
         self.port_drill_factory = port_drill_factory
-        self.sam = sam
         self.auth = ldap_auth
         self.platform_cron = platform_cron
         self.event_trigger = event_trigger
@@ -42,6 +41,8 @@ class Device:
         user_domain_lower = user_domain.lower()
         self.logger.info("activate {0}, {1}".format(user_domain_lower, device_username))
 
+        self._check_internet_connection()
+        
         user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
         self.user_platform_config.set_user_update_token(user.update_token)
       
@@ -56,6 +57,7 @@ class Device:
         full_domain_lower = full_domain.lower()
         self.logger.info("activate custom {0}, {1}".format(full_domain_lower, device_username))
         
+        self._check_internet_connection()
         
         self.user_platform_config.set_redirect_enabled(False)
         self.user_platform_config.set_custom_domain(full_domain_lower)
@@ -84,6 +86,9 @@ class Device:
         
         self.logger.info("activation completed")
 
+    def _check_internet_connection(self):
+        pass
+        
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         self.logger.info('set_access: external_access={0}'.format(external_access))
 

@@ -14,6 +14,7 @@ class Snap:
         self.logger = logger.get_logger('Snap')
 
     def update(self, release=None):
+        self.logger.info('snap update is not supported')
         return None
         
     def install(self, app_id):
