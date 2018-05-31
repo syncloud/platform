@@ -99,7 +99,7 @@ class Device:
             self.logger.error('Internet check url {0} is not reachable, error: {1}'.format(check_url, e.message))
             internet_ok = False
         
-        if !internet_ok:
+        if not internet_ok:
             raise Exception('Internet is not available, check your device connection')
 
         
