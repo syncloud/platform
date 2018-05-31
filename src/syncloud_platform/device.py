@@ -90,7 +90,7 @@ class Device:
         check_url = 'http://apps.syncloud.org/releases/stable/index'
         internet_ok = True
         try:
-            response = requests.get(check_url, params=request)
+            response = requests.get(check_url)
             self.logger.info('Internet check, response status_code: {0}'.format(response.status_code))
             if response.status_code != 200:
                 internet_ok = False
