@@ -90,15 +90,51 @@ def test_settings(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
-def test_access(driver, device_host):
+def test_settings_activation(driver, device_host):
 
-    driver.get("http://{0}/access.html".format(device_host))
+    driver.get("http://{0}/activation.html".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'access')
+    screenshots(driver, screenshot_dir, 'settings_activation')
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
+
+def test_settings_network(driver, device_host):
+
+    driver.get("http://{0}/network.html".format(device_host))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'settings_network')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+def test_settings_storage(driver, device_host):
+
+    driver.get("http://{0}/storage.html".format(device_host))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'settings_storage')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+def test_settings_updates(driver, device_host):
+
+    driver.get("http://{0}/updates.html".format(device_host))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'settings_updates')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+def test_settings_support(driver, device_host):
+
+    driver.get("http://{0}/support.html".format(device_host))
+    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'settings_support')
+ 
+    assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 def test_app_center(driver, device_host):
 

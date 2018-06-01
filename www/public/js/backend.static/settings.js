@@ -1,5 +1,5 @@
 backend.device_data = {
-      "device_domain": "http://test.syncloud.it",
+      "device_url": "http://test.syncloud.it",
       "success": true
     };
 
