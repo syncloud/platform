@@ -98,7 +98,7 @@ class Hardware:
             os.mkdir(app_storage_dir)
         if owner and self.__support_permissions():
             self.log.info('fixing permissions on {0}'.format(app_storage_dir))
-            fs.chownpath(app_storage_dir, owner)
+            fs.chownpath(app_storage_dir, owner, recursive=True)
         else:
             self.log.info('not fixing permissions')
         return app_storage_dir
