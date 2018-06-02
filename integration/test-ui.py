@@ -92,7 +92,7 @@ def test_settings(driver, device_host):
 
 def test_access(driver, device_host):
 
-    driver.get("http://{0}/access.html".format(device_host))
+    driver.get("http://{0}/network.html".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'access')
