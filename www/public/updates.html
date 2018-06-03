@@ -71,23 +71,34 @@
 		</div>
 		<!--block1-->
 		<div class="block1 wd12" id="block1">
-			<h1>Activation</h1>
+			<h1>Updates</h1>
 			<div class="row settingsblock">
-
-			<div class="col2">
-				<div class="setline">
-					<span class="span">Activated to: </span><a id="txt_device_domain">Loading ...</a>
-				</div>
-				
-				<div class="setline">
-					<span class="span">You can assign different<br>domain name to your device</span>
-					<div class="spandiv">
-						<button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button>
+				<div class="col2">
+					<div class="setline">
+						<button class="buttongreen bwidth smbutton btn-lg" id="btn_check_updates" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Checking...">Check for updates</button>
 					</div>
+					<div class="setline">
+						<span class="span">Current system version: </span><span id="txt_platform_version"></span>
+						<div id="block_system_upgrade" style="display: none">
+							<span class="span">Available version: </span><span id="txt_system_version_available"></span>
+							<div class="spandiv">
+								<button class="buttongreen bwidth smbutton btn-lg" id="btn_platform_upgrade" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading...">Upgrade</button>
+							</div>
+						</div>
+					</div>
+					<div class="setline">
+						<span class="span">Current installer version: </span><span id="txt_sam_version"></span>
+						<div id="block_sam_upgrade" style="display: none">
+							<span class="span">Available installer version: </span><span id="txt_sam_version_available"></span>
+							<div class="spandiv">
+								<button class="buttongreen bwidth smbutton btn-lg" id="btn_sam_upgrade" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading...">Upgrade</button>
+							</div>
+						</div>
+					</div>
+					
 				</div>
-				
+
 			</div>
-			
 		</div>
 	</div>
 </div>
@@ -111,7 +122,6 @@
   </div>
 </div>
 
-
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -122,29 +132,113 @@
 
 <script type="text/javascript">
 
-function ui_display_device_url(data) {
-		$("#txt_device_domain").attr('href', data.device_url);
-		$("#txt_device_domain").text(data.device_url);
+function ui_display_toggles() {
+	$("[type='checkbox']").each(function() {
+		$(this).bootstrapSwitch();
+	});
 }
 
-function ui_check_device_url() {
-	backend.device_url(ui_display_device_url, ui_display_error);
+ui_display_toggles();
+
+function upgrade_buttons_enabled(is_enabled) {
+		var btn_platform = $("#btn_platform_upgrade");
+		var btn_sam = $("#btn_sam_upgrade");
+		btn_platform.prop('disabled', !is_enabled);
+		btn_sam.prop('disabled', !is_enabled);
+}
+
+function ui_display_versions(data) {
+		var platform_data = find_app(data.data, "platform");
+		var sam_data = find_app(data.data, "sam");
+
+		$("#txt_platform_version").html(platform_data.installed_version);
+		$("#txt_system_version_available").html(platform_data.current_version);
+
+		if (platform_data.installed_version != platform_data.current_version) {
+				$("#block_system_upgrade").show();
+		} else {
+				$("#block_system_upgrade").hide();
+		}
+
+		$("#txt_sam_version").html(sam_data.installed_version);
+		$("#txt_sam_version_available").html(sam_data.current_version);
+
+		if (sam_data.installed_version != sam_data.current_version) {
+				$("#block_sam_upgrade").show();
+		} else {
+				$("#block_sam_upgrade").hide();
+		}
+}
+
+function ui_get_versions(on_always) {
+		backend.get_versions(ui_display_versions, on_always, ui_display_error);
+}
+
+function ui_check_versions() {
+    var btn = $("#btn_check_updates");
+    upgrade_buttons_enabled(false);
+    btn.button('loading');
+    
+    check_versions(
+        function (data) {
+            ui_display_versions(data);
+            btn.button('reset');
+            upgrade_buttons_enabled(true);
+        }, 
+        function (a, b, c) {
+            ui_display_error(a, b, c);
+            btn.button('reset');
+            upgrade_buttons_enabled(true);
+        });
+}
+
+function ui_platform_upgrade() {
+    var btn = $("#btn_platform_upgrade");
+    btn.button('loading');
+
+    platform_upgrade(
+        function (data) {
+            ui_display_versions(data);
+            btn.button('reset');
+        }, 
+        function (a, b, c) {
+            ui_display_error(a, b, c);
+            btn.button('reset');
+        });
+ 
+}
+
+function ui_sam_upgrade() {
+    var btn = $("#btn_sam_upgrade");
+    btn.button('loading');
+
+    sam_upgrade(
+        function (data) {
+            ui_display_versions(data);
+            btn.button('reset');
+        },
+        function (a, b, c) {
+            ui_display_error(a, b, c);
+            btn.button('reset');
+        });
+ 
 }
 
 $(document).ready(function () {
 
-    $("#btn_reactivate").on('click', function () {
-    	    backend.reactivate(
-    		       function (data) {
-                window.location.href = data.activate_url;
-            },
-            function (a, b, c) {
-                ui_display_error(a, b, c);
-            }
-        );
+    $("#btn_check_updates").on('click', function () {
+    		ui_check_versions();
     });
 
-    ui_check_device_url();
+    $("#btn_platform_upgrade").on('click', function () {
+    		ui_platform_upgrade();
+    });
+
+    $("#btn_sam_upgrade").on('click', function () {
+    		ui_sam_upgrade();
+    });
+
+    ui_check_versions();
 });
 
 </script>
