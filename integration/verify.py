@@ -391,7 +391,7 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
 
 
 def test_installer_upgrade(public_web_session, device_host):
-    public_web_session.get('https://{0}/rest/settings/upgrade?app_id=sam'.format(device_host), verify=False)
+    public_web_session.get('https://{0}/rest/upgrade?app_id=sam'.format(device_host), verify=False)
     wait_for_sam(public_web_session, device_host)
 
 
@@ -518,7 +518,7 @@ def test_local_upgrade(app_archive_path, installer, device_host):
 
 def test_public_web_platform_upgrade(public_web_session, device_host, installer):
 
-    public_web_session.get('https://{0}/rest/settings/upgrade?app_id=platform&channel=master&force=true'.format(device_host), verify=False)
+    public_web_session.get('https://{0}/rest/upgrade?app_id=platform&channel=master&force=true'.format(device_host), verify=False)
     wait_for_sam(public_web_session, device_host)
 
 
