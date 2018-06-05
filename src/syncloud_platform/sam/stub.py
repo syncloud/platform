@@ -59,7 +59,7 @@ class SamStub:
         self.__is_space_available_or_exception()
         self.__run_detached('{0} install {1}'.format(SAM_BIN, app_id))
 
-    def upgrade(self, app_id):
+    def upgrade(self, app_id, channel, force):
         self.__is_space_available_or_exception()
         sam_bin = self.__get_sam_bin(app_id)
         self.__run_detached('{0} upgrade {1}'.format(sam_bin, app_id))

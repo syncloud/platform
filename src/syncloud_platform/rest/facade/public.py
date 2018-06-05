@@ -53,8 +53,8 @@ class Public:
     def remove(self, app_id):
         return self.sam.remove(app_id)
 
-    def upgrade(self, app_id):
-        self.sam.upgrade(app_id)
+    def upgrade(self, app_id, channel, force):
+        self.sam.upgrade(app_id, channel, force)
 
     def update(self):
         return self.sam.update()
@@ -88,12 +88,6 @@ class Public:
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
-
-    def system_upgrade(self):
-        self.sam.upgrade('platform')
-
-    def sam_upgrade(self):
-        self.sam.upgrade('sam')
 
     def sam_status(self):
         return self.sam.status()
