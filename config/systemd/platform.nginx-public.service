@@ -11,6 +11,7 @@ ExecStartPre={{ app_dir }}/bin/service.nginx-public.sh pre-start
 ExecStart={{ app_dir }}/bin/service.nginx-public.sh start
 ExecStartPost={{ app_dir }}/bin/service.nginx-public.sh post-start
 ExecStop={{ app_dir }}/bin/service.nginx-public.sh stop
+ExecReload={{ app_dir }}/bin/service.nginx-public.sh reload
 
 [Install]
 WantedBy=multi-user.target
