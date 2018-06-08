@@ -516,10 +516,12 @@ def test_local_upgrade(app_archive_path, installer, device_host):
         local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_public_web_platform_upgrade(public_web_session, device_host, installer):
-
-    public_web_session.get('https://{0}/rest/upgrade?app_id=platform&channel=master&force=true'.format(device_host), verify=False)
-    wait_for_sam(public_web_session, device_host)
+#def test_public_web_platform_upgrade(public_web_session, device_host, installer):
+#    if installer == 'snapd':
+#        run_ssh(device_host, 'snap refresh platform --amend --channel=stable', password=DEVICE_PASSWORD) 
+        
+#    public_web_session.get('https://{0}/rest/upgrade?app_id=platform&channel=master'.format(device_host), verify=False)
+#    wait_for_sam(public_web_session, device_host)
 
 
 def test_reinstall_local_after_upgrade(app_archive_path, installer, device_host):
