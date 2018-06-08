@@ -6,11 +6,10 @@ After=platform.uwsgi-public.service
 [Service]
 Type=forking
 PIDFile={{ app_data }}/log/nginx_public.pid
-ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ config_root }}/config.runtime/nginx/nginx.conf -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
-ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config.runtime/nginx/nginx.conf -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
-ExecStartPost=/usr/bin/timeout 5 /bin/bash -c 'until echo > /dev/tcp/localhost/80; do sleep 1; done'
-ExecReload={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config.runtime/nginx/nginx.conf -s reload -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
-ExecStop={{ app_dir }}/nginx/sbin/nginx -c {{ config_root }}/config.runtime/nginx/nginx.conf -s stop -g 'error_log {{ app_data }}/log/nginx_error.log warn;'
+ExecStartPre={{ app_dir }}/bin/service.nginx-public.sh pre-start
+ExecStart={{ app_dir }}/bin/service.nginx-public.sh start
+ExecStartPost={{ app_dir }}/bin/service.nginx-public.sh post-start
+ExecStop={{ app_dir }}/bin/service.nginx-public.sh stop
 
 [Install]
 WantedBy=multi-user.target
