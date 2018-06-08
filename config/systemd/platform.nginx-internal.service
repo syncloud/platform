@@ -6,6 +6,7 @@ After=platform.uwsgi-internal.service
 [Service]
 Type=forking
 PIDFile={{ app_data }}/log/nginx_internal.pid
+Environment=SNAP_COMMON={{ app_data }}
 ExecStartPre={{ app_dir }}/bin/service.nginx-internal.sh pre-start
 ExecStart={{ app_dir }}/bin/service.nginx-internal.sh start
 ExecStartPost={{ app_dir }}/bin/service.nginx-internal.sh post-start

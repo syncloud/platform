@@ -85,7 +85,6 @@ class PlatformInstaller:
 
         systemctl = injector.systemctl
         systemctl.add_service(APP_NAME, 'platform.cpu-frequency')
-        systemctl.add_service(APP_NAME, 'platform.insider-sync')
         systemctl.add_service(APP_NAME, 'platform.ntpdate')
         systemctl.add_service(APP_NAME, 'platform.uwsgi-api')
         systemctl.add_service(APP_NAME, 'platform.uwsgi-internal')
@@ -107,7 +106,6 @@ class PlatformInstaller:
         systemctl.remove_service('platform.uwsgi-internal')
         systemctl.remove_service('platform.uwsgi-api')
         systemctl.remove_service('platform.ntpdate')
-        systemctl.remove_service('platform.insider-sync')
         systemctl.remove_service('platform.cpu-frequency')
 
         injector.platform_cron.remove()
