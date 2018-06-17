@@ -6,12 +6,12 @@ apps:
     - network
     - network-bind
     restart-condition: always
-    pre-start-commamd: bin/service.nginx-api.sh pre-start
+    pre-start-command: bin/service.nginx-api.sh pre-start
     stop-command: bin/service.nginx-api.sh stop
     reload-command: bin/service.nginx-api.sh reload
   nginx-internal:
     command: bin/service.nginx-internal.sh start
-    post-start-commamd: bin/service.nginx-internal.sh post-start
+    post-start-command: bin/service.nginx-internal.sh post-start
     daemon: forking
     plugs:
     - network
@@ -21,7 +21,7 @@ apps:
     reload-command: bin/service.nginx-internal.sh reload
   nginx-public:
     command: bin/service.nginx-public.sh start
-    post-start-commamd: bin/service.nginx-public.sh post-start
+    post-start-command: bin/service.nginx-public.sh post-start
     daemon: forking
     plugs:
     - network
