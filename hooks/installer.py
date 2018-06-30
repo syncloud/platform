@@ -54,7 +54,8 @@ class PlatformInstaller:
             join(data_dir, 'nginx'),
             join(data_dir, 'openldap'),
             join(data_dir, 'openldap-data'),
-            join(data_dir, 'certbot')
+            join(data_dir, 'certbot'),
+            join(data_dir, 'certbot', 'www')
         ]
 
         for data_dir in data_dirs:
