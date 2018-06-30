@@ -51,7 +51,7 @@ class CertbotGenerator:
         if is_test_cert:
             test_cert = '--test-cert --break-my-certs'
 
-        plugin = '--webroot --webroot-path {0}/certbot/www'.format(self.platform_config.data_diródk())
+        plugin = '--webroot --webroot-path {0}/certbot/www'.format(self.platform_config.data_dir())
 
         try:
 
