@@ -12,22 +12,22 @@ function show_field_error(txt_field, error) {
     var txt_field_selector = "#"+txt_field;
     var error_block_id = get_error_block_id(txt_field);
     var error_block_selector = "#"+error_block_id;
-    var error_html = "<div class='alert alert-danger alert90' id='"+error_block_id+"'><b>"+error+"</b></div>"
-    $( error_html ).insertAfter( txt_field_selector );
+    $( error_block_selector ).html( "<b>"+error+"</b>" );
+    $( error_block_selector ).show();
+
     $( txt_field_selector ).bind("keyup change", function(e) {
-        $( error_block_selector ).remove();
+        $( error_block_selector ).hide();
     });
 }
 
 function hide_field_error(txt_field) {
     var error_block_id = error_block_id(txt_field);
-    var error_block_selector = "#"+error_block_id;
-    $( error_block_selector ).remove();
+    $( "#"+error_block_id ).hide();
 }
 
 function hide_fields_errors(form) {
     error_blocks_selector = "#"+form+" .alert";
-    $( error_blocks_selector ).remove();
+    $( error_blocks_selector ).hide();
 }
 
 function ui_display_error(xhr, textStatus, exception) {

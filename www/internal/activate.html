@@ -61,8 +61,11 @@
 							</button>
 						</div>
 						<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
+						<div class="alert alert-danger alert90" id="redirect_email_alert" style="display: none;"></div>
 						<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
+						<div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
 						<input placeholder="Name" class="domain" name="user_domain" id="user_domain" type="text"><span>.syncloud.it</span>
+						<div class="alert alert-danger alert90" id="user_domain_alert" style="display: none;"></div>
 
 					</div>
 					<div id="domain_custom" class="tab-pane fade" style="text-align: center">
@@ -72,6 +75,7 @@
 						</button>
 						<input placeholder="Top level domain like example.com"
 						   class="domain" name="full_domain" id="full_domain" type="text" style="width:100% !important;">
+						<div class="alert alert-danger alert90" id="full_domain_alert" style="display: none;"></div>
 					</div>
 				</div>
 
@@ -83,7 +87,9 @@
 				</div>
 
 				<input placeholder="Login" class="nameinput" name="device_username" id="device_username" type="text">
+				<div class="alert alert-danger alert90" id="device_username_alert" style="display: none;"></div>
 				<input placeholder="Password" class="passinput" name="device_password" id="device_password" type="password">
+				<div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
 				<button id="btn_activate" class="submit buttonblue" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">Activate</button>
 			</form>
 		</div>
