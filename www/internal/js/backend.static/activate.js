@@ -25,7 +25,7 @@ var backend = {
             on_error({responseJSON: that.error_full_domain}, "error", {})
         }, 2000);
     },
-    login: function(name, password) {
+    login: function() {
         window.location.href = "login.html";
     }
 };

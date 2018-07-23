@@ -11,19 +11,14 @@ var backend = {
             .fail(on_error)
             .always(on_always);
     },
-    login: function(name, password) {
+    login: function() {
         var url = (new URI())
                 .protocol('https')
                 .port(443)
-                .filename("/rest/login")
+                .filename("")
                 .query("");
 
-        var form = $(
-                '<form action="' + url + '" method="post">' +
-                '<input type="hidden" name="name" value="' + name + '" />' +
-                '<input type="hidden" name="password" value="' + password + '" />' +
-                '</form>');
-        $('body').append(form);
-        form.submit();
+        window.location.href = url;
+
     }
 };

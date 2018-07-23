@@ -239,28 +239,24 @@ $(document).ready(function () {
 				btn.button('loading');
 				$("#form_activate input").prop("disabled", true);
 				hide_fields_errors("form_activate");
-   if ( $("#domain_type").val() == 'syncloud') {
-				backend.activate(
-					values,
-					function() {
-						btn.button('reset');
-						$("#form_activate input").prop("disabled", false);
-					},
-					function() {
-     backend.login($('#device_username').val(), $('#device_password').val());
-					},
-					ui_display_error);
+
+				var on_always = function() {
+					btn.button('reset');
+					$("#form_activate input").prop("disabled", false);
+				};
+
+   				if ( $("#domain_type").val() == 'syncloud') {
+					backend.activate(
+						values,
+						on_always,
+						backend.login,
+						ui_display_error);
 				} else {
-				backend.activate_custom_domain(
-					values,
-					function() {
-						btn.button('reset');
-						$("#form_activate input").prop("disabled", false);
-					},
-					function() {
-     backend.login($('#device_username').val(), $('#device_password').val());
-					},
-					ui_display_error);
+					backend.activate_custom_domain(
+						values,
+						on_always,
+						backend.login,
+						ui_display_error);
 				}
 		});
 });
