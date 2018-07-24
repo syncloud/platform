@@ -61,7 +61,7 @@ class Device:
         
         self.user_platform_config.set_redirect_enabled(False)
         self.user_platform_config.set_custom_domain(full_domain_lower)
-        
+
         name, email = parse_username(device_username, full_domain_lower)
         self.user_platform_config.set_user_email(email)
        
@@ -83,7 +83,9 @@ class Device:
         
         self.nginx.init_config()
         self.nginx.reload_public()
-        
+
+        self.user_platform_config.set_activated()
+
         self.logger.info("activation completed")
 
     def _check_internet_connection(self):
