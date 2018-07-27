@@ -1,26 +1,27 @@
 apps:
   nginx-api:
-    command: bin/service.nginx.sh start api
+    command: bin/service.nginx-api.sh start
     daemon: forking
     plugs:
     - network
     - network-bind
     restart-condition: always
-    stop-command: bin/service.nginx.sh stop api
-    reload-command: bin/service.nginx.sh reload api
+    pre-start-command: bin/service.nginx-api.sh pre-start
+    stop-command: bin/service.nginx-api.sh stop
+    reload-command: bin/service.nginx-api.sh reload
   nginx-internal:
-    command: bin/service.nginx.sh start internal
-    post-start-commamd: bin/service.nginx.sh post-start internal
+    command: bin/service.nginx-internal.sh start
+    post-start-command: bin/service.nginx-internal.sh post-start
     daemon: forking
     plugs:
     - network
     - network-bind
     restart-condition: always
-    stop-command: bin/service.nginx.sh stop internal
-    reload-command: bin/service.nginx.sh reload internal
+    stop-command: bin/service.nginx-internal.sh stop
+    reload-command: bin/service.nginx-internal.sh reload
   nginx-public:
     command: bin/service.nginx-public.sh start
-    post-start-commamd: bin/service.nginx.sh post-start internal
+    post-start-command: bin/service.nginx-public.sh post-start
     daemon: forking
     plugs:
     - network

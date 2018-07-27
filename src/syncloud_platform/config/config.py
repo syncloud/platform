@@ -207,6 +207,17 @@ class PlatformUserConfig:
         self.__set('platform', 'custom_domain', custom_domain)
         self.__save()
 
+    def set_activated(self):
+        self.parser.read(self.filename)
+        self.__set('platform', 'activated', True)
+        self.__save()
+
+    def is_activated(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'activated'):
+            return False
+        return self.parser.getboolean('platform', 'activated')
+
     def get_custom_domain(self):
         self.parser.read(self.filename)
         if self.parser.has_option('platform', 'custom_domain'):

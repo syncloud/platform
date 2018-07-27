@@ -3,27 +3,27 @@ backend.apps_data = {
         {
           "id": "owncloud",
           "name": "ownCloud",
-          "icon": "penguin.png"
+          "icon": "appsimages/penguin.png"
         },
         {
           "id": "diaspora",
           "name": "Diaspora",
-          "icon": "penguin.png"
+          "icon": "appsimages/penguin.png"
         },
         {
           "id": "mail",
           "name": "Mail",
-          "icon": "penguin.png"
+          "icon": "appsimages/penguin.png"
         },
         {
           "id": "talk",
           "name": "Talk",
-          "icon": "penguin.png"
+          "icon": "appsimages/penguin.png"
         },
         {
           "id": "files",
           "name": "Files Browser",
-          "icon": "penguin.png"
+          "icon": "appsimages/penguin.png"
         }
       ]
     };

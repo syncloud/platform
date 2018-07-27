@@ -21,11 +21,11 @@ backend.check_versions = function(on_always, on_error) {
     };
 
 backend.platform_upgrade = function(on_complete, on_error) {
-        $.get('/rest/settings/system_upgrade').done(on_complete).fail(on_error);
+        $.get('/rest/upgrade', { app_id: 'platform' }).done(on_complete).fail(on_error);
     };
 
 backend.sam_upgrade = function(on_complete, on_error) {
-        $.get('/rest/settings/sam_upgrade').done(on_complete).fail(on_error);
+        $.get('/rest/upgrade', { app_id: 'sam' }).done(on_complete).fail(on_error);
     };
 
 backend.update_disks = function(on_complete, on_error) {

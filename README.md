@@ -1,4 +1,4 @@
-## Syncloud (syncloud.org)
+## Syncloud (https://syncloud.org)
 
 Syncloud brings popular apps to your home.
 It is available as an image or pre-installed devcie.
@@ -11,6 +11,9 @@ It is available as an image or pre-installed devcie.
 * Mail: Email messaging with Roundcube web.
 * GOGS: Git source code hosting.
 
+### Images
+
+https://github.com/syncloud/platform/wiki
 
 ## For developers
 

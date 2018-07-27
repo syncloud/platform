@@ -126,7 +126,17 @@ def shutdown():
 @app.route(rest_prefix + "/upgrade", methods=["GET"])
 @login_required
 def upgrade():
-    public.upgrade(request.args['app_id'])
+
+    force = False
+    if 'force' in request.args:
+        force = request.args['force'] == 'true'
+        
+    channel = 'stable'
+    if 'channel' in request.args:
+        channel = request.args['channel']
+        
+    public.upgrade(request.args['app_id'], channel, force)
+    
     return 'OK', 200
 
 
@@ -218,20 +228,6 @@ def disk_activate():
 @login_required
 def versions():
     return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
-
-
-@app.route(rest_prefix + "/settings/system_upgrade", methods=["GET"])
-@login_required
-def system_upgrade():
-    public.system_upgrade()
-    return 'OK', 200
-
-
-@app.route(rest_prefix + "/settings/sam_upgrade", methods=["GET"])
-@login_required
-def sam_upgrade():
-    public.sam_upgrade()
-    return 'OK', 200
 
 
 @app.route(rest_prefix + "/settings/sam_status", methods=["GET"])

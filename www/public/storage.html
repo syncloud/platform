@@ -71,38 +71,18 @@
 		</div>
 		<!--block1-->
 		<div class="block1 wd12" id="block1">
-			<h1>Settings</h1>
+			<h1>Storage</h1>
+			
 			<div class="row settingsblock">
-				<div class="colapp app">
-					<a href="activation.html">
-						<img class="appminimg" src="images/activation.svg">
-						<div class="appname withline">Activation</div>
-					</a>
+	
+				<div class="col2">
+				
+   <div id="block_boot_disk">
+					</div>
+					<div id="block_disks">
+					</div>
 				</div>
-				<div class="colapp app">
-					<a href="network.html">
-						<img class="appminimg" src="images/network.svg">
-						<div class="appname withline">Network</div>
-					</a>
-				</div>
-				<div class="colapp app">
-					<a href="storage.html">
-						<img class="appminimg" src="images/storage.svg">
-						<div class="appname withline">Storage</div>
-					</a>
-				</div>
-				<div class="colapp app">
-					<a href="updates.html">
-						<img class="appminimg" src="images/updates.svg">
-						<div class="appname withline">Updates</div>
-					</a>
-				</div>
-				<div class="colapp app">
-					<a href="support.html">
-						<img class="appminimg" src="images/support.svg">
-						<div class="appname withline">Support</div>
-					</a>
-				</div>
+
 			</div>
 		</div>
 	</div>
@@ -127,6 +107,64 @@
   </div>
 </div>
 
+<script type="text/html" id='template-disks'>
+
+    <%
+		var index = 0;
+		if (disks.length == 0) {
+    %>
+
+		<span class="span">No external disks found</span>
+
+    <% } %>
+
+    <%
+    for (i=0; i < disks.length; i++) {
+				var disk = disks[i];
+    %>
+
+		<div class="setline">
+				<span class="span"><%= disk.name %></span>
+    </div>
+
+    <%
+				partitions = disk.partitions;
+				for (j=0; j < partitions.length; j++) {
+				var partition = partitions[j];
+    %>
+
+		<div class="setline">
+				<span class="span"><%=partition.device %> (<%=partition.size %>)</span>
+				<div class="spandiv">
+						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
+				</div>
+		</div>
+
+    <%
+				index = index + 1;
+            }
+    %>
+
+    <% } %>
+</script>
+
+<script type="text/html" id='template-boot-disk'>
+
+    <div class="setline">
+            <span class="span">Boot disk</span>
+    </div>
+    <div class="setline">
+        <span class="span"><%=device %> (<%=size %>)</span>
+        <% if (extendable) { %>
+        <div class="spandiv">
+            <button class="buttongreen bwidth smbutton btn-lg" id="btn_boot_extend" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
+        </div>
+        <% } %>
+    </div>
+
+</script>
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -135,6 +173,81 @@
 <script src="js/ui/common.js"></script>
 <script src="js/ui/menu.js"></script>
 
+<script type="text/javascript">
+
+function ui_display_toggles() {
+	$("[type='checkbox']").each(function() {
+		$(this).bootstrapSwitch();
+	});
+}
+
+ui_display_toggles();
+
+function ui_display_disks(data) {
+		var template = $("#template-disks").html();
+		$("#block_disks").html(_.template(template)(data));
+		ui_display_toggles();
+
+		$("#block_disks").find("[type='checkbox']").each(function() {
+				var tgl_device = $(this);
+				$(this).on('switchChange.bootstrapSwitch', function(e, s) {
+						var state = tgl_device.bootstrapSwitch('state');
+						var disk_device = tgl_device.data('device');
+						var device_index = tgl_device.data('index');
+
+						$("#block_disks").find("[type='checkbox']").each(function() {
+								$(this).bootstrapSwitch('disabled', true);
+						});
+						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
+						$(tgl_loading_id).addClass('opacity-visible');
+
+						disk_action(disk_device, state,
+                                ui_check_disks,
+                                ui_display_error);
+				})
+		});
+}
+
+function ui_display_boot_disk(data) {
+		var template = $("#template-boot-disk").html();
+		$("#block_boot_disk").html(_.template(template)(data.data));
+        $("#btn_boot_extend").on('click', function () {
+    		ui_boot_extend();
+        });
+}
+
+function ui_boot_extend() {
+    var btn = $("#btn_boot_extend");
+    btn.button('loading');
+    
+    boot_extend(
+        function (data) {
+            ui_display_boot_disk(data);
+            btn.button('reset');
+        },
+        function (a, b, c) {
+            ui_display_error(a, b, c);
+            btn.button('reset');
+        });
+
+}
+
+function ui_check_disks() {
+		backend.update_disks(ui_display_disks, ui_display_error);
+}
+
+function ui_check_boot_disk(on_always) {
+		backend.update_boot_disk(ui_display_boot_disk, on_always, ui_display_error);
+}
+
+$(document).ready(function () {
+
+    ui_check_disks();
+    ui_check_boot_disk(function() {});
+
+});
+
+</script>
 
 <!--[if lt IE 9]>
 <script src="js/lib/html5.js"></script>
@@ -142,6 +255,10 @@
 <![endif]-->
 
 <script src="js/common.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/backend/common.js"></script>
+<script src="js/backend/menu.js"></script>
+<script src="js/backend/settings.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

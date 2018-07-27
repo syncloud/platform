@@ -14,10 +14,12 @@ def nocache(f):
 
 def redirect_if_not_activated(f):
     platform_user_config = get_injector().user_platform_config
+
     def new_func(*args, **kwargs):
         resp = make_response(f(*args, **kwargs))
-        if platform_user_config.get_domain_update_token() is None:
+        if not platform_user_config.is_activated():
             return redirect('http://{0}:81'.format(request.host))
         else:
             return resp
+
     return update_wrapper(new_func, f)

@@ -68,7 +68,7 @@ def module_teardown(data_dir, device_host, app_dir):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
 
-def test_start(module_setup, device_host, app_dir):
+def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
         
@@ -77,6 +77,18 @@ def test_start(module_setup, device_host, app_dir):
 
 def test_install(app_archive_path, installer, device_host):
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
+
+
+def test_http_port_validation_url(device_host):
+    response = requests.get('http://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert response.text == 'OK'
+
+
+def test_https_port_validation_url(device_host):
+    response = requests.get('https://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert response.text == 'OK'
 
 
 def test_non_activated_device_main_page_redirect_to_activation(device_host):
@@ -143,7 +155,7 @@ def test_platform_rest(device_host):
 def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
-    generate_file_jinja(nginx_template, nginx_runtime, { 'app_data': app_data_dir, 'platform_data': data_dir })
+    generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
     run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
     run_ssh(main_domain, '{0}/nginx/sbin/nginx '
@@ -189,30 +201,6 @@ def generate_file_jinja(from_path, to_path, variables):
         makedirs(to_path_dir)
     with open(to_path, 'wb+') as fh:
         fh.write(output.encode("UTF-8"))
-
-
-# def test_external_mode(auth, public_web_session, user_domain, device_host):
-#
-#     email, password, domain, release = auth
-#
-#     run_ssh(device_host, 'cp /integration/event/on_domain_change.py /opt/app/platform/bin', password=DEVICE_PASSWORD)
-#
-#     response = public_web_session.get('http://{0}/rest/settings/external_access'.format(device_host))
-#     assert '"external_access": false' in response.text
-#     assert response.status_code == 200
-#
-#     response = public_web_session.get('https://{0}/rest/settings/set_external_access'.format(device_host),
-#                                       params={'external_access': 'true'})
-#     assert '"success": true' in response.text
-#     assert response.status_code == 200
-#
-#     response = public_web_session.get('http://{0}/rest/settings/external_access'.format(device_host))
-#     assert '"external_access": true' in response.text
-#     assert response.status_code == 200
-#
-#     _wait_for_ip(user_domain)
-#
-#     assert run_ssh('cat /tmp/on_domain_change.log', password=DEVICE_PASSWORD) == '{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
 def _wait_for_ip(user_domain):
@@ -276,7 +264,6 @@ def test_available_apps(public_web_session, device_host):
     assert len(json.loads(response.text)['apps']) > 1
     
 
-
 def test_device_url(public_web_session, device_host):
     response = public_web_session.get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
     with open('{0}/rest.settings.device_url.json'.format(LOG_DIR), 'w') as the_file:
@@ -303,10 +290,8 @@ def test_activate_url(public_web_session, device_host):
     #wait_for_rest(public_web_session, device_host, '/', 200)
 
 
-def test_protocol(auth, public_web_session, device_host, app_dir, ssh_env_vars, main_domain):
+def test_protocol(public_web_session, device_host, app_dir, ssh_env_vars, main_domain):
 
-    email, password, domain, release = auth
- 
     response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
@@ -391,7 +376,7 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(public_web_ses
 
 
 def test_installer_upgrade(public_web_session, device_host):
-    public_web_session.get('https://{0}/rest/settings/sam_upgrade'.format(device_host), verify=False)
+    public_web_session.get('https://{0}/rest/upgrade?app_id=sam'.format(device_host), verify=False)
     wait_for_sam(public_web_session, device_host)
 
 
@@ -516,12 +501,12 @@ def test_local_upgrade(app_archive_path, installer, device_host):
         local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
-def test_public_web_platform_upgrade(public_web_session, device_host, installer):
-    #if installer == 'snapd':
-        #run_ssh(device_host, 'snap refresh platform --amend --channel=master', password=DEVICE_PASSWORD)
-
-    public_web_session.get('https://{0}/rest/settings/system_upgrade'.format(device_host), verify=False)
-    wait_for_sam(public_web_session, device_host)
+#def test_public_web_platform_upgrade(public_web_session, device_host, installer):
+#    if installer == 'snapd':
+#        run_ssh(device_host, 'snap refresh platform --amend --channel=stable', password=DEVICE_PASSWORD) 
+        
+#    public_web_session.get('https://{0}/rest/upgrade?app_id=platform&channel=master'.format(device_host), verify=False)
+#    wait_for_sam(public_web_session, device_host)
 
 
 def test_reinstall_local_after_upgrade(app_archive_path, installer, device_host):

@@ -71,12 +71,12 @@
 		</div>
 		<!--block1-->
 		<div class="block1 wd12" id="block1">
-			<h1>Access</h1>
+			<h1>Network</h1>
 			<div class="row settingsblock">
 
                 <div class="col2">
 
-                    <h3>Network</h3>
+                    <h3>Local</h3>
                     <div class="setline">
                         <div id="block_network"></div>
                     </div>
@@ -89,10 +89,16 @@
 
                     <div class="setline">
                         <span class="span">External Access:</span>
+                        
+				                     	
                         <div class="spandiv">
                             <input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
                             <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
                         </div>
+                        
+                        <button data-toggle="modal" data-target="#help_external_access" type=button style=" background:transparent;">
+				                      		<i class='fa fa-question-circle fa-lg'></i>
+				                     	</button>
                     </div>
                     <div id="external_block" style="display: none">
                         <div class="setline">
@@ -242,6 +248,38 @@
 				<div class="bodymod">
 					<div class="btext">
 						Your router does not have port mapping feature enabled.
+					</div>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="help_external_access" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">External access</h4>
+			</div>
+			<div class="modal-body">
+				<div class="bodymod">
+					<div class="btext">
+						External access is used for two things:
+    <br><br>
+    1. Allow syncloud.it device DNS to use public IP. By default it uses internal IP to allow DNS based app access inside local network.
+    <br>
+    2. Maintain UPnP (auto) port mappings.
+    <br><br>
+    External access will not change device itself ports, they are always 80 and 443.
+    <br><br>
+    Syncloud.it DNS service verifies open ports (internet accessibility) before enabling external access for convenience.
+    <br><br>
+    In case of custom domain name external access page should not be used.
 					</div>
 
 				</div>

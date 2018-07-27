@@ -71,39 +71,23 @@
 		</div>
 		<!--block1-->
 		<div class="block1 wd12" id="block1">
-			<h1>Settings</h1>
+			<h1>Activation</h1>
 			<div class="row settingsblock">
-				<div class="colapp app">
-					<a href="activation.html">
-						<img class="appminimg" src="images/activation.svg">
-						<div class="appname withline">Activation</div>
-					</a>
+
+			<div class="col2">
+				<div class="setline">
+					<span class="span">Activated to: </span><a id="txt_device_domain">Loading ...</a>
 				</div>
-				<div class="colapp app">
-					<a href="network.html">
-						<img class="appminimg" src="images/network.svg">
-						<div class="appname withline">Network</div>
-					</a>
+				
+				<div class="setline">
+					<span class="span">You can assign different<br>domain name to your device</span>
+					<div class="spandiv">
+						<button class="buttonblue bwidth smbutton" id="btn_reactivate">Reactivate</button>
+					</div>
 				</div>
-				<div class="colapp app">
-					<a href="storage.html">
-						<img class="appminimg" src="images/storage.svg">
-						<div class="appname withline">Storage</div>
-					</a>
-				</div>
-				<div class="colapp app">
-					<a href="updates.html">
-						<img class="appminimg" src="images/updates.svg">
-						<div class="appname withline">Updates</div>
-					</a>
-				</div>
-				<div class="colapp app">
-					<a href="support.html">
-						<img class="appminimg" src="images/support.svg">
-						<div class="appname withline">Support</div>
-					</a>
-				</div>
+				
 			</div>
+			
 		</div>
 	</div>
 </div>
@@ -127,6 +111,7 @@
   </div>
 </div>
 
+
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -135,6 +120,34 @@
 <script src="js/ui/common.js"></script>
 <script src="js/ui/menu.js"></script>
 
+<script type="text/javascript">
+
+function ui_display_device_url(data) {
+		$("#txt_device_domain").attr('href', data.device_url);
+		$("#txt_device_domain").text(data.device_url);
+}
+
+function ui_check_device_url() {
+	backend.device_url(ui_display_device_url, ui_display_error);
+}
+
+$(document).ready(function () {
+
+    $("#btn_reactivate").on('click', function () {
+    	    backend.reactivate(
+    		       function (data) {
+                window.location.href = data.activate_url;
+            },
+            function (a, b, c) {
+                ui_display_error(a, b, c);
+            }
+        );
+    });
+
+    ui_check_device_url();
+});
+
+</script>
 
 <!--[if lt IE 9]>
 <script src="js/lib/html5.js"></script>
@@ -142,6 +155,10 @@
 <![endif]-->
 
 <script src="js/common.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/backend/common.js"></script>
+<script src="js/backend/menu.js"></script>
+<script src="js/backend/settings.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>
