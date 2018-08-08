@@ -53,6 +53,16 @@ class Snap:
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={'action': 'remove'})
 
     def list(self):
+        installed_apps = dict( [ app.app.id, app.installed_version for app in self.installed_all_apps()])
+        
+        store_apps = self.store_all_apps()
+        
+        for app in store_apps:
+            if app.app.id in installed_apps:
+                app.installed_version = installed_apps[app.app.id].installed_version
+            yield app
+    
+    def store_all_apps():
         self.logger.info('snap list')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name=*'.format(SOCKET))
