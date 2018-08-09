@@ -163,7 +163,7 @@ function ui_display_versions(data) {
 		$("#txt_sam_version").html(sam_data.installed_version);
 		$("#txt_sam_version_available").html(sam_data.current_version);
 
-		if (sam_data.installed_version != sam_data.current_version) {
+		if (sam_data.installed_version && sam_data.current_version && sam_data.installed_version != sam_data.current_version) {
 				$("#block_sam_upgrade").show();
 		} else {
 				$("#block_sam_upgrade").hide();
