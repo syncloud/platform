@@ -32,7 +32,7 @@ class Snap:
             'ignore-validation': force})
         self.logger.info("refresh response: {0}".format(response.text))
         snapd_response = json.loads(response.text)
-        if (snapd_response['status']) != 'OK':
+        if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
         
     def status(self):
