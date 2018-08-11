@@ -63,7 +63,7 @@ else
     rm -rf ${DIR}/*.snap
     mkdir ${SNAP_DIR}
     cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
-    sed -i 's@log_sender_pattern:.*@log_sender_pattern: %(data_root)s/\*/common\/log/\*.log@g' ${BUILD_DIR}/config.templates/platform.cfg
+    sed -i 's#log_sender_pattern:.*#log_sender_pattern: %(data_root)s/\*/common\/log/\*.log#g' ${SNAP_DIR}/config.templates/platform.cfg
     sed -i 's/installer:.*/installer: snapd/g' ${SNAP_DIR}/config.templates/platform.cfg
     cp -r ${DIR}/snap/meta ${SNAP_DIR}/
     cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
