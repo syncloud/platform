@@ -486,9 +486,12 @@ def cron_is_enabled_after_install(device_host):
     assert not crontab.startswith('#'), crontab
 
 
-def test_settings_versions(device_host):
+def test_settings_versions(device_host, public_web_session):
 
-    response = requests.get('https://{0}/rest/settings/versions'.format(device_host), verify=False)
+    response = public_web_session.get('https://{0}/rest/settings/versions'.format(device_host), verify=False)
+    with open('{0}/rest.settings.versions.json'.format(LOG_DIR), 'w') as the_file:
+        the_file.write(response.text)
+
     assert response.status_code == 200, response.text
 
 
