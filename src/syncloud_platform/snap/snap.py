@@ -114,7 +114,7 @@ class Snap:
             'summary': 'Installer',
             'channel': 'stable',
             'type': 'base',
-            'version': snap_response['version']
+            'version': snap_response['result']['version']
         }
 
     def _installed_app(self, installed_app):
