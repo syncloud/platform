@@ -1,6 +1,7 @@
 from syncloud_app import logger
 import json
 import requests_unixsocket
+import requests
 from syncloud_platform.sam.models import AppVersions, App
 
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
@@ -56,7 +57,9 @@ class Snap:
     def list(self):
         installed_apps = self.installed_all_apps()
         store_apps = self.store_all_apps()
-        return join_apps(installed_apps, store_apps)
+        apps = join_apps(installed_apps, store_apps)
+        apps.append(self._installer())
+        return apps
 
     def store_all_apps(self):
         self.logger.info('snap list')
@@ -84,7 +87,7 @@ class Snap:
         response = session.get('{0}/v2/find?name={1}'.format(SOCKET, query))
         self.logger.info("find response: {0}".format(response.text))
         snap_response = json.loads(response.text)
-        return snap_response['result']
+        return [app for app in snap_response['result'] if app['name'] != 'sam']
 
     def installed_user_apps(self):
         return [self._installed_app(app) for app in self._installed_snaps() if app['type'] == 'app']
@@ -99,24 +102,25 @@ class Snap:
         self.logger.info("snaps response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
-        apps = snap_response['result']
-        apps.append(self._installer())
-        return apps
+        return snap_response['result']
 
     def _installer(self):
+        channel = 'stable'
         self.logger.info('system info')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/system-info'.format(SOCKET))
         self.logger.info("system info response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
-        return {
-            'name': 'sam',
-            'summary': 'Installer',
-            'channel': 'stable',
-            'type': 'base',
-            'version': snap_response['result']['version']
-        }
+        version_response = requests.get('apps.syncloud.org/releases/{0}/snap.version'.format(channel))
+
+        return self.to_app(
+            'sam',
+            'Installer',
+            channel,
+            snap_response['result']['version'],
+            version_response.text
+        )
 
     def _installed_app(self, installed_app):
         return self.to_app(
