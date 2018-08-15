@@ -100,7 +100,8 @@ class Snap:
         snap_response = json.loads(response.text)
 
         apps = snap_response['result']
-        return apps.append(self._installer())
+        apps.append(self._installer())
+        return apps
 
     def _installer(self):
         self.logger.info('system info')
