@@ -112,7 +112,7 @@ class Snap:
         self.logger.info("system info response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
-        version_response = requests.get('apps.syncloud.org/releases/{0}/snap.version'.format(channel))
+        version_response = requests.get('http://apps.syncloud.org/releases/{0}/snap.version'.format(channel))
 
         return self.to_app(
             'sam',
