@@ -55,4 +55,3 @@ matrix:
     - amd64
   installer:
     - snapd
-    - sam
