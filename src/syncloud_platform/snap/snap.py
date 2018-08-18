@@ -1,6 +1,7 @@
 from syncloud_app import logger
 import json
 import requests_unixsocket
+import requests
 from syncloud_platform.sam.models import AppVersions, App
 
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
@@ -16,7 +17,7 @@ class Snap:
     def update(self, release=None):
         self.logger.info('snap update is not supported')
         return None
-        
+
     def install(self, app_id):
         self.logger.info('snap install')
         session = requests_unixsocket.Session()
@@ -29,22 +30,23 @@ class Snap:
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={
             'action': 'refresh',
             'channel': channel,
-            'ignore-validation': force})
+            'ignore-validation': force
+        })
         self.logger.info("refresh response: {0}".format(response.text))
         snapd_response = json.loads(response.text)
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
-        
+
     def status(self):
         self.logger.info('snap changes')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/changes?select=in-progress'.format(SOCKET))
         self.logger.info("changes response: {0}".format(response.text))
         snapd_response = json.loads(response.text)
-       
+
         if (snapd_response['status']) != 'OK':
             raise Exception(snapd_response['result']['message'])
-            
+
         return len(snapd_response['result']) > 0
 
     def remove(self, app_id):
@@ -55,81 +57,87 @@ class Snap:
     def list(self):
         installed_apps = self.installed_all_apps()
         store_apps = self.store_all_apps()
-        return join_apps(installed_apps, store_apps)
+        apps = join_apps(installed_apps, store_apps)
+        apps.append(self._installer())
+        return apps
 
     def store_all_apps(self):
         self.logger.info('snap list')
-        session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/find?name=*'.format(SOCKET))
-        self.logger.info("find response: {0}".format(response.text))
-        snap_response = json.loads(response.text)
-        return [self.to_app(
-            app['name'],
-            app['summary'],
-            app['channel'],
-            None,
-            app['version']) for app in snap_response['result']]
-        
+        return [self._available_app(app) for app in self._available_snaps()]
+
     def find_in_store(self, app_id):
         self.logger.info('snap list')
-        session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/find?name={1}'.format(SOCKET, app_id))
-        self.logger.info("find app: {0}, response: {1}".format(app_id, response.text))
-        
-        snap_response = json.loads(response.text)
-        found_apps = [self.to_app(
-            app['name'],
-            app['summary'],
-            app['channel'],
-            None,
-            app['version']) for app in snap_response['result']]
-        
+        found_apps = [self._available_app(app) for app in self._available_snaps(app_id)]
+
         if len(found_apps) == 0:
             self.logger.warn("No app found")
             return None
-            
+
         if len(found_apps) > 1:
             self.logger.warn("More than one app found")
-        
+
         return found_apps[0]
 
     def user_apps(self):
-        self.logger.info('snap user apps')
+        return [self._available_app(app) for app in self._available_snaps() if app['type'] == 'app']
+
+    def _available_snaps(self, query='*'):
+        self.logger.info('available snaps, query: {0}'.format(query))
         session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/find?name=*'.format(SOCKET))
+        response = session.get('{0}/v2/find?name={1}'.format(SOCKET, query))
         self.logger.info("find response: {0}".format(response.text))
         snap_response = json.loads(response.text)
-        return [self.to_app(
-            app['name'],
-            app['summary'],
-            app['channel'],
-            None,
-            app['version']) for app in snap_response['result'] if app['type'] == 'app']
-        
+        return [app for app in snap_response['result'] if app['name'] != 'sam']
+
     def installed_user_apps(self):
-        session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info("snaps response: {0}".format(response.text))
-        snap_response = json.loads(response.text)
-        return [self.to_app(
-            app['name'],
-            app['summary'],
-            app['channel'],
-            app['version'],
-            None) for app in snap_response['result'] if app['type'] == 'app']
-        
+        return [self._installed_app(app) for app in self._installed_snaps() if app['type'] == 'app']
+
     def installed_all_apps(self):
+        return [self._installed_app(app) for app in self._installed_snaps()]
+
+    def _installed_snaps(self):
+        self.logger.info('installed snaps')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
         self.logger.info("snaps response: {0}".format(response.text))
         snap_response = json.loads(response.text)
-        return [self.to_app(
-            app['name'],
-            app['summary'],
-            app['channel'],
-            app['version'],
-            None) for app in snap_response['result']]
-        
+
+        return snap_response['result']
+
+    def _installer(self):
+        channel = 'stable'
+        self.logger.info('system info')
+        session = requests_unixsocket.Session()
+        response = session.get('{0}/v2/system-info'.format(SOCKET))
+        self.logger.info("system info response: {0}".format(response.text))
+        snap_response = json.loads(response.text)
+
+        version_response = requests.get('http://apps.syncloud.org/releases/{0}/snapd.version'.format(channel))
+
+        return self.to_app(
+            'sam',
+            'Installer',
+            channel,
+            snap_response['result']['version'],
+            version_response.text
+        )
+
+    def _installed_app(self, installed_app):
+        return self.to_app(
+            installed_app['name'],
+            installed_app['summary'],
+            installed_app['channel'],
+            installed_app['version'],
+            None)
+
+    def _available_app(self, available_app):
+        return self.to_app(
+            available_app['name'],
+            available_app['summary'],
+            available_app['channel'],
+            None,
+            available_app['version'])
+
     def find_installed(self, app_id):
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps/{1}'.format(SOCKET, app_id))
@@ -138,38 +146,37 @@ class Snap:
         if snap_response['status-code'] == 404:
             return None
         app = snap_response['result']
-        existing_app = self.to_app(app['name'], app['summary'], app['channel'], app['version'], None)
-        
+        existing_app = self._installed_app(app)
         return existing_app
-        
+
     def get_app(self, app_id):
         existing_app = self.find_installed(app_id)
         store_app = self.find_in_store(app_id)
         if not existing_app and not store_app:
             raise Exception("not found")
-        
+
         if not store_app:
             return existing_app
-        
+
         if not existing_app:
             return store_app
-        
+
         existing_app.current_version = store_app.current_version
         return existing_app
 
     def to_app(self, id, name, channel, installed_version, store_version):
-    
+
         new_app = App()
         new_app.id = id
         new_app.name = name
         new_app.url = self.info.url(new_app.id)
         new_app.icon = "http://apps.syncloud.org/releases/{0}/images/{1}-128.png".format(channel, new_app.id)
-        
+
         app_version = AppVersions()
         app_version.installed_version = installed_version
         app_version.current_version = store_version
         app_version.app = new_app
-        
+
         return app_version
 
 
