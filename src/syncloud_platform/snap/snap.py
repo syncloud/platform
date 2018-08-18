@@ -26,6 +26,9 @@ class Snap:
 
     def upgrade(self, app_id, channel, force):
         self.logger.info('snap upgrade')
+        if app_id == 'sam':
+            raise Exception('Installer upgrade is not yet supported')
+
         session = requests_unixsocket.Session()
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={
             'action': 'refresh',
