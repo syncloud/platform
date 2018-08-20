@@ -214,11 +214,6 @@ class PlatformUserConfig:
 
     def is_activated(self):
 
-
-        # Remove after 18.07 release
-        if self.get_domain_update_token():
-            self.set_activated()
-
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'activated'):
             return False
