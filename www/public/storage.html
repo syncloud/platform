@@ -116,6 +116,9 @@
 
 		<span class="span">No external disks found</span>
 
+    <% } else { %>
+		<span class="span" style="font-weight: bold;">External disks</span>
+
     <% } %>
 
     <%
@@ -123,14 +126,21 @@
 				var disk = disks[i];
     %>
 
-		<div class="setline">
-				<span class="span"><%= disk.name %></span>
-    </div>
+		<div class="setline" style="margin-top: 20px;">
+			<span class="span"><%= disk.name %></span>
+			<% if (!disk.active) { %>
+			<div class="spandiv">
+				<button class="buttongreen bwidth smbutton btn-lg" id="btn_init_" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Initializing...">Initialize</button>
+			</div>
+			<% } %>
+    	</div>
 
     <%
 				partitions = disk.partitions;
 				for (j=0; j < partitions.length; j++) {
 				var partition = partitions[j];
+
+					if (partition.mountable || partition.active) {
     %>
 
 		<div class="setline">
@@ -142,8 +152,10 @@
 		</div>
 
     <%
-				index = index + 1;
-            }
+						index = index + 1;
+					}
+
+            	}
     %>
 
     <% } %>
@@ -152,7 +164,7 @@
 <script type="text/html" id='template-boot-disk'>
 
     <div class="setline">
-            <span class="span">Boot disk</span>
+            <span class="span" style="font-weight: bold;">Boot disk</span>
     </div>
     <div class="setline">
         <span class="span"><%=device %> (<%=size %>)</span>

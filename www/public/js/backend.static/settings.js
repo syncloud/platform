@@ -43,6 +43,7 @@ backend.disks_data = {
       "disks": [
         {
           "name": "My Passport 0837",
+          "active": true,
           "partitions": [
             {
               "active": true,
@@ -56,6 +57,7 @@ backend.disks_data = {
         },
         {
           "name": "My Passport 0990",
+          "active": false,
           "partitions": [
             {
               "active": false,
@@ -66,6 +68,10 @@ backend.disks_data = {
               "size": "931.5G"
             }
           ]
+        },
+        {
+          "name": "Blank Disk",
+          "partitions": []
         }
       ],
       "success": true
@@ -128,7 +134,7 @@ backend.sam_upgrade = function(on_complete, on_error) {
 
 backend.update_disks = function(on_complete, on_error) {
         var that = this;
-        setTimeout(function() { on_complete(that.disks_data); }, 2000);
+        setTimeout(function() { on_complete(that.disks_data); }, 500);
     };
 
 backend.update_boot_disk = function(on_complete, on_error) {
