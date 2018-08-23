@@ -134,7 +134,11 @@
 			<span class="span" style="font-weight: bold;"><%= disk.name %></span>
 			<% if (!disk.active) { %>
 			<div class="spandiv">
-				<button class="buttonred bwidth smbutton btn-lg" id="btn_init_<%=i%>" data-type="init" data-index="<%=i%>" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> ">Format</button>
+				<button class="buttonred bwidth smbutton btn-lg"
+						id="btn_init_<%=i%>"
+						data-type="format"
+						data-device="<%=disk.device %>"
+						data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> ">Format</button>
 			</div>
 			<% } %>
     	</div>
@@ -150,8 +154,14 @@
 		<div class="setline">
 				<span class="span"><%=partition.size %></span>
 				<div class="spandiv">
-						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
-						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
+						<input type="checkbox" id="tgl_device_<%=index%>"
+							   data-index="<%=index%>"
+							   data-device="<%=partition.device %>"
+							   data-on-text="Active"
+							   data-off-text="Not active"
+							   data-label-width="8" <% if (partition.active) { %>checked<% } %> />
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible"
+						   id="tgl_device_<%=index%>_loading"></i>
 				</div>
 		</div>
 
@@ -172,7 +182,9 @@
         <span class="span"><%=size %></span>
         <% if (extendable) { %>
         <div class="spandiv">
-            <button class="buttongreen bwidth smbutton btn-lg" id="btn_boot_extend" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
+            <button class="buttongreen bwidth smbutton btn-lg"
+					id="btn_boot_extend"
+					data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
         </div>
         <% } %>
     </div>
@@ -204,34 +216,31 @@ function ui_display_disks(data) {
 		
 
 		$("#block_disks").find("[type='checkbox']").each(function() {
-				var tgl_device = $(this);
-				$(this).on('switchChange.bootstrapSwitch', function(e, s) {
-						var state = tgl_device.bootstrapSwitch('state');
-						var disk_device = tgl_device.data('device');
-						var device_index = tgl_device.data('index');
+			var tgl_device = $(this);
+			tgl_device.on('switchChange.bootstrapSwitch', function(e, s) {
+				var state = tgl_device.bootstrapSwitch('state');
+				var disk_device = tgl_device.data('device');
+				var device_index = tgl_device.data('index');
 
-						$("#block_disks").find("[type='checkbox']").each(function() {
-								$(this).bootstrapSwitch('disabled', true);
-						});
-						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
-						$(tgl_loading_id).addClass('opacity-visible');
+				$("#block_disks").find("[type='checkbox']").each(function() {
+						$(this).bootstrapSwitch('disabled', true);
+				});
+				var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
+				$(tgl_loading_id).addClass('opacity-visible');
 
-						disk_action(disk_device, state,
-                                ui_check_disks,
-                                ui_display_error);
-				})
+				disk_action(disk_device, state, ui_check_disks, ui_display_error);
+			})
 		});
 		
-				$("#block_disks").find("[data-type='init']").each(function() {
-				var btn_init = $(this);
-				btn_init.button('reset');
-				$(this).on('click', function(e, s) {
-						btn_init.button('loading');
-						var disk_device = btn_init.data('device');
-						disk_init(disk_device,
-              ui_check_disks,
-              ui_display_error);
-				})
+		$("#block_disks").find("[data-type='format']").each(function() {
+			var btn = $(this);
+			btn.button('reset');
+			btn.on('click', function(e, s) {
+				btn.button('loading');
+				var device = btn.data('device');
+
+				disk_format(device, ui_check_disks, ui_display_error);
+			})
 		});
 		
 }
@@ -239,7 +248,9 @@ function ui_display_disks(data) {
 function ui_display_boot_disk(data) {
 		var template = $("#template-boot-disk").html();
 		$("#block_boot_disk").html(_.template(template)(data.data));
-        $("#btn_boot_extend").on('click', function () {
+		var btn = $("#btn_boot_extend");
+        btn.button('reset');
+        btn.on('click', function () {
     		ui_boot_extend();
         });
 }
@@ -249,10 +260,7 @@ function ui_boot_extend() {
     btn.button('loading');
     
     boot_extend(
-        function (data) {
-            ui_display_boot_disk(data);
-            btn.button('reset');
-        },
+        ui_display_boot_disk,
         function (a, b, c) {
             ui_display_error(a, b, c);
             btn.button('reset');
@@ -264,14 +272,14 @@ function ui_check_disks() {
 		backend.update_disks(ui_display_disks, ui_display_error);
 }
 
-function ui_check_boot_disk(on_always) {
-		backend.update_boot_disk(ui_display_boot_disk, on_always, ui_display_error);
+function ui_check_boot_disk() {
+		backend.update_boot_disk(ui_display_boot_disk, ui_display_error);
 }
 
 $(document).ready(function () {
 
     ui_check_disks();
-    ui_check_boot_disk(function() {});
+    ui_check_boot_disk();
 
 });
 
@@ -286,7 +294,7 @@ $(document).ready(function () {
 <script src="js/settings.js"></script>
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/settings.js"></script>
+<script src="js/backend/storage.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>

@@ -224,6 +224,18 @@ def disk_activate():
     return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
 
 
+@app.route(rest_prefix + "/storage/disk_format", methods=["POST"])
+@login_required
+def disk_format():
+    return jsonify(success=True, disks=public.disk_format(request.form['device'])), 200
+
+
+@app.route(rest_prefix + "/settings/disk_format_status", methods=["GET"])
+@login_required
+def disk_format_status():
+    return jsonify(is_running=public.disk_format_status()), 200
+
+
 @app.route(rest_prefix + "/settings/versions", methods=["GET"])
 @login_required
 def versions():

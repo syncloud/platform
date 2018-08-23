@@ -20,19 +20,12 @@ class PlatformInstaller:
     def install(self):
         linux.fix_locale()
         
-        if 'SNAP' in os.environ:
-            apps_root = '/snap'
-            data_root = '/var/snap'
-            install_dir = os.environ['SNAP']
-            data_dir = os.environ['SNAP_COMMON']
-            app_data_prefix = 'common/'
-        else:
-            apps_root = '/opt/app'
-            data_root = '/opt/data'
-            install_dir = join(apps_root, APP_NAME)
-            data_dir = join(data_root, APP_NAME)
-            app_data_prefix = ''
-            
+        apps_root = '/snap'
+        data_root = '/var/snap'
+        install_dir = os.environ['SNAP']
+        data_dir = os.environ['SNAP_COMMON']
+        app_data_prefix = 'common/'
+
         templates_path = join(install_dir, 'config.templates')
         config_dir = join(data_dir, 'config')
 

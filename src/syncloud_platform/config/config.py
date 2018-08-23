@@ -148,6 +148,9 @@ class PlatformConfig:
     def get_boot_extend_script(self):
         return self.__get('boot_extend_script')
 
+    def get_disk_format_script(self):
+        return self.__get('disk_format_script')
+
     def __get(self, key):
         return self.parser.get('platform', key)
 
