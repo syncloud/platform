@@ -15,7 +15,7 @@ backend.boot_extend = function(on_complete, on_error) {
         $.get('/rest/settings/boot_extend').done(on_complete).fail(on_error);
     };
     
-backend.disk_format = function(disk_device, on_complete, on_always, on_error) {
-        $.post('/rest/storage/disk_format', {device: disk_device}).done(on_complete).always(on_always).fail(on_error);
+backend.disk_format = function(disk_device, on_complete, on_error) {
+        $.post('/rest/storage/disk_format', {device: disk_device}).done(on_complete).fail(on_error);
     };
  

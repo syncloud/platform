@@ -229,7 +229,7 @@ function ui_display_disks(data) {
 				$(tgl_loading_id).addClass('opacity-visible');
 
 				disk_action(disk_device, state, ui_check_disks, ui_display_error);
-			})
+			});
 		});
 		
 		$("#block_disks").find("[data-type='format']").each(function() {
@@ -239,8 +239,13 @@ function ui_display_disks(data) {
 				btn.button('loading');
 				var device = btn.data('device');
 
-				disk_format(device, ui_check_disks, ui_display_error);
-			})
+				disk_format(device,
+				    ui_check_disks,
+				    function (a, b, c) {
+                        ui_display_error(a, b, c);
+                        btn.button('reset');
+                    });
+			});
 		});
 		
 }
@@ -291,7 +296,7 @@ $(document).ready(function () {
 <![endif]-->
 
 <script src="js/common.js"></script>
-<script src="js/settings.js"></script>
+<script src="js/storage.js"></script>
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
 <script src="js/backend/storage.js"></script>
