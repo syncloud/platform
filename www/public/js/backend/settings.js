@@ -44,3 +44,8 @@ backend.disk_action = function(disk_device, is_activate, on_complete, on_always,
 backend.boot_extend = function(on_complete, on_error) {
         $.get('/rest/settings/boot_extend').done(on_complete).fail(on_error);
     };
+    
+backend.disk_init = function(disk_device, on_complete, on_always, on_error) {
+        $.get('/rest/settings/disk_init', {device: disk_device}).done(on_complete).always(on_always).fail(on_error);
+    };
+ 

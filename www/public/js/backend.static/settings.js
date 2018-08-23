@@ -152,3 +152,12 @@ backend.disk_action = function(disk_device, is_activate, on_complete, on_always,
             backend.test_timeout(function() { on_complete(that.disks_data_error); on_always(); }, 2000);
         }
     };
+    
+backend.disk_init = function(disk_device, on_complete, on_always, on_error) {
+        var that = this;
+        if (backend.disk_action_success) {
+            backend.test_timeout(function() { on_complete(that.disks_data); on_always(); }, 2000);
+        } else {
+            backend.test_timeout(function() { on_complete(that.disks_data_error); on_always(); }, 2000);
+        }
+    };
