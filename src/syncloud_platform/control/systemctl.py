@@ -127,9 +127,7 @@ class Systemctl:
         return result
 
     def service_name(self, service):
-        if self.platform_config.get_installer() == 'snapd':
-            service = "snap.{0}".format(service)
-        return service
+        return "snap.{0}".format(service)
 
     def __systemd_file(self, filename):
         return join(SYSTEMD_DIR, filename)

@@ -136,9 +136,6 @@ class PlatformConfig:
     def get_platform_log(self):
         return self.__get('platform_log')
 
-    def get_installer(self):
-        return self.__get('installer')
-
     def get_hooks_root(self):
         return self.__get('hooks_root')
 
