@@ -12,7 +12,6 @@ def pytest_addoption(parser):
     parser.addoption("--domain", action="store")
     parser.addoption("--app-archive-path", action="store")
     parser.addoption("--release", action="store")
-    parser.addoption("--installer", action="store")
     parser.addoption("--device-host", action="store")
 
 
@@ -53,14 +52,15 @@ def user_domain(main_domain):
 def main_domain(request):
     return '{0}.{1}'.format(request.config.getoption("--domain"), SYNCLOUD_INFO)
 
+
 @pytest.fixture(scope='session')
 def app_archive_path(request):
     return request.config.getoption("--app-archive-path")
 
 
 @pytest.fixture(scope='session')
-def installer(request):
-    return request.config.getoption("--installer")
+def installer():
+    return 'snapd'
 
 
 @pytest.fixture(scope='session')
