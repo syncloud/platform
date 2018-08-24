@@ -4,6 +4,7 @@ backend.disks_data = {
           "name": "My Passport 0837",
           "device": "/dev/sdb",
           "active": true,
+          "size": "931.5G",
           "partitions": [
             {
               "active": true,
@@ -19,6 +20,7 @@ backend.disks_data = {
           "name": "My Passport 0990",
           "device": "/dev/sdc",
           "active": false,
+          "size": "931.5G",
           "partitions": [
             {
               "active": false,
@@ -33,6 +35,7 @@ backend.disks_data = {
         {
           "name": "Blank Disk",
           "device": "/dev/sdb",
+          "size": "100 TB",
           "partitions": []
         }
       ],

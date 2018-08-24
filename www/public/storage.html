@@ -114,7 +114,35 @@
   </div>
 </div>
 
-<script type="text/html" id='template-disks'>
+
+<div id="disk_format_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Disk format</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="disk_index" value=""/>
+                <div class="bodymod">
+                    <div class="btext">
+                        This will destroy all the data on this disk!<br>
+                        <span id="disk_name" style="font-weight: bold;"></span><br>
+                        Are you sure?
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+                    <button type="button" id="btn_disk_format" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Format</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script type="text/html" id='template-disks'>
 
     <%
 		var index = 0;
@@ -131,13 +159,14 @@
     %>
 
 		<div class="setline" style="margin-top: 20px;">
-			<span class="span" style="font-weight: bold;"><%= disk.name %></span>
+			<span class="span" style="font-weight: bold;" id="disk_name_<%=i%>"><%= disk.name %> - <%= disk.size %></span>
 			<% if (!disk.active) { %>
 			<div class="spandiv">
 				<button class="buttonred bwidth smbutton btn-lg"
-						id="btn_init_<%=i%>"
+						id="btn_format_<%=i%>"
 						data-type="format"
-						data-device="<%=disk.device %>"
+                        data-index="<%=i%>"
+                        data-device="<%=disk.device %>"
 						data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> ">Format</button>
 			</div>
 			<% } %>
@@ -236,18 +265,28 @@ function ui_display_disks(data) {
 			var btn = $(this);
 			btn.button('reset');
 			btn.on('click', function(e, s) {
-				btn.button('loading');
-				var device = btn.data('device');
-
-				disk_format(device,
-				    ui_check_disks,
-				    function (a, b, c) {
-                        ui_display_error(a, b, c);
-                        btn.button('reset');
-                    });
-			});
+			    var index = btn.data('index');
+                $('#disk_index').val(index);
+                $('#disk_name').html($('#disk_name_' + index).html());
+                $('#disk_format_confirmation').modal('show');
+            });
 		});
-		
+
+        $("#btn_disk_format").on('click', function(e, s) {
+
+            var index = $('#disk_index').val();
+            var btn = $('#btn_format_' + index);
+            btn.button('loading');
+            var device = btn.data('device');
+
+            disk_format(device,
+                ui_check_disks,
+                function (a, b, c) {
+                    ui_display_error(a, b, c);
+                    btn.button('reset');
+                });
+        });
+
 }
 
 function ui_display_boot_disk(data) {

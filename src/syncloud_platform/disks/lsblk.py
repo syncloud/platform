@@ -33,7 +33,7 @@ class Lsblk:
 
             if lsblk_entry.type in ('disk', 'loop'):
                 disk_name = lsblk_entry.model
-                disk = Disk(disk_name, lsblk_entry.name, [])
+                disk = Disk(disk_name, lsblk_entry.name, lsblk_entry.size, [])
                 if lsblk_entry.type == 'loop':
                     disk.name = lsblk_entry.type
                     self.log.info('adding loop: {0}'.format(lsblk_entry.name))
@@ -131,10 +131,11 @@ class Partition:
 
 
 class Disk:
-    def __init__(self, name, device, partitions):
+    def __init__(self, name, device, size, partitions):
         self.name = name
         self.partitions = partitions
         self.device = device
+        self.size = size
         self.active = False
 
     def add_partition(self, partition):
