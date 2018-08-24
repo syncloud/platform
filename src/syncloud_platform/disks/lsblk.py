@@ -139,6 +139,9 @@ class Disk:
         self.device = device
         self.size = size
         self.active = False
+    
+    def is_internal(self):
+        self.device.startswith('/dev/mmcblk')
 
     def add_partition(self, partition):
         if partition.active:
