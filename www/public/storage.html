@@ -246,7 +246,7 @@ function ui_display_disks(data) {
 
 		$("#block_disks").find("[type='checkbox']").each(function() {
 			var tgl_device = $(this);
-			tgl_device.on('switchChange.bootstrapSwitch', function(e, s) {
+			tgl_device.off('switchChange.bootstrapSwitch').on('switchChange.bootstrapSwitch', function(e, s) {
 				var state = tgl_device.bootstrapSwitch('state');
 				var disk_device = tgl_device.data('device');
 				var device_index = tgl_device.data('index');
@@ -264,7 +264,7 @@ function ui_display_disks(data) {
 		$("#block_disks").find("[data-type='format']").each(function() {
 			var btn = $(this);
 			btn.button('reset');
-			btn.on('click', function(e, s) {
+			btn.off('click').on('click', function(e, s) {
 			    var index = btn.data('index');
                 $('#disk_index').val(index);
                 $('#disk_name').html($('#disk_name_' + index).html());

@@ -13,7 +13,7 @@ class Lsblk:
         self.log = logger.get_logger('lsblk')
 
     def available_disks(self, lsblk_output=None):
-        return self.all_disks(lsblk_output)
+        return [d for d in self.all_disks(lsblk_output) if not d.is_internal()]
 
     def all_disks(self, lsblk_output=None):
         if not lsblk_output:
@@ -68,7 +68,7 @@ class Lsblk:
     def is_external_disk_attached(self, lsblk_output=None, disk_dir=None):
         if not disk_dir:
             disk_dir = self.platform_config.get_external_disk_dir()
-        for disk in self.available_disks(lsblk_output):
+        for disk in self.all_disks(lsblk_output):
             for partition in disk.partitions:
                 if partition.mount_point == disk_dir:
                     self.log.info('external disk is attached')
@@ -141,7 +141,7 @@ class Disk:
         self.active = False
     
     def is_internal(self):
-        self.device.startswith('/dev/mmcblk')
+        return self.device.startswith('/dev/mmcblk')
 
     def add_partition(self, partition):
         if partition.active:

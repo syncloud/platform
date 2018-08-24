@@ -7,6 +7,8 @@ fi
 
 DEVICE=$1
 
+PARTITION=1
+
 dd if=/dev/zero of=${DEVICE} bs=512 count=1 conv=notrunc
 
 echo "
@@ -14,7 +16,7 @@ o
 p
 n
 p
-1
+${PARTITION}
 
 
 p
@@ -22,4 +24,4 @@ w
 q
 " | fdisk ${DEVICE}
 
-mkfs.ext4 ${DEVICE}
+mkfs.ext4 ${DEVICE}${PARTITION}
