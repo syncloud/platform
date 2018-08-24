@@ -38,7 +38,7 @@ pipeline:
     commands:
       - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
       - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
-      - ./unload-artifact.sh $(cat package.name) $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
+      - ./upload-artifact.sh $(cat package.name) $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
     when:
       status: [ failure, success ] 
 
