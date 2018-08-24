@@ -32,6 +32,8 @@ class Lsblk:
                                      match.group(4), match.group(5), match.group(6), match.group(7).strip())
 
             if lsblk_entry.type in ('disk', 'loop'):
+                if lsblk_entry.fs_type == 'squashfs':
+                    continue
                 disk_name = lsblk_entry.model
                 disk = Disk(disk_name, lsblk_entry.name, lsblk_entry.size, [])
                 if lsblk_entry.type == 'loop':
