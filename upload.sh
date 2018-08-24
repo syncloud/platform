@@ -5,14 +5,12 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 app=platform
 branch=$1
 build_number=$2
-installer=$3
+FILE_NAME=$3
+
 bucket=apps.syncloud.org
 ARCH=$(uname -m)
 
 mkdir -p /opt/app
-
-ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-FILE_NAME=${app}_${build_number}_${ARCH}.snap
 
 if [ "${branch}" == "master" ] || [ "${branch}" == "stable" ] ; then
 

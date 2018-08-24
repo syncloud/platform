@@ -30,7 +30,7 @@ pipeline:
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION ${installer}
+      - ./upload.sh $DRONE_BRANCH $VERSION ${cat package.name)
 
   ci-artifact:
     image: syncloud/build-deps-${arch}
@@ -38,6 +38,7 @@ pipeline:
     commands:
       - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
       - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
+      - ./unload-artifact.sh ${cat package.name) $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
     when:
       status: [ failure, success ] 
 

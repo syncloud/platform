@@ -49,28 +49,20 @@ mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
 echo ${VERSION} >> ${BUILD_DIR}/META/version
 
-if [ $INSTALLER == "sam" ]; then
+echo "snapping"
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+rm -rf ${DIR}/*.snap
+mkdir ${SNAP_DIR}
+cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
+sed -i 's#log_sender_pattern:.*#log_sender_pattern: %(data_root)s/\*/common\/log/\*.log#g' ${SNAP_DIR}/config.templates/platform.cfg
+sed -i 's/installer:.*/installer: snapd/g' ${SNAP_DIR}/config.templates/platform.cfg
+cp -r ${DIR}/snap/meta ${SNAP_DIR}/
+cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
+echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
+echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
+echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+PACKAGE=${NAME}_${VERSION}_${ARCH}.snap
+echo ${PACKAGE} > package.name
 
-    echo "zipping"
-    rm -rf ${NAME}*.tar.gz
-    sed -i 's#log_sender_pattern:.*#log_sender_pattern: %(data_root)s/\*/log/\*.log#g' ${BUILD_DIR}/config.templates/platform.cfg
-    tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
+mksquashfs ${SNAP_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root
 
-else
-
-    echo "snapping"
-    ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-    rm -rf ${DIR}/*.snap
-    mkdir ${SNAP_DIR}
-    cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
-    sed -i 's#log_sender_pattern:.*#log_sender_pattern: %(data_root)s/\*/common\/log/\*.log#g' ${SNAP_DIR}/config.templates/platform.cfg
-    sed -i 's/installer:.*/installer: snapd/g' ${SNAP_DIR}/config.templates/platform.cfg
-    cp -r ${DIR}/snap/meta ${SNAP_DIR}/
-    cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
-    echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
-    echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
-    echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
-
-    mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
-
-fi
