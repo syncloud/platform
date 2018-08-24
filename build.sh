@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 NAME="platform"
 
-if [[ -z "$2" ]]; then
+if [[ -z "$1" ]]; then
     echo "usage $0 version"
     exit 1
 fi
