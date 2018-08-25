@@ -1,7 +1,7 @@
 ## Syncloud (https://syncloud.org)
 
 Syncloud brings popular apps to your place.
-.
+
 It is available as an image or pre-installed device.
 
 ### Apps
