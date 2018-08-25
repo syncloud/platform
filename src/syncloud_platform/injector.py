@@ -78,10 +78,7 @@ class Injector:
         self.port_drill_factory = PortDrillFactory(self.user_platform_config, self.port_config,
                                                    self.port_mapper_factory)
         self.device_info = DeviceInfo(self.user_platform_config, self.port_config)
-        if self.platform_config.get_installer() == 'sam':
-            self.sam = SamStub(self.platform_config, self.device_info)
-        else:
-            self.sam = Snap(self.platform_config, self.device_info)
+        self.sam = Snap(self.platform_config, self.device_info)
         self.platform_cron = PlatformCron(self.platform_config)
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)

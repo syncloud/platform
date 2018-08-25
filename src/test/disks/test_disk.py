@@ -7,7 +7,7 @@ logger.init(console=True)
 
 def test_find_root_partition_some():
 
-    disk = Disk('disk', '/dev/sda', [
+    disk = Disk('disk', '/dev/sda', 20, [
         Partition(10, '/dev/sda1', '/', True, 'ext4', False),
         Partition(10, '/dev/sda2', '', True, 'ext4', True)
     ])
@@ -17,7 +17,7 @@ def test_find_root_partition_some():
 
 def test_find_root_partition_none():
 
-    disk = Disk('disk', '/dev/sda', [
+    disk = Disk('disk', '/dev/sda', 20, [
         Partition(10, '/dev/sda1', '/my', True, 'ext4', False),
         Partition(10, '/dev/sda2', '', True, 'ext4', True)
     ])

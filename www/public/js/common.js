@@ -20,10 +20,6 @@ function run_after_sam_is_complete(status_checker, timeout_func, on_complete, on
     run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, 'sam');
 }
 
-function run_after_boot_extend_is_complete(status_checker, timeout_func, on_complete, on_error) {
-    run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, 'boot_extend');
-}
-
 function run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job) {
 
     var recheck_function = function () { run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job); };

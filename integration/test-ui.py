@@ -24,17 +24,21 @@ def driver():
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
 
-    firefox_path = '{0}/firefox/firefox'.format(DIR)
+    firefox_path = '/tools/firefox/firefox'
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
+    caps['acceptSslCerts'] = True
 
     binary = FirefoxBinary(firefox_path)
 
     profile = webdriver.FirefoxProfile()
-    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
+    profile.add_extension('/tools/firefox/JSErrorCollector.xpi')
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
-    driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
+    driver = webdriver.Firefox(profile,
+                               capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR),
+                               firefox_binary=binary, executable_path=join(DIR, '/tools/geckodriver/geckodriver'))
+
     #driver.set_page_load_timeout(30)
     #print driver.capabilities['version']
     return driver
