@@ -354,7 +354,7 @@ function ui_display_disks(data) {
 
 		$("#btn_partition_action").off('click').on('click', function(e, s) {
 
-            var state = $('#partition_state').val();
+            var state = $('#partition_state').val() == 'true';
 
             var tgl_loading = $('#tgl_partition_' + $('#partition_id').val() + '_loading');
             $(tgl_loading).addClass('opacity-visible');
