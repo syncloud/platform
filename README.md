@@ -23,7 +23,7 @@ Syncloud platform manages the installation and device settings.
 
 Get drone cli binary: http://docs.drone.io/cli-installation/
 ````
-sudo DOCKER_API_VERSION=1.24 arch=amd64 installer=sam /path/to/drone exec
+sudo DOCKER_API_VERSION=1.24 arch=amd64 /path/to/drone exec
 ````
 
 Watch drone build processes:
