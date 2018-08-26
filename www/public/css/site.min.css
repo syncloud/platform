@@ -81,6 +81,9 @@ input:disabled {background:#d5d8da!important;color:#222!important;cursor:not-all
 .emailinput{background:url(../images/emailinput.svg) no-repeat 95% center}
 .buttonblue{color:#fff;background:#03aff0;line-height:50px;border-radius:40px;width:100%;cursor:pointer;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-o-transition:all .3s ease-out;-ms-transition:all .3s ease-out;display:inline-block;font-size:16px}
 .buttonblue:hover{background:#02a0dc}
+.buttonred{color:#fff;background:Tomato;line-height:50px;border-radius:40px;width:100%;cursor:pointer;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-o-transition:all .3s ease-out;-ms-transition:all .3s ease-out;display:inline-block;font-size:16px}
+.buttonred:hover{background:Tomato}
+.buttonred:disabled {background:#d5d8da;color:#222;cursor:not-allowed;}
 .buttongreen{color:#fff;background:#64bc46;line-height:50px;border-radius:40px;width:100%;cursor:pointer;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-o-transition:all .3s ease-out;-ms-transition:all .3s ease-out;display:inline-block;font-size:16px}
 .buttongreen:hover{background:#36ad40}
 .buttongreen:disabled {background:#d5d8da;color:#222;cursor:not-allowed;}

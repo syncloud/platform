@@ -41,7 +41,7 @@ class Hardware:
         self.log = logger.get_logger('hardware')
 
     def available_disks(self):
-        return self.lsblk.available_disks()
+        return [d for d in self.lsblk.available_disks() if not d.is_internal() ]
 
     def root_partition(self):
         disks = self.lsblk.all_disks()

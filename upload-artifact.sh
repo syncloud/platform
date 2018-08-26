@@ -10,7 +10,7 @@ if [ -z "$2" ]; then
   exit 1
 fi
 
-if [ ! -d $1 ]; then
+if [ ! -d $1 ] && [ ! -f $1 ]; then
     echo "nothing to upload, $1 does not exist"
     exit 0
 fi

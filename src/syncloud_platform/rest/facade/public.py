@@ -89,6 +89,14 @@ class Public:
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
 
+    def disk_format_status(self):
+            return pgrep(self.platform_config.get_disk_format_script())
+
+    def disk_format(self, device):
+        run_detached('{0} {1}'.format(self.platform_config.get_disk_format_script(), device),
+                     self.platform_config.get_platform_log(),
+                     self.platform_config.get_ssh_port())
+
     def sam_status(self):
         return self.sam.status()
 

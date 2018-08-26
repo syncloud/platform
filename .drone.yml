@@ -15,29 +15,29 @@ pipeline:
     image: syncloud/build-deps-${arch}
     commands:
       - VERSION=$(cat version)
-      - ./build.sh $VERSION ${installer}
+      - ./build.sh $VERSION
       - ./unit-test.sh
       - ./test/js/runner/run.sh
 
   integration:
     image: syncloud/build-deps-${arch}
     commands:
-      - VERSION=$(cat version)
-      - ./integration/test-docker.sh teamcity@syncloud.it password build $VERSION master ${installer} device
+      - ./integration/test-docker.sh teamcity@syncloud.it password build master device $(cat package.name)
 
   upload:
     image: syncloud/build-deps-${arch}
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION ${installer}
+      - ./upload.sh $DRONE_BRANCH $VERSION $(cat package.name)
 
   ci-artifact:
     image: syncloud/build-deps-${arch}
     secrets: [ARTIFACT_SSH_KEY]
     commands:
-      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
-      - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-${installer}-$(dpkg --print-architecture)
+      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
+      - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
+      - ./upload-artifact.sh $(cat package.name) $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
     when:
       status: [ failure, success ] 
 
@@ -53,5 +53,3 @@ matrix:
   arch:
     - arm
     - amd64
-  installer:
-    - snapd

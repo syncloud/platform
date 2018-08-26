@@ -6,7 +6,7 @@
 	<meta name="author" content="syncloud.org">
 	<meta name="description" content="Your Personal Server">
 	<meta name="keywords" content="Your Personal Server">
-	
+
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 	<meta name="HandheldFriendly" content="true" />
 	<meta name="MobileOptimized" content="width" />
@@ -27,8 +27,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-switch.min.css" rel="stylesheet">
     <link href="css/font-awesome.css" rel="stylesheet">
-
-	</head>	
+</head>
 <body>
 <div class="wrapper">
 	<div class="content">
@@ -70,47 +69,162 @@
 			</div>
 		</div>
 		<!--block1-->
-		<div class="block1 wd12" id="block1">
-			<h1>Storage</h1>
-			
-			<div class="row settingsblock">
-	
-				<div class="col2">
-				
-   <div id="block_boot_disk">
-					</div>
-					<div id="block_disks">
-					</div>
-				</div>
+        <div class="block1 wd12" id="block1">
+            <h1>Storage</h1>
 
-			</div>
-		</div>
-	</div>
+            <div class="row settingsblock">
+
+                <div class="col2">
+                    <div class="setline">
+                        <div class="setline" style="margin-top: 20px;">
+                            <span class="span" style="font-weight: bold;">Boot disk</span>
+                        </div>
+
+                        <div class="setline">
+                            <div id="block_boot_disk">
+                                <div class="setline" style="padding-top: 7px; padding-bottom: 5px;">
+                                    <span>Partition ...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setline" style="margin-top: 20px;">
+                            <span class="span" style="font-weight: bold;">External disks</span>
+                            <button data-toggle="modal" data-target="#help_external_disk" type=button
+                                    style=" background:transparent;">
+                                <i class='fa fa-question-circle fa-lg'></i>
+                            </button>
+                        </div>
+
+                        <div id="block_disks"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
 </div>
 
-<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Error</h4>
-      </div>
-      <div class="modal-body">
-          <div class="bodymod">
-              <div id="txt_error" class="btext">Some error happened!</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-      </div>
+    <div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
+         aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Error</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="bodymod">
+                        <div id="txt_error" class="btext">Some error happened!</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script type="text/html" id='template-disks'>
+    <div id="partition_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
+         aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Partition action</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="partition_loading_tgl_name" value=""/>
+                    <input type="hidden" id="partition_action" value=""/>
+                    <input type="hidden" id="partition_device" value=""/>
+                    <input type="hidden" id="partition_id" value=""/>
+                    <input type="hidden" id="partition_state" value=""/>
+                    <div class="bodymod">
+                        <div class="btext">
+                            Your existing data will not be touched or moved<br>
+                            <span id="partition_disk_name" style="font-weight: bold;"></span><br>
+                            <span id="partition_name"></span>
+                            <br>
+                            Are you sure?
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btn_partition_cancel" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
+                        </button>
+                        <button type="button" id="btn_partition_action" class="btn buttonlight bwidth smbutton"
+                                data-dismiss="modal">Yes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="disk_format_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
+         aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Disk format</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="disk_index" value=""/>
+                    <div class="bodymod">
+                        <div class="btext">
+                            This will destroy all the data on this disk!<br>
+                            <span id="disk_name" style="font-weight: bold;"></span><br>
+                            Are you sure?
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
+                        </button>
+                        <button type="button" id="btn_disk_format" class="btn buttonlight bwidth smbutton"
+                                data-dismiss="modal">Format
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="help_external_disk" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">External disk</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="bodymod">
+                        <div class="btext">
+                            Every app is configured to use storage provided by the system (which is available at /data).
+                            This setting screen allows you to choose which attached disk to use for that storage.<br>
+                            Currently you can activate only one storage at a time.
+                            When activating a disk partition existing data will not be copied to the selected disk.<br><br>
+                            You can initialize a disk by formatting it to clear all the data or to make it compatible with the system.
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/html" id='template-disks'>
 
     <%
-		var index = 0;
 		if (disks.length == 0) {
     %>
 
@@ -123,27 +237,47 @@
 				var disk = disks[i];
     %>
 
-		<div class="setline">
-				<span class="span"><%= disk.name %></span>
-    </div>
+		<div class="setline" style="margin-top: 20px;">
+			<span class="span" style="font-weight: bold;" id="disk_name_<%=i%>"><%= disk.name %> - <%= disk.size %></span>
+			<% if (!disk.active) { %>
+			<div class="spandiv">
+				<button class="buttonred bwidth smbutton btn-lg"
+						id="btn_format_<%=i%>"
+						data-type="format"
+                        data-index="<%=i%>"
+                        data-device="<%=disk.device %>"
+						data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> ">Format</button>
+			</div>
+			<% } %>
+    	</div>
 
     <%
 				partitions = disk.partitions;
 				for (j=0; j < partitions.length; j++) {
 				var partition = partitions[j];
+
+					if (partition.mountable || partition.active) {
     %>
 
 		<div class="setline">
-				<span class="span"><%=partition.device %> (<%=partition.size %>)</span>
+				<span class="span" id="partition_name_<%=i%>_<%=j%>">Partition - <%=partition.size %></span>
 				<div class="spandiv">
-						<input type="checkbox" id="tgl_device_<%=index%>" data-index="<%=index%>" data-device="<%=partition.device %>" data-on-text="Active" data-off-text="Not active" data-label-width="8" <% if (partition.active) { %>checked<% } %> />
-						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_device_<%=index%>_loading"></i>
+						<input type="checkbox" id="tgl_partition_<%=i%>_<%=j%>"
+							   data-disk-index="<%=i%>"
+                               data-partition-index="<%=j%>"
+                               data-partition-device="<%=partition.device %>"
+							   data-on-text="Active"
+							   data-off-text="Not active"
+							   data-label-width="8" <% if (partition.active) { %>checked<% } %> />
+						<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible"
+						   id="tgl_partition_<%=i%>_<%=j%>_loading"></i>
 				</div>
 		</div>
 
     <%
-				index = index + 1;
-            }
+					}
+
+            	}
     %>
 
     <% } %>
@@ -151,17 +285,15 @@
 
 <script type="text/html" id='template-boot-disk'>
 
-    <div class="setline">
-            <span class="span">Boot disk</span>
-    </div>
-    <div class="setline">
-        <span class="span"><%=device %> (<%=size %>)</span>
+    
+        <span class="span">Partition - <%=size %></span>
         <% if (extendable) { %>
         <div class="spandiv">
-            <button class="buttongreen bwidth smbutton btn-lg" id="btn_boot_extend" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
+            <button class="buttongreen bwidth smbutton btn-lg"
+					id="btn_boot_extend"
+					data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend</button>
         </div>
         <% } %>
-    </div>
 
 </script>
 
@@ -181,37 +313,100 @@ function ui_display_toggles() {
 	});
 }
 
-ui_display_toggles();
+function ui_enable_controls(enabled) {
+	$("[type='checkbox']").each(function() {
+	    $(this).bootstrapSwitch('disabled', !enabled);
+	});
+
+	$("[data-type='format']").each(function() {
+		$(this).prop('disabled', !enabled);
+	});
+
+}
+
+ui_display_toggles();$("#block_disks").find
 
 function ui_display_disks(data) {
 		var template = $("#template-disks").html();
 		$("#block_disks").html(_.template(template)(data));
 		ui_display_toggles();
+		ui_enable_controls(true);
 
 		$("#block_disks").find("[type='checkbox']").each(function() {
-				var tgl_device = $(this);
-				$(this).on('switchChange.bootstrapSwitch', function(e, s) {
-						var state = tgl_device.bootstrapSwitch('state');
-						var disk_device = tgl_device.data('device');
-						var device_index = tgl_device.data('index');
+			var tgl = $(this);
+			tgl.off('switchChange.bootstrapSwitch').on('switchChange.bootstrapSwitch', function(e, s) {
+				var state = tgl.bootstrapSwitch('state');
 
-						$("#block_disks").find("[type='checkbox']").each(function() {
-								$(this).bootstrapSwitch('disabled', true);
-						});
-						var tgl_loading_id = '#tgl_device_'+device_index+'_loading';
-						$(tgl_loading_id).addClass('opacity-visible');
+                $('#partition_state').val(state);
+                $('#partition_device').val(tgl.data('partition-device'));
 
-						disk_action(disk_device, state,
-                                ui_check_disks,
-                                ui_display_error);
-				})
+			    var partition_index = tgl.data('partition-index');
+			    var disk_index = tgl.data('disk-index');
+                $('#partition_id').val(disk_index + '_' + partition_index);
+
+                $('#partition_name').html($('#partition_name_' + disk_index + '_' + partition_index).html());
+                $('#partition_disk_name').html($('#disk_name_' + disk_index).html());
+
+                $('#partition_action_confirmation').modal('show');
+
+			});
 		});
+
+		$("#btn_partition_action").off('click').on('click', function(e, s) {
+
+            var state = $('#partition_state').val() == 'true';
+
+            var tgl_loading = $('#tgl_partition_' + $('#partition_id').val() + '_loading');
+            $(tgl_loading).addClass('opacity-visible');
+
+            ui_enable_controls(false);
+
+            var device = $('#partition_device').val();
+			disk_action(device, state, ui_check_disks, ui_display_error);
+        });
+
+        $('#partition_action_confirmation').on('hidden.bs.modal', function () {
+            var state = $('#partition_state').val() == 'true';
+            var tgl = $('#tgl_partition_' + $('#partition_id').val());
+		    tgl.bootstrapSwitch('state', !state, true);
+        });
+
+		$("#block_disks").find("[data-type='format']").each(function() {
+			var btn = $(this);
+			btn.button('reset');
+			btn.off('click').on('click', function(e, s) {
+			    var index = btn.data('index');
+                $('#disk_index').val(index);
+                $('#disk_name').html($('#disk_name_' + index).html());
+                $('#disk_format_confirmation').modal('show');
+            });
+		});
+
+        $("#btn_disk_format").off('click').on('click', function(e, s) {
+
+            var index = $('#disk_index').val();
+            var btn = $('#btn_format_' + index);
+            btn.button('loading');
+            ui_enable_controls(false);
+
+            var device = btn.data('device');
+
+            disk_format(device,
+                ui_check_disks,
+                function (a, b, c) {
+                    ui_display_error(a, b, c);
+                    btn.button('reset');
+                });
+        });
+
 }
 
 function ui_display_boot_disk(data) {
 		var template = $("#template-boot-disk").html();
 		$("#block_boot_disk").html(_.template(template)(data.data));
-        $("#btn_boot_extend").on('click', function () {
+		var btn = $("#btn_boot_extend");
+        btn.button('reset');
+        btn.off('click').on('click', function () {
     		ui_boot_extend();
         });
 }
@@ -221,10 +416,7 @@ function ui_boot_extend() {
     btn.button('loading');
     
     boot_extend(
-        function (data) {
-            ui_display_boot_disk(data);
-            btn.button('reset');
-        },
+        ui_display_boot_disk,
         function (a, b, c) {
             ui_display_error(a, b, c);
             btn.button('reset');
@@ -236,14 +428,14 @@ function ui_check_disks() {
 		backend.update_disks(ui_display_disks, ui_display_error);
 }
 
-function ui_check_boot_disk(on_always) {
-		backend.update_boot_disk(ui_display_boot_disk, on_always, ui_display_error);
+function ui_check_boot_disk() {
+		backend.update_boot_disk(ui_display_boot_disk, ui_display_error);
 }
 
 $(document).ready(function () {
 
     ui_check_disks();
-    ui_check_boot_disk(function() {});
+    ui_check_boot_disk();
 
 });
 
@@ -255,10 +447,10 @@ $(document).ready(function () {
 <![endif]-->
 
 <script src="js/common.js"></script>
-<script src="js/settings.js"></script>
+<script src="js/storage.js"></script>
 <script src="js/backend/common.js"></script>
 <script src="js/backend/menu.js"></script>
-<script src="js/backend/settings.js"></script>
+<script src="js/backend/storage.js"></script>
 <!-- END SCRIPTS -->
 </body>
 </html>
