@@ -13,7 +13,7 @@ class Lsblk:
         self.log = logger.get_logger('lsblk')
 
     def available_disks(self, lsblk_output=None):
-        return [d for d in self.all_disks(lsblk_output) if not d.is_internal()]
+        return [d for d in self.all_disks(lsblk_output) if not d.is_internal() and not d.has_root_partition()]
 
     def all_disks(self, lsblk_output=None):
         if not lsblk_output:
@@ -134,6 +134,8 @@ class Partition:
 
 class Disk:
     def __init__(self, name, device, size, partitions):
+        if name == '':
+            name = 'Disk'
         self.name = name
         self.partitions = partitions
         self.device = device
@@ -142,6 +144,9 @@ class Disk:
     
     def is_internal(self):
         return self.device.startswith('/dev/mmcblk')
+
+    def has_root_partition(self):
+        return self.find_root_partition() is not None
 
     def add_partition(self, partition):
         if partition.active:
