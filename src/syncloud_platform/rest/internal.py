@@ -1,6 +1,5 @@
 import traceback
 import sys
-from os import environ
 import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloud_app.main import PassthroughJsonError
@@ -9,7 +8,7 @@ from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
 
-injector = get_injector(environ['CONFIG_DIR'])
+injector = get_injector()
 internal = injector.internal
 device = injector.device
 
@@ -44,6 +43,7 @@ def activate():
     )
     return identification()
 
+
 @app.route(rest_prefix + "/activate_custom_domain", methods=["POST"])
 def activate_custom_domain():
 
@@ -55,6 +55,7 @@ def activate_custom_domain():
         request.form['device_password']
     )
     return identification()
+
 
 def get_main_domain(request_form):
     
@@ -89,6 +90,7 @@ def handle_exception(error):
         traceback.print_exc(file=sys.stdout)
         print '-'*60
         return jsonify(message=error.message), status_code
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)

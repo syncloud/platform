@@ -1,8 +1,9 @@
 import sys
 import traceback
-from os import environ
+
 import convertible
-from flask import jsonify, send_from_directory, request, redirect, send_file, Flask
+import requests
+from flask import jsonify, send_from_directory, request, redirect, send_file, Flask, Response
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask_login import LoginManager
 
@@ -16,7 +17,7 @@ from syncloud_platform.gaplib import linux
 
 from syncloud_platform.rest.service_exception import ServiceException
 
-injector = get_injector(environ['CONFIG_DIR'])
+injector = get_injector()
 public = injector.public
 device = injector.device
 
@@ -130,13 +131,13 @@ def upgrade():
     force = False
     if 'force' in request.args:
         force = request.args['force'] == 'true'
-        
+
     channel = 'stable'
     if 'channel' in request.args:
         channel = request.args['channel']
-        
+
     public.upgrade(request.args['app_id'], channel, force)
-    
+
     return 'OK', 200
 
 
@@ -156,7 +157,7 @@ def available_apps():
 @login_required
 def port_mappings():
     return jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
-    
+
 
 @app.route(rest_prefix + "/access/access", methods=["GET"])
 @login_required
@@ -279,6 +280,16 @@ def activate_url():
     return jsonify(activate_url='http://{0}:81'.format(linux.local_ip()), success=True), 200
 
 
+@app.route(rest_prefix + "/app_image", methods=["GET"])
+@login_required
+def app_image():
+    channel = request.args['channel']
+    app = request.args['app']
+    r = requests.get('http://apps.syncloud.org/releases/{0}/images/{1}-128.png'.format(channel, app), stream=True)
+    return Response(r.iter_content(chunk_size=10*1024),
+                    content_type=r.headers['Content-Type'])
+
+
 @app.errorhandler(Exception)
 def handle_exception(error):
     print '-'*60
@@ -291,3 +302,7 @@ def handle_exception(error):
 
     response = jsonify(success=False, message=error.message)
     return response, status_code
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True, port=5001)
