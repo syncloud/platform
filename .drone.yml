@@ -9,7 +9,7 @@ pipeline:
   version:
     image: syncloud/build-deps-${arch}
     commands:
-      - echo $(date +%y%m%d) > version
+      - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
       
   build:
     image: syncloud/build-deps-${arch}

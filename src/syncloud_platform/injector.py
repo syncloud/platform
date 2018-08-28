@@ -37,20 +37,12 @@ from syncloud_platform.application.appsetup import AppSetup
 default_injector = None
 
 
-def get_injector(config_dir=None, debug=False):
+def get_injector(debug=False):
     global default_injector
     if default_injector is None:
-        config_dir = detect_config_dir(config_dir)
+        config_dir = join(environ['SNAP_COMMON'], 'config')
         default_injector = Injector(config_dir=config_dir, debug=debug)
     return default_injector
-
-
-def detect_config_dir(config_dir):
-    if config_dir:
-        return config_dir
-    if 'SNAP_COMMON' in environ:
-        return join(environ['SNAP_COMMON'], 'config')
-    return PLATFORM_CONFIG_DIR
 
 
 class Injector:
