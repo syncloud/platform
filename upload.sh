@@ -8,13 +8,10 @@ build_number=$2
 FILE_NAME=$3
 
 bucket=apps.syncloud.org
-ARCH=$(uname -m)
-
-mkdir -p /opt/app
 
 if [ "${branch}" == "master" ] || [ "${branch}" == "stable" ] ; then
 
-  s3cmd put $FILE_NAME s3://${bucket}/apps/$FILE_NAME
+  s3cmd put ${FILE_NAME} s3://${bucket}/apps/${FILE_NAME}
   
   if [ "${branch}" == "stable" ]; then
     branch=rc
