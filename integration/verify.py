@@ -15,7 +15,9 @@ from syncloudlib.integration.installer import local_install, wait_for_sam, wait_
     get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 SYNCLOUD_INFO = 'syncloud.info'
 
