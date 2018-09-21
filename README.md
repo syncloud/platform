@@ -11,6 +11,7 @@ It is available as an image or pre-installed device.
 * [Rocketchat](https://rocket.chat/): Text, voice and video messaging.
 * [Mail](https://roundcube.net/): Email messaging with Roundcube web.
 * [GOGS](https://gogs.io/): Git source code hosting.
+* [Syncthing](https://syncthing.net/): File synchronization between devices.
 
 ### Images
 
