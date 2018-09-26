@@ -41,7 +41,7 @@ class Hardware:
         self.log = logger.get_logger('hardware')
 
     def available_disks(self):
-        return [d for d in self.lsblk.available_disks() if not d.is_internal() ]
+        return [d for d in self.lsblk.available_disks() if not d.is_internal()]
 
     def root_partition(self):
         disks = self.lsblk.all_disks()
@@ -75,14 +75,14 @@ class Hardware:
 
         self.systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
 
-        self.relink_disk(
+        relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_external_disk_dir())
         self.event_trigger.trigger_app_event_disk()
 
     def deactivate_disk(self):
         self.log.info('deactivate disk')
-        self.relink_disk(
+        relink_disk(
             self.platform_config.get_disk_link(),
             self.platform_config.get_internal_disk_dir())
         self.event_trigger.trigger_app_event_disk()    
@@ -103,19 +103,6 @@ class Hardware:
             self.log.info('not fixing permissions')
         return app_storage_dir
 
-    def relink_disk(self, link, target):
-
-        os.chmod(target, 0755)
-
-        if islink(link):
-            unlink(link)
-        os.symlink(target, link)
-
-    def check_external_disk(self):
-        self.log.info('checking external disk')
-        if self.path_checker.external_disk_link_exists() and not self.lsblk.is_external_disk_attached():
-            self.deactivate_disk()
-
     def init_disk(self):
 
         if not isdir(self.platform_config.get_disk_root()):
@@ -125,7 +112,7 @@ class Hardware:
             os.mkdir(self.platform_config.get_internal_disk_dir())
 
         if not self.path_checker.external_disk_link_exists():
-            self.relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
+            relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
 
     def __support_permissions(self):
         
@@ -138,3 +125,12 @@ class Hardware:
 
         self.log.info('internal mount')
         return True
+
+
+def relink_disk(link, target):
+
+    os.chmod(target, 0755)
+
+    if islink(link):
+        unlink(link)
+    os.symlink(target, link)

@@ -19,7 +19,6 @@ from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
-from syncloud_platform.sam.stub import SamStub
 from syncloud_platform.snap.snap import Snap
 from syncloud_platform.disks.lsblk import Lsblk
 from syncloud_platform.disks.path_checker import PathChecker
@@ -28,7 +27,6 @@ from syncloud_platform.disks.hardware import Hardware
 from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.certificate.certbot.certbot_generator import CertbotGenerator
 from syncloud_platform.certificate.certificate_generator import CertificateGenerator
-from syncloud_platform.disks.udev import Udev
 from syncloud_platform.versions import Versions
 from syncloud_platform.network.network import Network
 from syncloud_platform.application.apppaths import AppPaths
@@ -94,7 +92,6 @@ class Injector:
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.device_info, self.sam,
                              self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator,
                              self.port_mapper_factory, self.network, self.port_config)
-        self.udev = Udev(self.platform_config)
 
     def get_app_paths(self, app_name):
         return AppPaths(app_name, self.platform_config)

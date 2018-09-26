@@ -64,10 +64,6 @@ class PlatformInstaller:
         injector.platform_cron.remove()
         injector.platform_cron.create()
 
-        udev = injector.udev
-        udev.remove()
-        udev.add()
-
         ldap_auth = injector.ldap_auth
         ldap_auth.init()
 
@@ -103,5 +99,4 @@ class PlatformInstaller:
         systemctl.remove_service('platform.cpu-frequency')
 
         injector.platform_cron.remove()
-        injector.udev.remove()
 

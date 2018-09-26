@@ -64,8 +64,6 @@ def module_teardown(data_dir, device_host, app_dir):
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
-    run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=LOGS_SSH_PASSWORD, throw=False)
-   
     run_ssh(device_host, 'journalctl > {0}/log/journalctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
@@ -407,26 +405,12 @@ def disk_writable(device_host):
     run_ssh(device_host, "touch /data/platform/test.file", password=DEVICE_PASSWORD)
 
 
-def test_udev_script(app_dir, device_host):
-    run_ssh(device_host, '{0}/bin/check_external_disk'.format(app_dir), password=DEVICE_PASSWORD)
-
-
 @pytest.mark.parametrize("fs_type", ['ext4'])
 def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer, ssh_env_vars, app_dir):
     disk_create(loop_device, fs_type, device_host, installer)
     assert disk_activate(loop_device,  public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/external/platform'
     disk_writable(device_host)
     assert disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/internal/platform'
-
-
-def test_disk_physical_remove(loop_device, public_web_session, device_host, installer, ssh_env_vars, app_dir):
-    disk_create(loop_device, 'ext4', device_host, installer)
-    assert disk_activate(loop_device,  public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/external/platform'
-    loop_device_cleanup(device_host, '/opt/disk/external', password=DEVICE_PASSWORD)
-    run_ssh(device_host, 'udevadm trigger --action=remove -y {0}'.format(loop_device.split('/')[2]),
-            password=DEVICE_PASSWORD)
-    run_ssh(device_host, 'udevadm settle', password=DEVICE_PASSWORD)
-    assert current_disk_link(device_host, ssh_env_vars, app_dir) == '/opt/disk/internal/platform'
 
 
 def disk_create(loop_device, fs, device_host, installer):
