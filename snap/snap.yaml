@@ -42,6 +42,7 @@ apps:
     plugs:
     - network
     - network-bind
+    start-timeout: 200s
     restart-condition: always
   uwsgi-api:
     command: bin/service.uwsgi.sh api
@@ -49,6 +50,7 @@ apps:
     plugs:
     - network
     - network-bind
+    start-timeout: 200s
     restart-condition: always
   uwsgi-public:
     command: bin/service.uwsgi.sh public
@@ -56,6 +58,7 @@ apps:
     plugs:
     - network
     - network-bind
+    start-timeout: 200s
     restart-condition: always
 confinement: strict
 description: Syncloud Platform
