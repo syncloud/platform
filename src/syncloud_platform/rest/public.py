@@ -3,9 +3,8 @@ import traceback
 
 import convertible
 import requests
-from flask import jsonify, send_from_directory, request, redirect, send_file, Flask, Response
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from flask_login import LoginManager
+from flask import jsonify, send_from_directory, request, redirect, Flask, Response
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 
 from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.injector import get_injector
