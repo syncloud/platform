@@ -1,4 +1,7 @@
 import sqlite3
+from ConfigParser import ConfigParser
+from os.path import isfile, join
+from syncloud_app import logger
 
 
 class PlatformUserConfig:
