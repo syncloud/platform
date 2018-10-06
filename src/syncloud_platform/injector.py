@@ -5,7 +5,8 @@ from os import environ
 from syncloud_app import logger
 
 from syncloud_platform.auth.ldapauth import LdapAuth
-from syncloud_platform.config.config import PlatformConfig, PlatformUserConfig, PLATFORM_APP_NAME, PLATFORM_CONFIG_DIR
+from syncloud_platform.config.config import PlatformConfig, PLATFORM_APP_NAME
+from syncloud_platform.config.user_config import PlatformUserConfig
 from syncloud_platform.control.systemctl import Systemctl
 from syncloud_platform.device import Device
 from syncloud_platform.insider.cron import PlatformCron

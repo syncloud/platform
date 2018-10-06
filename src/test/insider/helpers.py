@@ -1,8 +1,8 @@
 from os.path import dirname, join
 import tempfile
 import os
-from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformUserConfig, PlatformConfig
-
+from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformConfig
+from syncloud_platform.config.user_config import PlatformUserConfig
 from syncloud_platform.insider.port_config import PortConfig, PORT_CONFIG_NAME
 
 
