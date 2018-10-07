@@ -87,7 +87,7 @@ class LdapAuth:
 
 
 def generate_change_password_cmd(password):
-    return 'echo "root:{0}" | chpasswd'.format(password.replace('"', '\\"'))
+    return 'echo "root:{0}" | chpasswd'.format(password.replace('"', '\\"').replace("$", "\\$"))
 
 
 def to_ldap_dc(full_domain):
