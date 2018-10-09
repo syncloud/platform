@@ -15,7 +15,7 @@ var backend = {
         var that = this;
         setTimeout(function() {
             on_always();
-            on_error({responseJSON: that.error_user_domain}, "error", {})
+            on_error({responseJSON: that.error_device_username}, "error", {})
         }, 2000);
     },
     activate_custom_domain: function(parameters, on_always, on_done, on_error) {
