@@ -1,17 +1,20 @@
 import json
-
-class ParameterMessages:
-
-    def __init__(self, parameter):
-        self.parameter = parameter
-        self.messages = []
-        
-    def add_message(self, message):
-        self.messages.append(message)
-  
+from syncloud_platform.rest.model.parameter_messages import ParameterMessages
+ 
+ 
 class InternalValidator:
     def __init__(self):
         self.parameter_messages = { }
+    
+    def validate(device_username, device_password):
+        if len(device_username) < 3:
+            self.add_parameter_message('device_username', 'less than 3 characters')
+        
+        if len(device_password) < 7:
+            self.add_parameter_message('device_password', 'less than 7 characters')
+            
+        if len(self.parameter_messages) != 0:
+            raise PassthroughJsonError('validation errors', self.to_json())
         
     def add_parameter_message(self, parameter, message):
 
