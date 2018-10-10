@@ -1,4 +1,4 @@
-from syncloud_platform.rest.internal_validation import InternalValidator
+from syncloud_platform.rest.internal_validator import InternalValidator
 
 def test_errors():
     validator = InternalValidator()
