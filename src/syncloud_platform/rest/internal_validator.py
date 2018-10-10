@@ -6,7 +6,7 @@ class InternalValidator:
     def __init__(self):
         self.parameter_messages = { }
     
-    def validate(device_username, device_password):
+    def validate(self, device_username, device_password):
         if len(device_username) < 3:
             self.add_parameter_message('device_username', 'less than 3 characters')
         
