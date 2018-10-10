@@ -7,7 +7,7 @@ from syncloud_app.main import PassthroughJsonError
 from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
-from syncloud_platform.rest.internal_validation import InternalValidator
+from syncloud_platform.rest.internal_validator import InternalValidator
 
 injector = get_injector()
 internal = injector.internal
