@@ -141,6 +141,17 @@ class PlatformUserConfig:
             return None
         return self.parser.get('platform', 'manual_access_port')
 
+    def get_web_secret_key(self):
+        self.parser.read(self.filename)
+        if not self.parser.has_option('platform', 'web_secret_key'):
+            return None
+        return self.parser.get('platform', 'web_secret_key')
+
+    def set_web_secret_key(self, value):
+        self.parser.read(self.filename)
+        self.__set('platform', 'web_secret_key', value)
+        self.__save()
+
     def __set(self, section, key, value):
         if not self.parser.has_section(section):
             self.parser.add_section(section)

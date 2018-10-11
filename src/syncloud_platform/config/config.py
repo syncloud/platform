@@ -66,12 +66,6 @@ class PlatformConfig:
     def cron_schedule(self):
         return self.__get('cron_schedule')
 
-    def get_web_secret_key(self):
-        return self.__get('web_secret_key')
-
-    def set_web_secret_key(self, value):
-        return self.__set('web_secret_key', value)
-
     def get_user_config(self):
         return self.__get('user_config')
 
@@ -95,9 +89,6 @@ class PlatformConfig:
 
     def get_ssh_port(self):
         return self.__get('ssh_port')
-
-    def set_ssh_port(self, value):
-        return self.__set('ssh_port', value)
 
     def get_rest_internal_log(self):
         return self.__get('rest_internal_log')
@@ -149,8 +140,3 @@ class PlatformConfig:
 
     def __get(self, key):
         return self.parser.get('platform', key)
-
-    def __set(self, key, value):
-        self.parser.set('platform', key, value)
-        with open(self.filename, 'wb') as f:
-            self.parser.write(f)

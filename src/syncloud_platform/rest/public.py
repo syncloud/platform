@@ -21,7 +21,7 @@ public = injector.public
 device = injector.device
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = public.platform_config.get_web_secret_key()
+app.config['SECRET_KEY'] = public.user_platform_config.get_web_secret_key()
 login_manager = LoginManager()
 login_manager.init_app(app)
 

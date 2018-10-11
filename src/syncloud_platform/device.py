@@ -75,7 +75,7 @@ class Device:
         self.set_access(False, False, None, 0, 0)
 
         self.logger.info("activating ldap")
-        self.platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
+        self.user_platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
 
