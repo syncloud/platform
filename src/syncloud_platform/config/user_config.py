@@ -144,7 +144,7 @@ class PlatformUserConfig:
     def get_web_secret_key(self):
         self.parser.read(self.filename)
         if not self.parser.has_option('platform', 'web_secret_key'):
-            return None
+            return 'default'
         return self.parser.get('platform', 'web_secret_key')
 
     def set_web_secret_key(self, value):
