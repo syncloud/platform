@@ -184,8 +184,9 @@ class PlatformUserConfig:
  
     def _get(self, key, default_value):
         conn = sqlite3.connect(self.config_db)
-        conn.execute('select value from config where key = ?', (key,))
-        value = curr.fetchone()
+        cursor = conn.cursor()
+        cursor.execute('select value from config where key = ?', (key,))
+        value = cursor.fetchone()
         conn.close()
         if value:
             return value
