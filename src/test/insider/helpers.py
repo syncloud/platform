@@ -35,7 +35,7 @@ platform_config_file = CONFIG_DIR
 
 
 def get_user_platform_config():
-    config = PlatformUserConfig(':memory:')
+    config = PlatformUserConfig(temp_file())
     config.init_user_config()
     return config
 
