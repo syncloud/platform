@@ -159,6 +159,7 @@ class PlatformUserConfig:
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
         cursor.execute("create table config (key varchar primary key, value varchar)")
+        conn.commit()
         conn.close()
     
     
