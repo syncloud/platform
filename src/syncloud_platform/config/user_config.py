@@ -9,8 +9,9 @@ USER_CONFIG_DB = join(config.DATA_DIR, 'platform.db')
 
 
 class PlatformUserConfig:
-    def __init__(self, config_db=USER_CONFIG_DB):
+    def __init__(self, config_db=USER_CONFIG_DB, old_config_file=USER_CONFIG_FILE_OLD):
         self.config_db = config_db
+        self.old_config_file = old_config_file
         self.log = logger.get_logger('PlatformUserConfig')
 
     def update_redirect(self, domain, api_url):
@@ -163,12 +164,13 @@ class PlatformUserConfig:
     
     
     def migrate_user_config(self):
-    
-        conn = sqlite3.connect(self.config_db)
-        with conn:
-            parser.read(USER_CONFIG_FILE_OLD)
-            if parser.has_section('redirect') and self.parser.has_option('redirect', 'domain'):
-                _upsert(cirsor, 'redirect.domain', parser.get('redirect', 'domain'))
+        if isfile(self.old_config_file):
+            db.init_config_db()
+            conn = sqlite3.connect(self.config_db)
+            with conn:
+                parser.read(self.old_config_file)
+                # for section, key, valie in parser:
+                #    _upsert(cirsor, '{0},{1}'.format(section, key), value)
 
 
     def _upsert(self,values):
@@ -182,7 +184,7 @@ class PlatformUserConfig:
  
     def _get(self, key, default_value):
         conn = sqlite3.connect(self.config_db)
-        conn.execute('select value from config where key = ?', key)
+        conn.execute('select value from config where key = ?', (key,))
         value = curr.fetchone()
         conn.close()
         if value:

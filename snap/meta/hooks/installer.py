@@ -72,9 +72,6 @@ class PlatformInstaller:
 
     def post_refresh(self);
         self.init()
-        if isfile(user_config.USER_CONFIG_FILE_OLD):
-            db = user_config.PlatformUserConfig()
-            db.init_config_db()
-            db.migrate_config()
+        db.migrate_config()
 
            
