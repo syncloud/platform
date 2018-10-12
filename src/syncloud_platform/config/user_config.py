@@ -180,7 +180,7 @@ class PlatformUserConfig:
         conn.close() 
      
  
-    def _get(self, conn, key, default_value):
+    def _get(self, key, default_value):
         conn = sqlite3.connect(self.config_db)
         conn.execite('select value from config where key = ?', key)
         value = curr.fetchone()
