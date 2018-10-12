@@ -1,12 +1,19 @@
 from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
+from os.path import isdir, join
 
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
 WEB_CERTIFICATE_PORT = 80
 WEB_ACCESS_PORT = 443
 WEB_PROTOCOL = 'https'
+
+APPS_ROOT = '/snap'
+DATA_ROOT = '/var/snap'
+INSTALL_DIR = os.environ['SNAP']
+DATA_DIR = os.environ['SNAP_COMMON']
+APP_DATA_PREFIX = 'common/'
 
 
 class PlatformConfig:
@@ -65,9 +72,6 @@ class PlatformConfig:
 
     def cron_schedule(self):
         return self.__get('cron_schedule')
-
-    def get_user_config(self):
-        return self.__get('user_config')
 
     def get_log_root(self):
         return self.__get('log_root')

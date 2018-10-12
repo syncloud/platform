@@ -2,34 +2,28 @@ import sqlite3
 from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
+from syncloud_platform.config import config
+
+USER_CONFIG_FILE_OLD = join(config.DATA_DIR, 'user_platform.cfg')
+USER_CONFIG_DB = join(config.DATA_DIR, 'platform.db')
 
 
 class PlatformUserConfig:
-
-    def __init__(self, config_file):
+    def __init__(self, config_db=USER_CONFIG_DB):
+        self.config_db = config_db
         self.log = logger.get_logger('PlatformUserConfig')
-        self.parser = ConfigParser()
-        self.filename = config_file
 
     def update_redirect(self, domain, api_url):
-        self.parser.read(self.filename)
-        self.log.info('setting domain={0}, api_url={1}'.format(domain, api_url))
-        
-        self.__set('redirect', 'domain', domain)
-        self.__set('redirect', 'api_url', api_url)
-        self.__save()
-
+       self._upsert( [
+            ('redirect.domain', domain),
+            ('redirect.api_url', api_url)
+        ])
+    
     def get_redirect_domain(self):
-        self.parser.read(self.filename)
-        if self.parser.has_section('redirect') and self.parser.has_option('redirect', 'domain'):
-            return self.parser.get('redirect', 'domain')
-        return 'syncloud.it'
+        return self._get('redirect.domain', 'syncloud.it')
 
     def get_redirect_api_url(self):
-        self.parser.read(self.filename)
-        if self.parser.has_section('redirect') and self.parser.has_option('redirect', 'api_url'):
-            return self.parser.get('redirect', 'api_url')
-        return 'http://api.syncloud.it'
+        return self._get('redirect.api_url', 'http://api.syncloud.it')
 
     def set_user_update_token(self, user_update_token):
         self.parser.read(self.filename)
@@ -160,7 +154,40 @@ class PlatformUserConfig:
         else:
             self.parser.set(section, key, value)
 
-    def __save(self):
-        with open(self.filename, 'wb') as f:
-            self.parser.write(f)
+    def init_user_config(self):
+    
+        conn = sqlite3.connect(self.config_db)
+        cursor = conn.cursor()
+        cursor.execute("create table config (key varchar primary key, value varchar)")
+        conn.close()
+    
+    
+    def migrate_user_config(self):
+    
+        conn = sqlite3.connect(self.config_db)
+        with conn:
+            parser.read(USER_CONFIG_FILE_OLD)
+            if parser.has_section('redirect') and self.parser.has_option('redirect', 'domain'):
+                _upsert(cirsor, 'redirect.domain', parser.get('redirect', 'domain'))
 
+
+    def _upsert(self,values):
+        conn = sqlite3.connect(self.config_db)
+        with conn:
+            for key, value in values:
+                self.log.info('setting {0}={1}'.format(key, value))
+                conn.execute("INSERT OR REPLACE INTO config VALUES (?, ?)', key, value)
+        conn.close() 
+     
+ 
+    def _get(self, conn, key, default_value):
+        conn = sqlite3.connect(self.config_db)
+        conn.execite('select value from config where key = ?', key)
+        value = curr.fetchone()
+        conn.close()
+        if value:
+            return value
+        else:
+            return default_value
+ 
+    
