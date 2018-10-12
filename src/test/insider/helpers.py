@@ -35,7 +35,7 @@ platform_config_file = CONFIG_DIR
 
 
 def get_user_platform_config():
-    config = PlatformUserConfig(config_file=temp_file())
+    config = PlatformUserConfig(temp_file())
     return config
 
 
