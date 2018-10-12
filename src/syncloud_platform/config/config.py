@@ -1,3 +1,4 @@
+import os
 from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
@@ -11,8 +12,14 @@ WEB_PROTOCOL = 'https'
 
 APPS_ROOT = '/snap'
 DATA_ROOT = '/var/snap'
-INSTALL_DIR = os.environ['SNAP']
-DATA_DIR = os.environ['SNAP_COMMON']
+
+def env(key, default_value):
+    if key in os.environ:
+        return os.environ[key]
+    return default_value
+
+INSTALL_DIR = env('SNAP', 'not_set')
+DATA_DIR = env('SNAP_COMMON', 'not_set')
 APP_DATA_PREFIX = 'common/'
 
 

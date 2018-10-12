@@ -176,7 +176,7 @@ class PlatformUserConfig:
         with conn:
             for key, value in values:
                 self.log.info('setting {0}={1}'.format(key, value))
-                conn.execute("INSERT OR REPLACE INTO config VALUES (?, ?)', key, value)
+                conn.execute('INSERT OR REPLACE INTO config VALUES (?, ?)', key, value)
         conn.close() 
      
  
