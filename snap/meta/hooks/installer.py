@@ -8,6 +8,7 @@ from syncloud_platform.application import api
 
 from syncloud_platform.gaplib import fs, linux, gen
 from syncloud_platform.config import config
+from syncloud_platform.config.user_config import PlatformUserConfig
 
 APP_NAME = 'platform'
 
@@ -66,12 +67,13 @@ class PlatformInstaller:
 
     def install(self):
         self.init()
-        db = user_config.PlatformUserConfig()
-        db.init_config_db()
+        user_confog = PlatformUserConfig()
+        user_confog.init_user_config()
 
 
     def post_refresh(self);
         self.init()
-        db.migrate_config()
+        user_confog = PlatformUserConfig()
+        user_confog.migrate_user_config()
 
            

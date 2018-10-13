@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from ConfigParser import ConfigParser
 from os.path import isfile, join
 from syncloud_app import logger
@@ -126,12 +127,16 @@ class PlatformUserConfig:
     
     def migrate_user_config(self):
         if isfile(self.old_config_file):
-            db.init_config_db()
-            conn = sqlite3.connect(self.config_db)
-            with conn:
-                parser.read(self.old_config_file)
-                # for section, key, valie in parser:
-                #    _upsert(cirsor, '{0},{1}'.format(section, key), value)
+            self.init_user_config()
+            old_config = ConfigParser()
+            old_config.read(self.old_config_file)
+            for section in old_config.sections():
+                for key, value in old_config.items(section):
+                    db_value = from_bool(value == 'True') if value in ['True', 'False']  else value
+                    self._upsert([
+                        ('{0}.{1}'.format(section, key), db_value)
+                    ])
+            os.rename(self.old_config_file, self.old_config_file + '.bak')
 
 
     def _upsert(self,values):
