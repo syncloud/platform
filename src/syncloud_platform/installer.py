@@ -22,12 +22,12 @@ class PlatformInstaller:
         
         templates_path = join(config.INSTALL_DIR, 'config.templates')
         config_dir = join(config.DATA_DIR, 'config')
-
+        data_dir = config.DATA_DIR
         variables = {
             'apps_root': config.APPS_ROOT,
             'data_root': config.DATA_ROOT,
             'configs_root': config.DATA_ROOT,
-            'config_root': config.DATA_DIR,
+            'config_root': data_dir,
             'config_dir': config_dir,
             'app_dir': config.INSTALL_DIR,
             'app_data': config.DATA_DIR,
