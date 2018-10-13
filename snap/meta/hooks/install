@@ -1,6 +1,6 @@
 #!/snap/platform/current/python/bin/python
 
-from installer import PlatformInstaller
+from syncloud_platform.installer import PlatformInstaller
 
 import logging
 from syncloud_app import logger
