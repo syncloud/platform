@@ -186,7 +186,7 @@ class PlatformUserConfig:
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
         cursor.execute('select value from config where key = ?', (key,))
-        value = cursor.fetchone()
+        value, _ = cursor.fetchone()
         conn.close()
         if value:
             return value
