@@ -186,11 +186,13 @@ class PlatformUserConfig:
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
         cursor.execute('select value from config where key = ?', (key,))
-        value, _ = cursor.fetchone()
+        row = cursor.fetchone()
         conn.close()
-        if value:
-            return value
-        else:
-            return default_value
+        if row:
+            value, _ = row
+            if value:
+                return value
+        
+        return default_value
  
     
