@@ -20,8 +20,8 @@ class PlatformInstaller:
     def init(self):
         linux.fix_locale()
         
-        templates_path = join(install_dir, 'config.templates')
-        config_dir = join(data_dir, 'config')
+        templates_path = join(config.INSTALL_DIR, 'config.templates')
+        config_dir = join(config.DATA_DIR, 'config')
 
         variables = {
             'apps_root': config.APPS_ROOT,
