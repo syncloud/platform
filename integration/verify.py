@@ -62,16 +62,17 @@ def module_setup(request, data_dir, device_host, app_dir):
 def module_teardown(data_dir, device_host, app_dir):
     run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
-    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
-    run_ssh(device_host, 'journalctl > {0}/log/journalctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'journalctl > /log/journalctl.log', password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:/log/* {1}'.format(device_host, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, LOG_DIR), throw=False, password=LOGS_SSH_PASSWORD)
 
 
 def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
-        
+    run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD, throw=False)
+
     os.mkdir(LOG_DIR)
 
 
