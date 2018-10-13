@@ -53,7 +53,7 @@ class Injector:
             level = logging.DEBUG if debug else logging.INFO
             logger.init(level, console, join(self.platform_config.get_platform_log()))
 
-        self.user_platform_config = PlatformUserConfig(self.platform_config.get_user_config())
+        self.user_platform_config = PlatformUserConfig()
 
         self.log_aggregator = Aggregator(self.platform_config)
 
