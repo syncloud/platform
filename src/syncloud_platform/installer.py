@@ -71,7 +71,7 @@ class PlatformInstaller:
         user_confog.init_user_config()
 
 
-    def post_refresh(self);
+    def post_refresh(self):
         self.init()
         user_confog = PlatformUserConfig()
         user_confog.migrate_user_config()
