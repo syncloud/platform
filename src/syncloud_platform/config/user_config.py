@@ -189,9 +189,7 @@ class PlatformUserConfig:
         row = cursor.fetchone()
         conn.close()
         if row:
-            value, _ = row
-            if value:
-                return value
+            return row[0]
         
         return default_value
  
