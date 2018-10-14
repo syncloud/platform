@@ -70,7 +70,7 @@ class PlatformInstaller:
     def install(self):
         self.init_configs()
         user_config = PlatformUserConfig()
-        if not isfile(user_confog.config_db):
+        if not isfile(user_config.config_db):
             user_config.init_user_config()
         else:
             self.log.warn('config db ({0}) already exists, probably running local install'.format(self.config_db))
