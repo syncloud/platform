@@ -1,6 +1,6 @@
 import os
 from subprocess import check_output
-from os.path import isdir, join
+from os.path import isdir, join, isfile
 import shutil
 from syncloud_app import logger
 from syncloud_platform.injector import get_injector
@@ -69,15 +69,18 @@ class PlatformInstaller:
 
     def install(self):
         self.init_configs()
-        user_confog = PlatformUserConfig()
-        user_confog.init_user_config()
+        user_config = PlatformUserConfig()
+        if not isfile(user_confog.config_db):
+            user_config.init_user_config()
+        else:
+            self.log.warn('config db ({0}) already exists, probably running local install'.format(self.config_db))
         self.init_services()
         
        
     def post_refresh(self):
         self.init_configs()
-        user_confog = PlatformUserConfig()
-        user_confog.migrate_user_config()
+        user_config = PlatformUserConfig()
+        user_config.migrate_user_config()
         self.init_services()
 
            

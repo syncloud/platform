@@ -118,10 +118,6 @@ class PlatformUserConfig:
         ])
 
     def init_user_config(self):
-    
-        if isfile(self.config_db):
-            self.log.warn('config db ({0}) already exists, probably running local install'.format(self.config_db))
-            return
             
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
