@@ -17,7 +17,7 @@ class PlatformInstaller:
     def __init__(self):
         self.log = logger.get_logger('installer')
 
-    def init(self):
+    def init_configs(self):
         linux.fix_locale()
         
         templates_path = join(config.INSTALL_DIR, 'config.templates')
@@ -34,7 +34,7 @@ class PlatformInstaller:
             'app_data_prefix': config.APP_DATA_PREFIX
         }
         gen.generate_files(templates_path, config_dir, variables)
-
+    
         data_dirs = [
             join(data_dir, 'webapps'),
             join(data_dir, 'log'),
@@ -47,6 +47,8 @@ class PlatformInstaller:
 
         for data_dir in data_dirs:
             fs.makepath(data_dir)
+    
+    def init_services(self):
 
         injector = get_injector()
 
@@ -66,14 +68,16 @@ class PlatformInstaller:
         
 
     def install(self):
-        self.init()
+        self.init_configs()
         user_confog = PlatformUserConfig()
         user_confog.init_user_config()
-
-
+        self.init_services()
+        
+       
     def post_refresh(self):
-        self.init()
+        self.init_configs()
         user_confog = PlatformUserConfig()
         user_confog.migrate_user_config()
+        self.init_services()
 
            
