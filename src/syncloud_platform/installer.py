@@ -73,7 +73,7 @@ class PlatformInstaller:
         if not isfile(user_config.config_db):
             user_config.init_user_config()
         else:
-            self.log.warn('config db ({0}) already exists, probably running local install'.format(self.config_db))
+            self.log.warn('config db ({0}) already exists, probably running local install'.format(user_config.config_db))
         self.init_services()
         
        
