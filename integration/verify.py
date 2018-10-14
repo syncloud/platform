@@ -483,12 +483,7 @@ def test_settings_versions(device_host, public_web_session):
 
 
 def test_local_upgrade(app_archive_path, installer, device_host):
-    if installer == 'sam':
-        local_remove(device_host, DEVICE_PASSWORD, installer, 'platform')
-        time.sleep(3)
-        local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
-    else:
-        local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
 #def test_public_web_platform_upgrade(public_web_session, device_host, installer):
