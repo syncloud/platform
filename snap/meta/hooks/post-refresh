@@ -8,4 +8,4 @@ from syncloud_app import logger
 logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 
 platform_installer = PlatformInstaller()
-platform_installer.install()
+platform_installer.post_refresh()
