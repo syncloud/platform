@@ -1,4 +1,4 @@
-from syncloud_platform.sam.models import App, AppVersions
+from syncloud_platform.snap.models import App, AppVersions
 from syncloud_platform.snap.snap import join_apps
 
 

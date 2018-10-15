@@ -2,7 +2,7 @@ from datetime import datetime
 
 from syncloud_platform.certificate.certbot.certbot_generator import apps_to_certbot_domain_args, \
     expiry_date_string_to_days, get_new_domains
-from syncloud_platform.sam.models import AppVersions, App
+from syncloud_platform.snap.models import AppVersions, App
 
 
 def test_apps_to_certbot_domain_args():

@@ -1,9 +1,6 @@
 #!/snap/platform/current/python/bin/python
 
-import os, sys
-sys.path.append(os.path.join(os.environ['SNAP'], 'hooks'))
-
-from installer import PlatformInstaller
+from syncloud_platform.installer import PlatformInstaller
 
 import logging
 from syncloud_app import logger
