@@ -41,4 +41,11 @@ user_update_token = token2
     assert config.is_redirect_enabled() == True
     assert config.get_external_access() == False
     
-    assert not path.isfile(old_config_file) 
+    assert not path.isfile(old_config_file)
+
+def test_none():
+    config = PlatformUserConfig(temp_file())
+    config.init_user_config()
+    config.set_web_secret_key(None)
+    
+    assert config.get_web_secret_key() == 'default'

@@ -145,8 +145,9 @@ class PlatformUserConfig:
         conn = sqlite3.connect(self.config_db)
         with conn:
             for key, value in key_values:
-                self.log.info('setting {0}={1}'.format(key, value))
-                conn.execute('INSERT OR REPLACE INTO config VALUES (?, ?)', (key, value))
+                if value is not None:
+                    self.log.info('setting {0}={1}'.format(key, value))
+                    conn.execute('INSERT OR REPLACE INTO config VALUES (?, ?)', (key, value))
         conn.close() 
      
  
