@@ -7,6 +7,7 @@ from syncloud_app.main import PassthroughJsonError
 from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import rest_prefix, html_prefix
 from syncloud_platform.rest.flask_decorators import nocache
+from syncloud_platform.rest.internal_validator import InternalValidator
 
 injector = get_injector()
 internal = injector.internal
@@ -29,16 +30,20 @@ def identification():
 @app.route(rest_prefix + "/activate", methods=["POST"])
 def activate():
 
-    # TODO: validation
-
+    device_username = request.form['device_username']
+    device_password = request.form['device_password']
+        
+    validator = InternalValidator()
+    validator.validate(device_username, device_password)
+    
     main_domain = get_main_domain(request.form)
 
     internal.activate(
         request.form['redirect_email'],
         request.form['redirect_password'],
         request.form['user_domain'],
-        request.form['device_username'],
-        request.form['device_password'],
+        device_username,
+        device_password,
         main_domain
     )
     return identification()
@@ -47,12 +52,16 @@ def activate():
 @app.route(rest_prefix + "/activate_custom_domain", methods=["POST"])
 def activate_custom_domain():
 
-    # TODO: validation
+    device_username = request.form['device_username']
+    device_password = request.form['device_password']
+        
+    validator = InternalValidator()
+    validator.validate(device_username, device_password)
 
     internal.activate_custom_domain(
         request.form['full_domain'],
-        request.form['device_username'],
-        request.form['device_password']
+        device_username,
+        device_password,
     )
     return identification()
 

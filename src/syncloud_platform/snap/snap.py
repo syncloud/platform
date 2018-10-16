@@ -2,7 +2,7 @@ from syncloud_app import logger
 import json
 import requests_unixsocket
 import requests
-from syncloud_platform.sam.models import AppVersions, App
+from syncloud_platform.snap.models import AppVersions, App
 
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
 
