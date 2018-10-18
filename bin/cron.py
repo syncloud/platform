@@ -8,5 +8,5 @@ injector.device.sync_all()
 user_platform_config = injector.user_platform_config
 
 # TODO: Should we generate real certificate when IP is public (no external access needed)
-if user_platform_config.get_external_access():
+if user_platform_config.get_external_access() or not user_platform_config.is_redirect_enabled():
     injector.tls.generate_real_certificate()
