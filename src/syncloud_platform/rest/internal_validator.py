@@ -12,6 +12,9 @@ class InternalValidator:
         if len(device_username) < 3:
             self.add_parameter_message('device_username', 'less than 3 characters')
         
+        if '!' in device_username:
+            self.add_parameter_message('device_username', 'contains ! symbol')
+   
         if len(device_password) < 7:
             self.add_parameter_message('device_password', 'less than 7 characters')
             
