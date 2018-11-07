@@ -52,6 +52,13 @@ def init_storage():
     return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
+@app.route("/service/restart", methods=["POST"])
+def service_restart():
+    name = request.form['name']
+    get_injector().systemctl.restart_service(name)
+    return jsonify(success=True, message='', data='OK'), 200
+
+
 @app.route("/app/storage_dir", methods=["GET"])
 def storage_dir():
     app_name = request.args['name']
