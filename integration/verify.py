@@ -168,7 +168,7 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     assert response.text == 'OK', response.text
 
 
-def test_api_service_restart(main_domain, ssh_env_vars):
+def test_api_service_restart(app_dir, main_domain, ssh_env_vars):
     response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_service_restart.py platform.nginx-internal'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert 'OK' in response, response
 
