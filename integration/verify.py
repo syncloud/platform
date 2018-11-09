@@ -30,28 +30,28 @@ LOG_DIR = join(DIR, 'log')
 
 
 @pytest.fixture(scope="session")
-def app_data_dir(installer):
-    return get_data_dir(installer, 'app')
+def app_data_dir():
+    return get_data_dir('app')
 
        
 @pytest.fixture(scope="session")
-def data_dir(installer):
-    return get_data_dir(installer, 'platform')
+def data_dir():
+    return get_data_dir('platform')
          
 
 @pytest.fixture(scope="session")
-def app_dir(installer):
-    return get_app_dir(installer, 'platform')
+def app_dir():
+    return get_app_dir('platform')
 
 
 @pytest.fixture(scope="session")
-def service_prefix(installer):
-    return get_service_prefix(installer)
+def service_prefix():
+    return get_service_prefix()
 
 
 @pytest.fixture(scope="session")
-def ssh_env_vars(installer):
-    return get_ssh_env_vars(installer, 'platform')
+def ssh_env_vars():
+    return get_ssh_env_vars('platform')
 
 
 @pytest.fixture(scope="session")
@@ -76,8 +76,8 @@ def test_start(module_setup, device_host):
     os.mkdir(LOG_DIR)
 
 
-def test_install(app_archive_path, installer, device_host):
-    local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path, installer)
+def test_install(app_archive_path, device_host):
+    local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path)
 
 
 def test_http_port_validation_url(device_host):
@@ -166,6 +166,11 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
     response = requests.get('https://app.{0}'.format(main_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
+
+
+def test_api_service_restart(app_dir, main_domain, ssh_env_vars):
+    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_service_restart.py platform.nginx-internal'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+    assert 'OK' in response, response
 
 
 def test_api_install_path(app_dir, main_domain, ssh_env_vars):
@@ -382,8 +387,8 @@ def test_installer_upgrade(public_web_session, device_host):
 
 
 @pytest.yield_fixture(scope='function')
-def loop_device(device_host, installer):
-    dev_file = '/tmp/disk_{0}'.format(installer)
+def loop_device(device_host):
+    dev_file = '/tmp/disk'
     loop_device_cleanup(device_host, dev_file, password=DEVICE_PASSWORD)
 
     print('adding loop device')
@@ -407,15 +412,15 @@ def disk_writable(device_host):
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
-def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, installer, ssh_env_vars, app_dir):
-    disk_create(loop_device, fs_type, device_host, installer)
+def test_public_settings_disk_add_remove(loop_device, public_web_session, fs_type, device_host, ssh_env_vars, app_dir):
+    disk_create(loop_device, fs_type, device_host)
     assert disk_activate(loop_device,  public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/external/platform'
     disk_writable(device_host)
     assert disk_deactivate(loop_device, public_web_session, device_host, ssh_env_vars, app_dir) == '/opt/disk/internal/platform'
 
 
-def disk_create(loop_device, fs, device_host, installer):
-    tmp_disk = '/tmp/test_{0}'.format(installer)
+def disk_create(loop_device, fs, device_host):
+    tmp_disk = '/tmp/test'
     run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=DEVICE_PASSWORD, retries=3)
 
     run_ssh(device_host, 'rm -rf {0}'.format(tmp_disk), password=DEVICE_PASSWORD)
@@ -482,20 +487,19 @@ def test_settings_versions(device_host, public_web_session):
     assert response.status_code == 200, response.text
 
 
-def test_local_upgrade(app_archive_path, installer, device_host):
-    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
+def test_local_upgrade(app_archive_path, device_host):
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path)
 
 
-#def test_public_web_platform_upgrade(public_web_session, device_host, installer):
-#    if installer == 'snapd':
-#        run_ssh(device_host, 'snap refresh platform --amend --channel=stable', password=DEVICE_PASSWORD) 
+#def test_public_web_platform_upgrade(public_web_session, device_host):
+#    run_ssh(device_host, 'snap refresh platform --amend --channel=stable', password=DEVICE_PASSWORD) 
         
 #    public_web_session.get('https://{0}/rest/upgrade?app_id=platform&channel=master'.format(device_host), verify=False)
 #    wait_for_sam(public_web_session, device_host)
 
 
-def test_reinstall_local_after_upgrade(app_archive_path, installer, device_host):
-    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
+def test_reinstall_local_after_upgrade(app_archive_path, device_host):
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path)
 
 
 def test_if_cron_is_enabled_after_upgrade(device_host):
