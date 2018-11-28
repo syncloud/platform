@@ -110,6 +110,10 @@ def test_settings_network(driver, device_host):
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_network')
+    
+    driver.find_element_by_id("tgl_external").click()
+    time.sleep(2)
+    screenshots(driver, screenshot_dir, 'settings_network_external_access')
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
