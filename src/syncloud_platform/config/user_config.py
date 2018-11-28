@@ -99,7 +99,7 @@ class PlatformUserConfig:
 
     def get_upnp(self):
         result = self._get('platform.upnp')
-        return to_bool(result)
+        return to_bool(result, True)
 
     def get_public_ip(self):
         return self._get('platform.public_ip')
@@ -163,9 +163,9 @@ class PlatformUserConfig:
         return default_value
  
  
-def to_bool(db_value):
+def to_bool(db_value, default=False):
     if db_value is None:
-        return False
+        return default
     return db_value == TRUE
 
 def from_bool(bool_value):
