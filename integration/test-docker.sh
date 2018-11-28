@@ -46,9 +46,9 @@ do
 done
 set -e
 
-sshpass -p syncloud scp -o StrictHostKeyChecking=no install-snapd.sh root@${DEVICE_HOST}:/installer.sh
-
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${RELEASE}
+#sshpass -p syncloud scp -o StrictHostKeyChecking=no install-snapd.sh root@${DEVICE_HOST}:/installer.sh
+#sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${RELEASE}
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} snap remove platform
 
 pip2 install -r ${DIR}/../requirements.txt
 
