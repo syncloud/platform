@@ -1,0 +1,6 @@
+pytest==2.8.0
+responses==0.5.0
+mockito
+selenium==3.3.1
+requests==2.11.1
+syncloud-lib==56

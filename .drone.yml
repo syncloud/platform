@@ -19,10 +19,19 @@ pipeline:
       - ./unit-test.sh
       - ./test/js/runner/run.sh
 
-  integration:
+  test:
     image: syncloud/build-deps-${arch}
     commands:
-      - ./integration/test-docker.sh teamcity@syncloud.it password build master device $(cat package.name)
+      - VERSION=$(cat version)
+      - ./integration/test-docker.sh build-$(uname -m)-$DRONE_BRANCH device $(cat package.name) verify.py
+
+  test-ui:
+    image: syncloud/build-deps-${arch}
+    commands:
+      - VERSION=$(cat version)
+      - ./integration/test-docker.sh build-$(uname -m)-$DRONE_BRANCH device $(cat package.name) test-ui.py
+    when:
+      platform: linux/amd64
 
   upload:
     image: syncloud/build-deps-${arch}

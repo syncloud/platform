@@ -70,15 +70,22 @@ def module_teardown(data_dir, device_host, app_dir):
 
 def test_start(module_setup, device_host):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+    run_ssh(device_host, 'date', password=LOGS_SSH_PASSWORD, retries=100)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
     run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD, throw=False)
-
+    run_ssh(device_host, 'snap remove platform', password=LOGS_SSH_PASSWORD)
+ 
     os.mkdir(LOG_DIR)
 
 
 def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_DEVICE_PASSWORD, app_archive_path)
 
+
+def test_cryptography_openssl_version(device_host):
+
+    run_ssh(device_host, "/snap/platform/current/python/bin/python -c 'from cryptography.hazmat.backends.openssl.backend import backend; print(backend.openssl_version_text())'", password=LOGS_SSH_PASSWORD)
+ 
 
 def test_http_port_validation_url(device_host):
     response = requests.get('http://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
@@ -110,21 +117,24 @@ def test_internal_web_open(device_host):
     assert response.status_code == 200
 
 
-def test_activate_device(auth, device_host):
+def test_activate_device(device_host, domain, main_domain):
 
-    email, password, domain, release = auth
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
-                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                             data={'main_domain': main_domain,
+                                   'redirect_email': REDIRECT_USER,
+                                   'redirect_password': REDIRECT_PASSWORD,
                                    'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
     assert response.status_code == 200, response.text
     
 
-def test_reactivate(auth, device_host):
-    email, password, domain, release = auth
+def test_reactivate(device_host, domain, main_domain):
+
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
-                             data={'main_domain': SYNCLOUD_INFO, 'redirect_email': email, 'redirect_password': password,
+                             data={'main_domain': main_domain,
+                                   'redirect_email': REDIRECT_USER,
+                                   'redirect_password': REDIRECT_PASSWORD,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
@@ -183,9 +193,9 @@ def test_api_data_path(app_dir, data_dir, main_domain, ssh_env_vars):
     assert data_dir in response, response
  
  
-def test_api_url(app_dir, main_domain, user_domain, ssh_env_vars):
+def test_api_url(app_dir, main_domain, app_domain, ssh_env_vars):
     response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
-    assert user_domain in response, response
+    assert app_domain in response, response
 
 
 def generate_file_jinja(from_path, to_path, variables):
@@ -209,12 +219,12 @@ def generate_file_jinja(from_path, to_path, variables):
         fh.write(output.encode("UTF-8"))
 
 
-def _wait_for_ip(user_domain):
+def _wait_for_ip(app_domain):
 
     retries = 10
     retry = 0
     while retry < retries:
-        ip = socket.gethostbyname(user_domain)
+        ip = socket.gethostbyname(app_domain)
         if not ip.startswith('192'):
             return
         retry += 1
