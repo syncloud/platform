@@ -127,7 +127,9 @@ def test_activate_device(device_host, domain, main_domain):
                              data={'main_domain': main_domain,
                                    'redirect_email': REDIRECT_USER,
                                    'redirect_password': REDIRECT_PASSWORD,
-                                   'user_domain': domain, 'device_username': 'user1', 'device_password': 'password1'})
+                                   'user_domain': domain,
+                                   'device_username': 'user1',
+                                   'device_password': 'password1'})
     assert response.status_code == 200, response.text
     
 
@@ -137,7 +139,9 @@ def test_reactivate(device_host, domain, main_domain):
                              data={'main_domain': main_domain,
                                    'redirect_email': REDIRECT_USER,
                                    'redirect_password': REDIRECT_PASSWORD,
-                                   'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
+                                   'user_domain': domain,
+                                   'device_username': DEVICE_USER,
+                                   'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
@@ -165,38 +169,38 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, main_domain):
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
-    run_scp('{0} root@{1}:/'.format(nginx_runtime, main_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    run_ssh(main_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
-    run_ssh(main_domain, '{0}/nginx/sbin/nginx '
+    run_scp('{0} root@{1}:/'.format(nginx_runtime, app_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    run_ssh(app_domain, 'mkdir -p {0}'.format(app_data_dir), password=DEVICE_PASSWORD)
+    run_ssh(app_domain, '{0}/nginx/sbin/nginx '
                          '-c /nginx.app.test.conf.runtime '
                          '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
             password=DEVICE_PASSWORD)
-    response = requests.get('https://app.{0}'.format(main_domain), timeout=60, verify=False)
+    response = requests.get('https://app.{0}'.format(app_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
 
 
-def test_api_service_restart(app_dir, main_domain, ssh_env_vars):
-    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_service_restart.py platform.nginx-internal'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_api_service_restart(app_dir, app_domain, ssh_env_vars):
+    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_service_restart.py platform.nginx-internal'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert 'OK' in response, response
 
 
-def test_api_install_path(app_dir, main_domain, ssh_env_vars):
-    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_api_install_path(app_dir, app_domain, ssh_env_vars):
+    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert app_dir in response, response
  
     
-def test_api_data_path(app_dir, data_dir, main_domain, ssh_env_vars):
-    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_data_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_api_data_path(app_dir, data_dir, app_domain, ssh_env_vars):
+    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_data_dir.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert data_dir in response, response
  
  
-def test_api_url(app_dir, main_domain, app_domain, ssh_env_vars):
-    response = run_ssh(main_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
+def test_api_url(app_dir, app_domain, app_domain, ssh_env_vars):
+    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert app_domain in response, response
 
 
@@ -308,7 +312,7 @@ def test_activate_url(public_web_session, device_host):
     #wait_for_rest(public_web_session, device_host, '/', 200)
 
 
-def test_protocol(public_web_session, device_host, app_dir, ssh_env_vars, main_domain):
+def test_protocol(public_web_session, device_host, app_dir, ssh_env_vars, app_domain):
 
     response = public_web_session.get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
@@ -324,7 +328,7 @@ def test_protocol(public_web_session, device_host, app_dir, ssh_env_vars, main_d
     assert response.status_code == 200
     url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
    
-    assert main_domain in url, url
+    assert app_domain in url, url
     assert 'https' in url, url
    
     response = public_web_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
@@ -339,7 +343,7 @@ def test_protocol(public_web_session, device_host, app_dir, ssh_env_vars, main_d
 
     url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
    
-    assert main_domain in url, url
+    assert app_domain in url, url
     assert 'https' in url, url
    
 
