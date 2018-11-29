@@ -5,8 +5,7 @@ cd ${DIR}
 NAME="platform"
 BUILD_DIR=${DIR}/build/${NAME}
 
-cd ${DIR}/src
-${BUILD_DIR}/python/bin/pip install -r dev_requirements.txt
+${BUILD_DIR}/python/bin/pip install -r ${DIR}/integration/dev_requirements.txt
 
 # We need to run tests on platform python as it has some libraries like openssl
 mv ${BUILD_DIR}/python/bin/py.test ${BUILD_DIR}/python/bin/py.test_runner
@@ -17,5 +16,5 @@ export LD_LIBRARY_PATH=${DIR}/lib
 ${DIR}/bin/python.bin ${DIR}/bin/py.test_runner "$@"
 EOF
 chmod +x ${BUILD_DIR}/python/bin/py.test
-
+cd ${DIR}/src
 ${BUILD_DIR}/python/bin/py.test test
