@@ -199,7 +199,7 @@ def test_api_data_path(app_dir, data_dir, app_domain, ssh_env_vars):
     assert data_dir in response, response
  
  
-def test_api_url(app_dir, app_domain, app_domain, ssh_env_vars):
+def test_api_url(app_dir, app_domain, ssh_env_vars):
     response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=DEVICE_PASSWORD, env_vars=ssh_env_vars)
     assert app_domain in response, response
 
