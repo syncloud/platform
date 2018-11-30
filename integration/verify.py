@@ -55,6 +55,24 @@ def service_prefix():
 def ssh_env_vars():
     return get_ssh_env_vars('platform')
 
+@pytest.fixture(scope="function")
+def public_web_session(device_host):
+
+    retry = 0
+    retries = 5
+    while True:
+        try:
+            session = requests.session()
+            session.post('https://{0}/rest/login'.format(device_host), verify=False, data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+            assert session.get('https://{0}/rest/user'.format(device_host), verify=False, allow_redirects=False).status_code == 200
+            return session
+        except Exception, e:
+            retry += 1
+            if retry > retries:
+                raise e
+            print(e.message)
+            print('retry {0} of {1}'.format(retry, retries))
+    
 
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir, device_host, app_dir):
