@@ -169,7 +169,7 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain):
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
@@ -179,7 +179,7 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain):
                          '-c /nginx.app.test.conf.runtime '
                          '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
             password=DEVICE_PASSWORD)
-    response = requests.get('https://app.{0}'.format(app_domain), timeout=60, verify=False)
+    response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
 
