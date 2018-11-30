@@ -53,7 +53,7 @@ def module_teardown(driver):
     driver.close()
     
 
-def test_internal_ui(driver, user_domain, device_host):
+def test_internal_ui(driver, app_domain, device_host):
 
     driver.get("http://{0}:81".format(device_host))
     wait_driver = WebDriverWait(driver, 10)
@@ -62,7 +62,7 @@ def test_internal_ui(driver, user_domain, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_login(driver, user_domain, device_host):
+def test_login(driver, app_domain, device_host):
 
     driver.get("http://{0}".format(device_host))
     time.sleep(2)
