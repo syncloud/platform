@@ -26,12 +26,17 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/openldap-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/openssl-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
 
-${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
+PYTHON_DIR=${BUILD_DIR}/python
+export CPPFLAGS=-I${PYTHON_DIR}/include
+export LDFLAGS=-L${PYTHON_DIR}/lib
+export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
+
+${PYTHON_DIR}/bin/pip install -r ${DIR}/requirements.txt
 
 cd src
 rm -f version
 echo ${VERSION} >> version
-${BUILD_DIR}/python/bin/python setup.py install
+${PYTHON_DIR}/bin/python setup.py install
 cd ..
 
 cp -r ${DIR}/bin ${BUILD_DIR}
