@@ -111,7 +111,7 @@ def test_settings_network(driver, device_host):
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_network')
     
-    driver.find_element_by_id("tgl_external").click()
+    driver.find_element_by_css_selector(".bootstrap-switch-id-tgl_external").click()
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'settings_network_external_access')
  
