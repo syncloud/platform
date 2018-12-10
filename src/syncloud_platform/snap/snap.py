@@ -91,7 +91,7 @@ class Snap:
         self.logger.info("find response: {0}".format(response.text))
         snap_response = json.loads(response.text)
         apps = [app for app in snap_response['result'] if app['name'] != 'sam']
-        return sorted(apps, key=lambda x: app['name'])
+        return sorted(apps, key=lambda app: app['name'])
 
     def installed_user_apps(self):
         return [self._installed_app(app) for app in self._installed_snaps() if app['type'] == 'app']
