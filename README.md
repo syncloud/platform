@@ -12,6 +12,7 @@ It is available as an image or pre-installed device.
 * [Mail](https://roundcube.net/): Email messaging with Roundcube web.
 * [GOGS](https://gogs.io/): Git source code hosting.
 * [Syncthing](https://syncthing.net/): File synchronization between devices.
+* [WordPress](https://wordpress.org/): Blogging, mailing lists and forums, media galleries, and online stores.
 
 ### Images
 
