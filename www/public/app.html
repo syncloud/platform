@@ -93,6 +93,38 @@
   </div>
 </div>
 
+    <div id="app_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
+         aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title"><span id="confirm_caption"></span></h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="app_id" value=""/>
+                    <input type="hidden" id="app_action" value=""/>
+                    <div class="bodymod">
+                        <div class="btext">
+                            Are you sure?
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
+                        </button>
+                        <button type="button" id="btn_confirm" class="btn buttonlight bwidth smbutton"
+                                data-dismiss="modal">OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 <!-- Create your template -->
 <script type="text/html" id='app-template'>
 		<div class="appblock">
@@ -153,7 +185,7 @@
 <script type="text/javascript">
 
 function register_btn_open_click() {
-    $("#btn_open").on('click', function () {
+    $("#btn_open").off('click').on('click', function () {
         var btn = $(this);
         var app_url = btn.data('url');
         window.location.href = app_url;
@@ -161,19 +193,25 @@ function register_btn_open_click() {
 }
 
 function register_btn_action_click(app_id, action) {
-    $("#btn_" + action).on('click', function () {
-        var btn = $(this);
-        var on_complete = function () {
-            btn.button('reset');
-            ui_load_app();
-        };
-        var on_error = ui_display_error;
 
+    $("#btn_" + action).off('click').on('click', function () {
+         $('#app_id').val(app_id);
+         $('#app_action').val(action);
+         $('#confirm_caption').html($('#btn_' + action).html());
+         $('#app_action_confirmation').modal('show');
+    });
+}
+
+function app_action(app_id, action) {
+
+        var btn = $("#btn_" + action);
         btn.button('loading');
 
-        run_app_action(app_id, action, on_complete, on_error);
+        run_app_action(app_id, action, function () {
+            btn.button('reset');
+            ui_load_app();
+        }, ui_display_error);
 
-    });
 }
 
 function ui_display_app(data) {
@@ -184,6 +222,12 @@ function ui_display_app(data) {
 		register_btn_action_click(app_id, 'install');
 		register_btn_action_click(app_id, 'upgrade');
 		register_btn_action_click(app_id, 'remove');
+		
+				$("#btn_confirm").off('click').on('click', function () {
+		    var app_id = $('#app_id').val();
+     var action =  $('#app_action').val();
+     app_action(app_id, action);
+  });
 }
 
 function ui_load_app() {

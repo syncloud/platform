@@ -1,9 +1,9 @@
 backend.apps_data = {
     "apps": [
         {
-            "id": "owncloud",
-            "name": "ownCloud",
-            "icon": "penguin.png",
+            "id": "wordpress",
+            "name": "WordPress",
+            "icon": "appsimages/penguin.png",
             "url": "http://owncloud.odroid-c2.syncloud.it"
         }
     ]
