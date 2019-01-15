@@ -118,7 +118,7 @@ def test_reactivate(device_host, domain, main_domain, device_user, device_passwo
                                    'device_password': device_password})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = device_password
 
 
 def test_public_web_unauthorized_browser_redirect(device_host):
