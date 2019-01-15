@@ -299,10 +299,6 @@ def test_protocol(device, device_host, app_dir, ssh_env_vars, app_domain):
     assert 'https' in url, url
    
 
-def test_sync(app_dir, ssh_env_vars, device_host):
-    assert '"success": true' in run_ssh(device_host, '{0}/bin/insider sync_all'.format(app_dir),
-                                        password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
-  
                                         
 def test_cron(app_dir, ssh_env_vars, device_host):
     run_ssh(device_host, '{0}/bin/cron'.format(app_dir),
