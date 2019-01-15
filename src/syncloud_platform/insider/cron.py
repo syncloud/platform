@@ -1,5 +1,5 @@
 from crontab import CronTab
-from syncloud_app import logger
+from syncloudlib import logger
 
 
 class PlatformCron:

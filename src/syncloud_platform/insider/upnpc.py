@@ -2,7 +2,7 @@ import itertools
 from subprocess import check_output, CalledProcessError
 from miniupnpc import UPnP
 
-from syncloud_app import logger
+from syncloudlib import logger
 import time
 
 

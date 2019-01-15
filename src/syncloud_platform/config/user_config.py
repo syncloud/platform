@@ -3,7 +3,7 @@ import os
 import uuid
 from ConfigParser import ConfigParser
 from os.path import isfile, join
-from syncloud_app import logger
+from syncloudlib import logger
 from syncloud_platform.config import config
 
 USER_CONFIG_FILE_OLD = join(config.DATA_DIR, 'user_platform.cfg')

@@ -1,6 +1,6 @@
 from syncloud_app.main import PassthroughJsonError
 import convertible
-from syncloud_app import logger
+from syncloudlib import logger
 
 
 def check_http_error(response):

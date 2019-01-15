@@ -4,7 +4,7 @@ import shutil
 from string import Template
 import string
 from subprocess import check_output, CalledProcessError
-from syncloud_app import logger
+from syncloudlib import logger
 
 SYSTEMD_DIR = join('/lib', 'systemd', 'system')
 

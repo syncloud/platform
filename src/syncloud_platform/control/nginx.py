@@ -1,7 +1,7 @@
 import os
 from os.path import join
 from string import Template
-from syncloud_app import logger
+from syncloudlib import logger
 from syncloud_platform.gaplib import gen
 
 

@@ -1,6 +1,6 @@
 from urlparse import urljoin
 import requests
-from syncloud_app import logger
+from syncloudlib import logger
 import json
 from IPy import IP
 

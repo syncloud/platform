@@ -1,6 +1,6 @@
 from os.path import dirname, join
 
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.config.config import PlatformConfig
 from syncloud_platform.disks.lsblk import Lsblk

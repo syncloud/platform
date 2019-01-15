@@ -1,5 +1,5 @@
 from os import path
-from syncloud_app import logger
+from syncloudlib import logger
 
 
 class PathChecker:

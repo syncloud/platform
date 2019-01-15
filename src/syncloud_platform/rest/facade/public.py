@@ -1,4 +1,4 @@
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.gaplib.linux import pgrep, run_detached
 from syncloud_platform.rest.model.app import app_from_sam_app

@@ -2,7 +2,7 @@ import os
 from subprocess import check_output
 from os.path import isdir, join, isfile
 import shutil
-from syncloud_app import logger
+from syncloudlib import logger
 from syncloud_platform.injector import get_injector
 from syncloud_platform.application import api
 

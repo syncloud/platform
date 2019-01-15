@@ -1,6 +1,6 @@
 from subprocess import check_output
 import re
-from syncloud_app import logger
+from syncloudlib import logger
 
 PARTTYPE_EXTENDED = '0x5'
 

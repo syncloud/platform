@@ -1,4 +1,4 @@
-from syncloud_app import logger
+from syncloudlib import logger
 import json
 import requests_unixsocket
 import requests

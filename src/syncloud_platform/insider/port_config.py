@@ -2,7 +2,7 @@ import os
 from os.path import join
 import convertible
 
-from syncloud_app import logger
+from syncloudlib import logger
 
 PORT_CONFIG_NAME = 'ports.json'
 

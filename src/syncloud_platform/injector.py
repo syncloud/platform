@@ -2,7 +2,7 @@ import logging
 from miniupnpc import UPnP
 from os.path import join
 from os import environ
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.auth.ldapauth import LdapAuth
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_APP_NAME
