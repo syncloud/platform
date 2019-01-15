@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import convertible
+from syncloudlib.json import convertible
 import requests
 from flask import jsonify, send_from_directory, request, redirect, Flask, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required

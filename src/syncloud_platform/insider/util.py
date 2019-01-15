@@ -1,5 +1,5 @@
 from syncloudlib.error import PassthroughJsonError
-import convertible
+from syncloudlib.json import convertible
 from syncloudlib import logger
 
 

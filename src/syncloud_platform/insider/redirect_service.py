@@ -1,6 +1,6 @@
 from urlparse import urljoin
 
-import convertible
+from syncloudlib.json import convertible
 import requests
 from IPy import IP
 from syncloudlib import logger

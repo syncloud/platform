@@ -1,4 +1,4 @@
-import convertible
+from syncloudlib.json import convertible
 
 from syncloud_platform.insider.config import Port
 from test.insider.helpers import get_port_config

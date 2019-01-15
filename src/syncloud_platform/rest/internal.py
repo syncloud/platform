@@ -1,6 +1,6 @@
 import traceback
 import sys
-import convertible
+from syncloudlib.json import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
 from syncloudlib.error import PassthroughJsonError
 

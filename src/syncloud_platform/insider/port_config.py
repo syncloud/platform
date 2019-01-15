@@ -1,6 +1,6 @@
 import os
 from os.path import join
-import convertible
+from syncloudlib.json import convertible
 
 from syncloudlib import logger
 
