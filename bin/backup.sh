@@ -9,7 +9,7 @@ fi
 
 APP=$1
 
-BACKUP_NAME=`date +"%Y%m%d_%H%M%S"`
+BACKUP_NAME=${APP}_`date +"%Y%m%d_%H%M%S"`
 BASE_DIR=/data/platform/backup/${APP}
 BACKUP_DIR=${BASE_DIR}/${BACKUP_NAME}
 
@@ -19,5 +19,5 @@ snap stop $APP
 cp -r /var/snap/$APP/current/ ${BACKUP_DIR}/
 cp -r /var/snap/$APP/common/ ${BACKUP_DIR}/
 snap start $APP
-tar czf -C ${BASE_DIR} ${BACKUP_NAME}.tar.gz ${BACKUP_NAME}
+tar czf ${BACKUP_NAME}.tar.gz -C ${BASE_DIR} ${BACKUP_NAME}
 rm -rf ${BACKUP_DIR}
