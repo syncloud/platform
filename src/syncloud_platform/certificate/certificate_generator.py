@@ -6,7 +6,7 @@ from subprocess import check_output, CalledProcessError
 from OpenSSL import crypto
 
 import datetime
-from syncloudlob import gen
+from syncloudlib import gen
 from syncloudlib.logger import get_logger
 
 

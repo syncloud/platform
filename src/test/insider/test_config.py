@@ -1,4 +1,4 @@
-from convertible import to_json
+from syncloudlib.json.convertible import to_json
 
 from syncloud_platform.insider.config import Port
 

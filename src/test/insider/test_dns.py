@@ -1,7 +1,7 @@
 import pytest
 
 import responses
-from convertible import reformat
+from syncloudlib.json.convertible import reformat
 from syncloud_platform.board import id
 
 from syncloud_platform.gaplib import linux
