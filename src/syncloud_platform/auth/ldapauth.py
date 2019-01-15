@@ -7,8 +7,8 @@ from subprocess import check_output
 
 import ldap
 
-from syncloud_app import util
-from syncloud_app.logger import get_logger
+from syncloudlib import gen
+from syncloudlib.logger import get_logger
 import time
 
 from syncloud_platform.gaplib import fs
@@ -56,7 +56,7 @@ class LdapAuth:
 
         _, filename = tempfile.mkstemp()
         try:
-            util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
+            gen.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
                 'name': name,
                 'user': user,
                 'email': email,

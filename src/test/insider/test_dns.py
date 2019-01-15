@@ -16,7 +16,7 @@ linux.local_ip = mock_local_ip('127.0.0.1')
 from syncloud_platform.insider.redirect_service import RedirectService
 from test.insider.helpers import get_user_platform_config
 
-from syncloud_app.main import PassthroughJsonError
+from syncloudlib.error import PassthroughJsonError
 
 class TestVersions:
     def __init__(self, version):

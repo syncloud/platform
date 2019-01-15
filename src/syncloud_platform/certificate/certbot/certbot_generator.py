@@ -5,7 +5,7 @@ from subprocess import check_output
 from datetime import datetime
 
 from os import path
-from syncloud_app.logger import get_logger
+from syncloudlib.logger import get_logger
 
 from syncloud_platform.certificate.certbot.certbot_result import CertbotResult
 from OpenSSL import crypto

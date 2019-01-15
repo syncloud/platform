@@ -1,7 +1,7 @@
 import pytest 
 
 from syncloud_platform.rest.internal_validator import InternalValidator
-from syncloud_app.main import PassthroughJsonError
+from syncloudlib.error import PassthroughJsonError
 
 
 def test_to_json():
