@@ -27,6 +27,10 @@ LOGS_SSH_PASSWORD = DEFAULT_LOGS_SSH_PASSWORD
 
 
 @pytest.fixture(scope="session")
+def app_data_dir():
+    return get_data_dir('app')
+
+@pytest.fixture(scope="session")
 def module_setup(request, data_dir, device_host, app_dir, log_dir):
     request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir))
 
