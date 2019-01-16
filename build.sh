@@ -1,16 +1,15 @@
 #!/bin/bash -xe
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
-NAME="platform"
 
 if [[ -z "$1" ]]; then
     echo "usage $0 version"
     exit 1
 fi
 
+NAME=$1
 ARCH=$(uname -m)
-VERSION=$1
+VERSION=$2
 
 cd ${DIR}
 

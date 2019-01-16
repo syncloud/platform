@@ -17,6 +17,7 @@ pipeline:
     image: syncloud/build-deps-${arch}
     commands:
       - NAME=$(cat name)
+      - VERSION=$(cat version)
       - ./build.sh $NAME $VERSION
       - ./unit-test.sh
       - ./test/js/runner/run.sh
