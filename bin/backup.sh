@@ -28,7 +28,7 @@ if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
 fi
 
 STORAGE_SPACE_LEFT=$(df --output=avail ${STORAGE_DIR} | tail -1)
-STORAGE_SPACE_NEEDED=$(( ${APP_CURRENT_SIZE} + ${APP_COMMON_SIZE} + ${APP_DATA_SIZE} ))
+STORAGE_SPACE_NEEDED=$(( (${APP_CURRENT_SIZE} + ${APP_COMMON_SIZE} + ${APP_DATA_SIZE}) * 2 ))
 
 if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
     echo "not enaugh space on ${STORAGE_DIR} (${STORAGE_SPACE_LEFT}) for a backup (${STORAGE_SPACE_NEEDED})"
