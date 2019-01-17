@@ -30,16 +30,19 @@ fi
 STORAGE_SPACE_LEFT=$(df --output=avail ${STORAGE_DIR} | tail -1)
 STORAGE_SPACE_NEEDED=$(( (${APP_CURRENT_SIZE} + ${APP_COMMON_SIZE} + ${APP_DATA_SIZE}) * 2 ))
 
+echo "space left on storage: ${STORAGE_SPACE_LEFT}"
+echo "space needed: ${STORAGE_SPACE_NEEDED}"
+
 if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
-    echo "not enaugh space on ${STORAGE_DIR} (${STORAGE_SPACE_LEFT}) for a backup (${STORAGE_SPACE_NEEDED})"
+    echo "not enaugh space on storage for the backup"
     exit 1
 fi
 
 mkdir -p ${BACKUP_DIR}
 
 snap stop $APP
-cp -r ${APP_CURRENT_DIR} ${BACKUP_DIR}
-cp -r ${APP_COMMON_DIR} ${BACKUP_DIR}
+cp -r ${APP_CURRENT_DIR}/ ${BACKUP_DIR}
+cp -r ${APP_COMMON_DIR}/ ${BACKUP_DIR}
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     cp -r ${APP_DATA_DIR} ${BACKUP_DIR}
 fi
