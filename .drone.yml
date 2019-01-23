@@ -22,7 +22,17 @@ pipeline:
       - ./unit-test.sh
       - ./test/js/runner/run.sh
 
-  test:
+  test-unit:
+    image: syncloud/build-deps-${arch}
+    commands:
+      - ./unit-test.sh
+ 
+  test-js:
+    image: syncloud/build-deps-${arch}
+    commands:
+      - ./test/js/runner/run.sh
+
+  test-intergation:
     image: syncloud/build-deps-${arch}
     commands:
       - pip2 install -r dev_requirements.txt
