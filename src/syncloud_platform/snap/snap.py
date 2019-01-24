@@ -4,7 +4,7 @@ import requests_unixsocket
 import requests
 from syncloud_platform.snap.models import AppVersions, App
 from syncloud_platform.gaplib.linux import pgrep, run_detached
-f
+
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
 
 class Snap:
