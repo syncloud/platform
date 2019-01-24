@@ -148,6 +148,9 @@ class PlatformConfig:
 
     def get_disk_format_script(self):
         return self.__get('disk_format_script')
+    
+    def get_snapd_upgrade_script(self):
+        return self.__get('snapd_upgrade_script')
 
     def __get(self, key):
         return self.parser.get('platform', key)

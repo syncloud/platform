@@ -3,9 +3,9 @@ import json
 import requests_unixsocket
 import requests
 from syncloud_platform.snap.models import AppVersions, App
-
+from syncloud_platform.gaplib.linux import pgrep, run_detached
+f
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
-
 
 class Snap:
 
@@ -27,7 +27,10 @@ class Snap:
     def upgrade(self, app_id, channel, force):
         self.logger.info('snap upgrade')
         if app_id == 'sam':
-            raise Exception('Installer upgrade is not yet supported')
+            run_detached(self.platform_config.get_snapd_upgrade_script(),
+                         self.platform_config.get_platform_log(),
+                         self.platform_config.get_ssh_port())
+            return
 
         session = requests_unixsocket.Session()
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={
@@ -40,8 +43,21 @@ class Snap:
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
 
+    def upgrade_snapd(self):
+        run_detached(self.platform_config.get_snapd_upgrade_script(),
+                     self.platform_config.get_platform_log(),
+                     self.platform_config.get_ssh_port())
+
+    def snap_upgrade_status(self):
+        return pgrep(self.platform_config.get_snapd_upgrade_script())
+
     def status(self):
         self.logger.info('snap changes')
+        
+        if snap_upgrade_status()
+            self.logger.info("snapd upgrade is in progress")
+            return True
+            
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/changes?select=in-progress'.format(SOCKET))
         self.logger.info("changes response: {0}".format(response.text))
