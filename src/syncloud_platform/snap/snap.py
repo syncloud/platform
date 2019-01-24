@@ -54,7 +54,7 @@ class Snap:
     def status(self):
         self.logger.info('snap changes')
         
-        if snap_upgrade_status()
+        if snap_upgrade_status():
             self.logger.info("snapd upgrade is in progress")
             return True
             
