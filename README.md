@@ -35,4 +35,4 @@ http://build.syncloud.org/syncloud/platform
 
 ### Build artifacts (screenshots, system logs)
 
-http://artifact.syncloud.org/platform/ci
+http://artifact.syncloud.org/platform
