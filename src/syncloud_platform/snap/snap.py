@@ -7,6 +7,7 @@ from syncloud_platform.gaplib.linux import pgrep, run_detached
 
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
 
+
 class Snap:
 
     def __init__(self, platform_config, info):
@@ -54,7 +55,7 @@ class Snap:
     def status(self):
         self.logger.info('snap changes')
         
-        if snap_upgrade_status():
+        if self.snap_upgrade_status():
             self.logger.info("snapd upgrade is in progress")
             return True
             
