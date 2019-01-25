@@ -126,7 +126,7 @@ class Snap:
         return snap_response['result']
 
     def _installer(self):
-        channel = 'stable'
+        channel = self.platform_config.get_channel()
         self.logger.info('system info')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/system-info'.format(SOCKET))

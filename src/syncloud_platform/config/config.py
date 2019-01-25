@@ -152,5 +152,8 @@ class PlatformConfig:
     def get_snapd_upgrade_script(self):
         return self.__get('snapd_upgrade_script')
 
+    def get_channel(self):
+        return self.__get('channel')
+
     def __get(self, key):
         return self.parser.get('platform', key)
