@@ -45,7 +45,10 @@ class Snap:
             raise Exception(snapd_response['result']['message'])
 
     def upgrade_snapd(self):
-        run_detached(self.platform_config.get_snapd_upgrade_script(),
+        script = self.platform_config.get_snapd_upgrade_script()
+        channel = self.platform_config.get_channel()
+     
+        run_detached('{0} {1}'.format(script, channel),
                      self.platform_config.get_platform_log(),
                      self.platform_config.get_ssh_port())
 

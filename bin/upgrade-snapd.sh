@@ -3,11 +3,12 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [[ -z "$1" ]]; then
-    echo "usage $0 version"
+    echo "usage $0 channel"
     exit 1
 fi
 
-VERSION=$1
+CHANNEL=$1
+VERSION=$(curl http://apps.syncloud.org/releases/${CHANNEL}/snapd.version)
 ARCH=$(dpkg --print-architecture)
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
