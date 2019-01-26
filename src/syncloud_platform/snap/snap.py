@@ -28,7 +28,7 @@ class Snap:
     def upgrade(self, app_id, channel, force):
         self.logger.info('snap upgrade')
         if app_id == 'sam':
-            self.upgrade_snapd()
+            self.upgrade_snapd(channel)
             return
 
         session = requests_unixsocket.Session()
@@ -42,9 +42,8 @@ class Snap:
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
 
-    def upgrade_snapd(self):
+    def upgrade_snapd(self, channel):
         script = self.platform_config.get_snapd_upgrade_script()
-        channel = self.platform_config.get_channel()
      
         run_detached('{0} {1}'.format(script, channel),
                      self.platform_config.get_platform_log(),

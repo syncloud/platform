@@ -131,7 +131,7 @@ def upgrade():
     if 'force' in request.args:
         force = request.args['force'] == 'true'
 
-    channel = 'stable'
+    channel = public.platform_config.get_channel()
     if 'channel' in request.args:
         channel = request.args['channel']
 
