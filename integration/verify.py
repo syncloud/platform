@@ -350,6 +350,8 @@ def test_installer_upgrade(device, device_host):
     session = device.login()
     session.get('https://{0}/rest/upgrade?app_id=sam&channel=master'.format(device_host), verify=False)
     wait_for_installer(session, device_host, throw_on_error=True)
+    session.get('https://{0}/rest/upgrade?app_id=sam&channel=stable'.format(device_host), verify=False)
+    wait_for_installer(session, device_host, throw_on_error=True)
 
 
 @pytest.yield_fixture(scope='function')
