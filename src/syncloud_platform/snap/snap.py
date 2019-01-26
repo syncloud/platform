@@ -28,9 +28,7 @@ class Snap:
     def upgrade(self, app_id, channel, force):
         self.logger.info('snap upgrade')
         if app_id == 'sam':
-            run_detached(self.platform_config.get_snapd_upgrade_script(),
-                         self.platform_config.get_platform_log(),
-                         self.platform_config.get_ssh_port())
+            self.upgrade_snapd()
             return
 
         session = requests_unixsocket.Session()
