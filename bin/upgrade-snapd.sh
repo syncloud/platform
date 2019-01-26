@@ -40,5 +40,6 @@ cp snapd/conf/snapd.socket /lib/systemd/system/
 
 #systemctl enable snapd.service
 #systemctl enable snapd.socket
+systemctl daemon-reload
 systemctl start snapd.service snapd.socket
 
