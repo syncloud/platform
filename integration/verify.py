@@ -1,21 +1,18 @@
+import json
 import os
 import shutil
-import socket
-import time
-from os.path import join, dirname, isdir, split
-from subprocess import check_output
 from os import makedirs
-import json
+from os.path import dirname, isdir, split
+from subprocess import check_output
 
 import jinja2
 import pytest
 import requests
 from requests.adapters import HTTPAdapter
-from syncloudlib.integration.installer import local_install, wait_for_installer, wait_for_rest, local_remove, \
-    get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -30,14 +27,17 @@ LOGS_SSH_PASSWORD = DEFAULT_LOGS_SSH_PASSWORD
 def app_data_dir():
     return get_data_dir('app')
 
+
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir, device_host, app_dir, log_dir):
     request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir))
 
 
 def module_teardown(data_dir, device_host, app_dir, log_dir):
-    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
-    run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
+    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, log_dir), throw=False,
+            password=LOGS_SSH_PASSWORD)
+    run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, log_dir), throw=False,
+            password=LOGS_SSH_PASSWORD)
 
     run_ssh(device_host, 'journalctl > /log/journalctl.log', password=LOGS_SSH_PASSWORD, throw=False)
     run_scp('root@{0}:/log/* {1}'.format(device_host, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
@@ -59,8 +59,9 @@ def test_install(app_archive_path, device_host):
 
 
 def test_cryptography_openssl_version(device_host):
-
-    run_ssh(device_host, "/snap/platform/current/python/bin/python -c 'from cryptography.hazmat.backends.openssl.backend import backend; print(backend.openssl_version_text())'", password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, "/snap/platform/current/python/bin/python "
+                         "-c 'from cryptography.hazmat.backends.openssl.backend "
+                         "import backend; print(backend.openssl_version_text())'", password=LOGS_SSH_PASSWORD)
  
 
 def test_http_port_validation_url(device_host):
@@ -150,8 +151,8 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_dom
     run_scp('{0} root@{1}:/'.format(nginx_runtime, app_domain), throw=False, password=LOGS_SSH_PASSWORD)
     run_ssh(app_domain, 'mkdir -p {0}'.format(app_data_dir), password=LOGS_SSH_PASSWORD)
     run_ssh(app_domain, '{0}/nginx/sbin/nginx '
-                         '-c /nginx.app.test.conf.runtime '
-                         '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
+                        '-c /nginx.app.test.conf.runtime '
+                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
             password=LOGS_SSH_PASSWORD)
     response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
@@ -159,22 +160,29 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_dom
 
 
 def test_api_service_restart(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_service_restart.py platform.nginx-internal'.format(app_dir), password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(app_domain, '{0}/python/bin/python '
+                                   '/integration/api_wrapper_service_restart.py '
+                                   'platform.nginx-internal'.format(app_dir),
+                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
     assert 'OK' in response, response
 
 
 def test_api_install_path(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir), password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir),
+                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
     assert app_dir in response, response
  
     
 def test_api_data_path(app_dir, data_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_data_dir.py platform'.format(app_dir), password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(app_domain, '{0}/python/bin/python '
+                                   '/integration/api_wrapper_data_dir.py platform'.format(app_dir),
+                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
     assert data_dir in response, response
  
  
 def test_api_url(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),
+                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
     assert app_domain in response, response
 
 
@@ -211,9 +219,9 @@ def test_openssl_cli(app_dir, device_host):
 def test_set_access_mode_with_certbot(device, device_host):
 
     response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                      params={'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 0, 
-                                              'certificate_port': 0, 'access_port': 0})
+                                  params={'upnp_enabled': 'false',
+                                          'external_access': 'false', 'public_ip': 0,
+                                          'certificate_port': 0, 'access_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -243,7 +251,6 @@ def test_available_apps(device, device_host, log_dir):
     response = device.login().get('https://{0}/rest/available_apps'.format(device_host), verify=False)
     with open('{0}/rest.available_apps.json'.format(log_dir), 'w') as the_file:
         the_file.write(response.text)
-    #assert '"success": true' in response.text
     assert response.status_code == 200
     assert len(json.loads(response.text)['apps']) > 1
     
@@ -270,34 +277,35 @@ def test_protocol(device, device_host, app_dir, ssh_env_vars, app_domain):
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                      params={'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 0, 
-                                              'certificate_port': 443, 'access_port': 443})
+                                  params={'upnp_enabled': 'false',
+                                          'external_access': 'false', 'public_ip': 0,
+                                          'certificate_port': 443, 'access_port': 443})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
-    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),
+                  password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
    
     assert app_domain in url, url
     assert 'https' in url, url
    
     response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                      params={'upnp_enabled': 'false',
-                                              'external_access': 'false', 'public_ip': 0, 
-                                              'certificate_port': 80, 'access_port': 10000})
+                                  params={'upnp_enabled': 'false',
+                                          'external_access': 'false', 'public_ip': 0,
+                                          'certificate_port': 80, 'access_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
-    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir), password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),
+                  password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
    
     assert app_domain in url, url
     assert 'https' in url, url
-   
 
                                         
 def test_cron(app_dir, ssh_env_vars, device_host):
@@ -311,16 +319,15 @@ def test_install_app(device, device_host):
     wait_for_installer(session, device_host)
 
 
-def test_backup_app(app_dir, ssh_env_vars, device_host):
-    run_ssh(device_host, '{0}/bin/backup.sh files'.format(app_dir),
-            password=LOGS_SSH_PASSWORD)
+def test_backup_app(app_dir, device_host):
+    run_ssh(device_host, '{0}/bin/backup.sh files'.format(app_dir), password=LOGS_SSH_PASSWORD)
+
 
 def test_rest_installed_apps(device, device_host, log_dir):
     response = device.login().get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.installed_apps.json'.format(log_dir), 'w') as the_file:
         the_file.write(response.text)
-    #assert '"success": true' in response.text
     assert response.status_code == 200
     assert len(json.loads(response.text)['apps']) == 1
 
@@ -331,7 +338,7 @@ def test_rest_installed_app(device, device_host, log_dir):
     with open('{0}/rest.app.installed.json'.format(log_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    #assert len(json.loads(response.text)['apps']) == 1
+
 
 def test_rest_not_installed_app(device, device_host, log_dir):
     response = device.login().get('https://{0}/rest/app?app_id=nextcloud'.format(device_host), verify=False)
@@ -339,7 +346,6 @@ def test_rest_not_installed_app(device, device_host, log_dir):
     with open('{0}/rest.app.not.installed.json'.format(log_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    #assert len(json.loads(response.text)['apps']) == 1
 
 
 def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(device, device_host):
@@ -414,14 +420,14 @@ def disk_activate(loop_device, device, device_host, ssh_env_vars, app_dir):
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
-                                      params={'device': loop_device})
+                                  params={'device': loop_device})
     assert response.status_code == 200
     return current_disk_link(device_host, ssh_env_vars, app_dir)
 
 
 def disk_deactivate(loop_device, device, device_host, ssh_env_vars, app_dir):
     response = device.login().get('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
-                                      params={'device': loop_device})
+                                  params={'device': loop_device})
     assert response.status_code == 200
     return current_disk_link(device_host, ssh_env_vars, app_dir)
 
