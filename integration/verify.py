@@ -311,6 +311,10 @@ def test_install_app(device, device_host):
     wait_for_installer(session, device_host)
 
 
+def test_backup_app(app_dir, device_host):
+    run_ssh(device_host, '{0}/bin/backup.sh files'.format(app_dir))
+
+
 def test_rest_installed_apps(device, device_host, log_dir):
     response = device.login().get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
     assert response.status_code == 200
