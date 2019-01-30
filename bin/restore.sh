@@ -18,9 +18,11 @@ APP_DIR=/var/snap/$APP
 APP_CURRENT_DIR=current
 APP_COMMON_DIR=/var/snap/$APP/common
 
+BACKUP_FILE=${BASE_DIR}/${BACKUP_NAME}.tar.gz
+
 APP_DATA_DIR=${STORAGE_DIR}/$APP
 
-APP_DATA_SIZE=0
+APP_DATA_SIZE=$(stat --printf="%s" ${BACKUP_FILE})
 
 STORAGE_SPACE_LEFT=$(df --output=avail ${STORAGE_DIR} | tail -1)
 STORAGE_SPACE_NEEDED=$(( ${APP_DATA_SIZE} * 10 ))
@@ -34,7 +36,7 @@ if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
 fi
 
 mkdir -p ${BASE_DIR}
-tar xf ${BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BASE_DIR}
+tar xf ${BACKUP_FILE} -C ${BASE_DIR}
 snap stop $APP
 rm -rf ${APP_DIR}/current/*
 mv ${BACKUP_DIR}/current/* ${APP_DIR}/current/
