@@ -2,23 +2,22 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
-if [[ -z "$1" ]]; then
-    echo "usage $0 app [--include-data]"
+if [[ -z "$2" ]]; then
+    echo "usage $0 app file [--include-data]"
     exit 1
 fi
 
 APP=$1
-INCLUDE_DATA=${1:-no}
+BACKUP_FILE=$2
+INCLUDE_DATA=${3:-no}
 
 STORAGE_DIR=/data
-BACKUP_NAME=${APP}_`date +"%Y%m%d_%H%M%S"`
+
 BASE_DIR=${STORAGE_DIR}/platform/backup/${APP}
-BACKUP_DIR=${BASE_DIR}/${BACKUP_NAME}
+
 APP_DIR=/var/snap/$APP
 APP_CURRENT_DIR=current
 APP_COMMON_DIR=/var/snap/$APP/common
-
-BACKUP_FILE=${BASE_DIR}/${BACKUP_NAME}.tar.gz
 
 APP_DATA_DIR=${STORAGE_DIR}/$APP
 
