@@ -3,12 +3,13 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
 if [[ -z "$1" ]]; then
-    echo "usage $0 app [--include-data]"
+    echo "usage $0 app [file] [--include-data]"
     exit 1
 fi
 
 APP=$1
-INCLUDE_DATA=${1:-no}
+BACKUP_NAME=${2:-${APP}_`date +"%Y%m%d_%H%M%S"`}
+INCLUDE_DATA=${3:-no}
 
 STORAGE_DIR=/data
 BACKUP_NAME=${APP}_`date +"%Y%m%d_%H%M%S"`
