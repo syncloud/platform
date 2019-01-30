@@ -364,7 +364,7 @@ def test_installer_upgrade(device, device_host):
 
 def test_backup_app(app_dir, device_host):
     run_ssh(device_host, '{0}/bin/backup.sh files test'.format(app_dir), password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, '{0}/bin/restore.sh files /data/platform/backup/test.tar.gz'.format(app_dir), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, '{0}/bin/restore.sh files /data/platform/backup/files/test.tar.gz'.format(app_dir), password=LOGS_SSH_PASSWORD)
 
 
 @pytest.yield_fixture(scope='function')
