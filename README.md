@@ -1,8 +1,8 @@
 ## Syncloud (https://syncloud.org)
 
-Syncloud brings popular apps to your place.
+Simple self-hosting of cloud apps.
 
-It is available as an image or pre-installed device.
+It is available as an image or a pre-installed device.
 
 ### Apps
 
