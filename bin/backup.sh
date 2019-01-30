@@ -12,12 +12,13 @@ BACKUP_NAME=${2:-${APP}_`date +"%Y%m%d_%H%M%S"`}
 INCLUDE_DATA=${3:-no}
 
 STORAGE_DIR=/data
-BACKUP_NAME=${APP}_`date +"%Y%m%d_%H%M%S"`
-BASE_DIR=${STORAGE_DIR}/platform/backup/${APP}
-BACKUP_DIR=${BASE_DIR}/${BACKUP_NAME}
 
-APP_CURRENT_DIR=/var/snap/$APP/current
-APP_COMMON_DIR=/var/snap/$APP/common
+BACKUP_BASE_DIR=${STORAGE_DIR}/platform/backup/${APP}
+BACKUP_DIR=${BACKUP_BASE_DIR}/${BACKUP_NAME}
+
+APP_BASE_DIR=/var/snap/$APP
+APP_CURRENT_DIR=${APP_BASE_DIR}/current
+APP_COMMON_DIR=${APP_BASE_DIR}/common
 
 APP_DATA_DIR=${STORAGE_DIR}/$APP
 
@@ -49,5 +50,5 @@ if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     cp -r ${APP_DATA_DIR}/* ${BACKUP_DIR}/data/
 fi
 snap start $APP
-tar czf ${BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BASE_DIR} ${BACKUP_NAME}
+tar czf ${BACKUP_BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_BASE_DIR} ${BACKUP_NAME}
 rm -rf ${BACKUP_DIR}
