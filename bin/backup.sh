@@ -51,7 +51,7 @@ cp -R ${APP_COMMON_DIR}/. ${BACKUP_DIR}/common
 
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     mkdir ${BACKUP_DIR}/data
-    cp -r ${APP_DATA_DIR}/* ${BACKUP_DIR}/data/
+    cp -R ${APP_DATA_DIR}/. ${BACKUP_DIR}/data/
 fi
 snap start $APP
 tar czf ${BACKUP_BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} .

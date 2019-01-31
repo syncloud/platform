@@ -39,12 +39,12 @@ tar -C ${EXTRACT_DIR} -xf ${BACKUP_FILE}
 ls -la ${EXTRACT_DIR}
 snap stop $APP
 rm -rf ${APP_DIR}/current/*
-mv ${EXTRACT_DIR}/current/* ${APP_DIR}/current/
+cp -R ${EXTRACT_DIR}/current/. ${APP_DIR}/current/
 rm -rf ${APP_DIR}/common/*
-mv ${EXTRACT_DIR}/common/* ${APP_DIR}/common/
+cp -R ${EXTRACT_DIR}/common/. ${APP_DIR}/common/
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
-    mv ${BACKUP_DIR}/data/* ${APP_DATA_DIR}/
+    cp -R ${EXTRACT_DIR}/data/. ${APP_DATA_DIR}/
 fi
 snap start $APP
 
-rm -rf ${BACKUP_DIR}
+rm -rf ${EXTRACT_DIR}
