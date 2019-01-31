@@ -4,6 +4,8 @@ Simple self-hosting of cloud apps.
 
 It is available as an image or a pre-installed device.
 
+We are open to cooperation with hardware vendors interested in including Syncloud into their products.
+
 ### Apps
 
 * [Nextcloud](https://nextcloud.com/): File sharing, calendar, contacts.

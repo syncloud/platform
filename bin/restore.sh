@@ -35,7 +35,8 @@ if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
 fi
 
 mkdir -p ${EXTRACT_DIR}
-tar xf ${BACKUP_FILE} -C ${EXTRACT_DIR}
+tar -C ${EXTRACT_DIR} xf ${BACKUP_FILE}
+ls -la ${EXTRACT_DIR}
 snap stop $APP
 rm -rf ${APP_DIR}/current/*
 mv ${EXTRACT_DIR}/current/* ${APP_DIR}/current/
