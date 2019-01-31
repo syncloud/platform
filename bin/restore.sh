@@ -13,7 +13,7 @@ INCLUDE_DATA=${3:-no}
 
 STORAGE_DIR=/data
 
-BASE_DIR=${STORAGE_DIR}/platform/backup/${APP}
+EXTRACT_DIR=${STORAGE_DIR}/platform/backup/${APP}
 
 APP_DIR=/var/snap/$APP
 APP_CURRENT_DIR=current
@@ -34,13 +34,13 @@ if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
     exit 1
 fi
 
-mkdir -p ${BASE_DIR}
-tar xf ${BACKUP_FILE} -C ${BASE_DIR}
+mkdir -p ${EXTRACT_DIR}
+tar xf ${BACKUP_FILE} -C ${EXTRACT_DIR}
 snap stop $APP
 rm -rf ${APP_DIR}/current/*
-mv ${BACKUP_DIR}/current/* ${APP_DIR}/current/
+mv ${EXTRACT_DIR}/current/* ${APP_DIR}/current/
 rm -rf ${APP_DIR}/common/*
-mv ${BACKUP_DIR}/common/* ${APP_DIR}/common/
+mv ${EXTRACT_DIR}/common/* ${APP_DIR}/common/
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     mv ${BACKUP_DIR}/data/* ${APP_DATA_DIR}/
 fi
