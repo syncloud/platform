@@ -44,10 +44,10 @@ mkdir -p ${BACKUP_DIR}
 
 snap stop $APP
 mkdir ${BACKUP_DIR}/current
-cp -r ${APP_CURRENT_DIR}/* ${BACKUP_DIR}/current
+cp -R ${APP_CURRENT_DIR}/. ${BACKUP_DIR}/current
 
 mkdir ${BACKUP_DIR}/common
-cp -r ${APP_COMMON_DIR}/* ${BACKUP_DIR}/common
+cp -R ${APP_COMMON_DIR}/. ${BACKUP_DIR}/common
 
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     mkdir ${BACKUP_DIR}/data
