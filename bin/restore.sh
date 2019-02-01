@@ -23,7 +23,7 @@ APP_DATA_DIR=${STORAGE_DIR}/$APP
 
 APP_DATA_SIZE=$(stat --printf="%s" ${BACKUP_FILE})
 
-STORAGE_SPACE_LEFT=$(df --output=avail ${STORAGE_DIR} | tail -1)
+STORAGE_SPACE_LEFT=$(df -B 1 --output=avail ${STORAGE_DIR} | tail -1)
 STORAGE_SPACE_NEEDED=$(( ${APP_DATA_SIZE} * 10 ))
 
 echo "space left on storage: ${STORAGE_SPACE_LEFT}"
