@@ -35,15 +35,15 @@ if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
 fi
 
 mkdir -p ${EXTRACT_DIR}
-tar --same-owner -C ${EXTRACT_DIR} -xf ${BACKUP_FILE}
+tar -C ${EXTRACT_DIR} -xf ${BACKUP_FILE}
 ls -la ${EXTRACT_DIR}
 snap stop $APP
 rm -rf ${APP_DIR}/current/*
-cp -R ${EXTRACT_DIR}/current/. ${APP_DIR}/current/
+cp -R --preserve ${EXTRACT_DIR}/current/. ${APP_DIR}/current/
 rm -rf ${APP_DIR}/common/*
-cp -R ${EXTRACT_DIR}/common/. ${APP_DIR}/common/
+cp -R --preserve ${EXTRACT_DIR}/common/. ${APP_DIR}/common/
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
-    cp -R ${EXTRACT_DIR}/data/. ${APP_DATA_DIR}/
+    cp -R --preserve ${EXTRACT_DIR}/data/. ${APP_DATA_DIR}/
 fi
 snap start $APP
 

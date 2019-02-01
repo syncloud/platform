@@ -44,15 +44,15 @@ mkdir -p ${BACKUP_DIR}
 
 snap stop $APP
 mkdir ${BACKUP_DIR}/current
-cp -R ${APP_CURRENT_DIR}/. ${BACKUP_DIR}/current
+cp -R --preserve ${APP_CURRENT_DIR}/. ${BACKUP_DIR}/current
 
 mkdir ${BACKUP_DIR}/common
-cp -R ${APP_COMMON_DIR}/. ${BACKUP_DIR}/common
+cp -R --preserve ${APP_COMMON_DIR}/. ${BACKUP_DIR}/common
 
 if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     mkdir ${BACKUP_DIR}/data
-    cp -R ${APP_DATA_DIR}/. ${BACKUP_DIR}/data/
+    cp -R --preserve ${APP_DATA_DIR}/. ${BACKUP_DIR}/data/
 fi
 snap start $APP
-tar czpf ${BACKUP_BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} .
+tar czf ${BACKUP_BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} .
 rm -rf ${BACKUP_DIR}
