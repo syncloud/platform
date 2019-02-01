@@ -54,5 +54,5 @@ if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
     cp -R ${APP_DATA_DIR}/. ${BACKUP_DIR}/data/
 fi
 snap start $APP
-tar czf ${BACKUP_BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} .
+tar czpf ${BACKUP_BASE_DIR}/${BACKUP_NAME}.tar.gz -C ${BACKUP_DIR} .
 rm -rf ${BACKUP_DIR}
