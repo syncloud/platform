@@ -3,48 +3,39 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
 if [[ -z "$2" ]]; then
-    echo "usage $0 app file [--include-data]"
+    echo "usage $0 app file"
     exit 1
 fi
 
 APP=$1
 BACKUP_FILE=$2
-INCLUDE_DATA=${3:-no}
 
-STORAGE_DIR=/data
+EXTRACT_DIR=$(mktemp -d)
 
-EXTRACT_DIR=${STORAGE_DIR}/platform/backup/${APP}
+BACKUP_SIZE=$(stat --printf="%s" ${BACKUP_FILE})
 
-APP_DIR=/var/snap/$APP
-APP_CURRENT_DIR=current
-APP_COMMON_DIR=/var/snap/$APP/common
+TEMP_SPACE_LEFT=$(df -B 1 --output=avail ${EXTRACT_DIR} | tail -1)
+TEMP_SPACE_NEEDED=$(( ${BACKUP_SIZE} * 10 ))
 
-APP_DATA_DIR=${STORAGE_DIR}/$APP
+echo "temp space left: ${TEMP_SPACE_LEFT}"
+echo "temp space needed: ${TEMP_SPACE_NEEDED}"
 
-APP_DATA_SIZE=$(stat --printf="%s" ${BACKUP_FILE})
-
-STORAGE_SPACE_LEFT=$(df -B 1 --output=avail ${STORAGE_DIR} | tail -1)
-STORAGE_SPACE_NEEDED=$(( ${APP_DATA_SIZE} * 10 ))
-
-echo "space left on storage: ${STORAGE_SPACE_LEFT}"
-echo "space needed: ${STORAGE_SPACE_NEEDED}"
-
-if [[ ${STORAGE_SPACE_NEEDED} -gt ${STORAGE_SPACE_LEFT} ]]; then
-    echo "not enaugh space on storage for the backup"
+if [[ ${TEMP_SPACE_NEEDED} -gt ${TEMP_SPACE_LEFT} ]]; then
+    echo "not enaugh temp space for the restore"
     exit 1
 fi
 
-mkdir -p ${EXTRACT_DIR}
 tar -C ${EXTRACT_DIR} -xf ${BACKUP_FILE}
 ls -la ${EXTRACT_DIR}
+APP_DIR=/var/snap/$APP
+
 snap stop $APP
+
 rm -rf ${APP_DIR}/current/*
 cp -R --preserve ${EXTRACT_DIR}/current/. ${APP_DIR}/current/
 rm -rf ${APP_DIR}/common/*
 cp -R --preserve ${EXTRACT_DIR}/common/. ${APP_DIR}/common/
-if [[ "${INCLUDE_DATA}" == "--include-data" ]]; then
-    cp -R --preserve ${EXTRACT_DIR}/data/. ${APP_DATA_DIR}/
-fi
+
 snap start $APP
 
 rm -rf ${EXTRACT_DIR}
