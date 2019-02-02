@@ -32,10 +32,10 @@ fi
 
 snap stop $APP
 mkdir ${TEMP_DIR}/current
-cp -R --preserve ${APP_CURRENT_DIR}/. ${BACKUP_DIR}/current
+cp -R --preserve ${APP_CURRENT_DIR}/. ${TEMP_DIR}/current
 
 mkdir ${TEMP_DIR}/common
-cp -R --preserve ${APP_COMMON_DIR}/. ${BACKUP_DIR}/common
+cp -R --preserve ${APP_COMMON_DIR}/. ${TEMP_DIR}/common
 
 snap start $APP
 tar czf ${BACKUP_FILE} -C ${TEMP_DIR} .
