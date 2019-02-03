@@ -46,6 +46,7 @@ export GOPATH=${BUILD_DIR}/go
 cd ${BUILD_DIR}/go/src/syncloud/platform
 go build -o ${BUILD_DIR}/go/bin/backend
 ${BUILD_DIR}/go/bin/backend
+chmod +x ${BUILD_DIR}/go/bin/backend
 cp ${BUILD_DIR}/go/bin/backend ${BUILD_DIR}/bin
 rm -rf ${BUILD_DIR}/go
 
