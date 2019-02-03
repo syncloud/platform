@@ -48,6 +48,8 @@ go build -o ${BUILD_DIR}/go/bin/backend
 chmod +x ${BUILD_DIR}/go/bin/backend
 ${BUILD_DIR}/go/bin/backend
 cp ${BUILD_DIR}/go/bin/backend ${BUILD_DIR}/bin
+
+cd ${DIR}
 rm -rf ${BUILD_DIR}/go
 
 export CPPFLAGS=-I${PYTHON_DIR}/include
