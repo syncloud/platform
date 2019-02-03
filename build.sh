@@ -44,12 +44,9 @@ mkdir -p ${BUILD_DIR}/go/src/syncloud/platform
 cp -r ${DIR}/backend/. ${BUILD_DIR}/go/src/syncloud/platform
 export GOPATH=${BUILD_DIR}/go
 cd ${BUILD_DIR}/go/src/syncloud/platform
-go build
-go install
-ls
-ls ${BUILD_DIR}/go/bin
-./backend
-cp backend ${BUILD_DIR}/bin
+go build -o ${BUILD_DIR}/go/bin/backend
+${BUILD_DIR}/go/bin/backend
+cp ${BUILD_DIR}/go/bin/backend ${BUILD_DIR}/bin
 rm -rf ${BUILD_DIR}/go
 
 export CPPFLAGS=-I${PYTHON_DIR}/include
