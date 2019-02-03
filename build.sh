@@ -45,6 +45,8 @@ cp -r ${DIR}/backend/. ${BUILD_DIR}/go/src/syncloud/platform
 export GOPATH=${BUILD_DIR}/go
 cd ${BUILD_DIR}/go/src/syncloud/platform
 go build
+ls
+ls ${BUILD_DIR}/go/bin
 ./backend
 cp backend ${BUILD_DIR}/bin
 rm -rf ${BUILD_DIR}/go
