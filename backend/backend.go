@@ -1,4 +1,4 @@
-package syncloud.platform
+package main
 
 import "fmt"
 
