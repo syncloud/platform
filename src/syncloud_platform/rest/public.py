@@ -13,7 +13,7 @@ from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_act
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.gaplib import linux
-
+from syncloud_platform.rest.backend_proxy import backend_get
 from syncloud_platform.rest.service_exception import ServiceException
 
 injector = get_injector()
@@ -287,6 +287,13 @@ def app_image():
     r = requests.get('http://apps.syncloud.org/releases/{0}/images/{1}-128.png'.format(channel, app), stream=True)
     return Response(r.iter_content(chunk_size=10*1024),
                     content_type=r.headers['Content-Type'])
+
+
+@app.route(rest_prefix + "/backup/list", methods=["GET"])
+@login_required
+def backup_list():
+    response = backend_get("/backup/list")
+    return response.text, response.status_code
 
 
 @app.errorhandler(Exception)

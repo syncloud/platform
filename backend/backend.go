@@ -7,8 +7,8 @@ import (
 	"os"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "request %s", req.URL.Path[1:])
+func backups(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "[]")
 }
 
 func main() {
@@ -17,15 +17,14 @@ func main() {
 		return
 	}
 
-	fmt.Println("Starting backend")
-
 	os.Remove(os.Args[1])
-	http.HandleFunc("/", hello)
+	http.HandleFunc("/backup/list", backups)
 	server := http.Server{}
 
 	unixListener, err := net.Listen("unix", os.Args[1])
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Started backend")
 	server.Serve(unixListener)
 }
