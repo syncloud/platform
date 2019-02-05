@@ -40,9 +40,8 @@ wget https://dl.google.com/go/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz --progress
 tar xf go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
 
 go version
-cd backend/main
-go build -o ${BUILD_DIR}/bin/backend
-#chmod +x ${BUILD_DIR}/bin/backend
+cd backend
+go build -o ${BUILD_DIR}/bin/backend main/backend.go
 
 cd ${DIR}
 

@@ -16,14 +16,14 @@ const backupDir = "/data/platform/backup"
 func backups(w http.ResponseWriter, req *http.Request) {
 	files, err := backup.List(backupDir)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		fmt.Fprintf(w, "")
 		return
 	}
 	
 	filesJson, err := json.Marshal(files)
 	if err != nil {
-		log.Fatal("Cannot encode to JSON ", err)
+		log.Println("Cannot encode to JSON ", err)
 		fmt.Fprintf(w, "")
 		return
 	}
@@ -32,7 +32,7 @@ func backups(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage:", os.Args[0], "/path.sock")
+		log.Println("usage: ", os.Args[0], "/path.sock")
 		return
 	}
 
@@ -44,6 +44,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Started backend")
+	log.Println("Started backend")
 	server.Serve(unixListener)
 }

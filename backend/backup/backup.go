@@ -8,7 +8,7 @@ import (
 func List(backupDir string) ([]string, error) {
 	files, err := ioutil.ReadDir(backupDir)
 	if err != nil {
-		log.Fatal("Cannot get list of files in %s", backupDir, err)
+		log.Println("Cannot get list of files in ", backupDir, err)
 		return nil, err
 	}
 	var names []string
