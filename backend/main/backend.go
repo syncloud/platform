@@ -5,10 +5,29 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"log"
+	"encoding/json"
+
+	"github.com/syncloud/platform/backup"
 )
 
+const backupDir = "/data/platform/backup"
+
 func backups(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "[]")
+	files, err := backup.List(backupDir)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Fprintf(w, "")
+		return
+	}
+	
+	filesJson, err := json.Marshal(files)
+	if err != nil {
+		log.Fatal("Cannot encode to JSON ", err)
+		fmt.Fprintf(w, "")
+		return
+	}
+	fmt.Fprintf(w, string(filesJson))
 }
 
 func main() {

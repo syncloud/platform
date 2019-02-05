@@ -40,17 +40,11 @@ wget https://dl.google.com/go/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz --progress
 tar xf go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
 
 go version
-mkdir -p ${BUILD_DIR}/go/src/syncloud/platform
-cp -r ${DIR}/backend/. ${BUILD_DIR}/go/src/syncloud/platform
-export GOPATH=${BUILD_DIR}/go
-cd ${BUILD_DIR}/go/src/syncloud/platform
-go build -o ${BUILD_DIR}/go/bin/backend
-chmod +x ${BUILD_DIR}/go/bin/backend
-${BUILD_DIR}/go/bin/backend
-cp ${BUILD_DIR}/go/bin/backend ${BUILD_DIR}/bin
+cd backend/main
+go build -o ${BUILD_DIR}/bin/backend
+#chmod +x ${BUILD_DIR}/bin/backend
 
 cd ${DIR}
-rm -rf ${BUILD_DIR}/go
 
 export CPPFLAGS=-I${PYTHON_DIR}/include
 export LDFLAGS=-L${PYTHON_DIR}/lib
