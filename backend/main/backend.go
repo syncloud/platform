@@ -11,23 +11,47 @@ import (
 	"github.com/syncloud/platform/backup"
 )
 
-const backupDir = "/data/platform/backup"
+type Response struct {
+	success bool
+	message string
+	data interface{}
+}
+
+func fail(w http.ResponseWriter, err error, message string) {
+	log.Println(err)
+	response := Response {
+		success: false,
+		message: message,
+	}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		fmt.Fprintf(w, string(responseJson))
+	}
+}
+
+func success(w http.ResponseWriter, data interface{}) {
+	response := Response {
+		success: true,
+		data: data,
+	}
+	reaponseJson, err := json.Marshal(response)
+	if err != nil {
+		fail(w, err, "Cannot encode to JSON")
+	} else {
+		fmt.Fprintf(w, string(reaponseJson))
+	}
+}
 
 func backups(w http.ResponseWriter, req *http.Request) {
-	files, err := backup.List(backupDir)
+	files, err := backup.ListDefault()
 	if err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, "")
-		return
+		fail(w, err, "Cannot get list of backups")
+	} else {
+		success(w, files)
 	}
 	
-	filesJson, err := json.Marshal(files)
-	if err != nil {
-		log.Println("Cannot encode to JSON ", err)
-		fmt.Fprintf(w, "")
-		return
-	}
-	fmt.Fprintf(w, string(filesJson))
 }
 
 func main() {

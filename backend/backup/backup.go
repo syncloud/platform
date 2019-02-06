@@ -5,6 +5,12 @@ import (
 		"io/ioutil"
 )
 
+const backupDir = "/data/platform/backup"
+
+func ListDefault() ([]string, error) {
+	return List(backupDir)
+}
+
 func List(backupDir string) ([]string, error) {
 	files, err := ioutil.ReadDir(backupDir)
 	if err != nil {
