@@ -88,7 +88,7 @@ class Snap:
         self.logger.info('available snaps, query: {0}'.format(query))
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name={1}'.format(SOCKET, query))
-        self.logger.info("find response: {0}".format(response.text))
+        self.logger.debug("find response: {0}".format(response.text))
         snap_response = json.loads(response.text)
         return [app for app in snap_response['result'] if app['name'] != 'sam']
 
@@ -102,7 +102,7 @@ class Snap:
         self.logger.info('installed snaps')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/snaps'.format(SOCKET))
-        self.logger.info("snaps response: {0}".format(response.text))
+        self.logger.debug("snaps response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
         return snap_response['result']
@@ -112,7 +112,7 @@ class Snap:
         self.logger.info('system info')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/system-info'.format(SOCKET))
-        self.logger.info("system info response: {0}".format(response.text))
+        self.logger.debug("system info response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
         version_response = requests.get('http://apps.syncloud.org/releases/{0}/snapd.version'.format(channel))
