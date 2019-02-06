@@ -12,9 +12,9 @@ import (
 )
 
 type Response struct {
-	success bool
-	message string
-	data interface{}
+	success bool `json:",omitempty"`
+	message string `json:",omitempty"`
+	data interface{} `json:",omitempty"`
 }
 
 func fail(w http.ResponseWriter, err error, message string) {
