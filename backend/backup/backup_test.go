@@ -22,5 +22,5 @@ func TestList(t *testing.T) {
 	}
 	list, err := List(dir)
 	assert.Nil(t, err)
-	assert.Equal(t, list, []string{"tmpfile"}, "")
+	assert.Equal(t, list, []string{"tmpfile"}, "should list files")
 } 

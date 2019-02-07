@@ -42,7 +42,7 @@ tar xf go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
 go version
 
 cd backend
-go test ./...
+go test ./... -cover
 go build -o ${BUILD_DIR}/bin/backend main/backend.go
 
 cd ${DIR}

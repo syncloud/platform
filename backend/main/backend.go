@@ -12,16 +12,16 @@ import (
 )
 
 type Response struct {
-	success bool `json:",omitempty"`
-	message string `json:",omitempty"`
-	data interface{} `json:",omitempty"`
+	Success bool `json:"success,omitempty"`
+	Message *string `json:"message,omitempty"`
+	Data *interface{} `json:"data,omitempty"`
 }
 
 func fail(w http.ResponseWriter, err error, message string) {
 	log.Println(err)
 	response := Response {
-		success: false,
-		message: message,
+		Success: false,
+		Message: &message,
 	}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
@@ -33,25 +33,27 @@ func fail(w http.ResponseWriter, err error, message string) {
 
 func success(w http.ResponseWriter, data interface{}) {
 	response := Response {
-		success: true,
-		data: data,
+		Success: true, 
+		Data: &data,
 	}
-	reaponseJson, err := json.Marshal(response)
+	responseJson, err := json.Marshal(response)
 	if err != nil {
 		fail(w, err, "Cannot encode to JSON")
 	} else {
-		fmt.Fprintf(w, string(reaponseJson))
+		fmt.Println(response.Success)
+		fmt.Fprintf(w, string(responseJson[:]))
 	}
 }
 
-func backups(w http.ResponseWriter, req *http.Request) {
-	files, err := backup.ListDefault()
-	if err != nil {
-		fail(w, err, "Cannot get list of backups")
-	} else {
-		success(w, files)
+func Handle(f func () (interface{}, error) ) func(w http.ResponseWriter, req *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		data, err := f()
+		if err != nil {
+			fail(w, err, "Cannot get data")
+		} else {
+			success(w, data)
+		}
 	}
-	
 }
 
 func main() {
@@ -61,7 +63,7 @@ func main() {
 	}
 
 	os.Remove(os.Args[1])
-	http.HandleFunc("/backup/list", backups)
+	http.HandleFunc("/backup/list", Handle(func() (interface{}, error) { return backup.ListDefault() }))
 	server := http.Server{}
 
 	unixListener, err := net.Listen("unix", os.Args[1])
