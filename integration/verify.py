@@ -371,7 +371,9 @@ def test_backup_app(app_dir, device_host):
 def test_rest_backup_list(device, device_host, log_dir):
     response = device.login().get('https://{0}/rest/backup/list'.format(device_host), verify=False)
     assert response.status_code == 200
-    assert json.loads(response.text)['success'], response.text
+    with open('{0}/rest.backup.list.json'.format(log_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert json.loads(response.text)['success']
 
 @pytest.yield_fixture(scope='function')
 def loop_device(device_host):
