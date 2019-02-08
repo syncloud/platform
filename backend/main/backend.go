@@ -63,7 +63,8 @@ func main() {
 	}
 
 	os.Remove(os.Args[1])
-	http.HandleFunc("/backup/list", Handle(func() (interface{}, error) { return backup.ListDefault() }))
+	backup := backup.NewDefault()
+	http.HandleFunc("/backup/list", Handle(func() (interface{}, error) { return backup.List() }))
 	server := http.Server{}
 
 	unixListener, err := net.Listen("unix", os.Args[1])

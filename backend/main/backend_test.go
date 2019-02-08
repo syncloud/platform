@@ -23,7 +23,7 @@ func TestHandlerGood(t *testing.T) {
 
     assert.Equal(t, rr.Code, http.StatusOK, "wrong status")
 
-    assert.Equal(t, rr.Body.String(), `{"success":true,"data":["test"]}`, "wrong body")
+    assert.Equal(t, rr.Body.String(), `{"success":true,"data":["test"]}`)
 }
 
 func TestHandlerBad(t *testing.T) {
@@ -39,5 +39,5 @@ func TestHandlerBad(t *testing.T) {
 
     assert.Equal(t, rr.Code, http.StatusOK, "wrong status")
 
-    assert.Equal(t, rr.Body.String(), `{"success":false,"message":"Cannot get data"}`, "wrong body")
+    assert.Equal(t, rr.Body.String(), `{"success":false,"message":"Cannot get data"}`)
 }

@@ -3,18 +3,33 @@ package backup
 import (
 		"log"
 		"io/ioutil"
+		"os"
 )
 
-const backupDir = "/data/platform/backup"
-
-func ListDefault() ([]string, error) {
-	return List(backupDir)
+type Backup struct {
+	backupDir string
 }
 
-func List(backupDir string) ([]string, error) {
-	files, err := ioutil.ReadDir(backupDir)
+const BACKUP_DIR = "/data/platform/backup"
+
+func NewDefault() *Backup {
+	return New(BACKUP_DIR)
+}
+
+func New(dir string) *Backup {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.MkdirAll(dir, os.ModePerm);
+	}
+	return &Backup {
+		backupDir: dir,
+	}
+}
+
+
+func (this *Backup) List() ([]string, error) {
+	files, err := ioutil.ReadDir(this.backupDir)
 	if err != nil {
-		log.Println("Cannot get list of files in ", backupDir, err)
+		log.Println("Cannot get list of files in ", this.backupDir, err)
 		return nil, err
 	}
 	var names []string
