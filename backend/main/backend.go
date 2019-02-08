@@ -12,7 +12,7 @@ import (
 )
 
 type Response struct {
-	Success bool `json:"success,omitempty"`
+	Success bool `json:"success"`
 	Message *string `json:"message,omitempty"`
 	Data *interface{} `json:"data,omitempty"`
 }
@@ -41,7 +41,7 @@ func success(w http.ResponseWriter, data interface{}) {
 		fail(w, err, "Cannot encode to JSON")
 	} else {
 		fmt.Println(response.Success)
-		fmt.Fprintf(w, string(responseJson[:]))
+		fmt.Fprintf(w, string(responseJson))
 	}
 }
 
