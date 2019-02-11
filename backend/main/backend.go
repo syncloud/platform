@@ -1,25 +1,25 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os"
-	"log"
-	"encoding/json"
 
 	"github.com/syncloud/platform/backup"
 )
 
 type Response struct {
-	Success bool `json:"success"`
-	Message *string `json:"message,omitempty"`
-	Data *interface{} `json:"data,omitempty"`
+	Success bool         `json:"success"`
+	Message *string      `json:"message,omitempty"`
+	Data    *interface{} `json:"data,omitempty"`
 }
 
 func fail(w http.ResponseWriter, err error, message string) {
 	log.Println(err)
-	response := Response {
+	response := Response{
 		Success: false,
 		Message: &message,
 	}
@@ -32,9 +32,9 @@ func fail(w http.ResponseWriter, err error, message string) {
 }
 
 func success(w http.ResponseWriter, data interface{}) {
-	response := Response {
-		Success: true, 
-		Data: &data,
+	response := Response{
+		Success: true,
+		Data:    &data,
 	}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
@@ -45,7 +45,7 @@ func success(w http.ResponseWriter, data interface{}) {
 	}
 }
 
-func Handle(f func () (interface{}, error) ) func(w http.ResponseWriter, req *http.Request) {
+func Handle(f func() (interface{}, error)) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
 		data, err := f()
 		if err != nil {

@@ -2,12 +2,12 @@ package backup
 
 import (
 	"io/ioutil"
-		"os"
 	"log"
+	"os"
 	"path/filepath"
 
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestListExisting(t *testing.T) {
@@ -20,7 +20,7 @@ func TestListExisting(t *testing.T) {
 	list, err := New(dir).List()
 	assert.Nil(t, err)
 	assert.Equal(t, list, []string{"tmpfile"})
-} 
+}
 
 func TestCreateBackupDir(t *testing.T) {
 	dir := createTempDir()
@@ -28,7 +28,7 @@ func TestCreateBackupDir(t *testing.T) {
 	list, err := New(dir + "/new").List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 0)
-} 
+}
 
 func createTempDir() string {
 	dir, err := ioutil.TempDir("", "test")

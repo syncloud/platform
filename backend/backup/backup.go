@@ -1,9 +1,9 @@
 package backup
 
 import (
-		"log"
-		"io/ioutil"
-		"os"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 type Backup struct {
@@ -18,13 +18,12 @@ func NewDefault() *Backup {
 
 func New(dir string) *Backup {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, os.ModePerm);
+		os.MkdirAll(dir, os.ModePerm)
 	}
-	return &Backup {
+	return &Backup{
 		backupDir: dir,
 	}
 }
-
 
 func (this *Backup) List() ([]string, error) {
 	files, err := ioutil.ReadDir(this.backupDir)
