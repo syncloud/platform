@@ -4,6 +4,10 @@ import (
 	"sync"
 )
 
+type Job struct {
+	
+}
+
 type Master struct {
 	mutex  *sync.Mutex
 	status string
