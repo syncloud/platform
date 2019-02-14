@@ -1,4 +1,4 @@
-package main
+package rest
 
 import (
 	"errors"
@@ -17,7 +17,7 @@ func TestHandlerGood(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(Handle(func() (interface{}, error) { return []string{"test"}, nil }))
+	handler := http.HandlerFunc(Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return []string{"test"}, nil }))
 	handler.ServeHTTP(rr, req)
 
 	assert.Equal(t, rr.Code, http.StatusOK, "wrong status")
@@ -33,7 +33,7 @@ func TestHandlerBad(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(Handle(func() (interface{}, error) { return nil, errors.New("error") }))
+	handler := http.HandlerFunc(Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return nil, errors.New("error") }))
 	handler.ServeHTTP(rr, req)
 
 	assert.Equal(t, rr.Code, http.StatusOK, "wrong status")
