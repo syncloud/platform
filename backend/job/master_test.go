@@ -16,7 +16,7 @@ func TestStatusBusy(t *testing.T) {
 	err := master.BackupCreateJob("nextcloud", "n.bkp")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, master.Status(), JobStatusBusy)
- <- master.JobQueue()
+	<-master.JobQueue()
 	assert.Equal(t, master.Status(), JobStatusBusy)
 	master.FeedbackQueue() <- "done"
 	assert.Equal(t, master.Status(), JobStatusIdle)

@@ -8,32 +8,28 @@ import (
 	"net/http"
 
 	"github.com/syncloud/platform/backup"
- "github.com/syncloud/platform/job"
+	"github.com/syncloud/platform/job"
 )
 
 type Backend struct {
- Master *job.Master
- Backup *backup.Backup
- worker *job.Worker
+	Master *job.Master
+	backup *backup.Backup
+	worker *job.Worker
 }
 
-func NewBackend() *Backend {
- master := job.NewMaster()
-	backup := backup.NewDefault()
- worker := job.NewWorker(master.JobQueue(), backup)
-
- return &Backend{
-  Master: master,
-	Backup: backup,
- worker: worker,
- }
+func NewBackend(master *job.Master, backup *backup.Backup, worker *job.Worker) *Backend {
+	return &Backend{
+		Master: master,
+		backup: backup,
+		worker: worker,
+	}
 }
 
 func (backend *Backend) Start(socket string) {
- backend.worker.Start()
+	backend.worker.Start()
 	http.HandleFunc("/backup/list", Handle(backend.BackipList))
- http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
- 
+	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
+
 	server := http.Server{}
 
 	unixListener, err := net.Listen("unix", socket)
@@ -91,19 +87,19 @@ func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error
 }
 
 func (backend *Backend) BackipList(w http.ResponseWriter, req *http.Request) (interface{}, error) {
-	v,e := backend.Backup.List()
- return v, e
+	v, e := backend.backup.List()
+	return v, e
 }
 
 func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (interface{}, error) {
- apps, ok := req.URL.Query()["app"]
- if !ok || len(apps) < 1 {
-  return "app is missing", nil
- }
- files, ok := req.URL.Query()["file"]
- if !ok || len(files) <1 {
-  return "file is missing", nil
- }
+	apps, ok := req.URL.Query()["app"]
+	if !ok || len(apps) < 1 {
+		return "app is missing", nil
+	}
+	files, ok := req.URL.Query()["file"]
+	if !ok || len(files) < 1 {
+		return "file is missing", nil
+	}
 
 	backend.Master.BackupCreateJob(apps[0], files[0])
 	return "submitted", nil

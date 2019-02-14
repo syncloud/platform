@@ -12,7 +12,7 @@ type Backup struct {
 }
 
 const (
-	BACKUP_DIR = "/data/platform/backup"
+	BACKUP_DIR        = "/data/platform/backup"
 	BACKUP_CREATE_CMD = "/snap/platform/current/bin/backup.sh"
 )
 

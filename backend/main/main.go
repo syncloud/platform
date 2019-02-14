@@ -4,8 +4,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/rest"
-
 )
 
 func main() {
@@ -15,7 +16,15 @@ func main() {
 	}
 
 	os.Remove(os.Args[1])
- backend := rest.NewBackend()
-  backend.Start(os.Args[1])
+	Backend().Start(os.Args[1])
+
+}
+
+func Backend() *rest.Backend {
+	master := job.NewMaster()
+	backup := backup.NewDefault()
+	worker := job.NewWorker(master, backup)
+
+	return rest.NewBackend(master, backup, worker)
 
 }
