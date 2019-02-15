@@ -20,7 +20,11 @@ func NewWorker(master *Master, backup *backup.Backup) *Worker {
 func (worker *Worker) Start() {
 	go func() {
 		for {
-			job := <-worker.master.JobQueue()
+			job, err := worker.master.Take()
+  if err != nil {
+    log.Println(err)
+    continue
+   }
 			switch jobtype := job.(type) {
 			case JobBackupCreate:
 				v := job.(JobBackupCreate)

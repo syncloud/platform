@@ -9,6 +9,7 @@ type JobStatus int
 
 const (
 	JobStatusIdle JobStatus = iota
+ JobStatusWaiting
 	JobStatusBusy
 )
 
@@ -25,8 +26,8 @@ type JobBackupRestore struct {
 type Master struct {
 	mutex         *sync.Mutex
 	status        JobStatus
-	jobQueue      chan interface{}
-	feedbackQueue chan interface{}
+	job     interface{}
+
 }
 
 func NewMaster() *Master {
@@ -34,10 +35,8 @@ func NewMaster() *Master {
 	master := &Master{
 		mutex:         &sync.Mutex{},
 		status:        JobStatusIdle,
-		jobQueue:      make(chan interface{}),
-		feedbackQueue: make(chan interface{}),
+		job:      nil,
 	}
-	go master.feedback()
 	return master
 }
 
@@ -48,34 +47,42 @@ func (master *Master) Status() JobStatus {
 }
 
 func (master *Master) BackupCreateJob(app string, file string) error {
-	return master.newJob(JobBackupCreate{app: app, file: file})
+	return master.offer(JobBackupCreate{app: app, file: file})
 }
 
-func (master *Master) newJob(job interface{}) error {
+func (master *Master) offer(job interface{}) error {
 	master.mutex.Lock()
 	defer master.mutex.Unlock()
 	if master.status == JobStatusIdle {
-		master.status = JobStatusBusy
-		go func() { master.jobQueue <- job }()
+		master.status = JobStatusWaiting
+		master.job = job
 		return nil
 	} else {
 		return fmt.Errorf("busy")
 	}
 }
 
-func (master *Master) JobQueue() chan interface{} {
-	return master.jobQueue
+func (master *Master) Take() (interface{}, error) {
+ 
+ master.mutex.Lock()
+ defer master.mutex.Unlock()
+ if master.status == JobStatusWaiting {
+   master.status = JobStatusBusy
+   return master.job, nil
+ } else {
+  return nil, fmt.Errorf("busy")
+ }
 }
 
-func (master *Master) FeedbackQueue() chan interface{} {
-	return master.feedbackQueue
-}
-func (master *Master) feedback() {
-	for {
-		<-master.feedbackQueue
-		master.mutex.Lock()
-		master.status = JobStatusIdle
-		master.mutex.Unlock()
-	}
-
+func (master *Master) Complete() error {
+ master.mutex.Lock()
+ defer master.mutex.Unlock()
+ if master.status == JobStatusBusy {
+	  	master.status = JobStatusIdle
+  master.job = nil
+   return nil
+	 } else {
+   return fmt.Errorf("nothing to complete")
+ }
+  
 }
