@@ -2,11 +2,11 @@ import os
 from subprocess import check_output
 from os.path import isdir, join, isfile
 import shutil
-from syncloudlib import logger
+from syncloudlib import logger, fs
 from syncloud_platform.injector import get_injector
 from syncloud_platform.application import api
 
-from syncloud_platform.gaplib import fs, linux, gen
+from syncloud_platform.gaplib import linux, gen
 from syncloud_platform.config import config
 from syncloud_platform.config.user_config import PlatformUserConfig
 

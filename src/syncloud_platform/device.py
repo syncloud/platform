@@ -1,9 +1,8 @@
 import getpass
 import uuid
 
-from syncloudlib import logger
+from syncloudlib import logger, fs
 import requests
-from syncloud_platform.gaplib import fs
 from syncloud_platform.config.config import WEB_CERTIFICATE_PORT, WEB_ACCESS_PORT, WEB_PROTOCOL
 
 http_network_protocol = 'TCP'
