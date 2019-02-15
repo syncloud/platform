@@ -43,7 +43,7 @@ go version
 
 cd backend
 go test ./... -cover
-go build -o ${BUILD_DIR}/bin/backend main/backend.go
+go build -o ${BUILD_DIR}/bin/backend main/nain.go
 
 cd ${DIR}
 
