@@ -7,11 +7,9 @@ from subprocess import check_output
 
 import ldap
 
-from syncloudlib import gen
+from syncloudlib import gen, fs
 from syncloudlib.logger import get_logger
 import time
-
-from syncloud_platform.gaplib import fs
 
 ldap_user_conf_dir = 'slapd.d'
 
