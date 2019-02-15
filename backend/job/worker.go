@@ -18,20 +18,23 @@ func NewWorker(master *Master, backup *backup.Backup) *Worker {
 }
 
 func (worker *Worker) Start() {
-	go func() {
-		for {
-			job, err := worker.master.Take()
-  if err != nil {
-    log.Println(err)
-    continue
-   }
-			switch jobtype := job.(type) {
-			case JobBackupCreate:
-				v := job.(JobBackupCreate)
-				worker.backup.Create(v.app, v.file)
-			default:
-				log.Println("not supported job type", jobtype)
-			}
+	go worker.StartSync()
+}
+
+func (worker *Worker) StartSync() {
+	for {
+		job, err := worker.master.Take()
+		if err != nil {
+			log.Println(err)
+			continue
 		}
-	}()
+		switch jobtype := job.(type) {
+		case JobBackupCreate:
+			v := job.(JobBackupCreate)
+			worker.backup.Create(v.app, v.file)
+		default:
+			log.Println("not supported job type", jobtype)
+		}
+		worker.master.Complete()
+	}
 }
