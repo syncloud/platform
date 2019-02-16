@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -47,11 +48,11 @@ type Response struct {
 	Data    *interface{} `json:"data,omitempty"`
 }
 
-func fail(w http.ResponseWriter, err error, message string) {
-	log.Println(err)
+func fail(w http.ResponseWriter, err error) {
+	appError := err.Error()
 	response := Response{
 		Success: false,
-		Message: &message,
+		Message: &appError,
 	}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
@@ -68,7 +69,7 @@ func success(w http.ResponseWriter, data interface{}) {
 	}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
-		fail(w, err, "Cannot encode to JSON")
+		fail(w, err)
 	} else {
 		fmt.Println(response.Success)
 		fmt.Fprintf(w, string(responseJson))
@@ -79,7 +80,7 @@ func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error
 	return func(w http.ResponseWriter, req *http.Request) {
 		data, err := f(w, req)
 		if err != nil {
-			fail(w, err, "Cannot get data")
+			fail(w, err)
 		} else {
 			success(w, data)
 		}
@@ -87,18 +88,17 @@ func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error
 }
 
 func (backend *Backend) BackipList(w http.ResponseWriter, req *http.Request) (interface{}, error) {
-	v, e := backend.backup.List()
-	return v, e
+	return backend.backup.List()
 }
 
 func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (interface{}, error) {
 	apps, ok := req.URL.Query()["app"]
 	if !ok || len(apps) < 1 {
-		return "app is missing", nil
+		return nil, errors.New("app is missing")
 	}
 	files, ok := req.URL.Query()["file"]
 	if !ok || len(files) < 1 {
-		return "file is missing", nil
+		return nil, errors.New("file is missing")
 	}
 
 	backend.Master.BackupCreateJob(apps[0], files[0])

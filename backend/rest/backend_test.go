@@ -9,34 +9,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandlerGood(t *testing.T) {
+func TestHandlerSuccess(t *testing.T) {
 
-	req, err := http.NewRequest("GET", "/health-check", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	req, _ := http.NewRequest("GET", "/", nil)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return []string{"test"}, nil }))
-	handler.ServeHTTP(rr, req)
+	Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return []string{"test"}, nil })(rr, req)
 
-	assert.Equal(t, rr.Code, http.StatusOK, "wrong status")
-
-	assert.Equal(t, rr.Body.String(), `{"success":true,"data":["test"]}`)
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, `{"success":true,"data":["test"]}`, rr.Body.String())
 }
 
-func TestHandlerBad(t *testing.T) {
+func TestHandlerFail(t *testing.T) {
 
-	req, err := http.NewRequest("GET", "/health-check", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	req, _ := http.NewRequest("GET", "/", nil)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return nil, errors.New("error") }))
-	handler.ServeHTTP(rr, req)
+	Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
-	assert.Equal(t, rr.Code, http.StatusOK, "wrong status")
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, `{"success":false,"message":"error"}`, rr.Body.String())
+}
 
-	assert.Equal(t, rr.Body.String(), `{"success":false,"message":"Cannot get data"}`)
+func TestBackupCreateFail(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	rr := httptest.NewRecorder()
+	Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, `{"success":false,"message":"error"}`, rr.Body.String())
 }
