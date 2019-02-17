@@ -45,10 +45,22 @@ func TestBackupCreate(t *testing.T) {
 	backup := &backupMock{}
 	worker := NewWorker(master, backup)
 
-	master.Offer(JobBackupCreate{"", ""})
+	master.Offer(JobBackupCreate{"app", "file"})
 	worker.Do()
 
 	assert.Equal(t, 1, backup.created)
+	assert.Equal(t, 1, master.completed)
+
+}
+
+func TestNotSupported(t *testing.T) {
+	master := &masterMock{}
+	backup := &backupMock{}
+	worker := NewWorker(master, backup)
+
+	master.Offer("not supported type")
+	worker.Do()
+
 	assert.Equal(t, 1, master.completed)
 
 }

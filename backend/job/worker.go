@@ -12,10 +12,7 @@ type Worker struct {
 }
 
 func NewWorker(master JobMaster, backup backup.AppBackup) *Worker {
-	return &Worker{
-		backup: backup,
-		master: master,
-	}
+	return &Worker{backup, master}
 }
 
 func (worker *Worker) Start() {
