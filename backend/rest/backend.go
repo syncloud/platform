@@ -27,7 +27,7 @@ func NewBackend(master *job.Master, backup *backup.Backup, worker *job.Worker) *
 }
 
 func (backend *Backend) Start(socket string) {
-	backend.worker.Start()
+	go backend.worker.Start()
 	http.HandleFunc("/backup/list", Handle(backend.BackipList))
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 
@@ -101,6 +101,6 @@ func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (
 		return nil, errors.New("file is missing")
 	}
 
-	backend.Master.BackupCreateJob(apps[0], files[0])
+	backend.Master.Offer(job.JobBackupCreate{App: apps[0], File: files[0]})
 	return "submitted", nil
 }

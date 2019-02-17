@@ -3,14 +3,15 @@ package job
 import (
 	"github.com/syncloud/platform/backup"
 	"log"
+	"time"
 )
 
 type Worker struct {
-	backup *backup.Backup
-	master *Master
+	backup backup.AppBackup
+	master JobMaster
 }
 
-func NewWorker(master *Master, backup *backup.Backup) *Worker {
+func NewWorker(master JobMaster, backup backup.AppBackup) *Worker {
 	return &Worker{
 		backup: backup,
 		master: master,
@@ -18,23 +19,26 @@ func NewWorker(master *Master, backup *backup.Backup) *Worker {
 }
 
 func (worker *Worker) Start() {
-	go worker.StartSync()
+	for {
+		if !worker.Do() {
+			time.Sleep(100)
+		}
+	}
 }
 
-func (worker *Worker) StartSync() {
-	for {
-		job, err := worker.master.Take()
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		switch jobtype := job.(type) {
-		case JobBackupCreate:
-			v := job.(JobBackupCreate)
-			worker.backup.Create(v.app, v.file)
-		default:
-			log.Println("not supported job type", jobtype)
-		}
-		worker.master.Complete()
+func (worker *Worker) Do() bool {
+	job, err := worker.master.Take()
+	if err != nil {
+		log.Println(err)
+		return false
 	}
+	switch jobtype := job.(type) {
+	case JobBackupCreate:
+		v := job.(JobBackupCreate)
+		worker.backup.Create(v.App, v.File)
+	default:
+		log.Println("not supported job type", jobtype)
+	}
+	worker.master.Complete()
+	return true
 }

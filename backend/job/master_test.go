@@ -13,7 +13,7 @@ func TestStatusIdle(t *testing.T) {
 
 func TestStatusBusy(t *testing.T) {
 	master := NewMaster()
-	err := master.BackupCreateJob("nextcloud", "n.bkp")
+	err := master.Offer(JobBackupCreate{App: "nextcloud", File: "n.bkp"})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, master.Status(), JobStatusWaiting)
 	master.Take()
