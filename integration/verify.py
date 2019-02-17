@@ -10,7 +10,7 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir
+from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir, wait_for_file
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
 
@@ -363,9 +363,12 @@ def test_installer_upgrade(device, device_host):
 
 
 def test_backup_app(app_dir, device_host):
-    run_ssh(device_host, '{0}/bin/backup.sh files test.tar.gz'.format(app_dir), password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, 'tar tvf test.tar.gz', password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, '{0}/bin/restore.sh files test.tar.gz'.format(app_dir), password=LOGS_SSH_PASSWORD)
+    file = "/tmp/backup.test.tar.gz"
+    device.login()
+    session = device.http_get('/rest/backup/create?app=files&file=/tmp/backup.test.tar.gz')
+    wait_for_file(file)
+    run_ssh(device_host, 'tar tvf {0}'.format(file), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, '{0}/bin/restore.sh files {1}'.format(app_dir, file), password=LOGS_SSH_PASSWORD)
 
 
 def test_rest_backup_list(device, device_host, log_dir):
