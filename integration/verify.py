@@ -362,7 +362,7 @@ def test_installer_upgrade(device, device_host):
     wait_for_installer(session, device_host, throw_on_error=True)
 
 
-def test_backup_app(app_dir, device_host):
+def test_backup_app(app_dir, device_host, device):
     file = "/tmp/backup.test.tar.gz"
     device.login()
     session = device.http_get('/rest/backup/create?app=files&file=/tmp/backup.test.tar.gz')
