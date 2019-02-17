@@ -365,7 +365,8 @@ def test_installer_upgrade(device, device_host):
 def test_backup_app(app_dir, device_host, device):
     file = "/tmp/backup.test.tar.gz"
     device.login()
-    session = device.http_get('/rest/backup/create?app=files&file=/tmp/backup.test.tar.gz')
+    response = device.http_get('/rest/backup/create?app=files&file={0}'.format(file))
+    assert response.status_code == 200
     wait_for_file(file)
     run_ssh(device_host, 'tar tvf {0}'.format(file), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, '{0}/bin/restore.sh files {1}'.format(app_dir, file), password=LOGS_SSH_PASSWORD)
