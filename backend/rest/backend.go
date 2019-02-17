@@ -78,6 +78,7 @@ func success(w http.ResponseWriter, data interface{}) {
 
 func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error)) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
+		log.Printf("reqiest: %s\n", req.URL.Path)
 		data, err := f(w, req)
 		if err != nil {
 			fail(w, err)
