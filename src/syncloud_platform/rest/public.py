@@ -289,10 +289,10 @@ def app_image():
                     content_type=r.headers['Content-Type'])
 
 
-@app.route(rest_prefix + "/backup/list", methods=["GET"])
+@app.route(rest_prefix + "/backup/<path:path>", methods=["GET"])
 @login_required
-def backup_list():
-    response = backend_get("/backup/list")
+def backend_proxy(path):
+    response = backend_get(request.full_path)
     return response.text, response.status_code
 
 
