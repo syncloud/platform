@@ -47,7 +47,7 @@ func (master *Master) Take() (interface{}, error) {
 		master.status = JobStatusBusy
 		return master.job, nil
 	} else {
-		return nil, fmt.Errorf("busy")
+		return nil, fmt.Errorf("no tasks")
 	}
 }
 
