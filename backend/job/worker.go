@@ -18,7 +18,7 @@ func NewWorker(master JobMaster, backup backup.AppBackup) *Worker {
 func (worker *Worker) Start() {
 	for {
 		if !worker.Do() {
-			time.Sleep(100)
+			time.Sleep(1000)
 		}
 	}
 }
@@ -26,7 +26,6 @@ func (worker *Worker) Start() {
 func (worker *Worker) Do() bool {
 	job, err := worker.master.Take()
 	if err != nil {
-		log.Println(err)
 		return false
 	}
 	switch jobtype := job.(type) {
