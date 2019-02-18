@@ -75,7 +75,6 @@ func success(w http.ResponseWriter, data interface{}) {
 	if err != nil {
 		fail(w, err)
 	} else {
-		fmt.Println(response.Success)
 		fmt.Fprintf(w, string(responseJson))
 	}
 }
