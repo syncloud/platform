@@ -290,6 +290,7 @@ def app_image():
 
 
 @app.route(rest_prefix + "/backup/<path:path>", methods=["GET"])
+@app.route(rest_prefix + "/status", methods=["GET"])
 @login_required
 def backend_proxy(path):
     response = backend_get(request.full_path.replace(rest_prefix, ""))
