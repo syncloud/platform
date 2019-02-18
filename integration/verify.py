@@ -362,15 +362,20 @@ def test_installer_upgrade(device, device_host):
     wait_for_installer(session, device_host, throw_on_error=True)
 
 
-def test_backup_app(app_dir, device_host, device):
+def test_backup_app(device):
     file = "/tmp/backup.test.tar.gz"
-    device.login()
+    session = device.login()
+    
     response = device.http_get('/rest/backup/create?app=files&file={0}'.format(file))
     assert response.status_code == 200
-    wait_for_file(file)
-    run_ssh(device_host, 'tar tvf {0}'.format(file), password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, '{0}/bin/restore.sh files {1}'.format(app_dir, file), password=LOGS_SSH_PASSWORD)
-
+    wait_for_response(session, device.device_host, '/rest/status', lambda r:  json.loads(response.text)['data'] == 'JobStatusIdle')
+   
+    device.run_ssh('tar tvf {0}'.format(file))
+    
+    response = device.http_get('/rest/backup/restore?app=files&file={0}'.format(file))
+    assert response.status_code == 200
+    wait_for_response(session, device.device_host, '/rest/status', lambda r:  json.loads(response.text)['data'] == 'JobStatusIdle')
+    
 
 def test_rest_backup_list(device, device_host, log_dir):
     response = device.login().get('https://{0}/rest/backup/list'.format(device_host), verify=False)

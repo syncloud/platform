@@ -8,6 +8,15 @@ const (
 	JobStatusBusy
 )
 
+func (status JobStatus) String() string {
+	names := []string{
+		"JobStatusIdle",
+		"JobStatusWaiting",
+		"JobStatusBusy",
+	}
+	return names[status]
+}
+
 type JobMaster interface {
 	Status() JobStatus
 	Offer(job interface{}) error
@@ -16,6 +25,11 @@ type JobMaster interface {
 }
 
 type JobBackupCreate struct {
+	App  string
+	File string
+}
+
+type JobBackupRestore struct {
 	App  string
 	File string
 }

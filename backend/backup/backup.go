@@ -12,8 +12,9 @@ type Backup struct {
 }
 
 const (
-	BACKUP_DIR        = "/data/platform/backup"
-	BACKUP_CREATE_CMD = "/snap/platform/current/bin/backup.sh"
+	BACKUP_DIR         = "/data/platform/backup"
+	BACKUP_CREATE_CMD  = "/snap/platform/current/bin/backup.sh"
+	BACKUP_RESTORE_CMD = "/snap/platform/current/bin/restore.sh"
 )
 
 func NewDefault() *Backup {
@@ -45,7 +46,22 @@ func (this *Backup) List() ([]string, error) {
 
 func (backup *Backup) Create(app string, file string) {
 	cmd := exec.Command(BACKUP_CREATE_CMD, app, file)
-	log.Println("Running backup", BACKUP_CREATE_CMD, app, file)
+	log.Println("Running backup create", BACKUP_CREATE_CMD, app, file)
 	err := cmd.Run()
-	log.Printf("Backup finished: %v", err)
+	if err != nil {
+		log.Printf("Backup create failed: %v", err)
+	} else {
+		log.Printf("Backup create completed")
+	}
+}
+
+func (backup *Backup) Restore(app string, file string) {
+	cmd := exec.Command(BACKUP_RESTORE_CMD, app, file)
+	log.Println("Running backup restore", BACKUP_RESTORE_CMD, app, file)
+	err := cmd.Run()
+	if err != nil {
+		log.Printf("Backup restore failed: %v", err)
+	} else {
+		log.Printf("Backup restore completed")
+	}
 }

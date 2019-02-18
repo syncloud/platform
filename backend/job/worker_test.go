@@ -7,7 +7,8 @@ import (
 )
 
 type backupMock struct {
-	created int
+	created  int
+	restored int
 }
 
 func (mock *backupMock) List() ([]string, error) {
@@ -15,6 +16,9 @@ func (mock *backupMock) List() ([]string, error) {
 }
 func (mock *backupMock) Create(app string, file string) {
 	mock.created++
+}
+func (mock *backupMock) Restore(app string, file string) {
+	mock.restored++
 }
 
 type masterMock struct {

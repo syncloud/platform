@@ -32,6 +32,9 @@ func (worker *Worker) Do() bool {
 	case JobBackupCreate:
 		v := job.(JobBackupCreate)
 		worker.backup.Create(v.App, v.File)
+	case JobBackupRestore:
+		v := job.(JobBackupRestore)
+		worker.backup.Restore(v.App, v.File)
 	default:
 		log.Println("not supported job type", jobtype)
 	}
