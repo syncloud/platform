@@ -368,13 +368,13 @@ def test_backup_app(device):
     
     response = device.http_get('/rest/backup/create?app=files&file={0}'.format(file))
     assert response.status_code == 200
-    wait_for_response(session, device.device_host, '/rest/status', lambda r:  json.loads(response.text)['data'] == 'JobStatusIdle')
+    wait_for_response(session, device.device_host, '/rest/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     device.run_ssh('tar tvf {0}'.format(file))
     
     response = device.http_get('/rest/backup/restore?app=files&file={0}'.format(file))
     assert response.status_code == 200
-    wait_for_response(session, device.device_host, '/rest/status', lambda r:  json.loads(response.text)['data'] == 'JobStatusIdle')
+    wait_for_response(session, device.device_host, '/rest/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
 
 def test_rest_backup_list(device, device_host, log_dir):
