@@ -289,8 +289,8 @@ def app_image():
                     content_type=r.headers['Content-Type'])
 
 
-@app.route(rest_prefix + "/backup<path:path>", methods=["GET"])
-@app.route(rest_prefix + "/status<path:path>", methods=["GET"])
+@app.route(rest_prefix + "/backup/<path:path>", methods=["GET"])
+@app.route(rest_prefix + "/job/<path:path>", methods=["GET"])
 @login_required
 def backend_proxy(path):
     response = backend_get(request.full_path.replace(rest_prefix, ""))

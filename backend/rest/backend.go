@@ -28,9 +28,7 @@ func NewBackend(master *job.Master, backup *backup.Backup, worker *job.Worker) *
 
 func (backend *Backend) Start(socket string) {
 	go backend.worker.Start()
-	http.HandleFunc("/status", Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) {
-		return backend.Master.Status().String(), nil
-	}))
+	http.HandleFunc("/job/status", Handle(backend.JobStatus))
 	http.HandleFunc("/backup/list", Handle(backend.BackipList))
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 	http.HandleFunc("/backup/restore", Handle(backend.BackupRestore))
@@ -121,4 +119,8 @@ func (backend *Backend) BackupRestore(w http.ResponseWriter, req *http.Request) 
 
 	backend.Master.Offer(job.JobBackupRestore{App: apps[0], File: files[0]})
 	return "submitted", nil
+}
+
+func (backend *Backend) JobStatus(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+	return backend.Master.Status().String(), nil
 }
