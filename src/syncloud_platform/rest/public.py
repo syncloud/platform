@@ -293,7 +293,7 @@ def app_image():
 @app.route(rest_prefix + "/job/<path:path>", methods=["GET"])
 @login_required
 def backend_proxy(path):
-    response = backend_get(request.full_path.replace(rest_prefix, ""))
+    response = backend_get(request.full_path.replace(rest_prefix, "", 1))
     return response.text, response.status_code
 
 
