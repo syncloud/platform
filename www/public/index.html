@@ -76,28 +76,6 @@
 </div>
 </div>
 
-<!-- Create your template -->
-<script type="text/html" id='apps-template'>
-
-		<% if (apps.length == 0) { %>
-		<h2 class="bh2">You don't have any installed apps yet. You can install one from App Center</h2>
-		<a href="appcenter.html" class="appcenterh">App Center</a>
-    <% } %>
-
-    <%for (s=0; s < apps.length; s++) {
-        var app = apps[s]; %>
-
-				<% if (app.id != "store" && app.id != "settings") { %>
-				<a href="app.html?app_id=<%= app.id %>" class="colapp app">
-					<img src="<%= app.icon %>" class="appminimg">
-					<div class="appname"><%= app.name %></div>
-					<div class="appdesc"></div>
-				</a>
-				<% } %>
-
-    <% } %>
-</script>
-
 <!-- Scripts-->
 <script src="js/lib/jquery-1.11.3.min.js"></script>
 <script src="js/lib/bootstrap.min.js"></script>
@@ -119,7 +97,7 @@
 <script type="text/javascript">
 
 function display_apps(data) {
-		var template = $("#apps-template").html();
+		var template = require('./template/apps-template.html');
 		$("#block_apps").html(_.template(template)(data));
 }
 
