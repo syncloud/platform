@@ -26,13 +26,14 @@
     "url-loader": "^1.1.2",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.2.0"
+    "webpack-dev-server": "^3.2.0",
+    "mini-css-extract-plugin": "^0.5.0"
   },
   "dependencies": {
     "bootstrap": "^3.3.5",
     "bootstrap-switch": "^3.3.4",
     "font-awesome": "^4.7.0",
-    "jquery": "^1.12.4",
+    "jquery": "^3.3.1",
     "normalize.css": "^8.0.1",
     "underscore": "^1.9.1"
   }
