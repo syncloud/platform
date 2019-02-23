@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack')
+
 module.exports = {
 
   // This option controls if and how source maps are generated.
@@ -33,11 +35,16 @@ module.exports = {
         use: [
           "style-loader",
           "css-loader"
-          // Please note we are not running postcss here
         ]
       },
-	    {                                                 test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,                                                    use: 'url-loader?limit=10000',                },
-      {                                                 test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,           use: 'file-loader',                           },
+      {
+	test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        use: 'url-loader?limit=10000',
+      },
+      {
+	test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
+	use: 'file-loader',
+      },
       {
         test: /\.(png|jpg|gif|svg)$/,
         use: [
@@ -76,5 +83,9 @@ module.exports = {
 	chunks: ['error'], 
 	filename: 'error.html' 
     }),
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    })
   ]
 };
