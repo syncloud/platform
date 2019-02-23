@@ -17,6 +17,7 @@ module.exports = {
   // https://webpack.js.org/concepts/entry-points/#multi-page-application
   entry: {
     index: './js/index.js',
+    error: './js/error.js',
   },
 
   // how to write the compiled files to disk
@@ -77,7 +78,13 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "[name].[contenthash].css",
       chunkFilename: "[id].[contenthash].css"
-    })
+    }),
+    new HtmlWebpackPlugin({ 
+	template: './error.html', 
+	inject: 'body', 
+	chunks: ['error'], 
+	filename: 'error.html' 
+    }),
   ],
 
   // https://webpack.js.org/configuration/optimization/

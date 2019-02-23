@@ -9,6 +9,7 @@ module.exports = {
   // https://webpack.js.org/concepts/entry-points/#multi-page-application
   entry: {
     index: './js/index.js',
+    error: './js/error.js',
   },
 
   // https://webpack.js.org/configuration/dev-server/
@@ -59,6 +60,12 @@ module.exports = {
 	inject: 'body', 
 	chunks: ['index'], 
 	filename: 'index.html' 
+    }),
+     new HtmlWebpackPlugin({ 
+	template: './error.html', 
+	inject: 'body', 
+	chunks: ['error'], 
+	filename: 'error.html' 
     }),
   ]
 };
