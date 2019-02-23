@@ -12,7 +12,7 @@ import './ui/font.js'
 import './ui/common.js'
 import './ui/menu.js'
 
-import './common.js'
+import backend from'./common.js'
 import './backend.static/common.js'
 import './backend.static/menu.js'
 import './backend.static/index.js'
