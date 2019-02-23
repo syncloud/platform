@@ -1,4 +1,4 @@
-var backend = {
+let backend = {
     async: true
 };
 

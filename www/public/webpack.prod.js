@@ -65,24 +65,12 @@ module.exports = {
           }
         ]
       },
-      {
-	test: /font-awesome\.config\.js/,
- 	use: [
-	{ loader: 'style-loader' },
-    	{ loader: 'font-awesome-loader' }
-  	]
-      },
     ]
   },
 
   // https://webpack.js.org/concepts/plugins/
   plugins: [
     new CleanWebpackPlugin(buildPath),
-    new CopyPlugin([ { 
-	from: 'template',
-	to: 'template',
-	},
-    ]),
     new HtmlWebpackPlugin({ 
 	template: './index.html',
 	inject: 'body', 
