@@ -18,12 +18,6 @@
 	<link rel="manifest" href="/manifest.json">
 	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
 	<meta name="theme-color" content="#3e454e">
-
-	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-	<!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
-    <link href="css/font-awesome.css" rel="stylesheet">
 	</head>
 <body>
 <div class="wrapper">
@@ -87,23 +81,5 @@
 <script src="js/backend/menu.js"></script>
 <script src="js/backend/index.js"></script>
 
-<script type="text/javascript">
-
-function display_apps(data) {
-		var template = require('./template/apps-template.html');
-		$("#block_apps").html(_.template(template)(data));
-}
-
-$( document ).ready(function() {
-		backend.installed_apps(
-				display_apps,
-				ui_display_error
-		);
-});
-
-</script>
-
-
-<!-- END SCRIPTS -->
 </body>
 </html>

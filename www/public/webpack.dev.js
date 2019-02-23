@@ -9,7 +9,7 @@ module.exports = {
   // https://webpack.js.org/concepts/entry-points/#multi-page-application
   entry: {
     index: './js/index.js',
-    error: './js/error.js',
+    error: './js/error.js'
   },
 
   // https://webpack.js.org/configuration/dev-server/
@@ -36,8 +36,9 @@ module.exports = {
           // Please note we are not running postcss here
         ]
       },
+	    {                                                 test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,                                                    use: 'url-loader?limit=10000',                },
+      {                                                 test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,           use: 'file-loader',                           },
       {
-        // Load all images as base64 encoding if they are smaller than 8192 bytes
         test: /\.(png|jpg|gif|svg)$/,
         use: [
           {
@@ -49,7 +50,15 @@ module.exports = {
             }
           }
         ]
-      }
+      },
+      // font-awesome
+      {
+        test: /font-awesome\.config\.js/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'font-awesome-loader' }
+        ]
+      },
     ],
   },
 
