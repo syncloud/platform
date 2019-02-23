@@ -144,16 +144,15 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain):
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain, device):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
     run_scp('{0} root@{1}:/'.format(nginx_runtime, app_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    run_ssh(app_domain, 'mkdir -p {0}'.format(app_data_dir), password=LOGS_SSH_PASSWORD)
-    run_ssh(app_domain, '{0}/nginx/sbin/nginx '
+    device.run_ssh('mkdir -p {0}'.format(app_data_dir))
+    device.run_ssh('{0}/nginx/sbin/nginx '
                         '-c /nginx.app.test.conf.runtime '
-                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
-            password=LOGS_SSH_PASSWORD)
+                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
     response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
