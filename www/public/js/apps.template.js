@@ -1,4 +1,4 @@
-apps_template = `
+let template = `
 		<% if (apps.length == 0) { %>
 		<h2 class="bh2">You don't have any installed apps yet. You can install one from App Center</h2>
 		<a href="appcenter.html" class="appcenterh">App Center</a>
@@ -16,3 +16,5 @@ apps_template = `
 				<% } %>
 
     <% } %>`;
+
+module.exports = template;

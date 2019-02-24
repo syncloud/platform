@@ -56,3 +56,5 @@ function ui_display_error(xhr, textStatus, errorThrown) {
         }
     }
 }
+
+module.exports = { ui_display_error };

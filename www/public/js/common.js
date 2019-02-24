@@ -1,8 +1,6 @@
-let backend = {
+global.backend = {
     async: true
 };
-
-export default backend;
 
 function check_for_service_error(data, on_complete, on_error) {
     

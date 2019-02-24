@@ -6,19 +6,27 @@
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js --mode development",
     "build": "webpack --config webpack.prod.js --mode production",
-    "preview": "npm run build && http-server dist"
+    "preview": "npm run build && http-server dist",
+    "test": "jest"
   },
   "author": "Boris Rybalkin",
   "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.3.3",
+    "@babel/plugin-proposal-class-properties": "^7.3.3",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/preset-env": "^7.3.1",
+    "babel-jest": "^24.1.0",
     "babel-loader": "^8.0.5",
     "clean-webpack-plugin": "^1.0.1",
     "css-loader": "^2.1.0",
     "file-loader": "^3.0.1",
     "html-webpack-plugin": "^3.2.0",
     "http-server": "^0.11.1",
+    "jest": "^24.1.0",
+    "mini-css-extract-plugin": "^0.5.0",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
@@ -26,8 +34,7 @@
     "url-loader": "^1.1.2",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.2.0",
-    "mini-css-extract-plugin": "^0.5.0"
+    "webpack-dev-server": "^3.2.0"
   },
   "dependencies": {
     "bootstrap": "^3.3.5",
@@ -36,5 +43,27 @@
     "jquery": "^3.3.1",
     "normalize.css": "^8.0.1",
     "underscore": "^1.9.1"
-  }
+  },
+  "jest": {
+    "verbose": true,
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "bower_components",
+      "shared"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js",
+      "\\.(gif|ttf|eot|svg)$": "<rootDir>/__mocks__/fileMock.js"
+    },
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "setupFiles": [ "<rootDir>/jest.setup.js" ]  }
 }
