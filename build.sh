@@ -75,7 +75,7 @@ cd ..
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
 mkdir ${BUILD_DIR}/www
 cp -r ${DIR}/www/internal ${BUILD_DIR}/www
-cp -r ${DIR}/www/piblic/dist ${BUILD_DIR}/www/public
+cp -r ${DIR}/www/public/dist ${BUILD_DIR}/www/public
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
