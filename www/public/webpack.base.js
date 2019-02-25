@@ -1,27 +1,35 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
 
+const entries = [
+  "activation",
+  "app",
+  "appcenter",
+  "error",
+  "index",
+  "login",
+  "network",
+  "settings",
+  "storage",
+  "support",
+  "updates",
+];
+
 module.exports = {
-  entry: {
-    index: './js/index.js',
-    error: './js/error.js'
-  },
-  plugins: [
+  entry: entries.reduce((map, obj) => 
+    ( map[obj.key] = `./js/${obj.val}.js`, map ),
+    {}
+  ),
+  plugins: entries.map(entry =>
     new HtmlWebpackPlugin({ 
-      	template: './index.html',
+      	template: `./${entry}.html`,
       	inject: 'body', 
-      	chunks: ['index'], 
-      	filename: 'index.html' 
-    }),
-    new HtmlWebpackPlugin({ 
-      	template: './error.html', 
-      	inject: 'body', 
-      	chunks: ['error'], 
-      	filename: 'error.html' 
-    }),
+      	chunks: [entry], 
+      	filename: `${entry}.html`
+    })).concat([
     new webpack.ProvidePlugin({
       $: "jquery",
       jQuery: "jquery"
     })
-  ]
+  ])
 }
