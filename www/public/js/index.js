@@ -14,9 +14,9 @@ import ui_display_error from './ui/common.js'
 import './ui/menu.js'
 
 import './common.js'
-import './backend.static/common.js'
-import './backend.static/menu.js'
-import './backend.static/index.js'
+import './backend/common.js'
+import './backend/menu.js'
+import './backend/index.js'
 import template from './apps.template.js'
 
 function display_apps(data) {
