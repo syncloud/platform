@@ -33,10 +33,10 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/openssl-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
 
 GO_ARCH=armv6l
-NODE_ARCH=x64
+NODE_ARCH=armv6l
 if [[ ${ARCH} == "x86_64" ]]; then
     GO_ARCH=amd64
-    NODE_ARCH=arm
+    NODE_ARCH=x64
 fi
 
 wget https://dl.google.com/go/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz --progress dot:giga
