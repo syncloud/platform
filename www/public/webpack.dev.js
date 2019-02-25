@@ -1,24 +1,11 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack')
+const base = require('./webpack.base.js')
 
 module.exports = {
-
-  // This option controls if and how source maps are generated.
-  // https://webpack.js.org/configuration/devtool/
   devtool: 'eval-cheap-module-source-map',
-
-  // https://webpack.js.org/concepts/entry-points/#multi-page-application
-  entry: {
-    index: './js/index.js',
-    error: './js/error.js'
-  },
-
-  // https://webpack.js.org/configuration/dev-server/
+  entry: base.entry,
   devServer: {
     port: 8080
   },
-
-  // https://webpack.js.org/concepts/loaders/
   module: {
     rules: [
       {
@@ -37,12 +24,12 @@ module.exports = {
         ]
       },
       {
-	test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+       	test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         use: 'url-loader?limit=10000',
       },
       {
-	test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
-	use: 'file-loader',
+	       test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
+       	use: 'file-loader',
       },
       {
         test: /\.(png|jpg|gif|svg)$/,
@@ -59,24 +46,5 @@ module.exports = {
       },
     ],
   },
-
-  // https://webpack.js.org/concepts/plugins/
-  plugins: [
-    new HtmlWebpackPlugin({ 
-	template: './index.html', 
-	inject: 'body', 
-	chunks: ['index'], 
-	filename: 'index.html' 
-    }),
-     new HtmlWebpackPlugin({ 
-	template: './error.html', 
-	inject: 'body', 
-	chunks: ['error'], 
-	filename: 'error.html' 
-    }),
-    new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery"
-    })
-  ]
+  plugins: base.plugins
 };
