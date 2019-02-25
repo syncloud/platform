@@ -16,8 +16,8 @@ const entries = [
 ];
 
 module.exports = {
-  entry: entries.reduce((map, obj) => 
-    ( map[obj.key] = `./js/${obj.val}.js`, map ),
+  entry: entries.reduce((map, key) => 
+    ( map[key] = `./js/${key}.js`, map ),
     {}
   ),
   plugins: entries.map(entry =>
