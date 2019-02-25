@@ -47,7 +47,7 @@ go version
 wget https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz \
     --progress dot:giga -O node.tar.gz
 tar xzf node.tar.gz
-mv node-v${VERSION}-linux-${NODE_ARCH} node
+mv node-v${NODE_VERSION}-linux-${NODE_ARCH} node
 
 cd ${DIR}/www/public
 npm install
