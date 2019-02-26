@@ -1,11 +1,17 @@
 var backend_menu = {
-    logout: function (on_complete, on_error) {
-        $.post('/rest/logout').done(on_complete).fail(on_error);
+    logout: function(on_complete, on_error) {
+        setTimeout(function() {
+            on_complete({});
+        }, 2000);
     },
-    restart: function (on_complete, on_error) {
-        $.get('/rest/restart').done(on_complete).fail(on_error);
+    restart: function(on_complete, on_error) {
+        setTimeout(function() {
+            on_complete({});
+        }, 2000);
     },
-    shutdown: function (on_complete, on_error) {
-        $.get('/rest/shutdown').done(on_complete).fail(on_error);
+    shutdown: function(on_complete, on_error) {
+        setTimeout(function() {
+            on_complete({});
+        }, 2000);
     }
 };

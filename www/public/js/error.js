@@ -12,9 +12,9 @@ import './ui/font.js'
 import './ui/common.js'
 import './ui/menu.js'
 import './common.js'
-import './backend.static/common.js'
-import './backend.static/menu.js'
-import './backend.static/error.js'
+import './backend/common.js'
+import './backend/menu.js'
+import './backend/error.js'
 
 function ui_send_log() {
                 var btn = $("#btn_send_logs");
