@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
 
 const entries = [
-//  "activation",
+    "activation",
 //  "app",
 //  "appcenter",
   "error",
