@@ -2,17 +2,17 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
 
 const entries = [
-  "activation",
-  "app",
-  "appcenter",
+//  "activation",
+//  "app",
+//  "appcenter",
   "error",
   "index",
-  "login",
-  "network",
-  "settings",
-  "storage",
-  "support",
-  "updates",
+//  "login",
+//  "network",
+//  "settings",
+//  "storage",
+//  "support",
+//  "updates",
 ];
 
 module.exports = {
