@@ -1,72 +1,35 @@
-backend.device_data = {
-      "device_url": "http://test.syncloud.it",
-      "success": true
-    };
-
-backend.access_data = {
-      "data": {
-        "external_access": true,
-        "protocol": "https"
-      },
-      "success": true
-    };
-
-backend.versions_data = {
-      "data": [
-        {
-          "app": {
-            "id": "platform",
-            "name": "Platform",
-            "required": true,
-            "ui": false,
-            "url": "http://platform.odroid-c2.syncloud.it"
-          },
-          "current_version": "880",
-          "installed_version": "876"
-        },
-        {
-          "app": {
-            "id": "sam",
-            "name": "Syncloud App Manager",
-            "required": true,
-            "ui": false,
-            "url": "http://sam.odroid-c2.syncloud.it"
-          },
-          "current_version": "78",
-          "installed_version": "75"
-        }
-      ],
-      "success": true
-    };
-
 backend.device_url = function(on_complete, on_error) {
-        var that = this;
-        backend.test_timeout(function() { on_complete(that.device_data); }, 2000);
+        $.get('/rest/settings/device_url').done(on_complete).fail(on_error);
     };
 
 backend.send_logs = function(include_support, on_always, on_error) {
-        backend.test_timeout(on_always, 2000);
+        $.get('/rest/send_log',
+          { include_support: include_support }
+        ).always(on_always).fail(on_error);
     };
 
 backend.reactivate = function(on_complete, on_error) {
-        on_complete({ activate_url: "../internal/activate.html", success: true});
+        $.get('/rest/settings/activate_url').done(on_complete).fail(on_error);
     };
 
 backend.get_versions = function(on_complete, on_error) {
-        var that = this;
-        backend.test_timeout(function() {
-            on_complete(that.versions_data);
-        }, 2000);
+        $.get('/rest/settings/versions').done(on_complete).fail(on_error);
     };
 
 backend.check_versions = function(on_always, on_error) {
-        backend.test_timeout(on_always, 2000);
+        $.get('/rest/check').always(on_always).fail(on_error);
     };
 
 backend.platform_upgrade = function(on_complete, on_error) {
-        backend.test_timeout(function() { on_complete({success: true}) }, 2000);
+        $.get('/rest/upgrade', { app_id: 'platform' }).done(on_complete).fail(on_error);
     };
 
 backend.sam_upgrade = function(on_complete, on_error) {
-        backend.test_timeout(function() { on_complete({success: true}) }, 2000);
+        $.get('/rest/upgrade', { app_id: 'sam' }).done(on_complete).fail(on_error);
     };
+
+backend.update_boot_disk = function(on_complete, on_error) {
+        $.get('/rest/settings/boot_disk').done(on_complete).fail(on_error);
+    };
+
+ 

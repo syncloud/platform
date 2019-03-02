@@ -1,3 +1,3 @@
 backend.send_log = function(on_always, on_error) {
-        setTimeout(on_always, 2000);
+        $.get('/rest/send_log').always(on_always).fail(on_error);
     };

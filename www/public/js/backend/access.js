@@ -1,106 +1,35 @@
-backend.access_data = {
-        error_toggle: false,
-        "data": {
-            "external_access": true,
-            "upnp_available": false,
-            "upnp_enabled": true,
-            "upnp_message": "not used",
-            "public_ip": "111.111.111.111"
-        },
-        "success": true
+backend.check_access = function(on_complete, on_error) {
+        $.get('/rest/access/access').done(on_complete).fail(on_error);
     };
 
-backend.network_interfaces_data = {
-        "data": {
-            "interfaces": [
-                {
-                    "ipv4": [
-                        {
-                            "addr": "172.17.0.2",
-                            "broadcast": "172.17.0.2",
-                            "netmask": "255.255.0.0"
-                        }
-                    ],
-                    "ipv6": [
-                        {
-                            "addr": "fe80::42:acff:fe11:2%eth0",
-                            "netmask": "ffff:ffff:ffff:ffff::"
-                        }
-                    ],
-                    "name": "eth0"
-                }
-            ]
-        },
-        "success": true
-    };
-backend.port_mappings_data = {
-        "port_mappings": [
-             {
-                 "local_port": 80,
-                 "external_port": 80                 
-             },
-             {
-                 "local_port": 443,
-                 "external_port": 10001                     
-             }
-                    
-        ],
-        "success": true
-    };
+backend.set_access = function(
+        upnp_enabled,
+        external_access,
+        ip_autodetect,
+        public_ip,
+        certificate_port,
+        access_port,
+        on_complete,
+        on_error) {
 
-backend.check_access = function (on_complete, on_error) {
-        var that = this;
-        setTimeout(function () { on_complete(that.access_data); }, 2000);
-    };
+        var request_data = {
+           upnp_enabled: upnp_enabled,
+           external_access: external_access,
+           certificate_port: certificate_port,
+           access_port: access_port
+        };
 
-backend.set_access = function (upnp_enabled,
-                               external_access,
-                               ip_autodetect,
-                               public_ip,
-                               certificate_port,
-                               access_port,
-                               on_complete,
-                               on_error) {
-        var that = this;
-        setTimeout(function () {
-            if (that.access_data.error_toggle) {
-                that.access_data.data.external_access = external_access;
-                that.access_data.data.upnp_enabled = upnp_enabled;
-                if (ip_autodetect) {
-                    if (that.access_data.data.hasOwnProperty('public_ip')) {
-                        delete that.access_data.data.public_ip;
-                    }
-                } else {
-                    that.access_data.data.public_ip = public_ip;
-                }
-                if (upnp_enabled) {
-                    that.port_mappings_data.port_mappings[0].external_port = 81;
-                    that.port_mappings_data.port_mappings[1].external_port = 444;
-                } else {
-                    that.port_mappings_data.port_mappings[0].external_port = certificate_port;
-                    that.port_mappings_data.port_mappings[1].external_port = access_port;
-                }
-                on_complete({success: true});
-            } else {
-                var xhr = {
-                    status: 200,
-                    responseJSON: {
-                        message: "error"
-                    }
-                };
-                on_error(xhr, {}, {});
-            }
-            that.access_data.error_toggle = ! that.access_data.error_toggle;
-        }, 2000);
-    };
+        if (!ip_autodetect) {
+            request_data.public_ip = public_ip;
+        }
 
-
-backend.network_interfaces = function (on_complete, on_error) {
-        var that = this;
-        setTimeout(function () { on_complete(that.network_interfaces_data); }, 2000);
+        $.get('/rest/access/set_access', request_data).done(on_complete).fail(on_error);
     };
     
-backend.port_mappings = function (on_complete, on_error) {
-        var that = this;
-        setTimeout(function () { on_complete(that.port_mappings_data); }, 2000);
+backend.network_interfaces = function(on_complete, on_error) {
+        $.get('/rest/access/network_interfaces').done(on_complete).fail(on_error);
+    };
+    
+backend.port_mappings = function(on_complete, on_error) {
+        $.get('/rest/access/port_mappings').done(on_complete).fail(on_error);
     };
