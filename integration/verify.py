@@ -18,7 +18,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 DIR = dirname(__file__)
-
+TMP_DIR = '/tmp/syncloud'
 DEFAULT_LOGS_SSH_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_LOGS_SSH_PASSWORD
 
@@ -33,14 +33,18 @@ def module_setup(request, data_dir, device_host, app_dir, log_dir):
     request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir))
 
 
-def module_teardown(data_dir, device_host, app_dir, log_dir):
+def module_teardown(data_dir, device_host, app_dir, log_dir, device):
     run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, log_dir), throw=False,
             password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, log_dir), throw=False,
             password=LOGS_SSH_PASSWORD)
 
-    run_ssh(device_host, 'journalctl > /log/journalctl.log', password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:/log/* {1}'.format(device_host, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
+    device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+    device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+    device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+    device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+  
+    run_scp('root@{0}:{1}* {2}'.format(device_host, TMP_DIR, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
 
 
