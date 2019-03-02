@@ -38,7 +38,8 @@ def module_teardown(data_dir, device_host, app_dir, log_dir, device):
             password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, log_dir), throw=False,
             password=LOGS_SSH_PASSWORD)
-
+ 
+    device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
     device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
     device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
