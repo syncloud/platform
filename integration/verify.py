@@ -29,8 +29,8 @@ def app_data_dir():
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device_host, app_dir, log_dir):
-    request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir))
+def module_setup(request, data_dir, device_host, app_dir, log_dir, device):
+    request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir, device))
 
 
 def module_teardown(data_dir, device_host, app_dir, log_dir, device):
