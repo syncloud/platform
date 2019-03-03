@@ -8,7 +8,7 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
-import * from './ui/common.js'
+import ui_display_error, hide_fields_errors from './ui/common.js'
 import './ui/menu.js'
 import './common.js'
 import './backend/common.js'

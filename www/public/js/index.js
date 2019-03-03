@@ -10,7 +10,7 @@ import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 
 import './ui/font.js'
-import * from './ui/common.js'
+import ui_display_error from './ui/common.js'
 import './ui/menu.js'
 
 import './common.js'
