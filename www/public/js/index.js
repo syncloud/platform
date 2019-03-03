@@ -13,7 +13,6 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
-import './common.js'
 import './backend/common.js'
 import './backend/menu.js'
 import './backend/index.js'

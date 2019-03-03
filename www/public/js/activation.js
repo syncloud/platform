@@ -8,7 +8,7 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';         
 import 'font-awesome/css/font-awesome.css'  
 import '../css/site.css'                    
-
+import UiCommon from './ui/common.js'
 
 function ui_display_device_url(data) {
 		$("#txt_device_domain").attr('href', data.device_url);
@@ -16,7 +16,10 @@ function ui_display_device_url(data) {
 }
 
 function ui_check_device_url() {
-	backend.device_url(ui_display_device_url, ui_display_error);
+	backend.device_url(
+   ui_display_device_url, 
+   UiCommon.ui_display_error
+);
 }
 
 $(document).ready(function () {
@@ -27,7 +30,7 @@ $(document).ready(function () {
                 window.location.href = data.activate_url;
             },
             function (a, b, c) {
-                ui_display_error(a, b, c);
+                UiCommon.ui_display_error(a, b, c);
             }
         );
     });

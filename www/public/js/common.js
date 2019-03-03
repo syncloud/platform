@@ -62,3 +62,11 @@ function get_value(values, name) {
     }
     return null;
 }
+
+module.exports = {
+  check_for_service_error,
+  run_after_sam_is_complete,
+  run_after_job_is_complete,
+  find_app,
+  get_value
+};

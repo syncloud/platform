@@ -1,4 +1,4 @@
-const common = require('./common');
+const Common = require('./common');
 
 test('job status', () => { 
     var checker_count = 0;
@@ -11,7 +11,7 @@ test('job status', () => {
         this.on_error = on_error;
     };
     
-    common.run_after_job_is_complete(checker, function(func, timeout) { func(); }, function() {}, function(a, b, c) {}, 'test');
+    Common.run_after_job_is_complete(checker, function(func, timeout) { func(); }, function() {}, function(a, b, c) {}, 'test');
 
     checker_on_complete({is_running: true});
 
