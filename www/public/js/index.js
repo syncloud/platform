@@ -12,7 +12,7 @@ import '../css/site.css'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
-
+import Common from './common.js'
 import './backend/common.js'
 import './backend/menu.js'
 import './backend/index.js'
