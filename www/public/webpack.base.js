@@ -9,7 +9,7 @@ const entries = [
   "index",
   "login",
 //  "network",
-//  "settings",
+  "settings",
 //  "storage",
 //  "support",
 //  "updates",
