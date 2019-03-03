@@ -7,7 +7,7 @@ const entries = [
 //  "appcenter",
   "error",
   "index",
-//  "login",
+  "login",
 //  "network",
 //  "settings",
 //  "storage",

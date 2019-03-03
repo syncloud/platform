@@ -12,7 +12,6 @@
 	<meta name="MobileOptimized" content="width" />
 	<meta content="yes" name="apple-mobile-web-app-capable" />
 	
-
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
 	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
@@ -20,13 +19,6 @@
 	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
 	<meta name="theme-color" content="#3e454e">
 	
-	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-
-	<!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
-    <link href="css/font-awesome.css" rel="stylesheet">
-
 	</head>
 <body>
 <div class="wrapper">
@@ -70,54 +62,5 @@
     </div>
   </div>
 </div>
-
-<!-- Scripts-->
-<script src="js/lib/jquery-1.11.3.min.js"></script>
-<script src="js/lib/bootstrap.min.js"></script>
-<script src="js/lib/bootstrap-switch.min.js"></script>
-<script src="js/ui/font.js"></script>
-<script src="js/ui/common.js"></script>
-<script src="js/ui/menu.js"></script>
-
-<!--[if lt IE 9]>
-<script src="js/lib/html5.js"></script>
-<script src="js/lib/IE9.js"></script>
-<![endif]-->
-
-<script src="js/common.js"></script>
-<script src="js/backend/common.js"></script>
-<script src="js/backend/login.js"></script>
-
-
-<script type="text/javascript">
-
-$(document).ready(function () {
-    $("#form-login").submit(function (event) {
-        event.preventDefault();
-
-        var values = $("#form-login").serializeArray();
-
-        var btn = $("#btn_login");
-        btn.button('loading');
-        $("#form-login input").prop("disabled", true);
-        hide_fields_errors("form-login");
-
-        backend.login(
-                values,
-        		function(data) {
-                    window.location.href = "index.html";
-        		},
-                ui_display_error,
-                function() {
-                    btn.button('reset');
-                    $("#form-login input").prop("disabled", false);
-        		}
-        );
-    });
-});
-
-</script>
-
-<!-- END SCRIPTS -->
 </body>
 </html>
