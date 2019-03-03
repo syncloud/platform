@@ -16,6 +16,6 @@ test('job status', () => {
 
     checker_on_complete({is_running: true});
 
-    expect(checker_job).toBeEqual('test');
-    expect(checker_count).toBeEqual(2);
+    expect(checker_job).toEqual('test');
+    expect(checker_count).toEqual(2);
 });
