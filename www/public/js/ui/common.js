@@ -1,3 +1,5 @@
+module.exports = { 
+
 function get_error_block_id(txt_field) {
     return txt_field + "_alert";
 }
@@ -57,4 +59,4 @@ function ui_display_error(xhr, textStatus, errorThrown) {
     }
 }
 
-module.exports = { ui_display_error };
+};

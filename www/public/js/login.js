@@ -8,7 +8,7 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
-import ui_display_error, hide_fields_errors from './ui/common.js'
+import UiCommon from './ui/common.js'
 import './ui/menu.js'
 import './common.js'
 import './backend/common.js'
@@ -24,14 +24,14 @@ $(document).ready(function () {
         var btn = $("#btn_login");
         btn.button('loading');
         $("#form-login input").prop("disabled", true);
-        hide_fields_errors("form-login");
+        UiCommon.hide_fields_errors("form-login");
 
         backend.login(
                 values,
         		function(data) {
                     window.location.href = "index.html";
         		},
-                ui_display_error,
+                UiCommon.ui_display_error,
                 function() {
                     btn.button('reset');
                     $("#form-login input").prop("disabled", false);
