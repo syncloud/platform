@@ -1,32 +1,32 @@
-const backwnd = require('./settings');
+const Settings = require('./settings');
 require('./backend.mock/common');
 require('./backend.mock/settings');
 
 test( "settings check version", () => {
 
   backend.async = false;
-  check_versions(function(data) {}, function(a, b, c) {});
+  Settings.check_versions(function(data) {}, function(a, b, c) {});
 
 });
 
 test( "settings platform upgrade", () => {
 
   backend.async = false;
-  platform_upgrade(function(data) {}, function(a, b, c) {});
+  Settings.platform_upgrade(function(data) {}, function(a, b, c) {});
 
 });
 
 test( "settings sam upgrade", () => {
 
   backend.async = false;
-  sam_upgrade(function(data) {}, function(a, b, c) {});
+  Settings.sam_upgrade(function(data) {}, function(a, b, c) {});
 
 });
 
 test( "settings boot disk extend", () => {
 
   backend.async = false;
-  boot_extend(function(data) {}, function(a, b, c) {});
+  Settings.boot_extend(function(data) {}, function(a, b, c) {});
 
 });
 
@@ -39,7 +39,7 @@ test( "settings disk activate error", () => {
     error_counter += 1
   }
 
-  disk_action('device', true, function() {}, on_error)
+  Settings.disk_action('device', true, function() {}, on_error)
 
   expect(error_counter).toEqual(1);
 });
@@ -53,7 +53,7 @@ test( "settings disk activate success", () => {
     success_counter += 1
   }
 
-  disk_action('device', true, on_success, function() {});
+  Settings.disk_action('device', true, on_success, function() {});
 
   expect(success_counter).toEqual(1);
 });

@@ -18,17 +18,7 @@
 	<link rel="manifest" href="/manifest.json">
 	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
 	<meta name="theme-color" content="#3e454e">
-
-  <script type="text/javascript" src="js/lib/underscore-min.js"></script>
-  <script type="text/javascript" src="js/lib/URI.js"></script>
-
-	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-	<!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
-    <link href="css/font-awesome.css" rel="stylesheet">
-
-	</head>	
+	</head>
 <body>
 <div class="wrapper">
 	<div class="content">
@@ -294,87 +284,6 @@
 <!-- Templates -->
 <script type="text/html" id='template-network'>
 
-    <%
-		if (interfaces.length == 0) {
-    %>
-
-		<span class="span">No networks found</span>
-
-    <% } %>
-
-    <%
-    for (i=0; i < interfaces.length; i++) {
-        var interface = interfaces[i];
-    %>
-
-        <div class="setline">
-				<span class="span">IPv4 (<%= interface.name %>): </span>
-
-            <%
-                if (interface.ipv4) {
-            %>
-
-                <%
-                    addresses = interface.ipv4;
-                    for (j=0; j < addresses.length; j++) {
-                        var address = addresses[j];
-                %>
-
-                    <%
-                        if (j > 0) {
-                    %>
-
-                        <span class="span">, </span>
-
-                    <% } %>
-
-
-                    <span class="span"><%=address.addr %></span>
-
-                <% } %>
-
-            <% } else {  %>
-
-                <span class="span">No IPv4</span>
-
-            <% } %>
-
-        </div>
-        <div class="setline">
-				<span class="span">IPv6 (<%= interface.name %>): </span>
-
-            <%
-                if (interface.ipv6) {
-            %>
-
-                <%
-                    addresses = interface.ipv6;
-                    for (j=0; j < addresses.length; j++) {
-                        var address = addresses[j];
-                %>
-
-                    <%
-                        if (j > 0) {
-                    %>
-
-                        <span class="span">, </span>
-
-                    <% } %>
-
-
-                    <span class="span"><%=address.addr %></span>
-
-                <% } %>
-
-            <% } else {  %>
-
-                <span class="span">No IPv6</span>
-
-            <% } %>
-
-        </div>
-
-    <% } %>
 </script>
 
 <!-- Scripts-->
