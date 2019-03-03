@@ -8,7 +8,7 @@ const entries = [
   "error",
   "index",
   "login",
-//  "network",
+  "network",
   "settings",
 //  "storage",
 //  "support",
