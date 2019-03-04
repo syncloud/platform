@@ -184,3 +184,9 @@ $(document).ready(function () {
 
 });
 
+module.exports = {
+	boot_extend,
+	disk_action,
+	disk_format
+};
+
