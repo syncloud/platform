@@ -28,7 +28,9 @@ pipeline:
   test-js:
     image: syncloud/build-deps-${arch}
     commands:
-      - ./test/js/runner/run.sh
+      - cd $(pwd)/www/public
+      - export PATH=$(pwd)/node/bin:$PATH
+      - npm run test
 
   test-intergation:
     image: syncloud/build-deps-${arch}

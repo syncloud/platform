@@ -57,7 +57,6 @@ backend.boot_disk_data = {
     };
 
 backend.boot_extend = function(on_complete, on_error) {
-        console.log('boot_extend')
         var that = this;
         backend.test_timeout(function() {
             that.boot_disk_data.data.extendable = false;
@@ -67,13 +66,11 @@ backend.boot_extend = function(on_complete, on_error) {
     };
 
 backend.update_disks = function(on_complete, on_error) {
-        console.log('update_disks')
         var that = this;
         setTimeout(function() { on_complete(that.disks_data); }, 500);
     };
 
 backend.update_boot_disk = function(on_complete, on_error) {
-        console.log('update_boot_disk')
         var that = this;
         backend.test_timeout(function() { on_complete(that.boot_disk_data); }, 2000);
     };
@@ -81,7 +78,6 @@ backend.update_boot_disk = function(on_complete, on_error) {
 backend.disk_action_success = true;
 
 backend.disk_action = function(disk_device, is_activate, on_complete, on_always, on_error) {
-        console.log('disk_action')
         var that = this;
         if (backend.disk_action_success) {
             backend.test_timeout(function() { on_complete(that.disks_data); on_always(); }, 2000);
@@ -91,7 +87,6 @@ backend.disk_action = function(disk_device, is_activate, on_complete, on_always,
     };
     
 backend.disk_format = function(disk_device, on_complete, on_error) {
-        console.log('disk_format')
         var that = this;
         backend.test_timeout(function() {
             on_complete({success: true});

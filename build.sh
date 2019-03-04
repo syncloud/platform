@@ -51,7 +51,6 @@ mv node-v${NODE_VERSION}-linux-${NODE_ARCH} node
 
 cd ${DIR}/www/public
 npm install
-npm run test
 npm run build
 
 cd ${DIR}/backend
