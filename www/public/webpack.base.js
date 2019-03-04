@@ -10,7 +10,7 @@ const entries = [
   "login",
   "network",
   "settings",
-//  "storage",
+  "storage",
 //  "support",
 //  "updates",
 ];
