@@ -69,6 +69,7 @@ BootDisk = `
         <% } %>
 `
 
-module.exports {
+module.exports = {
 	Disks,
 	BootDisk
+};
