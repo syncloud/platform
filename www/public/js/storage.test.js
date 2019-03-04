@@ -1,6 +1,6 @@
 const Storage = require('./storage');
 require('./backend.mock/common');
-require('./backend.mock/settings');
+require('./backend.mock/storage');
 
 test( "settings boot disk extend", () => {
 
