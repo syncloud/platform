@@ -1,4 +1,4 @@
-Disks = `
+const Disks = `
     <%
 		if (disks.length == 0) {
     %>
@@ -58,7 +58,7 @@ Disks = `
     <% } %>
 `
 
-BootDisk = `
+const BootDisk = `
         <span class="span">Partition - <%=size %></span>
         <% if (extendable) { %>
         <div class="spandiv">
