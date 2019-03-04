@@ -28,8 +28,8 @@ pipeline:
   test-js:
     image: syncloud/build-deps-${arch}
     commands:
-      - cd $(pwd)/www/public
       - export PATH=$(pwd)/node/bin:$PATH
+      - cd www/public
       - npm run test
 
   test-intergation:
