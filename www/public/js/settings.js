@@ -63,3 +63,9 @@ function sam_upgrade(on_complete, on_error) {
     }, on_error);
     
 }
+
+module.exports = {
+	check_versions,
+	platform_upgrade,
+	sam_upgrade
+};
