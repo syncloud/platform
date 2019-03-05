@@ -16,18 +16,16 @@ import Common from './common.js'
 import './backend/common.js'
 import './backend/menu.js'
 import './backend/access.js'
-import NetworkTemplate from './network.templates.js'
+import Templates from './network.templates.js'
 
 function ui_display_toggles() {
 	$("[type='checkbox']").each(function() {
 		$(this).bootstrapSwitch();
 	});
-}
-
-ui_display_toggles();
+};
 
 function ui_display_network(data) {
-    $("#block_network").html(_.template(NetworkTemplate)(data.data));
+    $("#block_network").html(_.template(Templates.NetworkTemplate)(data.data));
 }
 
 function ui_display_port_mappings(data) {
@@ -165,6 +163,8 @@ function error(message) {
 }
 
 $(document).ready(function () {
+
+    ui_display_toggles();
 
     $("#tgl_external").on('switchChange.bootstrapSwitch', function (event, state) {
         event.preventDefault();

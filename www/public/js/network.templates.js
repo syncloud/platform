@@ -83,4 +83,6 @@ const NetworkTemplate = `
 
 `
 
-modules.export = NetworkTemplate
+module.exports = {
+  NetworkTemplate
+};
