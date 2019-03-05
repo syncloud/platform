@@ -1,4 +1,4 @@
-import styles from 'roboto-fontface/css/roboto-condensed/roboto-condensed-fontface.css'
+import styles from 'roboto-fontface/css/roboto/roboto-fontface.css'
 
 $(document).ready(function() {
 	// navi
