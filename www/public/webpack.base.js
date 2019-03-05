@@ -3,7 +3,7 @@ const webpack = require('webpack')
 
 const entries = [
     "activation",
-//  "app",
+   "app",
 //  "appcenter",
   "error",
   "index",
