@@ -15,7 +15,7 @@ import './ui/menu.js'
 import Common from './common.js'
 import './backend/common.js'
 import './backend/menu.js'
-import './backend/access.js'
+import './backend/network.js'
 import Templates from './network.templates.js'
 
 function ui_display_toggles() {
