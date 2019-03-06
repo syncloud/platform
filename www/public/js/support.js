@@ -15,7 +15,6 @@ import './ui/menu.js'
 import Common from './common.js'
 import './backend/common.js'
 import './backend/menu.js'
-import './backend/settings.js'
 
 function ui_display_toggles() {
 	$("[type='checkbox']").each(function() {

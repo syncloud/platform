@@ -3,6 +3,7 @@ import shutil
 from os.path import dirname, join, exists
 import pytest
 import time
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -118,8 +119,10 @@ def test_settings_network(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 def test_settings_storage(driver, device_host):
-
-    driver.get("http://{0}/storage.html".format(device_host))
+    url = "http://{0}/storage.html".format(device_host)
+    resp = requests.get(url)
+    assert resp.status_code == 200
+    driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_storage')
@@ -127,8 +130,10 @@ def test_settings_storage(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 def test_settings_updates(driver, device_host):
-
-    driver.get("http://{0}/updates.html".format(device_host))
+    url = "http://{0}/updates.html".format(device_host)
+    resp = requests.get(url)
+    assert resp.status_code == 200
+    driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_updates')
@@ -136,8 +141,10 @@ def test_settings_updates(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 def test_settings_support(driver, device_host):
-
-    driver.get("http://{0}/support.html".format(device_host))
+    url = "http://{0}/support.html".format(device_host)
+    resp = requests.get(url)
+    assert resp.status_code == 200
+    driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_support')
@@ -145,8 +152,10 @@ def test_settings_support(driver, device_host):
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 def test_app_center(driver, device_host):
-
-    driver.get("http://{0}/appcenter.html".format(device_host))
+    url = "http://{0}/appcenter.html".format(device_host)
+    resp = requests.get(url)
+    assert resp.status_code == 200
+    driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'appcenter')
