@@ -1,4 +1,4 @@
-import * as URI from "uri-js";
+import URI from "urijs";
 import * as _ from 'underscore';
 import $ from 'jquery';
 import jQuery from 'jquery';
@@ -9,7 +9,7 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
-import AppTemplate from './app.templates.js'
+import { AppTemplate } from './app.templates.js'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
@@ -19,7 +19,7 @@ import './backend/common.js'
 import './backend/menu.js'
 import './backend/app.js'
 
-function run_app_action(app_id, action, on_complete, on_error) {
+export function run_app_action(app_id, action, on_complete, on_error) {
     backend.app_action(app_id, action, function (data) {
         Common.check_for_service_error(data, function () {
             Common.run_after_sam_is_complete(

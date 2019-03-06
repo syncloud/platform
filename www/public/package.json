@@ -45,7 +45,7 @@
     "normalize.css": "^8.0.1",
     "roboto-fontface": "^0.10.0",
     "underscore": "^1.9.1",
-    "uri-js": "^4.2.2"
+    "urijs": "^1.19.1"
   },
   "jest": {
     "verbose": true,

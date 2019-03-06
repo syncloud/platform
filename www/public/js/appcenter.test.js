@@ -1,6 +1,10 @@
-QUnit.test( "show apps success", function( assert ) {
+const { available_apps } = require('./appcenter');
+require('./backend.mock/common');
+require('./backend.mock/appcenter');
 
+test( "show apps success", () => {
 
+  backend.async = false;
   backend.available_apps_success = true
   var error_counter = 0;
   function on_error(a, b, c) {
@@ -9,13 +13,13 @@ QUnit.test( "show apps success", function( assert ) {
 
   available_apps(function(data) {}, on_error);
 
-  assert.deepEqual( error_counter, 0);
+  expect(error_counter).toEqual(0);
 
 });
 
-QUnit.test( "show apps error", function( assert ) {
+test( "show apps error", () => {
 
-
+  backend.async = false;
   backend.available_apps_success = false
   var error_counter = 0;
   function on_error(a, b, c) {
@@ -24,6 +28,6 @@ QUnit.test( "show apps error", function( assert ) {
 
   available_apps(function(data) {}, on_error);
 
-  assert.deepEqual( error_counter, 1);
+  expect(error_counter).toEqual(1);
 
 });
