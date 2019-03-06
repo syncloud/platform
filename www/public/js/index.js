@@ -16,10 +16,10 @@ import Common from './common.js'
 import './backend/common.js'
 import './backend/menu.js'
 import './backend/index.js'
-import template from './apps.template.js'
+import Templates from './index.templates.js'
 
 function display_apps(data) {
-	let html = _.template(template)(data);
+	let html = _.template(Templates.IndexTemplate)(data);
 	$("#block_apps").html(html);
 }
 

@@ -10,6 +10,10 @@ import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
+import Common from './common.js'
+import './backend/common.js'
+import './backend/menu.js'
+import './backend/activation.js'
 
 function ui_display_device_url(data) {
 		$("#txt_device_domain").attr('href', data.device_url);

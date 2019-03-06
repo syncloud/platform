@@ -1,4 +1,4 @@
-let template = `
+let IndexTemplate = `
 		<% if (apps.length == 0) { %>
 		<h2 class="bh2">You don't have any installed apps yet. You can install one from App Center</h2>
 		<a href="appcenter.html" class="appcenterh">App Center</a>
@@ -17,4 +17,6 @@ let template = `
 
     <% } %>`;
 
-module.exports = template;
+module.exports = {
+  IndexTemplate
+};
