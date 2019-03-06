@@ -120,7 +120,7 @@ def test_settings_network(driver, device_host):
 
 def test_settings_storage(driver, device_host):
     url = "http://{0}/storage.html".format(device_host)
-    resp = requests.get(url)
+    resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
@@ -131,7 +131,7 @@ def test_settings_storage(driver, device_host):
 
 def test_settings_updates(driver, device_host):
     url = "http://{0}/updates.html".format(device_host)
-    resp = requests.get(url)
+    resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
@@ -142,7 +142,7 @@ def test_settings_updates(driver, device_host):
 
 def test_settings_support(driver, device_host):
     url = "http://{0}/support.html".format(device_host)
-    resp = requests.get(url)
+    resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
@@ -153,7 +153,7 @@ def test_settings_support(driver, device_host):
 
 def test_app_center(driver, device_host):
     url = "http://{0}/appcenter.html".format(device_host)
-    resp = requests.get(url)
+    resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
