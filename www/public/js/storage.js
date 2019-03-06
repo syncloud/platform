@@ -74,7 +74,7 @@ function ui_enable_controls(enabled) {
 
 function ui_display_disks(data) {
 		
-		$("#block_disks").html(_.template(Template.Disks)(data));
+		$("#block_disks").html(_.template(Templates.Disks)(data));
 		ui_display_toggles();
 		ui_enable_controls(true);
 

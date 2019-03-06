@@ -7,7 +7,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-switch';        
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';         
 import 'font-awesome/css/font-awesome.css'  
-import '../css/site.css'                    
+import '../css/site.css'
+import './ui/font.js'
 import UiCommon from './ui/common.js'
 
 function ui_display_device_url(data) {
