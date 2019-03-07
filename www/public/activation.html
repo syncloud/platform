@@ -110,55 +110,5 @@
     </div>
   </div>
 </div>
-
-
-<!-- Scripts-->
-<script src="js/lib/jquery-1.11.3.min.js"></script>
-<script src="js/lib/bootstrap.min.js"></script>
-<script src="js/lib/bootstrap-switch.min.js"></script>
-<script src="js/ui/font.js"></script>
-<script src="js/ui/common.js"></script>
-<script src="js/ui/menu.js"></script>
-
-<script type="text/javascript">
-
-function ui_display_device_url(data) {
-		$("#txt_device_domain").attr('href', data.device_url);
-		$("#txt_device_domain").text(data.device_url);
-}
-
-function ui_check_device_url() {
-	backend.device_url(ui_display_device_url, ui_display_error);
-}
-
-$(document).ready(function () {
-
-    $("#btn_reactivate").on('click', function () {
-    	    backend.reactivate(
-    		       function (data) {
-                window.location.href = data.activate_url;
-            },
-            function (a, b, c) {
-                ui_display_error(a, b, c);
-            }
-        );
-    });
-
-    ui_check_device_url();
-});
-
-</script>
-
-<!--[if lt IE 9]>
-<script src="js/lib/html5.js"></script>
-<script src="js/lib/IE9.js"></script>
-<![endif]-->
-
-<script src="js/common.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/backend/common.js"></script>
-<script src="js/backend/menu.js"></script>
-<script src="js/backend/settings.js"></script>
-<!-- END SCRIPTS -->
 </body>
 </html>

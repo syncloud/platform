@@ -622,7 +622,16 @@ input:disabled {
     width: 145px;
     height: 145px;
     border-radius: 30px;
+    min-width: 145px;
+    min-height: 145px;
+    background-size: 145px 145px;
+    background-repeat: no-repeat;
 }
+
+.activation-img {
+    background-image: url(../images/activation.svg);
+}
+
 .appname {
     font-size: 20px;
     margin: 10px 0 2px;
