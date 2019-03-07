@@ -18,7 +18,7 @@ func NewWorker(master JobMaster, backup backup.AppBackup) *Worker {
 func (worker *Worker) Start() {
 	for {
 		if !worker.Do() {
-			time.Sleep(1000)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
