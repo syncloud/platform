@@ -619,19 +619,29 @@ input:disabled {
     margin-top: 25px;
 }
 .appminimg {
-    width: 145px;
-    height: 145px;
-    border-radius: 30px;
-    min-width: 145px;
-    min-height: 145px;
-    background-size: 145px 145px;
+    width: 125px;
+    height: 125px;
+    min-width: 125px;
+    min-height: 125px;
+    background-size: 125px 125px;
     background-repeat: no-repeat;
 }
 
 .activation-img {
     background-image: url(../images/activation.svg);
 }
-
+.storage-img {
+    background-image: url(../images/storage.svg);
+}
+.network-img {
+    background-image: url(../images/network.svg);
+}
+.updates-img {
+    background-image: url(../images/updates.svg);
+}
+.support-img {
+    background-image: url(../images/support.svg);
+}
 .appname {
     font-size: 20px;
     margin: 10px 0 2px;
