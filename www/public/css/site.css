@@ -623,10 +623,10 @@ input:disabled {
     height: 125px;
     background-size: 125px 125px;
     background-repeat: no-repeat;
-    backgroid-position: center center;
-    #border: 5px black;
 }
-
+.app-link {
+    display: inline-block;
+}
 .activation-img {
     background-image: url(../images/activation.svg);
 }
