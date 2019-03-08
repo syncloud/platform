@@ -621,10 +621,10 @@ input:disabled {
 .appminimg {
     width: 125px;
     height: 125px;
-    min-width: 125px;
-    min-height: 125px;
     background-size: 125px 125px;
     background-repeat: no-repeat;
+    backgroid-position: center center;
+    #border: 5px black;
 }
 
 .activation-img {
