@@ -619,10 +619,12 @@ input:disabled {
     margin-top: 25px;
 }
 .appminimg {
-    width: 125px;
-    height: 125px;
-    background-size: 125px 125px;
-    background-repeat: no-repeat;
+    width: 145px;
+    height: 145px;
+    border-radius: 30px;
+    min-width: 145px;
+    min-height: 145px;
+    background-size: 145px 145px;
 }
 .app-link {
     display: inline-block;
