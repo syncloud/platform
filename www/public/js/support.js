@@ -4,8 +4,7 @@ import jQuery from 'jquery';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-switch';
-//import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
-import '../css/bootstrap-switch.css';
+import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 

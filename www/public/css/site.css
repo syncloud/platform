@@ -1123,3 +1123,7 @@ header {
     display: none;
 }
 }
+
+.bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
+  background-color: #64bc46 !important;
+}
