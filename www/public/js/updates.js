@@ -14,6 +14,7 @@ import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
 import Common from './common.js'
+import './backend/common.js'
 import './backend/menu.js'
 import './backend/updates.js'
 
@@ -71,7 +72,6 @@ function ui_display_toggles() {
 	});
 }
 
-ui_display_toggles();
 
 function upgrade_buttons_enabled(is_enabled) {
 		var btn_platform = $("#btn_platform_upgrade");
@@ -158,6 +158,7 @@ function ui_sam_upgrade() {
 }
 
 $(document).ready(function () {
+    ui_display_toggles();
 
     $("#btn_check_updates").on('click', function () {
     		ui_check_versions();
