@@ -1127,3 +1127,13 @@ header {
 .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
   background-color: #64bc46 !important;
 }
+
+.switchloading {
+	 vertical-align:middle;
+}
+.opacity-invisible {
+	 opacity:0;
+}
+.opacity-visible {
+	 opacity:1!important;
+}

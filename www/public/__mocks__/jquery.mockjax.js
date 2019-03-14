@@ -59,7 +59,7 @@ const boot_disk_data = {
       "success": true
     };
 
-var disk_action_success = false;
+var disk_action_success = true;
 
 mockjax({
     url: '/rest/settings/disks',
@@ -73,10 +73,7 @@ mockjax({
     responseText: boot_disk_data
 });
 
-mockjax({
-    url: '/rest/settings/disk_activate',
-    dataType: "json",
-    response: function(settings) {
+const disk_response = (settings) => {
       consile.log("mock");
       if (disk_action_success) {
         this.responseText = disks_data;
@@ -84,9 +81,19 @@ mockjax({
         this.responseText = disks_data_error;
       }
     }
+
+mockjax({
+    url: '/rest/settings/disk_activate',
+    dataType: "json",
+    response: disk_response
 });
     
-    
+mockjax({
+    url: '/rest/settings/disk_deactivate',
+    dataType: "json",
+    response: disk_response
+});
+
 mockjax({
     url:'/rest/settings/boot_extend',
     dataType: "json",
@@ -105,3 +112,8 @@ mockjax({
     responseText: {success: true, is_running: false}
 });
 
+mockjax({
+    url:'/rest/settings/disk_format_status',
+    dataType: "json",
+    responseText: {success: true, is_running: false}
+});
