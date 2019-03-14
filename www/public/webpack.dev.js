@@ -1,4 +1,6 @@
 const base = require('./webpack.base.js')
+const webpack = require('webpack')
+const path = require('path')
 
 module.exports = {
   devtool: 'eval-cheap-module-source-map',
@@ -46,5 +48,12 @@ module.exports = {
       },
     ],
   },
-  plugins: base.plugins
+  plugins: base.plugins.concat([
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery",
+      mock: path.join(__dirname, '__mocks__', 'jquery.mockjax.js')
+    })
+  ])
+
 };

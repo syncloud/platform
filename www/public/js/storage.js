@@ -1,5 +1,4 @@
-import $ from 'jquery';
-import jQuery from 'jquery';
+import * as _ from 'underscore'; 
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -37,8 +36,17 @@ function boot_extend(on_complete, on_error) {
 }
 
 function disk_action(disk_device, is_activate, on_always, on_error) {
-    let on_complete = function(data) { Common.check_for_service_error(data, function() {}, on_error); }
-    backend.disk_action(disk_device, is_activate, on_complete, on_always, on_error);
+    backend.disk_action(
+        disk_device,
+        is_activate, 
+        function(data) { 
+            Common.check_for_service_error(
+                data,
+                function() {},
+                on_error);
+        }, 
+        on_always, 
+        on_error);
 }
 
 
@@ -73,7 +81,6 @@ function ui_enable_controls(enabled) {
 }
 
 function ui_display_disks(data) {
-		
 		$("#block_disks").html(_.template(Templates.Disks)(data));
 		ui_display_toggles();
 		ui_enable_controls(true);
@@ -178,7 +185,7 @@ function ui_check_boot_disk() {
 }
 
 $(document).ready(function () {
-
+    if (mock) { console.log(mock) }
     ui_check_disks();
     ui_check_boot_disk();
 

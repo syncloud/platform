@@ -59,7 +59,14 @@ module.exports = {
       filename: "[name].[contenthash].css",
       chunkFilename: "[id].[contenthash].css"
     })
-  ].concat(base.plugins),
+  ]
+  .concat(base.plugins)
+  .concat([
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery"
+    })
+  ]),
 
   // https://webpack.js.org/configuration/optimization/
   optimization: {

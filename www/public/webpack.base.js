@@ -26,10 +26,5 @@ module.exports = {
       	inject: 'body', 
       	chunks: [entry], 
       	filename: `${entry}.html`
-    })).concat([
-    new webpack.ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery"
-    })
-  ])
+    }))
 }
