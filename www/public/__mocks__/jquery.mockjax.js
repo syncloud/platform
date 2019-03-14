@@ -74,7 +74,6 @@ mockjax({
 });
 
 const disk_response = (settings) => {
-      consile.log("mock");
       if (disk_action_success) {
         this.responseText = disks_data;
       } else {

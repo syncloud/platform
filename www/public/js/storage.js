@@ -39,7 +39,7 @@ function disk_action(disk_device, is_activate, on_always, on_error) {
     backend.disk_action(
         disk_device,
         is_activate, 
-        function(data) { 
+        function(data) {
             Common.check_for_service_error(
                 data,
                 function() {},
@@ -105,24 +105,23 @@ function ui_display_disks(data) {
 			});
 		});
 
-		$("#btn_partition_action").off('click').on('click', function(e, s) {
+  $("#btn_partition_action").off('click').on('click', function(e, s) {
 
-            var state = $('#partition_state').val() == 'true';
+    var state = $('#partition_state').val() == 'true';
+    var tgl_loading = $('#tgl_partition_' + $('#partition_id').val() + '_loading');
+    $(tgl_loading).addClass('opacity-visible');
 
-            var tgl_loading = $('#tgl_partition_' + $('#partition_id').val() + '_loading');
-            $(tgl_loading).addClass('opacity-visible');
+    ui_enable_controls(false);
 
-            ui_enable_controls(false);
-
-            var device = $('#partition_device').val();
-			disk_action(device, state, ui_check_disks, UiCommon.ui_display_error);
-        });
-
-        $('#partition_action_confirmation').on('hidden.bs.modal', function () {
-            var state = $('#partition_state').val() == 'true';
-            var tgl = $('#tgl_partition_' + $('#partition_id').val());
-		    tgl.bootstrapSwitch('state', !state, true);
-        });
+    var device = $('#partition_device').val();
+    disk_action(device, state, ui_check_disks, UiCommon.ui_display_error);
+  });
+  
+  $('#partition_action_confirmation').on('hidden.bs.modal', function () {
+    var state = $('#partition_state').val() == 'true';
+    var tgl = $('#tgl_partition_' + $('#partition_id').val());
+    tgl.bootstrapSwitch('state', !state, true);
+  });
 
 		$("#block_disks").find("[data-type='format']").each(function() {
 			var btn = $(this);
