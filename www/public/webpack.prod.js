@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack')
 
 const CleanWebpackPlugin = require('clean-webpack-plugin'); //installed via npm
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');

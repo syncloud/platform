@@ -99,5 +99,9 @@ mockjax({
     responseText: {success: true}
 });
  
-
+mockjax({
+    url:'/rest/settings/boot_extend_status',
+    dataType: "json",
+    responseText: {success: true, is_running: false}
+});
 
