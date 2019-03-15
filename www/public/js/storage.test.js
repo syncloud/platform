@@ -1,5 +1,4 @@
 const Storage = require('./storage');
-require('./backend.mock/common');
 const mock = require('../__mocks__/jquery.mockjax');
 
 test( "settings boot disk extend", () => {

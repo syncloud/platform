@@ -81,6 +81,23 @@ const disk_response = (settings) => {
       }
     }
 
+const apps_data = {
+    "apps": [
+        {
+            "id": "wordpress",
+            "name": "WordPress",
+            "icon": "appsimages/penguin.png",
+            "url": "http://owncloud.odroid-c2.syncloud.it"
+        }
+    ]
+};
+
+mockjax({
+    url: '/rest/installed_apps',
+    dataType: "json",
+    responseText: apps_data
+});
+
 mockjax({
     url: '/rest/settings/disk_activate',
     dataType: "json",

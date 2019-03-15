@@ -24,7 +24,8 @@ function display_apps(data) {
 }
 
 $( document ).ready(() => {
-	backend.installed_apps(
+ if (mock) { console.log(mock) };
+ backend.installed_apps(
     display_apps,
     UiCommon.ui_display_error);
 });

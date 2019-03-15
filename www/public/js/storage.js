@@ -184,7 +184,7 @@ function ui_check_boot_disk() {
 }
 
 $(document).ready(function () {
-    if (mock) { console.log(mock) }
+    if (mock) { console.log(mock) };
     ui_check_disks();
     ui_check_boot_disk();
 
