@@ -119,6 +119,7 @@ mockjax({
 });
 
 const set_access = (settings) => {
+    access_data.error_toggle = ! access_data.error_toggle;
     if (access_data.error_toggle) {
         access_data.data.external_access = settings.data.external_access;
         access_data.data.upnp_enabled = settings.data.upnp_enabled;
@@ -127,7 +128,7 @@ const set_access = (settings) => {
                 delete access_data.data.public_ip;
             }
         } else {
-            access_data.data.public_ip = settings.data.ip_autodetect;
+            access_data.data.public_ip = settings.data.public_ip;
         }
         if (settings.data.upnp_enabled) {
             port_mappings_data.port_mappings[0].external_port = 81;
@@ -136,16 +137,17 @@ const set_access = (settings) => {
             port_mappings_data.port_mappings[0].external_port = settings.data.certificate_port;
             port_mappings_data.port_mappings[1].external_port = settings.data.access_port;
         }
+alert("mock ok");
         this.responseText = {
-            success: true
+            "success": true
         };
     } else {
+alert("mock error");
         this.responseText = {
-            success: false,
-            message: "error"
+            "success": false,
+            "message": "error"
         };
     }
-    access_data.error_toggle = ! access_data.error_toggle;
 };
 
 mockjax({

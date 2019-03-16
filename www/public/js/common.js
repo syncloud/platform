@@ -3,6 +3,7 @@ global.backend = {
 };
 
 function check_for_service_error(data, on_complete, on_error) {
+//alert(data.success);
     if (data.hasOwnProperty('success') && !data.success) {
         var xhr = {
             status: 200,

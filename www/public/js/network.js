@@ -119,7 +119,15 @@ function ui_check_access() {
     $("#tgl_ip_autodetect_loading").addClass('opacity-visible');
     $('#btn_save').button('loading');
 
-    backend.check_access(ui_display_access, UiCommon.ui_display_error);
+    backend.check_access(
+        (data) => {
+            Common.check_for_service_error(
+                data,
+                () => ui_display_access(data), 
+                UiCommon.ui_display_error);
+        },
+        UiCommon.ui_display_error);
+
     backend.port_mappings(ui_display_port_mappings, UiCommon.ui_display_error);
 }
 
@@ -223,7 +231,14 @@ $(document).ready(function () {
                 public_ip,
                 certificate_port,
                 access_port,
-                ui_check_access,
+                function(data) {
+                    alert(data);
+                    Common.check_for_service_error(
+                        data,
+                        ui_check_access,
+                        UiCommon.ui_display_error
+                    );
+                },
                 function (xhr, textStatus, errorThrown) {
                     UiCommon.ui_display_error(xhr, textStatus, errorThrown);
                     ui_check_access();

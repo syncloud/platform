@@ -23,7 +23,7 @@ backend.set_access = function(
             request_data.public_ip = public_ip;
         }
 
-        $.get('/rest/access/set_access', request_data).done(on_complete).fail(on_error);
+        $.get('/rest/access/set_access', request_data).done((data) => { alert(data); on_complete(data); }).fail(on_error);
     };
     
 backend.network_interfaces = function(on_complete, on_error) {
