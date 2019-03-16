@@ -1,6 +1,4 @@
 import * as _ from 'underscore';
-import $ from 'jquery';
-import jQuery from 'jquery';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -58,6 +56,7 @@ function ui_display_port_mappings(data) {
 
 function ui_display_access(data) {
     var access_data = data.data;
+
     $('#tgl_external').bootstrapSwitch('disabled', false);
     $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
     $("#tgl_external_loading").removeClass('opacity-visible');
@@ -65,7 +64,7 @@ function ui_display_access(data) {
     $('#tgl_ip_autodetect').bootstrapSwitch('disabled', false);
     
     $("#tgl_ip_autodetect_loading").removeClass('opacity-visible');
-    
+    var ip_autodetect_enabled;
     if (access_data.hasOwnProperty('public_ip')) {
         ip_autodetect_enabled = false;
         $("#public_ip").val(access_data.public_ip);
@@ -73,6 +72,7 @@ function ui_display_access(data) {
         ip_autodetect_enabled = true;
         $("#public_ip").val('');
     }
+
     $('#tgl_ip_autodetect').bootstrapSwitch('state', ip_autodetect_enabled);
 
     $('#tgl_upnp').bootstrapSwitch('disabled', false);
@@ -163,6 +163,7 @@ function error(message) {
 }
 
 $(document).ready(function () {
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
 
     ui_display_toggles();
 

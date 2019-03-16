@@ -61,6 +61,111 @@ const boot_disk_data = {
 
 var disk_action_success = true;
 
+const access_data = {
+        error_toggle: false,
+        "data": {
+            "external_access": true,
+            "upnp_available": false,
+            "upnp_enabled": true,
+            "upnp_message": "not used",
+            "public_ip": "111.111.111.111"
+        },
+        "success": true
+    };
+
+const network_interfaces_data = {
+        "data": {
+            "interfaces": [
+                {
+                    "ipv4": [
+                        {
+                            "addr": "172.17.0.2",
+                            "broadcast": "172.17.0.2",
+                            "netmask": "255.255.0.0"
+                        }
+                    ],
+                    "ipv6": [
+                        {
+                            "addr": "fe80::42:acff:fe11:2%eth0",
+                            "netmask": "ffff:ffff:ffff:ffff::"
+                        }
+                    ],
+                    "name": "eth0"
+                }
+            ]
+        },
+        "success": true
+    };
+
+const port_mappings_data = {
+        "port_mappings": [
+             {
+                 "local_port": 80,
+                 "external_port": 80                 
+             },
+             {
+                 "local_port": 443,
+                 "external_port": 10001                     
+             }
+                    
+        ],
+        "success": true
+    };
+
+mockjax({
+    url: '/rest/access/access',
+    dataType: "json",
+    responseText: access_data
+});
+
+const set_access = (settings) => {
+    if (access_data.error_toggle) {
+        access_data.data.external_access = settings.data.external_access;
+        access_data.data.upnp_enabled = settings.data.upnp_enabled;
+        if (settings.data.ip_autodetect) {
+            if (access_data.data.hasOwnProperty('public_ip')) {
+                delete access_data.data.public_ip;
+            }
+        } else {
+            access_data.data.public_ip = settings.data.ip_autodetect;
+        }
+        if (settings.data.upnp_enabled) {
+            port_mappings_data.port_mappings[0].external_port = 81;
+            port_mappings_data.port_mappings[1].external_port = 444;
+        } else {
+            port_mappings_data.port_mappings[0].external_port = settings.data.certificate_port;
+            port_mappings_data.port_mappings[1].external_port = settings.data.access_port;
+        }
+        this.responseText = {
+            success: true
+        };
+    } else {
+        this.responseText = {
+            success: false,
+            message: "error"
+        };
+    }
+    access_data.error_toggle = ! access_data.error_toggle;
+};
+
+mockjax({
+    url: '/rest/access/set_access',
+    dataType: "json",
+    response: set_access
+});
+
+mockjax({
+    url: '/rest/access/network_interfaces',
+    dataType: "json",
+    responseText: network_interfaces_data
+});
+
+mockjax({
+    url: '/rest/access/port_mappings',
+    dataType: "json",
+    responseText: port_mappings_data
+});
+
 mockjax({
     url: '/rest/settings/disks',
     dataType: "json",
