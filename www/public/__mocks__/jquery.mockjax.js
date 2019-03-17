@@ -118,9 +118,8 @@ mockjax({
     responseText: access_data
 });
 
-const set_access = (settings) => {
-    access_data.error_toggle = ! access_data.error_toggle;
-    if (access_data.error_toggle) {
+function set_access(settings) {
+    if (!access_data.error_toggle) {
         access_data.data.external_access = settings.data.external_access;
         access_data.data.upnp_enabled = settings.data.upnp_enabled;
         if (settings.data.ip_autodetect) {
@@ -137,17 +136,16 @@ const set_access = (settings) => {
             port_mappings_data.port_mappings[0].external_port = settings.data.certificate_port;
             port_mappings_data.port_mappings[1].external_port = settings.data.access_port;
         }
-alert("mock ok");
         this.responseText = {
             "success": true
         };
     } else {
-alert("mock error");
         this.responseText = {
             "success": false,
             "message": "error"
         };
     }
+    access_data.error_toggle = ! access_data.error_toggle;
 };
 
 mockjax({
@@ -180,7 +178,7 @@ mockjax({
     responseText: boot_disk_data
 });
 
-const disk_response = (settings) => {
+function disk_response(settings) {
       if (disk_action_success) {
         this.responseText = disks_data;
       } else {

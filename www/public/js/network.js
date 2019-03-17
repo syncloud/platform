@@ -28,8 +28,8 @@ function ui_display_network(data) {
 
 function ui_display_port_mappings(data) {
 
-    certificate_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 80;});
-    certificate_port = 0;
+    var certificate_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 80;});
+    var certificate_port = 0;
     if (certificate_port_mapping) {
         certificate_port = certificate_port_mapping.external_port;
     }
@@ -40,8 +40,8 @@ function ui_display_port_mappings(data) {
         $("#certificate_port_warning").hide('slow');
     }
 
-    access_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 443;});
-    access_port = 0;
+    var access_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 443;});
+    var access_port = 0;
     if (access_port_mapping) {
         access_port = access_port_mapping.external_port
     }
@@ -170,6 +170,30 @@ function error(message) {
     }
 }
 
+function set_access(
+        upnp_enabled,
+        external_access,
+        ip_autodetect,
+        public_ip,
+        certificate_port,
+        access_port,
+        on_complete,
+        on_error) {
+
+        var request_data = {
+           upnp_enabled: upnp_enabled,
+           external_access: external_access,
+           certificate_port: certificate_port,
+           access_port: access_port
+        };
+
+        if (!ip_autodetect) {
+            request_data.public_ip = public_ip;
+        }
+
+        backend.set_access(request_data, on_complete, on_error);
+    };
+    
 $(document).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
 
@@ -224,7 +248,7 @@ $(document).ready(function () {
         var btn = $(this);
         btn.button('loading');
 
-        backend.set_access(
+        set_access(
                 upnp_enabled,
                 access_toggle.bootstrapSwitch('state'),
                 ip_autodetect,
@@ -232,11 +256,14 @@ $(document).ready(function () {
                 certificate_port,
                 access_port,
                 function(data) {
-                    alert(data);
+                    
                     Common.check_for_service_error(
                         data,
                         ui_check_access,
-                        UiCommon.ui_display_error
+                        function (xhr, textStatus, errorThrown) {
+                            UiCommon.ui_display_error(xhr, textStatus, errorThrown);
+                            ui_check_access();
+                        }
                     );
                 },
                 function (xhr, textStatus, errorThrown) {
@@ -250,4 +277,8 @@ $(document).ready(function () {
     ui_check_network();
 
 });
+
+module.exports = {
+  set_access
+};
 
