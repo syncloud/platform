@@ -11,7 +11,7 @@ test( "settings boot disk extend", () => {
 test( "settings disk activate error", () => {
 
   $.ajaxSetup({ async: false });
-  mock.disk_action_success = false
+  mock.disk_action_success = false;
   var error_counter = 0;
   function on_error(a, b, c) {
     error_counter += 1
@@ -25,7 +25,7 @@ test( "settings disk activate error", () => {
 test( "settings disk activate success", () => {
 
   $.ajaxSetup({ async: false });
-  mock.disk_action_success = true
+  mock.disk_action_success = true;
   var success_counter = 0;
   function on_success(a) {
     success_counter += 1

@@ -17,7 +17,7 @@ import './backend/common.js'
 import './backend/menu.js'
 import './backend/appcenter.js'
 
-import { AppsTemplate } from './appcenter.templates.js'
+import Templates from './appcenter.templates.js'
 
 function available_apps(on_complete, on_error) {
 
@@ -34,13 +34,14 @@ function available_apps(on_complete, on_error) {
     );
 }
 function display_apps(data) {
-		$("#block_apps").html(_.template(AppsTemplate)(data));
+		$("#block_apps").html(_.template(Templates.AppsTemplate)(data));
 }
 
 $( document ).ready(function() {
-		available_apps(
-   display_apps,
-   UiCommon.ui_display_error
+  if (typeof mock !== 'undefined') { console.log("backend mock") };
+  available_apps(
+    display_apps,
+    UiCommon.ui_display_error
 		);
 });
 

@@ -195,7 +195,7 @@ mockjax({
     responseText: apps_data
 });
 
-const disk_response= (settings) => {
+const disk_response = (settings) => {
       if (disk_action_success) {
         this.responseText = disks_data;
       } else {
@@ -278,3 +278,51 @@ mockjax({ url:'/rest/check', dataType: "json",
 mockjax({ url:'/rest/upgrade', dataType: "json",
     responseText: {success: true}
 });
+
+const appcenter_data = {
+      "apps": [
+        {
+          "id": "owncloud",
+          "name": "ownCloud",
+          "icon": "appsimages/penguin.png"
+        },
+        {
+          "id": "diaspora",
+          "name": "Diaspora",
+          "icon": "appsimages/penguin.png"
+        },
+        {
+          "id": "mail",
+          "name": "Mail",
+          "icon": "appsimages/penguin.png"
+        },
+        {
+          "id": "talk",
+          "name": "Talk",
+          "icon": "appsimages/penguin.png"
+        },
+        {
+          "id": "files",
+          "name": "Files Browser",
+          "icon": "appsimages/penguin.png"
+        }
+      ]
+    };
+
+const appcenter_data_error = {
+      "message": "error",
+      "success": false
+    };
+
+var available_apps_success = true;
+
+mockjax({ url:'/rest/available_apps', dataType: "json",
+    response: function(settings) {
+        if (available_apps_success) {
+            this.responseText = appcenter_data;
+        } else {
+            this.responseText = appcenter_data_error;
+        }
+    }
+});
+

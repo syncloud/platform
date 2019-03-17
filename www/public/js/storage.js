@@ -1,4 +1,6 @@
 import * as _ from 'underscore'; 
+import $ from 'jquery';
+import jQuery from 'jquery';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
