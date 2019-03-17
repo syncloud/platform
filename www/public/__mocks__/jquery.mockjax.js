@@ -178,14 +178,6 @@ mockjax({
     responseText: boot_disk_data
 });
 
-function disk_response(settings) {
-      if (disk_action_success) {
-        this.responseText = disks_data;
-      } else {
-        this.responseText = disks_data_error;
-      }
-    }
-
 const apps_data = {
     "apps": [
         {
@@ -202,6 +194,14 @@ mockjax({
     dataType: "json",
     responseText: apps_data
 });
+
+const disk_response= (settings) => {
+      if (disk_action_success) {
+        this.responseText = disks_data;
+      } else {
+        this.responseText = disks_data_error;
+      }
+    }
 
 mockjax({
     url: '/rest/settings/disk_activate',
