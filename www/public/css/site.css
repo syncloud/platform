@@ -622,8 +622,6 @@ input:disabled {
     width: 145px;
     height: 145px;
     border-radius: 30px;
-    min-width: 145px;
-    min-height: 145px;
     background-size: 145px 145px;
 }
 .app-link {
@@ -858,270 +856,282 @@ footer .links a:hover {
 }
 @media (max-width:320px) {
     header {
-    text-align: left;
-    width: 94%}
-.block1 {
-    padding: 40px 0;
-}
-.colapp {
-    width: 125px;
-    margin: 0 15px 15px;
-}
-.appminimg {
-    width: 125px;
-    height: 125px;
-}
-.col70 .buttonblock button {
-    min-width: 90px;
-}
+        text-align: left;
+        width: 94%}
+    .block1 {
+        padding: 40px 0;
+    }
+    .colapp {
+        width: 125px;
+        margin: 0 15px 15px;
+    }
+    .appminimg {
+        width: 125px;
+        height: 125px;
+        background-size: 125px 125px;
+    }
+    .col70 .buttonblock button {
+        min-width: 90px;
+    }
 }
 @media (min-width:320px) and (max-width:400px) {
     header {
-    width: 94%;
-    text-align: left;
-}
-.block1 {
-    padding: 40px 0;
-}
-.colapp {
-    width: 115px;
-    margin: 0 15px 15px;
-}
-.colapp img {
-    width: 100%}
-.appminimg {
-    width: 125px;
-    height: 125px;
-}
-.col70 .buttonblock button {
-    min-width: 90px;
-}
+        width: 94%;
+        text-align: left;
+    }
+    .block1 {
+        padding: 40px 0;
+    }
+    .colapp {
+        width: 115px;
+        margin: 0 15px 15px;
+    }
+    .colapp img {
+        width: 100%}
+    .appminimg {
+        width: 125px;
+        height: 125px;
+        background-size: 125px 125px;
+    }
+    .col70 .buttonblock button {
+        min-width: 90px;
+    }
 }
 @media (min-width:400px) and (max-width:480px) {
     header {
-    width: 94%;
-    text-align: left;
-}
-.block1 {
-    padding: 40px 0;
-}
-.colapp {
-    width: 125px;
-    margin: 0 15px 15px;
-}
-.appminimg {
-    width: 125px;
-    height: 125px;
-}
-.col70 .buttonblock button {
-    min-width: 90px;
-}
+        width: 94%;
+        text-align: left;
+    }
+    .block1 {
+        padding: 40px 0;
+    }
+    .colapp {
+        width: 125px;
+        margin: 0 15px 15px;
+    }
+    .appminimg {
+        width: 125px;
+        height: 125px;
+        background-size: 125px 125px;
+    }
+    .col70 .buttonblock button {
+        min-width: 90px;
+    }
 }
 @media (min-width:480px) and (max-width:550px) {
     .block1 {
-    padding: 40px 0;
-}
-.col70 .buttonblock button {
-    min-width: 90px;
-}
+        padding: 40px 0;
+    }
+    .col70 .buttonblock button {
+        min-width: 90px;
+    }
 }
 @media (max-width: 549px) {
     footer {
-    width: 90%}
-.copyrights, footer .links {
-    float: none;
-    width: 80%!important;
-    margin: 20px auto;
-}
-.menulinks, .menuoff {
-    display: none;
-}
-.block1 {
-    padding: 40px 0;
-}
-.block1 h1 {
-    font-size: 45px;
-}
-.col30 {
-    width: 100%;
-    margin-right: 0;
-    text-align: left;
-    margin-bottom: 2%}
-.col70 {
-    width: auto;
-}
-.appimg {
-    width: 34%;
-    display: inline-block;
-    vertical-align: top;
-}
-.appinfo {
-    display: inline-block;
-    vertical-align: top;
-    width: 64%;
-    font-size: 14px;
-}
-.col30 h1 {
-    display: block;
-    font-size: 32px;
-    margin-bottom: 5px;
-    margin-top: 5px;
-}
-.col70 h1 {
-    display: none;
-}
-.col70 .buttonblock button {
-    line-height: 40px;
-    padding: 0 18px;
-    margin: 0 3px 4px;
-    font-size: 14px;
-}
-.col70 .buttonblock {
-    margin-bottom: 10px;
-}
-.btext {
-    font-size: 16px!important;
-}
-.settingsblock .col2 {
-    width: 70%;
-    margin: 0 auto;
-}
-.col70 .buttonblock button {
-    min-width: 90px;
-}
+        width: 90%}
+    .copyrights, footer .links {
+        float: none;
+        width: 80%!important;
+        margin: 20px auto;
+    }
+    .menulinks, .menuoff {
+        display: none;
+    }
+    .block1 {
+        padding: 40px 0;
+    }
+    .block1 h1 {
+        font-size: 45px;
+    }
+    .col30 {
+        width: 100%;
+        margin-right: 0;
+        text-align: left;
+        margin-bottom: 2%}
+    .col70 {
+        width: auto;
+    }
+    .appimg {
+        width: 34%;
+        display: inline-block;
+        vertical-align: top;
+    }
+    .appinfo {
+        display: inline-block;
+        vertical-align: top;
+        width: 64%;
+        font-size: 14px;
+    }
+    .col30 h1 {
+        display: block;
+        font-size: 32px;
+        margin-bottom: 5px;
+        margin-top: 5px;
+    }
+    .col70 h1 {
+        display: none;
+    }
+    .col70 .buttonblock button {
+        line-height: 40px;
+        padding: 0 18px;
+        margin: 0 3px 4px;
+        font-size: 14px;
+    }
+    .col70 .buttonblock {
+        margin-bottom: 10px;
+    }
+    .btext {
+        font-size: 16px!important;
+    }
+    .settingsblock .col2 {
+        width: 70%;
+        margin: 0 auto;
+    }
+    .col70 .buttonblock button {
+        min-width: 90px;
+    }
 }
 @media (min-width: 550px) and (max-width: 750px) {
     footer {
-    width: 90%}
-.menulinks, .menuoff {
-    display: none;
-}
-.block1 {
-    padding: 40px 0;
-}
-.col30 {
-    width: 20%;
-    margin-right: 2%}
-.col70 {
-    width: 75%}
-.appimg {
-    width: 100%}
-.col70 .buttonblock button {
-    line-height: 40px;
-    padding: 0 20px;
-    margin: 0 4px;
-}
-.settingsblock .col2 {
-    width: 70%;
-    margin: 0 auto;
-}
+        width: 90%}
+    .menulinks, .menuoff {
+        display: none;
+    }
+    .block1 {
+        padding: 40px 0;
+    }
+    .col30 {
+        width: 20%;
+        margin-right: 2%
+    }
+    .col70 {
+        width: 75%
+    }
+    .appimg {
+        width: 100%
+    }
+    .col70 .buttonblock button {
+        line-height: 40px;
+        padding: 0 20px;
+        margin: 0 4px;
+    }
+    .settingsblock .col2 {
+        width: 70%;
+        margin: 0 auto;
+    }
 }
 @media (min-width: 750px) and (max-width: 850px) {
     .menulinks, .menuoff {
-    display: none;
-}
+        display: none;
+    }
 }
 @media (min-width: 750px) and (max-width: 1024px) {
     header .hlink {
-    margin: 0 0 0 2%;
-    font-size: 17px!important;
-}
-footer {
-    width: 90%;
-    margin: 0 auto;
-}
-footer .copyrights {
-    width: 330px;
-}
-footer .links {
-    margin: 5px 20px 0 0;
-}
-.contacts {
-    margin-top: 20px auto 0;
-}
-.feelink {
-    width: 175px;
-}
-.col30 {
-    width: 20%;
-    margin-right: 2%}
-.col70 {
-    width: 75%}
-.appimg {
-    width: 100%}
+        margin: 0 0 0 2%;
+        font-size: 17px!important;
+    }
+    footer {
+        width: 90%;
+        margin: 0 auto;
+    }
+    footer .copyrights {
+        width: 330px;
+    }
+    footer .links {
+        margin: 5px 20px 0 0;
+    }
+    .contacts {
+        margin-top: 20px auto 0;
+    }
+    .feelink {
+        width: 175px;
+    }
+    .col30 {
+        width: 20%;
+        margin-right: 2%
+    }
+    .col70 {
+        width: 75%
+    }
+    .appimg {
+        width: 100%
+    }
 }
 @media (max-width: 850px) {
     footer .copyrights {
-    margin: 20px auto;
-    float: none;
-    text-align: center;
-}
-footer .links {
-    margin: 20px auto;
-    float: none;
-    text-align: center;
-}
-footer .feelink {
-    margin: 0 auto 20px;
-    float: none;
-    text-align: center;
-}
-footer .contacts {
-    float: none;
-    margin-top: 20px auto;
-    text-align: center;
-}
-.menulinks, .menuoff {
-    display: none;
-}
-header {
-    padding: 10px 0;
-}
-.logo {
-    min-width: 200px;
-}
-.block1 {
-    width: 95%}
-.col2 {
-    width: auto;
-}
-.errorbg {
-    background: url(../images/error.svg) no-repeat center;
-    background-size: contain;
-    min-height: 200px;
-}
-.errordiv {
-    text-align: center;
-}
-.errordiv h1 {
-    text-align: center;
-    margin: 20px 0;
-}
-.errordiv h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
+        margin: 20px auto;
+        float: none;
+        text-align: center;
+    }
+    footer .links {
+        margin: 20px auto;
+        float: none;
+        text-align: center;
+    }
+    footer .feelink {
+        margin: 0 auto 20px;
+        float: none;
+        text-align: center;
+    }
+    footer .contacts {
+        float: none;
+        margin-top: 20px auto;
+        text-align: center;
+    }
+    .menulinks, .menuoff {
+        display: none;
+    }
+    header {
+        padding: 10px 0;
+    }
+    .logo {
+        min-width: 200px;
+    }
+    .block1 {
+        width: 95%}
+    .col2 {
+        width: auto;
+    }
+    .errorbg {
+        background: url(../images/error.svg) no-repeat center;
+        background-size: contain;
+        min-height: 200px;
+    }
+    .errordiv {
+        text-align: center;
+    }
+    .errordiv h1 {
+        text-align: center;
+        margin: 20px 0;
+    }
+    .errordiv h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 }
 @media (min-width: 851px) and (max-width: 1024px) {
     .menubutton, .navi {
-    display: none;
-}
-header {
-    width: 98%}
+        display: none;
+    }
+    header {
+        width: 98%
+    }
 }
 @media (min-width: 1000px) and (max-width: 1300px) {
     footer {
-    width: 90%}
-.menubutton, .navi {
-    display: none;
-}
-header {
-    width: 95%}
+        width: 90%
+    }
+    .menubutton, .navi {
+        display: none;
+    }
+    header {
+        width: 95%
+    }
 }
 @media (min-width:1299px) {
     .menubutton, .navi {
-    display: none;
-}
+        display: none;
+    }
 }
 
 .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
