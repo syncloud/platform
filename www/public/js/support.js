@@ -11,8 +11,7 @@ import '../css/site.css'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
-import Common from './common.js'
-import './backend/common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
 
 function ui_display_toggles() {
@@ -27,7 +26,7 @@ function ui_send_logs() {
     var btn = $("#btn_send_logs");
     btn.button('loading');
 
-    backend.send_logs(
+    Common.send_logs(
         tgl_support_logs.bootstrapSwitch('state'),
         function() { btn.button('reset'); },
         UiCommon.ui_display_error);

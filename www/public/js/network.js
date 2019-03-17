@@ -10,11 +10,25 @@ import '../css/site.css'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
-import Common from './common.js'
-import './backend/common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
-import './backend/network.js'
 import Templates from './network.templates.js'
+
+function check_access(on_complete, on_error) {
+    $.get('/rest/access/access').done(on_complete).fail(on_error);
+}
+
+function set_access(data, on_complete, on_error) {
+    $.get('/rest/access/set_access', data).done(on_complete).fail(on_error);
+}
+
+function network_interfaces(on_complete, on_error) {
+    $.get('/rest/access/network_interfaces').done(on_complete).fail(on_error);
+}
+
+function port_mappings(on_complete, on_error) {
+    $.get('/rest/access/port_mappings').done(on_complete).fail(on_error);
+}
 
 function ui_display_toggles() {
 	$("[type='checkbox']").each(function() {
@@ -119,7 +133,7 @@ function ui_check_access() {
     $("#tgl_ip_autodetect_loading").addClass('opacity-visible');
     $('#btn_save').button('loading');
 
-    backend.check_access(
+    check_access(
         (data) => {
             Common.check_for_service_error(
                 data,
@@ -128,11 +142,11 @@ function ui_check_access() {
         },
         UiCommon.ui_display_error);
 
-    backend.port_mappings(ui_display_port_mappings, UiCommon.ui_display_error);
+    port_mappings(ui_display_port_mappings, UiCommon.ui_display_error);
 }
 
 function ui_check_network() {
-    backend.network_interfaces(ui_display_network, UiCommon.ui_display_error);
+    network_interfaces(ui_display_network, UiCommon.ui_display_error);
 }
 
 function ui_prepare_external_access() {
@@ -170,7 +184,7 @@ function error(message) {
     }
 }
 
-function set_access(
+export function set_access(
         upnp_enabled,
         external_access,
         ip_autodetect,
@@ -191,7 +205,7 @@ function set_access(
             request_data.public_ip = public_ip;
         }
 
-        backend.set_access(request_data, on_complete, on_error);
+        set_access(request_data, on_complete, on_error);
     };
     
 $(document).ready(function () {
@@ -256,7 +270,6 @@ $(document).ready(function () {
                 certificate_port,
                 access_port,
                 function(data) {
-                    
                     Common.check_for_service_error(
                         data,
                         ui_check_access,
@@ -277,8 +290,3 @@ $(document).ready(function () {
     ui_check_network();
 
 });
-
-module.exports = {
-  set_access
-};
-

@@ -10,10 +10,16 @@ import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
-import Common from './common.js'
-import './backend/common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
-import './backend/activation.js'
+
+function device_url(on_complete, on_error) {
+        $.get('/rest/settings/device_url').done(on_complete).fail(on_error);
+    };
+
+function reactivate(on_complete, on_error) {
+        $.get('/rest/settings/activate_url').done(on_complete).fail(on_error);
+    };
 
 function ui_display_device_url(data) {
 		$("#txt_device_domain").attr('href', data.device_url);
@@ -21,16 +27,16 @@ function ui_display_device_url(data) {
 }
 
 function ui_check_device_url() {
-	backend.device_url(
-   ui_display_device_url, 
-   UiCommon.ui_display_error
-);
+	device_url(
+        ui_display_device_url,
+        UiCommon.ui_display_error
+    );
 }
 
 $(document).ready(function () {
 
     $("#btn_reactivate").on('click', function () {
-    	    backend.reactivate(
+    	    reactivate(
     		       function (data) {
                 window.location.href = data.activate_url;
             },

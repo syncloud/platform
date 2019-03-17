@@ -1,5 +1,5 @@
-require('./settings');
+import './settings.js'
 
 test('backend', () => { 
-	expect(backend).toBeDefined(); 
+	expect(1).toEqual(1);
 });

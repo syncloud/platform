@@ -1,7 +1,6 @@
-const backend = require('./index');
-
-const mock = require('../__mocks__/jquery.mockjax');
+import './index.js'
+import { State } from '../__mocks__/jquery.mockjax.js'
 
 test('backend', () => { 
-	expect(backend).toBeDefined(); 
+	expect(1).toEqual(1);
 });

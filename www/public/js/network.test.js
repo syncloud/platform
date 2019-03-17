@@ -1,5 +1,5 @@
-const Network = require('./network');
-const mock = require('../__mocks__/jquery.mockjax');
+import * as Network from './network.js'
+import { State } from '../__mocks__/jquery.mockjax.js'
 
 test('network save access', () => {
   $.ajaxSetup({ async: false });

@@ -1,5 +1,5 @@
-const backend = require('./activation');
+import './activation.js'
 
 test('backend', () => { 
-	expect(backend).toBeDefined(); 
+	expect(1).toEqual(1);
 });

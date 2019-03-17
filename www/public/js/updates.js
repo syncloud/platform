@@ -13,34 +13,48 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
-import Common from './common.js'
-import './backend/common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
-import './backend/updates.js'
 
-function check_versions(on_complete, on_error) {
+function get_versions(on_complete, on_error) {
+        $.get('/rest/settings/versions').done(on_complete).fail(on_error);
+    };
 
-    backend.check_versions(function () {
+function check_versions(on_always, on_error) {
+        $.get('/rest/check').always(on_always).fail(on_error);
+    };
+
+function platform_upgrade(on_complete, on_error) {
+        $.get('/rest/upgrade', { app_id: 'platform' }).done(on_complete).fail(on_error);
+    };
+
+function sam_upgrade(on_complete, on_error) {
+        $.get('/rest/upgrade', { app_id: 'sam' }).done(on_complete).fail(on_error);
+    };
+
+export function check_versions(on_complete, on_error) {
+
+    check_versions(function () {
         Common.run_after_sam_is_complete(
-            backend.job_status,
+            Common.job_status,
             setTimeout,
             function () {
-                backend.get_versions(
+                get_versions(
                     on_complete,
                     on_error);
             }, on_error);
         }, on_error);
 }
 
-function platform_upgrade(on_complete, on_error) {
+export function platform_upgrade(on_complete, on_error) {
 
-    backend.platform_upgrade(function (data) {
+    platform_upgrade(function (data) {
         Common.check_for_service_error(data, function () {
             Common.run_after_sam_is_complete(
-                backend.job_status,
+                Common.job_status,
                 setTimeout,
                 function () {
-                    backend.get_versions(
+                    get_versions(
                          on_complete,
                          on_error);
                  }, on_error);
@@ -49,15 +63,15 @@ function platform_upgrade(on_complete, on_error) {
     
 }
 
-function sam_upgrade(on_complete, on_error) {
+export function sam_upgrade(on_complete, on_error) {
 
-    backend.sam_upgrade(function (data) {
+    sam_upgrade(function (data) {
         Common.check_for_service_error(data, function () {
             Common.run_after_sam_is_complete(
-                backend.job_status,
+                Common.job_status,
                 setTimeout,
                 function () {
-                    backend.get_versions(
+                    get_versions(
                         on_complete,
                         on_error);
                 }, on_error);
@@ -105,7 +119,7 @@ function ui_display_versions(data) {
 }
 
 function ui_get_versions(on_always) {
-		backend.get_versions(ui_display_versions, on_always, UiCommon.ui_display_error);
+		get_versions(ui_display_versions, on_always, UiCommon.ui_display_error);
 }
 
 function ui_check_versions() {
@@ -177,10 +191,3 @@ $(document).ready(function () {
 
     ui_check_versions();
 });
-
-
-module.exports = {
-	check_versions,
-	platform_upgrade,
-	sam_upgrade
-};

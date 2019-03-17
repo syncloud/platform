@@ -13,10 +13,12 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 import Common from './common.js'
-import './backend/common.js'
 import './backend/menu.js'
-import './backend/index.js'
 import Templates from './index.templates.js'
+
+function installed_apps(on_complete, on_error) {
+    $.get('/rest/installed_apps').done(on_complete).fail(on_error);
+}
 
 function display_apps(data) {
 	let html = _.template(Templates.IndexTemplate)(data);
@@ -25,7 +27,7 @@ function display_apps(data) {
 
 $( document ).ready(() => {
  if (mock) { console.log(mock) };
- backend.installed_apps(
+ installed_apps(
     display_apps,
     UiCommon.ui_display_error);
 });

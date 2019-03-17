@@ -14,16 +14,22 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
-import Common from './common.js'
-import './backend/common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
-import './backend/app.js'
+
+function load_app(app_id, on_complete, on_error) {
+    $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
+};
+
+function app_action(app_id, action, on_always, on_error) {
+    $.get("/rest/" + action, {app_id: app_id}).always(on_always).fail(on_error);
+};
 
 export function run_app_action(app_id, action, on_complete, on_error) {
-    backend.app_action(app_id, action, function (data) {
+    app_action(app_id, action, function (data) {
         Common.check_for_service_error(data, function () {
             Common.run_after_sam_is_complete(
-                backend.job_status,
+                Common.job_status,
                 setTimeout,
                 on_complete,
                 on_error);
@@ -79,7 +85,7 @@ function ui_display_app(data) {
 function ui_load_app() {
 		var app_id = new URI().query(true)['app_id'];
 
-		backend.load_app(app_id, ui_display_app, UiCommon.ui_display_error);
+		load_app(app_id, ui_display_app, UiCommon.ui_display_error);
 }
 
 $( document ).ready(function () {

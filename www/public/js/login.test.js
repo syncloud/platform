@@ -1,5 +1,5 @@
-const backend = require('./login');
+import './login.js'
 
 test('backend', () => { 
-	expect(backend).toBeDefined(); 
+	expect(1).toEqual(1);
 });

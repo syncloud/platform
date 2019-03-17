@@ -13,22 +13,41 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
-import Common from './common.js'
-import './backend/common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
-import './backend/storage.js'
 
 import Templates from './storage.templates.js'
 
-function boot_extend(on_complete, on_error) {
+function update_disks(on_complete, on_error) {
+    $.get('/rest/settings/disks').done(on_complete).fail(on_error);
+}
 
-    backend.boot_extend(function (data) {
+function update_boot_disk(on_complete, on_error) {
+    $.get('/rest/settings/boot_disk').done(on_complete).fail(on_error);
+}
+
+function disk_action(disk_device, is_activate, on_complete, on_always, on_error) {
+    var mode = is_activate ? "disk_activate" : "disk_deactivate";
+    $.get('/rest/settings/' + mode, {device: disk_device}).done(on_complete).always(on_always).fail(on_error);
+}
+
+function boot_extend(on_complete, on_error) {
+    $.get('/rest/settings/boot_extend').done(on_complete).fail(on_error);
+}
+
+function disk_format(disk_device, on_complete, on_error) {
+    $.post('/rest/storage/disk_format', {device: disk_device}).done(on_complete).fail(on_error);
+}
+
+export function boot_extend(on_complete, on_error) {
+
+    boot_extend(function (data) {
         Common.check_for_service_error(data, function () {
             Common.run_after_job_is_complete(
-                backend.job_status,
+                Common.job_status,
                 setTimeout,
                 function () {
-                    backend.update_boot_disk(
+                    update_boot_disk(
                         on_complete,
                         on_error);
                 }, on_error, 'boot_extend');
@@ -37,8 +56,8 @@ function boot_extend(on_complete, on_error) {
 
 }
 
-function disk_action(disk_device, is_activate, on_always, on_error) {
-    backend.disk_action(
+export function disk_action(disk_device, is_activate, on_always, on_error) {
+    disk_action(
         disk_device,
         is_activate, 
         function(data) {
@@ -52,11 +71,11 @@ function disk_action(disk_device, is_activate, on_always, on_error) {
 }
 
 
-function disk_format(disk_device, on_complete, on_error) {
+export function disk_format(disk_device, on_complete, on_error) {
     backend.disk_format(disk_device, function (data) {
         Common.check_for_service_error(data, function () {
             Common.run_after_job_is_complete(
-                backend.job_status,
+                Common.job_status,
                 setTimeout,
                 on_complete,
                 on_error,
@@ -178,11 +197,11 @@ function ui_boot_extend() {
 }
 
 function ui_check_disks() {
-		backend.update_disks(ui_display_disks, UiCommon.ui_display_error);
+		update_disks(ui_display_disks, UiCommon.ui_display_error);
 }
 
 function ui_check_boot_disk() {
-		backend.update_boot_disk(ui_display_boot_disk, UiCommon.ui_display_error);
+		update_boot_disk(ui_display_boot_disk, UiCommon.ui_display_error);
 }
 
 $(document).ready(function () {
@@ -191,10 +210,3 @@ $(document).ready(function () {
     ui_check_boot_disk();
 
 });
-
-module.exports = {
-	boot_extend,
-	disk_action,
-	disk_format
-};
-

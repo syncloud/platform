@@ -1,6 +1,11 @@
 var jquery = require('jquery');
 var mockjax = require('jquery-mockjax')(jquery, window);
 
+export const State = {
+    available_apps_success: true,
+    disk_action_success: true
+}
+
 const disks_data = {
       "disks": [
         {
@@ -59,7 +64,6 @@ const boot_disk_data = {
       "success": true
     };
 
-var disk_action_success = true;
 
 const access_data = {
         error_toggle: false,
@@ -196,7 +200,7 @@ mockjax({
 });
 
 const disk_response = (settings) => {
-      if (disk_action_success) {
+      if (State.disk_action_success) {
         this.responseText = disks_data;
       } else {
         this.responseText = disks_data_error;
@@ -314,15 +318,15 @@ const appcenter_data_error = {
       "success": false
     };
 
-var available_apps_success = true;
-
-mockjax({ url:'/rest/available_apps', dataType: "json",
-    response: function(settings) {
-        if (available_apps_success) {
+function available_apps_response(settings) {
+        if (State.available_apps_success) {
             this.responseText = appcenter_data;
         } else {
             this.responseText = appcenter_data_error;
         }
     }
+
+mockjax({ url:'/rest/available_apps', dataType: "json",
+    response: available_apps_response
 });
 
