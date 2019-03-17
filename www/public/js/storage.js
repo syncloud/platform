@@ -26,62 +26,51 @@ function update_boot_disk(on_complete, on_error) {
     $.get('/rest/settings/boot_disk').done(on_complete).fail(on_error);
 }
 
-function disk_action(disk_device, is_activate, on_complete, on_always, on_error) {
-    var mode = is_activate ? "disk_activate" : "disk_deactivate";
-    $.get('/rest/settings/' + mode, {device: disk_device}).done(on_complete).always(on_always).fail(on_error);
-}
-
-function boot_extend(on_complete, on_error) {
-    $.get('/rest/settings/boot_extend').done(on_complete).fail(on_error);
-}
-
-function disk_format(disk_device, on_complete, on_error) {
-    $.post('/rest/storage/disk_format', {device: disk_device}).done(on_complete).fail(on_error);
-}
-
 export function boot_extend(on_complete, on_error) {
-
-    boot_extend(function (data) {
-        Common.check_for_service_error(data, function () {
-            Common.run_after_job_is_complete(
-                Common.job_status,
-                setTimeout,
-                function () {
-                    update_boot_disk(
-                        on_complete,
-                        on_error);
-                }, on_error, 'boot_extend');
-        }, on_error);
-    }, on_error);
+    $.get('/rest/settings/boot_extend')
+        .done(function (data) {
+                      Common.check_for_service_error(data, function () {
+                          Common.run_after_job_is_complete(
+                              Common.job_status,
+                              setTimeout,
+                              function () {
+                                  update_boot_disk(
+                                      on_complete,
+                                      on_error);
+                              }, on_error, 'boot_extend');
+                      }, on_error);
+                  })
+        .fail(on_error);
 
 }
 
 export function disk_action(disk_device, is_activate, on_always, on_error) {
-    disk_action(
-        disk_device,
-        is_activate, 
-        function(data) {
-            Common.check_for_service_error(
-                data,
-                function() {},
-                on_error);
-        }, 
-        on_always, 
-        on_error);
+    var mode = is_activate ? "disk_activate" : "disk_deactivate";
+    $.get('/rest/settings/' + mode, {device: disk_device})
+        .done(function(data) {
+              Common.check_for_service_error(
+                  data,
+                  function() {},
+                  on_error);
+          })
+        .always(on_always)
+        .fail(on_error);
 }
 
 
 export function disk_format(disk_device, on_complete, on_error) {
-    backend.disk_format(disk_device, function (data) {
-        Common.check_for_service_error(data, function () {
-            Common.run_after_job_is_complete(
-                Common.job_status,
-                setTimeout,
-                on_complete,
-                on_error,
-                'disk_format');
-        }, on_error);
-    }, on_error);
+    $.post('/rest/storage/disk_format', {device: disk_device})
+        .done(function (data) {
+                      Common.check_for_service_error(data, function () {
+                          Common.run_after_job_is_complete(
+                              Common.job_status,
+                              setTimeout,
+                              on_complete,
+                              on_error,
+                              'disk_format');
+                      }, on_error);
+                  })
+        .fail(on_error);
 }
 
 function ui_display_toggles() {

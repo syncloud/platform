@@ -1,4 +1,4 @@
-import App from './app.js'
+import * as App from './app.js'
 
 test( "app install", () => {
 

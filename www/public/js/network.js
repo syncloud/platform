@@ -18,10 +18,6 @@ function check_access(on_complete, on_error) {
     $.get('/rest/access/access').done(on_complete).fail(on_error);
 }
 
-function set_access(data, on_complete, on_error) {
-    $.get('/rest/access/set_access', data).done(on_complete).fail(on_error);
-}
-
 function network_interfaces(on_complete, on_error) {
     $.get('/rest/access/network_interfaces').done(on_complete).fail(on_error);
 }
@@ -204,8 +200,9 @@ export function set_access(
         if (!ip_autodetect) {
             request_data.public_ip = public_ip;
         }
-
-        set_access(request_data, on_complete, on_error);
+        $.get('/rest/access/set_access', request_data)
+            .done(on_complete)
+            .fail(on_error);
     };
     
 $(document).ready(function () {

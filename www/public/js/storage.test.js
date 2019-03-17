@@ -1,4 +1,4 @@
-import Storage from './storage.js'
+import * as Storage from './storage.js'
 import { State } from '../__mocks__/jquery.mockjax.js'
 
 test( "settings boot disk extend", () => {

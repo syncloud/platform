@@ -59,11 +59,15 @@ export function get_value(values, name) {
 }
 
 export function job_status(job, on_complete, on_error) {
-        $.get('/rest/settings/' + job + '_status').done(on_complete).fail(on_error);
-    };
+    $.get('/rest/settings/' + job + '_status').done(on_complete).fail(on_error);
+}
 
 export function send_logs(include_support, on_always, on_error) {
-        $.get('/rest/send_log',
-          { include_support: include_support }
-        ).always(on_always).fail(on_error);
-    };
+    $.get('/rest/send_log',
+      { include_support: include_support }
+    ).always(on_always).fail(on_error);
+}
+
+export function send_log(on_always, on_error) {
+    $.get('/rest/send_log').always(on_always).fail(on_error);
+}

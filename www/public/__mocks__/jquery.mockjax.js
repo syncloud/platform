@@ -199,7 +199,7 @@ mockjax({
     responseText: apps_data
 });
 
-const disk_response = (settings) => {
+function disk_response(settings) {
       if (State.disk_action_success) {
         this.responseText = disks_data;
       } else {

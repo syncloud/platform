@@ -21,20 +21,18 @@ function load_app(app_id, on_complete, on_error) {
     $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
 };
 
-function app_action(app_id, action, on_always, on_error) {
-    $.get("/rest/" + action, {app_id: app_id}).always(on_always).fail(on_error);
-};
-
 export function run_app_action(app_id, action, on_complete, on_error) {
-    app_action(app_id, action, function (data) {
-        Common.check_for_service_error(data, function () {
-            Common.run_after_sam_is_complete(
-                Common.job_status,
-                setTimeout,
-                on_complete,
-                on_error);
-        }, on_error)
-    }, on_error);
+    $.get("/rest/" + action, {app_id: app_id})
+        .always(function (data) {
+                        Common.check_for_service_error(data, function () {
+                            Common.run_after_sam_is_complete(
+                                Common.job_status,
+                                setTimeout,
+                                on_complete,
+                                on_error);
+                        }, on_error)
+                    })
+        .fail(on_error);
 }
 
 function register_btn_open_click() {

@@ -17,56 +17,12 @@ import * as Common from './common.js'
 import './backend/menu.js'
 
 function get_versions(on_complete, on_error) {
-        $.get('/rest/settings/versions').done(on_complete).fail(on_error);
-    };
-
-function check_versions(on_always, on_error) {
-        $.get('/rest/check').always(on_always).fail(on_error);
-    };
-
-function platform_upgrade(on_complete, on_error) {
-        $.get('/rest/upgrade', { app_id: 'platform' }).done(on_complete).fail(on_error);
-    };
-
-function sam_upgrade(on_complete, on_error) {
-        $.get('/rest/upgrade', { app_id: 'sam' }).done(on_complete).fail(on_error);
-    };
+    $.get('/rest/settings/versions').done(on_complete).fail(on_error);
+};
 
 export function check_versions(on_complete, on_error) {
-
-    check_versions(function () {
-        Common.run_after_sam_is_complete(
-            Common.job_status,
-            setTimeout,
-            function () {
-                get_versions(
-                    on_complete,
-                    on_error);
-            }, on_error);
-        }, on_error);
-}
-
-export function platform_upgrade(on_complete, on_error) {
-
-    platform_upgrade(function (data) {
-        Common.check_for_service_error(data, function () {
-            Common.run_after_sam_is_complete(
-                Common.job_status,
-                setTimeout,
-                function () {
-                    get_versions(
-                         on_complete,
-                         on_error);
-                 }, on_error);
-        }, on_error);
-    }, on_error);
-    
-}
-
-export function sam_upgrade(on_complete, on_error) {
-
-    sam_upgrade(function (data) {
-        Common.check_for_service_error(data, function () {
+    $.get('/rest/check')
+        .always(function () {
             Common.run_after_sam_is_complete(
                 Common.job_status,
                 setTimeout,
@@ -75,9 +31,45 @@ export function sam_upgrade(on_complete, on_error) {
                         on_complete,
                         on_error);
                 }, on_error);
-        }, on_error);
-    }, on_error);
-    
+            })
+        .fail(on_error);
+}
+
+export function platform_upgrade(on_complete, on_error) {
+    $.get('/rest/upgrade', { app_id: 'platform' })
+        .done(function (data) {
+                      Common.check_for_service_error(data, function () {
+                          Common.run_after_sam_is_complete(
+                              Common.job_status,
+                              setTimeout,
+                              function () {
+                                  get_versions(
+                                       on_complete,
+                                       on_error);
+                               }, on_error);
+                      }, on_error);
+                  })
+        .fail(on_error);
+
+}
+
+export function sam_upgrade(on_complete, on_error) {
+
+    $.get('/rest/upgrade', { app_id: 'sam' })
+        .done(function (data) {
+                      Common.check_for_service_error(data, function () {
+                          Common.run_after_sam_is_complete(
+                              Common.job_status,
+                              setTimeout,
+                              function () {
+                                  get_versions(
+                                      on_complete,
+                                      on_error);
+                              }, on_error);
+                      }, on_error);
+                  })
+        .fail(on_error);
+
 }
 
 function ui_display_toggles() {
