@@ -13,7 +13,3 @@ backend.platform_upgrade = function(on_complete, on_error) {
 backend.sam_upgrade = function(on_complete, on_error) {
         $.get('/rest/upgrade', { app_id: 'sam' }).done(on_complete).fail(on_error);
     };
-
-
-
- 

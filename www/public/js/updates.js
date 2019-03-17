@@ -81,8 +81,9 @@ function upgrade_buttons_enabled(is_enabled) {
 }
 
 function ui_display_versions(data) {
-		var platform_data = find_app(data.data, "platform");
-		var sam_data = find_app(data.data, "sam");
+
+		var platform_data = Common.find_app(data.data, "platform");
+		var sam_data = Common.find_app(data.data, "sam");
 
 		$("#txt_platform_version").html(platform_data.installed_version);
 		$("#txt_system_version_available").html(platform_data.current_version);
@@ -158,6 +159,8 @@ function ui_sam_upgrade() {
 }
 
 $(document).ready(function () {
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
+
     ui_display_toggles();
 
     $("#btn_check_updates").on('click', function () {

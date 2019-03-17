@@ -227,14 +227,54 @@ mockjax({
     responseText: {success: true}
 });
  
-mockjax({
-    url:'/rest/settings/boot_extend_status',
-    dataType: "json",
+mockjax({ url:'/rest/settings/boot_extend_status', dataType: "json",
     responseText: {success: true, is_running: false}
 });
 
-mockjax({
-    url:'/rest/settings/disk_format_status',
-    dataType: "json",
+mockjax({ url:'/rest/settings/disk_format_status',dataType: "json",
     responseText: {success: true, is_running: false}
+});
+
+mockjax({ url:'/rest/settings/sam_status',dataType: "json",
+    responseText: {success: true, is_running: false}
+});
+
+const versions_data = {
+      "data": [
+        {
+          "app": {
+            "id": "platform",
+            "name": "Platform",
+            "required": true,
+            "ui": false,
+            "url": "http://platform.odroid-c2.syncloud.it"
+          },
+          "current_version": "880",
+          "installed_version": "876"
+        },
+        {
+          "app": {
+            "id": "sam",
+            "name": "Syncloud App Manager",
+            "required": true,
+            "ui": false,
+            "url": "http://sam.odroid-c2.syncloud.it"
+          },
+          "current_version": "78",
+          "installed_version": "75"
+        }
+      ],
+      "success": true
+    };
+
+mockjax({ url:'/rest/settings/versions', dataType: "json",
+    responseText: versions_data
+});
+
+mockjax({ url:'/rest/check', dataType: "json",
+    responseText: {}
+});
+
+mockjax({ url:'/rest/upgrade', dataType: "json",
+    responseText: {success: true}
 });

@@ -1,24 +1,28 @@
 const Settings = require('./updates');
-require('./backend.mock/common');
-require('./backend.mock/updates');
+const mock = require('../__mocks__/jquery.mockjax');
 
 test( "settings check version", () => {
 
-  backend.async = false;
-  Settings.check_versions(function(data) {}, function(a, b, c) {});
+  $.ajaxSetup({ async: false });
+  var actualData;
+  Settings.check_versions(function(data) {
+    actualData = data;
+  }, function(a, b, c) {});
+
+  expect(actualData).isDefined();
 
 });
 
 test( "settings platform upgrade", () => {
 
-  backend.async = false;
+  $.ajaxSetup({ async: false });
   Settings.platform_upgrade(function(data) {}, function(a, b, c) {});
 
 });
 
 test( "settings sam upgrade", () => {
 
-  backend.async = false;
+  $.ajaxSetup({ async: false });
   Settings.sam_upgrade(function(data) {}, function(a, b, c) {});
 
 });
