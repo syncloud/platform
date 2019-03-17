@@ -9,20 +9,30 @@ test( "settings check version", () => {
     actualData = data;
   }, function(a, b, c) {});
 
-  expect(actualData).isDefined();
+  expect(actualData).toBeDefined();
 
 });
 
 test( "settings platform upgrade", () => {
 
   $.ajaxSetup({ async: false });
-  Settings.platform_upgrade(function(data) {}, function(a, b, c) {});
+  var actualData;
+  Settings.platform_upgrade(function(data) {
+    actualData = data;
+  }, function(a, b, c) {});
+
+  expect(actualData).toBeDefined();
 
 });
 
 test( "settings sam upgrade", () => {
 
   $.ajaxSetup({ async: false });
-  Settings.sam_upgrade(function(data) {}, function(a, b, c) {});
+  var actualData;
+  Settings.sam_upgrade(function(data) {
+    actualData = data;
+  }, function(a, b, c) {});
+
+  expect(actualData).toBeDefined();
 
 });
