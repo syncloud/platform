@@ -11,7 +11,7 @@ import '../css/site.css'
 import './ui/font.js'
 import './ui/common.js'
 import './ui/menu.js'
-import * as Common './common.js'
+import * as Common from './common.js'
 import './backend/menu.js'
 
 function ui_send_log() {
