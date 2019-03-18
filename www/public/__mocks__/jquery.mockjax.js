@@ -330,3 +330,20 @@ mockjax({ url:'/rest/available_apps', dataType: "json",
     response: available_apps_response
 });
 
+mockjax({ url:'/rest/app', dataType: "json",
+    responseText: {
+        info: {
+            "app": {
+                "id": "wordpress",
+                "name": "Wordpress",
+                "required": true,
+                "ui": false,
+                "url": "http://platform.odroid-c2.syncloud.it",
+                "icon": "appsimages/penguin.png"
+            },
+            "current_version": "880",
+            "installed_version": "876"
+        }
+    }
+});
+

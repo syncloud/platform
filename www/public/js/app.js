@@ -86,5 +86,6 @@ function ui_load_app() {
 }
 
 $( document ).ready(function () {
-		ui_load_app();
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
+    ui_load_app();
 });
