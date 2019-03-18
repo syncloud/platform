@@ -13,7 +13,7 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 import * as Common from './common.js'
-import './backend/menu.js'
+
 import Templates from './appcenter.templates.js'
 
 export function available_apps(on_complete, on_error) {

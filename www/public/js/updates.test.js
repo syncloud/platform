@@ -1,5 +1,5 @@
-const Settings = require('./updates');
-const mock = require('../__mocks__/jquery.mockjax');
+import * as Settings from './updates.js'
+import { Setup } from '../__mocks__/jquery.mockjax.js'
 
 test( "settings check version", () => {
 

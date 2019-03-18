@@ -14,6 +14,5 @@ import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
 import Common from './common.js'
-import './backend/menu.js'
 
 

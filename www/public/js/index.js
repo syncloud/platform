@@ -13,7 +13,6 @@ import './ui/font.js'
 import UiCommon from './ui/common.js'
 import './ui/menu.js'
 import Common from './common.js'
-import './backend/menu.js'
 import Templates from './index.templates.js'
 
 function installed_apps(on_complete, on_error) {

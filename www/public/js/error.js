@@ -12,7 +12,6 @@ import './ui/font.js'
 import './ui/common.js'
 import './ui/menu.js'
 import * as Common from './common.js'
-import './backend/menu.js'
 
 function ui_send_log() {
     var btn = $("#btn_send_logs");

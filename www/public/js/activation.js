@@ -11,7 +11,7 @@ import '../css/site.css'
 import './ui/font.js'
 import UiCommon from './ui/common.js'
 import * as Common from './common.js'
-import './backend/menu.js'
+import './ui/menu.js'
 
 function device_url(on_complete, on_error) {
         $.get('/rest/settings/device_url').done(on_complete).fail(on_error);

@@ -14,7 +14,6 @@ import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
 import * as Common from './common.js'
-import './backend/menu.js'
 
 function get_versions(on_complete, on_error) {
     $.get('/rest/settings/versions').done(on_complete).fail(on_error);

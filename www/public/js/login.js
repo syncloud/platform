@@ -12,7 +12,6 @@ import './ui/menu.js'
 import UiCommon from './ui/common.js'
 import './ui/font.js'
 import Common from './common.js'
-import './backend/menu.js'
 
 function login(values, on_complete, on_error, on_always) {
         $.post("/rest/login", values).done(on_complete).fail(on_error).always(on_always);

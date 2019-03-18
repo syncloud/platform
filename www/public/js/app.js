@@ -15,7 +15,6 @@ import UiCommon from './ui/common.js'
 import './ui/menu.js'
 
 import * as Common from './common.js'
-import './backend/menu.js'
 
 function load_app(app_id, on_complete, on_error) {
     $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
