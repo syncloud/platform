@@ -243,7 +243,7 @@ mockjax({ url:'/rest/settings/sam_status',dataType: "json",
     responseText: {success: true, is_running: false}
 });
 
-const versions_data = {
+export const versions_data = {
       "data": [
         {
           "app": {

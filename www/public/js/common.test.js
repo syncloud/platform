@@ -1,4 +1,5 @@
-const Common = require('./common');
+import * as Common from './common.js'
+import * as Mock from '../__mocks__/jquery.mockjax.js'
 
 test('job status', () => { 
     var checker_count = 0;
@@ -18,4 +19,9 @@ test('job status', () => {
 
     expect(checker_job).toEqual('test');
     expect(checker_count).toEqual(2);
+});
+
+test('find app', () => { 
+    let app = Common.find_app(Mock.versions_data.data, 'platform');
+    expect(app.app.name).toEqual('Platform');
 });

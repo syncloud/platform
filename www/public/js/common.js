@@ -39,8 +39,7 @@ export function run_after_job_is_complete(status_checker, timeout_func, on_compl
 }
 
 export function find_app(apps_data, app_id) {
-    for (s=0; s < apps_data.length; s++) {
-        var app_data = apps_data[s];
+    for (var app_data of apps_data) {
         if (app_data.app.id == app_id) {
             return app_data;
         }
@@ -49,8 +48,7 @@ export function find_app(apps_data, app_id) {
 }
 
 export function get_value(values, name) {
-    for (i=0; i < values.length; i++) {
-        var value = values[i];
+    for (var value of values) {
         if (value.name === name) {
             return value.value;
         }

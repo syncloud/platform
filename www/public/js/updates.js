@@ -120,6 +120,7 @@ function ui_check_versions() {
     
     check_versions(
         function (data) {
+
             ui_display_versions(data);
             btn.button('reset');
             upgrade_buttons_enabled(true);
