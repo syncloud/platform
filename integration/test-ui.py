@@ -1,5 +1,7 @@
+import os
+import shutil
 import time
-from os.path import dirname, join
+from os.path import dirname, join, exists
 
 import pytest
 import requests
@@ -18,6 +20,12 @@ screenshot_dir = join(DIR, 'screenshot')
 @pytest.fixture(scope="module")
 def module_setup(request):
     request.addfinalizer(module_teardown)
+
+
+def test_start():
+    if exists(screenshot_dir):
+        shutil.rmtree(screenshot_dir)
+    os.mkdir(screenshot_dir)
 
 
 def module_teardown(driver, mobile_driver):
