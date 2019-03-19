@@ -40,7 +40,7 @@ def test_internal_ui(driver, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def teat_lpgin(driver, mobile_driver, device_host):
+def test_login(driver, mobile_driver, device_host):
     _test_login(driver, 'desktop', device_host)
     _test_login(mobile_driver, 'mobile', device_host)
 
