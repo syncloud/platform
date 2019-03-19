@@ -16,43 +16,15 @@ LOG_DIR = join(DIR, 'log')
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 screenshot_dir = join(DIR, 'screenshot')
- 
-
-@pytest.fixture(scope="module")
-def driver():
-
-    if exists(screenshot_dir):
-        shutil.rmtree(screenshot_dir)
-    os.mkdir(screenshot_dir)
-
-    firefox_path = '/tools/firefox/firefox'
-    caps = DesiredCapabilities.FIREFOX
-    caps["marionette"] = True
-    caps['acceptSslCerts'] = True
-
-    binary = FirefoxBinary(firefox_path)
-
-    profile = webdriver.FirefoxProfile()
-    profile.add_extension('/tools/firefox/JSErrorCollector.xpi')
-    profile.set_preference('app.update.auto', False)
-    profile.set_preference('app.update.enabled', False)
-    driver = webdriver.Firefox(profile,
-                               capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR),
-                               firefox_binary=binary, executable_path=join(DIR, '/tools/geckodriver/geckodriver'))
-
-    #driver.set_page_load_timeout(30)
-    #print driver.capabilities['version']
-    return driver
-
 
 @pytest.fixture(scope="module")
 def module_setup(request):
     request.addfinalizer(module_teardown)
 
 
-def module_teardown(driver):
+def module_teardown(driver, mobile_driver):
     driver.close()
-    
+    mobile_driver.close()
 
 def test_internal_ui(driver, app_domain, device_host):
 
@@ -63,15 +35,17 @@ def test_internal_ui(driver, app_domain, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_login(driver, app_domain, device_host):
+@pytest.mark.parametrize("driver, mode", [(driver, 'desktop'), (mobile_driver, 'mobile')])
+def test_login(driver, mode, app_domain, device_host):
 
     driver.get("http://{0}".format(device_host))
     time.sleep(2)
-    screenshots(driver, screenshot_dir, 'login')
+    screenshots(driver, screenshot_dir, 'login-' + mode)
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
-    
-def test_index(driver, device_host):
+
+@pytest.mark.parametrize("driver, mode", [(driver, 'desktop'), (mobile_driver, 'mobile')])
+def test_index(driver, mode, device_host):
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
     password = driver.find_element_by_id("password")
@@ -80,7 +54,7 @@ def test_index(driver, device_host):
     wait_driver = WebDriverWait(driver, 10)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
     time.sleep(5)
-    screenshots(driver, screenshot_dir, 'index')
+    screenshots(driver, screenshot_dir, 'index-' + mode)
 
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
@@ -151,17 +125,18 @@ def test_settings_support(driver, device_host):
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
-def test_app_center(driver, device_host):
+@pytest.mark.parametrize("driver, mode", [(driver, 'desktop'), (mobile_driver, 'mobile')])
+def test_app_center(driver, mode, device_host):
     url = "http://{0}/appcenter.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     wait_driver = WebDriverWait(driver, 10)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'appcenter')
+    screenshots(driver, screenshot_dir, 'appcenter-' + mode)
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
+    assert not driver.execute_script('return document.documentElement.scrollWidth>document.documentElement.clientWidth;')
 
 def test_installed_app(driver, device_host):
 
@@ -181,22 +156,3 @@ def test_not_installed_app(driver, device_host):
     screenshots(driver, screenshot_dir, 'app_not_installed')
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
-
-def screenshots(driver, dir, name):
-    desktop_w = 1280
-    desktop_h = 2000
-    driver.set_window_position(0, 0)
-    driver.set_window_size(desktop_w, desktop_h)
-
-    driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
-
-    mobile_w = 400
-    mobile_h = 2000
-    driver.set_window_position(0, 0)
-    driver.set_window_size(mobile_w, mobile_h)
-    driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
-    
-    driver.set_window_position(0, 0)
-    driver.set_window_size(desktop_w, desktop_h)
-
