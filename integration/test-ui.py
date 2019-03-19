@@ -35,8 +35,12 @@ def test_internal_ui(driver, app_domain, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-@pytest.mark.parametrize("driver, mode", [(driver, 'desktop'), (mobile_driver, 'mobile')])
-def test_login(driver, mode, app_domain, device_host):
+def teat_lpgin(driver, mobile_driver, app_domain, device_host):
+    _test_login(driver, 'desktop', app_domain, device_host)
+    _test_login(mobile_driver, 'mobile', app_domain, device_host)
+
+
+def _test_login(driver, mode, app_domain, device_host):
 
     driver.get("http://{0}".format(device_host))
     time.sleep(2)
@@ -44,8 +48,12 @@ def test_login(driver, mode, app_domain, device_host):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-@pytest.mark.parametrize("driver, mode", [(driver, 'desktop'), (mobile_driver, 'mobile')])
-def test_index(driver, mode, device_host):
+def test_index(driver, mobile_driver, device_host):
+    _test_index(driver, 'desktop', device_host)
+    _test_index(mobile_driver, 'mobile', device_host)
+
+
+def _test_index(driver, mode, device_host):
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
     password = driver.find_element_by_id("password")
@@ -125,8 +133,12 @@ def test_settings_support(driver, device_host):
  
     assert not driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
-@pytest.mark.parametrize("driver, mode", [(driver, 'desktop'), (mobile_driver, 'mobile')])
-def test_app_center(driver, mode, device_host):
+def test_app_center(driver, mobile_driver, device_host):
+    _test_app_center(driver, 'desktop', device_host)
+    _test_app_center(mobile_driver, 'mobile', device_host)
+
+
+def _test_app_center(driver, mode, device_host):
     url = "http://{0}/appcenter.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
