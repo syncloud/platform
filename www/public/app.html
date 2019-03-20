@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<%= require('html-loader!./template/header.html') %>
+<%= require('html-loader!./template/meta.html') %>
 
 <body>
 <div class="wrapper">
@@ -49,24 +49,7 @@
 </div>
 </div>
 
-<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Error</h4>
-      </div>
-      <div class="modal-body">
-          <div class="bodymod">
-              <div id="txt_error" class="btext">Some error happened!</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-      </div>
-    </div>
-  </div>
-</div>
+<%= require('html-loader!./template/error.html') %>
 
     <div id="app_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
          aria-labelledby="mySmallModalLabel">

@@ -1,48 +1,14 @@
 <!DOCTYPE html>
 <html>
 
-<%= require('html-loader!./template/header.html') %>
+<%= require('html-loader!./template/meta.html') %>
 
 <body>
 <div class="wrapper">
 	<div class="content">
-	<!--HEADER-->
-		<div class="headblock">
-			<header class="wd12">
-				<div class="logo">Syncloud</div>
-				<div class="menulinks">
-					<a href="index.html" class="apps hlink">Apps</a>
-					<a href="appcenter.html" class="appcenter hlink">App Center</a>
-					<a href="settings.html" class="settings hlink active">Settings</a>
-				</div>
-				<div class="menuoff">
-					<a href="#" id="btn_logout_large" class="logout hlink">Log out</a>
-					<div class="dropdowncontainer hlink">
-						<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
-						<div id="myDropdown" class="dropdown-content">
-						<a href="#" id="btn_restart_large">Restart</a>
-						<a href="#" id="btn_shutdown_large">Shutdown</a>
-						</div>
-					</div>
-				</div>
-				<div class="menubutton">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-				</div>
-			</header>
-			<div class="navi">
-				<a href="index.html">Apps</a>
-				<a href="appcenter.html">App Center</a>
-				<a href="settings.html">Settings</a>
-				<div class="menucolor2">
-				<a href="#" id="btn_logout_small">Log out</a>
-				<a href="#" id="btn_restart_small">Restart</a>
-				<a href="#" id="btn_shutdown_small">Shutdown</a>
-				</div>
-			</div>
-		</div>
+
+	<%= require('html-loader!./template/header.html') %>
+
 		<!--block1-->
         <div class="block1 wd12" id="block1">
             <h1>Storage</h1>
@@ -79,27 +45,7 @@
         </div>
 </div>
 
-    <div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-         aria-labelledby="mySmallModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Error</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="bodymod">
-                        <div id="txt_error" class="btext">Some error happened!</div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<%= require('html-loader!./template/error.html') %>
 
     <div id="partition_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
          aria-labelledby="mySmallModalLabel">

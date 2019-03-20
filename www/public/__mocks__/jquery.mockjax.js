@@ -347,3 +347,14 @@ mockjax({ url:'/rest/app', dataType: "json",
     }
 });
 
+const device_data = {
+  "device_url": "http://test.syncloud.it",
+  "success": true
+};
+
+mockjax({ url:'/rest/settings/device_url', dataType: "json",
+    responseText: device_data
+});
+
+
+

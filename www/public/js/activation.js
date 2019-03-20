@@ -34,6 +34,7 @@ function ui_check_device_url() {
 }
 
 $(document).ready(function () {
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
 
     $("#btn_reactivate").on('click', function () {
     	    reactivate(
