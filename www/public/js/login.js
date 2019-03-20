@@ -10,7 +10,6 @@ import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 import './ui/menu.js'
 import UiCommon from './ui/common.js'
-import './ui/font.js'
 import Common from './common.js'
 
 function login(values, on_complete, on_error, on_always) {

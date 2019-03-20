@@ -8,7 +8,6 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';         
 import 'font-awesome/css/font-awesome.css'  
 import '../css/site.css'
-import './ui/font.js'
 import UiCommon from './ui/common.js'
 import * as Common from './common.js'
 import './ui/menu.js'

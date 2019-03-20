@@ -1,4 +1,5 @@
 import UiCommon from './common.js'
+import styles from 'roboto-fontface/css/roboto/roboto-fontface.css'
 
 function logout(on_complete, on_error) {
     $.post('/rest/logout').done(on_complete).fail(on_error);
@@ -34,6 +35,18 @@ window.onclick = function(event) {
 }
 
 $( document ).ready(function() {
+
+	$(".menubutton").click(function(e) {
+        $(".navi").toggleClass("naviopen");
+        $(".menubutton").toggleClass("menuopen");
+        e.preventDefault();
+	});
+	$(".navi a, #block1, #block2, #block3, #block4, #block5, #block6, footer").click(function(){
+	    $(".navi").removeClass("naviopen");
+	    $(".menubutton").removeClass("menuopen");
+	});
+
+
     $("#btn_logout_large, #btn_logout_small").click(function(event) {
 
         logout(
