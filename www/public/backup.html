@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<%= require('html-loader!./template/meta.html') %>
+
+<body>
+<div class="wrapper">
+	<div class="content">
+
+  <%= require('html-loader!./template/header.html') %>
+
+  <div class="block1 wd12" id="block1">
+    <h1>Backup</h1>
+    <div class="row-no-gutters settingsblock">
+
+			    <div id="backupGrid" style="height: 150px;width: 100%" class="ag-theme-balham"></div> 
+
+    </div>
+
+	</div>
+</div>
+
+<%= require('html-loader!./template/error.html') %>
+
+</body>
+</html>

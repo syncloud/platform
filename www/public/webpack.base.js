@@ -13,6 +13,7 @@ const entries = [
   "storage",
   "support",
   "updates",
+  "backup",
 ];
 
 module.exports = {
