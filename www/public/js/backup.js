@@ -17,27 +17,33 @@ import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
 
 const gridOptions = {
-  columnDefs: [
+    columnDefs: [
+        {
+            headerName: 'App',
+            field: 'app'
+        },
+        {
+            headerName: 'Date',
+            field: 'date',
+            cellRenderer: (data) => {
+                return new Date(data.date).format('MM/DD/YYYY HH:mm')
+            }
+        }
+    ],
+    columnTypes: {
+        "dateColumn": {
+            filter: 'agDateColumnFilter',
+            suppressMenu:true
+        }
+    },
+    rowData: [
     {
-      headerName: 'App',
-      field: 'app'
-    }, 
-    {
-      headerName: 'Date', 
-      field: 'date'
-    }
-  ], 
-  rowData: [
-    {
-      app: 'Nextcloud', 
-      date: '111'
-    }
-  ]
+        app: 'Nextcloud', date: 1553201616 }
+    ]
 };
 
 $( document ).ready(function () {
   let eGridDiv = document.querySelector('#backupGrid');
   
-  let grid = new Grid(eGridDiv, this.gridOptions);
-  alert(grid);
+  let grid = new Grid(eGridDiv, gridOptions);
 });
