@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import $ from 'jquery';
 import jQuery from 'jquery';
-
+import dateFormat from 'dateformat';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-switch';
@@ -20,14 +20,16 @@ const gridOptions = {
     columnDefs: [
         {
             headerName: 'App',
-            field: 'app'
+            field: 'app',
+            cellStyle: { 'text-align': "left" }
         },
         {
             headerName: 'Date',
             field: 'date',
             cellRenderer: (data) => {
-                return new Date(data.date).format('MM/DD/YYYY HH:mm')
-            }
+                return dateFormat(data.date, 'mm/dd/yyyy HH:MM')
+            },
+            cellStyle: { 'text-align': "left" }
         }
     ],
     columnTypes: {
@@ -37,8 +39,28 @@ const gridOptions = {
         }
     },
     rowData: [
-    {
-        app: 'Nextcloud', date: 1553201616 }
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud', date:  1294862756114  },
+
     ]
 };
 
@@ -46,4 +68,5 @@ $( document ).ready(function () {
   let eGridDiv = document.querySelector('#backupGrid');
   
   let grid = new Grid(eGridDiv, gridOptions);
+  gridOptions.api.sizeColumnsToFit();
 });
