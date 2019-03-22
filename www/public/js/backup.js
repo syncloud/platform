@@ -17,51 +17,51 @@ import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
 
 const gridOptions = {
+    defaultColDef: {
+        sortable: true,
+        filter: true,
+        cellStyle: { 'text-align': "left" },
+        filter: 'agTextColumnFilter'
+    },
     columnDefs: [
         {
             headerName: 'App',
-            field: 'app',
-            cellStyle: { 'text-align': "left" }
+            field: 'app'
         },
         {
             headerName: 'Date',
             field: 'date',
             cellRenderer: (data) => {
-                return dateFormat(data.date, 'mm/dd/yyyy HH:MM')
-            },
-            cellStyle: { 'text-align': "left" }
+                return dateFormat(new Date(data.data.date), 'mm/dd/yyyy HH:MM')
+            }
         }
     ],
-    columnTypes: {
-        "dateColumn": {
-            filter: 'agDateColumnFilter',
-            suppressMenu:true
-        }
-    },
     rowData: [
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
-        { app: 'Nextcloud', date:  1294862756114  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Diaspora',   date:  1553289382000  },
+        { app: 'Diaspora',   date:  1553289382000  },
+        { app: 'Diaspora',   date:  1553289382000  },
+        { app: 'Diaspora',   date:  1553289382000  },
+        { app: 'Diaspora',   date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'RocketChat', date:  1553289382000  },
+        { app: 'RocketChat', date:  1553289382000  },
+        { app: 'RocketChat', date:  1553289382000  },
+        { app: 'RocketChat', date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
+        { app: 'Nextcloud',  date:  1553289382000  },
 
-    ]
+    ],
+    suppressDragLeaveHidesColumns: true,
+    floatingFilter: true
 };
 
 $( document ).ready(function () {

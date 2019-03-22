@@ -416,9 +416,17 @@ header .hlink {
     margin: 0 auto;
     text-align: left;
 }
-input[type="text"], input[type="password"], input[type="email"] {
-    width: 100%;
+
+.nameinput {
     height: 50px;
+}
+
+.passinput {
+    height: 50px;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
     padding: 0 50px 0 20px;
     border-radius: 40px;
     border: 1px solid #dcdee0;
@@ -430,10 +438,13 @@ input[type="text"], input[type="password"], input[type="email"] {
     -o-transition: all .3s ease-out;
     -ms-transition: all .3s ease-out;
 }
+
 .domain {
     width: 70%!important;
-    margin-right: 2%}
-input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
+    margin-right: 2%
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
     background-position: 115% center!important;
     border-color: #03aff0;
 }
