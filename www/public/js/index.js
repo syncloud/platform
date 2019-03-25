@@ -23,7 +23,7 @@ function display_apps(data) {
 }
 
 $( document ).ready(() => {
- if (mock) { console.log(mock) };
+ if (typeof mock !== 'undefined') { console.log(mock) };
  installed_apps(
     display_apps,
     UiCommon.ui_display_error);
