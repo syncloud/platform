@@ -61,7 +61,8 @@ const gridOptions = {
 
     ],
     suppressDragLeaveHidesColumns: true,
-    floatingFilter: true
+    floatingFilter: true,
+    domLayout: 'autoHeight'
 };
 
 $( document ).ready(function () {

@@ -28,25 +28,26 @@
                     <h3>Router</h3>
 
                     <div class="setline">
-                        <span class="span">External Access:</span>
-                        
+                        <span class="span">External Access:
 				                     	
-                        <div class="spandiv">
-                            <input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-                            <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
-                        </div>
-                        
-                        <button data-toggle="modal" data-target="#help_external_access" type=button style=" background:transparent;">
-				                      		<i class='fa fa-question-circle fa-lg'></i>
-				                     	</button>
+							<div class="spandiv">
+								<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+								<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
+							</div>
+
+							<button data-toggle="modal" data-target="#help_external_access" type=button class="control" style=" background:transparent;">
+												<i class='fa fa-question-circle fa-lg'></i>
+											</button>
+						</span>
                     </div>
                     <div id="external_block" style="display: none">
                         <div class="setline">
-                            <span class="span">Auto detect IP:</span>
-                            <div class="spandiv">
-                                <input type="checkbox" id="tgl_ip_autodetect" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-                                <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_ip_autodetect_loading"></i>
-                            </div>
+                            <span class="span">Auto detect IP:
+								<div class="spandiv">
+									<input type="checkbox" id="tgl_ip_autodetect" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+									<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_ip_autodetect_loading"></i>
+								</div>
+							</span>
                         </div>
 
                         <div class="setline">
@@ -60,14 +61,15 @@
                         </div>
 
                         <div class="setline">
-                            <span class="span">Auto mode (UPnP):</span>
-                            <div class="spandiv">
-                                <input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-                                <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
-                                <button id="upnp_warning" data-toggle="modal" data-target="#help_upnp_warning" type=button style="background:transparent;">
-                                    <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
-                                </button>
-                            </div>
+                            <span class="span">Auto mode (UPnP):
+								<div class="spandiv">
+									<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+									<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
+									<button id="upnp_warning" data-toggle="modal" data-target="#help_upnp_warning" type=button class="control" style="background:transparent;">
+										<i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+									</button>
+								</div>
+							</span>
                         </div>
 
                         <div class="setline">
@@ -75,7 +77,7 @@
                                 <span style='white-space: nowrap;' > HTTP port 80:
                                     <input name="certificate_port" id="certificate_port" type="text"
                                            style="width: 80px; height: 30px; padding: 0 10px 0 10px">
-                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button style="background:transparent;">
+                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button class="control" style="background:transparent;">
                                         <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                                     </button>
                                 </span>
@@ -88,7 +90,7 @@
                                 <span style='white-space: nowrap;' > HTTPS port 443:
                                     <input name="access_port" id="access_port" type="text"
                                            style="width: 80px; height: 30px; padding: 0 10px 0 10px"/>
-                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button style="background:transparent;">
+                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button class="control" style="background:transparent;">
                                         <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                                     </button>
                                 </span>
@@ -99,7 +101,7 @@
    
                    <div class="setline">
                          <div class="spandiv">
-                               <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..." style="width: 150px">Save</button>
+                               <button class="submit buttongreen control" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."  style="width: 150px">Save</button>
                          </div>
 					</div>
 					
