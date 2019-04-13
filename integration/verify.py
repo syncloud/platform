@@ -367,7 +367,7 @@ def test_installer_upgrade(device, device_host):
     wait_for_installer(session, device_host, throw_on_error=True)
 
 
-def test_backup_app(device):
+def test_backup_app(device, log_dir):
     
     session = device.login()
     
