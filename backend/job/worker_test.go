@@ -14,7 +14,7 @@ type backupMock struct {
 func (mock *backupMock) List() ([]string, error) {
 	return []string{"test"}, nil
 }
-func (mock *backupMock) Create(app string, file string) {
+func (mock *backupMock) Create(app string) {
 	mock.created++
 }
 func (mock *backupMock) Restore(app string, file string) {

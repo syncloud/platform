@@ -1,10 +1,12 @@
 package backup
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"time"
 )
 
 type Backup struct {
@@ -44,7 +46,9 @@ func (this *Backup) List() ([]string, error) {
 	return names, nil
 }
 
-func (backup *Backup) Create(app string, file string) {
+func (backup *Backup) Create(app string) {
+	time := time.Now().Format("2006-0102-150405")
+	file := fmt.Sprintf("%s/%s-%s.tar.gz", backup.backupDir, app, time)
 	cmd := exec.Command(BACKUP_CREATE_CMD, app, file)
 	log.Println("Running backup create", BACKUP_CREATE_CMD, app, file)
 	err := cmd.Run()

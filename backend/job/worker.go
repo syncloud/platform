@@ -31,7 +31,7 @@ func (worker *Worker) Do() bool {
 	switch jobtype := job.(type) {
 	case JobBackupCreate:
 		v := job.(JobBackupCreate)
-		worker.backup.Create(v.App, v.File)
+		worker.backup.Create(v.App)
 	case JobBackupRestore:
 		v := job.(JobBackupRestore)
 		worker.backup.Restore(v.App, v.File)

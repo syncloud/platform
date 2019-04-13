@@ -2,6 +2,6 @@ package backup
 
 type AppBackup interface {
 	List() ([]string, error)
-	Create(app string, file string)
+	Create(app string)
 	Restore(app string, file string)
 }

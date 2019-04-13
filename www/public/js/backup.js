@@ -25,39 +25,15 @@ const gridOptions = {
     },
     columnDefs: [
         {
-            headerName: 'App',
-            field: 'app'
-        },
-        {
-            headerName: 'Date',
-            field: 'date',
-            cellRenderer: (data) => {
-                return dateFormat(new Date(data.data.date), 'mm/dd/yyyy HH:MM')
-            }
+            headerName: 'File',
+            field: 'file'
         }
+      
     ],
     rowData: [
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Diaspora',   date:  1553289382000  },
-        { app: 'Diaspora',   date:  1553289382000  },
-        { app: 'Diaspora',   date:  1553289382000  },
-        { app: 'Diaspora',   date:  1553289382000  },
-        { app: 'Diaspora',   date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'RocketChat', date:  1553289382000  },
-        { app: 'RocketChat', date:  1553289382000  },
-        { app: 'RocketChat', date:  1553289382000  },
-        { app: 'RocketChat', date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
-        { app: 'Nextcloud',  date:  1553289382000  },
+        { file: '/data/platform/backup/nextcloud_20190508.tar.gz' },
+        { file: '/data/platform/backup/nextcloud_20190504.tar.gz' },
+        { file: '/data/platform/backup/diaspora_20190508.tar.gz' },
 
     ],
     suppressDragLeaveHidesColumns: true,
