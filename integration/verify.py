@@ -375,14 +375,14 @@ def test_backup_app(device):
     assert response.status_code == 200
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
-    response = device.http_get('/rest/backup/list'.format(file))
+    response = device.http_get('/rest/backup/list')
     assert response.status_code == 200
     open('{0}/rest.backup.list.json'.format(log_dir), 'w').write(response.text)
 
     file = json.loads(response.text)[0]
     device.run_ssh('tar tvf {0}'.format(file))
     
-    response = device.http_get('/rest/backup/restore?app=files')
+    response = device.http_get('/rest/backup/restore?app=files&file={0}'.format(file))
     assert response.status_code == 200
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
