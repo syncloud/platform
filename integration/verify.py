@@ -373,6 +373,9 @@ def test_backup_app(device, log_dir):
     
     response = device.http_get('/rest/backup/create?app=files')
     assert response.status_code == 200
+    assert json.loads(response.text)['success']
+
+
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     response = device.http_get('/rest/backup/list')
