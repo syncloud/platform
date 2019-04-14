@@ -44,8 +44,8 @@ def module_teardown(data_dir, device_host, app_dir, log_dir, device):
     device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
     device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
     device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
-    device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)    
-  
+    device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
+    device.run_ssh('ls -la /data/platform/backup > {1}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
     run_scp('root@{0}:{1}/* {2}'.format(device_host, TMP_DIR, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
 
@@ -379,7 +379,7 @@ def test_backup_app(device, log_dir):
     assert response.status_code == 200
     open('{0}/rest.backup.list.json'.format(log_dir), 'w').write(response.text)
 
-    file = json.loads(response.text)[0]
+    file = json.loads(response.text)['data'][0]
     device.run_ssh('tar tvf {0}'.format(file))
     
     response = device.http_get('/rest/backup/restore?app=files&file={0}'.format(file))
