@@ -40,7 +40,7 @@ func (this *Backup) List() ([]string, error) {
 	}
 	var names []string
 	for _, x := range files {
-		names = append(names, x.Name())
+		names = append(names, fmt.Sprintf("%s/%s", this.backupDir, x.Name()))
 	}
 
 	return names, nil
