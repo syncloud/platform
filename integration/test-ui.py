@@ -68,26 +68,17 @@ def _test_index(driver, mode):
     time.sleep(5)
     screenshots(driver, screenshot_dir, 'index-' + mode)
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
 
 def test_settings(driver, device_host):
     driver.get("http://{0}/settings.html".format(device_host))
     time.sleep(5)
     screenshots(driver, screenshot_dir, 'settings')
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
 
 def test_settings_activation(driver, device_host):
     driver.get("http://{0}/activation.html".format(device_host))
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_activation')
-
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
 def test_settings_network(driver, device_host):
@@ -99,9 +90,6 @@ def test_settings_network(driver, device_host):
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'settings_network_external_access')
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
 
 def test_settings_storage(driver, device_host):
     url = "http://{0}/storage.html".format(device_host)
@@ -110,9 +98,6 @@ def test_settings_storage(driver, device_host):
     driver.get(url)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_storage')
-
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
 
 
 def test_settings_updates(driver, device_host):
@@ -123,9 +108,6 @@ def test_settings_updates(driver, device_host):
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_updates')
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
 
 def test_settings_support(driver, device_host):
     url = "http://{0}/support.html".format(device_host)
@@ -135,8 +117,19 @@ def test_settings_support(driver, device_host):
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'settings_support')
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
+
+def test_settings_backup(driver, mobile_driver, device_host):
+    _test_settings_backup(driver, 'desktop', device_host)
+    _test_settings_backup(mobile_driver, 'mobile', device_host)
+
+
+def _test_settings_backup(driver, mobile_driver, device_host):
+    url = "http://{0}/backup.html".format(device_host)
+    resp = requests.get(url, verify=False)
+    assert resp.status_code == 200
+    driver.get(url)
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'settings_backup')
 
 
 def test_app_center(driver, mobile_driver, device_host):
@@ -152,25 +145,14 @@ def _test_app_center(driver, mode, device_host):
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'appcenter-' + mode)
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-    assert not driver.execute_script(
-        'return document.documentElement.scrollWidth>document.documentElement.clientWidth;')
-
 
 def test_installed_app(driver, device_host):
     driver.get("http://{0}/app.html?app_id=files".format(device_host))
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'app_installed')
 
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
-
 
 def test_not_installed_app(driver, device_host):
     driver.get("http://{0}/app.html?app_id=nextcloud".format(device_host))
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'app_not_installed')
-
-    assert not driver.execute_script(
-        'return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')
