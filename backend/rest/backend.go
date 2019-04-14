@@ -99,7 +99,7 @@ func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (
 		return nil, errors.New("app is missing")
 	}
 	
-	backend.Master.Offer(job.JobBackupCreate{App: apps[0], File: files[0]})
+	backend.Master.Offer(job.JobBackupCreate{App: apps[0]})
 	return "submitted", nil
 }
 

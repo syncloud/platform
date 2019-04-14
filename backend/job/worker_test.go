@@ -49,7 +49,7 @@ func TestBackupCreate(t *testing.T) {
 	backup := &backupMock{}
 	worker := NewWorker(master, backup)
 
-	master.Offer(JobBackupCreate{"app", "file"})
+	master.Offer(JobBackupCreate{"app"})
 	worker.Do()
 
 	assert.Equal(t, 1, backup.created)
