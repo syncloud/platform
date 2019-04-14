@@ -98,11 +98,7 @@ func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (
 	if !ok || len(apps) < 1 {
 		return nil, errors.New("app is missing")
 	}
-	files, ok := req.URL.Query()["file"]
-	if !ok || len(files) < 1 {
-		return nil, errors.New("file is missing")
-	}
-
+	
 	backend.Master.Offer(job.JobBackupCreate{App: apps[0], File: files[0]})
 	return "submitted", nil
 }
