@@ -41,7 +41,7 @@ $( document ).ready(function () {
   let grid = new Grid(eGridDiv, gridOptions);
   gridOptions.api.sizeColumnsToFit();
   $.getJSON('/rest/backup/list')
-      .done((data) => { 
-        gridOptions.api.setRowData(data); 
+      .done((response) => { 
+        gridOptions.api.setRowData(response.data); 
       });
 });
