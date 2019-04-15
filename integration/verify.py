@@ -375,7 +375,6 @@ def test_backup_app(device, log_dir):
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     response = device.http_get('/rest/backup/list')
@@ -383,12 +382,11 @@ def test_backup_app(device, log_dir):
     open('{0}/rest.backup.list.json'.format(log_dir), 'w').write(response.text)
 
     file = json.loads(response.text)['data'][0]
-    device.run_ssh('tar tvf {0}'.format(file))
+    device.run_ssh('tar tvf {0}/{1}'.format(file['path'], file['file']))
     
-    response = device.http_get('/rest/backup/restore?app=files&file={0}'.format(file))
+    response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
     assert response.status_code == 200
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
-    
     
 
 def test_rest_backup_list(device, device_host, log_dir):
@@ -397,6 +395,7 @@ def test_rest_backup_list(device, device_host, log_dir):
     with open('{0}/rest.backup.list.json'.format(log_dir), 'w') as the_file:
         the_file.write(response.text)
     assert json.loads(response.text)['success']
+
 
 @pytest.yield_fixture(scope='function')
 def loop_device(device_host):
