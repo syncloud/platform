@@ -30,12 +30,6 @@ const gridOptions = {
         }
       
     ],
-    rowData: [
-        { file: '/data/platform/backup/nextcloud_20190508.tar.gz' },
-        { file: '/data/platform/backup/nextcloud_20190504.tar.gz' },
-        { file: '/data/platform/backup/diaspora_20190508.tar.gz' },
-
-    ],
     suppressDragLeaveHidesColumns: true,
     floatingFilter: true,
     domLayout: 'autoHeight'
@@ -46,4 +40,8 @@ $( document ).ready(function () {
   
   let grid = new Grid(eGridDiv, gridOptions);
   gridOptions.api.sizeColumnsToFit();
+  $.get('/rest/backup/list')
+      .done((data) => { 
+        gridOptions.api.setRowData(data); 
+      });
 });

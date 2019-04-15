@@ -2,7 +2,7 @@ package job
 
 import (
 	"testing"
-
+"github.com/syncloud/platform/backup"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,8 +11,8 @@ type backupMock struct {
 	restored int
 }
 
-func (mock *backupMock) List() ([]string, error) {
-	return []string{"test"}, nil
+func (mock *backupMock) List() ([]backup.File, error) {
+	return []backup.File{ backup.File{"dir", "test"}}, nil
 }
 func (mock *backupMock) Create(app string) {
 	mock.created++

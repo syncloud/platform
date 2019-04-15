@@ -19,7 +19,7 @@ func TestListExisting(t *testing.T) {
 	}
 	list, err := New(dir).List()
 	assert.Nil(t, err)
-	assert.Equal(t, list, []string{dir + "/tmpfile"})
+	assert.Equal(t, list, []File{ File{dir, "tmpfile"}})
 }
 
 func TestCreateBackupDir(t *testing.T) {
