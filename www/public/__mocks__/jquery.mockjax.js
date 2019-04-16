@@ -356,7 +356,7 @@ mockjax({ url:'/rest/settings/device_url', dataType: "json",
     responseText: device_data
 });
 
-let backups = [
+var backups = [
             {"path":"/data/platform/backup","file":"files-2019-0515-123506.tar.gz"},
             {"path":"/data/platform/backup","file":"nextcloud-2019-0515-123506.tar.gz"},
             {"path":"/data/platform/backup","file":"files-2019-0415-123506.tar.gz"}
@@ -373,13 +373,10 @@ mockjax({
     type: "post",
     url:'/rest/backup/remove', dataType: "json",
     response: (settings) => {
-        alert("remove "+settings.data.file);
+        //alert("remove "+settings.data.file);
         backups = backups.filter(v => v.file != settings.data.file);
         alert(backups);
-        this.responseText = JSON.stringify({
-            "success": true,
-            "message": "done"
-        });
+        
     }
 });
 
@@ -387,11 +384,7 @@ mockjax({
     type: "post",
     url:'/rest/backup/restore', dataType: "json",
     response: (settings) => {
-        alert("restore "+settings.data.file);
-        this.responseText = JSON.stringify({
-            "success": true,
-            "message": "done"
-        });
+        //alert("restore "+settings.data.file);
     }
 });
 

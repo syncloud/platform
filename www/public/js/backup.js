@@ -44,22 +44,16 @@ const gridOptions = {
                 $.post(
                  '/rest/backup/restore', 
                  { file: params.data.file },
-                 (data) => {
-                   alert("done");
-                   params.api.redrawRows();
-                 }
+                 (data) => { reload(); }
                 );
               }); 
               buttons[1].addEventListener('click', () => { 
                $.post(
                  '/rest/backup/remove', 
-                 { file: params.data.file }
-                 
+                 { file: params.data.file },
+                 (data) => { reload(); }
                 )
-                .fail(function(a,b,c) {alert("failed");})
-                .done(function(data) {
-                   alert(data);
-                   params.api.redrawRows();});
+                .fail(function(a,b,c) {alert("failed");});
               }); 
               return div;
             }
@@ -71,15 +65,19 @@ const gridOptions = {
     domLayout: 'autoHeight'
 };
 
+function reload() {
+    $.getJSON('/rest/backup/list')
+      .done((response) => { 
+        gridOptions.api.setRowData(response.data);
+        gridOptions.api.sizeColumnsToFit();
+      });
+}
+
 $( document ).ready(function () {
   if (typeof mock !== 'undefined') { console.log("backend mock") };
 
   let eGridDiv = document.querySelector('#backupGrid');
   
   let grid = new Grid(eGridDiv, gridOptions);
-  $.getJSON('/rest/backup/list')
-      .done((response) => { 
-        gridOptions.api.setRowData(response.data);
-        gridOptions.api.sizeColumnsToFit();
-      });
+  reload();
 });
