@@ -69,3 +69,15 @@ func (backup *Backup) Restore(app string, file string) {
 		log.Printf("Backup restore completed")
 	}
 }
+
+func (backup *Backup) Remove(file string) error {
+	filePath := fmt.Sprintf("%s/%s", backup.backupDir, file)
+	log.Println("Removing backup file", filePath)
+	err := os.Remove(filePath)
+	if err != nil {
+		log.Printf("Backup remove failed: %v", err)
+	} else {
+		log.Printf("Backup remove completed")
+	}
+	return err
+}

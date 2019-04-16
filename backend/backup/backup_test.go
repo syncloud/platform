@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestListExisting(t *testing.T) {
+func TestList(t *testing.T) {
 	dir := createTempDir()
 	defer os.RemoveAll(dir)
 	tmpfn := filepath.Join(dir, "tmpfile")
@@ -19,7 +19,22 @@ func TestListExisting(t *testing.T) {
 	}
 	list, err := New(dir).List()
 	assert.Nil(t, err)
-	assert.Equal(t, list, []File{ File{dir, "tmpfile"}})
+	assert.Equal(t, list, []File{File{dir, "tmpfile"}})
+}
+
+func TestRemove(t *testing.T) {
+	dir := createTempDir()
+	defer os.RemoveAll(dir)
+	tmpfn := filepath.Join(dir, "tmpfile")
+	if err := ioutil.WriteFile(tmpfn, []byte(""), 0666); err != nil {
+		log.Fatal(err)
+	}
+	backup := New(dir)
+	err := backup.Remove("tmpfile")
+	assert.Nil(t, err)
+	list, err := backup.List()
+	assert.Nil(t, err)
+	assert.Equal(t, len(list), 0)
 }
 
 func TestCreateBackupDir(t *testing.T) {

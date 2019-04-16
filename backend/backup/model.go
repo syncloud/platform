@@ -1,8 +1,8 @@
 package backup
 
 type File struct {
- Path string   `json:"path"`
- File string   `json:"file"`
+	Path string `json:"path"`
+	File string `json:"file"`
 }
 
 type AppBackup interface {
