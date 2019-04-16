@@ -123,13 +123,13 @@ def test_settings_backup(driver, mobile_driver, device_host):
     _test_settings_backup(mobile_driver, 'mobile', device_host)
 
 
-def _test_settings_backup(driver, mobile_driver, device_host):
+def _test_settings_backup(driver, mode, device_host):
     url = "http://{0}/backup.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_backup')
+    screenshots(driver, screenshot_dir, 'settings_backup-' + mode)
 
 
 def test_app_center(driver, mobile_driver, device_host):
