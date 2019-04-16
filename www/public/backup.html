@@ -27,5 +27,36 @@
 
     <%= require('html-loader!./template/error.html') %>
 
+    <div id="backup_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
+         aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title"><span id="confirm_caption"></span></h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="backup_file" value=""/>
+                    <input type="hidden" id="backup_action" value=""/>
+                    <div class="bodymod">
+                        <div class="btext">
+                            <span id="confirm_question"></span>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
+                        </button>
+                        <button type="button" id="btn_confirm" class="btn buttonlight bwidth smbutton"
+                                data-dismiss="modal">OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -41,19 +41,18 @@ const gridOptions = {
              `;
               var buttons = div.querySelectorAll('i');
               buttons[0].addEventListener('click', () => { 
-                $.post(
-                 '/rest/backup/restore', 
-                 { file: params.data.file },
-                 (data) => { reload(); }
-                );
+                $('#backup_file').val(params.data.file);
+                $('#backup_action').val('restore');
+                $('#confirm_caption').html('Restore');
+                $('#confirm_question').html('Do you want to restore: ' + params.data.file + '?');
+                $('#backup_action_confirmation').modal('show');
               }); 
               buttons[1].addEventListener('click', () => { 
-               $.post(
-                 '/rest/backup/remove', 
-                 { file: params.data.file },
-                 (data) => { reload(); }
-                )
-                .fail(function(a,b,c) {alert("failed");});
+               $('#backup_file').val(params.data.file);
+                $('#backup_action').val('remove');
+                $('#confirm_caption').html('Remove');
+                $('#confirm_question').html('Do you want to remove: ' + params.data.file + '?');
+                $('#backup_action_confirmation').modal('show');
               }); 
               return div;
             }
@@ -75,6 +74,29 @@ function reload() {
 
 $( document ).ready(function () {
   if (typeof mock !== 'undefined') { console.log("backend mock") };
+  
+  $("#btn_confirm").off('click').on('click', function () {
+     
+		     var file = $('#backup_file').val();
+      var action = $('#backup_action').val();
+      
+      if(action == 'restore') {
+          $.post(
+             '/rest/backup/restore', 
+             { file: file },
+             (data) => { reload(); }
+            );
+      } else if (action == 'remove') {
+          $.post(
+             '/rest/backup/remove', 
+             { file: file },
+             (data) => { reload(); }
+            )
+            .fail(function(a,b,c) {
+               alert("failed");
+            });
+      }
+   });
 
   let eGridDiv = document.querySelector('#backupGrid');
   

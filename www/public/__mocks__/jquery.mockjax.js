@@ -362,29 +362,39 @@ var backups = [
             {"path":"/data/platform/backup","file":"files-2019-0415-123506.tar.gz"}
         ];
 
-mockjax({ url:'/rest/backup/list', dataType: "json",
-    responseText: {
+function backupList(settings) {
+    //alert(backups.length);
+    this.responseText = {
         "success":true,
         "data": backups
-    }
+    };
+}
+
+mockjax({ 
+    url:'/rest/backup/list',
+    dataType: "json",
+    response: backupList
 });
+
+function backupRemove(settings) {
+    //alert("remove "+settings.data.file);
+    backups = backups.filter(v => v.file != settings.data.file);
+    //alert(backups);
+}
 
 mockjax({ 
     type: "post",
     url:'/rest/backup/remove', dataType: "json",
-    response: (settings) => {
-        //alert("remove "+settings.data.file);
-        backups = backups.filter(v => v.file != settings.data.file);
-        alert(backups);
-        
-    }
+    response: backupRemove
 });
+
+function backupRestore(settings) {
+    //alert("restore "+settings.data.file);
+}
 
 mockjax({ 
     type: "post",
     url:'/rest/backup/restore', dataType: "json",
-    response: (settings) => {
-        //alert("restore "+settings.data.file);
-    }
+    response: backupRestore
 });
 
