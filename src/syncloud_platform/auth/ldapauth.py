@@ -71,7 +71,7 @@ class LdapAuth:
         success = False
         for i in range(0, 3):
             try:
-                self.ldapadd(filename):
+                self.ldapadd(filename)
                 success = True
                 break
             except Exception, e:
@@ -85,6 +85,7 @@ class LdapAuth:
     def ldapadd(self, filename):
         check_output('{0}/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f {1}'.format(
                     self.ldap_root, filename), shell=True)
+
 
 def generate_change_password_cmd(password):
     return 'echo "root:{0}" | chpasswd'.format(password.replace('"', '\\"').replace("$", "\\$"))
