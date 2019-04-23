@@ -2,10 +2,4 @@
 
 from syncloud_platform.installer import PlatformInstaller
 
-import logging
-from syncloudlib import logger
-
-logger.init(logging.DEBUG, console=True, line_format='%(message)s')
-
-platform_installer = PlatformInstaller()
-platform_installer.install()
+PlatformInstaller().install()

@@ -15,25 +15,28 @@ APP_NAME = 'platform'
 
 class PlatformInstaller:
     def __init__(self):
-        self.log = logger.get_logger('installer')
+        if not logger.factory_instance:
+            logger.init(logging.DEBUG, True)
 
+        self.log = logger.get_logger('installer')
+        self.templates_path = join(config.INSTALL_DIR, 'config.templates')
+        self.config_dir = join(config.DATA_DIR, 'config')
+        self.data_dir = config.DATA_DIR
+    
     def init_configs(self):
         linux.fix_locale()
         
-        templates_path = join(config.INSTALL_DIR, 'config.templates')
-        config_dir = join(config.DATA_DIR, 'config')
-        data_dir = config.DATA_DIR
         variables = {
             'apps_root': config.APPS_ROOT,
             'data_root': config.DATA_ROOT,
             'configs_root': config.DATA_ROOT,
-            'config_root': data_dir,
-            'config_dir': config_dir,
+            'config_root': self.data_dir,
+            'config_dir': self.config_dir,
             'app_dir': config.INSTALL_DIR,
             'app_data': config.DATA_DIR,
             'app_data_prefix': config.APP_DATA_PREFIX
         }
-        gen.generate_files(templates_path, config_dir, variables)
+        gen.generate_files(self.templates_path, self.config_dir, variables)
     
         data_dirs = [
             join(data_dir, 'webapps'),
@@ -80,4 +83,9 @@ class PlatformInstaller:
         user_config.migrate_user_config()
         self.init_services()
 
+    def configure(self):
+        injector = get_injector()
+        ldap_auth = injector.ldap_auth
+        ldap_auth.ldappadd(join(self.config_dir, 'permissions.ldif'))
+        
            

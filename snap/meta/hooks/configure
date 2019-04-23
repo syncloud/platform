@@ -2,4 +2,4 @@
 
 from syncloud_platform.installer import PlatformInstaller
 
-PlatformInstaller().post_refresh()
+PlatformInstaller().configure()
