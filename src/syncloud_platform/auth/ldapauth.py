@@ -83,10 +83,11 @@ class LdapAuth:
             raise Exception("Unable to initialize ldap db")
 
     def ldapadd(self, filename, domain=None):
+        domain_option = ''
         if domain:
-            domain = '-D "{0}"'.format(domain)
+            domain_option = '-D "{0}"'.format(domain)
         check_output('{0}/bin/ldapadd.sh -x -w syncloud {1} -f {2}'.format(
-                    self.ldap_root, domain, filename), shell=True)
+                    self.ldap_root, domain_option, filename), shell=True)
 
 
 def generate_change_password_cmd(password):
