@@ -12,7 +12,7 @@ from syncloudlib.logger import get_logger
 import time
 
 ldap_user_conf_dir = 'slapd.d'
-
+DOMAIN="dc=syncloud,dc=org"
 
 class LdapAuth:
     def __init__(self, platform_config, systemctl):
@@ -71,7 +71,7 @@ class LdapAuth:
         success = False
         for i in range(0, 3):
             try:
-                self.ldapadd(filename)
+                self.ldapadd(filename, DOMAIN)
                 success = True
                 break
             except Exception, e:
@@ -82,9 +82,11 @@ class LdapAuth:
         if not success:
             raise Exception("Unable to initialize ldap db")
 
-    def ldapadd(self, filename):
-        check_output('{0}/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f {1}'.format(
-                    self.ldap_root, filename), shell=True)
+    def ldapadd(self, filename, domain=None):
+        if domain:
+            domain = '-D "{0}"'.format(domain)
+        check_output('{0}/bin/ldapadd.sh -x -w syncloud {1} -f {2}'.format(
+                    self.ldap_root, domain, filename), shell=True)
 
 
 def generate_change_password_cmd(password):
