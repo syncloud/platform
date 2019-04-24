@@ -14,6 +14,7 @@ import time
 ldap_user_conf_dir = 'slapd.d'
 DOMAIN="dc=syncloud,dc=org"
 
+
 class LdapAuth:
     def __init__(self, platform_config, systemctl):
         self.systemctl = systemctl
