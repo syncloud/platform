@@ -82,4 +82,4 @@ class PlatformInstaller:
     def configure(self):
         injector = get_injector()
         ldap_auth = injector.ldap_auth
-        ldap_auth.ldappadd(join(self.config_dir, 'permissions.ldif'))
+        ldap_auth.ldapadd(join(self.config_dir, 'permissions.ldif'))
