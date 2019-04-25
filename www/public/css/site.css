@@ -650,11 +650,11 @@ input:disabled {
 .support-img {
     background-image: url(../images/support.svg);
 }
-.appname {
+.setting-name {
     font-size: 20px;
     margin: 10px 0 2px;
     font-weight: 300;
-    display: inline;
+    display: block;
 }
 .withline {
     border-bottom: 1px dashed #2d353f;
