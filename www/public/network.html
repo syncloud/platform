@@ -1,78 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Syncloud</title>
-	<meta name="author" content="syncloud.org">
-	<meta name="description" content="Your Personal Server">
-	<meta name="keywords" content="Your Personal Server">
-	
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-	<meta name="HandheldFriendly" content="true" />
-	<meta name="MobileOptimized" content="width" />
-	<meta content="yes" name="apple-mobile-web-app-capable" />
 
-	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
-	<meta name="theme-color" content="#3e454e">
+<%= require('html-loader!./template/meta.html') %>
 
-  <script type="text/javascript" src="js/lib/underscore-min.js"></script>
-  <script type="text/javascript" src="js/lib/URI.js"></script>
-
-	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-	<!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
-    <link href="css/font-awesome.css" rel="stylesheet">
-
-	</head>	
 <body>
 <div class="wrapper">
 	<div class="content">
-	<!--HEADER-->
-		<div class="headblock">
-			<header class="wd12">
-				<div class="logo">Syncloud</div>
-				<div class="menulinks">
-					<a href="index.html" class="apps hlink">Apps</a>
-					<a href="appcenter.html" class="appcenter hlink">App Center</a>
-					<a href="settings.html" class="settings hlink active">Settings</a>
-				</div>
-				<div class="menuoff">
-					<a href="#" id="btn_logout_large" class="logout hlink">Log out</a>
-					<div class="dropdowncontainer hlink">
-						<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
-						<div id="myDropdown" class="dropdown-content">
-						<a href="#" id="btn_restart_large">Restart</a>
-						<a href="#" id="btn_shutdown_large">Shutdown</a>
-						</div>
-					</div>
-				</div>
-				<div class="menubutton">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-				</div>
-			</header>
-			<div class="navi">
-				<a href="index.html">Apps</a>
-				<a href="appcenter.html">App Center</a>
-				<a href="settings.html">Settings</a>
-				<div class="menucolor2">
-				<a href="#" id="btn_logout_small">Log out</a>
-				<a href="#" id="btn_restart_small">Restart</a>
-				<a href="#" id="btn_shutdown_small">Shutdown</a>
-				</div>
-			</div>
-		</div>
+ 
+ <%= require('html-loader!./template/header.html') %>
+
 		<!--block1-->
 		<div class="block1 wd12" id="block1">
 			<h1>Network</h1>
-			<div class="row settingsblock">
+			<div class="row-no-gutters settingsblock">
 
                 <div class="col2">
 
@@ -88,25 +28,26 @@
                     <h3>Router</h3>
 
                     <div class="setline">
-                        <span class="span">External Access:</span>
-                        
+                        <span class="span">External Access:
 				                     	
-                        <div class="spandiv">
-                            <input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-                            <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
-                        </div>
-                        
-                        <button data-toggle="modal" data-target="#help_external_access" type=button style=" background:transparent;">
-				                      		<i class='fa fa-question-circle fa-lg'></i>
-				                     	</button>
+							<div class="spandiv">
+								<input type="checkbox" id="tgl_external" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+								<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_external_loading"></i>
+							</div>
+
+							<button data-toggle="modal" data-target="#help_external_access" type=button class="control" style=" background:transparent;">
+												<i class='fa fa-question-circle fa-lg'></i>
+											</button>
+						</span>
                     </div>
                     <div id="external_block" style="display: none">
                         <div class="setline">
-                            <span class="span">Auto detect IP:</span>
-                            <div class="spandiv">
-                                <input type="checkbox" id="tgl_ip_autodetect" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-                                <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_ip_autodetect_loading"></i>
-                            </div>
+                            <span class="span">Auto detect IP:
+								<div class="spandiv">
+									<input type="checkbox" id="tgl_ip_autodetect" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+									<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_ip_autodetect_loading"></i>
+								</div>
+							</span>
                         </div>
 
                         <div class="setline">
@@ -120,14 +61,15 @@
                         </div>
 
                         <div class="setline">
-                            <span class="span">Auto mode (UPnP):</span>
-                            <div class="spandiv">
-                                <input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
-                                <i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
-                                <button id="upnp_warning" data-toggle="modal" data-target="#help_upnp_warning" type=button style="background:transparent;">
-                                    <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
-                                </button>
-                            </div>
+                            <span class="span">Auto mode (UPnP):
+								<div class="spandiv">
+									<input type="checkbox" id="tgl_upnp" data-on-text="ON" data-off-text="OFF" data-label-width="8"/>
+									<i class="fa fa-circle-o-notch fa-spin switchloading opacity-invisible" id="tgl_upnp_loading"></i>
+									<button id="upnp_warning" data-toggle="modal" data-target="#help_upnp_warning" type=button class="control" style="background:transparent;">
+										<i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+									</button>
+								</div>
+							</span>
                         </div>
 
                         <div class="setline">
@@ -135,7 +77,7 @@
                                 <span style='white-space: nowrap;' > HTTP port 80:
                                     <input name="certificate_port" id="certificate_port" type="text"
                                            style="width: 80px; height: 30px; padding: 0 10px 0 10px">
-                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button style="background:transparent;">
+                                    <button id="certificate_port_warning" data-toggle="modal" data-target="#help_certificate_port_warning" type=button class="control" style="background:transparent;">
                                         <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                                     </button>
                                 </span>
@@ -148,7 +90,7 @@
                                 <span style='white-space: nowrap;' > HTTPS port 443:
                                     <input name="access_port" id="access_port" type="text"
                                            style="width: 80px; height: 30px; padding: 0 10px 0 10px"/>
-                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button style="background:transparent;">
+                                    <button id="access_port_warning" data-toggle="modal" data-target="#help_access_port_warning" type=button class="control" style="background:transparent;">
                                         <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                                     </button>
                                 </span>
@@ -159,7 +101,7 @@
    
                    <div class="setline">
                          <div class="spandiv">
-                               <button class="submit buttongreen" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..." style="width: 150px">Save</button>
+                               <button class="submit buttongreen control" id="btn_save" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."  style="width: 150px">Save</button>
                          </div>
 					</div>
 					
@@ -169,28 +111,8 @@
 		</div>
 	</div>
 </div>
-<!--<div class="loadingblock" id="loadingblock">-->
-	<!--<div class="spanloading"><i class="fa fa-circle-o-notch fa-spin switchloading" id="tgl_page_loading"></i>Loading...</div>-->
-<!--</div>-->
 
-<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Error</h4>
-      </div>
-      <div class="modal-body">
-          <div class="bodymod">
-              <div id="txt_error" class="btext">Some error happened!</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-      </div>
-    </div>
-  </div>
-</div>
+<%= require('html-loader!./template/error.html') %>
 
 <div id="help_certificate_port_warning" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
 	<div class="modal-dialog" role="document">
@@ -290,332 +212,5 @@
 		</div>
 	</div>
 </div>
-
-<!-- Templates -->
-<script type="text/html" id='template-network'>
-
-    <%
-		if (interfaces.length == 0) {
-    %>
-
-		<span class="span">No networks found</span>
-
-    <% } %>
-
-    <%
-    for (i=0; i < interfaces.length; i++) {
-        var interface = interfaces[i];
-    %>
-
-        <div class="setline">
-				<span class="span">IPv4 (<%= interface.name %>): </span>
-
-            <%
-                if (interface.ipv4) {
-            %>
-
-                <%
-                    addresses = interface.ipv4;
-                    for (j=0; j < addresses.length; j++) {
-                        var address = addresses[j];
-                %>
-
-                    <%
-                        if (j > 0) {
-                    %>
-
-                        <span class="span">, </span>
-
-                    <% } %>
-
-
-                    <span class="span"><%=address.addr %></span>
-
-                <% } %>
-
-            <% } else {  %>
-
-                <span class="span">No IPv4</span>
-
-            <% } %>
-
-        </div>
-        <div class="setline">
-				<span class="span">IPv6 (<%= interface.name %>): </span>
-
-            <%
-                if (interface.ipv6) {
-            %>
-
-                <%
-                    addresses = interface.ipv6;
-                    for (j=0; j < addresses.length; j++) {
-                        var address = addresses[j];
-                %>
-
-                    <%
-                        if (j > 0) {
-                    %>
-
-                        <span class="span">, </span>
-
-                    <% } %>
-
-
-                    <span class="span"><%=address.addr %></span>
-
-                <% } %>
-
-            <% } else {  %>
-
-                <span class="span">No IPv6</span>
-
-            <% } %>
-
-        </div>
-
-    <% } %>
-</script>
-
-<!-- Scripts-->
-<script src="js/lib/jquery-1.11.3.min.js"></script>
-<script src="js/lib/bootstrap.min.js"></script>
-<script src="js/lib/bootstrap-switch.min.js"></script>
-<script src="js/ui/font.js"></script>
-<script src="js/ui/common.js"></script>
-<script src="js/ui/menu.js"></script>
-
-<script type="text/javascript">
-
-function ui_display_toggles() {
-	$("[type='checkbox']").each(function() {
-		$(this).bootstrapSwitch();
-	});
-}
-
-ui_display_toggles();
-
-function ui_display_network(data) {
-    var template = $("#template-network").html();
-    $("#block_network").html(_.template(template)(data.data));
-}
-
-function ui_display_port_mappings(data) {
-
-    certificate_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 80;});
-    certificate_port = 0;
-    if (certificate_port_mapping) {
-        certificate_port = certificate_port_mapping.external_port;
-    }
-    $("#certificate_port").val(certificate_port);
-    if (certificate_port != 80) {
-        $("#certificate_port_warning").show('slow');
-    } else {
-        $("#certificate_port_warning").hide('slow');
-    }
-
-    access_port_mapping = _.find(data.port_mappings, function(mapping) {return mapping.local_port == 443;});
-    access_port = 0;
-    if (access_port_mapping) {
-        access_port = access_port_mapping.external_port
-    }
-    $("#access_port").val(access_port);
-    if (access_port != 443) {
-        $("#access_port_warning").show('slow');
-    } else {
-        $("#access_port_warning").hide('slow');
-    }
-
-}
-
-function ui_display_access(data) {
-    var access_data = data.data;
-    $('#tgl_external').bootstrapSwitch('disabled', false);
-    $('#tgl_external').bootstrapSwitch('state', access_data.external_access, true);
-    $("#tgl_external_loading").removeClass('opacity-visible');
-   
-    $('#tgl_ip_autodetect').bootstrapSwitch('disabled', false);
-    
-    $("#tgl_ip_autodetect_loading").removeClass('opacity-visible');
-    
-    if (access_data.hasOwnProperty('public_ip')) {
-        ip_autodetect_enabled = false;
-        $("#public_ip").val(access_data.public_ip);
-    } else {
-        ip_autodetect_enabled = true;
-        $("#public_ip").val('');
-    }
-    $('#tgl_ip_autodetect').bootstrapSwitch('state', ip_autodetect_enabled);
-
-    $('#tgl_upnp').bootstrapSwitch('disabled', false);
-    $('#tgl_upnp').bootstrapSwitch('state', access_data.upnp_enabled);
-    $("#tgl_upnp_loading").removeClass('opacity-visible');
-
-    if (access_data.upnp_available) {
-        $("#upnp_warning").hide('slow');
-    } else {
-        $("#upnp_warning").show('slow');
-    }
-    
-    if (access_data.upnp_available) {
-        $("#label_upnp").css("color", "black");
-    } else {
-        $("#label_upnp").css("color", "red");
-    }
-    
-    $("#btn_save").button('reset');
-
-    $('#tgl_external').bootstrapSwitch('disabled', false);
-    $('#tgl_upnp').bootstrapSwitch('disabled', false);
-
-    ui_prepare_external_access();
-    ui_prepare_address();
-    ui_upnp();
-
-}
-
-function disable_access_controls(disabled) {
-    $('#tgl_external').bootstrapSwitch('disabled', disabled);
-    $('#tgl_ip_autodetect').bootstrapSwitch('disabled', disabled);
-    $('#tgl_upnp').bootstrapSwitch('disabled', disabled);
-    $('#public_ip').prop('disabled', disabled);
-    $('#certificate_port').prop('disabled', disabled);
-    $('#access_port').prop('disabled', disabled);
-}
-
-function ui_check_access() {
-    disable_access_controls(true);
-
-    $("#tgl_external_loading").addClass('opacity-visible');
-    $("#tgl_upnp_loading").addClass('opacity-visible');
-    $("#tgl_ip_autodetect_loading").addClass('opacity-visible');
-    $('#btn_save').button('loading');
-
-    backend.check_access(ui_display_access, ui_display_error);
-    backend.port_mappings(ui_display_port_mappings, ui_display_error);
-}
-
-function ui_check_network() {
-    backend.network_interfaces(ui_display_network, ui_display_error);
-}
-
-function ui_prepare_external_access() {
-		var toggle = $("#tgl_external");
-		var enabled = toggle.bootstrapSwitch('state');
-		if (enabled) {
-            $("#external_block").show('slow');
-        } else {
-            $("#external_block").hide('slow');
-        }
-}
-
-function ui_prepare_address() {
-		var toggle = $("#tgl_ip_autodetect");
-		var enabled = toggle.bootstrapSwitch('state');
-		$('#public_ip').prop('disabled', enabled);
-}
-
-function ui_upnp() {
-		var toggle = $("#tgl_upnp");
-		var enabled = toggle.bootstrapSwitch('state');
-		$('#certificate_port').prop('disabled', enabled);
-		$('#access_port').prop('disabled', enabled);
-}
-
-function isValidPort(port) {
-    return Number.isNaN(port) || port < 1 || port > 65535
-}
-function error(message) {
-    return {
-        status: 200,
-        responseJSON: {
-            message: message
-        }
-    }
-}
-
-$(document).ready(function () {
-
-    $("#tgl_external").on('switchChange.bootstrapSwitch', function (event, state) {
-        event.preventDefault();
-        ui_prepare_external_access();
-    });
-
-    $("#tgl_ip_autodetect").on('switchChange.bootstrapSwitch', function (event, state) {
-        event.preventDefault();
-        ui_prepare_address();
-    });
-
-    $("#tgl_upnp").on('switchChange.bootstrapSwitch', function (event, state) {
-        event.preventDefault();
-        ui_upnp();
-    });
-
-    $("#btn_save").click(function ( event ) {
-        event.preventDefault();
-        
-        var access_toggle = $("#tgl_external");
-        var upnp_enabled = $("#tgl_upnp").bootstrapSwitch('state');
-        var ip_autodetect = $("#tgl_ip_autodetect").bootstrapSwitch('state');
-
-        var certificate_port_string = $("#certificate_port").val();
-        var certificate_port = parseInt(certificate_port_string);
-
-        var access_port_string = $("#access_port").val();
-        var access_port = parseInt(access_port_string);
-
-        var public_ip = $("#public_ip").val().trim();
-
-        if (upnp_enabled) {
-            certificate_port = 0;
-            access_port = 0;
-        } else {
-            
-            if (isValidPort(certificate_port)) {
-                ui_display_error(error("certificate port (" + certificate_port_string + ") has to be between 1 and 65535"), {}, {});
-                return;
-            }
-            if (isValidPort(access_port)) {
-                ui_display_error(error("access port (" + access_port_string + ") has to be between 1 and 65535"), {}, {});
-                return;
-            }
-        }
-        
-        disable_access_controls(true);
-        var btn = $(this);
-        btn.button('loading');
-
-        backend.set_access(
-                upnp_enabled,
-                access_toggle.bootstrapSwitch('state'),
-                ip_autodetect,
-                public_ip,
-                certificate_port,
-                access_port,
-                ui_check_access,
-                function (xhr, textStatus, errorThrown) {
-                    ui_display_error(xhr, textStatus, errorThrown);
-                    ui_check_access();
-                }
-        );
-    });
-
-    ui_check_access();
-    ui_check_network();
-
-});
-
-</script>
-
-<!--[if lt IE 9]>
-<script src="js/lib/html5.js"></script>
-<script src="js/lib/IE9.js"></script>
-<![endif]-->
-
-<script src="js/common.js"></script>
-<script src="js/backend/common.js"></script>
-<script src="js/backend/menu.js"></script>
-<script src="js/backend/access.js"></script>
-<!-- END SCRIPTS -->
 </body>
 </html>

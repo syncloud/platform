@@ -18,7 +18,7 @@ func NewWorker(master JobMaster, backup backup.AppBackup) *Worker {
 func (worker *Worker) Start() {
 	for {
 		if !worker.Do() {
-			time.Sleep(1000)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
@@ -31,7 +31,7 @@ func (worker *Worker) Do() bool {
 	switch jobtype := job.(type) {
 	case JobBackupCreate:
 		v := job.(JobBackupCreate)
-		worker.backup.Create(v.App, v.File)
+		worker.backup.Create(v.App)
 	case JobBackupRestore:
 		v := job.(JobBackupRestore)
 		worker.backup.Restore(v.App, v.File)

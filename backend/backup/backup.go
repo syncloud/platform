@@ -1,10 +1,12 @@
 package backup
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"time"
 )
 
 type Backup struct {
@@ -30,21 +32,23 @@ func New(dir string) *Backup {
 	}
 }
 
-func (this *Backup) List() ([]string, error) {
+func (this *Backup) List() ([]File, error) {
 	files, err := ioutil.ReadDir(this.backupDir)
 	if err != nil {
 		log.Println("Cannot get list of files in ", this.backupDir, err)
 		return nil, err
 	}
-	var names []string
+	var names []File
 	for _, x := range files {
-		names = append(names, x.Name())
+		names = append(names, File{this.backupDir, x.Name()})
 	}
 
 	return names, nil
 }
 
-func (backup *Backup) Create(app string, file string) {
+func (backup *Backup) Create(app string) {
+	time := time.Now().Format("2006-0102-150405")
+	file := fmt.Sprintf("%s/%s-%s.tar.gz", backup.backupDir, app, time)
 	cmd := exec.Command(BACKUP_CREATE_CMD, app, file)
 	log.Println("Running backup create", BACKUP_CREATE_CMD, app, file)
 	err := cmd.Run()
@@ -64,4 +68,16 @@ func (backup *Backup) Restore(app string, file string) {
 	} else {
 		log.Printf("Backup restore completed")
 	}
+}
+
+func (backup *Backup) Remove(file string) error {
+	filePath := fmt.Sprintf("%s/%s", backup.backupDir, file)
+	log.Println("Removing backup file", filePath)
+	err := os.Remove(filePath)
+	if err != nil {
+		log.Printf("Backup remove failed: %v", err)
+	} else {
+		log.Printf("Backup remove completed")
+	}
+	return err
 }

@@ -56,3 +56,11 @@ function ui_display_error(xhr, textStatus, errorThrown) {
         }
     }
 }
+
+module.exports = { 
+  get_error_block_id,
+  show_field_error,
+  hide_field_error,
+  hide_fields_errors,
+  ui_display_error
+};

@@ -1,9 +1,4 @@
-var backend = {
-    async: true
-};
-
-function check_for_service_error(data, on_complete, on_error) {
-    
+export function check_for_service_error(data, on_complete, on_error) {
     if (data.hasOwnProperty('success') && !data.success) {
         var xhr = {
             status: 200,
@@ -16,11 +11,11 @@ function check_for_service_error(data, on_complete, on_error) {
     
 }
 
-function run_after_sam_is_complete(status_checker, timeout_func, on_complete, on_error) {
+export function run_after_sam_is_complete(status_checker, timeout_func, on_complete, on_error) {
     run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, 'sam');
 }
 
-function run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job) {
+export function run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job) {
 
     var recheck_function = function () { run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job); };
 
@@ -43,9 +38,8 @@ function run_after_job_is_complete(status_checker, timeout_func, on_complete, on
     );
 }
 
-function find_app(apps_data, app_id) {
-    for (s=0; s < apps_data.length; s++) {
-        var app_data = apps_data[s];
+export function find_app(apps_data, app_id) {
+    for (var app_data of apps_data) {
         if (app_data.app.id == app_id) {
             return app_data;
         }
@@ -53,12 +47,25 @@ function find_app(apps_data, app_id) {
     return null;
 }
 
-function get_value(values, name) {
-    for (i=0; i < values.length; i++) {
-        var value = values[i];
+export function get_value(values, name) {
+    for (var value of values) {
         if (value.name === name) {
             return value.value;
         }
     }
     return null;
+}
+
+export function job_status(job, on_complete, on_error) {
+    $.get('/rest/settings/' + job + '_status').done(on_complete).fail(on_error);
+}
+
+export function send_logs(include_support, on_always, on_error) {
+    $.get('/rest/send_log',
+      { include_support: include_support }
+    ).always(on_always).fail(on_error);
+}
+
+export function send_log(on_always, on_error) {
+    $.get('/rest/send_log').always(on_always).fail(on_error);
 }

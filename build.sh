@@ -11,13 +11,14 @@ NAME=$1
 ARCH=$(uname -m)
 VERSION=$2
 GO_VERSION=1.11.5
+NODE_VERSION=10.15.1
 
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/${NAME}
 GOROOT=${DIR}/go
 PYTHON_DIR=${BUILD_DIR}/python
-export PATH=${PYTHON_DIR}/bin:$GOROOT/bin:$PATH
+export PATH=${PYTHON_DIR}/bin:$GOROOT/bin:${DIR}/node/bin:$PATH
 SNAP_DIR=${DIR}/build/snap
 rm -rf build
 mkdir -p ${BUILD_DIR}
@@ -32,8 +33,10 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/openssl-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
 
 GO_ARCH=armv6l
+NODE_ARCH=armv6l
 if [[ ${ARCH} == "x86_64" ]]; then
     GO_ARCH=amd64
+    NODE_ARCH=x64
 fi
 
 wget https://dl.google.com/go/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz --progress dot:giga
@@ -41,9 +44,18 @@ tar xf go${GO_VERSION}.linux-${GO_ARCH}.tar.gz
 
 go version
 
-cd backend
+wget https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz \
+    --progress dot:giga -O node.tar.gz
+tar xzf node.tar.gz
+mv node-v${NODE_VERSION}-linux-${NODE_ARCH} node
+
+cd ${DIR}/www/public
+npm install
+npm run build
+
+cd ${DIR}/backend
 go test ./... -cover
-go build -o ${BUILD_DIR}/bin/backend main/main.go
+CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/backend main/main.go
 
 cd ${DIR}
 
@@ -60,7 +72,9 @@ ${PYTHON_DIR}/bin/python setup.py install
 cd ..
 
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
-cp -r ${DIR}/www ${BUILD_DIR}
+mkdir ${BUILD_DIR}/www
+cp -r ${DIR}/www/internal ${BUILD_DIR}/www
+cp -r ${DIR}/www/public/dist ${BUILD_DIR}/www/public
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app

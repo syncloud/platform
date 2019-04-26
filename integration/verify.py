@@ -18,7 +18,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 DIR = dirname(__file__)
-
+TMP_DIR = '/tmp/syncloud'
 DEFAULT_LOGS_SSH_PASSWORD = "syncloud"
 LOGS_SSH_PASSWORD = DEFAULT_LOGS_SSH_PASSWORD
 
@@ -29,18 +29,24 @@ def app_data_dir():
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device_host, app_dir, log_dir):
-    request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir))
+def module_setup(request, data_dir, device_host, app_dir, log_dir, device):
+    request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir, device))
 
 
-def module_teardown(data_dir, device_host, app_dir, log_dir):
+def module_teardown(data_dir, device_host, app_dir, log_dir, device):
     run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, log_dir), throw=False,
             password=LOGS_SSH_PASSWORD)
     run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, log_dir), throw=False,
             password=LOGS_SSH_PASSWORD)
-
-    run_ssh(device_host, 'journalctl > /log/journalctl.log', password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:/log/* {1}'.format(device_host, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
+ 
+    device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
+    device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+    device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
+    device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+    device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+    device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
+    device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
+    run_scp('root@{0}:{1}/* {2}'.format(device_host, TMP_DIR, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
 
 
@@ -144,16 +150,15 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain):
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain, device):
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
     run_scp('{0} root@{1}:/'.format(nginx_runtime, app_domain), throw=False, password=LOGS_SSH_PASSWORD)
-    run_ssh(app_domain, 'mkdir -p {0}'.format(app_data_dir), password=LOGS_SSH_PASSWORD)
-    run_ssh(app_domain, '{0}/nginx/sbin/nginx '
+    device.run_ssh('mkdir -p {0}'.format(app_data_dir))
+    device.run_ssh('{0}/nginx/sbin/nginx '
                         '-c /nginx.app.test.conf.runtime '
-                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
-            password=LOGS_SSH_PASSWORD)
+                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
     response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
@@ -362,17 +367,24 @@ def test_installer_upgrade(device, device_host):
     wait_for_installer(session, device_host, throw_on_error=True)
 
 
-def test_backup_app(device):
-    file = "/tmp/backup.test.tar.gz"
+def test_backup_app(device, log_dir):
+    
     session = device.login()
     
-    response = device.http_get('/rest/backup/create?app=files&file={0}'.format(file))
+    response = device.http_get('/rest/backup/create?app=files')
     assert response.status_code == 200
+    assert json.loads(response.text)['success']
+
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
-    device.run_ssh('tar tvf {0}'.format(file))
+    response = device.http_get('/rest/backup/list')
+    assert response.status_code == 200
+    open('{0}/rest.backup.list.json'.format(log_dir), 'w').write(response.text)
+
+    file = json.loads(response.text)['data'][0]
+    device.run_ssh('tar tvf {0}/{1}'.format(file['path'], file['file']))
     
-    response = device.http_get('/rest/backup/restore?app=files&file={0}'.format(file))
+    response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
     assert response.status_code == 200
     wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
@@ -383,6 +395,7 @@ def test_rest_backup_list(device, device_host, log_dir):
     with open('{0}/rest.backup.list.json'.format(log_dir), 'w') as the_file:
         the_file.write(response.text)
     assert json.loads(response.text)['success']
+
 
 @pytest.yield_fixture(scope='function')
 def loop_device(device_host):

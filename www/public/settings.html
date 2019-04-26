@@ -1,148 +1,69 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Syncloud</title>
-	<meta name="author" content="syncloud.org">
-	<meta name="description" content="Your Personal Server">
-	<meta name="keywords" content="Your Personal Server">
-	
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-	<meta name="HandheldFriendly" content="true" />
-	<meta name="MobileOptimized" content="width" />
-	<meta content="yes" name="apple-mobile-web-app-capable" />
 
-	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
-	<meta name="theme-color" content="#3e454e">
+<%= require('html-loader!./template/meta.html') %>
 
-  <script type="text/javascript" src="js/lib/underscore-min.js"></script>
-  <script type="text/javascript" src="js/lib/URI.js"></script>
-
-	<link rel="stylesheet" href="css/site.min.css" type="text/css">
-	<!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
-    <link href="css/font-awesome.css" rel="stylesheet">
-
-	</head>	
 <body>
 <div class="wrapper">
 	<div class="content">
-	<!--HEADER-->
-		<div class="headblock">
-			<header class="wd12">
-				<div class="logo">Syncloud</div>
-				<div class="menulinks">
-					<a href="index.html" class="apps hlink">Apps</a>
-					<a href="appcenter.html" class="appcenter hlink">App Center</a>
-					<a href="settings.html" class="settings hlink active">Settings</a>
-				</div>
-				<div class="menuoff">
-					<a href="#" id="btn_logout_large" class="logout hlink">Log out</a>
-					<div class="dropdowncontainer hlink">
-						<a href="#" class="shutdown dropdown hlink" onclick="dropdown()">Shutdown</a>
-						<div id="myDropdown" class="dropdown-content">
-						<a href="#" id="btn_restart_large">Restart</a>
-						<a href="#" id="btn_shutdown_large">Shutdown</a>
-						</div>
-					</div>
-				</div>
-				<div class="menubutton">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-				</div>
-			</header>
-			<div class="navi">
-				<a href="index.html">Apps</a>
-				<a href="appcenter.html">App Center</a>
-				<a href="settings.html">Settings</a>
-				<div class="menucolor2">
-				<a href="#" id="btn_logout_small">Log out</a>
-				<a href="#" id="btn_restart_small">Restart</a>
-				<a href="#" id="btn_shutdown_small">Shutdown</a>
-				</div>
-			</div>
-		</div>
-		<!--block1-->
+ 
+ <%= require('html-loader!./template/header.html') %>
+	
+	<!--block1-->
 		<div class="block1 wd12" id="block1">
-			<h1>Settings</h1>
-			<div class="row settingsblock">
-				<div class="colapp app">
-					<a href="activation.html">
-						<img class="appminimg" src="images/activation.svg">
-						<div class="appname withline">Activation</div>
+			
+  <h1>Settings</h1>
+
+			<div class="row-no-gutters settingsblock">
+	
+	 		<div class="colapp app">
+					<a href="activation.html" class="app-link">
+						<i class="material-icons settings-icon">perm_identity</i>
+						<div class="setting-name"><span class="withline">Activation</span></div>
 					</a>
 				</div>
+
 				<div class="colapp app">
-					<a href="network.html">
-						<img class="appminimg" src="images/network.svg">
-						<div class="appname withline">Network</div>
+					<a href="network.html" class="app-link">
+						<i class="material-icons settings-icon">router</i>
+						<div class="setting-name"><span class="withline">Network</span></div>
 					</a>
 				</div>
+
 				<div class="colapp app">
-					<a href="storage.html">
-						<img class="appminimg" src="images/storage.svg">
-						<div class="appname withline">Storage</div>
+					<a href="storage.html" class="app-link">
+					<i class="material-icons settings-icon">storage</i>
+						<div class="setting-name"><span class="withline">Storage</span></div>
 					</a>
 				</div>
+
 				<div class="colapp app">
-					<a href="updates.html">
-						<img class="appminimg" src="images/updates.svg">
-						<div class="appname withline">Updates</div>
+					<a href="updates.html" class="app-link">
+						<i class="material-icons settings-icon">update</i>
+							<div class="setting-name"><span class="withline">Updates</span></div>
 					</a>
 				</div>
+
 				<div class="colapp app">
-					<a href="support.html">
-						<img class="appminimg" src="images/support.svg">
-						<div class="appname withline">Support</div>
+					<a href="support.html" class="app-link">
+		   <i class="material-icons settings-icon">help_outline</i>
+	
+						<div class="setting-name"><span class="withline">Support</span></div>
 					</a>
 				</div>
+
+				<div class="colapp app">
+					<a href="backup.html" class="app-link">
+    <i class="material-icons settings-icon">dns</i>
+	    
+    	<div class="setting-name"><span class="withline">Backup</span></div>
+					</a>
+				</div>
+
 			</div>
 		</div>
 	</div>
 </div>
 
-<div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Error</h4>
-      </div>
-      <div class="modal-body">
-          <div class="bodymod">
-              <div id="txt_error" class="btext">Some error happened!</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Scripts-->
-<script src="js/lib/jquery-1.11.3.min.js"></script>
-<script src="js/lib/bootstrap.min.js"></script>
-<script src="js/lib/bootstrap-switch.min.js"></script>
-<script src="js/ui/font.js"></script>
-<script src="js/ui/common.js"></script>
-<script src="js/ui/menu.js"></script>
-<script src="js/backend/menu.js"></script>
-
-
-<!--[if lt IE 9]>
-<script src="js/lib/html5.js"></script>
-<script src="js/lib/IE9.js"></script>
-<![endif]-->
-
-<script src="js/common.js"></script>
-<!-- END SCRIPTS -->
 </body>
 </html>

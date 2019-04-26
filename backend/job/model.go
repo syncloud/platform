@@ -25,8 +25,7 @@ type JobMaster interface {
 }
 
 type JobBackupCreate struct {
-	App  string
-	File string
+	App string
 }
 
 type JobBackupRestore struct {

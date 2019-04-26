@@ -29,9 +29,10 @@ func NewBackend(master *job.Master, backup *backup.Backup, worker *job.Worker) *
 func (backend *Backend) Start(socket string) {
 	go backend.worker.Start()
 	http.HandleFunc("/job/status", Handle(backend.JobStatus))
-	http.HandleFunc("/backup/list", Handle(backend.BackipList))
+	http.HandleFunc("/backup/list", Handle(backend.BackupList))
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 	http.HandleFunc("/backup/restore", Handle(backend.BackupRestore))
+ http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
 
 	server := http.Server{}
 
@@ -89,8 +90,20 @@ func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error
 	}
 }
 
-func (backend *Backend) BackipList(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupList(w http.ResponseWriter, req *http.Request) (interface{}, error) {
 	return backend.backup.List()
+}
+
+func (backend *Backend) BackupRemove(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+ file, ok := req.URL.Query()["file"]
+	if !ok || len(file) < 1 {
+		return nil, errors.New("file is missing")
+	}
+ err := backend.backup.Remove(file[0])
+ if err != nil {
+   return nil, err
+ }
+ return "removed", nil
 }
 
 func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (interface{}, error) {
@@ -98,12 +111,8 @@ func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (
 	if !ok || len(apps) < 1 {
 		return nil, errors.New("app is missing")
 	}
-	files, ok := req.URL.Query()["file"]
-	if !ok || len(files) < 1 {
-		return nil, errors.New("file is missing")
-	}
 
-	backend.Master.Offer(job.JobBackupCreate{App: apps[0], File: files[0]})
+	backend.Master.Offer(job.JobBackupCreate{App: apps[0]})
 	return "submitted", nil
 }
 
