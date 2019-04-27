@@ -31,6 +31,9 @@ const AppTemplate = `
         	<% if (info.installed_version !== null) { %>
 					<button id="btn_remove"  class="buttongrey bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing...">Remove</button>
         	<% } %>
+        <% if (info.installed_version !== null) { %>
+					<button id="btn_backup"  class="buttonblue bwidth smbutton" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup...">Backup</button>
+        	<% } %>
 				</div>
 				<div class="btext"><%= info.app.description %></div>
 			</div>

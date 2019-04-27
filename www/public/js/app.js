@@ -70,7 +70,8 @@ function ui_display_app(data) {
 		register_btn_action_click(app_id, 'install');
 		register_btn_action_click(app_id, 'upgrade');
 		register_btn_action_click(app_id, 'remove');
-		
+		register_btn_action_click(app_id, 'backup');
+
 	    $("#btn_confirm").off('click').on('click', function () {
 		    var app_id = $('#app_id').val();
             var action =  $('#app_action').val();

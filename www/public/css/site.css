@@ -590,7 +590,7 @@ input:disabled {
 }
 .smbutton {
     line-height: 40px;
-    padding: 0 15px;
+    padding: 25px 15px;
     border: inherit;
 }
 .col2 {
