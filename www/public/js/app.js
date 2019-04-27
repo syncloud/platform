@@ -19,17 +19,17 @@ function load_app(app_id, on_complete, on_error) {
     $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
 };
 
-export function run_app_action(app_id, action, on_complete, on_error) {
-    $.get("/rest/" + action, {app_id: app_id})
-        .always(function (data) {
-                        Common.check_for_service_error(data, function () {
-                            Common.run_after_sam_is_complete(
-                                Common.job_status,
-                                setTimeout,
-                                on_complete,
-                                on_error);
-                        }, on_error)
-                    })
+export function run_app_action(action, on_complete, on_error) {
+    $.get(action)
+        .always((data) => {
+            Common.check_for_service_error(data, () => {
+                Common.run_after_sam_is_complete(
+                    Common.job_status,
+                    setTimeout,
+                    on_complete,
+                    on_error);
+            }, on_error)
+        })
         .fail(on_error);
 }
 
@@ -41,22 +41,21 @@ function register_btn_open_click() {
     });
 }
 
-function register_btn_action_click(app_id, action) {
+function register_btn_action_click(name, url) {
 
-    $("#btn_" + action).off('click').on('click', function () {
-         $('#app_id').val(app_id);
-         $('#app_action').val(action);
-         $('#confirm_caption').html($('#btn_' + action).html());
+    $("#btn_" + name).off('click').on('click', function () {
+         $('#app_action').val(url);
+         $('#confirm_caption').html($('#btn_' + name).html());
          $('#app_action_confirmation').modal('show');
     });
 }
 
-function app_action(app_id, action) {
+function app_action(action) {
 
         var btn = $("#btn_" + action);
         btn.button('loading');
 
-        run_app_action(app_id, action, function () {
+        run_app_action(action, function () {
             btn.button('reset');
             ui_load_app();
         }, UiCommon.ui_display_error);
@@ -67,15 +66,15 @@ function ui_display_app(data) {
 		$("#block_app").html(_.template(AppTemplate)(data));
 		var app_id = data.info.app.id;
 		register_btn_open_click();
-		register_btn_action_click(app_id, 'install');
-		register_btn_action_click(app_id, 'upgrade');
-		register_btn_action_click(app_id, 'remove');
-		register_btn_action_click(app_id, 'backup');
+		register_btn_action_click('install', `/rest/install?app_id=${app_id}`);
+		register_btn_action_click('upgrade', `/rest/upgrade?app_id=${app_id}`);
+		register_btn_action_click('remove', `/rest/remove?app_id=${app_id}`);
+		register_btn_action_click('backup', `/rest/backup/create?app=${app_id}`);
 
 	    $("#btn_confirm").off('click').on('click', function () {
 		    var app_id = $('#app_id').val();
             var action =  $('#app_action').val();
-            app_action(app_id, action);
+            app_action(action);
          });
 }
 
