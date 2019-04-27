@@ -590,7 +590,7 @@ input:disabled {
 }
 .smbutton {
     line-height: 40px;
-    padding: 25px 15px;
+    padding: 0 15px;
     border: inherit;
 }
 .col2 {
@@ -696,7 +696,7 @@ input:disabled {
     margin-bottom: 20px;
 }
 .col70 .buttonblock button {
-    margin: 0 8px 8px 0;
+    margin: 20px 8px 8px 0;
     min-width: 120px;
 }
 .col70 .btext {
@@ -972,7 +972,7 @@ footer .links a:hover {
     .col70 .buttonblock button {
         line-height: 40px;
         padding: 0 18px;
-        margin: 0 3px 4px;
+        margin: 20px 3px 4px;
         font-size: 14px;
     }
     .col70 .buttonblock {
@@ -1011,7 +1011,7 @@ footer .links a:hover {
     .col70 .buttonblock button {
         line-height: 40px;
         padding: 0 20px;
-        margin: 0 4px;
+        margin: 20px 4px;
     }
     .settingsblock .col2 {
         width: 70%;
