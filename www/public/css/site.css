@@ -622,6 +622,7 @@ input:disabled {
     display: inline-block;
     vertical-align: top;
     margin: 0 25px 25px;
+    text-decoration: none !important;
 }
 .appcenterlist {
     margin-top: 25px;
@@ -634,6 +635,8 @@ input:disabled {
 }
 .app-link {
     display: inline-block;
+    text-decoration: none !important;
+
 }
 .setting-name {
     font-size: 20px;
@@ -880,7 +883,8 @@ footer .links a:hover {
         margin: 0 15px 15px;
     }
     .colapp img {
-        width: 100%}
+        width: 100%
+    }
     .appminimg {
         width: 125px;
         height: 125px;
