@@ -75,27 +75,18 @@ function reload() {
 $( document ).ready(function () {
   if (typeof mock !== 'undefined') { console.log("backend mock") };
   
-  $("#btn_confirm").off('click').on('click', function () {
+  $("#btn_confirm").off('click').on('click', () => {
      
-		     var file = $('#backup_file').val();
-      var action = $('#backup_action').val();
+        var file = $('#backup_file').val();
+        var action = $('#backup_action').val();
       
-      if(action == 'restore') {
-          $.post(
-             '/rest/backup/restore', 
-             { file: file },
-             (data) => { reload(); }
-            );
-      } else if (action == 'remove') {
-          $.post(
-             '/rest/backup/remove', 
-             { file: file },
-             (data) => { reload(); }
-            )
-            .fail(function(a,b,c) {
-               alert("failed");
-            });
-      }
+        if(action == 'restore') {
+          $.post('/rest/backup/restore', { file: file }, () => { reload(); })
+           .fail((jqXHR, textStatus, errorThrown) => { alert("failed");} );
+        } else if (action == 'remove') {
+          $.post('/rest/backup/remove',{ file: file }, () => { reload(); })
+           .fail((jqXHR, textStatus, errorThrown) => { alert("failed");} );
+        }
    });
 
   let eGridDiv = document.querySelector('#backupGrid');
