@@ -36,8 +36,8 @@ const gridOptions = {
             cellRenderer: (params) => { 
               var div = document.createElement('div');
               div.innerHTML = `
-                <i class='fa fa-undo' style='padding-left: 20px'></i>
-                <i class='fa fa-trash' style='padding-left: 20px'></i>
+                <i class='fa fa-undo' style='padding-left: 20px;  cursor:pointer;'></i>
+                <i class='fa fa-trash' style='padding-left: 20px;  cursor:pointer;'></i>
              `;
               var buttons = div.querySelectorAll('i');
               buttons[0].addEventListener('click', () => { 
