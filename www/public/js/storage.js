@@ -28,13 +28,15 @@ export function boot_extend(on_complete, on_error) {
         .done(function (data) {
                       Common.check_for_service_error(data, function () {
                           Common.run_after_job_is_complete(
-                              Common.job_status,
                               setTimeout,
-                              function () {
+                              () => {
                                   update_boot_disk(
                                       on_complete,
                                       on_error);
-                              }, on_error, 'boot_extend');
+                              }, 
+                              on_error,
+                              '/rest/settings/boot_extend_status',
+                              Common.DEFAULT_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);
@@ -60,11 +62,11 @@ export function disk_format(disk_device, on_complete, on_error) {
         .done(function (data) {
                       Common.check_for_service_error(data, function () {
                           Common.run_after_job_is_complete(
-                              Common.job_status,
                               setTimeout,
                               on_complete,
                               on_error,
-                              'disk_format');
+                              '/rest/settings/disk_format_status',
+                              Common.DEFAULT_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);

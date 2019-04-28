@@ -20,6 +20,17 @@ func TestHandlerSuccess(t *testing.T) {
 	assert.Equal(t, `{"success":true,"data":["test"]}`, rr.Body.String())
 }
 
+func TestHandlerSuccessBoolData(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	rr := httptest.NewRecorder()
+	Handle(func(w http.ResponseWriter, req *http.Request) (interface{}, error) { return true, nil })(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, `{"success":true,"data":true}`, rr.Body.String())
+}
+
 func TestHandlerFail(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)

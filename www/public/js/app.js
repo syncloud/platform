@@ -19,15 +19,16 @@ function load_app(app_id, on_complete, on_error) {
     $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
 };
 
-export function run_app_action(action, on_complete, on_error) {
-    $.get(action)
+export function run_app_action(url, status_url, status_presicate, on_complete, on_error) {
+    $.get(url)
         .always((data) => {
             Common.check_for_service_error(data, () => {
-                Common.run_after_sam_is_complete(
-                    Common.job_status,
+                Common.run_after_job_is_complete(
                     setTimeout,
                     on_complete,
-                    on_error);
+                    on_error,
+                    status_url,
+                    status_presicate);
             }, on_error)
         })
         .fail(on_error);
@@ -41,41 +42,55 @@ function register_btn_open_click() {
     });
 }
 
-function register_btn_action_click(name, url) {
-
-    $("#btn_" + name).off('click').on('click', function () {
-         $('#app_action').val(url);
-         $('#confirm_caption').html($('#btn_' + name).html());
+function register_btn_action_click(name, url, status_url) {
+    const action = name.toLowerCase();
+    $("#btn_" + action).off('click').on('click', function () {
+         $('#app_action').val(action);
+         $('#app_action_url').val(url);
+         $('#app_action_status_url').val(status_url);
+         $('#confirm_caption').html(name);
          $('#app_action_confirmation').modal('show');
     });
-}
-
-function app_action(action) {
-
-        var btn = $("#btn_" + action);
-        btn.button('loading');
-
-        run_app_action(action, function () {
-            btn.button('reset');
-            ui_load_app();
-        }, UiCommon.ui_display_error);
-
 }
 
 function ui_display_app(data) {
 		$("#block_app").html(_.template(AppTemplate)(data));
 		var app_id = data.info.app.id;
 		register_btn_open_click();
-		register_btn_action_click('install', `/rest/install?app_id=${app_id}`);
-		register_btn_action_click('upgrade', `/rest/upgrade?app_id=${app_id}`);
-		register_btn_action_click('remove', `/rest/remove?app_id=${app_id}`);
-		register_btn_action_click('backup', `/rest/backup/create?app=${app_id}`);
+		register_btn_action_click('Install', `/rest/install?app_id=${app_id}`);
+		register_btn_action_click('Upgrade', `/rest/upgrade?app_id=${app_id}`);
+		register_btn_action_click('Remove', `/rest/remove?app_id=${app_id}`);
+	
 
-	    $("#btn_confirm").off('click').on('click', function () {
-		    var app_id = $('#app_id').val();
-            var action =  $('#app_action').val();
-            app_action(action);
-         });
+ $("#btn_upgrade_confirm").off('click').on('click', function () {
+        var btn = $("#btn_upgrade");
+        btn.button('loading');
+
+        run_app_action(
+            `/rest/backup/create?app=${app_id}`,
+            '/rest/job/status',
+            (resp) => { resp.data != 'JobStatusIdle'; },
+            () => {
+                btn.button('reset');
+                ui_load_app();
+            }, 
+            UiCommon.ui_display_error);
+  });
+
+	 $("#btn_confirm").off('click').on('click', function () {
+        var btn = $("#btn_" + $('#app_action').val());
+        btn.button('loading');
+
+        run_app_action(
+            $('#app_action_url').val(),
+            Common.INSTALLER_UPDATE_URL,
+            Common.DEFAULT_STATUS_PREDICATE,
+            () => {
+                btn.button('reset');
+                ui_load_app();
+            }, 
+            UiCommon.ui_display_error);
+  });
 }
 
 function ui_load_app() {

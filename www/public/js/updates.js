@@ -20,14 +20,16 @@ function get_versions(on_complete, on_error) {
 export function check_versions(on_complete, on_error) {
     $.get('/rest/check')
         .always(function () {
-            Common.run_after_sam_is_complete(
-                Common.job_status,
+            Common.run_after_job_is_complete(
                 setTimeout,
                 function () {
                     get_versions(
                         on_complete,
                         on_error);
-                }, on_error);
+                }, 
+                on_error, 
+                Common.INSTALLER_UPDATE_URL,
+                Common.DEFAULT_STATUS_PREDICATE);
             })
         .fail(on_error);
 }
@@ -36,14 +38,16 @@ export function platform_upgrade(on_complete, on_error) {
     $.get('/rest/upgrade', { app_id: 'platform' })
         .done(function (data) {
                       Common.check_for_service_error(data, function () {
-                          Common.run_after_sam_is_complete(
-                              Common.job_status,
+                          Common.run_after_job_is_complete(
                               setTimeout,
                               function () {
                                   get_versions(
                                        on_complete,
                                        on_error);
-                               }, on_error);
+                               }, 
+                               on_error,
+                               Common.INSTALLER_UPDATE_URL,
+                               Common.DEFAULT_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);
@@ -55,14 +59,16 @@ export function sam_upgrade(on_complete, on_error) {
     $.get('/rest/upgrade', { app_id: 'sam' })
         .done(function (data) {
                       Common.check_for_service_error(data, function () {
-                          Common.run_after_sam_is_complete(
-                              Common.job_status,
+                          Common.run_after_job_is_complete(
                               setTimeout,
                               function () {
                                   get_versions(
                                       on_complete,
                                       on_error);
-                              }, on_error);
+                              },
+                              on_error,
+                              Common.INSTALLER_UPDATE_URL,
+                              Common.DEFAULT_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);

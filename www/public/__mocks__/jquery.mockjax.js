@@ -398,3 +398,9 @@ mockjax({
     response: backupRestore
 });
 
+
+mockjax({ 
+    type: "post",
+    url:'/rest/backup/create?app=${app_id}', dataType: "json",
+    response: backupRestore
+});

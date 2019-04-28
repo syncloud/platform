@@ -11,31 +11,30 @@ export function check_for_service_error(data, on_complete, on_error) {
     
 }
 
-export function run_after_sam_is_complete(status_checker, timeout_func, on_complete, on_error) {
-    run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, 'sam');
-}
+export INSTALLER_UPDATE_URL = '/rest/settings/sam_status';
+export DEFAULT_STATUS_PREDICATE = (resp) => { resp.is_running; };
 
-export function run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job) {
+export function run_after_job_is_complete(timeout_func, on_complete, on_error, status_url, status_predicate) {
 
-    var recheck_function = function () { run_after_job_is_complete(status_checker, timeout_func, on_complete, on_error, job); };
+    var recheck_function = function () { run_after_job_is_complete(timeout_func, on_complete, on_error, status_url); };
 
     var recheck_timeout = 2000;
-    status_checker(job,
-        function (status) {
-            if (status.is_running)
+    $.get(status_url)
+     .done((resp) => {
+            if (status_predicate(resp)) {
                 timeout_func(recheck_function, recheck_timeout);
-            else
+            } else
                 on_complete();
-        },
-        function (xhr, textStatus, errorThrown) {
+        })
+     .fail((xhr, textStatus, errorThrown) => {
             //Auth error means job is finished
             if (xhr.status == 401) {
                 on_error(xhr, textStatus, errorThrown)
             } else {
                 timeout_func(recheck_function, recheck_timeout);
             }
-        }
-    );
+        });
+
 }
 
 export function find_app(apps_data, app_id) {
@@ -54,10 +53,6 @@ export function get_value(values, name) {
         }
     }
     return null;
-}
-
-export function job_status(job, on_complete, on_error) {
-    $.get('/rest/settings/' + job + '_status').done(on_complete).fail(on_error);
 }
 
 export function send_logs(include_support, on_always, on_error) {
