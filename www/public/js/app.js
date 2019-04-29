@@ -19,8 +19,8 @@ function load_app(app_id, on_complete, on_error) {
     $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
 };
 
-export function run_app_action(url, status_url, status_predicate, on_complete, on_error) {
-    $.get(url)
+export function run_app_action(url, app_id, status_url, status_predicate, on_complete, on_error) {
+    $.get(url, { app_id: app_id })
         .always((data) => {
             Common.check_for_service_error(data, () => {
                 Common.run_after_job_is_complete(
@@ -42,11 +42,12 @@ function register_btn_open_click() {
     });
 }
 
-function register_btn_action_click(name, url, status_url) {
+function register_btn_action_click(app_id, name, url, status_url) {
     const action = name.toLowerCase();
 
     $("#btn_" + action).off('click').on('click', function () {
          $('#app_action').val(action);
+         $('#app_id').val(app_id);
          $('#app_action_url').val(url);
          $('#app_action_status_url').val(status_url);
          $('#confirm_caption').html(name);
@@ -58,13 +59,13 @@ function ui_display_app(data) {
 		$("#block_app").html(_.template(AppTemplate)(data));
 		var app_id = data.info.app.id;
 		register_btn_open_click();
-		register_btn_action_click('Install', `/rest/install?app_id=${app_id}`);
-		register_btn_action_click('Upgrade', `/rest/upgrade?app_id=${app_id}`);
-		register_btn_action_click('Remove', `/rest/remove?app_id=${app_id}`);
+		register_btn_action_click(app_id, 'Install', '/rest/install');
+		register_btn_action_click(app_id, 'Upgrade', '/rest/upgrade');
+		register_btn_action_click(app_id, 'Remove', '/rest/remove');
 	
 
- $("#btn_upgrade_confirm").off('click').on('click', function () {
-        var btn = $("#btn_upgrade");
+ $("#btn_backup_confirm").off('click').on('click', function () {
+        var btn = $("#btn_backup");
         btn.button('loading');
        
         $.post('/rest/backup/create', {app: app_id})
@@ -90,6 +91,7 @@ function ui_display_app(data) {
 
         run_app_action(
             $('#app_action_url').val(),
+            $('#app_id').val(),
             Common.INSTALLER_UPDATE_URL,
             Common.DEFAULT_STATUS_PREDICATE,
             () => {

@@ -239,12 +239,14 @@ mockjax({ url:'/rest/settings/disk_format_status',dataType: "json",
     responseText: {success: true, is_running: false}
 });
 
+const sam_resp = {success: true, is_running: false};
+
 function sam_status(settings) {
-    console.log('sam status mock');
-    this.responseText = {success: true, is_running: false};
+//    console.log('sam status mock');
+    this.responseText = sam_resp;
 }
 
-mockjax({ 
+mockjax({
     url:'/rest/settings/sam_status',
     dataType: "json",
     response: sam_status

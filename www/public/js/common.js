@@ -23,7 +23,6 @@ export function run_after_job_is_complete(timeout_func, on_complete, on_error, s
     var recheck_function = function () { run_after_job_is_complete(timeout_func, on_complete, on_error, status_url); };
 
     var recheck_timeout = 2000;
-    console.log('check status: ' + status_url);
     $.get(status_url)
      .done(function(resp) {
             console.log('check status result');
