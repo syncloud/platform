@@ -1,4 +1,5 @@
 export function check_for_service_error(data, on_complete, on_error) {
+
     if (data.hasOwnProperty('success') && !data.success) {
         var xhr = {
             status: 200,
@@ -11,22 +12,27 @@ export function check_for_service_error(data, on_complete, on_error) {
     
 }
 
-export INSTALLER_UPDATE_URL = '/rest/settings/sam_status';
-export DEFAULT_STATUS_PREDICATE = (resp) => { resp.is_running; };
+export const INSTALLER_UPDATE_URL = '/rest/settings/sam_status';
+export const DEFAULT_STATUS_PREDICATE = (resp) => {
+    console.log(resp);
+    return resp.is_running;
+};
 
 export function run_after_job_is_complete(timeout_func, on_complete, on_error, status_url, status_predicate) {
 
     var recheck_function = function () { run_after_job_is_complete(timeout_func, on_complete, on_error, status_url); };
 
     var recheck_timeout = 2000;
+    console.log('check status: ' + status_url);
     $.get(status_url)
-     .done((resp) => {
+     .done(function(resp) {
+            console.log('check status result');
             if (status_predicate(resp)) {
                 timeout_func(recheck_function, recheck_timeout);
             } else
                 on_complete();
         })
-     .fail((xhr, textStatus, errorThrown) => {
+     .fail(function(xhr, textStatus, errorThrown) {
             //Auth error means job is finished
             if (xhr.status == 401) {
                 on_error(xhr, textStatus, errorThrown)

@@ -239,8 +239,15 @@ mockjax({ url:'/rest/settings/disk_format_status',dataType: "json",
     responseText: {success: true, is_running: false}
 });
 
-mockjax({ url:'/rest/settings/sam_status',dataType: "json",
-    responseText: {success: true, is_running: false}
+function sam_status(settings) {
+    console.log('sam status mock');
+    this.responseText = {success: true, is_running: false};
+}
+
+mockjax({ 
+    url:'/rest/settings/sam_status',
+    dataType: "json",
+    response: sam_status
 });
 
 export const versions_data = {
@@ -398,9 +405,12 @@ mockjax({
     response: backupRestore
 });
 
+function backupCreate(settings) {
+    //alert("restore "+settings.data.file);
+}
 
 mockjax({ 
     type: "post",
-    url:'/rest/backup/create?app=${app_id}', dataType: "json",
-    response: backupRestore
+    url:'/rest/backup/create', dataType: "json",
+    response: backupCreate
 });

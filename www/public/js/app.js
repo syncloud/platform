@@ -19,7 +19,7 @@ function load_app(app_id, on_complete, on_error) {
     $.get('/rest/app', {app_id: app_id}).done(on_complete).fail(on_error);
 };
 
-export function run_app_action(url, status_url, status_presicate, on_complete, on_error) {
+export function run_app_action(url, status_url, status_predicate, on_complete, on_error) {
     $.get(url)
         .always((data) => {
             Common.check_for_service_error(data, () => {
@@ -28,7 +28,7 @@ export function run_app_action(url, status_url, status_presicate, on_complete, o
                     on_complete,
                     on_error,
                     status_url,
-                    status_presicate);
+                    status_predicate);
             }, on_error)
         })
         .fail(on_error);
@@ -44,6 +44,7 @@ function register_btn_open_click() {
 
 function register_btn_action_click(name, url, status_url) {
     const action = name.toLowerCase();
+
     $("#btn_" + action).off('click').on('click', function () {
          $('#app_action').val(action);
          $('#app_action_url').val(url);
@@ -65,16 +66,22 @@ function ui_display_app(data) {
  $("#btn_upgrade_confirm").off('click').on('click', function () {
         var btn = $("#btn_upgrade");
         btn.button('loading');
-
-        run_app_action(
-            `/rest/backup/create?app=${app_id}`,
-            '/rest/job/status',
-            (resp) => { resp.data != 'JobStatusIdle'; },
-            () => {
-                btn.button('reset');
-                ui_load_app();
-            }, 
-            UiCommon.ui_display_error);
+       
+        $.post('/rest/backup/create', {app: app_id})
+         .always((data) => {
+            Common.check_for_service_error(data, () => {
+                Common.run_after_job_is_complete(
+                    setTimeout,
+                    () => {
+                        btn.button('reset');
+                        ui_load_app();
+                    },
+                    UiCommon.ui_display_error,
+                    '/rest/job/status',
+                    (resp) => { resp.data != 'JobStatusIdle'; });
+            }, UiCommon.ui_display_error)
+         })
+         .fail(UiCommon.ui_display_error);
   });
 
 	 $("#btn_confirm").off('click').on('click', function () {
