@@ -69,7 +69,7 @@ function ui_display_app(data) {
         var btn = $("#btn_backup");
         btn.button('loading');
        
-        $.post('/rest/backup/create', {app: app_id})
+        $.get('/rest/backup/create', {app: app_id})
          .always((data) => {
             Common.check_for_service_error(data, () => {
                 Common.run_after_job_is_complete(
