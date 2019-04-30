@@ -292,6 +292,10 @@ mockjax({ url:'/rest/upgrade', dataType: "json",
     responseText: {success: true}
 });
 
+mockjax({ url:'/rest/remove', dataType: "json",
+    responseText: {success: true}
+});
+
 const appcenter_data = {
       "apps": [
         {

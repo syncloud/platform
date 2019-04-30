@@ -42,14 +42,12 @@ function register_btn_open_click() {
     });
 }
 
-function register_btn_action_click(app_id, name, url, status_url) {
+function register_btn_action_click(name, url) {
     const action = name.toLowerCase();
 
     $("#btn_" + action).off('click').on('click', function () {
          $('#app_action').val(action);
-         $('#app_id').val(app_id);
          $('#app_action_url').val(url);
-         $('#app_action_status_url').val(status_url);
          $('#confirm_caption').html(name);
          $('#app_action_confirmation').modal('show');
     });
@@ -57,12 +55,15 @@ function register_btn_action_click(app_id, name, url, status_url) {
 
 function ui_display_app(data) {
 		$("#block_app").html(_.template(AppTemplate)(data));
-		var app_id = data.info.app.id;
+		const app_id = data.info.app.id;
 		register_btn_open_click();
-		register_btn_action_click(app_id, 'Install', '/rest/install');
-		register_btn_action_click(app_id, 'Upgrade', '/rest/upgrade');
-		register_btn_action_click(app_id, 'Remove', '/rest/remove');
+		register_btn_action_click('Install', '/rest/install');
+		register_btn_action_click('Upgrade', '/rest/upgrade');
+		register_btn_action_click('Remove', '/rest/remove');
 	
+ $("#btn_backup").off('click').on('click', function () {
+         $('#backup_confirmation').modal('show');
+    });
 
  $("#btn_backup_confirm").off('click').on('click', function () {
         var btn = $("#btn_backup");
@@ -91,7 +92,7 @@ function ui_display_app(data) {
 
         run_app_action(
             $('#app_action_url').val(),
-            $('#app_id').val(),
+            app_id,
             Common.INSTALLER_UPDATE_URL,
             Common.DEFAULT_STATUS_PREDICATE,
             () => {
