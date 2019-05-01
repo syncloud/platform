@@ -32,7 +32,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/backup/list", Handle(backend.BackupList))
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 	http.HandleFunc("/backup/restore", Handle(backend.BackupRestore))
- http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
+    http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
 
 	server := http.Server{}
 
@@ -81,6 +81,7 @@ func success(w http.ResponseWriter, data interface{}) {
 func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error)) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
 		log.Printf("request: %s\n", req.URL.Path)
+		w.Header().Add("Content-Type", "application/json")
 		data, err := f(w, req)
 		if err != nil {
 			fail(w, err)
