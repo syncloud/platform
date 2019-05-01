@@ -34,6 +34,10 @@ export function run_app_action(url, app_id, status_url, status_predicate, on_com
         .fail(on_error);
 }
 
+export function backup_status_predicate(response) {
+    return response.data != 'JobStatusIdle';
+}
+
 function register_btn_open_click() {
     $("#btn_open").off('click').on('click', function () {
         var btn = $(this);
@@ -80,7 +84,7 @@ function ui_display_app(data) {
                     },
                     UiCommon.ui_display_error,
                     '/rest/job/status',
-                    (resp) => { resp.data != 'JobStatusIdle'; });
+                    backup_status_predicate);
             }, UiCommon.ui_display_error)
          })
          .fail(UiCommon.ui_display_error);

@@ -3,7 +3,8 @@ var mockjax = require('jquery-mockjax')(jquery, window);
 
 export const State = {
     available_apps_success: true,
-    disk_action_success: true
+    disk_action_success: true,
+    job_status_running: true
 }
 
 const disks_data = {
@@ -296,6 +297,19 @@ mockjax({ url:'/rest/remove', dataType: "json",
     responseText: {success: true}
 });
 
+function job_status(settings) {
+    if (State.job_status_running) {
+        this.responseText = {success: true, data: "JobStatusBusy"};
+    } else {
+        this.responseText = {success: true, data: "JobStatusIdle"};
+    }
+    State.job_status_running = !State.job_status_running;
+}
+
+mockjax({ url:'/rest/job/status', dataType: "json",
+    response: job_status
+});
+
 const appcenter_data = {
       "apps": [
         {
@@ -396,7 +410,7 @@ function backupRemove(settings) {
 }
 
 mockjax({ 
-    type: "post",
+    type: "get",
     url:'/rest/backup/remove', dataType: "json",
     response: backupRemove
 });
@@ -406,7 +420,7 @@ function backupRestore(settings) {
 }
 
 mockjax({ 
-    type: "post",
+    type: "get",
     url:'/rest/backup/restore', dataType: "json",
     response: backupRestore
 });
@@ -416,7 +430,8 @@ function backupCreate(settings) {
 }
 
 mockjax({ 
-    type: "post",
-    url:'/rest/backup/create', dataType: "json",
+    type: "get",
+    url:'/rest/backup/create', 
+    dataType: "json",
     response: backupCreate
 });

@@ -20,12 +20,12 @@ export const DEFAULT_STATUS_PREDICATE = (resp) => {
 
 export function run_after_job_is_complete(timeout_func, on_complete, on_error, status_url, status_predicate) {
 
-    var recheck_function = function () { run_after_job_is_complete(timeout_func, on_complete, on_error, status_url); };
+    var recheck_function = function () { run_after_job_is_complete(timeout_func, on_complete, on_error, status_url, status_predicate); };
 
     var recheck_timeout = 2000;
     $.get(status_url)
      .done(function(resp) {
-            console.log('check status result');
+            //alert('check status result');
             if (status_predicate(resp)) {
                 timeout_func(recheck_function, recheck_timeout);
             } else
