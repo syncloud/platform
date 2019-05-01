@@ -81,10 +81,10 @@ $( document ).ready(function () {
         var action = $('#backup_action').val();
       
         if(action == 'restore') {
-          $.post('/rest/backup/restore', { file: file }, () => { reload(); })
+          $.get('/rest/backup/restore', { file: file }, () => { reload(); })
            .fail((jqXHR, textStatus, errorThrown) => { alert("failed");} );
         } else if (action == 'remove') {
-          $.post('/rest/backup/remove',{ file: file }, () => { reload(); })
+          $.get('/rest/backup/remove',{ file: file }, () => { reload(); })
            .fail((jqXHR, textStatus, errorThrown) => { alert("failed");} );
         }
    });
