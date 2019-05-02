@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"time"
+ "strings"
 )
 
 type Backup struct {
@@ -59,7 +60,8 @@ func (backup *Backup) Create(app string) {
 	}
 }
 
-func (backup *Backup) Restore(app string, file string) {
+func (backup *Backup) Restore(file string) {
+ app := strings.Split(file, "-")[0]
 	cmd := exec.Command(BACKUP_RESTORE_CMD, app, file)
 	log.Println("Running backup restore", BACKUP_RESTORE_CMD, app, file)
 	err := cmd.Run()

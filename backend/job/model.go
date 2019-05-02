@@ -29,6 +29,5 @@ type JobBackupCreate struct {
 }
 
 type JobBackupRestore struct {
-	App  string
 	File string
 }

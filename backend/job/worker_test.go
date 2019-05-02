@@ -17,7 +17,7 @@ func (mock *backupMock) List() ([]backup.File, error) {
 func (mock *backupMock) Create(app string) {
 	mock.created++
 }
-func (mock *backupMock) Restore(app string, file string) {
+func (mock *backupMock) Restore(file string) {
 	mock.restored++
 }
 

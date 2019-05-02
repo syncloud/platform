@@ -41,6 +41,7 @@ const gridOptions = {
              `;
               var buttons = div.querySelectorAll('i');
               buttons[0].addEventListener('click', () => { 
+     alert(1);
                 $('#backup_file').val(params.data.file);
                 $('#backup_action').val('restore');
                 $('#confirm_caption').html('Restore');
@@ -48,7 +49,7 @@ const gridOptions = {
                 $('#backup_action_confirmation').modal('show');
               }); 
               buttons[1].addEventListener('click', () => { 
-               $('#backup_file').val(params.data.file);
+                $('#backup_file').val(params.data.file);
                 $('#backup_action').val('remove');
                 $('#confirm_caption').html('Remove');
                 $('#confirm_question').html('Do you want to remove: ' + params.data.file + '?');

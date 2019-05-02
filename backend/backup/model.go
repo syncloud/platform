@@ -8,5 +8,5 @@ type File struct {
 type AppBackup interface {
 	List() ([]File, error)
 	Create(app string)
-	Restore(app string, file string)
+	Restore(file string)
 }
