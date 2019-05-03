@@ -41,7 +41,6 @@ const gridOptions = {
              `;
               var buttons = div.querySelectorAll('i');
               buttons[0].addEventListener('click', () => { 
-     alert(1);
                 $('#backup_file').val(params.data.file);
                 $('#backup_action').val('restore');
                 $('#confirm_caption').html('Restore');
