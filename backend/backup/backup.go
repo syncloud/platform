@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
- "strings"
 )
 
 type Backup struct {
@@ -50,9 +50,9 @@ func (this *Backup) List() ([]File, error) {
 func (backup *Backup) Create(app string) {
 	time := time.Now().Format("2006-0102-150405")
 	file := fmt.Sprintf("%s/%s-%s.tar.gz", backup.backupDir, app, time)
-	cmd := exec.Command(BACKUP_CREATE_CMD, app, file)
 	log.Println("Running backup create", BACKUP_CREATE_CMD, app, file)
-	err := cmd.Run()
+	out, err := exec.Command(BACKUP_CREATE_CMD, app, file).CombinedOutput()
+	log.Printf("Backup create output %s", out)
 	if err != nil {
 		log.Printf("Backup create failed: %v", err)
 	} else {
@@ -61,15 +61,17 @@ func (backup *Backup) Create(app string) {
 }
 
 func (backup *Backup) Restore(file string) {
- app := strings.Split(file, "-")[0]
-	cmd := exec.Command(BACKUP_RESTORE_CMD, app, file)
-	log.Println("Running backup restore", BACKUP_RESTORE_CMD, app, file)
-	err := cmd.Run()
+	app := strings.Split(file, "-")[0]
+	filePath := fmt.Sprintf("%s/%s", backup.backupDir, file)
+	log.Println("Running backup restore", BACKUP_RESTORE_CMD, app, filePath)
+	out, err := exec.Command(BACKUP_RESTORE_CMD, app, filePath).CombinedOutput()
+	log.Printf("Backup restore output %s", out)
 	if err != nil {
 		log.Printf("Backup restore failed: %v", err)
 	} else {
-		log.Printf("Backup restore completed")
+		log.Printf("Backup restore complete")
 	}
+
 }
 
 func (backup *Backup) Remove(file string) error {

@@ -32,7 +32,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/backup/list", Handle(backend.BackupList))
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 	http.HandleFunc("/backup/restore", Handle(backend.BackupRestore))
-    http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
+	http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
 
 	server := http.Server{}
 
@@ -96,15 +96,15 @@ func (backend *Backend) BackupList(w http.ResponseWriter, req *http.Request) (in
 }
 
 func (backend *Backend) BackupRemove(w http.ResponseWriter, req *http.Request) (interface{}, error) {
- file, ok := req.URL.Query()["file"]
+	file, ok := req.URL.Query()["file"]
 	if !ok || len(file) < 1 {
 		return nil, errors.New("file is missing")
 	}
- err := backend.backup.Remove(file[0])
- if err != nil {
-   return nil, err
- }
- return "removed", nil
+	err := backend.backup.Remove(file[0])
+	if err != nil {
+		return nil, err
+	}
+	return "removed", nil
 }
 
 func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (interface{}, error) {
