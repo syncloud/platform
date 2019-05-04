@@ -12,11 +12,9 @@ import './ui/menu.js'
 import * as UiCommon from './ui/common.js'
 import * as Common from './common.js'
 
-function login(values, on_complete, on_error, on_always) {
-        $.post("/rest/login", values).done(on_complete).fail(on_error).always(on_always);
-    };
-
 $(document).ready(function () {
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
+
     $("#form-login").submit(function (event) {
         event.preventDefault();
 
@@ -26,17 +24,15 @@ $(document).ready(function () {
         btn.button('loading');
         $("#form-login input").prop("disabled", true);
         UiCommon.hide_fields_errors("form-login");
-
-        login(
-                values,
-        		function(data) {
-                    window.location.href = "index.html";
-        		},
-                UiCommon.ui_display_error,
-                function() {
-                    btn.button('reset');
-                    $("#form-login input").prop("disabled", false);
-        		}
-        );
+        $.post("/rest/login", values)
+            .done((data) => {
+                 window.location.href = "index.html";
+            		})
+            .fail(UiCommon.ui_display_error)
+            .always( () => {
+                 btn.button('reset');
+                 $("#form-login input").prop("disabled", false);
+        	    });
+        
     });
 });

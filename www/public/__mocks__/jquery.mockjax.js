@@ -435,3 +435,11 @@ mockjax({
     dataType: "json",
     response: backupCreate
 });
+
+mockjax({ 
+    type: "post",
+    url: '/rest/login', 
+    dataType: "json",
+    responseText: {}
+});
+

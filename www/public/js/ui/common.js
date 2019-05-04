@@ -24,7 +24,7 @@ function hide_field_error(txt_field) {
 }
 
 export function hide_fields_errors(form) {
-    error_blocks_selector = "#"+form+" .alert";
+    var error_blocks_selector = "#"+form+" .alert";
     $( error_blocks_selector ).remove();
 }
 
