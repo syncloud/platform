@@ -7,10 +7,12 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
-import UiCommon from './ui/common.js'
+import * as UiCommon from './ui/common.js'
 import './ui/menu.js'
+import toastr from 'toastr'
+import 'toastr/build/toastr.css';
 
-import Common from './common.js'
+import * as Common from './common.js'
 import {Grid} from "ag-grid-community";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-balham.css";
@@ -82,10 +84,23 @@ $( document ).ready(function () {
       
         if(action == 'restore') {
           $.get('/rest/backup/restore', { file: file }, () => { reload(); })
-           .fail((jqXHR, textStatus, errorThrown) => { alert("failed");} );
+           .always((data) => {
+            toastr.info("Restoring an app from a backup");
+          
+                Common.run_after_job_is_complete(
+                    setTimeout,
+                    () => {
+                        toastr.info('Backup restore has finished');
+                    },
+                    UiCommon.ui_display_error_toast,
+                    Common.JOB_STATUS_URL,
+                    Common.JOB_STATUS_PREDICATE);
+            
+         })
+         .fail(UiCommon.ui_display_error_toast);;
         } else if (action == 'remove') {
           $.get('/rest/backup/remove',{ file: file }, () => { reload(); })
-           .fail((jqXHR, textStatus, errorThrown) => { alert("failed");} );
+           .fail(UiCommon.ui_display_error_toast);
         }
    });
 

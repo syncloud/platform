@@ -12,10 +12,14 @@ export function check_for_service_error(data, on_complete, on_error) {
     
 }
 
-export const INSTALLER_UPDATE_URL = '/rest/settings/sam_status';
-export const DEFAULT_STATUS_PREDICATE = (resp) => {
-    console.log(resp);
-    return resp.is_running;
+export const INSTALLER_STATUS_URL = '/rest/settings/sam_status';
+export const DEFAULT_STATUS_PREDICATE = (response) => {
+    return response.is_running;
+};
+
+export const JOB_STATUS_URL = '/rest/job/status';
+export const JOB_STATUS_PREDICATE = (response) => {
+    return response.data != 'JobStatusIdle';
 };
 
 export function run_after_job_is_complete(timeout_func, on_complete, on_error, status_url, status_predicate) {

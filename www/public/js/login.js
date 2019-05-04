@@ -9,8 +9,8 @@ import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 import './ui/menu.js'
-import UiCommon from './ui/common.js'
-import Common from './common.js'
+import * as UiCommon from './ui/common.js'
+import * as Common from './common.js'
 
 function login(values, on_complete, on_error, on_always) {
         $.post("/rest/login", values).done(on_complete).fail(on_error).always(on_always);

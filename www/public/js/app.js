@@ -10,7 +10,7 @@ import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
 import { AppTemplate } from './app.templates.js'
-import UiCommon from './ui/common.js'
+import * as UiCommon from './ui/common.js'
 import './ui/menu.js'
 
 import * as Common from './common.js'
@@ -32,10 +32,6 @@ export function run_app_action(url, app_id, status_url, status_predicate, on_com
             }, on_error)
         })
         .fail(on_error);
-}
-
-export function backup_status_predicate(response) {
-    return response.data != 'JobStatusIdle';
 }
 
 function register_btn_open_click() {
@@ -83,8 +79,8 @@ function ui_display_app(data) {
                         ui_load_app();
                     },
                     UiCommon.ui_display_error,
-                    '/rest/job/status',
-                    backup_status_predicate);
+                    Common.JOB_STATUS_URL,
+                    Common.JOB_STATUS_PREDICATE);
             }, UiCommon.ui_display_error)
          })
          .fail(UiCommon.ui_display_error);
@@ -97,7 +93,7 @@ function ui_display_app(data) {
         run_app_action(
             $('#app_action_url').val(),
             app_id,
-            Common.INSTALLER_UPDATE_URL,
+            Common.INSTALLER_STATUS_URL,
             Common.DEFAULT_STATUS_PREDICATE,
             () => {
                 btn.button('reset');

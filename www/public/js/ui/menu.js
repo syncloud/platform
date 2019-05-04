@@ -1,4 +1,4 @@
-import UiCommon from './common.js'
+import * as UiCommon from './common.js'
 import styles from 'roboto-fontface/css/roboto/roboto-fontface.css'
 
 function logout(on_complete, on_error) {

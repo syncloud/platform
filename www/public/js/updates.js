@@ -8,7 +8,7 @@ import 'bootstrap-switch';
 import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 import 'font-awesome/css/font-awesome.css'
 import '../css/site.css'
-import UiCommon from './ui/common.js'
+import * as UiCommon from './ui/common.js'
 import './ui/menu.js'
 
 import * as Common from './common.js'
@@ -28,7 +28,7 @@ export function check_versions(on_complete, on_error) {
                         on_error);
                 }, 
                 on_error, 
-                Common.INSTALLER_UPDATE_URL,
+                Common.INSTALLER_STATUS_URL,
                 Common.DEFAULT_STATUS_PREDICATE);
             })
         .fail(on_error);
@@ -46,7 +46,7 @@ export function platform_upgrade(on_complete, on_error) {
                                        on_error);
                                }, 
                                on_error,
-                               Common.INSTALLER_UPDATE_URL,
+                               Common.INSTALLER_STATUS_URL,
                                Common.DEFAULT_STATUS_PREDICATE);
                       }, on_error);
                   })
@@ -67,7 +67,7 @@ export function sam_upgrade(on_complete, on_error) {
                                       on_error);
                               },
                               on_error,
-                              Common.INSTALLER_UPDATE_URL,
+                              Common.INSTALLER_STATUS_URL,
                               Common.DEFAULT_STATUS_PREDICATE);
                       }, on_error);
                   })
