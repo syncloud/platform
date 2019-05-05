@@ -1,4 +1,4 @@
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.disks.hardware import has_unallocated_space_at_the_end
 from syncloud_platform.disks.lsblk import Disk, Partition

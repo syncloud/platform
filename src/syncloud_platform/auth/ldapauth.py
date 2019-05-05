@@ -7,13 +7,12 @@ from subprocess import check_output
 
 import ldap
 
-from syncloud_app import util
-from syncloud_app.logger import get_logger
+from syncloudlib import gen, fs
+from syncloudlib.logger import get_logger
 import time
 
-from syncloud_platform.gaplib import fs
-
 ldap_user_conf_dir = 'slapd.d'
+DOMAIN="dc=syncloud,dc=org"
 
 
 class LdapAuth:
@@ -56,25 +55,24 @@ class LdapAuth:
 
         _, filename = tempfile.mkstemp()
         try:
-            util.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
+            gen.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
                 'name': name,
                 'user': user,
                 'email': email,
                 'password': make_secret(password)
             })
 
-            self.__init_db(filename, self.ldap_root)
+            self._init_db(filename)
         finally:
             os.remove(filename)
 
         check_output(generate_change_password_cmd(password), shell=True)
 
-    def __init_db(self, filename, ldap_root):
+    def _init_db(self, filename):
         success = False
         for i in range(0, 3):
             try:
-                check_output('{0}/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f {2}'.format(
-                    ldap_root, self.config.data_dir(), filename), shell=True)
+                self.ldapadd(filename, DOMAIN)
                 success = True
                 break
             except Exception, e:
@@ -84,6 +82,13 @@ class LdapAuth:
 
         if not success:
             raise Exception("Unable to initialize ldap db")
+
+    def ldapadd(self, filename, bind_dn=None):
+        bind_dn_option = ''
+        if bind_dn:
+            bind_dn_option = '-D "{0}"'.format(bind_dn)
+        check_output('{0}/bin/ldapadd.sh -x -w syncloud {1} -f {2}'.format(
+                    self.ldap_root, bind_dn_option, filename), shell=True)
 
 
 def generate_change_password_cmd(password):

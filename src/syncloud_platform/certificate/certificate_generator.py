@@ -6,8 +6,8 @@ from subprocess import check_output, CalledProcessError
 from OpenSSL import crypto
 
 import datetime
-from syncloud_app import util
-from syncloud_app.logger import get_logger
+from syncloudlib import gen
+from syncloudlib.logger import get_logger
 
 
 class CertificateGenerator:
@@ -66,7 +66,7 @@ class CertificateGenerator:
                 f.write(datetime.datetime.today().strftime('%Y%m%d%H%M%S'))
 
             fd, temp_configfile = tempfile.mkstemp()
-            util.transform_file(self.platform_config.get_openssl_config(), temp_configfile,
+            gen.transform_file(self.platform_config.get_openssl_config(), temp_configfile,
                                 {
                                     'domain': self.info.domain(),
                                     'config_dir': self.platform_config.config_dir(),
@@ -138,6 +138,8 @@ class CertificateGenerator:
         self.nginx.reload_public()
 
     def is_real_certificate_installed(self):
+        if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
+            return False
         cert = crypto.load_certificate(
             crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
         if cert.get_issuer().CN == cert.get_subject().CN:

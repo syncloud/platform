@@ -1,6 +1,6 @@
 import time
 
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.util import port_to_protocol, is_web_port

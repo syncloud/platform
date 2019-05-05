@@ -2,7 +2,7 @@ import sys
 import traceback
 
 from flask import Flask, jsonify, request, Response
-from syncloud_app.main import PassthroughJsonError
+from syncloudlib.error import PassthroughJsonError
 
 from syncloud_platform.application.api import get_app_paths, get_app_setup
 from syncloud_platform.injector import get_injector

@@ -1,8 +1,9 @@
-from syncloud_app import logger
+from syncloudlib import logger
 import json
 import requests_unixsocket
 import requests
 from syncloud_platform.snap.models import AppVersions, App
+from syncloud_platform.gaplib.linux import pgrep, run_detached
 
 SOCKET = "http+unix://%2Fvar%2Frun%2Fsnapd.socket"
 
@@ -27,7 +28,8 @@ class Snap:
     def upgrade(self, app_id, channel, force):
         self.logger.info('snap upgrade')
         if app_id == 'sam':
-            raise Exception('Installer upgrade is not yet supported')
+            self.upgrade_snapd(channel)
+            return
 
         session = requests_unixsocket.Session()
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={
@@ -40,8 +42,23 @@ class Snap:
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
 
+    def upgrade_snapd(self, channel):
+        script = self.platform_config.get_snapd_upgrade_script()
+     
+        run_detached('{0} {1}'.format(script, channel),
+                     self.platform_config.get_platform_log(),
+                     self.platform_config.get_ssh_port())
+
+    def snap_upgrade_status(self):
+        return pgrep(self.platform_config.get_snapd_upgrade_script())
+
     def status(self):
         self.logger.info('snap changes')
+        
+        if self.snap_upgrade_status():
+            self.logger.info("snapd upgrade is in progress")
+            return True
+            
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/changes?select=in-progress'.format(SOCKET))
         self.logger.info("changes response: {0}".format(response.text))
@@ -90,7 +107,8 @@ class Snap:
         response = session.get('{0}/v2/find?name={1}'.format(SOCKET, query))
         self.logger.debug("find response: {0}".format(response.text))
         snap_response = json.loads(response.text)
-        return [app for app in snap_response['result'] if app['name'] != 'sam']
+        apps = [app for app in snap_response['result'] if app['name'] != 'sam']
+        return sorted(apps, key=lambda app: app['name'])
 
     def installed_user_apps(self):
         return [self._installed_app(app) for app in self._installed_snaps() if app['type'] == 'app']
@@ -108,7 +126,7 @@ class Snap:
         return snap_response['result']
 
     def _installer(self):
-        channel = 'stable'
+        channel = self.platform_config.get_channel()
         self.logger.info('system info')
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/system-info'.format(SOCKET))

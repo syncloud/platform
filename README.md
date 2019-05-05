@@ -1,8 +1,10 @@
 ## Syncloud (https://syncloud.org)
 
-Syncloud brings popular apps to your place.
+Simple self-hosting of cloud apps.
 
-It is available as an image or pre-installed device.
+It is available as an image or a pre-installed device.
+
+We are open to cooperation with hardware vendors interested in including Syncloud into their products.
 
 ### Apps
 
@@ -12,6 +14,8 @@ It is available as an image or pre-installed device.
 * [Mail](https://roundcube.net/): Email messaging with Roundcube web.
 * [GOGS](https://gogs.io/): Git source code hosting.
 * [Syncthing](https://syncthing.net/): File synchronization between devices.
+* [WordPress](https://wordpress.org/): Blogging, mailing lists and forums, media galleries, and online stores.
+* [Notes](https://standardnotes.org/): Safe place for your notes, thoughts, and life's work.
 
 ### Images
 
@@ -28,15 +32,10 @@ Get drone cli binary: http://docs.drone.io/cli-installation/
 sudo DOCKER_API_VERSION=1.24 arch=[amd64|arm] /path/to/cli/drone exec
 ````
 
-Watch drone build processes:
-````
-watch -n 1 pstree -a $(pgrep -f dockerd)
-````
-
 ### Build server
 
 http://build.syncloud.org/syncloud/platform
 
 ### Build artifacts (screenshots, system logs)
 
-http://artifact.syncloud.org/platform/ci
+http://artifact.syncloud.org/platform

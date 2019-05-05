@@ -1,7 +1,7 @@
 #!/opt/app/platform/python/bin/python
 from syncloud_platform.application import api
 import os
-from syncloud_app import logger
+from syncloudlib import logger
 
 log = logger.get_logger('test_hook')
 

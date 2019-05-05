@@ -1,4 +1,4 @@
-from convertible import Field, List
+from syncloudlib.json.convertible import Field, List
 
 
 class App:

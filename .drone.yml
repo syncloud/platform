@@ -10,34 +10,71 @@ pipeline:
     image: syncloud/build-deps-${arch}
     commands:
       - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+      - echo "platform" > name
+      - echo build-$(uname -m)-$DRONE_BRANCH > domain
       
   build:
     image: syncloud/build-deps-${arch}
     commands:
+      - NAME=$(cat name)
       - VERSION=$(cat version)
-      - ./build.sh $VERSION
-      - ./unit-test.sh
-      - ./test/js/runner/run.sh
+      - ./build.sh $NAME $VERSION
 
-  integration:
+  test-unit:
     image: syncloud/build-deps-${arch}
     commands:
-      - ./integration/test-docker.sh teamcity@syncloud.it password build master device $(cat package.name)
+      - ./unit-test.sh
+ 
+  test-js:
+    image: syncloud/build-deps-${arch}
+    commands:
+      - export PATH=$(pwd)/node/bin:$PATH
+      - cd www/public
+      - npm run test
+
+  test-intergation:
+    image: syncloud/build-deps-${arch}
+    commands:
+      - pip2 install -r dev_requirements.txt
+      - APP_ARCHIVE_PATH=$(realpath $(cat package.name))
+      - DOMAIN=$(cat domain)
+      - NAME=$(cat name)
+      - cd integration
+      - py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=$NAME
+
+  test-ui:
+    image: syncloud/build-deps-${arch}
+    commands:
+      - pip2 install -r dev_requirements.txt
+      - DOMAIN=$(cat domain)
+      - NAME=$(cat name)
+      - cd integration
+      - xvfb-run -l --server-args="-screen 0, 1024x4096x24" py.test -x -s test-ui.py --domain=$DOMAIN --device-host=device --app=$NAME
+    shm_size: 1024000000
+    when:
+      platform: linux/amd64
 
   upload:
     image: syncloud/build-deps-${arch}
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION $(cat package.name)
+      - NAME=$(cat name)
+      - PACKAGE=$(cat package.name)
+      - pip2 install -r dev_requirements.txt
+      - syncloud-upload.sh $NAME $DRONE_BRANCH $VERSION $PACKAGE
 
   ci-artifact:
     image: syncloud/build-deps-${arch}
     secrets: [ARTIFACT_SSH_KEY]
     commands:
-      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
-      - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
-      - ./upload-artifact.sh $(cat package.name) $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
+      - NAME=$(cat name)
+      - PACKAGE=$(cat package.name)
+      - pip2 install -r dev_requirements.txt
+      - syncloud-upload-artifact.sh $NAME integration/log $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
+      - syncloud-upload-artifact.sh $NAME integration/screenshot $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
+      - syncloud-upload-artifact.sh $NAME $PACKAGE $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
+
     when:
       status: [ failure, success ] 
 

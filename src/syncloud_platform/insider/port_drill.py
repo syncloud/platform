@@ -1,4 +1,4 @@
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.manual import ManualPortMapper

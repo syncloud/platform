@@ -1,3 +1,7 @@
+import toastr from 'toastr'
+import 'toastr/build/toastr.css';
+
+
 function get_error_block_id(txt_field) {
     return txt_field + "_alert";
 }
@@ -19,12 +23,12 @@ function hide_field_error(txt_field) {
     $( error_block_selector ).remove();
 }
 
-function hide_fields_errors(form) {
-    error_blocks_selector = "#"+form+" .alert";
+export function hide_fields_errors(form) {
+    var error_blocks_selector = "#"+form+" .alert";
     $( error_blocks_selector ).remove();
 }
 
-function ui_display_error(xhr, textStatus, errorThrown) {
+export function ui_display_error(xhr, textStatus, errorThrown) {
 
     var status = xhr.status;
     var error = null;
@@ -56,3 +60,29 @@ function ui_display_error(xhr, textStatus, errorThrown) {
         }
     }
 }
+
+export function ui_display_error_toast(xhr, textStatus, errorThrown) {
+
+    var status = xhr.status;
+    var error = null;
+    if (xhr.hasOwnProperty('responseJSON')) {
+        error = xhr.responseJSON;
+    }
+    
+    if (status === 401) {
+        window.location.href = "login.html";
+    } else if (status === 0) {
+        console.log('user navigated away from the page');
+    } else {
+        if (error) {
+            var message = 'Server Error';
+            if ('message' in error && error.message) {
+                message = error.message;
+            }
+            toastr.error(message);
+        } else {
+            window.location.href = "error.html";
+        }
+    }
+}
+

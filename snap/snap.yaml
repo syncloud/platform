@@ -60,6 +60,14 @@ apps:
     - network-bind
     start-timeout: 200s
     restart-condition: always
+  backend:
+    command: bin/service.backend.sh
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    start-timeout: 200s
+    restart-condition: always
 confinement: strict
 description: Syncloud Platform
 grade: stable

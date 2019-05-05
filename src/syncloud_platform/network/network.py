@@ -1,5 +1,5 @@
 import netifaces
-from syncloud_app import logger
+from syncloudlib import logger
 
 class Network:
     def __init__(self):

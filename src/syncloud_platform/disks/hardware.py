@@ -2,9 +2,8 @@ from os import unlink
 import os
 from os.path import islink, join, isdir
 from os import path
-from syncloud_app import logger
+from syncloudlib import logger, fs
 from syncloud_platform.disks.lsblk import Partition
-from syncloud_platform.gaplib import fs
 from syncloud_platform.gaplib.linux import parted
 
 from syncloud_platform.rest.service_exception import ServiceException

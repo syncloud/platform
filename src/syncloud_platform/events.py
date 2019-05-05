@@ -1,6 +1,6 @@
 import traceback
 from os.path import join, isfile, isdir
-from syncloud_app import logger
+from syncloudlib import logger
 from syncloud_platform.gaplib.scripts import run_script
 from syncloud_platform.application.apppaths import AppPaths
 from subprocess import CalledProcessError

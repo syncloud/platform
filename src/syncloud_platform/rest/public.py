@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import convertible
+from syncloudlib.json import convertible
 import requests
 from flask import jsonify, send_from_directory, request, redirect, Flask, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
@@ -13,7 +13,7 @@ from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_act
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.gaplib import linux
-
+from syncloud_platform.rest.backend_proxy import backend_get
 from syncloud_platform.rest.service_exception import ServiceException
 
 injector = get_injector()
@@ -131,7 +131,7 @@ def upgrade():
     if 'force' in request.args:
         force = request.args['force'] == 'true'
 
-    channel = 'stable'
+    channel = public.platform_config.get_channel()
     if 'channel' in request.args:
         channel = request.args['channel']
 
@@ -287,6 +287,14 @@ def app_image():
     r = requests.get('http://apps.syncloud.org/releases/{0}/images/{1}-128.png'.format(channel, app), stream=True)
     return Response(r.iter_content(chunk_size=10*1024),
                     content_type=r.headers['Content-Type'])
+
+
+@app.route(rest_prefix + "/backup/<path:path>", methods=["GET"])
+@app.route(rest_prefix + "/job/<path:path>", methods=["GET"])
+@login_required
+def backend_proxy(path):
+    response = backend_get(request.full_path.replace(rest_prefix, "", 1))
+    return response.text, response.status_code
 
 
 @app.errorhandler(Exception)

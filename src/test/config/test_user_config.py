@@ -37,7 +37,7 @@ user_update_token = token2
     config.migrate_user_config()
     
     assert config.get_redirect_domain() == 'syncloud.it'
-    assert config.get_upnp() == False
+    assert config.get_upnp() == True
     assert config.is_redirect_enabled() == True
     assert config.get_external_access() == False
     

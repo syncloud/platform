@@ -1,7 +1,7 @@
 import sys
 import logging
 from os.path import join
-from syncloud_app import logger
+from syncloudlib import logger
 from syncloud_platform.events import run_hook_script
 
 logger.init(logging.DEBUG, console=True, line_format='%(message)s')

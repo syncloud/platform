@@ -1,8 +1,8 @@
 import traceback
 import sys
-import convertible
+from syncloudlib.json import convertible
 from flask import Flask, jsonify, send_from_directory, request, Response
-from syncloud_app.main import PassthroughJsonError
+from syncloudlib.error import PassthroughJsonError
 
 from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import rest_prefix, html_prefix

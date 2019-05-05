@@ -1,5 +1,5 @@
 import NATPMP
-from syncloud_app import logger
+from syncloudlib import logger
 
 
 class NatPmpPortMapper:

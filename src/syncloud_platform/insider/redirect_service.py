@@ -1,9 +1,9 @@
 from urlparse import urljoin
 
-import convertible
+from syncloudlib.json import convertible
 import requests
 from IPy import IP
-from syncloud_app import logger
+from syncloudlib import logger
 
 from syncloud_platform.insider import util
 from syncloud_platform.board import id

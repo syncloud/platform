@@ -1,0 +1,5 @@
+#!/snap/platform/current/python/bin/python
+
+from syncloud_platform.installer import PlatformInstaller
+
+PlatformInstaller().configure()
