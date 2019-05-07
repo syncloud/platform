@@ -627,12 +627,7 @@ input:disabled {
 .appcenterlist {
     margin-top: 25px;
 }
-.appminimg {
-    width: 145px;
-    height: 145px;
-    border-radius: 30px;
-    background-size: 145px 145px;
-}
+
 .app-link {
     display: inline-block;
     text-decoration: none !important;
@@ -861,11 +856,7 @@ footer .links a:hover {
         width: 125px;
         margin: 0 15px 15px;
     }
-    .appminimg {
-        width: 125px;
-        height: 125px;
-        background-size: 125px 125px;
-    }
+   
     .col70 .buttonblock button {
         min-width: 90px;
     }
@@ -885,11 +876,7 @@ footer .links a:hover {
     .colapp img {
         width: 100%
     }
-    .appminimg {
-        width: 125px;
-        height: 125px;
-        background-size: 125px 125px;
-    }
+ 
     .col70 .buttonblock button {
         min-width: 90px;
     }
@@ -906,11 +893,7 @@ footer .links a:hover {
         width: 125px;
         margin: 0 15px 15px;
     }
-    .appminimg {
-        width: 125px;
-        height: 125px;
-        background-size: 125px 125px;
-    }
+  
     .col70 .buttonblock button {
         min-width: 90px;
     }

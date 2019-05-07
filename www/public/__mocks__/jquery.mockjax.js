@@ -188,8 +188,8 @@ const apps_data = {
         {
             "id": "wordpress",
             "name": "WordPress",
-            "icon": "appsimages/penguin.png",
-            "url": "http://owncloud.odroid-c2.syncloud.it"
+            "icon": "appsimages/wordpress-128.png",
+            "url": "http://wordpress.odroid-c2.syncloud.it"
         }
     ]
 };
@@ -313,9 +313,9 @@ mockjax({ url:'/rest/job/status', dataType: "json",
 const appcenter_data = {
       "apps": [
         {
-          "id": "owncloud",
-          "name": "ownCloud",
-          "icon": "appsimages/penguin.png"
+          "id": "wordpress",
+          "name": "WordPress",
+          "icon": "appsimages/wordpress-128.png"
         },
         {
           "id": "diaspora",
@@ -365,8 +365,8 @@ mockjax({ url:'/rest/app', dataType: "json",
                 "name": "Wordpress",
                 "required": true,
                 "ui": false,
-                "url": "http://platform.odroid-c2.syncloud.it",
-                "icon": "appsimages/penguin.png"
+                "url": "http://wordpress.odroid-c2.syncloud.it",
+                "icon": "appsimages/wordpress-128.png"
             },
             "current_version": "880",
             "installed_version": "876"
@@ -386,6 +386,9 @@ mockjax({ url:'/rest/settings/device_url', dataType: "json",
 var backups = [
             {"path":"/data/platform/backup","file":"files-2019-0515-123506.tar.gz"},
             {"path":"/data/platform/backup","file":"nextcloud-2019-0515-123506.tar.gz"},
+            {"path":"/data/platform/backup","file":"diaspora-2019-0512-103501.tar.gz"},
+            {"path":"/data/platform/backup","file":"nextcloud-2019-0521-113502.tar.gz"},
+            {"path":"/data/platform/backup","file":"nextcloud-2019-0201-122500.tar.gz"},
             {"path":"/data/platform/backup","file":"files-2019-0415-123506.tar.gz"}
         ];
 
