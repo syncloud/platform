@@ -13,7 +13,7 @@ export LD_LIBRARY_PATH=$DIR/openldap/lib
 SOCKET="${SNAP_COMMON}/openldap.socket"
 case $1 in
 start)
-    exec ${DIR}/openldap/libexec/slapd -h ldap://127.0.0.1:389 -h ldapi://${SOCKET//\//%2F} -F ${SNAP_COMMON}/slapd.d
+    exec ${DIR}/openldap/libexec/slapd -h "ldap://127.0.0.1:389 ldapi://${SOCKET//\//%2F}" -F ${SNAP_COMMON}/slapd.d
     ;;
 *)
     echo "not valid command"
