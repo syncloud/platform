@@ -102,16 +102,13 @@ def test_internal_web_open(device_host):
 
 
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
-
-    global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': 'user1',
-                                   'device_password': 'password1'})
+                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD})
     assert response.status_code == 200, response.text
     
 
