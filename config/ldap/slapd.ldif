@@ -45,6 +45,7 @@ include: file://{{ app_dir }}/openldap/etc/openldap/schema/core.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/cosine.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/inetorgperson.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/nis.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.ldif
 
 # Frontend settings
 #
@@ -86,6 +87,7 @@ objectClass: olcMdbConfig
 olcDatabase: mdb
 olcAccess: to *
   by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" write
+  by self write
   by anonymous auth
   by * read
 olcSuffix: dc=syncloud,dc=org
@@ -100,3 +102,4 @@ olcRootPW: syncloud
 olcDbDirectory:	{{ app_data }}/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq
+olcOverlay: ppolicy
