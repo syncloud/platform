@@ -51,3 +51,16 @@ gidNumber:             1
 cn:                    syncloud
 description:           Syncloud
 memberUid:             ${user}
+
+dn: ou=Policies,dc=syncloud,dc=org
+ou: Policies
+objectClass: organizationalUnit
+
+dn: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
+objectClass: pwdPolicy
+objectClass: person
+objectClass: top
+cn: passwordDefault
+sn: passwordDefault
+pwdAttribute: userPassword
+pwdAllowUserChange: TRUE
