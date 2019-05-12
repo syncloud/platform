@@ -35,7 +35,7 @@ olcPidFile: {{ app_data }}/openldap/slapd.pid
 #olcModuleload:	back_ldap.la
 #olcModuleload:	back_passwd.la
 #olcModuleload:	back_shell.la
-
+#olcModuleLoad: ppolicy
 
 dn: cn=schema,cn=config
 objectClass: olcSchemaConfig
@@ -53,6 +53,7 @@ dn: olcDatabase=frontend,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcFrontendConfig
 olcDatabase: frontend
+olcOverlay: ppolicy
 #
 # Sample global access control policy:
 #	Root DSE: allow anyone to read it
@@ -76,6 +77,12 @@ olcDatabase: frontend
 # rootdn can always read and write EVERYTHING!
 #
 
+dn: cn=Overlays,cn=Monitor
+structuralObjectClass: monitorContainer
+#monitoredInfo: syncprov
+entryDN: cn=Overlays,cn=Monitor
+subschemaSubentry: cn=Subschema
+hasSubordinates: TRUE
 
 #######################################################################
 # LMDB database definitions
@@ -86,7 +93,7 @@ objectClass: olcDatabaseConfig
 objectClass: olcMdbConfig
 olcDatabase: mdb
 olcAccess: to *
-  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" write
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
   by self write
   by anonymous auth
   by * read
@@ -106,8 +113,8 @@ olcDbIndex: objectClass eq
 dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
-olcOverlay: ppolicy
-#olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
+#olcOverlay: ppolicy
+olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
 olcPPolicyHashCleartext: FALSE
 olcPPolicyUseLockout: FALSE
 olcPPolicyForwardUpdates: FALSE
