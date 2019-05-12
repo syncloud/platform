@@ -53,7 +53,6 @@ dn: olcDatabase=frontend,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcFrontendConfig
 olcDatabase: frontend
-olcOverlay: ppolicy
 #
 # Sample global access control policy:
 #	Root DSE: allow anyone to read it
