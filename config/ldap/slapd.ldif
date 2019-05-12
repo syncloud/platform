@@ -76,12 +76,12 @@ olcDatabase: frontend
 # rootdn can always read and write EVERYTHING!
 #
 
-dn: cn=Overlays,cn=Monitor
-structuralObjectClass: monitorContainer
+#dn: cn=Overlays,cn=Monitor
+#structuralObjectClass: monitorContainer
 #monitoredInfo: syncprov
-entryDN: cn=Overlays,cn=Monitor
-subschemaSubentry: cn=Subschema
-hasSubordinates: TRUE
+#entryDN: cn=Overlays,cn=Monitor
+#subschemaSubentry: cn=Subschema
+#hasSubordinates: TRUE
 
 #######################################################################
 # LMDB database definitions
