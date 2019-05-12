@@ -103,19 +103,6 @@ olcDbDirectory:	{{ app_data }}/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq
 
-dn: ou=Policies,dc=syncloud,dc=org
-ou: Policies
-objectClass: organizationalUnit
-
-dn: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
-objectClass: pwdPolicy
-objectClass: person
-objectClass: top
-cn: passwordDefault
-sn: passwordDefault
-pwdAttribute: userPassword
-pwdAllowUserChange: TRUE
-
 dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
