@@ -109,12 +109,12 @@ olcDbDirectory:	{{ app_data }}/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq
 
-dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
-objectClass: olcOverlayConfig
-objectClass: olcPPolicyConfig
-olcOverlay: ppolicy
-olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
-olcPPolicyHashCleartext: FALSE
-olcPPolicyUseLockout: FALSE
-olcPPolicyForwardUpdates: FALSE
+#dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
+#objectClass: olcOverlayConfig
+#objectClass: olcPPolicyConfig
+#olcOverlay: ppolicy
+#olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
+#olcPPolicyHashCleartext: FALSE
+#olcPPolicyUseLockout: FALSE
+#olcPPolicyForwardUpdates: FALSE
 
