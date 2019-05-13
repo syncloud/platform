@@ -112,7 +112,7 @@ olcDbIndex: objectClass eq
 dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcPPolicyConfig
-#olcOverlay: ppolicy
+olcOverlay: ppolicy
 olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
 olcPPolicyHashCleartext: FALSE
 olcPPolicyUseLockout: FALSE
