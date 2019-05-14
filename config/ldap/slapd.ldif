@@ -5,6 +5,11 @@
 dn: cn=config
 objectClass: olcGlobal
 cn: config
+
+#olcAccess: to *
+#  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+#  by * none
+
 #
 #
 # Define global ACLs to disable default read access.
@@ -46,7 +51,6 @@ include: file://{{ app_dir }}/openldap/etc/openldap/schema/cosine.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/inetorgperson.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/nis.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.ldif
-include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.schema
 
 # Frontend settings
 #
@@ -110,12 +114,12 @@ olcDbDirectory:	{{ app_data }}/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq
 
-#dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
-#objectClass: olcOverlayConfig
-#objectClass: olcPPolicyConfig
-#olcOverlay: ppolicy
-#olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
-#olcPPolicyHashCleartext: FALSE
-#olcPPolicyUseLockout: FALSE
-#olcPPolicyForwardUpdates: FALSE
+dn: olcOverlay=ppolicy,olcDatabase=mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcPPolicyConfig
+olcOverlay: ppolicy
+olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
+olcPPolicyHashCleartext: FALSE
+olcPPolicyUseLockout: FALSE
+olcPPolicyForwardUpdates: FALSE
 
