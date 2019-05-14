@@ -62,6 +62,6 @@ objectClass: person
 objectClass: top
 cn: passwordDefault
 sn: passwordDefault
-pwdAttribute: userPassword
+#pwdAttribute: userPassword
 pwdAllowUserChange: TRUE
 
