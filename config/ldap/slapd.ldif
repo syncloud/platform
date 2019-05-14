@@ -46,6 +46,7 @@ include: file://{{ app_dir }}/openldap/etc/openldap/schema/cosine.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/inetorgperson.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/nis.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.schema
 
 # Frontend settings
 #
