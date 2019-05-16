@@ -5,7 +5,6 @@
 dn: cn=config
 objectClass: olcGlobal
 cn: config
-
 #
 #
 # Define global ACLs to disable default read access.
@@ -22,7 +21,6 @@ olcPidFile: {{ app_data }}/openldap/slapd.pid
 #	Require 112-bit (3DES or better) encryption for updates
 #	Require 64-bit encryption for simple bind
 #olcSecurity: ssf=1 update_ssf=112 simple_bind=64
-
 
 #
 # Load dynamic backend modules:
@@ -50,10 +48,10 @@ include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.ldif
 
 # Frontend settings
 #
-dn: olcDatabase=frontend,cn=config
+dn: olcDatabase={-1}frontend,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcFrontendConfig
-olcDatabase: frontend
+olcDatabase: {-1}frontend
 # Allow unlimited access to local connection from the local root user
 olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
 # Allow unauthenticated read access for schema and base DN autodiscovery
@@ -98,11 +96,11 @@ dn: olcDatabase=mdb,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcMdbConfig
 olcDatabase: mdb
-olcAccess: to attrs=userPassword
+olcAccess: {0}to attrs=userPassword
   by self write
   by anonymous auth
   by * none
-olcAccess: to *
+olcAccess: {1}to *
   by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
   by self write
   by anonymous auth
