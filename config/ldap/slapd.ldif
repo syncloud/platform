@@ -102,6 +102,7 @@ olcAccess: {0}to attrs=userPassword
   by * none
 olcAccess: {1}to *
   by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+  by dn.exact="cn=admin,dc=syncloud,dc=org" manage
   by self write
   by anonymous auth
   by * read
