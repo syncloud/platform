@@ -2,8 +2,8 @@ const AppTemplate = `
 <div class="appblock">
 			<div class="col30">
 
-				<div class="appimg">
-					<img src="<%= info.app.icon %>" alt="">
+				<div style="display: inline-block;">
+					<img src="<%= info.app.icon %>" class="appimg" alt="">
 				</div>
 				<div class="appinfo">
 				<h1><%= info.app.name %></h1>
@@ -17,7 +17,6 @@ const AppTemplate = `
 				</div>
 			</div>
 			<div class="col70">
-				<h1><%= info.app.name %></h1>
 				<div class="buttonblock">
         	<% if (info.installed_version !== null) { %>
 					<button id="btn_open" data-url="<%= info.app.url %>" class="buttonblue bwidth smbutton">Open</button>

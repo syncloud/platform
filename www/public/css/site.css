@@ -617,7 +617,7 @@ input:disabled {
     margin-bottom: 40px;
 }
 .colapp {
-    width: 150px;
+    width: 115px;
     min-height: 185px;
     display: inline-block;
     vertical-align: top;
@@ -650,34 +650,39 @@ input:disabled {
     margin: 0 auto;
 }
 .col30 {
-    width: 25%;
+    width: 90%;
     display: inline-block;
     vertical-align: top;
     text-align: left;
 }
 .col30 h1 {
-    display: none;
     text-align: left;
     font-size: 40px;
     margin-bottom: 10px;
 }
 .col30 img {
-    width: 100%;
     border-radius: 20%;
     margin-bottom: 15px;
 }
 .appinfo {
     font-size: 16px;
     padding-left: 10px;
+    display: inline-block;
+    vertical-align: top;
+    width: 64%;
 }
+
 .appinfo b {
     font-weight: 400;
 }
 .appimg {
-    width: 200px;
+    width: 115px;
+    height: 115px;
+    border-radius: 30px;
+    vertical-align: top;
 }
 .col70 {
-    width: 73%;
+    width: auto;
     display: inline-block;
     vertical-align: top;
     text-align: left;
@@ -853,7 +858,7 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .colapp {
-        width: 125px;
+        width: 115px;
         margin: 0 15px 15px;
     }
    
@@ -873,10 +878,6 @@ footer .links a:hover {
         width: 115px;
         margin: 0 15px 15px;
     }
-    .colapp img {
-        width: 100%
-    }
- 
     .col70 .buttonblock button {
         min-width: 90px;
     }
@@ -890,7 +891,7 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .colapp {
-        width: 125px;
+        width: 115px;
         margin: 0 15px 15px;
     }
   
@@ -924,33 +925,14 @@ footer .links a:hover {
         font-size: 45px;
     }
     .col30 {
-        width: 100%;
         margin-right: 0;
         text-align: left;
         margin-bottom: 2%
     }
-    .col70 {
-        width: auto;
-    }
-    .appimg {
-        width: 34%;
-        display: inline-block;
-        vertical-align: top;
-    }
-    .appinfo {
-        display: inline-block;
-        vertical-align: top;
-        width: 64%;
-        font-size: 14px;
-    }
     .col30 h1 {
-        display: block;
         font-size: 32px;
         margin-bottom: 5px;
         margin-top: 5px;
-    }
-    .col70 h1 {
-        display: none;
     }
     .col70 .buttonblock button {
         line-height: 40px;
@@ -982,14 +964,7 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .col30 {
-        width: 20%;
         margin-right: 2%
-    }
-    .col70 {
-        width: 75%
-    }
-    .appimg {
-        width: 100%
     }
     .col70 .buttonblock button {
         line-height: 40px;
@@ -1028,14 +1003,7 @@ footer .links a:hover {
         width: 175px;
     }
     .col30 {
-        width: 20%;
         margin-right: 2%
-    }
-    .col70 {
-        width: 75%
-    }
-    .appimg {
-        width: 100%
     }
 }
 @media (max-width: 850px) {
