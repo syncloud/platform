@@ -594,7 +594,6 @@ input:disabled {
     border: inherit;
 }
 .col2 {
-    width: 49%;
     display: inline-block;
     vertical-align: top;
     text-align: left;
@@ -1038,9 +1037,6 @@ footer .links a:hover {
     }
     .block1 {
         width: 95%}
-    .col2 {
-        width: auto;
-    }
     .errorbg {
         background: url(../images/error.svg) no-repeat center;
         background-size: contain;
