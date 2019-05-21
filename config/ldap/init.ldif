@@ -24,9 +24,9 @@ objectClass:           simpleSecurityObject
 objectClass:           Person
 objectClass:           inetOrgPerson
 objectClass:           posixAccount
-uidNumber:            10
-gidNumber:            10
-homeDirectory:      ${user}
+uidNumber:             10
+gidNumber:             10
+homeDirectory:         ${user}
 uid:                   ${user}
 cn:                    ${name}
 sn:                    ${user}
