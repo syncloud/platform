@@ -123,7 +123,9 @@ class Snap:
         self.logger.info("snaps response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
-        return snap_response['result']
+        apps = snap_response['result']
+        return sorted(apps, key=lambda app: app['name'])
+
 
     def _installer(self):
         channel = self.platform_config.get_channel()
