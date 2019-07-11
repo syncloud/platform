@@ -665,9 +665,9 @@ input:disabled {
 }
 .appinfo {
     font-size: 16px;
-    padding-left: 10px;
     display: inline-block;
     vertical-align: top;
+    margin-top: 20px;
 }
 
 .appinfo b {

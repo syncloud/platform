@@ -368,8 +368,8 @@ mockjax({ url:'/rest/app', dataType: "json",
                 "url": "http://wordpress.odroid-c2.syncloud.it",
                 "icon": "appsimages/wordpress-128.png"
             },
-            "current_version": "880",
-            "installed_version": "876"
+            "current_version": "190411412",
+            "installed_version": "190211412"
         }
     }
 });
