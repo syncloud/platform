@@ -668,7 +668,6 @@ input:disabled {
     padding-left: 10px;
     display: inline-block;
     vertical-align: top;
-    width: 64%;
 }
 
 .appinfo b {
@@ -691,10 +690,10 @@ input:disabled {
     font-size: 40px;
     margin-bottom: 10px;
 }
-.col70 .buttonblock {
+.buttonblock {
     margin-bottom: 20px;
 }
-.col70 .buttonblock button {
+.buttonblock button {
     margin: 20px 8px 8px 0;
     min-width: 120px;
 }
@@ -861,7 +860,7 @@ footer .links a:hover {
         margin: 0 15px 15px;
     }
    
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -877,7 +876,7 @@ footer .links a:hover {
         width: 115px;
         margin: 0 15px 15px;
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -894,7 +893,7 @@ footer .links a:hover {
         margin: 0 15px 15px;
     }
   
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -902,7 +901,7 @@ footer .links a:hover {
     .block1 {
         padding: 40px 0;
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -933,13 +932,13 @@ footer .links a:hover {
         margin-bottom: 5px;
         margin-top: 5px;
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         line-height: 40px;
         padding: 0 18px;
         margin: 20px 3px 4px;
         font-size: 14px;
     }
-    .col70 .buttonblock {
+    .buttonblock {
         margin-bottom: 10px;
     }
     .btext {
@@ -949,7 +948,7 @@ footer .links a:hover {
         width: 70%;
         margin: 0 auto;
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -965,7 +964,7 @@ footer .links a:hover {
     .col30 {
         margin-right: 2%
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         line-height: 40px;
         padding: 0 20px;
         margin: 20px 4px;

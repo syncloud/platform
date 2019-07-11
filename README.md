@@ -25,6 +25,15 @@ https://github.com/syncloud/platform/wiki
 
 Syncloud platform manages the installation and device settings.
 
+### Web UI development
+
+install NodeJS
+
+````
+cd www/public
+npm install
+npm start
+````
 ### Running local drone build
 
 Get drone cli binary: http://docs.drone.io/cli-installation/
