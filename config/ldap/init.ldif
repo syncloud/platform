@@ -24,9 +24,9 @@ objectClass:           simpleSecurityObject
 objectClass:           Person
 objectClass:           inetOrgPerson
 objectClass:           posixAccount
-uidNumber:            10
-gidNumber:            10
-homeDirectory:      ${user}
+uidNumber:             10
+gidNumber:             10
+homeDirectory:         ${user}
 uid:                   ${user}
 cn:                    ${name}
 sn:                    ${user}
@@ -51,3 +51,17 @@ gidNumber:             1
 cn:                    syncloud
 description:           Syncloud
 memberUid:             ${user}
+
+dn: ou=Policies,dc=syncloud,dc=org
+ou: Policies
+objectClass: organizationalUnit
+
+dn: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
+objectClass: pwdPolicy
+objectClass: person
+objectClass: top
+cn: passwordDefault
+sn: passwordDefault
+pwdAttribute: userPassword
+pwdAllowUserChange: TRUE
+

@@ -22,7 +22,6 @@ olcPidFile: {{ app_data }}/openldap/slapd.pid
 #	Require 64-bit encryption for simple bind
 #olcSecurity: ssf=1 update_ssf=112 simple_bind=64
 
-
 #
 # Load dynamic backend modules:
 #
@@ -35,7 +34,7 @@ olcPidFile: {{ app_data }}/openldap/slapd.pid
 #olcModuleload:	back_ldap.la
 #olcModuleload:	back_passwd.la
 #olcModuleload:	back_shell.la
-
+#olcModuleLoad: ppolicy
 
 dn: cn=schema,cn=config
 objectClass: olcSchemaConfig
@@ -45,13 +44,20 @@ include: file://{{ app_dir }}/openldap/etc/openldap/schema/core.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/cosine.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/inetorgperson.ldif
 include: file://{{ app_dir }}/openldap/etc/openldap/schema/nis.ldif
+include: file://{{ app_dir }}/openldap/etc/openldap/schema/ppolicy.ldif
 
 # Frontend settings
 #
-dn: olcDatabase=frontend,cn=config
+dn: olcDatabase={-1}frontend,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcFrontendConfig
-olcDatabase: frontend
+olcDatabase: {-1}frontend
+# Allow unlimited access to local connection from the local root user
+olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
+# Allow unauthenticated read access for schema and base DN autodiscovery
+olcAccess: {1}to dn.exact="" by * read
+olcAccess: {2}to dn.base="cn=Subschema" by * read
+
 #
 # Sample global access control policy:
 #	Root DSE: allow anyone to read it
@@ -75,6 +81,12 @@ olcDatabase: frontend
 # rootdn can always read and write EVERYTHING!
 #
 
+#dn: cn=Overlays,cn=Monitor
+#structuralObjectClass: monitorContainer
+#monitoredInfo: syncprov
+#entryDN: cn=Overlays,cn=Monitor
+#subschemaSubentry: cn=Subschema
+#hasSubordinates: TRUE
 
 #######################################################################
 # LMDB database definitions
@@ -84,8 +96,14 @@ dn: olcDatabase=mdb,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcMdbConfig
 olcDatabase: mdb
-olcAccess: to *
-  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" write
+olcAccess: {0}to attrs=userPassword
+  by self write
+  by anonymous auth
+  by * none
+olcAccess: {1}to *
+  by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+  by dn.exact="cn=admin,dc=syncloud,dc=org" manage
+  by self write
   by anonymous auth
   by * read
 olcSuffix: dc=syncloud,dc=org
@@ -100,3 +118,13 @@ olcRootPW: syncloud
 olcDbDirectory:	{{ app_data }}/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq
+
+dn: olcOverlay=ppolicy,olcDatabase={1}mdb,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcPPolicyConfig
+olcOverlay: ppolicy
+olcPPolicyDefault: cn=passwordDefault,ou=Policies,dc=syncloud,dc=org
+olcPPolicyHashCleartext: FALSE
+olcPPolicyUseLockout: FALSE
+olcPPolicyForwardUpdates: FALSE
+

@@ -594,7 +594,6 @@ input:disabled {
     border: inherit;
 }
 .col2 {
-    width: 49%;
     display: inline-block;
     vertical-align: top;
     text-align: left;
@@ -617,7 +616,7 @@ input:disabled {
     margin-bottom: 40px;
 }
 .colapp {
-    width: 150px;
+    width: 115px;
     min-height: 185px;
     display: inline-block;
     vertical-align: top;
@@ -627,12 +626,7 @@ input:disabled {
 .appcenterlist {
     margin-top: 25px;
 }
-.appminimg {
-    width: 145px;
-    height: 145px;
-    border-radius: 30px;
-    background-size: 145px 145px;
-}
+
 .app-link {
     display: inline-block;
     text-decoration: none !important;
@@ -655,34 +649,38 @@ input:disabled {
     margin: 0 auto;
 }
 .col30 {
-    width: 25%;
+    width: 90%;
     display: inline-block;
     vertical-align: top;
     text-align: left;
 }
 .col30 h1 {
-    display: none;
     text-align: left;
     font-size: 40px;
     margin-bottom: 10px;
 }
 .col30 img {
-    width: 100%;
     border-radius: 20%;
     margin-bottom: 15px;
 }
 .appinfo {
     font-size: 16px;
-    padding-left: 10px;
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 20px;
 }
+
 .appinfo b {
     font-weight: 400;
 }
 .appimg {
-    width: 200px;
+    width: 115px;
+    height: 115px;
+    border-radius: 30px;
+    vertical-align: top;
 }
 .col70 {
-    width: 73%;
+    width: auto;
     display: inline-block;
     vertical-align: top;
     text-align: left;
@@ -692,10 +690,10 @@ input:disabled {
     font-size: 40px;
     margin-bottom: 10px;
 }
-.col70 .buttonblock {
+.buttonblock {
     margin-bottom: 20px;
 }
-.col70 .buttonblock button {
+.buttonblock button {
     margin: 20px 8px 8px 0;
     min-width: 120px;
 }
@@ -858,15 +856,11 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .colapp {
-        width: 125px;
+        width: 115px;
         margin: 0 15px 15px;
     }
-    .appminimg {
-        width: 125px;
-        height: 125px;
-        background-size: 125px 125px;
-    }
-    .col70 .buttonblock button {
+   
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -882,15 +876,7 @@ footer .links a:hover {
         width: 115px;
         margin: 0 15px 15px;
     }
-    .colapp img {
-        width: 100%
-    }
-    .appminimg {
-        width: 125px;
-        height: 125px;
-        background-size: 125px 125px;
-    }
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -903,15 +889,11 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .colapp {
-        width: 125px;
+        width: 115px;
         margin: 0 15px 15px;
     }
-    .appminimg {
-        width: 125px;
-        height: 125px;
-        background-size: 125px 125px;
-    }
-    .col70 .buttonblock button {
+  
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -919,7 +901,7 @@ footer .links a:hover {
     .block1 {
         padding: 40px 0;
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -941,41 +923,22 @@ footer .links a:hover {
         font-size: 45px;
     }
     .col30 {
-        width: 100%;
         margin-right: 0;
         text-align: left;
         margin-bottom: 2%
     }
-    .col70 {
-        width: auto;
-    }
-    .appimg {
-        width: 34%;
-        display: inline-block;
-        vertical-align: top;
-    }
-    .appinfo {
-        display: inline-block;
-        vertical-align: top;
-        width: 64%;
-        font-size: 14px;
-    }
     .col30 h1 {
-        display: block;
         font-size: 32px;
         margin-bottom: 5px;
         margin-top: 5px;
     }
-    .col70 h1 {
-        display: none;
-    }
-    .col70 .buttonblock button {
+    .buttonblock button {
         line-height: 40px;
         padding: 0 18px;
         margin: 20px 3px 4px;
         font-size: 14px;
     }
-    .col70 .buttonblock {
+    .buttonblock {
         margin-bottom: 10px;
     }
     .btext {
@@ -985,7 +948,7 @@ footer .links a:hover {
         width: 70%;
         margin: 0 auto;
     }
-    .col70 .buttonblock button {
+    .buttonblock button {
         min-width: 90px;
     }
 }
@@ -999,16 +962,9 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .col30 {
-        width: 20%;
         margin-right: 2%
     }
-    .col70 {
-        width: 75%
-    }
-    .appimg {
-        width: 100%
-    }
-    .col70 .buttonblock button {
+    .buttonblock button {
         line-height: 40px;
         padding: 0 20px;
         margin: 20px 4px;
@@ -1045,14 +1001,7 @@ footer .links a:hover {
         width: 175px;
     }
     .col30 {
-        width: 20%;
         margin-right: 2%
-    }
-    .col70 {
-        width: 75%
-    }
-    .appimg {
-        width: 100%
     }
 }
 @media (max-width: 850px) {
@@ -1087,9 +1036,6 @@ footer .links a:hover {
     }
     .block1 {
         width: 95%}
-    .col2 {
-        width: auto;
-    }
     .errorbg {
         background: url(../images/error.svg) no-repeat center;
         background-size: contain;

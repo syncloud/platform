@@ -105,9 +105,11 @@ class Snap:
         self.logger.info('available snaps, query: {0}'.format(query))
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/find?name={1}'.format(SOCKET, query))
-        self.logger.debug("find response: {0}".format(response.text))
-        snap_response = json.loads(response.text)
-        apps = [app for app in snap_response['result'] if app['name'] != 'sam']
+        self.logger.info("find response: {0}".format(response.text))
+        snapd_response = json.loads(response.text)
+        if query != "*" and snapd_response['status'] != 'OK':
+            return []
+        apps = [app for app in snapd_response['result'] if app['name'] != 'sam']
         return sorted(apps, key=lambda app: app['name'])
 
     def installed_user_apps(self):
@@ -123,7 +125,9 @@ class Snap:
         self.logger.debug("snaps response: {0}".format(response.text))
         snap_response = json.loads(response.text)
 
-        return snap_response['result']
+        apps = snap_response['result']
+        return sorted(apps, key=lambda app: app['name'])
+
 
     def _installer(self):
         channel = self.platform_config.get_channel()

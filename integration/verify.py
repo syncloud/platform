@@ -42,6 +42,7 @@ def module_teardown(data_dir, device_host, app_dir, log_dir, device):
     device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
     device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
+    device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)    
     device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
     device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
     device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
@@ -101,16 +102,13 @@ def test_internal_web_open(device_host):
 
 
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
-
-    global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = 'password1'
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': 'user1',
-                                   'device_password': 'password1'})
+                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD})
     assert response.status_code == 200, response.text
     
 

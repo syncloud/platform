@@ -10,12 +10,12 @@ class Aggregator:
     def get_logs(self):
 
         log_files = glob.glob(self.platform_config.get_log_sender_pattern())
-        log_files.append('/var/log/sam.log')
         log_files.append('/var/log/syslog')
         results  = map(read_log, log_files)
         results.append(run('dmesg'))
         results.append(run('mount'))
         results.append(run('journalctl'))
+        results.append(run('systemctl status --status=inactive snap.*'))
         results.append(run('df'))
         results.append(run('lsblk'))
         logs = '\n----------------------\n'.join(results)
