@@ -12,6 +12,7 @@ USER_CONFIG_DB = join(config.DATA_DIR, 'platform.db')
 TRUE = 'true'
 FALSE = 'false'
 
+
 class PlatformUserConfig:
     def __init__(self, config_db=USER_CONFIG_DB, old_config_file=USER_CONFIG_FILE_OLD):
         self.config_db = config_db
@@ -19,7 +20,7 @@ class PlatformUserConfig:
         self.log = logger.get_logger('PlatformUserConfig')
 
     def update_redirect(self, domain, api_url):
-       self._upsert( [
+        self._upsert([
             ('redirect.domain', domain),
             ('redirect.api_url', api_url)
         ])
@@ -31,7 +32,7 @@ class PlatformUserConfig:
         return self._get('redirect.api_url', 'http://api.syncloud.it')
 
     def set_user_update_token(self, user_update_token):
-        self._upsert( [
+        self._upsert([
             ('redirect.user_update_token', user_update_token)
         ])
 
@@ -39,7 +40,7 @@ class PlatformUserConfig:
         return self._get('redirect.user_update_token')
 
     def set_user_email(self, user_email):
-        self._upsert( [
+        self._upsert([
             ('redirect.user_email', user_email)
         ])
 
@@ -47,12 +48,12 @@ class PlatformUserConfig:
         return self._get('redirect.user_email')
 
     def set_custom_domain(self, custom_domain):
-        self._upsert( [
+        self._upsert([
             ('platform.custom_domain', custom_domain)
         ])
 
     def set_activated(self):
-        self._upsert( [
+        self._upsert([
             ('platform.activated', TRUE)
         ])
 
@@ -70,7 +71,7 @@ class PlatformUserConfig:
         return self._get('platform.domain_update_token')
 
     def update_domain(self, user_domain, domain_update_token):
-        self._upsert( [
+        self._upsert([
             ('platform.user_domain', user_domain),
             ('platform.domain_update_token', domain_update_token)
         ])
@@ -84,12 +85,13 @@ class PlatformUserConfig:
         return to_bool(result)
         
     def set_redirect_enabled(self, enabled):
-        self._upsert( [
+        self._upsert([
             ('platform.redirect_enabled', from_bool(enabled))
         ])
 
-    def update_device_access(self, upnp_enabled, external_access, public_ip, manual_certificate_port, manual_access_port):
-        self._upsert( [
+    def update_device_access(self,
+                             upnp_enabled, external_access, public_ip, manual_certificate_port, manual_access_port):
+        self._upsert([
             ('platform.external_access', from_bool(external_access)),
             ('platform.upnp', from_bool(upnp_enabled)),
             ('platform.public_ip', public_ip),
@@ -114,7 +116,7 @@ class PlatformUserConfig:
         return self._get('platform.web_secret_key', 'default')
 
     def set_web_secret_key(self, value):
-        self._upsert( [
+        self._upsert([
             ('platform.web_secret_key', value)
         ])
 
@@ -124,8 +126,7 @@ class PlatformUserConfig:
         cursor = conn.cursor()
         cursor.execute("create table config (key varchar primary key, value varchar)")
         conn.close()
-    
-    
+
     def migrate_user_config(self):
         if isfile(self.old_config_file):
             self.init_user_config()
@@ -133,13 +134,12 @@ class PlatformUserConfig:
             old_config.read(self.old_config_file)
             for section in old_config.sections():
                 for key, value in old_config.items(section):
-                    db_value = from_bool(value == 'True') if value in ['True', 'False']  else value
+                    db_value = from_bool(value == 'True') if value in ['True', 'False'] else value
                     self._upsert([
                         ('{0}.{1}'.format(section, key), db_value)
                     ])
             self.set_web_secret_key(unicode(uuid.uuid4().hex))
             os.rename(self.old_config_file, self.old_config_file + '.bak')
-
 
     def _upsert(self, key_values):
         conn = sqlite3.connect(self.config_db)
@@ -149,8 +149,7 @@ class PlatformUserConfig:
                     self.log.info('setting {0}={1}'.format(key, value))
                     conn.execute('INSERT OR REPLACE INTO config VALUES (?, ?)', (key, value))
         conn.close() 
-     
- 
+
     def _get(self, key, default_value=None):
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
@@ -167,6 +166,7 @@ def to_bool(db_value, default=False):
     if db_value is None:
         return default
     return db_value == TRUE
+
 
 def from_bool(bool_value):
     return TRUE if bool_value else FALSE
