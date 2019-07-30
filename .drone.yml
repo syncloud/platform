@@ -89,4 +89,4 @@ services:
 matrix:
   arch:
     - arm
-      #- amd64
+    - amd64
