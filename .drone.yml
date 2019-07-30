@@ -1,9 +1,9 @@
 platform: linux/${arch}
 
-#clone:
-#  git:
-#    image: syncloud/drone-git-${arch}
-#    depth: 50
+clone:
+  git:
+    image: syncloud/drone-git-${arch}
+    depth: 50
 
 pipeline:
   version:
