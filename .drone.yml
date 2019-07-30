@@ -1,4 +1,4 @@
-platform: linux/${arch}
+#platform: linux/${arch}
 
 #clone:
 #  git:
