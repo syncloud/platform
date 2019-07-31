@@ -53,6 +53,7 @@ local build(arch) = {
               "py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=$NAME"
             ]
         },
+        if arch == "arm" then {} else
         {
             name: "test-ui",
             image: "syncloud/build-deps-" + arch,
@@ -66,12 +67,7 @@ local build(arch) = {
             volumes: [{
                 name: "shm",
                 path: "/dev/shm"
-            }],
-            when: {
-                platform: {
-                    arch: "amd64"
-                }
-            }
+            }]
         },
         {
             name: "upload",
