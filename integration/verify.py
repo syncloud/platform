@@ -112,7 +112,8 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
     assert response.status_code == 200, response.text
     
 
-def test_reactivate(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password, device):
+def test_reactivate(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
+                    device):
 
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
@@ -125,6 +126,7 @@ def test_reactivate(device_host, domain, main_domain, device_user, device_passwo
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = device_password
     device.ssh_password = device_password
+
 
 def test_public_web_unauthorized_browser_redirect(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
