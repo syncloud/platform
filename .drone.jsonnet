@@ -13,7 +13,7 @@ local build(arch) = {
             commands: [
                 "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version",
                 "echo platform > name",
-                "echo build-$(uname -m)-$DRONE_BRANCH > domain"
+                "echo build-" + arch + "-$DRONE_BRANCH > domain"
             ]
         },
         {
