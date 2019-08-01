@@ -50,6 +50,8 @@ def test_index(driver, ui_mode):
     password = driver.find_element_by_id("password")
     password.send_keys(DEVICE_PASSWORD)
     password.submit()
+    time.sleep(5)
+    screenshots(driver, screenshot_dir, 'index-progress-' + ui_mode)
     wait_driver = WebDriverWait(driver, 20)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
     time.sleep(5)
