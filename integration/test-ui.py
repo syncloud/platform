@@ -28,45 +28,32 @@ def test_start():
     os.mkdir(screenshot_dir)
 
 
-def module_teardown(driver, mobile_driver):
+def module_teardown(driver):
     driver.close()
-    mobile_driver.close()
 
 
 def test_internal_ui(driver, device_host):
     driver.get("http://{0}:81".format(device_host))
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'activate')
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_login(driver, mobile_driver, device_host):
-    _test_login(driver, 'desktop', device_host)
-    _test_login(mobile_driver, 'mobile', device_host)
-
-
-def _test_login(driver, mode, device_host):
+def test_login(driver, ui_mode, device_host):
     driver.get("http://{0}".format(device_host))
     time.sleep(2)
-    screenshots(driver, screenshot_dir, 'login-' + mode)
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+    screenshots(driver, screenshot_dir, 'login-' + ui_mode)
 
 
-def test_index(driver, mobile_driver):
-    _test_index(driver, 'desktop')
-    _test_index(mobile_driver, 'mobile')
-
-
-def _test_index(driver, mode):
+def test_index(driver, ui_mode):
     user = driver.find_element_by_id("name")
     user.send_keys(DEVICE_USER)
     password = driver.find_element_by_id("password")
     password.send_keys(DEVICE_PASSWORD)
     password.submit()
-    wait_driver = WebDriverWait(driver, 10)
+    wait_driver = WebDriverWait(driver, 20)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
     time.sleep(5)
-    screenshots(driver, screenshot_dir, 'index-' + mode)
+    screenshots(driver, screenshot_dir, 'index-' + ui_mode)
 
 
 def test_settings(driver, device_host):
@@ -118,32 +105,22 @@ def test_settings_support(driver, device_host):
     screenshots(driver, screenshot_dir, 'settings_support')
 
 
-def test_settings_backup(driver, mobile_driver, device_host):
-    _test_settings_backup(driver, 'desktop', device_host)
-    _test_settings_backup(mobile_driver, 'mobile', device_host)
-
-
-def _test_settings_backup(driver, mode, device_host):
+def test_settings_backup(driver, ui_mode, device_host):
     url = "http://{0}/backup.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_backup-' + mode)
+    screenshots(driver, screenshot_dir, 'settings_backup-' + ui_mode)
 
 
-def test_app_center(driver, mobile_driver, device_host):
-    _test_app_center(driver, 'desktop', device_host)
-    _test_app_center(mobile_driver, 'mobile', device_host)
-
-
-def _test_app_center(driver, mode, device_host):
+def test_app_center(driver, ui_mode, device_host):
     url = "http://{0}/appcenter.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'appcenter-' + mode)
+    screenshots(driver, screenshot_dir, 'appcenter-' + ui_mode)
 
 
 def test_installed_app(driver, device_host):

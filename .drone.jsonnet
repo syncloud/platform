@@ -62,7 +62,8 @@ local build(arch) = {
               "DOMAIN=$(cat domain)",
               "NAME=$(cat name)",
               "cd integration",
-              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --domain=$DOMAIN --device-host=device --app=$NAME",
+              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=$NAME",
+              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=$NAME",
             ],
             volumes: [{
                 name: "shm",
