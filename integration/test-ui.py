@@ -12,8 +12,6 @@ from syncloudlib.integration.screenshots import screenshots
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
-DEVICE_USER = 'user'
-DEVICE_PASSWORD = 'password'
 screenshot_dir = join(DIR, 'screenshot')
 
 
@@ -44,11 +42,11 @@ def test_login(driver, ui_mode, device_host):
     screenshots(driver, screenshot_dir, 'login-' + ui_mode)
 
 
-def test_index(driver, ui_mode):
+def test_index(driver, ui_mode, device_user, device_password):
     user = driver.find_element_by_id("name")
-    user.send_keys(DEVICE_USER)
+    user.send_keys(device_user)
     password = driver.find_element_by_id("password")
-    password.send_keys(DEVICE_PASSWORD)
+    password.send_keys(device_password)
     password.submit()
     time.sleep(5)
     screenshots(driver, screenshot_dir, 'index-progress-' + ui_mode)
