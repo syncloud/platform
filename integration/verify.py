@@ -56,7 +56,7 @@ def test_start(module_setup, device_host, log_dir, app):
     shutil.rmtree(log_dir, ignore_errors=True)
     run_ssh(device_host, 'date', password=LOGS_SSH_PASSWORD, retries=100)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
-    run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'snap remove platform', password=LOGS_SSH_PASSWORD)
     add_host_alias(app, device_host)
 
@@ -157,12 +157,11 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_dom
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
-    run_scp('{0} root@{1}:/'.format(nginx_runtime, app_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    device.scp_to_device(nginx_runtime, '/')
     device.run_ssh('mkdir -p {0}'.format(app_data_dir))
     device.run_ssh('{0}/nginx/sbin/nginx '
                         '-c /nginx.app.test.conf.runtime '
-                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir),
-                   retries=3)
+                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
     response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
