@@ -13,7 +13,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir, wait_for_file, wait_for_response
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
-from syncloudlib.integration.hosts import add_host_alias
+from syncloudlib.integration.hosts import add_host_alias_by_ip
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -161,8 +161,8 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_dom
     device.scp_to_device(nginx_runtime, '/')
     device.run_ssh('mkdir -p {0}'.format(app_data_dir))
     device.run_ssh('{0}/nginx/sbin/nginx '
-                        '-c /nginx.app.test.conf.runtime '
-                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
+                   '-c /nginx.app.test.conf.runtime '
+                   '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
     response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
@@ -379,7 +379,8 @@ def test_backup_app(device, log_dir):
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-    wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
+    wait_for_response(session, device.device_host, '/rest/job/status',
+                      lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     response = device.http_get('/rest/backup/list')
     assert response.status_code == 200
@@ -390,7 +391,8 @@ def test_backup_app(device, log_dir):
     
     response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
     assert response.status_code == 200
-    wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
+    wait_for_response(session, device.device_host, '/rest/job/status',
+                      lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
 
 def test_rest_backup_list(device, device_host, log_dir):
