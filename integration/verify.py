@@ -52,13 +52,14 @@ def module_teardown(data_dir, device_host, app_dir, log_dir, device):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
 
 
-def test_start(module_setup, device_host, log_dir, app):
+def test_start(module_setup, device_host, log_dir, app, domain):
     shutil.rmtree(log_dir, ignore_errors=True)
     run_ssh(device_host, 'date', password=LOGS_SSH_PASSWORD, retries=100)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
     run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'snap remove platform', password=LOGS_SSH_PASSWORD)
-    add_host_alias(app, device_host)
+    add_host_alias_by_ip(app, domain, device_host)
+    add_host_alias_by_ip("app", domain, device_host)
 
     os.mkdir(log_dir)
 
