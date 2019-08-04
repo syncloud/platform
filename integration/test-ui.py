@@ -12,8 +12,6 @@ from syncloudlib.integration.screenshots import screenshots
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
-DEVICE_USER = 'user'
-DEVICE_PASSWORD = 'password'
 screenshot_dir = join(DIR, 'screenshot')
 
 
@@ -28,131 +26,110 @@ def test_start():
     os.mkdir(screenshot_dir)
 
 
-def module_teardown(driver, mobile_driver):
+def module_teardown(driver):
     driver.close()
-    mobile_driver.close()
 
 
 def test_internal_ui(driver, device_host):
     driver.get("http://{0}:81".format(device_host))
     time.sleep(2)
     screenshots(driver, screenshot_dir, 'activate')
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_login(driver, mobile_driver, device_host):
-    _test_login(driver, 'desktop', device_host)
-    _test_login(mobile_driver, 'mobile', device_host)
-
-
-def _test_login(driver, mode, device_host):
+def test_login(driver, ui_mode, device_host):
     driver.get("http://{0}".format(device_host))
     time.sleep(2)
-    screenshots(driver, screenshot_dir, 'login-' + mode)
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+    screenshots(driver, screenshot_dir, 'login-' + ui_mode)
 
 
-def test_index(driver, mobile_driver):
-    _test_index(driver, 'desktop')
-    _test_index(mobile_driver, 'mobile')
-
-
-def _test_index(driver, mode):
+def test_index(driver, ui_mode, device_user, device_password):
     user = driver.find_element_by_id("name")
-    user.send_keys(DEVICE_USER)
+    user.send_keys(device_user)
     password = driver.find_element_by_id("password")
-    password.send_keys(DEVICE_PASSWORD)
+    password.send_keys(device_password)
     password.submit()
-    wait_driver = WebDriverWait(driver, 10)
+    time.sleep(5)
+    screenshots(driver, screenshot_dir, 'index-progress-' + ui_mode)
+    wait_driver = WebDriverWait(driver, 20)
     wait_driver.until(EC.presence_of_element_located((By.CLASS_NAME, 'menubutton')))
     time.sleep(5)
-    screenshots(driver, screenshot_dir, 'index-' + mode)
+    screenshots(driver, screenshot_dir, 'index-' + ui_mode)
 
 
-def test_settings(driver, device_host):
+def test_settings(driver, device_host, ui_mode):
     driver.get("http://{0}/settings.html".format(device_host))
     time.sleep(5)
-    screenshots(driver, screenshot_dir, 'settings')
+    screenshots(driver, screenshot_dir, 'settings-' + ui_mode)
 
 
-def test_settings_activation(driver, device_host):
+def test_settings_activation(driver, device_host, ui_mode):
     driver.get("http://{0}/activation.html".format(device_host))
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_activation')
+    screenshots(driver, screenshot_dir, 'settings_activation-' + ui_mode)
 
 
-def test_settings_network(driver, device_host):
+def test_settings_network(driver, device_host, ui_mode):
     driver.get("http://{0}/network.html".format(device_host))
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_network')
+    screenshots(driver, screenshot_dir, 'settings_network-' + ui_mode)
 
     driver.find_element_by_css_selector(".bootstrap-switch-id-tgl_external").click()
     time.sleep(2)
-    screenshots(driver, screenshot_dir, 'settings_network_external_access')
+    screenshots(driver, screenshot_dir, 'settings_network_external_access-' + ui_mode)
 
 
-def test_settings_storage(driver, device_host):
+def test_settings_storage(driver, device_host, ui_mode):
     url = "http://{0}/storage.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_storage')
+    screenshots(driver, screenshot_dir, 'settings_storage-' + ui_mode)
 
 
-def test_settings_updates(driver, device_host):
+def test_settings_updates(driver, device_host, ui_mode):
     url = "http://{0}/updates.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_updates')
+    screenshots(driver, screenshot_dir, 'settings_updates-' + ui_mode)
 
 
-def test_settings_support(driver, device_host):
+def test_settings_support(driver, device_host, ui_mode):
     url = "http://{0}/support.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_support')
+    screenshots(driver, screenshot_dir, 'settings_support-' + ui_mode)
 
 
-def test_settings_backup(driver, mobile_driver, device_host):
-    _test_settings_backup(driver, 'desktop', device_host)
-    _test_settings_backup(mobile_driver, 'mobile', device_host)
-
-
-def _test_settings_backup(driver, mode, device_host):
+def test_settings_backup(driver, ui_mode, device_host):
     url = "http://{0}/backup.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'settings_backup-' + mode)
+    screenshots(driver, screenshot_dir, 'settings_backup-' + ui_mode)
 
 
-def test_app_center(driver, mobile_driver, device_host):
-    _test_app_center(driver, 'desktop', device_host)
-    _test_app_center(mobile_driver, 'mobile', device_host)
-
-
-def _test_app_center(driver, mode, device_host):
+def test_app_center(driver, ui_mode, device_host):
     url = "http://{0}/appcenter.html".format(device_host)
     resp = requests.get(url, verify=False)
     assert resp.status_code == 200
     driver.get(url)
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'appcenter-' + mode)
+    screenshots(driver, screenshot_dir, 'appcenter-' + ui_mode)
 
 
-def test_installed_app(driver, device_host):
+def test_installed_app(driver, device_host, ui_mode):
     driver.get("http://{0}/app.html?app_id=files".format(device_host))
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'app_installed')
+    screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
 
 
-def test_not_installed_app(driver, device_host):
+def test_not_installed_app(driver, device_host, ui_mode):
     driver.get("http://{0}/app.html?app_id=nextcloud".format(device_host))
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'app_not_installed')
+    screenshots(driver, screenshot_dir, 'app_not_installed-' + ui_mode)

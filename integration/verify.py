@@ -13,6 +13,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir, wait_for_file, wait_for_response
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
+from syncloudlib.integration.hosts import add_host_alias_by_ip
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -51,13 +52,15 @@ def module_teardown(data_dir, device_host, app_dir, log_dir, device):
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
 
 
-def test_start(module_setup, device_host, log_dir):
+def test_start(module_setup, device_host, log_dir, app, domain):
     shutil.rmtree(log_dir, ignore_errors=True)
     run_ssh(device_host, 'date', password=LOGS_SSH_PASSWORD, retries=100)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
-    run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'snap remove platform', password=LOGS_SSH_PASSWORD)
- 
+    add_host_alias_by_ip(app, domain, device_host)
+    add_host_alias_by_ip("app", domain, device_host)
+
     os.mkdir(log_dir)
 
 
@@ -112,7 +115,8 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
     assert response.status_code == 200, response.text
     
 
-def test_reactivate(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password, device):
+def test_reactivate(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
+                    device):
 
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
@@ -125,6 +129,7 @@ def test_reactivate(device_host, domain, main_domain, device_user, device_passwo
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = device_password
     device.ssh_password = device_password
+
 
 def test_public_web_unauthorized_browser_redirect(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
@@ -148,15 +153,16 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain, device):
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain, device, device_host):
+    
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
     generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
-    run_scp('{0} root@{1}:/'.format(nginx_runtime, app_domain), throw=False, password=LOGS_SSH_PASSWORD)
+    device.scp_to_device(nginx_runtime, '/')
     device.run_ssh('mkdir -p {0}'.format(app_data_dir))
     device.run_ssh('{0}/nginx/sbin/nginx '
-                        '-c /nginx.app.test.conf.runtime '
-                        '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
+                   '-c /nginx.app.test.conf.runtime '
+                   '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
     response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
     assert response.status_code == 200
     assert response.text == 'OK', response.text
@@ -373,7 +379,8 @@ def test_backup_app(device, log_dir):
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-    wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
+    wait_for_response(session, device.device_host, '/rest/job/status',
+                      lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     response = device.http_get('/rest/backup/list')
     assert response.status_code == 200
@@ -384,7 +391,8 @@ def test_backup_app(device, log_dir):
     
     response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
     assert response.status_code == 200
-    wait_for_response(session, device.device_host, '/rest/job/status', lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
+    wait_for_response(session, device.device_host, '/rest/job/status',
+                      lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
 
 def test_rest_backup_list(device, device_host, log_dir):

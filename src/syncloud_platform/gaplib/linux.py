@@ -2,6 +2,7 @@ from subprocess import check_output, call
 import pwd
 from os import environ
 import massedit
+from IPy import IP
 
 
 def useradd(user, home_folder=None):
@@ -38,6 +39,11 @@ def local_ip():
         raise(Exception("Can't get local ip address"))
     return ip
 
+def is_ip_public(ip):
+    return ip_type(ip) == 'PUBLIC'
+
+def ip_type(ip):
+    return IP(ip).iptype()
 
 def pgrep(pattern):
     return call(['pgrep', '-f', pattern]) == 0

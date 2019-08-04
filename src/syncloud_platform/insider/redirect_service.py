@@ -2,7 +2,6 @@ from urlparse import urljoin
 
 from syncloudlib.json import convertible
 import requests
-from IPy import IP
 from syncloudlib import logger
 
 from syncloud_platform.insider import util
@@ -73,7 +72,7 @@ class RedirectService:
         if not external_ip:
             self.logger.warn("No external ip")
         else:
-            iptype=IP(external_ip).iptype()
+            iptype=linux.ip_type(external_ip)
             if iptype != 'PUBLIC':
                 external_ip = None
                 self.logger.warn("External ip is not public: {0}".format(iptype))
