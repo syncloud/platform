@@ -5,7 +5,7 @@ import (
  "fmt"
 )
 
-func LocalIp(isIpv6 bool) (net.IP, error) {
+func LocalIp(showIpv6 bool) (net.IP, error) {
 	ifaces, err := net.Interfaces()
  if err != nil {
   return nil, err
@@ -17,17 +17,19 @@ func LocalIp(isIpv6 bool) (net.IP, error) {
  }
 		for _, addr := range addrs {
   var ip net.IP
-  
   switch v := addr.(type) { 
    case *net.IPNet:
     ip = v.IP 
    case *net.IPAddr: 
     ip = v.IP 
   }
-  if isIpv6 {
-    ip = ip.To16()
+  ipv4 := ip.To4()
+  if showIpv6 {
+    if ipv4 != nil {
+     ip = nil
+    }
   } else {
-    ip = ip.To4()
+    ip = ipv4
   }
   if ip != nil && !ip.IsLoopback() {
    return ip, nil
