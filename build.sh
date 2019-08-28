@@ -55,7 +55,8 @@ npm run build
 
 cd ${DIR}/backend
 go test ./... -cover
-CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/backend main/main.go
+CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/backend cmd/backend/main.go
+CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/cli cmd/cli/main.go
 
 cd ${DIR}
 
