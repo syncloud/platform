@@ -68,6 +68,10 @@ apps:
     - network-bind
     start-timeout: 200s
     restart-condition: always
+
+cli:
+    command: bin/cli
+
 confinement: strict
 description: Syncloud Platform
 grade: stable

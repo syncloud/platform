@@ -59,6 +59,7 @@ class RedirectService:
         
         version = self.versions.platform_version()
         local_ip = linux.local_ip()
+        
         data = {
             'token': update_token,
             'platform_version': version,
@@ -82,6 +83,10 @@ class RedirectService:
                 data['ip'] = external_ip
             else:
                 self.logger.warn("Will try server side client ip detection")
+        local_ip_v6 = linux.local_ip_v6()
+       
+        if local_ip_v6:
+            data['ipv6'] = local_ip_v6
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
