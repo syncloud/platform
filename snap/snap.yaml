@@ -68,8 +68,7 @@ apps:
     - network-bind
     start-timeout: 200s
     restart-condition: always
-
-cli:
+  cli:
     command: bin/cli
 
 confinement: strict
