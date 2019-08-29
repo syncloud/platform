@@ -7,14 +7,14 @@ import (
 
 func TestIPv4(t *testing.T) {
 
-	ip, err := LocalIp(false)
+	ip, err := LocalIPv4()
 
  assert.True(t, err != nil || ip != nil)
 }
 
 func TestIPv6(t *testing.T) {
 
-	ip, err := LocalIp(true)
+	ip, err := LocalIPv6()
 
  assert.True(t, err != nil || ip != nil)
 }
