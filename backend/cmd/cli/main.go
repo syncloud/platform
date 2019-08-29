@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+ "fmt"
 	"github.com/syncloud/platform/network"
 	"log"
 	"os"
@@ -15,13 +15,13 @@ func main() {
 
 	switch os.Args[1] {
 	case "ipv6":
-		ip, err := network.LocalIp(true)
+		ip, err := network.LocalIPv6()
 		if err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(ip)
 	case "ipv4":
-		ip, err := network.LocalIp(false)
+		ip, err := network.LocalIPv4()
 		if err != nil {
 			log.Fatal(err)
 		}
