@@ -35,12 +35,16 @@ cd www/public
 npm install
 npm start
 ````
-### Running local drone build
+### Building a package locally
 
 Get drone cli binary: http://docs.drone.io/cli-installation/
 ````
-sudo DOCKER_API_VERSION=1.24 arch=[amd64|arm] /path/to/cli/drone exec
+sudo arch=[amd64|arm] /path/to/cli/drone exec
 ````
+
+### Install a package on a device
+````
+snap install --devmode /path/to/package.snap
 
 ### Build server
 
