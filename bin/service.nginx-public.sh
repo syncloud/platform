@@ -8,11 +8,9 @@ if [[ -z "$1" ]]; then
 fi
 
 case $1 in
-pre-start)
-    ${DIR}/nginx/sbin/nginx -t -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
-    ;;
 start)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
+    ${DIR}/nginx/sbin/nginx -t -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
+    exec $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
     ;;
 post-start)
     timeout 5 /bin/bash -c 'until echo > /dev/tcp/localhost/80; do sleep 1; done'

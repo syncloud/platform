@@ -8,12 +8,10 @@ if [[ -z "$1" ]]; then
 fi
 
 case $1 in
-pre-start)
+start)
     /bin/rm -f ${SNAP_COMMON}/api.socket
     ${DIR}/nginx/sbin/nginx -t -c ${SNAP_COMMON}/config/nginx/api.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_api_error.log warn;'
-    ;;
-start)
-    ${DIR}/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/api.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_api_error.log warn;'
+    exec ${DIR}/nginx/sbin/nginx -c ${SNAP_COMMON}/config/nginx/api.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_api_error.log warn;'
     ;;
 post-start)
     /usr/bin/timeout 5 /bin/bash -c 'until [ -S '${SNAP_COMMON}'/api.socket ]; do echo "waiting for api socket"; sleep 1; done'
