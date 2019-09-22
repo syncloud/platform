@@ -19,13 +19,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(ip)
+		fmt.Print(ip)
 	case "ipv4":
 		ip, err := network.LocalIPv4()
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(ip)
+		fmt.Print(ip)
 
 	}
 
