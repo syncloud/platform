@@ -20,11 +20,17 @@ We are open to cooperation with hardware vendors interested in including Synclou
 
 ### Download
 
-https://github.com/syncloud/platform/wiki
+There are images for various devices and architectures, get one [here](https://github.com/syncloud/platform/wiki).
 
 ## For developers
 
-Syncloud platform manages app installation and device settings.
+Syncloud image contains the following components:
+
+1. Debian based [linux OS](github.com/syncloud/image).
+2. Snap based app [installer](https://github.com/syncloud/snapd).
+3. Platform snap package.
+
+Platform provides a shared services for all the apps and manages device settings.
 
 ### Web UI development
 
@@ -37,8 +43,8 @@ npm start
 ````
 
 ### Building a package locally
-
-Get drone cli binary: http://docs.drone.io/cli-installation/
+We use Drone build server for automated builds.
+The simplest way to build a platform snap package locally is to run [drone cli](http://docs.drone.io/cli-installation):
 ````
 sudo arch=[amd64|arm] /path/to/cli/drone exec
 ````
