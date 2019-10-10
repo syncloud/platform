@@ -1,8 +1,8 @@
 ## Syncloud (https://syncloud.org)
 
-Simple self-hosting of cloud apps.
+Simple self-hosting of popular apps.
 
-It is available as an image or a pre-installed device.
+It is available as an image or a pre-built [device](https://shop.syncloud.org).
 
 We are open to cooperation with hardware vendors interested in including Syncloud into their products.
 
@@ -24,7 +24,7 @@ https://github.com/syncloud/platform/wiki
 
 ## For developers
 
-Syncloud platform manages the installation and device settings.
+Syncloud platform manages app installation and device settings.
 
 ### Web UI development
 
@@ -46,10 +46,3 @@ sudo arch=[amd64|arm] /path/to/cli/drone exec
 ````
 snap install --devmode /path/to/package.snap
 
-### Build server
-
-http://build.syncloud.org/syncloud/platform
-
-### Build artifacts (screenshots, system logs)
-
-http://artifact.syncloud.org/platform
