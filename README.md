@@ -1,4 +1,4 @@
-## Syncloud (https://syncloud.org)
+## [Syncloud](https://syncloud.org)
 
 Simple self-hosting of popular apps.
 
@@ -18,7 +18,7 @@ We are open to cooperation with hardware vendors interested in including Synclou
 * [Notes](https://standardnotes.org/): Safe place for your notes, thoughts, and life's work.
 * [Users](https://github.com/kakwa/ldapcherr/): User management app..
 
-### Images
+### Download
 
 https://github.com/syncloud/platform/wiki
 
@@ -28,13 +28,14 @@ Syncloud platform manages app installation and device settings.
 
 ### Web UI development
 
-install NodeJS
+Install [Node.js](https://nodejs.org/en/download)
 
 ````
 cd www/public
 npm install
 npm start
 ````
+
 ### Building a package locally
 
 Get drone cli binary: http://docs.drone.io/cli-installation/
@@ -45,4 +46,4 @@ sudo arch=[amd64|arm] /path/to/cli/drone exec
 ### Install a package on a device
 ````
 snap install --devmode /path/to/package.snap
-
+````
