@@ -16,3 +16,4 @@ version
 logs
 *.snap
 .pytest_cache
+venv
