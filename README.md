@@ -16,7 +16,8 @@ We are open to cooperation with hardware vendors interested in including Synclou
 * [Syncthing](https://syncthing.net/): File synchronization between devices.
 * [WordPress](https://wordpress.org/): Blogging, mailing lists and forums, media galleries, and online stores.
 * [Notes](https://standardnotes.org/): Safe place for your notes, thoughts, and life's work.
-* [Users](https://github.com/kakwa/ldapcherr/): User management app..
+* [Users](https://github.com/kakwa/ldapcherr/): User management app.
+* [Pi-hole](https://pi-hole.net): Network-wide Ad Blocking.
 
 ### Download
 
