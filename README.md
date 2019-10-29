@@ -31,7 +31,7 @@ Syncloud image contains the following components:
 2. Snap based app [installer](https://github.com/syncloud/snapd).
 3. Platform snap package.
 
-Platform provides a shared services for all the apps and manages device settings.
+Platform provides shared services for all the apps and manages device settings.
 
 ### Web UI development
 
