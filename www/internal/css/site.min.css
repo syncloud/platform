@@ -76,7 +76,10 @@ input.error{border-color:#e94141}
 .errortext {background: #ffe4e6;display: block;padding: 15px;border-radius: 41px;margin: -2px 0 10px;}
 input:disabled {background:#d5d8da!important;color:#222!important;cursor:not-allowed!important;opacity:.5;}
 .alert90 {width:90%;margin:-18px auto 8px;padding:16px 15px 7px!important;font-size:14px;}
-.nameinput{background:url(../images/nameinput.svg) no-repeat 95% center}
+.nameinput{
+    background:url(../images/nameinput.svg) no-repeat 95% center;
+    text-transform:lowercase
+}
 .passinput{background:url(../images/passinput.svg) no-repeat 95% center}
 .emailinput{background:url(../images/emailinput.svg) no-repeat 95% center}
 .buttonblue{color:#fff;background:#03aff0;line-height:50px;border-radius:40px;width:100%;cursor:pointer;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-o-transition:all .3s ease-out;-ms-transition:all .3s ease-out;display:inline-block;font-size:16px}

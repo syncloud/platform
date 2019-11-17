@@ -30,7 +30,7 @@ def identification():
 @app.route(rest_prefix + "/activate", methods=["POST"])
 def activate():
 
-    device_username = request.form['device_username']
+    device_username = request.form['device_username'].lower()
     device_password = request.form['device_password']
         
     validator = InternalValidator()
@@ -52,7 +52,7 @@ def activate():
 @app.route(rest_prefix + "/activate_custom_domain", methods=["POST"])
 def activate_custom_domain():
 
-    device_username = request.form['device_username']
+    device_username = request.form['device_username'].lower()
     device_password = request.form['device_password']
         
     validator = InternalValidator()
