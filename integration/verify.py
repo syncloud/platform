@@ -10,11 +10,11 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir, wait_for_file, wait_for_response
+from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir, wait_for_file
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_scp, run_ssh
 from syncloudlib.integration.hosts import add_host_alias_by_ip
-
+from syncloudlib.http import wait_for_response
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
