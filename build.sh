@@ -30,7 +30,7 @@ tar xf nginx-${ARCH}.tar.gz
 mv nginx ${BUILD_DIR}
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/uwsgi-${ARCH}.tar.gz
 tar xf uwsgi-${ARCH}.tar.gz
-mv uwsgu ${BUILD_DIR}
+mv uwsgi ${BUILD_DIR}
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
