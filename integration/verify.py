@@ -30,32 +30,29 @@ def app_data_dir():
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device_host, app_dir, artifact_dir, device):
+def module_setup(request, data_dir, device, app_dir, artifact_dir, device):
     def module_teardown():
-        run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, artifact_dir), throw=False,
-                password=LOGS_SSH_PASSWORD)
-        run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, artifact_dir), throw=False,
-                password=LOGS_SSH_PASSWORD)
- 
+        device.scp_to_device('{0}/config'.format(data_dir), artifact_dir)
+        device.scp_to_device('{0}/config.runtime'.format(data_dir), artifact_dir)
         device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
-        device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)    
+        device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)    #
         device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
         device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
         device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
-        run_scp('root@{0}:{1}/* {2}'.format(device_host, TMP_DIR, artifact_dir), throw=False, password=LOGS_SSH_PASSWORD)
-        run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, artifact_dir), throw=False, password=LOGS_SSH_PASSWORD)
+        device.scp_from_device('{0}/*'.format(TMP_DIR), artifact_dir)
+        device.scp_from_device('{0}/log/*'.format(data_dir), artifact_dir)
 
     request.addfinalizer(module_teardown)
 
 
-def test_start(module_setup, device_host, app, domain):
-    run_ssh(device_host, 'date', password=LOGS_SSH_PASSWORD, retries=100)
-    run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
-    run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, 'snap remove platform', password=LOGS_SSH_PASSWORD)
+def test_start(module_setup, device, app, domain):
+    device.run_ssh('date', retries=100)
+    device.scp_to_device(DIR, '/')
+    device.run_ssh('mkdir /log')
+    device.run_ssh('snap remove platform')
     add_host_alias_by_ip(app, domain, device_host)
     add_host_alias_by_ip("app", domain, device_host)
 
@@ -376,7 +373,7 @@ def test_backup_app(device, artifact_dir):
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-    wait_for_response(session, device.device_host, '/rest/job/status',
+    wait_for_response(session, '{0}/rest/job/status'.format(device.device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     response = device.http_get('/rest/backup/list')
@@ -388,7 +385,7 @@ def test_backup_app(device, artifact_dir):
     
     response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
     assert response.status_code == 200
-    wait_for_response(session, device.device_host, '/rest/job/status',
+    wait_for_response(session, '{0}/rest/job/status'.format(device.device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
 
