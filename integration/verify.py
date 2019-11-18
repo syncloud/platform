@@ -30,30 +30,28 @@ def app_data_dir():
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device_host, app_dir, log_dir, device):
-    request.addfinalizer(lambda: module_teardown(data_dir, device_host, app_dir, log_dir, device))
-
-
-def module_teardown(data_dir, device_host, app_dir, log_dir, device):
-    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, log_dir), throw=False,
-            password=LOGS_SSH_PASSWORD)
-    run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, log_dir), throw=False,
-            password=LOGS_SSH_PASSWORD)
+def module_setup(request, data_dir, device_host, app_dir, artifact_dir, device):
+    def module_teardown():
+        run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, artifact_dir), throw=False,
+                password=LOGS_SSH_PASSWORD)
+        run_scp('-r root@{0}:{1}/config.runtime {2}'.format(device_host, data_dir, artifact_dir), throw=False,
+                password=LOGS_SSH_PASSWORD)
  
-    device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
-    device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
-    device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
-    device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)    
-    device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
-    device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
-    device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
-    device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
-    run_scp('root@{0}:{1}/* {2}'.format(device_host, TMP_DIR, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
-    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, log_dir), throw=False, password=LOGS_SSH_PASSWORD)
+        device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
+        device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)    
+        device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+        device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)    
+        device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
+        run_scp('root@{0}:{1}/* {2}'.format(device_host, TMP_DIR, artifact_dir), throw=False, password=LOGS_SSH_PASSWORD)
+        run_scp('root@{0}:{1}/log/* {2}'.format(device_host, data_dir, artifact_dir), throw=False, password=LOGS_SSH_PASSWORD)
+
+    request.addfinalizer(module_teardown)
 
 
-def test_start(module_setup, device_host, log_dir, app, domain):
-    shutil.rmtree(log_dir, ignore_errors=True)
+def test_start(module_setup, device_host, app, domain):
     run_ssh(device_host, 'date', password=LOGS_SSH_PASSWORD, retries=100)
     run_scp('-r {0} root@{1}:/'.format(DIR, device_host))
     run_ssh(device_host, 'mkdir /log', password=LOGS_SSH_PASSWORD)
@@ -61,7 +59,6 @@ def test_start(module_setup, device_host, log_dir, app, domain):
     add_host_alias_by_ip(app, domain, device_host)
     add_host_alias_by_ip("app", domain, device_host)
 
-    os.mkdir(log_dir)
 
 
 def test_install(app_archive_path, device_host):
@@ -256,25 +253,25 @@ def test_network_interfaces(device, device_host):
     assert response.status_code == 200
 
 
-def test_available_apps(device, device_host, log_dir):
+def test_available_apps(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/available_apps'.format(device_host), verify=False)
-    with open('{0}/rest.available_apps.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
     assert len(json.loads(response.text)['apps']) > 1
     
 
-def test_device_url(device, device_host, log_dir):
+def test_device_url(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
-    with open('{0}/rest.settings.device_url.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
-def test_activate_url(device, device_host, log_dir):
+def test_activate_url(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/settings/activate_url'.format(device_host), verify=False)
-    with open('{0}/rest.settings.activate_url.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.settings.activate_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
@@ -328,27 +325,27 @@ def test_install_app(device, device_host):
     wait_for_installer(session, device_host)
 
 
-def test_rest_installed_apps(device, device_host, log_dir):
+def test_rest_installed_apps(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
     assert response.status_code == 200
-    with open('{0}/rest.installed_apps.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
     assert len(json.loads(response.text)['apps']) == 1
 
 
-def test_rest_installed_app(device, device_host, log_dir):
+def test_rest_installed_app(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
     assert response.status_code == 200
-    with open('{0}/rest.app.installed.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
 
 
-def test_rest_not_installed_app(device, device_host, log_dir):
+def test_rest_not_installed_app(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=nextcloud'.format(device_host), verify=False)
     assert response.status_code == 200
-    with open('{0}/rest.app.not.installed.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.app.not.installed.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
 
@@ -371,7 +368,7 @@ def test_installer_upgrade(device, device_host):
     wait_for_installer(session, device_host, throw_on_error=True)
 
 
-def test_backup_app(device, log_dir):
+def test_backup_app(device, artifact_dir):
     
     session = device.login()
     
@@ -384,7 +381,7 @@ def test_backup_app(device, log_dir):
    
     response = device.http_get('/rest/backup/list')
     assert response.status_code == 200
-    open('{0}/rest.backup.list.json'.format(log_dir), 'w').write(response.text)
+    open('{0}/rest.backup.list.json'.format(artifact_dir), 'w').write(response.text)
 
     file = json.loads(response.text)['data'][0]
     device.run_ssh('tar tvf {0}/{1}'.format(file['path'], file['file']))
@@ -395,10 +392,10 @@ def test_backup_app(device, log_dir):
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
 
-def test_rest_backup_list(device, device_host, log_dir):
+def test_rest_backup_list(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/backup/list'.format(device_host), verify=False)
     assert response.status_code == 200
-    with open('{0}/rest.backup.list.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.backup.list.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert json.loads(response.text)['success']
 
@@ -495,10 +492,10 @@ def cron_is_enabled_after_install(device_host):
     assert not crontab.startswith('#'), crontab
 
 
-def test_settings_versions(device_host, device, log_dir):
+def test_settings_versions(device_host, device, artifact_dir):
 
     response = device.login().get('https://{0}/rest/settings/versions'.format(device_host), verify=False)
-    with open('{0}/rest.settings.versions.json'.format(log_dir), 'w') as the_file:
+    with open('{0}/rest.settings.versions.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
 
     assert response.status_code == 200, response.text

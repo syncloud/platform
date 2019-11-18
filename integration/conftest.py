@@ -5,5 +5,5 @@ DIR = dirname(__file__)
 
 
 @pytest.fixture(scope="session")
-def log_dir():
-    return join(DIR, 'log')
+def project_dir():
+    return join(dirname(__file__), '..')
