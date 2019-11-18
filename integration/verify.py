@@ -48,7 +48,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
     request.addfinalizer(module_teardown)
 
 
-def test_start(module_setup, device, app, domain):
+def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('date', retries=100)
     device.scp_to_device(DIR, '/')
     device.run_ssh('mkdir /log')
