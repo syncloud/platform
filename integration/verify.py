@@ -30,7 +30,7 @@ def app_data_dir():
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, data_dir, device, app_dir, artifact_dir, device):
+def module_setup(request, data_dir, device, app_dir, artifact_dir):
     def module_teardown():
         device.scp_to_device('{0}/config'.format(data_dir), artifact_dir)
         device.scp_to_device('{0}/config.runtime'.format(data_dir), artifact_dir)
