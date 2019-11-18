@@ -4,4 +4,4 @@ mockito
 selenium==3.141.0
 requests==2.11.1
 urllib3==1.10
-syncloud-lib==154
+syncloud-lib==157
