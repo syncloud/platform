@@ -49,10 +49,10 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 
 
 def test_start(module_setup, device, app, domain, device_host):
-    device.run_ssh('date', retries=100)
-    device.scp_to_device(DIR, '/')
-    device.run_ssh('mkdir /log')
-    device.run_ssh('snap remove platform')
+    device.run_ssh('date', retries=100, throw=True)
+    device.scp_to_device(DIR, '/', throw=True)
+    device.run_ssh('mkdir /log', throw=True)
+    device.run_ssh('snap remove platform', throw=True)
     add_host_alias_by_ip(app, domain, device_host)
     add_host_alias_by_ip("app", domain, device_host)
 
