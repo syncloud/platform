@@ -4,7 +4,7 @@ var mockjax = require('jquery-mockjax')(jquery, window);
 export const State = {
     available_apps_success: true,
     disk_action_success: true,
-    job_status_running: true
+    job_status_running: false
 }
 
 const disks_data = {
@@ -439,15 +439,10 @@ mockjax({
     response: backupCreate
 });
 
-function installerUpgrade(settings) {
-    //alert("restore "+settings.data.file);
-}
-
-mockjax({ 
-    type: "get",
-    url:'/rest/installer/upgrade', 
+mockjax({
+    url:'/rest/installer/upgrade',
     dataType: "json",
-    response: installerUpgrade
+    responseText: {success: true}
 });
 
 mockjax({ 
