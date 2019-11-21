@@ -38,16 +38,9 @@ class Snap:
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
 
-    def snap_upgrade_status(self):
-        return pgrep(self.platform_config.get_snapd_upgrade_script())
-
     def status(self):
         self.logger.info('snap changes')
         
-        if self.snap_upgrade_status():
-            self.logger.info("snapd upgrade is in progress")
-            return True
-            
         session = requests_unixsocket.Session()
         response = session.get('{0}/v2/changes?select=in-progress'.format(SOCKET))
         self.logger.info("changes response: {0}".format(response.text))
