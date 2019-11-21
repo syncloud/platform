@@ -1,13 +1,13 @@
 from syncloudlib import logger
 
 from syncloud_platform.gaplib.linux import pgrep, run_detached
-from syncloud_platform.rest.model.app import app_from_sam_app
+from syncloud_platform.rest.model.app import app_from_snap_app
 from syncloud_platform.control import power
 
 
 class Public:
 
-    def __init__(self, platform_config, user_platform_config, device, device_info, sam, hardware, redirect_service,
+    def __init__(self, platform_config, user_platform_config, device, device_info, snap, hardware, redirect_service,
                  log_aggregator, certbot_generator, port_mapper_factory, network, port_config):
         self.port_config = port_config
         self.hardware = hardware
@@ -16,7 +16,7 @@ class Public:
         self.user_platform_config = user_platform_config
         self.device = device
         self.device_info = device_info
-        self.sam = sam
+        self.snap = snap
         self.www_dir = self.platform_config.www_root_public()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
@@ -38,29 +38,26 @@ class Public:
         power.shutdown()
 
     def installed_apps(self):
-        apps = [app_from_sam_app(a) for a in self.sam.installed_user_apps()]
+        apps = [app_from_snap_app(a) for a in self.snap.installed_user_apps()]
         return apps
 
     def get_app(self, app_id):
-        return self.sam.get_app(app_id)
+        return self.snap.get_app(app_id)
 
     def list_apps(self):
-        return self.sam.list()
+        return self.snap.list()
 
     def install(self, app_id):
-        self.sam.install(app_id)
+        self.snap.install(app_id)
 
     def remove(self, app_id):
-        return self.sam.remove(app_id)
+        return self.snap.remove(app_id)
 
     def upgrade(self, app_id, channel, force):
-        self.sam.upgrade(app_id, channel, force)
-
-    def update(self):
-        return self.sam.update()
+        self.snap.upgrade(app_id, channel, force)
 
     def available_apps(self):
-        return [app_from_sam_app(a) for a in self.sam.user_apps() if a.app.enabled]
+        return [app_from_snap_app(a) for a in self.snap.user_apps() if a.app.enabled]
 
     def port_mappings(self):
         return self.port_config.load()
@@ -97,8 +94,8 @@ class Public:
                      self.platform_config.get_platform_log(),
                      self.platform_config.get_ssh_port())
 
-    def sam_status(self):
-        return self.sam.status()
+    def installer_status(self):
+        return self.snap.status()
 
     def boot_extend_status(self):
         return pgrep(self.resize_script)

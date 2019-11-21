@@ -6,9 +6,9 @@ class App:
         self.icon = icon
 
 
-def app_from_sam_app(sam_app):
+def app_from_snap_app(snap_app):
     return App(
-        sam_app.app.id,
-        sam_app.app.name,
-        sam_app.app.icon,
-        sam_app.app.url)
+        snap_app.app.id,
+        snap_app.app.name,
+        snap_app.app.icon,
+        snap_app.app.url)

@@ -33,6 +33,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 	http.HandleFunc("/backup/restore", Handle(backend.BackupRestore))
 	http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
+  http.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade))
 
 	server := http.Server{}
 
@@ -126,6 +127,14 @@ func (backend *Backend) BackupRestore(w http.ResponseWriter, req *http.Request) 
 	backend.Master.Offer(job.JobBackupRestore{File: files[0]})
 	return "submitted", nil
 }
+
+
+func (backend *Backend) InstallerUpgrade(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+	backend.Master.Offer(job.JobInstallerUpgrade{})
+	return "submitted", nil
+}
+
+
 
 func (backend *Backend) JobStatus(w http.ResponseWriter, req *http.Request) (interface{}, error) {
 	return backend.Master.Status().String(), nil

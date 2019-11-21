@@ -40,8 +40,8 @@ def run_hook_script(app_dir, action):
 
 
 class EventTrigger:
-    def __init__(self, sam, platform_config):
-        self.sam = sam
+    def __init__(self, snap, platform_config):
+        self.snap = snap
         self.platform_config = platform_config
 
     def trigger_app_event_disk(self):
@@ -51,7 +51,7 @@ class EventTrigger:
         self.__trigger_app_event('access-change')
 
     def __trigger_app_event(self, action):
-        for app in self.sam.installed_all_apps():
+        for app in self.snap.installed_all_apps():
             app_id = app.app.id
             app_paths = AppPaths(app_id, self.platform_config)
             app_dir = app_paths.get_install_dir()

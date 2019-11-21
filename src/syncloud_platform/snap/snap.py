@@ -27,10 +27,6 @@ class Snap:
 
     def upgrade(self, app_id, channel, force):
         self.logger.info('snap upgrade')
-        if app_id == 'sam':
-            self.upgrade_snapd(channel)
-            return
-
         session = requests_unixsocket.Session()
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={
             'action': 'refresh',
@@ -41,13 +37,6 @@ class Snap:
         snapd_response = json.loads(response.text)
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
-
-    def upgrade_snapd(self, channel):
-        script = self.platform_config.get_snapd_upgrade_script()
-     
-        run_detached('{0} {1}'.format(script, channel),
-                     self.platform_config.get_platform_log(),
-                     self.platform_config.get_ssh_port())
 
     def snap_upgrade_status(self):
         return pgrep(self.platform_config.get_snapd_upgrade_script())
@@ -109,7 +98,7 @@ class Snap:
         snapd_response = json.loads(response.text)
         if query != "*" and snapd_response['status'] != 'OK':
             return []
-        apps = [app for app in snapd_response['result'] if app['name'] != 'sam']
+        apps = snapd_response['result']
         return sorted(apps, key=lambda app: app['name'])
 
     def installed_user_apps(self):
@@ -140,7 +129,7 @@ class Snap:
         version_response = requests.get('http://apps.syncloud.org/releases/{0}/snapd.version'.format(channel))
 
         return self.to_app(
-            'sam',
+            'installer',
             'Installer',
             channel,
             snap_response['result']['version'],

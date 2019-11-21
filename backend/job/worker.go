@@ -2,17 +2,19 @@ package job
 
 import (
 	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/installer"
 	"log"
 	"time"
 )
 
 type Worker struct {
 	backup backup.AppBackup
-	master JobMaster
+ installer installer.AppInstaller
+ master JobMaster
 }
 
-func NewWorker(master JobMaster, backup backup.AppBackup) *Worker {
-	return &Worker{backup, master}
+func NewWorker(master JobMaster, backup backup.AppBackup, installer installer.AppInstaller) *Worker {
+	return &Worker{backup, installer, master}
 }
 
 func (worker *Worker) Start() {
@@ -35,6 +37,8 @@ func (worker *Worker) Do() bool {
 	case JobBackupRestore:
 		v := job.(JobBackupRestore)
 		worker.backup.Restore(v.File)
+ case JobInstallerUpgrade:
+		worker.installer.Upgrade()
 	default:
 		log.Println("not supported job type", jobtype)
 	}

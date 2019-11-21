@@ -240,17 +240,17 @@ mockjax({ url:'/rest/settings/disk_format_status',dataType: "json",
     responseText: {success: true, is_running: false}
 });
 
-const sam_resp = {success: true, is_running: false};
+const installer_resp = {success: true, is_running: false};
 
-function sam_status(settings) {
-//    console.log('sam status mock');
-    this.responseText = sam_resp;
+function installer_status(settings) {
+//    console.log('installer status mock');
+    this.responseText = installer_resp;
 }
 
 mockjax({
-    url:'/rest/settings/sam_status',
+    url:'/rest/settings/installer_status',
     dataType: "json",
-    response: sam_status
+    response: installer_status
 });
 
 export const versions_data = {
@@ -268,11 +268,11 @@ export const versions_data = {
         },
         {
           "app": {
-            "id": "sam",
-            "name": "Syncloud App Manager",
+            "id": "installer",
+            "name": "Installer",
             "required": true,
             "ui": false,
-            "url": "http://sam.odroid-c2.syncloud.it"
+            "url": "http://installer.odroid-c2.syncloud.it"
           },
           "current_version": "78",
           "installed_version": "75"
@@ -437,6 +437,17 @@ mockjax({
     url:'/rest/backup/create', 
     dataType: "json",
     response: backupCreate
+});
+
+function installerUpgrade(settings) {
+    //alert("restore "+settings.data.file);
+}
+
+mockjax({ 
+    type: "get",
+    url:'/rest/installer/upgrade', 
+    dataType: "json",
+    response: installerUpgrade
 });
 
 mockjax({ 

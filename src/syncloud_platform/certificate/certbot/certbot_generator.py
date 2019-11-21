@@ -28,7 +28,7 @@ def domain_list_sorted(app_versions, domain):
 
 
 class CertbotGenerator:
-    def __init__(self, platform_config, user_platform_config, info, sam):
+    def __init__(self, platform_config, user_platform_config, info, snap):
         self.info = info
         self.log = get_logger('certbot')
         self.platform_config = platform_config
@@ -36,7 +36,7 @@ class CertbotGenerator:
         self.certbot_bin = '{0}/bin/certbot'.format(self.platform_config.app_dir())
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
-        self.sam = sam
+        self.snap = snap
         self.certbot_certificate_file = '{0}/certbot/live/{1}/fullchain.pem'.format(
             self.platform_config.data_dir(), self.info.domain())
         self.certbot_key_file = '{0}/certbot/live/{1}/privkey.pem'.format(
@@ -45,7 +45,7 @@ class CertbotGenerator:
     def generate_certificate(self, is_test_cert=False):
 
         self.log.info('running certbot')
-        domain_args = apps_to_certbot_domain_args(self.sam.list(), self.info.domain())
+        domain_args = apps_to_certbot_domain_args(self.snap.list(), self.info.domain())
 
         test_cert = ''
         if is_test_cert:
@@ -91,7 +91,7 @@ class CertbotGenerator:
 
     def new_domains(self):
 
-        current_domains = domain_list_sorted(self.sam.list(), self.info.domain())
+        current_domains = domain_list_sorted(self.snap.list(), self.info.domain())
 
         cert_domains = []
         if path.isfile(self.certbot_certificate_file):

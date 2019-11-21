@@ -242,10 +242,10 @@ def versions():
     return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
 
 
-@app.route(rest_prefix + "/settings/sam_status", methods=["GET"])
+@app.route(rest_prefix + "/settings/installer_status", methods=["GET"])
 @login_required
-def sam_status():
-    return jsonify(is_running=public.sam_status()), 200
+def installer_status():
+    return jsonify(is_running=public.installer_status()), 200
 
 
 @app.route(rest_prefix + "/settings/boot_extend", methods=["GET"])
@@ -290,6 +290,7 @@ def app_image():
 
 
 @app.route(rest_prefix + "/backup/<path:path>", methods=["GET"])
+@app.route(rest_prefix + "/installer/<path:path>", methods=["GET"])
 @app.route(rest_prefix + "/job/<path:path>", methods=["GET"])
 @login_required
 def backend_proxy(path):

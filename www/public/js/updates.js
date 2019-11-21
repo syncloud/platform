@@ -54,9 +54,9 @@ export function platform_upgrade(on_complete, on_error) {
 
 }
 
-export function sam_upgrade(on_complete, on_error) {
+export function installer_upgrade(on_complete, on_error) {
 
-    $.get('/rest/upgrade', { app_id: 'sam' })
+    $.get('/rest/installer/upgrade')
         .done(function (data) {
                       Common.check_for_service_error(data, function () {
                           Common.run_after_job_is_complete(
@@ -67,8 +67,8 @@ export function sam_upgrade(on_complete, on_error) {
                                       on_error);
                               },
                               on_error,
-                              Common.INSTALLER_STATUS_URL,
-                              Common.DEFAULT_STATUS_PREDICATE);
+                              Common.JOB_STATUS_URL,
+                              Common.JOB_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);
@@ -84,15 +84,15 @@ function ui_display_toggles() {
 
 function upgrade_buttons_enabled(is_enabled) {
 		var btn_platform = $("#btn_platform_upgrade");
-		var btn_sam = $("#btn_sam_upgrade");
+		var btn_installer = $("#btn_installer_upgrade");
 		btn_platform.prop('disabled', !is_enabled);
-		btn_sam.prop('disabled', !is_enabled);
+		btn_installer.prop('disabled', !is_enabled);
 }
 
 function ui_display_versions(data) {
 
 		var platform_data = Common.find_app(data.data, "platform");
-		var sam_data = Common.find_app(data.data, "sam");
+		var installer_data = Common.find_app(data.data, "installer");
 
 		$("#txt_platform_version").html(platform_data.installed_version);
 		$("#txt_system_version_available").html(platform_data.current_version);
@@ -103,13 +103,13 @@ function ui_display_versions(data) {
 				$("#block_system_upgrade").hide();
 		}
 
-		$("#txt_sam_version").html(sam_data.installed_version);
-		$("#txt_sam_version_available").html(sam_data.current_version);
+		$("#txt_installer_version").html(installer_data.installed_version);
+		$("#txt_installer_version_available").html(installer_data.current_version);
 
-		if (sam_data.installed_version && sam_data.current_version && sam_data.installed_version != sam_data.current_version) {
-				$("#block_sam_upgrade").show();
+		if (installer_data.installed_version && installer_data.current_version && installer_data.installed_version != installer_data.current_version) {
+				$("#block_installer_upgrade").show();
 		} else {
-				$("#block_sam_upgrade").hide();
+				$("#block_installer_upgrade").hide();
 		}
 }
 
@@ -152,11 +152,11 @@ function ui_platform_upgrade() {
  
 }
 
-function ui_sam_upgrade() {
-    var btn = $("#btn_sam_upgrade");
+function ui_installer_upgrade() {
+    var btn = $("#btn_installer_upgrade");
     btn.button('loading');
 
-    sam_upgrade(
+    installer_upgrade(
         function (data) {
             ui_display_versions(data);
             btn.button('reset');
@@ -181,8 +181,8 @@ $(document).ready(function () {
     		ui_platform_upgrade();
     });
 
-    $("#btn_sam_upgrade").on('click', function () {
-    		ui_sam_upgrade();
+    $("#btn_installer_upgrade").on('click', function () {
+    		ui_installer_upgrade();
     });
 
     ui_check_versions();

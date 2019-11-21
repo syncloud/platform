@@ -12,7 +12,7 @@ export function check_for_service_error(data, on_complete, on_error) {
     
 }
 
-export const INSTALLER_STATUS_URL = '/rest/settings/sam_status';
+export const INSTALLER_STATUS_URL = '/rest/settings/installer_status';
 export const DEFAULT_STATUS_PREDICATE = (response) => {
     return response.is_running;
 };

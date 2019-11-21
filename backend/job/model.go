@@ -31,3 +31,6 @@ type JobBackupCreate struct {
 type JobBackupRestore struct {
 	File string
 }
+
+type JobInstallerUpgrade struct {
+}

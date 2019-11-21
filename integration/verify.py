@@ -357,11 +357,9 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(device, device
 
 def test_installer_upgrade(device, device_host):
     session = device.login()
-    session.get('https://{0}/rest/upgrade?app_id=sam&channel=master'.format(device_host), verify=False)
+    session.get('https://{0}/rest/installer/upgrade'.format(device_host), verify=False)
     wait_for_installer(session, device_host, throw_on_error=True)
-    session.get('https://{0}/rest/upgrade?app_id=sam&channel=stable'.format(device_host), verify=False)
-    wait_for_installer(session, device_host, throw_on_error=True)
-    session.get('https://{0}/rest/upgrade?app_id=sam&channel=master'.format(device_host), verify=False)
+    session.get('https://{0}/rest/installer/upgrade'.format(device_host), verify=False)
     wait_for_installer(session, device_host, throw_on_error=True)
 
 

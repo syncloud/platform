@@ -1,11 +1,11 @@
-import * as Settings from './updates.js'
+import * as Updates from './updates.js'
 import { Setup } from '../__mocks__/jquery.mockjax.js'
 
-test( "settings check version", () => {
+test( "updates check version", () => {
 
   $.ajaxSetup({ async: false });
   var actualData;
-  Settings.check_versions(function(data) {
+  Updates.check_versions(function(data) {
     actualData = data;
   }, function(a, b, c) {});
 
@@ -13,11 +13,11 @@ test( "settings check version", () => {
 
 });
 
-test( "settings platform upgrade", () => {
+test( "updates platform upgrade", () => {
 
   $.ajaxSetup({ async: false });
   var actualData;
-  Settings.platform_upgrade(function(data) {
+  Updates.platform_upgrade(function(data) {
     actualData = data;
   }, function(a, b, c) {});
 
@@ -25,11 +25,11 @@ test( "settings platform upgrade", () => {
 
 });
 
-test( "settings sam upgrade", () => {
+test( "updates installer upgrade", () => {
 
   $.ajaxSetup({ async: false });
   var actualData;
-  Settings.sam_upgrade(function(data) {
+  Updates.installer_upgrade(function(data) {
     actualData = data;
   }, function(a, b, c) {});
 
