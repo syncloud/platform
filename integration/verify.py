@@ -368,7 +368,7 @@ def test_installer_upgrade(device, device_host):
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
 
-def test_backup_app(device, artifact_dir, app_domain):
+def test_backup_app(device, artifact_dir, device_host):
     
     session = device.login()
     
@@ -376,7 +376,7 @@ def test_backup_app(device, artifact_dir, app_domain):
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(app_domain),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
     response = device.http_get('/rest/backup/list')
@@ -388,7 +388,7 @@ def test_backup_app(device, artifact_dir, app_domain):
     
     response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
     assert response.status_code == 200
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(app_domain),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
     
 
