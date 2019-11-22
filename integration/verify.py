@@ -355,16 +355,16 @@ def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(device, device
     assert 'max-age=0' in cache_control
 
 
-def test_installer_upgrade(device, app_domain):
+def test_installer_upgrade(device, device_host):
     session = device.login()
     response = device.http_get('/rest/installer/upgrade')
     assert response.status_code == 200, response.text
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(app_domain),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
 
     response = device.http_get('/rest/installer/upgrade')
     assert response.status_code == 200, response.text
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(app_domain),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
    
 
