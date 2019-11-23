@@ -13,7 +13,7 @@ from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_act
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.gaplib import linux
-from syncloud_platform.rest.backend_proxy import backend_get
+from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
 
 injector = get_injector()
@@ -294,7 +294,7 @@ def app_image():
 @app.route(rest_prefix + "/job/<path:path>", methods=["GET"])
 @login_required
 def backend_proxy(path):
-    response = backend_get(request.full_path.replace(rest_prefix, "", 1))
+    response = backend_request(request.method, request.full_path.replace(rest_prefix, "", 1), request.form)
     return response.text, response.status_code
 
 
