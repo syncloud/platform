@@ -1,11 +1,11 @@
 import * as Updates from './updates.js'
 import { Setup } from '../__mocks__/jquery.mockjax.js'
 
-test( "updates check version", () => {
+test( "updates get version", () => {
 
   $.ajaxSetup({ async: false });
   var actualData;
-  Updates.check_versions(function(data) {
+  Updates.get_versions(function(data) {
     actualData = data;
   }, function(a, b, c) {});
 
