@@ -13,26 +13,9 @@ import './ui/menu.js'
 
 import * as Common from './common.js'
 
-function get_versions(on_complete, on_error) {
+export function get_versions(on_complete, on_error) {
     $.get('/rest/settings/versions').done(on_complete).fail(on_error);
 };
-
-export function check_versions(on_complete, on_error) {
-    $.get('/rest/check')
-        .always(function () {
-            Common.run_after_job_is_complete(
-                setTimeout,
-                function () {
-                    get_versions(
-                        on_complete,
-                        on_error);
-                }, 
-                on_error, 
-                Common.INSTALLER_STATUS_URL,
-                Common.DEFAULT_STATUS_PREDICATE);
-            })
-        .fail(on_error);
-}
 
 export function platform_upgrade(on_complete, on_error) {
     $.get('/rest/upgrade', { app_id: 'platform' })
@@ -122,9 +105,8 @@ function ui_check_versions() {
     upgrade_buttons_enabled(false);
     btn.button('loading');
     
-    check_versions(
+    get_versions(
         function (data) {
-
             ui_display_versions(data);
             btn.button('reset');
             upgrade_buttons_enabled(true);

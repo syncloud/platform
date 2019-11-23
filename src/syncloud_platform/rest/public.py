@@ -140,12 +140,6 @@ def upgrade():
     return 'OK', 200
 
 
-@app.route(rest_prefix + "/check", methods=["GET"])
-@login_required
-def update():
-    return jsonify(message=public.update()), 200
-
-
 @app.route(rest_prefix + "/available_apps", methods=["GET"])
 @login_required
 def available_apps():
