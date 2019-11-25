@@ -38,3 +38,6 @@ type JobInstallerUpgrade struct {
 type JobStorageFormat struct {
 	Device string
 }
+
+type JobStorageBootExtend struct {
+}

@@ -1,6 +1,5 @@
 from syncloudlib import logger
 
-from syncloud_platform.gaplib.linux import pgrep, run_detached
 from syncloud_platform.rest.model.app import app_from_snap_app
 from syncloud_platform.control import power
 
@@ -23,8 +22,7 @@ class Public:
         self.certbot_generator = certbot_generator
         self.port_mapper_factory = port_mapper_factory
         self.network=network
-        self.resize_script = self.platform_config.get_boot_extend_script()
-
+        
     def domain(self):
         return self.device_info.domain()
 
@@ -88,12 +86,6 @@ class Public:
 
     def installer_status(self):
         return self.snap.status()
-
-    def boot_extend_status(self):
-        return pgrep(self.resize_script)
-
-    def boot_extend(self):
-        run_detached(self.resize_script, self.platform_config.get_platform_log(), self.platform_config.get_ssh_port())
 
     def disk_deactivate(self):
         return self.hardware.deactivate_disk()

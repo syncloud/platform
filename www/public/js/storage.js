@@ -24,7 +24,7 @@ function update_boot_disk(on_complete, on_error) {
 }
 
 export function boot_extend(on_complete, on_error) {
-    $.get('/rest/settings/boot_extend')
+    $.post('/rest/storage/boot_extend')
         .done(function (data) {
                       Common.check_for_service_error(data, function () {
                           Common.run_after_job_is_complete(
@@ -35,8 +35,8 @@ export function boot_extend(on_complete, on_error) {
                                       on_error);
                               }, 
                               on_error,
-                              '/rest/settings/boot_extend_status',
-                              Common.DEFAULT_STATUS_PREDICATE);
+                              Common.JOB_STATUS_URL,
+                              Common.JOB_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);

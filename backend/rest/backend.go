@@ -35,6 +35,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
 	http.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade))
 	http.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat))
+ http.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend))
 
 	server := http.Server{}
 
@@ -144,5 +145,10 @@ func (backend *Backend) StorageFormat(w http.ResponseWriter, req *http.Request) 
 	}
 	device := req.FormValue("device")
 	backend.Master.Offer(job.JobStorageFormat{Device: device})
+	return "submitted", nil
+}
+
+func (backend *Backend) StorageBootExtend(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+	backend.Master.Offer(job.JobStorageBootExtend{})
 	return "submitted", nil
 }

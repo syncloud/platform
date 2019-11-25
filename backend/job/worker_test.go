@@ -54,12 +54,16 @@ func (mock *installerMock) Upgrade() {
 
 type storageMock struct {
 	formatted int
+  bootextended int
 }
 
 func (mock *storageMock) Format(device string) {
 	mock.formatted++
 }
 
+func (mock *storageMock) BootExtend() {
+	mock.bootextended++
+}
 func TestBackupCreate(t *testing.T) {
 	master := &masterMock{}
 	backup := &backupMock{}
