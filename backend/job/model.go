@@ -34,3 +34,7 @@ type JobBackupRestore struct {
 
 type JobInstallerUpgrade struct {
 }
+
+type JobStorageFormat struct {
+	Device string
+}

@@ -218,18 +218,6 @@ def disk_activate():
     return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
 
 
-@app.route(rest_prefix + "/storage/disk_format", methods=["POST"])
-@login_required
-def disk_format():
-    return jsonify(success=True, disks=public.disk_format(request.form['device'])), 200
-
-
-@app.route(rest_prefix + "/settings/disk_format_status", methods=["GET"])
-@login_required
-def disk_format_status():
-    return jsonify(is_running=public.disk_format_status()), 200
-
-
 @app.route(rest_prefix + "/settings/versions", methods=["GET"])
 @login_required
 def versions():
@@ -286,6 +274,7 @@ def app_image():
 @app.route(rest_prefix + "/backup/<path:path>", methods=["GET"])
 @app.route(rest_prefix + "/installer/<path:path>", methods=["GET"])
 @app.route(rest_prefix + "/job/<path:path>", methods=["GET"])
+@app.route(rest_prefix + "/storage/<path:path>", methods=["POST"])
 @login_required
 def backend_proxy(path):
     response = backend_request(request.method, request.full_path.replace(rest_prefix, "", 1), request.form)

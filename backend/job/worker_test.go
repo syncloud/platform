@@ -44,21 +44,28 @@ func (mock *masterMock) Complete() error {
 	return nil
 }
 
-
 type installerMock struct {
-	installed  int
+	installed int
 }
 
 func (mock *installerMock) Upgrade() {
 	mock.installed++
 }
 
+type storageMock struct {
+	formatted int
+}
+
+func (mock *storageMock) Format(device string) {
+	mock.formatted++
+}
 
 func TestBackupCreate(t *testing.T) {
 	master := &masterMock{}
 	backup := &backupMock{}
-  installer := &installerMock{}
-	worker := NewWorker(master, backup, installer)
+	storage := &storageMock{}
+	installer := &installerMock{}
+	worker := NewWorker(master, backup, installer, storage)
 
 	master.Offer(JobBackupCreate{"app"})
 	worker.Do()
@@ -71,8 +78,9 @@ func TestBackupCreate(t *testing.T) {
 func TestNotSupported(t *testing.T) {
 	master := &masterMock{}
 	backup := &backupMock{}
- installer := &installerMock{}
-	worker := NewWorker(master, backup, installer)
+	storage := &storageMock{}
+	installer := &installerMock{}
+	worker := NewWorker(master, backup, installer, storage)
 
 	master.Offer("not supported type")
 	worker.Do()

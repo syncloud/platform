@@ -8,6 +8,7 @@ import (
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/rest"
+	"github.com/syncloud/platform/storage"
 )
 
 func main() {
@@ -24,8 +25,9 @@ func main() {
 func Backend() *rest.Backend {
 	master := job.NewMaster()
 	backup := backup.NewDefault()
-  installer := installer.New()
-	worker := job.NewWorker(master, backup, installer)
+	installer := installer.New()
+	storage := storage.New()
+	worker := job.NewWorker(master, backup, installer, storage)
 
 	return rest.NewBackend(master, backup, worker)
 

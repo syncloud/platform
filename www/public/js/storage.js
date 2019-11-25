@@ -65,8 +65,8 @@ export function disk_format(disk_device, on_complete, on_error) {
                               setTimeout,
                               on_complete,
                               on_error,
-                              '/rest/settings/disk_format_status',
-                              Common.DEFAULT_STATUS_PREDICATE);
+                              Common.JOB_STATUS_URL,
+                              Common.JOB_STATUS_PREDICATE);
                       }, on_error);
                   })
         .fail(on_error);

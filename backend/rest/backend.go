@@ -33,7 +33,8 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/backup/create", Handle(backend.BackupCreate))
 	http.HandleFunc("/backup/restore", Handle(backend.BackupRestore))
 	http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
-  http.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade))
+	http.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade))
+	http.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat))
 
 	server := http.Server{}
 
@@ -128,14 +129,20 @@ func (backend *Backend) BackupRestore(w http.ResponseWriter, req *http.Request) 
 	return "submitted", nil
 }
 
-
 func (backend *Backend) InstallerUpgrade(w http.ResponseWriter, req *http.Request) (interface{}, error) {
 	backend.Master.Offer(job.JobInstallerUpgrade{})
 	return "submitted", nil
 }
 
-
-
 func (backend *Backend) JobStatus(w http.ResponseWriter, req *http.Request) (interface{}, error) {
 	return backend.Master.Status().String(), nil
+}
+
+func (backend *Backend) StorageFormat(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+	if err := req.ParseForm(); err != nil {
+		return nil, errors.New("cannot parse post form")
+	}
+	device := req.FormValue("device")
+	backend.Master.Offer(job.JobStorageFormat{Device: device})
+	return "submitted", nil
 }
