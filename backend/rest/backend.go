@@ -35,7 +35,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/backup/remove", Handle(backend.BackupRemove))
 	http.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade))
 	http.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat))
- http.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend))
+	http.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend))
 
 	server := http.Server{}
 

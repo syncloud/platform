@@ -9,8 +9,8 @@ type Storage struct {
 }
 
 const (
-	STORAGE_FORMAT_CMD = "/snap/platform/current/bin/disk_format.sh"
- STORAGE_BOOT_EXTEND_CMD = "/snap/platform/current/bin/resize-sd-partition.sh"
+	STORAGE_FORMAT_CMD      = "/snap/platform/current/bin/disk_format.sh"
+	STORAGE_BOOT_EXTEND_CMD = "/snap/platform/current/bin/resize-sd-partition.sh"
 )
 
 func New() *Storage {
@@ -29,8 +29,8 @@ func (storage *Storage) Format(device string) {
 }
 
 func (storage *Storage) BootExtend() {
-	log.Println("Running storage boot extend: ", STORAGE_FORMAT_CMD)
-	out, err := exec.Command(STORAGE_FORMAT_CMD).CombinedOutput()
+	log.Println("Running storage boot extend: ", STORAGE_BOOT_EXTEND_CMD)
+	out, err := exec.Command(STORAGE_BOOT_EXTEND_CMD).CombinedOutput()
 	log.Printf("Storage boot extend output %s", out)
 	if err != nil {
 		log.Printf("Storage boot extend failed: %v", err)

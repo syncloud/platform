@@ -53,8 +53,8 @@ func (mock *installerMock) Upgrade() {
 }
 
 type storageMock struct {
-	formatted int
-  bootextended int
+	formatted    int
+	bootextended int
 }
 
 func (mock *storageMock) Format(device string) {

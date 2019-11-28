@@ -48,7 +48,7 @@ func (worker *Worker) Do() bool {
 	case JobStorageFormat:
 		v := job.(JobStorageFormat)
 		worker.storage.Format(v.Device)
- case JobStorageBootExtend:
+	case JobStorageBootExtend:
 		worker.storage.BootExtend()
 	default:
 		log.Println("not supported job type", jobtype)
