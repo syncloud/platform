@@ -15,9 +15,10 @@ class Aggregator:
         results.append(run('dmesg'))
         results.append(run('mount'))
         results.append(run('journalctl'))
-        results.append(run('systemctl status --status=inactive snap.*'))
+        results.append(run('systemctl state --status=inactive snap.*'))
         results.append(run('df'))
         results.append(run('lsblk'))
+        results.append(run('uptime'))
         logs = '\n----------------------\n'.join(results)
         return logs
 
