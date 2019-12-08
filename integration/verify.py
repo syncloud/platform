@@ -382,7 +382,7 @@ def test_backup_app(device, artifact_dir, device_host):
     response = device.http_get('/rest/backup/list')
     assert response.status_code == 200
     open('{0}/rest.backup.list.json'.format(artifact_dir), 'w').write(response.text)
-
+    print(response.text)
     file = json.loads(response.text)['data'][0]
     device.run_ssh('tar tvf {0}/{1}'.format(file['path'], file['file']))
     
