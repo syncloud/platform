@@ -29,7 +29,7 @@ NAME="/dev/sr0" SIZE="3.4G" TYPE="rom" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL
 NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06"
 NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/test" PARTTYPE="0x83" FSTYPE="vfat" MODEL=" "
 NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL=""
-NAME="/dev/sda" SIZE="3.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="BLANK DISK"
+NAME="/dev/sdd" SIZE="3.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="BLANK DISK"
 NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PARTTYPE="" FSTYPE="squashfs" MODEL=""'''
 
 
@@ -40,9 +40,12 @@ def test_list():
 
     disks = lsblk.available_disks(default_output)
     assert len(disks) == 5
-    assert len(disks[0].partitions) == 4
-    assert disks[1].partitions[2].mount_point == '/opt/disk/external'
-    assert len(disks[1].partitions) == 3
+    disk = [d for d in disks if d.device == '/dev/sda'][0]
+    assert len(disk.partitions) == 4
+
+    disk = [d for d in disks if d.device == '/dev/sdb'][0]
+    assert disk.partitions[2].mount_point == '/opt/disk/external'
+    assert len(disk.partitions) == 3
 
 
 def test_loop_support():
@@ -127,3 +130,21 @@ def test_is_external_disk_detached():
     lsblk = Lsblk(platform_config, PathChecker(platform_config))
 
     assert not lsblk.is_external_disk_attached(default_output, '/opt/disk/detached')
+
+def test_raid():
+    raid_output = '''NAME="/dev/sda" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E"
+NAME="/dev/sdb" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E"
+NAME="/dev/sdc" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E"
+NAME="/dev/sdd" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E"
+NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL=""
+NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL=""
+NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL=""
+NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL=""'''
+
+    platform_config = PlatformConfig(CONFIG_DIR)
+    lsblk = Lsblk(platform_config, PathChecker(platform_config))
+
+    disks = lsblk.available_disks(raid_output)
+    assert len(disks) == 1
+    assert len(disks[0].partitions) == 1
+    assert disks[0].partitions[0].mount_point == '/mnt/md0'

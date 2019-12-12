@@ -20,8 +20,7 @@ class Lsblk:
             lsblk_output = check_output('lsblk -Pp -o NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL', shell=True)
         # self.log.info(lsblk_output)
 
-        disks = []
-        disk = None
+        disks = {}
         for line in lsblk_output.splitlines():
             self.log.info('parsing line: {0}'.format(line))
             match = re.match(
@@ -30,24 +29,29 @@ class Lsblk:
 
             lsblk_entry = LsblkEntry(match.group(1), match.group(2), match.group(3),
                                      match.group(4), match.group(5), match.group(6), match.group(7).strip())
-
-            if lsblk_entry.type in ('disk', 'loop'):
-                if lsblk_entry.fs_type == 'squashfs':
-                    continue
+            
+            if lsblk_entry.is_supported_type() and lsblk_entry.is_supported_fs_type():
+                device = lsblk_entry.name
                 disk_name = lsblk_entry.model
-                disk = Disk(disk_name, lsblk_entry.name, lsblk_entry.size, [])
-                if lsblk_entry.type == 'loop':
-                    disk.name = lsblk_entry.type
-                    self.log.info('adding loop: {0}'.format(lsblk_entry.name))
-                    disk.add_partition(self.create_partition(lsblk_entry))
+                self.log.info('adding disk: {0}'.format(disk_name))
+                disk = Disk(disk_name, device, lsblk_entry.size, [])
+                if lsblk_entry.is_single_partition_disk():
+                    self.log.info('adding single partition disk: {0}'.format(device))
 
-                self.log.info('adding disk: {0}'.format(disk.name))
-                disks.append(disk)
+                    disk.name = lsblk_entry.type
+                    partition = self.create_partition(lsblk_entry)
+                    disk.add_partition(partition)
+
+                disks[device] = disk
 
             elif lsblk_entry.type == 'part':
-                disk.add_partition(self.create_partition(lsblk_entry))
+                self.log.info('adding regular parrition: {0}'.format(lsblk_entry.name))
+                partition = self.create_partition(lsblk_entry)
+                parent_device = lsblk_entry.parent_device()
+                disk = disks[parent_device]
+                disk.add_partition(partition)
 
-        return disks
+        return disks.values()
 
     def create_partition(self, lsblk_entry):
         mountable = False
@@ -85,10 +89,10 @@ class Lsblk:
         self.log.info('partition not found')
         return None
 
-    def find_partition_by_dir(self, dir, lsblk_output=None):
+    def find_partition_by_dir(self, mount_dir, lsblk_output=None):
         for disk in self.all_disks(lsblk_output):
             for partition in disk.partitions:
-                if partition.mount_point == dir:
+                if partition.mount_point == mount_dir:
                     self.log.info('partition found')
                     return partition
         self.log.info('partition not found')
@@ -110,6 +114,31 @@ class LsblkEntry:
 
     def is_boot_disk(self):
         return '/dev/mmcblk0' in self.name
+
+    def is_supported_type(self):
+        if self.type in ('disk', 'loop'):
+            return True
+        if self.type.startswith('raid'):
+            return True
+        return False
+
+    def is_supported_fs_type(self):
+        if self.fs_type == 'squashfs':
+            return False
+        if self.fs_type == 'linux_raid_member':
+            return False
+        return True
+
+    def is_single_partition_disk(self):
+        if self.type == 'loop':
+            return True
+        if self.type.startswith('raid'):
+            return True
+        return False
+
+    def parent_device(self):
+        match = re.match(r'(.*?)p?\d*$', self.name)
+        return match.group(1)
 
 
 class Partition:
@@ -134,6 +163,7 @@ class Partition:
 
 class Disk:
     def __init__(self, name, device, size, partitions):
+        
         if name == '':
             name = 'Disk'
         self.name = name
