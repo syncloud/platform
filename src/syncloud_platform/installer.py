@@ -73,6 +73,10 @@ class PlatformInstaller:
         user_config.init_user_config()
         self.init_services()
 
+    def pre_refresh(self):
+        injector = get_injector()
+        injector.platform_cron.remove()
+
     def post_refresh(self):
         self.init_configs()
         user_config = PlatformUserConfig()
