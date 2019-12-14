@@ -452,3 +452,35 @@ mockjax({
     responseText: {}
 });
 
+function shutdown(settings) {
+    alert("shutdown");
+}
+
+mockjax({ 
+    type: "get",
+    url:'/rest/shutdown', 
+    dataType: "json",
+    response: shutdown
+});
+
+function restart(settings) {
+    alert("restart");
+}
+
+mockjax({ 
+    type: "get",
+    url:'/rest/restart', 
+    dataType: "json",
+    response: restart
+});
+
+function logout(settings) {
+    alert("logout");
+}
+
+mockjax({
+    type: "post",
+    url:'/rest/logout',
+    dataType: "json",
+    response: logout
+});

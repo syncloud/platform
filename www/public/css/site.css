@@ -22,6 +22,11 @@ body {
     -ms-text-size-adjust: 100%;
     font-family: 'Roboto', Sans-serif;
 }
+.button_label {
+    padding-bottom: 15px;
+    vertical-align: middle;
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-weight: 300;
 }
@@ -146,7 +151,8 @@ header .hlink {
     -moz-transition: all .3s ease-out;
     -o-transition: all .3s ease-out;
     -ms-transition: all .3s ease-out;
-    margin: 0 0 0 4%}
+    margin: 0 0 0 4%
+}
 .menulinks {
     display: inline-block;
     vertical-align: middle;
@@ -200,10 +206,11 @@ header .hlink {
     text-align: right;
 }
 .menuoff .hlink {
-    padding: 2px 32px 2px 0;
+    /*padding: 2px 32px 2px 0;*/
+    padding: 0;
     text-align: left;
-    font-size: 18px;
-    line-height: 18px;
+    font-size: 15px;
+    line-height: 12px;
     display: inline-block;
     vertical-align: top;
 }
@@ -982,7 +989,7 @@ footer .links a:hover {
 @media (min-width: 750px) and (max-width: 1024px) {
     header .hlink {
         margin: 0 0 0 2%;
-        font-size: 17px!important;
+        font-size: 13px!important;
     }
     footer {
         width: 90%;

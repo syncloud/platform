@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
 
-const entries = [
+const pages = [
   "activation",
   "app",
   "appcenter",
@@ -17,15 +17,15 @@ const entries = [
 ];
 
 module.exports = {
-  entry: entries.reduce((map, key) => 
-    ( map[key] = `./js/${key}.js`, map ),
-    {}
+  entry: pages.reduce((jsobject, page) => 
+    ( jsobject[page] = `./js/${page}.js`, jsobject ),
+    {} // jsobject
   ),
-  plugins: entries.map(entry =>
+  plugins: pages.map(page =>
     new HtmlWebpackPlugin({ 
-      	template: `./${entry}.html`,
+      	template: `./${page}.html`,
       	inject: 'body', 
-      	chunks: [entry], 
-      	filename: `${entry}.html`
+      	chunks: [page], 
+      	filename: `${page}.html`
     }))
 }
