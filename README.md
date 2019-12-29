@@ -18,6 +18,7 @@ We are open to cooperation with hardware vendors interested in including Synclou
 * [Notes](https://standardnotes.org/): Safe place for your notes, thoughts, and life's work.
 * [Users](https://github.com/kakwa/ldapcherr/): User management app.
 * [Pi-hole](https://pi-hole.net): Network-wide Ad Blocking.
+* [OpenVPN](https://openvpn.net): Secure connection to your Syncloud device over the Internet.
 
 ### Download
 
