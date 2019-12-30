@@ -56,7 +56,7 @@ def init_storage():
 def config_set_dkim_key():
     dkim_key = request.form['dkim_key']
     get_injector().user_platform_config.set_dkim_key(dkim_key)
-    return jsonify(success=True, message='dkim_key set'), 200
+    return jsonify(success=True, message='dkim_key set', data='OK'), 200
 
 
 @app.route("/config/get_dkim_key", methods=["GET"])
