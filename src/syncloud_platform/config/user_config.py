@@ -105,6 +105,14 @@ class PlatformUserConfig:
 
     def get_public_ip(self):
         return self._get('platform.public_ip')
+   
+    def get_dkim_key(self):
+        return self._get('dkim_key')
+
+    def set_dkim_key(self, value):
+        self._upsert([
+            ('dkim_key', value)
+        ])
 
     def get_manual_certificate_port(self):
         return self._get('platform.manual_certificate_port')

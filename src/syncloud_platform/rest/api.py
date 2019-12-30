@@ -52,6 +52,19 @@ def init_storage():
     return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
+@app.route("/config/dkim_key", methods=["POST"])
+def config_dkim_key():
+    dkim_key = request.form['dkim_key']
+    get_injector().user_platform_config.set_dkim_key(dkim_key)
+    return jsonify(success=True, message='dkim_key set'), 200
+
+
+@app.route("/config/dkim_key", methods=["GET"])
+def config_dkim_key():
+    dkim_key = get_injector().user_platform_config.get_dkim_key()
+    return jsonify(success=True, message='dkim_key', data=dkim_key), 200
+
+
 @app.route("/service/restart", methods=["POST"])
 def service_restart():
     name = request.form['name']

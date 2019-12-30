@@ -176,12 +176,24 @@ def test_api_install_path(app_dir, app_domain, ssh_env_vars):
     assert app_dir in response, response
  
     
+def test_api_config_dkim_key(app_dir, data_dir, app_domain, ssh_env_vars):
+    response = run_ssh(app_domain, '{0}/python/bin/python '
+                                   '/integration/api_wrapper_config_set_dkim_key.py dkim123'.format(app_dir),
+                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    assert data_dir in response, response
+
+    response = run_ssh(app_domain, '{0}/python/bin/python '
+                                   '/integration/api_wrapper_config_get_dkim_key.py'.format(app_dir),
+                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    assert 'dkim123' in response, response
+
+ 
 def test_api_data_path(app_dir, data_dir, app_domain, ssh_env_vars):
     response = run_ssh(app_domain, '{0}/python/bin/python '
                                    '/integration/api_wrapper_data_dir.py platform'.format(app_dir),
                        password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
     assert data_dir in response, response
- 
+
  
 def test_api_url(app_dir, app_domain, ssh_env_vars):
     response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),

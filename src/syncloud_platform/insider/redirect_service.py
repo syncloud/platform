@@ -83,10 +83,14 @@ class RedirectService:
                 data['ip'] = external_ip
             else:
                 self.logger.warn("Will try server side client ip detection")
+   
         local_ip_v6 = linux.local_ip_v6()
-       
         if local_ip_v6:
             data['ipv6'] = local_ip_v6
+
+        dim_key = self.user_platform_config.get_dkim_key()
+        if dim_key:
+            data['dkim_key'] = dim_key
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
