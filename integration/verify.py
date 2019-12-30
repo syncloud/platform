@@ -181,7 +181,7 @@ def test_api_config_dkim_key(app_dir, app_domain, ssh_env_vars):
     response = run_ssh(app_domain, '{0}/python/bin/python '
                                    '/integration/api_wrapper_config_set_dkim_key.py dkim123'.format(app_dir),
                        password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
-    assert data_dir in response, response
+    assert 'OK' in response, response
 
     response = run_ssh(app_domain, '{0}/python/bin/python '
                                    '/integration/api_wrapper_config_get_dkim_key.py'.format(app_dir),
