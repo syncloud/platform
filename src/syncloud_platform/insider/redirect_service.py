@@ -88,9 +88,9 @@ class RedirectService:
         if local_ip_v6:
             data['ipv6'] = local_ip_v6
 
-        dim_key = self.user_platform_config.get_dkim_key()
-        if dim_key:
-            data['dkim_key'] = dim_key
+        dkim_key = self.user_platform_config.get_dkim_key()
+        if dkim_key:
+            data['dkim_key'] = dkim_key
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
