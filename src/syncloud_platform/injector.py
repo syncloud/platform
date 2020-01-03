@@ -73,7 +73,7 @@ class Injector:
         self.platform_cron = PlatformCron(self.platform_config)
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
-        self.event_trigger = EventTrigger(self.snap, self.platform_config)
+        self.event_trigger = EventTrigger(self.snap)
         self.nginx = Nginx(self.platform_config, self.systemctl, self.device_info)
         self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config,
                                                   self.device_info, self.snap)

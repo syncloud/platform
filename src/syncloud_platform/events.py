@@ -1,58 +1,27 @@
 import traceback
-from os.path import join, isfile, isdir
 from syncloudlib import logger
-from syncloud_platform.gaplib.scripts import run_script
-from syncloud_platform.application.apppaths import AppPaths
-from subprocess import CalledProcessError
-
-action_to_old_script = {
-    'post-install': 'post-install',
-    'pre-remove': 'pre-remove',
-    'storage-change': 'on_disk_change.py',
-    'access-change': 'on_domain_change.py'
-}
-
-
-def get_script_path(app_dir, action):
-    
-    hooks_path = join(app_dir, 'hooks')
-    if isdir(hooks_path):
-        return (join(hooks_path, action+'.py'), True)
-    else:
-        hook_script = action_to_old_script[action]
-        return (join(app_dir, 'bin', hook_script), False)
-
-
-def run_hook_script(app_dir, action):
-    app_event_script, add_location_to_sys_path = get_script_path(app_dir, action)
-    log = logger.get_logger('events')
-    if isfile(app_event_script):
-        log.info('executing {0}'.format(app_event_script))
-        try:
-            run_script(app_event_script, add_location_to_sys_path)
-        except CalledProcessError, e:
-            log.error('error in script: {0}'.format(e.output))
-            log.error(traceback.format_exc())
-            if action == 'post-install':
-                raise e
-    else:
-        log.info('{0} not found'.format(app_event_script))
+from subprocess import check_output, CalledProcessError
 
 
 class EventTrigger:
-    def __init__(self, snap, platform_config):
-        self.snap = snap
-        self.platform_config = platform_config
+    def __init__(self, installer):
+        self.installer = installer
+        self.log = logger.get_logger('events')
 
     def trigger_app_event_disk(self):
-        self.__trigger_app_event('storage-change')
+        self._trigger_app_event('storage-change')
 
     def trigger_app_event_domain(self):
-        self.__trigger_app_event('access-change')
+        self._trigger_app_event('access-change')
 
-    def __trigger_app_event(self, action):
-        for app in self.snap.installed_all_apps():
+    def _trigger_app_event(self, action):
+        for app in self.installer.installed_all_apps():
             app_id = app.app.id
-            app_paths = AppPaths(app_id, self.platform_config)
-            app_dir = app_paths.get_install_dir()
-            run_hook_script(app_dir, action)
+            self.log.info('executing {0}: {1}'.format(app_id, action))
+            try:
+                output = check_output('snap run {0}.{1}'.format(app_id, action), shell=True))
+                print(output)
+            except CalledProcessError, e:
+                self.log.error('event error: {0}'.format(e.output))
+                self.log.error(traceback.format_exc())
+
