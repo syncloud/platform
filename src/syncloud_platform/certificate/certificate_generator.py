@@ -22,14 +22,15 @@ class CertificateGenerator:
 
     def generate_real_certificate(self):
 
+        if not self.user_platform_config.is_activated():
+            self.log.info("not regenerating, not activated yet")
+            return
+
         days_until_expiry = self.certbot_generator.days_until_expiry()
         real_cert = self.is_real_certificate_installed()
         new_domains = self.certbot_generator.new_domains()
         self.log.info("certbot certificate days until expiry: {}".format(days_until_expiry))
         self.log.info("new domains: {}".format(new_domains))
-        if not self.user_platform_config.is_activated():
-            self.log.info("not regenerating, not activated yet")
-            return
 
         if real_cert and certificate_is_valid(days_until_expiry, new_domains):
             self.log.info("not regenerating")

@@ -37,9 +37,13 @@ class CertbotGenerator:
         self.log_dir = self.platform_config.get_log_root()
         self.certbot_config_dir = join(self.platform_config.data_dir(), 'certbot')
         self.snap = snap
-        self.certbot_certificate_file = '{0}/certbot/live/{1}/fullchain.pem'.format(
+
+    def certbot_certificate_file(self):
+        return '{0}/certbot/live/{1}/fullchain.pem'.format(
             self.platform_config.data_dir(), self.info.domain())
-        self.certbot_key_file = '{0}/certbot/live/{1}/privkey.pem'.format(
+
+    def certbot_key_file(self):
+        return '{0}/certbot/live/{1}/privkey.pem'.format(
                 self.platform_config.data_dir(), self.info.domain())
 
     def generate_certificate(self, is_test_cert=False):
@@ -71,8 +75,9 @@ class CertbotGenerator:
             live_dir = join(self.certbot_config_dir, 'live')
             if path.exists(live_dir):
                 check_output('chmod 755 {0}'.format(live_dir), shell=True)
-
-            return CertbotResult(self.certbot_certificate_file, self.certbot_key_file)
+            if not path.exists(self.certbot_certificate_file()):
+                raise Exception("certificate does not exist: {0}'.format(self.certbot_certificate_file()))
+            return CertbotResult(self.certbot_certificate_file(), self.certbot_key_file())
 
         except subprocess.CalledProcessError, e:
             self.log.warn(e.output)
@@ -80,12 +85,12 @@ class CertbotGenerator:
 
     def days_until_expiry(self):
 
-        self.log.info('getting expiry date of {}'.format(self.certbot_certificate_file))
-        if not path.exists(self.certbot_certificate_file):
-            self.log.info('certificate does not exist yet, {0}'.format(self.certbot_certificate_file))
+        self.log.info('getting expiry date of {}'.format(self.certbot_certificate_file()))
+        if not path.exists(self.certbot_certificate_file()):
+            self.log.info('certificate does not exist yet, {0}'.format(self.certbot_certificate_file()))
             return 0
 
-        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file).read())
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file()).read())
         days = expiry_date_string_to_days(cert.get_notAfter())
         return days
 
@@ -94,8 +99,8 @@ class CertbotGenerator:
         current_domains = domain_list_sorted(self.snap.list(), self.info.domain())
 
         cert_domains = []
-        if path.isfile(self.certbot_certificate_file):
-            cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file).read())
+        if path.isfile(self.certbot_certificate_file()):
+            cert = crypto.load_certificate(crypto.FILETYPE_PEM, file(self.certbot_certificate_file()).read())
             cert_domains = get_subj_alt_name(cert)
 
         return get_new_domains(current_domains, cert_domains)
