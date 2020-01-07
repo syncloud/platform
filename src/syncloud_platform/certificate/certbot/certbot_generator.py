@@ -76,7 +76,7 @@ class CertbotGenerator:
             if path.exists(live_dir):
                 check_output('chmod 755 {0}'.format(live_dir), shell=True)
             if not path.exists(self.certbot_certificate_file()):
-                raise Exception("certificate does not exist: {0}'.format(self.certbot_certificate_file()))
+                raise Exception("certificate does not exist: {0}".format(self.certbot_certificate_file()))
             return CertbotResult(self.certbot_certificate_file(), self.certbot_key_file())
 
         except subprocess.CalledProcessError, e:
