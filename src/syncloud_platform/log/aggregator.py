@@ -11,6 +11,7 @@ class Aggregator:
 
         log_files = glob.glob(self.platform_config.get_log_sender_pattern())
         log_files.append('/var/log/syslog')
+        log_files.append('/var/log/user.log')
         results  = map(read_log, log_files)
         results.append(run('dmesg'))
         results.append(run('mount'))
