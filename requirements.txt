@@ -10,8 +10,8 @@ psutil==4.3.0
 Jinja2==2.9.6
 miniupnpc==1.9
 python-ldap==2.4.25
-certbot-nginx==0.28.0
-certbot==0.28.0
+certbot-nginx==0.37.2
+certbot==0.37.2
 pyasn1==0.4.8
 ndg-httpsclient
 syncloud-lib==167
