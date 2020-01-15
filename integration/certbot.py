@@ -111,7 +111,8 @@ def _wait_for_ip(user_domain):
 
 
 def test_certbot_cli():
-    run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
+    output = run_ssh('/opt/app/platform/bin/certbot --help', password=DEVICE_PASSWORD)
+    assert not output.strip() == ""
 
 
 def test_external_https_mode_with_certbot(public_web_session):

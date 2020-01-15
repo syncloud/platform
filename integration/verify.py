@@ -224,7 +224,8 @@ def generate_file_jinja(from_path, to_path, variables):
 
 
 def test_certbot_cli(app_dir, device_host):
-    run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
+    output = run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
+    assert not output.strip() == ""
     run_ssh(device_host, '{0}/bin/certbot --help nginx'.format(app_dir), password=LOGS_SSH_PASSWORD)
 
 
