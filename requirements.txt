@@ -12,7 +12,7 @@ miniupnpc==1.9
 python-ldap==2.4.25
 certbot-nginx==0.37.2
 certbot==0.37.2
-acme=0.37.2
+acme==0.37.2
 pyasn1==0.4.8
 ndg-httpsclient
 syncloud-lib==167
