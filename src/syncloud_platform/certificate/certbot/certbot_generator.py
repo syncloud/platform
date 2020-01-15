@@ -59,12 +59,12 @@ class CertbotGenerator:
 
         try:
             cmd =  '{0} --logs-dir={1} --max-log-backups 5 --config-dir={2} --agree-tos '
-                         '--email {3} certonly --force-renewal --cert-name {4} '
-                         '{5} {6} {7} '.format(
-                             self.certbot_bin, self.log_dir, self.certbot_config_dir,
-                             self.user_platform_config.get_user_email(), self.info.domain(),
-                             test_cert, plugin, domain_args
-                         )
+                   '--email {3} certonly --force-renewal --cert-name {4} '
+                   '{5} {6} {7} '.format(
+                       self.certbot_bin, self.log_dir, self.certbot_config_dir,
+                       self.user_platform_config.get_user_email(), self.info.domain(),
+                       test_cert, plugin, domain_args
+                   )
             self.log.info(cmd)
             output = check_output(cmd, stderr=subprocess.STDOUT, shell=True)
             self.log.info(output)
