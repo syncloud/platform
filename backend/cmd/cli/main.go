@@ -2,31 +2,54 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/network"
 	"log"
-	"os"
+	"net"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Println("usage: ", os.Args[0], "")
-		return
+
+	var cmdIpv4 = &cobra.Command{
+		Use:   "ipv4",
+		Short: "Print IPv4",
+		Run: func(cmd *cobra.Command, args []string) {
+			ip, err := network.LocalIPv4()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Print(ip.String())
+		},
 	}
-
-	switch os.Args[1] {
-	case "ipv6":
-		ip, err := network.LocalIPv6()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Print(ip)
-	case "ipv4":
-		ip, err := network.LocalIPv4()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Print(ip)
-
+	var cmdIpv6 = &cobra.Command{
+		Use:   "ipv6 [prefix]",
+		Short: "Print IPv6",
+		Args:  cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			ip, err := network.LocalIPv6()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Print(ip.String())
+		},
 	}
+	var prefixSize int
+	var cmdIpv6prefix = &cobra.Command{
+		Use:   "prefix size",
+		Short: "Print IPv6 prefix",
+		//Args: cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			ip, err := network.LocalIPv6()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%v/%v", ip.Mask(net.CIDRMask(prefixSize, 128)), prefixSize)
+		},
+	}
+	cmdIpv6prefix.Flags().IntVarP(&prefixSize, "size", "s", 64, "Prefix size")
 
+	var rootCmd = &cobra.Command{Use: "cli"}
+	rootCmd.AddCommand(cmdIpv4, cmdIpv6)
+	cmdIpv6.AddCommand(cmdIpv6prefix)
+	rootCmd.Execute()
 }
