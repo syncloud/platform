@@ -45,6 +45,12 @@ def local_ip_v6():
     except CalledProcessError, e:
         return None
 
+def public_ip_v4()
+    try:
+        return check_output("/snap/platform/current/bin/cli ipv4 piblic", shell=True)
+    except CalledProcessError, e:
+        return None
+
 def is_ip_public(ip):
     return ip_type(ip) == 'PUBLIC'
 

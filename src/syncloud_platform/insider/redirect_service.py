@@ -71,8 +71,10 @@ class RedirectService:
         }
 
         if not external_ip:
-            self.logger.warn("No external ip")
-        else:
+            external_ip = linux.public_ipv_4()
+            self.logger.warn("getting external ip: {0}".format(external_ip))
+
+        if external_ip:
             iptype=linux.ip_type(external_ip)
             if iptype != 'PUBLIC':
                 external_ip = None
