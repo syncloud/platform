@@ -11,8 +11,9 @@ import (
 func main() {
 
 	var cmdIpv4 = &cobra.Command{
-		Use:   "ipv4",
+		Use:   "ipv4 [public]",
 		Short: "Print IPv4",
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ip, err := network.LocalIPv4()
 			if err != nil {
@@ -21,6 +22,20 @@ func main() {
 			fmt.Print(ip.String())
 		},
 	}
+	var cmdIpv4public = &cobra.Command{
+		Use:   "public",
+		Short: "Print public IPv4",
+		Args:  cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			ip, err := network.PublicIPv4()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Print(ip)
+		},
+	}
+	cmdIpv4.AddCommand(cmdIpv4public)
+
 	var cmdIpv6 = &cobra.Command{
 		Use:   "ipv6 [prefix]",
 		Short: "Print IPv6",
@@ -35,7 +50,7 @@ func main() {
 	}
 	var prefixSize int
 	var cmdIpv6prefix = &cobra.Command{
-		Use:   "prefix size",
+		Use:   "prefix",
 		Short: "Print IPv6 prefix",
 		//Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
