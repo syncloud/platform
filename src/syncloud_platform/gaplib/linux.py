@@ -45,7 +45,7 @@ def local_ip_v6():
     except CalledProcessError, e:
         return None
 
-def public_ip_v4()
+def public_ip_v4():
     try:
         return check_output("/snap/platform/current/bin/cli ipv4 piblic", shell=True)
     except CalledProcessError, e:
