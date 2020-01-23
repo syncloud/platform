@@ -10,8 +10,8 @@ steps:
 - name: version
   image: syncloud/build-deps-arm
   commands:
-  - "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version"
-  - "echo arm-$DRONE_BRANCH > domain"
+  - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+  - echo arm-$DRONE_BRANCH > domain
 
 - name: build
   image: syncloud/build-deps-arm
@@ -60,11 +60,11 @@ steps:
     command_timeout: 2m
     host:
       from_secret: artifact_host
-    password:
-      from_secret: artifact_password
-    source: "artifact/*"
+    key:
+      from_secret: artifact_key
+    source: artifact/*
     strip_components: 1
-    target: "/home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-arm"
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-arm
     timeout: 2m
     username: artifact
   when:
@@ -104,8 +104,8 @@ steps:
 - name: version
   image: syncloud/build-deps-amd64
   commands:
-  - "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version"
-  - "echo amd64-$DRONE_BRANCH > domain"
+  - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+  - echo amd64-$DRONE_BRANCH > domain
 
 - name: build
   image: syncloud/build-deps-amd64
@@ -140,8 +140,8 @@ steps:
   - pip2 install -r dev_requirements.txt
   - DOMAIN=$(cat domain)
   - cd integration
-  - "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=platform"
-  - "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=platform"
+  - xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=platform
+  - xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=platform
   volumes:
   - name: shm
     path: /dev/shm
@@ -165,11 +165,11 @@ steps:
     command_timeout: 2m
     host:
       from_secret: artifact_host
-    password:
-      from_secret: artifact_password
-    source: "artifact/*"
+    key:
+      from_secret: artifact_key
+    source: artifact/*
     strip_components: 1
-    target: "/home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-amd64"
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-amd64
     timeout: 2m
     username: artifact
   when:
