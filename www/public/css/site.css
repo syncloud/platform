@@ -26,6 +26,24 @@ body {
     padding-bottom: 15px;
     vertical-align: middle;
 }
+.nav-pills > .active > a,
+.nav-pills > .active > a:hover,.nav-pills > li > a:hover {
+    text-decoration: none;
+    border-radius:0px;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+    border-bottom-color: #02a0dc;
+    color: #000 !important;
+    background-color: transparent !important;
+}
+.nav-pills > li > a{
+    border-radius:0px;
+}
+
+.centered-pills { text-align:center; }
+.centered-pills ul.nav-pills { display:inline-block; }
+.centered-pills li { display:inline; }
+.centered-pills a { float:left; }
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: 300;

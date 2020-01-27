@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Syncloud</title>
+	<meta name="author" content="syncloud.org">
+	<meta name="description" content="Your Personal Server">
+	<meta name="keywords" content="Your Personal Server">
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<meta name="HandheldFriendly" content="true" />
+	<meta name="MobileOptimized" content="width" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#64bc46">
+	<meta name="theme-color" content="#3e454e">
+	
+	<link rel="stylesheet" href="css/site.min.css" type="text/css">
+
+	<!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-switch.min.css" rel="stylesheet">
+    <link href="css/font-awesome.css" rel="stylesheet">
+
+	</head>	
+<body>
+<div class="wrapper">
+<div class="content">
+<!--HEADER-->
+	<div class="headblock">
+		<header class="wd12">
+			<div class="logo onelogo">Syncloud</div>
+		</header>
+	</div>
+	<!--Login_block1-->
+	<div class="block1 wd12" id="block1">
+		<h1>Send Logs</h1>
+		<div class="formblock">
+			<form id="form_logs">
+				<h2>Syncloud Account:</h2>
+				<input placeholder="syncloud.it email" class="emailinput" name="redirect_email" id="redirect_email" type="text">
+				<input placeholder="syncloud.it password" class="passinput" name="redirect_password" id="redirect_password" type="password">
+				<button id="btn_send" class="submit buttonblue" type="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send Logs</button>
+			</form>
+		</div>
+	</div>
+</div>
+</div>
+<!-- Scripts-->
+<script src="js/lib/jquery-1.11.3.min.js"></script>
+<script src="js/lib/bootstrap.min.js"></script>
+<script src="js/lib/bootstrap-switch.min.js"></script>
+
+<script src="js/ui/common.js"></script>
+<script src="js/ui/font.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/lib/html5.js"></script>
+<script src="js/lib/IE9.js"></script>
+<![endif]-->
+<script src="js/backend/common.js"></script>
+<script src="js/backend/sendlogs.js"></script>
+
+<script type="text/javascript">
+
+$(document).ready(function () {
+
+    $("#form_logs").submit(function (event) {
+        event.preventDefault();
+
+        var values = $("#form_logs").serializeArray();
+
+        var btn = $('#btn_send');
+        btn.button('loading');
+				$("#form_logs input").prop("disabled", true);
+
+				backend.send_logs({
+						values: values,
+						always: function() {
+								btn.button('reset');
+								$("#form_logs input").prop("disabled", false);
+						},
+						done: function() {
+								window.location.href = "activate.html";
+						},
+						fail: ui_display_error
+				});
+    });
+
+});
+
+
+</script>
+
+<!-- END SCRIPTS -->
+</body>
+</html>

@@ -16,8 +16,12 @@ DIR = dirname(__file__)
 def test_internal_ui(driver, device_host, screenshot_dir):
     driver.get("http://{0}:81".format(device_host))
     time.sleep(2)
-    screenshots(driver, screenshot_dir, 'activate')
+    screenshots(driver, screenshot_dir, 'activate-old')
 
+def test_activate(driver, device_host, screenshot_dir):
+    driver.get("http://{0}/activate.html".format(device_host))
+    time.sleep(2)
+    screenshots(driver, screenshot_dir, 'activate')
 
 def test_login(driver, ui_mode, device_host, screenshot_dir):
     driver.get("http://{0}".format(device_host))

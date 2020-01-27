@@ -2,6 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack')
 
 const pages = [
+  "activate",
   "activation",
   "app",
   "appcenter",
