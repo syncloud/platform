@@ -25,4 +25,4 @@ class Internal:
         user = self.device.prepare_redirect(redirect_email, redirect_password, main_domain)
         
         logs = self.log_aggregator.get_logs()
-        self.redirect_service.send_log(user.update_token, logs)
+        self.redirect_service.send_log(user.update_token, logs, True)

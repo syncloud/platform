@@ -97,7 +97,7 @@ class CertificateGenerator:
 
             self.log.info('generating Server Key')
             key_file = self.platform_config.get_ssl_key_file()
-            if os.path.exists(key_file):
+            if os.path.lexists(key_file):
                 os.remove(key_file)
                 
             output = check_output('OPENSSL_CONF={2} {0} genrsa -out {1} 4096 2>&1'
@@ -120,7 +120,7 @@ class CertificateGenerator:
 
             self.log.info('generating Server Certificate')
             cert_file = self.platform_config.get_ssl_certificate_file()
-            if os.path.exists(cert_file):
+            if os.path.lexists(cert_file):
                 os.remove(cert_file)
                 
             output = check_output(
