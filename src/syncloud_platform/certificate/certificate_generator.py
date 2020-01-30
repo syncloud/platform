@@ -161,7 +161,7 @@ class CertificateGenerator:
         return True
             
     def init_certificate(self):
-        if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
+        if not os.path.lexists(self.platform_config.get_ssl_certificate_file()):
 
             shutil.copy(
                 self.platform_config.get_default_ssl_certificate_file(),
