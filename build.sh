@@ -74,7 +74,7 @@ export LDFLAGS=-L${PYTHON_DIR}/lib
 export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
 
 ${PYTHON_DIR}/bin/pip install -r ${DIR}/requirements.txt
-cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libsqlite3.so* ${PYTHON_DIR}/lib
+# cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libsqlite3.so* ${PYTHON_DIR}/lib
 
 cd ${DIR}/src
 rm -f version
