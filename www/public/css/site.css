@@ -94,6 +94,16 @@ img {
     border: none;
 }
 
+input,select,textarea,button {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    -webkit-appearance:none;
+    appearance:none;
+    -moz-appearance:none;
+    border:inherit
+}
+
 .control {
     border: inherit;
 }
@@ -461,6 +471,7 @@ input[type="text"], input[type="password"] {
 }
 
 .domain {
+    height: 50px;
     width: 70%!important;
     margin-right: 2%
 }
@@ -492,12 +503,15 @@ input:disabled {
     font-size: 14px;
 }
 .nameinput {
+    height: 50px;
     background: url(../images/nameinput.svg) no-repeat 95% center;
 }
 .passinput {
+    height: 50px;
     background: url(../images/passinput.svg) no-repeat 95% center;
 }
 .emailinput {
+    height: 50px;
     background: url(../images/emailinput.svg) no-repeat 95% center;
 }
 .buttonblue {
