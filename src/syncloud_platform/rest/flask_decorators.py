@@ -1,5 +1,5 @@
 from functools import update_wrapper
-from flask import make_response, redirect, request
+from flask import make_response, redirect
 from syncloud_platform.injector import get_injector
 
 
@@ -17,9 +17,10 @@ def redirect_if_not_activated(f):
 
     def new_func(*args, **kwargs):
         resp = make_response(f(*args, **kwargs))
-        if not platform_user_config.is_activated():
-            return redirect('http://{0}:81'.format(request.host))
-        else:
-            return resp
+        try:
+            if platform_user_config.is_activated():
+                return resp
+        except Exception, e:
+            return redirect('/activate.html')
 
     return update_wrapper(new_func, f)
