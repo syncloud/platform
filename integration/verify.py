@@ -533,4 +533,3 @@ def test_nginx_performance(device_host):
 
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 http://{0}:81/rest/id'.format(device_host), shell=True))
-e))
