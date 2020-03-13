@@ -1,6 +1,7 @@
 from functools import update_wrapper
 from flask import make_response, redirect
 from syncloud_platform.injector import get_injector
+from syncloudlib.logger import get_logger
 
 
 def nocache(f):
@@ -14,6 +15,7 @@ def nocache(f):
 
 def redirect_if_not_activated(f):
     platform_user_config = get_injector().user_platform_config
+    log = get_logger('certificate_generator')
 
     def new_func(*args, **kwargs):
         resp = make_response(f(*args, **kwargs))
@@ -21,6 +23,8 @@ def redirect_if_not_activated(f):
             if platform_user_config.is_activated():
                 return resp
         except Exception, e:
-            return redirect('/activate.html')
+            log.error('unable to verify activation status', e)
+        
+        return redirect('/activate.html')
 
     return update_wrapper(new_func, f)
