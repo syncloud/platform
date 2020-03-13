@@ -28,3 +28,20 @@ def redirect_if_not_activated(f):
         return redirect('/activate.html')
 
     return update_wrapper(new_func, f)
+
+
+def redirect_if_activated(f):
+    platform_user_config = get_injector().user_platform_config
+    log = get_logger('certificate_generator')
+
+    def new_func(*args, **kwargs):
+        resp = make_response(f(*args, **kwargs))
+        try:
+            if not platform_user_config.is_activated():
+                return resp
+        except Exception, e:
+            log.error('unable to verify activation status', e)
+        
+        return redirect('/')
+
+    return update_wrapper(new_func, f)

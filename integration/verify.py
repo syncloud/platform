@@ -90,7 +90,7 @@ def test_non_activated_device_main_page_redirect_to_activation(device_host):
 def test_non_activated_device_login_redirect_to_activation(device_host):
     response = requests.post('https://{0}/rest/login'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 302
-    assert response.headers['Location'] == 'http://{0}:81'.format(device_host)
+    assert response.headers['Location'] == 'https://{0}/activate.html'.format(device_host)
 
 
 def test_internal_web_open(device_host):
@@ -100,7 +100,7 @@ def test_internal_web_open(device_host):
 
 
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
-    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
+    response = requests.post('https://{0}/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
@@ -113,7 +113,7 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
 def test_reactivate(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
                     device):
 
-    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
+    response = requests.post('https://{0}/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
@@ -533,3 +533,4 @@ def test_nginx_performance(device_host):
 
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 http://{0}:81/rest/id'.format(device_host), shell=True))
+e))

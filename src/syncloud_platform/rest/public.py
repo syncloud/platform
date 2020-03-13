@@ -15,9 +15,11 @@ from syncloud_platform.rest.model.user import User
 from syncloud_platform.gaplib import linux
 from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
+from syncloud_platform.rest.internal_validator import InternalValidator
 
 injector = get_injector()
 public = injector.public
+internal = injector.internal
 device = injector.device
 
 app = Flask(__name__)
@@ -32,6 +34,52 @@ def _callback():
         return 'Unauthorised', 401
     else:
         return redirect(html_prefix + '/login.html')
+
+
+@app.route(rest_prefix + "/id", methods=["GET"])
+def identification():
+    return jsonify(success=True, message='', data=convertible.to_dict(internal.identification())), 200
+
+
+@app.route(rest_prefix + "/activate", methods=["POST"])
+@redirect_if_activated
+def activate():
+
+    device_username = request.form['device_username'].lower()
+    device_password = request.form['device_password']
+        
+    validator = InternalValidator()
+    validator.validate(device_username, device_password)
+    
+    main_domain = get_main_domain(request.form)
+
+    internal.activate(
+        request.form['redirect_email'],
+        request.form['redirect_password'],
+        request.form['user_domain'],
+        device_username,
+        device_password,
+        main_domain
+    )
+    return identification()
+
+
+@app.route(rest_prefix + "/activate_custom_domain", methods=["POST"])
+@redirect_if_activated
+def activate_custom_domain():
+
+    device_username = request.form['device_username'].lower()
+    device_password = request.form['device_password']
+        
+    validator = InternalValidator()
+    validator.validate(device_username, device_password)
+
+    internal.activate_custom_domain(
+        request.form['full_domain'],
+        device_username,
+        device_password,
+    )
+    return identification()
 
 
 @app.route(html_prefix + '/<path:filename>')

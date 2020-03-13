@@ -8,16 +8,6 @@ apps:
     restart-condition: always
     stop-command: bin/service.nginx-api.sh stop
     reload-command: bin/service.nginx-api.sh reload
-  nginx-internal:
-    command: bin/service.nginx-internal.sh start
-    post-start-command: bin/service.nginx-internal.sh post-start
-    daemon: forking
-    plugs:
-    - network
-    - network-bind
-    restart-condition: always
-    stop-command: bin/service.nginx-internal.sh stop
-    reload-command: bin/service.nginx-internal.sh reload
   nginx-public:
     command: bin/service.nginx-public.sh start
     post-start-command: bin/service.nginx-public.sh post-start
@@ -35,14 +25,6 @@ apps:
     - network
     - network-bind
     restart-condition: always
-  uwsgi-internal:
-    command: bin/service.uwsgi.sh internal
-    daemon: notify
-    plugs:
-    - network
-    - network-bind
-    start-timeout: 200s
-    restart-condition: always
   uwsgi-api:
     command: bin/service.uwsgi.sh api
     daemon: notify
@@ -51,6 +33,32 @@ apps:
     - network-bind
     start-timeout: 200s
     restart-condition: always
+  uwsgi-public:
+    command: bin/service.uwsgi.sh public
+    daemon: notify
+    plugs:
+    - network
+    - network-bind
+    start-timeout: 200s
+    restart-condition: always
+  backend:
+    command: bin/service.backend.sh
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    start-timeout: 200s
+    restart-condition: always
+  cli:
+    command: bin/cli
+
+confinement: strict
+description: Syncloud Platform
+grade: stable
+type: base
+name: platform
+summary: Syncloud Platform
+   restart-condition: always
   uwsgi-public:
     command: bin/service.uwsgi.sh public
     daemon: notify
