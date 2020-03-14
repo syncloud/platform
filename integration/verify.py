@@ -113,7 +113,7 @@ def test_reactivate(device_host, domain, main_domain, device_user, device_passwo
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': device_user,
-                                   'device_password': device_password})
+                                   'device_password': device_password}, verify=False)
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = device_password
