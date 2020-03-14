@@ -9,7 +9,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.props import html_prefix, rest_prefix
-from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated
+from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated, redirect_if_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.gaplib import linux
