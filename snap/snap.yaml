@@ -58,29 +58,3 @@ grade: stable
 type: base
 name: platform
 summary: Syncloud Platform
-   restart-condition: always
-  uwsgi-public:
-    command: bin/service.uwsgi.sh public
-    daemon: notify
-    plugs:
-    - network
-    - network-bind
-    start-timeout: 200s
-    restart-condition: always
-  backend:
-    command: bin/service.backend.sh
-    daemon: simple
-    plugs:
-    - network
-    - network-bind
-    start-timeout: 200s
-    restart-condition: always
-  cli:
-    command: bin/cli
-
-confinement: strict
-description: Syncloud Platform
-grade: stable
-type: base
-name: platform
-summary: Syncloud Platform
