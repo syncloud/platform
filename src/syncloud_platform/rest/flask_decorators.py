@@ -18,10 +18,9 @@ def redirect_if_not_activated(f):
     log = get_logger('certificate_generator')
 
     def new_func(*args, **kwargs):
-        resp = make_response(f(*args, **kwargs))
         try:
             if platform_user_config.is_activated():
-                return resp
+                return make_response(f(*args, **kwargs))
         except Exception, e:
             log.error('unable to verify activation status', e)
         
@@ -35,10 +34,9 @@ def redirect_if_activated(f):
     log = get_logger('certificate_generator')
 
     def new_func(*args, **kwargs):
-        resp = make_response(f(*args, **kwargs))
         try:
             if not platform_user_config.is_activated():
-                return resp
+                return make_response(f(*args, **kwargs))
         except Exception, e:
             log.error('unable to verify activation status', e)
         
