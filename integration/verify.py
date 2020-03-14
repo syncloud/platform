@@ -118,7 +118,7 @@ def test_reactivate_bad(device_host, domain, main_domain, device_user, device_pa
 
 
 def test_drop_activation(app_dir, app_domain, ssh_env_vars):
-    run_ssh(app_domain, 'rm /var/snap/platform/comon/platform.db ',
+    run_ssh(app_domain, 'rm /var/snap/platform/common/platform.db',
                                         password=LOGS_SSH_PASSWORD)
 
 
