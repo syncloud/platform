@@ -102,8 +102,8 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
+
    
- 
 def test_reactivate_bad(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
                     device):
 
@@ -119,7 +119,7 @@ def test_reactivate_bad(device_host, domain, main_domain, device_user, device_pa
 
 def test_drop_activation(app_dir, app_domain, ssh_env_vars):
     run_ssh(app_domain, 'rm /var/snap/platform/common/platform.db',
-                                        password=LOGS_SSH_PASSWORD)
+                                        password=DEFAULT_LOGS_SSH_PASSWORD)
 
 
 def test_reactivate_good(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
