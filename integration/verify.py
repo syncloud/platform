@@ -102,9 +102,27 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
-    
+   
+ 
+def test_reactivate_bad(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
+                    device):
 
-def test_reactivate(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
+    response = requests.post('https://{0}/rest/activate'.format(device_host),
+                             data={'main_domain': main_domain,
+                                   'redirect_email': redirect_user,
+                                   'redirect_password': redirect_password,
+                                   'user_domain': domain,
+                                   'device_username': device_user,
+                                   'device_password': device_password}, allow_redirects=False, verify=False)
+    assert response.status_code == 302
+
+
+def test_drop_activation(app_dir, app_domain, ssh_env_vars):
+    run_ssh(app_domain, 'rm /var/snap/platform/comon/platform.db ',
+                                        password=LOGS_SSH_PASSWORD)
+
+
+def test_reactivate_good(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
                     device):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
@@ -118,7 +136,6 @@ def test_reactivate(device_host, domain, main_domain, device_user, device_passwo
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = device_password
     device.ssh_password = device_password
-
 
 def test_public_web_unauthorized_browser_redirect(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
