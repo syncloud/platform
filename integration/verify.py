@@ -93,12 +93,6 @@ def test_non_activated_device_login_redirect_to_activation(device_host):
     assert response.headers['Location'] == 'https://{0}/activate.html'.format(device_host)
 
 
-def test_internal_web_open(device_host):
-
-    response = requests.get('http://{0}:81'.format(device_host))
-    assert response.status_code == 200
-
-
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
