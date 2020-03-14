@@ -100,7 +100,7 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': 'user1',
-                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD})
+                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
     
 
