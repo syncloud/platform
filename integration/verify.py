@@ -117,9 +117,8 @@ def test_reactivate_bad(device_host, domain, main_domain, device_user, device_pa
     assert response.status_code == 302
 
 
-def test_drop_activation(app_dir, app_domain, ssh_env_vars):
-    run_ssh(app_domain, 'rm /var/snap/platform/common/platform.db',
-                                        password=DEFAULT_LOGS_SSH_PASSWORD)
+def test_drop_activation(device_host):
+    run_ssh(device_host, 'rm /var/snap/platform/common/platform.db', password=LOGS_SSH_PASSWORD)
 
 
 def test_reactivate_good(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
