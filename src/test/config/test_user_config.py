@@ -1,6 +1,10 @@
+from os.path import dirname, join, isfile
+
 from syncloud_platform.config.user_config import PlatformUserConfig
 from test.insider.helpers import temp_file
+import os
 from os import path
+
 
 def test_domain():
     config = PlatformUserConfig(temp_file())
@@ -33,7 +37,10 @@ api_url = http://api.syncloud.it
 user_email = user@example.com
 user_update_token = token2
        """)
-    config = PlatformUserConfig(temp_file(), old_config_file)
+    config_db = join(dirname(__file__), 'db')
+    if isfile(config_db):
+        os.remove(config_db)
+    config = PlatformUserConfig(config_db, old_config_file)
 
     assert config.get_redirect_domain() == 'syncloud.it'
     assert config.get_upnp() == True
@@ -43,7 +50,10 @@ user_update_token = token2
     assert not path.isfile(old_config_file)
 
 def test_none():
-    config = PlatformUserConfig(temp_file())
+    config_db = join(dirname(__file__), 'db')
+    if isfile(config_db):
+        os.remove(config_db)
+    config = PlatformUserConfig(config_db)
 
     config.set_web_secret_key(None)
     

@@ -17,11 +17,11 @@ class PlatformUserConfig:
     def __init__(self, config_db=USER_CONFIG_DB, old_config_file=USER_CONFIG_FILE_OLD):
         self.config_db = config_db
         self.old_config_file = old_config_file
+        self.log = logger.get_logger('PlatformUserConfig')
         if not isfile(self.config_db):
             self.init_user_config()
             if isfile(self.old_config_file):
                 self.migrate_user_config()
-        self.log = logger.get_logger('PlatformUserConfig')
 
     def update_redirect(self, domain, api_url):
         self._upsert([
