@@ -34,8 +34,7 @@ user_email = user@example.com
 user_update_token = token2
        """)
     config = PlatformUserConfig(temp_file(), old_config_file)
-    config.migrate_user_config()
-    
+
     assert config.get_redirect_domain() == 'syncloud.it'
     assert config.get_upnp() == True
     assert config.is_redirect_enabled() == True
@@ -45,7 +44,6 @@ user_update_token = token2
 
 def test_none():
     config = PlatformUserConfig(temp_file())
-    config.init_user_config()
+
     config.set_web_secret_key(None)
     
-    assert config.get_web_secret_key() == 'default'
