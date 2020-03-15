@@ -39,7 +39,7 @@ class Device:
     def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
         user_domain_lower = user_domain.lower()
         self.logger.info("activate {0}, {1}".format(user_domain_lower, device_username))
-        self.user_platform_config.init_config()
+        
         self._check_internet_connection()
         
         user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
@@ -55,7 +55,7 @@ class Device:
     def activate_custom_domain(self, full_domain, device_username, device_password):
         full_domain_lower = full_domain.lower()
         self.logger.info("activate custom {0}, {1}".format(full_domain_lower, device_username))
-        self.user_platform_config.init_config()
+        
         self._check_internet_connection()
         
         self.user_platform_config.set_redirect_enabled(False)
