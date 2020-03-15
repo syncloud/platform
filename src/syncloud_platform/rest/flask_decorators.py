@@ -15,14 +15,14 @@ def nocache(f):
 
 def redirect_if_not_activated(f):
     platform_user_config = get_injector().user_platform_config
-    log = get_logger('certificate_generator')
+    log = get_logger('redirect_if_not_activated')
 
     def new_func(*args, **kwargs):
         try:
             if platform_user_config.is_activated():
                 return make_response(f(*args, **kwargs))
         except Exception, e:
-            log.error('unable to verify activation status, assume it is not activated', e)
+            log.error('unable to verify activation status, assume it is not activated, {0}', e.message)
         
         return redirect('/activate.html')
 
@@ -31,14 +31,14 @@ def redirect_if_not_activated(f):
 
 def redirect_if_activated(f):
     platform_user_config = get_injector().user_platform_config
-    log = get_logger('certificate_generator')
+    log = get_logger('redirect_if_activated')
 
     def new_func(*args, **kwargs):
         try:
             if platform_user_config.is_activated():
                 return redirect('/')
         except Exception, e:
-            log.error('unable to verify activation status, assume it is not activated', e)
+            log.error('unable to verify activation status, assume it is not activated, {e}', e.message)
 
         return make_response(f(*args, **kwargs))
 
