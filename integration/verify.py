@@ -500,7 +500,7 @@ def current_disk_link(device_host, ssh_env_vars, app_dir):
 
 def test_internal_web_id(device_host):
 
-    response = requests.get('https://{0}/rest/id'.format(device_host))
+    response = requests.get('https://{0}/rest/id'.format(device_host), verify=False)
     assert 'mac_address' in response.text
     assert response.status_code == 200
 
