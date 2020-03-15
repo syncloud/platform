@@ -18,6 +18,8 @@ class PlatformUserConfig:
         self.config_db = config_db
         self.old_config_file = old_config_file
         self.log = logger.get_logger('PlatformUserConfig')
+
+    def init_config(self):
         if not isfile(self.config_db):
             self.init_user_config()
             if isfile(self.old_config_file):

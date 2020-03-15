@@ -41,7 +41,7 @@ user_update_token = token2
     if isfile(config_db):
         os.remove(config_db)
     config = PlatformUserConfig(config_db, old_config_file)
-
+    config.init_config()
     assert config.get_redirect_domain() == 'syncloud.it'
     assert config.get_upnp() == True
     assert config.is_redirect_enabled() == True
@@ -54,6 +54,6 @@ def test_none():
     if isfile(config_db):
         os.remove(config_db)
     config = PlatformUserConfig(config_db)
-
+    config.init_config()
     config.set_web_secret_key(None)
     

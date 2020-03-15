@@ -69,7 +69,8 @@ class PlatformInstaller:
 
     def install(self):
         self.init_configs()
-        PlatformUserConfig()
+        user_config = PlatformUserConfig()
+        user_config.init_config()
         self.init_services()
 
     def pre_refresh(self):
@@ -78,7 +79,8 @@ class PlatformInstaller:
 
     def post_refresh(self):
         self.init_configs()
-        PlatformUserConfig()
+        user_config = PlatformUserConfig()
+        user_config.init_config()
         self.init_services()
 
     def configure(self):
