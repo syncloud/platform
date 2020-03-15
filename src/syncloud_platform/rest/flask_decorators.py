@@ -38,7 +38,7 @@ def redirect_if_activated(f):
             if platform_user_config.is_activated():
                 return redirect('/')
         except Exception, e:
-            log.error('unable to verify activation status, assume it is not activated, {e}', e.message)
+            log.error('unable to verify activation status, assume it is not activated, {0}', e.message)
 
         return make_response(f(*args, **kwargs))
 
