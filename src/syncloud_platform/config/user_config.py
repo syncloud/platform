@@ -155,7 +155,7 @@ class PlatformUserConfig:
         os.rename(self.old_config_file, self.old_config_file + '.bak')
 
     def _upsert(self, key_values):
-        init_config(self)
+        self.init_config()
         conn = sqlite3.connect(self.config_db)
         with conn:
             for key, value in key_values:
