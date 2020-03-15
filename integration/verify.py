@@ -500,7 +500,7 @@ def current_disk_link(device_host, ssh_env_vars, app_dir):
 
 def test_internal_web_id(device_host):
 
-    response = requests.get('http://{0}:81/rest/id'.format(device_host))
+    response = requests.get('https://{0}/rest/id'.format(device_host))
     assert 'mac_address' in response.text
     assert response.status_code == 200
 
@@ -542,4 +542,4 @@ def test_nginx_performance(device_host):
 
 
 def test_nginx_plus_flask_performance(device_host):
-    print(check_output('ab -c 1 -n 1000 http://{0}:81/rest/id'.format(device_host), shell=True))
+    print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True))
