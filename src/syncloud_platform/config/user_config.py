@@ -155,6 +155,7 @@ class PlatformUserConfig:
         os.rename(self.old_config_file, self.old_config_file + '.bak')
 
     def _upsert(self, key_values):
+        init_config(self)
         conn = sqlite3.connect(self.config_db)
         with conn:
             for key, value in key_values:
@@ -164,6 +165,7 @@ class PlatformUserConfig:
         conn.close() 
 
     def _get(self, key, default_value=None):
+        self.init_config()
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
         cursor.execute('select value from config where key = ?', (key,))

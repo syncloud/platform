@@ -16,7 +16,7 @@ def nocache(f):
 def redirect_if_not_activated(f):
     platform_user_config = get_injector().user_platform_config
     log = get_logger('redirect_if_not_activated')
-    platform_user_config.init_config()
+
     def new_func(*args, **kwargs):
         try:
             if platform_user_config.is_activated():
@@ -32,7 +32,7 @@ def redirect_if_not_activated(f):
 def redirect_if_activated(f):
     platform_user_config = get_injector().user_platform_config
     log = get_logger('redirect_if_activated')
-    platform_user_config.init_config()
+
     def new_func(*args, **kwargs):
         try:
             if platform_user_config.is_activated():
