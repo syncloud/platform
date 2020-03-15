@@ -52,6 +52,8 @@ def activate():
     validator.validate(device_username, device_password)
     
     main_domain = 'syncloud.it'
+    if 'main_domain' in request.form:
+        main_domain = request.form['main_domain']
 
     internal.activate(
         request.form['redirect_email'],
