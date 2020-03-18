@@ -28,7 +28,7 @@ steps:
   image: syncloud/build-deps-arm
   commands:
   - export PATH=$(pwd)/node/bin:$PATH
-  - cd www/public
+  - cd www
   - npm run test
 
 - name: test-intergation
@@ -122,7 +122,7 @@ steps:
   image: syncloud/build-deps-amd64
   commands:
   - export PATH=$(pwd)/node/bin:$PATH
-  - cd www/public
+  - cd www
   - npm run test
 
 - name: test-intergation
