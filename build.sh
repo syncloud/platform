@@ -58,7 +58,7 @@ wget https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE
 tar xzf node.tar.gz
 mv node-v${NODE_VERSION}-linux-${NODE_ARCH} node
 
-cd ${DIR}/www/public
+cd ${DIR}/www
 npm install
 npm run build
 
@@ -82,9 +82,7 @@ ${PYTHON_DIR}/bin/python setup.py install
 cd ..
 
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
-mkdir ${BUILD_DIR}/www
-cp -r ${DIR}/www/internal ${BUILD_DIR}/www
-cp -r ${DIR}/www/public/dist ${BUILD_DIR}/www/public
+cp -r ${DIR}/www ${BUILD_DIR}
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app

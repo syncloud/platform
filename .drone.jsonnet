@@ -37,7 +37,7 @@ local build(arch) = {
             image: "syncloud/build-deps-" + arch,
             commands: [
               "export PATH=$(pwd)/node/bin:$PATH",
-              "cd www/public",
+              "cd www",
               "npm run test"
             ]
         },
