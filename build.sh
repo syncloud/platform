@@ -82,7 +82,7 @@ ${PYTHON_DIR}/bin/python setup.py install
 cd ..
 
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
-cp -r ${DIR}/www ${BUILD_DIR}
+cp -r ${DIR}/www/dist ${BUILD_DIR}/www
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app
