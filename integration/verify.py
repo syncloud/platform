@@ -1,6 +1,4 @@
 import json
-import os
-import shutil
 from os import makedirs
 from os.path import dirname, isdir, split
 from subprocess import check_output
@@ -10,11 +8,12 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir, wait_for_file
-from syncloudlib.integration.loop import loop_device_cleanup
-from syncloudlib.integration.ssh import run_scp, run_ssh
-from syncloudlib.integration.hosts import add_host_alias_by_ip
 from syncloudlib.http import wait_for_response
+from syncloudlib.integration.hosts import add_host_alias_by_ip
+from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir
+from syncloudlib.integration.loop import loop_device_cleanup
+from syncloudlib.integration.ssh import run_ssh
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
@@ -58,7 +57,6 @@ def test_start(module_setup, device, app, domain, device_host):
     add_host_alias_by_ip("app", domain, device_host)
 
 
-
 def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, app_archive_path)
 
@@ -93,6 +91,13 @@ def test_non_activated_device_login_redirect_to_activation(device_host):
     assert response.headers['Location'] == 'https://{0}/activate.html'.format(device_host)
 
 
+def test_id_before_activation(device_host):
+
+    response = requests.get('https://{0}/rest/id'.format(device_host), verify=False)
+    assert 'mac_address' in response.text
+    assert response.status_code == 200
+
+
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
@@ -104,8 +109,8 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
     assert response.status_code == 200, response.text
 
    
-def test_reactivate_bad(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
-                    device):
+def test_reactivate_bad(device_host, domain, main_domain, device_user, device_password,
+                        redirect_user, redirect_password):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
@@ -121,8 +126,8 @@ def test_drop_activation(device_host):
     run_ssh(device_host, 'rm /var/snap/platform/common/platform.db', password=LOGS_SSH_PASSWORD)
 
 
-def test_reactivate_good(device_host, domain, main_domain, device_user, device_password, redirect_user, redirect_password,
-                    device):
+def test_reactivate_good(device_host, domain, main_domain, device_user, device_password,
+                         redirect_user, redirect_password, device):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
@@ -135,6 +140,7 @@ def test_reactivate_good(device_host, domain, main_domain, device_user, device_p
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = device_password
     device.ssh_password = device_password
+
 
 def test_public_web_unauthorized_browser_redirect(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
@@ -158,7 +164,7 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, app_domain, device_domain, device, device_host):
+def test_app_unix_socket(app_dir, data_dir, app_data_dir, device_domain, device):
     
     nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
     nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
@@ -407,10 +413,10 @@ def test_backup_app(device, artifact_dir, device_host):
     assert response.status_code == 200
     open('{0}/rest.backup.list.json'.format(artifact_dir), 'w').write(response.text)
     print(response.text)
-    file = json.loads(response.text)['data'][0]
-    device.run_ssh('tar tvf {0}/{1}'.format(file['path'], file['file']))
+    backup = json.loads(response.text)['data'][0]
+    device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
     
-    response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(file['path'], file['file']))
+    response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(backup['path'], backup['file']))
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
@@ -457,37 +463,37 @@ def test_public_settings_disk_add_remove(loop_device, device, fs_type, device_ho
     assert disk_deactivate(loop_device, device, device_host, ssh_env_vars, app_dir) == '/opt/disk/internal/platform'
 
 
-def disk_create(loop_device, fs, device_host):
+def disk_create(loop, fs, device_host):
     tmp_disk = '/tmp/test'
-    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop_device), password=LOGS_SSH_PASSWORD, retries=3)
+    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop), password=LOGS_SSH_PASSWORD, retries=3)
 
     run_ssh(device_host, 'rm -rf {0}'.format(tmp_disk), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'mkdir {0}'.format(tmp_disk), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'sync', password=LOGS_SSH_PASSWORD)
 
-    run_ssh(device_host, 'mount {0} {1}'.format(loop_device, tmp_disk), password=LOGS_SSH_PASSWORD, retries=3)
+    run_ssh(device_host, 'mount {0} {1}'.format(loop, tmp_disk), password=LOGS_SSH_PASSWORD, retries=3)
     for mount in run_ssh(device_host, 'mount', debug=True, password=LOGS_SSH_PASSWORD).splitlines():
         if 'loop' in mount:
             print(mount)
-    run_ssh(device_host, 'umount {0}'.format(loop_device), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'umount {0}'.format(loop), password=LOGS_SSH_PASSWORD)
 
 
-def disk_activate(loop_device, device, device_host, ssh_env_vars, app_dir):
+def disk_activate(loop, device, device_host, ssh_env_vars, app_dir):
 
     response = device.login().get('http://{0}/rest/settings/disks'.format(device_host))
     print response.text
-    assert loop_device in response.text
+    assert loop in response.text
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
-                                  params={'device': loop_device})
+                                  params={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device_host, ssh_env_vars, app_dir)
 
 
-def disk_deactivate(loop_device, device, device_host, ssh_env_vars, app_dir):
+def disk_deactivate(loop, device, device_host, ssh_env_vars, app_dir):
     response = device.login().get('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
-                                  params={'device': loop_device})
+                                  params={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device_host, ssh_env_vars, app_dir)
 
@@ -496,13 +502,6 @@ def current_disk_link(device_host, ssh_env_vars, app_dir):
     return run_ssh(device_host,
                    '{0}/python/bin/python /integration/api_wrapper_storage_init.py platform root'.format(app_dir),
                    password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
-
-
-def test_internal_web_id(device_host):
-
-    response = requests.get('https://{0}/rest/id'.format(device_host), verify=False)
-    assert 'mac_address' in response.text
-    assert response.status_code == 200
 
 
 def test_if_cron_is_enabled_after_install(device_host):
