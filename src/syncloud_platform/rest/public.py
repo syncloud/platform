@@ -87,8 +87,8 @@ def activate_custom_domain():
 @app.route(html_prefix + '/activate.html')
 @redirect_if_activated
 @nocache
-def activate_html(filename):
-    return send_from_directory(public.www_dir, filename)
+def activate_html():
+    return send_from_directory(public.www_dir, 'activate.html')
 
 
 @app.route(html_prefix + '/<path:filename>')
@@ -342,3 +342,4 @@ def handle_exception(error):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)
+
