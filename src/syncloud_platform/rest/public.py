@@ -84,6 +84,13 @@ def activate_custom_domain():
     return identification()
 
 
+@app.route(html_prefix + '/activate.html')
+@redirect_if_activated
+@nocache
+def activate(filename):
+    return send_from_directory(public.www_dir, filename)
+
+
 @app.route(html_prefix + '/<path:filename>')
 @nocache
 @redirect_if_not_activated
