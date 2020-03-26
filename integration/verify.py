@@ -381,14 +381,6 @@ def test_rest_not_installed_app(device, device_host, artifact_dir):
     assert response.status_code == 200
 
 
-def test_do_not_cache_static_files_as_we_get_stale_ui_on_upgrades(device, device_host):
-
-    response = device.login().get('https://{0}/settings.html'.format(device_host), verify=False)
-    cache_control = response.headers['Cache-Control']
-    assert 'no-cache' in cache_control
-    assert 'max-age=0' in cache_control
-
-
 def test_installer_upgrade(device, device_host):
     session = device.login()
     response = device.http_get('/rest/installer/upgrade')
