@@ -30,7 +30,11 @@ export function hide_fields_errors(form) {
 }
 
 export function check_activation_status() {
-    $.get("/rest/status").fail(ui_display_error)
+    $.get("/rest/activation_status").done(function(data) {
+        if (!data.activated) {
+            window.location.href = "activate.html";
+        }
+    });
 }
 
 export function ui_display_error(xhr, textStatus, errorThrown) {
@@ -43,8 +47,6 @@ export function ui_display_error(xhr, textStatus, errorThrown) {
     
     if (status === 401) {
         window.location.href = "login.html";
-    } else if (status === 302) {
-        window.location.href = xhr.getResponseHeader('Location')
     } else if (status === 0) {
         console.log('user navigated away from the page');
     } else {
@@ -92,4 +94,3 @@ export function ui_display_error_toast(xhr, textStatus, errorThrown) {
         }
     }
 }
-

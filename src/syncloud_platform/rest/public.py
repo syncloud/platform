@@ -40,10 +40,12 @@ def identification():
     return jsonify(success=True, message='', data=convertible.to_dict(internal.identification())), 200
 
 
-@app.route("/rest/status", methods=["GET"])
-@redirect_if_not_activated
-def status():
-    return "OK"
+@app.route("/rest/activation_status", methods=["GET"])
+def activation_status():
+    try:
+        return jsonify(activated=platform_user_config.is_activated()), 200
+    except Exception, e:
+        return jsonify(activated=False), 200
 
 
 @app.route("/rest/activate", methods=["POST"])
@@ -326,4 +328,3 @@ def handle_exception(error):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5001)
-

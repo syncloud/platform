@@ -490,5 +490,5 @@ mockjax({
     type: "get",
     url:'/rest/status', 
     dataType: "json",
-    responseText: {}
+    responseText: { "activated": true }
 });
