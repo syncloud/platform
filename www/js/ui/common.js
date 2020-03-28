@@ -1,6 +1,7 @@
 import toastr from 'toastr'
 import 'toastr/build/toastr.css';
 
+if (typeof mock !== 'undefined') { console.log("backend mock") };
 
 function get_error_block_id(txt_field) {
     return txt_field + "_alert";
@@ -29,7 +30,7 @@ export function hide_fields_errors(form) {
 }
 
 export function check_activation_status() {
-    $.get("/rest/status", values).fail(UiCommon.ui_display_error)
+    $.get("/rest/status").fail(ui_display_error)
 }
 
 export function ui_display_error(xhr, textStatus, errorThrown) {

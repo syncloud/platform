@@ -484,3 +484,11 @@ mockjax({
     dataType: "json",
     response: logout
 });
+
+
+mockjax({ 
+    type: "get",
+    url:'/rest/status', 
+    dataType: "json",
+    responseText: {}
+});
