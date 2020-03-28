@@ -28,6 +28,10 @@ export function hide_fields_errors(form) {
     $( error_blocks_selector ).remove();
 }
 
+export function check_activation_status() {
+    $.get("/rest/status", values).fail(UiCommon.ui_display_error)
+}
+
 export function ui_display_error(xhr, textStatus, errorThrown) {
 
     var status = xhr.status;
@@ -38,6 +42,8 @@ export function ui_display_error(xhr, textStatus, errorThrown) {
     
     if (status === 401) {
         window.location.href = "login.html";
+    } else if (status === 302) {
+        window.location.href = xhr.getResponseHeader('Location')
     } else if (status === 0) {
         console.log('user navigated away from the page');
     } else {
