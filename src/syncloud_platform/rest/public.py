@@ -43,7 +43,7 @@ def identification():
 @app.route("/rest/activation_status", methods=["GET"])
 def activation_status():
     try:
-        return jsonify(activated=platform_user_config.is_activated()), 200
+        return jsonify(activated=get_injector().user_platform_config.is_activated()), 200
     except Exception, e:
         return jsonify(activated=False), 200
 
