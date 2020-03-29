@@ -85,6 +85,12 @@ def test_non_activated_device_login_redirect_to_activation(device_host):
     assert response.headers['Location'] == 'https://{0}/activate.html'.format(device_host)
 
 
+def test_activation_status_false(device_host):
+    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert not json.loads(response.text)["activated"], response.text
+
+
 def test_non_activated_activate_page(device_host):
     response = requests.get('https://{0}/activate.html'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 200
@@ -146,6 +152,12 @@ def test_reactivate_good(device_host, domain, main_domain, device_user, device_p
     device.ssh_password = device_password
 
 
+def test_activation_status_true(device_host):
+    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert json.loads(response.text)["activated"], response.text
+
+    
 def test_public_web_unauthorized_browser_redirect(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 302
