@@ -132,12 +132,6 @@ def test_reactivate_bad(device_host, domain, main_domain, device_user, device_pa
     assert response.status_code == 302
 
 
-def test_deactivate(device, device_host, artifact_dir):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False, allow_redirects=False)
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
-
 def test_activation_status_false_after_deactivate(device_host):
     response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 200
@@ -149,6 +143,28 @@ def test_drop_activation(device_host):
 
 
 def test_reactivate_good(device_host, domain, main_domain, device_user, device_password,
+                         redirect_user, redirect_password, device):
+
+    response = requests.post('https://{0}/rest/activate'.format(device_host),
+                             data={'main_domain': main_domain,
+                                   'redirect_email': redirect_user,
+                                   'redirect_password': redirect_password,
+                                   'user_domain': domain,
+                                   'device_username': device_user,
+                                   'device_password': device_password}, verify=False)
+    assert response.status_code == 200
+    global LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = device_password
+    device.ssh_password = device_password
+
+
+def test_deactivate(device, device_host, artifact_dir):
+    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False, allow_redirects=False)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
+def test_reactivate_after_deactivate(device_host, domain, main_domain, device_user, device_password,
                          redirect_user, redirect_password, device):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
