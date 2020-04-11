@@ -66,7 +66,7 @@ $(document).ready(function () {
         $("#form_activate input").prop("disabled", true);
         UiCommon.hide_fields_errors("form_activate");
 
-        var on_always = function() {
+        var reset_ui = function() {
             btn.button('reset');
             $("#form_activate input").prop("disabled", false);
         };
@@ -74,15 +74,15 @@ $(document).ready(function () {
         if ( $("#domain_type").val() == 'syncloud') {
             activate(
                 values,
-                on_always,
-                backend.login,
-                ui_display_error);
+                reset_ui,
+                login,
+                UiCommon.ui_display_error);
         } else {
             activate_custom_domain(
                 values,
-                on_always,
-                backend.login,
-                ui_display_error);
+                reset_ui,
+                login,
+                UiCommon.ui_display_error);
         }
     });
 });
