@@ -133,7 +133,7 @@ def test_reactivate_bad(device_host, domain, main_domain, device_user, device_pa
 
 
 def test_deactivate(device, device_host, artifact_dir):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False)
+    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False, allow_redirects=False)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
