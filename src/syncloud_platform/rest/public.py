@@ -286,10 +286,11 @@ def regenerate_certificate():
     return jsonify(success=True), 200
 
 
-@app.route("/rest/settings/activate_url", methods=["GET"])
+@app.route("/rest/settings/deactivate", methods=["POST"])
 @login_required
-def activate_url():
-    return jsonify(activate_url='http://{0}:81'.format(linux.local_ip()), success=True), 200
+def deactivate():
+    public.user_platform_config.set_deactvated()
+    return jsonify(success=True), 200
 
 
 @app.route("/rest/app_image", methods=["GET"])

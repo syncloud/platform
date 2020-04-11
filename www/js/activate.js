@@ -28,13 +28,7 @@ function activate_custom_domain(parameters, on_always, on_done, on_error) {
 }
 
 function login() {
-    var url = (new URI())
-            .protocol('https')
-            .port(443)
-            .filename("")
-            .query("");
-
-    window.location.href = url;
+    window.location.href = "/";
 }
 
 

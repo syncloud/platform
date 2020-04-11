@@ -63,6 +63,11 @@ class PlatformUserConfig:
             ('platform.activated', TRUE)
         ])
 
+    def set_deactivate(self):
+        self._upsert([
+            ('platform.activated', FALSE)
+        ])
+
     def is_activated(self):
         result = self._get('platform.activated')
         return to_bool(result)

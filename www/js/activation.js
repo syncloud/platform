@@ -18,7 +18,7 @@ function device_url(on_complete, on_error) {
     };
 
 function reactivate(on_complete, on_error) {
-        $.get('/rest/settings/activate_url').done(on_complete).fail(on_error);
+        $.post('/rest/settings/deactivate').done(on_complete).fail(on_error);
     };
 
 function ui_display_device_url(data) {
@@ -37,9 +37,9 @@ $(document).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
 
     $("#btn_reactivate").on('click', function () {
-    	    reactivate(
-    		       function (data) {
-                window.location.href = data.activate_url;
+    	reactivate(
+    		function (data) {
+                window.location.href = "/";
             },
             function (a, b, c) {
                 UiCommon.ui_display_error(a, b, c);
