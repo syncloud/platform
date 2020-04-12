@@ -63,7 +63,7 @@ class PlatformUserConfig:
             ('platform.activated', TRUE)
         ])
 
-    def set_deactivate(self):
+    def set_deactivated(self):
         self._upsert([
             ('platform.activated', FALSE)
         ])
