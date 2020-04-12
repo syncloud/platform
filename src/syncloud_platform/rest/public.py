@@ -115,6 +115,7 @@ def login():
 
 
 @app.route("/rest/logout", methods=["POST"])
+@redirect_if_not_activated
 @login_required
 def logout():
     logout_user()
@@ -122,24 +123,28 @@ def logout():
 
 
 @app.route("/rest/user", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
 @app.route("/rest/installed_apps", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def installed_apps():
     return jsonify(apps=convertible.to_dict(public.installed_apps())), 200
 
 
 @app.route("/rest/app", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def app_status():
     return jsonify(info=convertible.to_dict(public.get_app(request.args['app_id']))), 200
 
 
 @app.route("/rest/install", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def install():
     public.install(request.args['app_id'])
@@ -147,12 +152,14 @@ def install():
 
 
 @app.route("/rest/remove", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def remove():
     return jsonify(message=public.remove(request.args['app_id'])), 200
 
 
 @app.route("/rest/restart", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def restart():
     public.restart()
@@ -160,6 +167,7 @@ def restart():
 
 
 @app.route("/rest/shutdown", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def shutdown():
     public.shutdown()
@@ -167,6 +175,7 @@ def shutdown():
 
 
 @app.route("/rest/upgrade", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def upgrade():
 
@@ -184,24 +193,28 @@ def upgrade():
 
 
 @app.route("/rest/available_apps", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
 @app.route("/rest/access/port_mappings", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def port_mappings():
     return jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
 
 
 @app.route("/rest/access/access", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def access():
     return jsonify(success=True, data=public.access()), 200
 
 
 @app.route("/rest/access/set_access", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def set_access():
     public_ip = None
@@ -218,12 +231,14 @@ def set_access():
 
 
 @app.route("/rest/access/network_interfaces", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def network_interfaces():
     return jsonify(success=True, data=dict(interfaces=public.network_interfaces())), 200
 
 
 @app.route("/rest/send_log", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def send_log():
     include_support = request.args['include_support'] == 'true'
@@ -232,54 +247,63 @@ def send_log():
 
 
 @app.route("/rest/settings/device_domain", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def device_domain():
     return jsonify(success=True, device_domain=public.domain()), 200
 
 
 @app.route("/rest/settings/device_url", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def device_url():
     return jsonify(success=True, device_url=public.device_url()), 200
 
 
 @app.route("/rest/settings/disks", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def disks():
     return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
 
 
 @app.route("/rest/settings/boot_disk", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def boot_disk():
     return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
 
 
 @app.route("/rest/settings/disk_activate", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def disk_activate():
     return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
 
 
 @app.route("/rest/settings/versions", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def versions():
     return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
 
 
 @app.route("/rest/settings/installer_status", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def installer_status():
     return jsonify(is_running=public.installer_status()), 200
 
 
 @app.route("/rest/settings/disk_deactivate", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def disk_deactivate():
     return jsonify(success=True, disks=public.disk_deactivate()), 200
 
 
 @app.route("/rest/settings/regenerate_certificate", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def regenerate_certificate():
     public.regenerate_certificate()
@@ -287,6 +311,7 @@ def regenerate_certificate():
 
 
 @app.route("/rest/settings/deactivate", methods=["POST"])
+@redirect_if_not_activated
 @login_required
 def deactivate():
     public.user_platform_config.set_deactivated()
@@ -294,6 +319,7 @@ def deactivate():
 
 
 @app.route("/rest/app_image", methods=["GET"])
+@redirect_if_not_activated
 @login_required
 def app_image():
     channel = request.args['channel']
@@ -307,6 +333,7 @@ def app_image():
 @app.route("/rest/installer/<path:path>", methods=["GET"])
 @app.route("/rest/job/<path:path>", methods=["GET"])
 @app.route("/rest/storage/<path:path>", methods=["POST"])
+@redirect_if_not_activated
 @login_required
 def backend_proxy(path):
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.form)
