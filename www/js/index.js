@@ -25,7 +25,9 @@ function display_apps(data) {
 
 $( document ).ready(() => {
  if (typeof mock !== 'undefined') { console.log(mock) };
+ UiCommon.check_activation_status();
  installed_apps(
     display_apps,
     UiCommon.ui_display_error);
 });
+

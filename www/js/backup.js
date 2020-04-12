@@ -77,7 +77,8 @@ function reload() {
 
 $( document ).ready(function () {
   if (typeof mock !== 'undefined') { console.log("backend mock") };
-  
+  UiCommon.check_activation_status();
+
   $("#btn_confirm").off('click').on('click', () => {
      
         var file = $('#backup_file').val();

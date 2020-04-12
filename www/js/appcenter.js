@@ -35,6 +35,7 @@ function display_apps(data) {
 
 $( document ).ready(function() {
   if (typeof mock !== 'undefined') { console.log("backend mock") };
+  UiCommon.check_activation_status();
   available_apps(
     display_apps,
     UiCommon.ui_display_error

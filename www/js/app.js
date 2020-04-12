@@ -112,5 +112,6 @@ function ui_load_app() {
 
 $( document ).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_activation_status();
     ui_load_app();
 });

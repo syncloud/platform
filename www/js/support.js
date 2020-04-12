@@ -31,7 +31,8 @@ function ui_send_logs() {
 }
 
 $(document).ready(function () {
-
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_activation_status();
     ui_display_toggles();
     $("#btn_send_logs").on('click', function () {
         ui_send_logs();

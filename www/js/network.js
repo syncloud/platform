@@ -205,6 +205,7 @@ export function set_access(
     
 $(document).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_activation_status();
 
     ui_display_toggles();
 

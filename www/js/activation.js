@@ -35,6 +35,7 @@ function ui_check_device_url() {
 
 $(document).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_activation_status();
 
     $("#btn_reactivate").on('click', function () {
     	reactivate(

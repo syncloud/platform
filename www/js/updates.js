@@ -153,7 +153,7 @@ function ui_installer_upgrade() {
 
 $(document).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
-
+    UiCommon.check_activation_status();
     ui_display_toggles();
 
     $("#btn_check_updates").on('click', function () {

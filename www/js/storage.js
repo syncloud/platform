@@ -195,6 +195,7 @@ function ui_check_boot_disk() {
 
 $(document).ready(function () {
     if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_activation_status();
     ui_check_disks();
     ui_check_boot_disk();
 

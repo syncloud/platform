@@ -14,4 +14,9 @@ import './ui/menu.js'
 
 import Common from './common.js'
 
+$(document).ready(function () {
+    if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_activation_status();
+});
+
 
