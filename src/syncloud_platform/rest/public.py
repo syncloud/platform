@@ -289,7 +289,7 @@ def regenerate_certificate():
 @app.route("/rest/settings/deactivate", methods=["POST"])
 @login_required
 def deactivate():
-    public.user_platform_config.set_deactvated()
+    public.user_platform_config.set_deactivated()
     return jsonify(success=True), 200
 
 
