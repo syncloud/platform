@@ -132,12 +132,6 @@ def test_reactivate_bad(device_host, domain, main_domain, device_user, device_pa
     assert response.status_code == 302
 
 
-def test_activation_status_false_after_deactivate(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False, verify=False)
-    assert response.status_code == 200
-    assert not json.loads(response.text)["activated"], response.text
-
-
 def test_drop_activation(device_host):
     run_ssh(device_host, 'rm /var/snap/platform/common/platform.db', password=LOGS_SSH_PASSWORD)
 
@@ -162,6 +156,12 @@ def test_deactivate(device, device_host, artifact_dir):
     response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False, allow_redirects=False)
     assert '"success": true' in response.text
     assert response.status_code == 200
+
+
+def test_activation_status_false_after_deactivate(device_host):
+    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert not json.loads(response.text)["activated"], response.text
 
 
 def test_reactivate_after_deactivate(device_host, domain, main_domain, device_user, device_password,
