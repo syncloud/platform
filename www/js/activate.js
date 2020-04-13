@@ -28,13 +28,14 @@ function activate_custom_domain(parameters, on_always, on_done, on_error) {
 }
 
 function login() {
-    window.location.href = "/";
+    window.location.reload(true);
 }
 
 
 $(document).ready(function () {
 
     if (typeof mock !== 'undefined') { console.log("backend mock") };
+    UiCommon.check_deactivation_status();
 
     $("#domain_type_syncloud").click(function (event) {
             event.preventDefault();

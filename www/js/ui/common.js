@@ -37,6 +37,14 @@ export function check_activation_status() {
     });
 }
 
+export function check_deactivation_status() {
+    $.get("/rest/activation_status").done(function(data) {
+        if (data.activated) {
+            window.location.href = "login.html";
+        }
+    });
+}
+
 export function ui_display_error(xhr, textStatus, errorThrown) {
 
     var status = xhr.status;
