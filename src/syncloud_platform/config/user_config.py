@@ -19,6 +19,12 @@ class PlatformUserConfig:
         self.old_config_file = old_config_file
         self.log = logger.get_logger('PlatformUserConfig')
 
+    def init_config(self):
+        if not isfile(self.config_db):
+            self.init_user_config()
+            if isfile(self.old_config_file):
+                self.migrate_user_config()
+
     def update_redirect(self, domain, api_url):
         self._upsert([
             ('redirect.domain', domain),
@@ -55,6 +61,11 @@ class PlatformUserConfig:
     def set_activated(self):
         self._upsert([
             ('platform.activated', TRUE)
+        ])
+
+    def set_deactivated(self):
+        self._upsert([
+            ('platform.activated', FALSE)
         ])
 
     def is_activated(self):
@@ -136,20 +147,20 @@ class PlatformUserConfig:
         conn.close()
 
     def migrate_user_config(self):
-        if isfile(self.old_config_file):
-            self.init_user_config()
-            old_config = ConfigParser()
-            old_config.read(self.old_config_file)
-            for section in old_config.sections():
-                for key, value in old_config.items(section):
-                    db_value = from_bool(value == 'True') if value in ['True', 'False'] else value
-                    self._upsert([
-                        ('{0}.{1}'.format(section, key), db_value)
-                    ])
-            self.set_web_secret_key(unicode(uuid.uuid4().hex))
-            os.rename(self.old_config_file, self.old_config_file + '.bak')
+        
+        old_config = ConfigParser()
+        old_config.read(self.old_config_file)
+        for section in old_config.sections():
+            for key, value in old_config.items(section):
+                db_value = from_bool(value == 'True') if value in ['True', 'False'] else value
+                self._upsert([
+                    ('{0}.{1}'.format(section, key), db_value)
+                ])
+        self.set_web_secret_key(unicode(uuid.uuid4().hex))
+        os.rename(self.old_config_file, self.old_config_file + '.bak')
 
     def _upsert(self, key_values):
+        self.init_config()
         conn = sqlite3.connect(self.config_db)
         with conn:
             for key, value in key_values:
@@ -159,6 +170,7 @@ class PlatformUserConfig:
         conn.close() 
 
     def _get(self, key, default_value=None):
+        self.init_config()
         conn = sqlite3.connect(self.config_db)
         cursor = conn.cursor()
         cursor.execute('select value from config where key = ?', (key,))

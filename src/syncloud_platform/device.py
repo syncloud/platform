@@ -24,7 +24,7 @@ class Device:
         self.nginx = nginx
 
     def prepare_redirect(self, redirect_email, redirect_password, main_domain):
-
+        
         redirect_api_url = 'http://api.' + main_domain
 
         self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
@@ -39,7 +39,7 @@ class Device:
     def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
         user_domain_lower = user_domain.lower()
         self.logger.info("activate {0}, {1}".format(user_domain_lower, device_username))
-
+        
         self._check_internet_connection()
         
         user = self.prepare_redirect(redirect_email, redirect_password, main_domain)

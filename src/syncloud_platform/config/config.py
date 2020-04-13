@@ -44,9 +44,6 @@ class PlatformConfig:
     def config_root(self):
         return self.__get('config_root')
 
-    def www_root_internal(self):
-        return self.__get('www_root_internal')
-
     def www_root_public(self):
         return self.__get('www_root_public')
 
