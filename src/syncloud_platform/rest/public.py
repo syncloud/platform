@@ -2,6 +2,8 @@ import sys
 import traceback
 
 from syncloudlib.json import convertible
+from syncloudlib.error import PassthroughJsonError
+
 import requests
 from flask import jsonify, request, redirect, Flask, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
@@ -346,6 +348,9 @@ def handle_exception(error):
     traceback.print_exc(file=sys.stdout)
     print '-'*60
     status_code = 500
+
+    if isinstance(error, PassthroughJsonError):
+        return Response(error.json, status=status_code, mimetype='application/json')
 
     if isinstance(error, ServiceException):
         status_code = 200
