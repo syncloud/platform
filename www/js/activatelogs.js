@@ -35,8 +35,8 @@ $(document).ready(function () {
             function(data) {
                 window.location.href = "activate.html";
             },
-            ui_display_error);
-        });
+            ui_display_error
+        );
     });
 
 });
