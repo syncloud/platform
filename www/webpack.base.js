@@ -15,6 +15,7 @@ const pages = [
   "support",
   "updates",
   "backup",
+  "activatelogs",
 ];
 
 module.exports = {
