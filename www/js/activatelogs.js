@@ -12,7 +12,7 @@ import '../css/material-icons.css'
 import * as UiCommon from './ui/common.js'
 import * as Common from './common.js'
 
-function(values, on_always, on_done, on_error) {
+function send_logs(values, on_always, on_done, on_error) {
     $.post("/rest/send_log", values).done(on_done).fail(on_error).always(on_always);
 }
 
