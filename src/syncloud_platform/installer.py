@@ -37,8 +37,8 @@ class PlatformInstaller:
         }
         gen.generate_files(self.templates_path, self.config_dir, variables)
 
-        network_interface_file = join(self.config_dir, 'etc/network/interface')
-        network_interface_file_target = '/etc/network/interface'
+        network_interface_file = join(self.config_dir, 'etc/network/interfaces')
+        network_interface_file_target = '/etc/network/interfaces'
         shutil.copy(network_interface_file, network_interface_file_target)
 
         data_dirs = [
