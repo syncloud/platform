@@ -1,4 +1,5 @@
 import logging
+import shutil
 from os.path import join
 
 from syncloudlib import logger, fs
@@ -35,7 +36,11 @@ class PlatformInstaller:
             'app_data_prefix': config.APP_DATA_PREFIX
         }
         gen.generate_files(self.templates_path, self.config_dir, variables)
-    
+
+        network_interface_file = join(self.config_dir, 'etc/network/interface')
+        network_interface_file_target = join('/etc/network/interface')
+        shutil.copy(network_interface_file, network_interface_file_target)
+
         data_dirs = [
             join(self.data_dir, 'webapps'),
             join(self.data_dir, 'log'),
@@ -84,6 +89,4 @@ class PlatformInstaller:
         self.init_services()
 
     def configure(self):
-        injector = get_injector()
-        ldap_auth = injector.ldap_auth
-        #ldap_auth.ldapadd(join(self.config_dir, 'ldap', 'permissions.ldif'))
+        pass
