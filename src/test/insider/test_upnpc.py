@@ -106,7 +106,7 @@ def test_above_limit_fail_attempts():
     with pytest.raises(Exception) as context:
         mapper.add_mapping(1, 1, 'TCP')
 
-    assert 'Unable' in context.value.message
+    assert 'Unable' in str(context.value)
     assert len(upnp.mappings) == 0
 
 

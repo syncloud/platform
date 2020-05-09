@@ -9,8 +9,11 @@ def test_to_json():
     validator.add_parameter_message('login', 'login is empty')
     validator.add_parameter_message('password', 'is too short')
     validator.add_parameter_message('password', 'has no special symbol')
-    print(validator.to_json())
-    assert '{"parameters_messages": [{"messages": ["login is empty"], "parameter": "login"}, {"messages": ["is too short", "has no special symbol"], "parameter": "password"}]}' == validator.to_json()
+    actual = validator.to_json()
+    print(actual)
+    expected = '{"parameters_messages": [{"parameter": "login", "messages": ["login is empty"]}, {"parameter": "password", "messages": ["is too short", "has no special symbol"]}]}'
+    print(expected)
+    assert expected == actual
 
 def test_validate_good_credentials():
     validator = InternalValidator()

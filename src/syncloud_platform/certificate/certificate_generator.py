@@ -52,10 +52,10 @@ class CertificateGenerator:
 
             self.nginx.reload_public()
 
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             self.log.warn('unable to generate real certificate (process exception): {0}'.format(e))
             self.log.warn(e.output)
-        except Exception, e:
+        except Exception as e:
             self.log.exception(e)
 
     def generate_self_signed_certificate(self):
@@ -83,7 +83,7 @@ class CertificateGenerator:
                 self.openssl_bin,
                 key_ca_file,
                 temp_configfile),
-                stderr=subprocess.STDOUT, shell=True)
+                stderr=subprocess.STDOUT, shell=True).decode()
             self.log.info(output)
 
             self.log.info('generating CA Certificate')
@@ -92,7 +92,7 @@ class CertificateGenerator:
                                           temp_configfile,
                                           key_ca_file,
                                           cert_ca_file),
-                                  stderr=subprocess.STDOUT, shell=True)
+                                  stderr=subprocess.STDOUT, shell=True).decode()
             self.log.info(output)
 
             self.log.info('generating Server Key')
@@ -104,7 +104,7 @@ class CertificateGenerator:
                                   .format(self.openssl_bin,
                                           key_file,
                                           temp_configfile),
-                                  stderr=subprocess.STDOUT, shell=True)
+                                  stderr=subprocess.STDOUT, shell=True).decode()
             self.log.info(output)
 
             self.log.info('generating Server Certificate Request')
@@ -115,7 +115,7 @@ class CertificateGenerator:
                                           temp_configfile,
                                           key_file,
                                           certificate_request_file),
-                                  stderr=subprocess.STDOUT, shell=True)
+                                  stderr=subprocess.STDOUT, shell=True).decode()
             self.log.info(output)
 
             self.log.info('generating Server Certificate')
@@ -131,10 +131,10 @@ class CertificateGenerator:
                     temp_configfile,
                     certificate_request_file,
                     cert_file),
-                stderr=subprocess.STDOUT, shell=True)
+                stderr=subprocess.STDOUT, shell=True).decode()
             self.log.info(output)
 
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             self.log.warn('unable to generate self-signed certificate: {0}'.format(e))
             self.log.warn(e.output)
             raise e

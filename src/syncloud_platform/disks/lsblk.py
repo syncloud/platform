@@ -17,7 +17,7 @@ class Lsblk:
 
     def all_disks(self, lsblk_output=None):
         if not lsblk_output:
-            lsblk_output = check_output('lsblk -Pp -o NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL', shell=True)
+            lsblk_output = check_output('lsblk -Pp -o NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL', shell=True).decode()
         # self.log.info(lsblk_output)
 
         disks = {}

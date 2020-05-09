@@ -1,5 +1,5 @@
 from syncloud_platform.auth.ldapauth import generate_change_password_cmd
-from syncloud_platform.auth.ldapauth import to_ldap_dc
+from syncloud_platform.auth.ldapauth import to_ldap_dc, make_secret
 
 
 def test_generate_change_password_cmd():
@@ -10,3 +10,7 @@ def test_generate_change_password_cmd():
 
 def test_to_ldap_dc():
     assert to_ldap_dc('user.syncloud.it') == 'dc=user,dc=syncloud,dc=it'
+
+
+def test_make_secret():
+    make_secret('password')

@@ -21,8 +21,8 @@ def redirect_if_not_activated(f):
         try:
             if platform_user_config.is_activated():
                 return make_response(f(*args, **kwargs))
-        except Exception, e:
-            log.error('unable to verify activation status, assume it is not activated, {0}'.format(e.message))
+        except Exception as e:
+            log.error('unable to verify activation status, assume it is not activated, {0}'.format(str(e)))
         
         return redirect('/activate.html')
 
@@ -37,8 +37,8 @@ def redirect_if_activated(f):
         try:
             if platform_user_config.is_activated():
                 return redirect('/')
-        except Exception, e:
-            log.error('unable to verify activation status, assume it is not activated, {0}'.format(e.message))
+        except Exception as e:
+            log.error('unable to verify activation status, assume it is not activated, {0}'.format(str(e)))
 
         return make_response(f(*args, **kwargs))
 

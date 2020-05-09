@@ -198,7 +198,7 @@ def test_public_web_unauthorized_ajax_not_redirect(device_host):
 
 
 def test_running_platform_web(device_host):
-    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True))
+    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True).decode())
 
 
 def test_platform_rest(device_host):
@@ -509,7 +509,7 @@ def disk_create(loop, fs, device_host):
 def disk_activate(loop, device, device_host, ssh_env_vars, app_dir):
 
     response = device.login().get('http://{0}/rest/settings/disks'.format(device_host))
-    print response.text
+    print(response.text)
     assert loop in response.text
     assert response.status_code == 200
 
@@ -565,8 +565,8 @@ def test_if_cron_is_enabled_after_upgrade(device_host):
 
 
 def test_nginx_performance(device_host):
-    print(check_output('ab -c 1 -n 1000 https://{0}/ping'.format(device_host), shell=True))
+    print(check_output('ab -c 1 -n 1000 https://{0}/ping'.format(device_host), shell=True).decode())
 
 
 def test_nginx_plus_flask_performance(device_host):
-    print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True))
+    print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())

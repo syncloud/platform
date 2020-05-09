@@ -1,5 +1,4 @@
 #!/bin/bash -e
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
-unset PYTHONHOME
-unset PYTHONPATH
-${DIR}/python/bin/python ${DIR}/python/lib/python*/site-packages/certbot/main.py --non-interactive "$@"
+export LD_LIBRARY_PATH=$DIR/python/lib
+${DIR}/python/bin/certbot --non-interactive "$@"

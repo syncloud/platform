@@ -9,6 +9,4 @@ fi
 
 export LD_LIBRARY_PATH=$DIR/python/lib
 
-exec $DIR/uwsgi/bin/uwsgi.sh --ini ${SNAP_COMMON}/config/uwsgi/$1.ini
-
-
+exec $DIR/python/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/$1.ini

@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 import requests
 from syncloudlib import logger
 import json
@@ -34,9 +34,9 @@ class PortProber:
                 ip_version = IP(external_device_ip).version()
                 return False, 'using device public IP: "{0}" which is IPv{1}'.format(external_device_ip, ip_version)
                     
-        except Exception, e:
-            self.logger.info('{0} is not reachable, error: {1}'.format(port, e.message))
-            return False, 'unable to validate external port: {0}'.format(e.message)
+        except Exception as e:
+            self.logger.info('{0} is not reachable, error: {1}'.format(port, str(e)))
+            return False, 'unable to validate external port: {0}'.format(str(e))
 
 
 class NoneProber:

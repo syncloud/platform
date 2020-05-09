@@ -12,4 +12,4 @@ class FlaskUser:
         return False
 
     def get_id(self):
-        return unicode(self.user)
+        return str(self.user)

@@ -46,7 +46,7 @@ def identification():
 def activation_status():
     try:
         return jsonify(activated=get_injector().user_platform_config.is_activated()), 200
-    except Exception, e:
+    except Exception as e:
         return jsonify(activated=False), 200
 
 
@@ -109,9 +109,9 @@ def login():
             login_user(user_flask, remember=False)
             # next_url = request.get('next_url', '/')
             return redirect("/")
-        except Exception, e:
+        except Exception as e:
             traceback.print_exc(file=sys.stdout)
-            return jsonify(message=e.message), 400
+            return jsonify(message=str(e)), 400
 
     return jsonify(message='missing name or password'), 400
 
@@ -344,9 +344,9 @@ def backend_proxy(path):
 
 @app.errorhandler(Exception)
 def handle_exception(error):
-    print '-'*60
+    print('-'*60)
     traceback.print_exc(file=sys.stdout)
-    print '-'*60
+    print('-'*60)
     status_code = 500
 
     if isinstance(error, PassthroughJsonError):
@@ -355,7 +355,7 @@ def handle_exception(error):
     if isinstance(error, ServiceException):
         status_code = 200
 
-    response = jsonify(success=False, message=error.message)
+    response = jsonify(success=False, message=str(error))
     return response, status_code
 
 

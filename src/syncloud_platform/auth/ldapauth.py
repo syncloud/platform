@@ -1,11 +1,11 @@
 import glob
-import hashlib
 import os
 from os.path import join
 import tempfile
 from subprocess import check_output
 
 import ldap
+from passlib import hash
 
 from syncloudlib import gen, fs
 from syncloudlib.logger import get_logger
@@ -75,8 +75,8 @@ class LdapAuth:
                 self.ldapadd(filename, DOMAIN)
                 success = True
                 break
-            except Exception, e:
-                self.log.warn(e.message)
+            except Exception as e:
+                self.log.warn(str(e))
                 self.log.warn("probably ldap is still starting, will retry {0}".format(i))
                 time.sleep(1)
 
@@ -103,29 +103,13 @@ def authenticate(name, password):
     conn = ldap.initialize('ldap://localhost:389')
     try:
         conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
-    except Exception, e:
+    except Exception as e:
         conn.unbind()
-        if 'desc' in e.message:
-            raise Exception(e.message['desc'])
+        if 'desc' in e:
+            raise Exception(e['desc'])
         else:
-            raise Exception(e.message)
+            raise Exception(str(e))
 
 
-# https://gist.github.com/rca/7217540
 def make_secret(password):
-    """
-    Encodes the given password as a base64 SSHA hash+salt buffer
-    """
-    salt = os.urandom(4)
-
-    # hash the password and append the salt
-    sha = hashlib.sha1(password)
-    sha.update(salt)
-
-    # create a base64 encoded string of the concatenated digest + salt
-    digest_salt_b64 = '{0}{1}'.format(sha.digest(), salt).encode('base64').strip()
-
-    # now tag the digest above with the {SSHA} tag
-    tagged_digest_salt = '{{SSHA}}{0}'.format(digest_salt_b64)
-
-    return tagged_digest_salt
+    return hash.ldap_salted_sha1.hash(password)

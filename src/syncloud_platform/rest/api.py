@@ -110,10 +110,10 @@ def handle_exception(error):
     if isinstance(error, PassthroughJsonError):
         return Response(error.json, status=status_code, mimetype='application/json')
     else:
-        print '-'*60
+        print('-'*60)
         traceback.print_exc(file=sys.stdout)
-        print '-'*60
-        return jsonify(message=error.message), status_code
+        print('-'*60)
+        return jsonify(message=str(error)), status_code
 
 
 if __name__ == '__main__':

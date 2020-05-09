@@ -27,7 +27,7 @@ class Aggregator:
 def read_log(filename):
     log = 'file: {0}\n\n'.format(filename)
     if isfile(filename):
-        log += check_output('tail -100 {0}'.format(filename), shell=True)
+        log += check_output('tail -100 {0}'.format(filename), shell=True).decode()
     else:
         log += '-- not found --'
     return log
@@ -35,6 +35,6 @@ def read_log(filename):
 
 def run(cmd):
     log = 'file: {0}\n\n'.format(cmd)
-    log += check_output('{0} | tail -100 || true'.format(cmd), shell=True)
+    log += check_output('{0} | tail -100 || true'.format(cmd), shell=True).decode()
     return log
 

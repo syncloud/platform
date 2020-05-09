@@ -41,7 +41,7 @@ class InMemoryUPnP:
         def filter_not(mapping):
             return not (mapping.external_port == external_port and mapping.protocol == protocol)
 
-        self.mappings = filter(filter_not, self.mappings)
+        self.mappings = list(filter(filter_not, self.mappings))
 
     def addportmapping(self, external_port, protocol, local_ip, local_port, description, something):
 

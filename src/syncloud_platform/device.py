@@ -74,7 +74,7 @@ class Device:
         self.set_access(False, False, None, 0, 0)
 
         self.logger.info("activating ldap")
-        self.user_platform_config.set_web_secret_key(unicode(uuid.uuid4().hex))
+        self.user_platform_config.set_web_secret_key(str(uuid.uuid4().hex))
 
         self.tls.generate_self_signed_certificate()
 
@@ -96,8 +96,8 @@ class Device:
             if response.status_code != 200:
                 internet_ok = False
          
-        except Exception, e:
-            self.logger.error('Internet check url {0} is not reachable, error: {1}'.format(check_url, e.message))
+        except Exception as e:
+            self.logger.error('Internet check url {0} is not reachable, error: {1}'.format(check_url, str(e)))
             internet_ok = False
         
         if not internet_ok:
@@ -146,8 +146,8 @@ class Device:
                                                        manual_certificate_port, manual_access_port)
         try:
             port_drill.sync_existing_ports()
-        except Exception, e:
-            self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
+        except Exception as e:
+            self.logger.error('Unable to sync port mappings: {0}'.format(str(e)))
 
         router_port = None
         mapping = port_drill.get(WEB_ACCESS_PORT, http_network_protocol)

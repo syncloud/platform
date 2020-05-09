@@ -21,7 +21,7 @@ class Systemctl:
         self.log.info('reloading {0}'.format(service))
         try:
             check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             self.log.error(e.output)
             raise e
 
@@ -97,11 +97,11 @@ class Systemctl:
         try:
             log.info('starting {0}'.format(service))
             check_output('systemctl start {0} 2>&1'.format(service), shell=True)
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             log.error(e.output)
             try:
-                log.error(check_output('journalctl -u {0} 2>&1'.format(service), shell=True))
-            except CalledProcessError, e:
+                log.error(check_output('journalctl -u {0} 2>&1'.format(service), shell=True).decode())
+            except CalledProcessError as e:
                 log.error(e.output)
             raise e
 
@@ -117,10 +117,10 @@ class Systemctl:
 
         try:
             log.info('checking {0}'.format(service))
-            result = check_output('systemctl is-active {0} 2>&1'.format(service), shell=True).strip()
+            result = check_output('systemctl is-active {0} 2>&1'.format(service), shell=True).decode().strip()
             log.info('stopping {0}'.format(service))
             check_output('systemctl stop {0} 2>&1'.format(service), shell=True)
-        except CalledProcessError, e:
+        except CalledProcessError as e:
             result = e.output.strip()
 
         log.info("{0}: {1}".format(service, result))
@@ -146,4 +146,4 @@ class Systemctl:
 
 
 def dir_to_systemd_mount_filename(directory):
-    return string.join(filter(None, directory.split('/')), '-') + '.mount'
+    return "-".join(filter(None, directory.split('/'))) + '.mount'

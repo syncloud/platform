@@ -30,6 +30,6 @@ class InternalValidator:
         self.parameter_messages[parameter].add_message(message)
     
     def to_json(self):
-        parameters_messages = [ v.__dict__ for k,v in self.parameter_messages.iteritems() ]
+        parameters_messages = [ v.__dict__ for k,v in self.parameter_messages.items() ]
         return json.dumps({ 'parameters_messages': parameters_messages })
             

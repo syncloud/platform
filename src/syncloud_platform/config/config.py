@@ -1,8 +1,7 @@
 import os
-from ConfigParser import ConfigParser
-from os.path import isfile, join
-from syncloudlib import logger
-from os.path import isdir, join
+from configparser import ConfigParser
+from os.path import isfile
+from os.path import join
 
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
