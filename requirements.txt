@@ -10,7 +10,7 @@ flask-login==0.2.10
 psutil==4.3.0
 Jinja2==2.9.6
 miniupnpc==1.9
-python-ldap==2.4.25
+python-ldap==3.2.0
 certbot-nginx==1.4.0
 certbot==1.4.0
 acme==0.37.2
@@ -19,3 +19,4 @@ ndg-httpsclient
 syncloud-lib==167
 requests-unixsocket==0.1.5
 netifaces==0.10.4
+

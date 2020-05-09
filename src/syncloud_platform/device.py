@@ -96,7 +96,7 @@ class Device:
             if response.status_code != 200:
                 internet_ok = False
          
-        except Exception, e:
+        except Exception as e:
             self.logger.error('Internet check url {0} is not reachable, error: {1}'.format(check_url, e.message))
             internet_ok = False
         
@@ -146,7 +146,7 @@ class Device:
                                                        manual_certificate_port, manual_access_port)
         try:
             port_drill.sync_existing_ports()
-        except Exception, e:
+        except Exception as e:
             self.logger.error('Unable to sync port mappings: {0}'.format(e.message))
 
         router_port = None

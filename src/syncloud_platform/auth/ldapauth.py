@@ -75,7 +75,7 @@ class LdapAuth:
                 self.ldapadd(filename, DOMAIN)
                 success = True
                 break
-            except Exception, e:
+            except Exception as e:
                 self.log.warn(e.message)
                 self.log.warn("probably ldap is still starting, will retry {0}".format(i))
                 time.sleep(1)
@@ -103,7 +103,7 @@ def authenticate(name, password):
     conn = ldap.initialize('ldap://localhost:389')
     try:
         conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
-    except Exception, e:
+    except Exception as e:
         conn.unbind()
         if 'desc' in e.message:
             raise Exception(e.message['desc'])

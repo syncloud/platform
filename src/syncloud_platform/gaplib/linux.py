@@ -42,13 +42,13 @@ def local_ip():
 def local_ip_v6():
     try:
         return check_output("/snap/platform/current/bin/cli ipv6", shell=True)
-    except CalledProcessError, e:
+    except CalledProcessError as e:
         return None
 
 def public_ip_v4():
     try:
         return check_output("/snap/platform/current/bin/cli ipv4 piblic", shell=True)
-    except CalledProcessError, e:
+    except CalledProcessError as e:
         return None
 
 def is_ip_public(ip):

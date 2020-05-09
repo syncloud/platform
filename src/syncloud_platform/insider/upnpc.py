@@ -104,7 +104,7 @@ class UpnpPortMapper:
         return self.upnp_client
 
     def __find_available_ports(self, existing_ports, external_port):
-        port_range = range(self.lower_limit, self.upper_limit)
+        port_range = list(range(self.lower_limit, self.upper_limit))
         port_range.insert(0, external_port)
         available_ports = [x for x in port_range if x not in existing_ports]
         return available_ports[0:self.fail_attempts]
@@ -121,7 +121,7 @@ class UpnpPortMapper:
                 self.logger.info('ports after mapping {0}'.format(existing_ports))
 
                 return external_port_to_try
-            except Exception, e:
+            except Exception as e:
                 self.logger.error('failed: {0}, {1}'.format(repr(e), vars(e)))
 
         raise Exception('Unable to add mapping')
@@ -150,7 +150,7 @@ class UpnpPortMapper:
     def remove_mapping(self, local_port, external_port, protocol):
         try:
             self.upnpc().remove(protocol, external_port)
-        except Exception, e:
+        except Exception as e:
             self.logger.warn('unable to remove port {0}, probably does not exist anymore, error: {1}, {2}'.format(
                              external_port, repr(e), vars(e)))
 

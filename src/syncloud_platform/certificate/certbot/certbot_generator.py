@@ -76,7 +76,7 @@ class CertbotGenerator:
                 raise Exception("certificate does not exist: {0}".format(self.certbot_certificate_file()))
             return CertbotResult(self.certbot_certificate_file(), self.certbot_key_file())
 
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             self.log.warn(e.output)
             raise e
 

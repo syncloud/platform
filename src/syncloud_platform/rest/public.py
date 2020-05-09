@@ -46,7 +46,7 @@ def identification():
 def activation_status():
     try:
         return jsonify(activated=get_injector().user_platform_config.is_activated()), 200
-    except Exception, e:
+    except Exception as e:
         return jsonify(activated=False), 200
 
 
@@ -109,7 +109,7 @@ def login():
             login_user(user_flask, remember=False)
             # next_url = request.get('next_url', '/')
             return redirect("/")
-        except Exception, e:
+        except Exception as e:
             traceback.print_exc(file=sys.stdout)
             return jsonify(message=e.message), 400
 

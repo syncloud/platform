@@ -37,9 +37,9 @@ mv openldap ${BUILD_DIR}
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/openssl-${ARCH}.tar.gz
 tar xf openssl-${ARCH}.tar.gz
 mv openssl ${BUILD_DIR}
-wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python-${ARCH}.tar.gz
-tar xf python-${ARCH}.tar.gz
-mv python ${BUILD_DIR}
+wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python3-${ARCH}.tar.gz
+tar xf python3-${ARCH}.tar.gz
+mv python3 ${BUILD_DIR}/python
 
 GO_ARCH=armv6l
 NODE_ARCH=armv6l
