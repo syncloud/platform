@@ -16,3 +16,4 @@ syncloud-lib==176
 requests-unixsocket==0.1.5
 netifaces==0.10.4
 NAT-PMP==1.1
+uWSGI==2.0.18

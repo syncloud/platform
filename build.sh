@@ -38,8 +38,8 @@ wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/
 tar xf python3-${ARCH}.tar.gz
 mv python3 ${BUILD_DIR}/python
 
-./uwsgi/build.sh
-cp -r ./uwsgi/install/uwsgi ${BUILD_DIR}/uwsgi
+#./uwsgi/build.sh
+#cp -r ./uwsgi/install/uwsgi ${BUILD_DIR}/uwsgi
 
 GO_ARCH=armv6l
 NODE_ARCH=armv6l
