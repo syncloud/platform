@@ -344,9 +344,9 @@ def backend_proxy(path):
 
 @app.errorhandler(Exception)
 def handle_exception(error):
-    print '-'*60
+    print('-'*60)
     traceback.print_exc(file=sys.stdout)
-    print '-'*60
+    print('-'*60)
     status_code = 500
 
     if isinstance(error, PassthroughJsonError):
