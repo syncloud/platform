@@ -28,9 +28,6 @@ cp -r ${DIR}/bin ${BUILD_DIR}
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/nginx-${ARCH}.tar.gz
 tar xf nginx-${ARCH}.tar.gz
 mv nginx ${BUILD_DIR}
-wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/uwsgi-${ARCH}.tar.gz
-tar xf uwsgi-${ARCH}.tar.gz
-mv uwsgi ${BUILD_DIR}
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
@@ -40,6 +37,9 @@ mv openssl ${BUILD_DIR}
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python3-${ARCH}.tar.gz
 tar xf python3-${ARCH}.tar.gz
 mv python3 ${BUILD_DIR}/python
+
+./uwsgi/build.sh
+cp -r ./uwsgi/install/uwsgi ${BUILD_DIR}/uwsgi
 
 GO_ARCH=armv6l
 NODE_ARCH=armv6l
