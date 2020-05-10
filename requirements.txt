@@ -3,7 +3,6 @@ beautifulsoup4==4.3.2
 IPy==0.83
 python-crontab==1.7.2
 massedit==0.67.1
-werkzeug==0.16.1
 Flask==0.12.4
 flask-login==0.2.10
 psutil==4.3.0
@@ -12,7 +11,8 @@ miniupnpc==1.9
 python-ldap==3.2.0
 certbot-nginx==1.4.0
 certbot==1.4.0
-ndg-httpsclient
-syncloud-lib==172
+ndg-httpsclient==0.5.1
+syncloud-lib==176
 requests-unixsocket==0.1.5
 netifaces==0.10.4
+NAT-PMP==1.1

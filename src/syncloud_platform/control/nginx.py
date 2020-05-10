@@ -1,8 +1,7 @@
-import os
 from os.path import join
-from string import Template
-from syncloudlib import logger
+
 from syncloud_platform.gaplib import gen
+from syncloudlib import logger
 
 
 class Nginx:

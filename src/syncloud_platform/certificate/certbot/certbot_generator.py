@@ -9,7 +9,9 @@ from syncloudlib.logger import get_logger
 
 from syncloud_platform.certificate.certbot.certbot_result import CertbotResult
 from OpenSSL import crypto
-from urllib3.contrib.pyopenssl import get_subj_alt_name
+from pyasn1.codec.der import decoder as der_decoder
+from ndg.httpsclient.ssl_peer_verification import SUBJ_ALT_NAME_SUPPORT
+from ndg.httpsclient.subj_alt_name import SubjectAltName
 
 
 def apps_to_certbot_domain_args(app_versions, domain):
@@ -101,6 +103,37 @@ class CertbotGenerator:
             cert_domains = get_subj_alt_name(cert)
 
         return get_new_domains(current_domains, cert_domains)
+
+
+# Note: This is a slightly bug-fixed version of same from ndg-httpsclient.
+def get_subj_alt_name(peer_cert):
+    # Search through extensions
+    dns_name = []
+    if not SUBJ_ALT_NAME_SUPPORT:
+        return dns_name
+
+    general_names = SubjectAltName()
+    for i in range(peer_cert.get_extension_count()):
+        ext = peer_cert.get_extension(i)
+        ext_name = ext.get_short_name()
+        if ext_name != 'subjectAltName':
+            continue
+
+        # PyOpenSSL returns extension data in ASN.1 encoded form
+        ext_dat = ext.get_data()
+        decoded_dat = der_decoder.decode(ext_dat,
+                                         asn1Spec=general_names)
+
+        for name in decoded_dat:
+            if not isinstance(name, SubjectAltName):
+                continue
+            for entry in range(len(name)):
+                component = name.getComponentByPosition(entry)
+                if component.getName() != 'dNSName':
+                    continue
+                dns_name.append(str(component.getComponent()))
+
+    return dns_name
 
 
 def expiry_date_string_to_days(expiry, today=datetime.today()):

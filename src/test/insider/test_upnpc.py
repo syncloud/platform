@@ -106,7 +106,7 @@ def test_above_limit_fail_attempts():
     with pytest.raises(Exception) as context:
         mapper.add_mapping(1, 1, 'TCP')
 
-    assert 'Unable' in context.value.msg
+    assert 'Unable' in str(context.value)
     assert len(upnp.mappings) == 0
 
 
@@ -123,4 +123,3 @@ def test_below_limit_fail_attempts():
 
     assert upnp.by_external_port(4).local_port == 1
     assert upnp.by_external_port(4).local_ip == '2.2.2.2'
-.2'
