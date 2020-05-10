@@ -44,6 +44,9 @@ export LDFLAGS=-L${PYTHON_DIR}/lib
 export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
 
 ${PYTHON_DIR}/bin/pip install -r ${DIR}/requirements.txt
+cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${PYTHON_DIR}/lib
+cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libuuid.so* ${PYTHON_DIR}/lib
+cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libjansson.so* ${PYTHON_DIR}/lib
 ${PYTHON_DIR}/bin/uwsgi --help
 #./uwsgi/build.sh
 #cp -r ./uwsgi/install/uwsgi ${BUILD_DIR}/uwsgi
