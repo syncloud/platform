@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import uuid
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from os.path import isfile, join
 from syncloudlib import logger
 from syncloud_platform.config import config
@@ -156,7 +156,7 @@ class PlatformUserConfig:
                 self._upsert([
                     ('{0}.{1}'.format(section, key), db_value)
                 ])
-        self.set_web_secret_key(unicode(uuid.uuid4().hex))
+        self.set_web_secret_key(uuid.uuid4().hex)
         os.rename(self.old_config_file, self.old_config_file + '.bak')
 
     def _upsert(self, key_values):
