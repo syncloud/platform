@@ -9,7 +9,8 @@ export TMP=/tmp
 
 NAME=uwsgi
 VERSION=2.0.18
-PYTHON=${DIR}/../build/platform/python/bin/python
+PYTHON_PATH=${DIR}/../build/platform/python/
+PYTHON=${PYTHON_PATH}/bin/python
 echo "building ${NAME}"
 
 apt-get -y install build-essential python-dev
@@ -24,6 +25,7 @@ cd ${NAME}-${VERSION}
 
 sed -i 's/xml = auto/xml = false/g' buildconf/base.ini
 sed -i 's/json = auto/json = false/g' buildconf/base.ini
+export LD_LIBRARY_PATH=${PYTHON_PATH}/lib
 ${PYTHON} uwsgiconfig.py --build
 
 cd ../..
@@ -35,9 +37,9 @@ cp build/${NAME}-${VERSION}/uwsgi ${PREFIX}/bin
 mkdir -p ${PREFIX}/lib
 cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${PREFIX}/lib
 cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libuuid.so* ${PREFIX}/lib
-cp --remove-destination ${PYTHON}/build/platform/python/lib/libssl.so* ${PREFIX}/lib
-cp --remove-destination ${PYTHON}/build/platform/python/lib/libcrypto.so* ${PREFIX}/lib
-cp --remove-destination ${PYTHON}/build/platform/python/lib/libcrypt.so* ${PREFIX}/lib
+cp --remove-destination ${PYTHON_PATH}/lib/libssl.so* ${PREFIX}/lib
+cp --remove-destination ${PYTHON_PATH}/lib/libcrypto.so* ${PREFIX}/lib
+cp --remove-destination ${PYTHON_PATH}/lib/libcrypt.so* ${PREFIX}/lib
 
 ldd ${PREFIX}/bin/uwsgi
 
