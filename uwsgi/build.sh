@@ -8,7 +8,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=uwsgi
-VERSION=2.0.13
+VERSION=2.0.18
 PYTHON=${DIR}/../build/platform/python/bin/python
 echo "building ${NAME}"
 
