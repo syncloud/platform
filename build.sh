@@ -38,6 +38,13 @@ wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/
 tar xf python3-${ARCH}.tar.gz
 mv python3 ${BUILD_DIR}/python
 
+cd ${DIR}
+export CPPFLAGS=-I${PYTHON_DIR}/include
+export LDFLAGS=-L${PYTHON_DIR}/lib
+export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
+
+${PYTHON_DIR}/bin/pip install -r ${DIR}/requirements.txt
+
 #./uwsgi/build.sh
 #cp -r ./uwsgi/install/uwsgi ${BUILD_DIR}/uwsgi
 
@@ -66,14 +73,6 @@ cd ${DIR}/backend
 go test ./... -cover
 CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/backend cmd/backend/main.go
 CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/cli cmd/cli/main.go
-
-cd ${DIR}
-
-export CPPFLAGS=-I${PYTHON_DIR}/include
-export LDFLAGS=-L${PYTHON_DIR}/lib
-export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
-
-${PYTHON_DIR}/bin/pip install -r ${DIR}/requirements.txt
 
 cd ${DIR}/src
 rm -f version
