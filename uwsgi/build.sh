@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -35,9 +35,9 @@ cp build/${NAME}-${VERSION}/uwsgi ${PREFIX}/bin
 mkdir -p ${PREFIX}/lib
 cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${PREFIX}/lib
 cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libuuid.so* ${PREFIX}/lib
-cp --remove-destination ${DIR}/build/platform/python/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libssl.so* ${PREFIX}/lib
-cp --remove-destination ${DIR}/build/platform/python/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcrypto.so* ${PREFIX}/lib
-cp --remove-destination ${DIR}/build/platform/python/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcrypt.so* ${PREFIX}/lib
+cp --remove-destination ${DIR}/build/platform/python/lib/libssl.so* ${PREFIX}/lib
+cp --remove-destination ${DIR}/build/platform/python/lib/libcrypto.so* ${PREFIX}/lib
+cp --remove-destination ${DIR}/build/platform/python/lib/libcrypt.so* ${PREFIX}/lib
 
 ldd ${PREFIX}/bin/uwsgi
 
