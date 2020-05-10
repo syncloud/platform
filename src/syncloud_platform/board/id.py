@@ -1,5 +1,5 @@
 import uuid
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 from os.path import isfile
 
 
