@@ -22,7 +22,7 @@ wget http://projects.unbit.it/downloads/${NAME}-${VERSION}.tar.gz --progress dot
 tar xzf ${NAME}-${VERSION}.tar.gz
 cd ${NAME}-${VERSION}
 
-sed -i 's/xml = auto/json = false/g' buildconf/base.ini
+sed -i 's/xml = auto/xml = false/g' buildconf/base.ini
 sed -i 's/json = auto/json = false/g' buildconf/base.ini
 ${PYTHON} uwsgiconfig.py --build
 
