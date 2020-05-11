@@ -34,7 +34,7 @@ def __fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
 
 
 def local_ip():
-    ip = check_output(["hostname", "-I"]).split(" ")[0]
+    ip = check_output(["hostname", "-I"]).decode().split(" ")[0]
     if not ip:
         raise(Exception("Can't get local ip address"))
     return ip
