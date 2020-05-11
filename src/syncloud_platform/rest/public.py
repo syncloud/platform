@@ -355,7 +355,7 @@ def handle_exception(error):
     if isinstance(error, ServiceException):
         status_code = 200
 
-    response = jsonify(success=False, message=error.message)
+    response = jsonify(success=False, message=str(error))
     return response, status_code
 
 

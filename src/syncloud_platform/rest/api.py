@@ -113,7 +113,7 @@ def handle_exception(error):
         print('-'*60)
         traceback.print_exc(file=sys.stdout)
         print('-'*60)
-        return jsonify(message=error.message), status_code
+        return jsonify(message=str(error)), status_code
 
 
 if __name__ == '__main__':
