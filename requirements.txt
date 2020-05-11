@@ -3,6 +3,7 @@ beautifulsoup4==4.3.2
 IPy==0.83
 python-crontab==1.7.2
 massedit==0.67.1
+werkzeug==0.16.1
 Flask==0.12.4
 flask-login==0.2.10
 psutil==4.3.0
