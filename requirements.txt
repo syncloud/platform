@@ -1,6 +1,6 @@
 requests==2.11.1
 beautifulsoup4==4.3.2
-IPy==0.83
+IPy==1.0
 python-crontab==1.7.2
 massedit==0.67.1
 werkzeug==0.16.1
@@ -18,3 +18,4 @@ requests-unixsocket==0.1.5
 netifaces==0.10.4
 NAT-PMP==1.1
 uWSGI==2.0.18
+
