@@ -194,4 +194,4 @@ def join_apps(installed_apps, store_apps):
         else:
             all_apps[store_app.app.id] = store_app
 
-    return all_apps.values()
+    return list(all_apps.values())
