@@ -545,7 +545,7 @@ def cron_is_enabled_after_install(device_host):
 
 def test_settings_versions(device_host, device, artifact_dir):
 
-    response = device.login().get('https://{0}/rest/settings/versions'.format(device_host), verify=False)
+    response = device.login().get('https://{0}/rest/settings/versions'.format(device_host), allow_redirects=False, verify=False)
     with open('{0}/rest.settings.versions.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
 
