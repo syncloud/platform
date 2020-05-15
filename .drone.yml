@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: arm
+name: arm jessie
 
 platform:
   os: linux
@@ -64,7 +64,7 @@ steps:
       from_secret: artifact_key
     source: artifact/*
     strip_components: 1
-    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-arm
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-jessie arm
     timeout: 2m
     username: artifact
   when:
@@ -74,7 +74,7 @@ steps:
 
 services:
 - name: device
-  image: syncloud/systemd-arm
+  image: syncloud/platform-jessie-arm
   privileged: true
   volumes:
   - name: dbus
@@ -94,7 +94,7 @@ volumes:
 
 ---
 kind: pipeline
-name: amd64
+name: amd64 jessie
 
 platform:
   os: linux
@@ -169,7 +169,7 @@ steps:
       from_secret: artifact_key
     source: artifact/*
     strip_components: 1
-    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-amd64
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-jessie amd64
     timeout: 2m
     username: artifact
   when:
@@ -179,7 +179,206 @@ steps:
 
 services:
 - name: device
-  image: syncloud/systemd-amd64
+  image: syncloud/platform-jessie-amd64
+  privileged: true
+  volumes:
+  - name: dbus
+    path: /var/run/dbus
+  - name: dev
+    path: /dev
+
+volumes:
+- name: dbus
+  host:
+    path: /var/run/dbus
+- name: dev
+  host:
+    path: /dev
+- name: shm
+  temp: {}
+
+---
+kind: pipeline
+name: arm buster
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+- name: version
+  image: syncloud/build-deps-arm
+  commands:
+  - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+  - echo arm-$DRONE_BRANCH > domain
+
+- name: build
+  image: syncloud/build-deps-arm
+  commands:
+  - VERSION=$(cat version)
+  - ./build.sh platform $VERSION
+
+- name: test-unit
+  image: syncloud/build-deps-arm
+  commands:
+  - ./unit-test.sh
+
+- name: test-js
+  image: syncloud/build-deps-arm
+  commands:
+  - export PATH=$(pwd)/node/bin:$PATH
+  - cd www
+  - npm run test
+
+- name: test-intergation
+  image: syncloud/build-deps-arm
+  commands:
+  - pip2 install -r dev_requirements.txt
+  - APP_ARCHIVE_PATH=$(realpath $(cat package.name))
+  - DOMAIN=$(cat domain)
+  - cd integration
+  - py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=platform
+
+
+- name: upload
+  image: syncloud/build-deps-arm
+  commands:
+  - VERSION=$(cat version)
+  - PACKAGE=$(cat package.name)
+  - pip2 install -r dev_requirements.txt
+  - syncloud-upload.sh platform $DRONE_BRANCH $VERSION $PACKAGE
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: AWS_SECRET_ACCESS_KEY
+
+- name: artifact
+  image: appleboy/drone-scp
+  settings:
+    command_timeout: 2m
+    host:
+      from_secret: artifact_host
+    key:
+      from_secret: artifact_key
+    source: artifact/*
+    strip_components: 1
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-buster arm
+    timeout: 2m
+    username: artifact
+  when:
+    status:
+    - failure
+    - success
+
+services:
+- name: device
+  image: syncloud/platform-buster-arm
+  privileged: true
+  volumes:
+  - name: dbus
+    path: /var/run/dbus
+  - name: dev
+    path: /dev
+
+volumes:
+- name: dbus
+  host:
+    path: /var/run/dbus
+- name: dev
+  host:
+    path: /dev
+- name: shm
+  temp: {}
+
+---
+kind: pipeline
+name: amd64 buster
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: version
+  image: syncloud/build-deps-amd64
+  commands:
+  - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+  - echo amd64-$DRONE_BRANCH > domain
+
+- name: build
+  image: syncloud/build-deps-amd64
+  commands:
+  - VERSION=$(cat version)
+  - ./build.sh platform $VERSION
+
+- name: test-unit
+  image: syncloud/build-deps-amd64
+  commands:
+  - ./unit-test.sh
+
+- name: test-js
+  image: syncloud/build-deps-amd64
+  commands:
+  - export PATH=$(pwd)/node/bin:$PATH
+  - cd www
+  - npm run test
+
+- name: test-intergation
+  image: syncloud/build-deps-amd64
+  commands:
+  - pip2 install -r dev_requirements.txt
+  - APP_ARCHIVE_PATH=$(realpath $(cat package.name))
+  - DOMAIN=$(cat domain)
+  - cd integration
+  - py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=platform
+
+- name: test-ui
+  image: syncloud/build-deps-amd64
+  commands:
+  - pip2 install -r dev_requirements.txt
+  - DOMAIN=$(cat domain)
+  - cd integration
+  - xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=platform
+  - xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=platform
+  volumes:
+  - name: shm
+    path: /dev/shm
+
+- name: upload
+  image: syncloud/build-deps-amd64
+  commands:
+  - VERSION=$(cat version)
+  - PACKAGE=$(cat package.name)
+  - pip2 install -r dev_requirements.txt
+  - syncloud-upload.sh platform $DRONE_BRANCH $VERSION $PACKAGE
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: AWS_SECRET_ACCESS_KEY
+
+- name: artifact
+  image: appleboy/drone-scp
+  settings:
+    command_timeout: 2m
+    host:
+      from_secret: artifact_host
+    key:
+      from_secret: artifact_key
+    source: artifact/*
+    strip_components: 1
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-buster amd64
+    timeout: 2m
+    username: artifact
+  when:
+    status:
+    - failure
+    - success
+
+services:
+- name: device
+  image: syncloud/platform-buster-amd64
   privileged: true
   volumes:
   - name: dbus

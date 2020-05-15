@@ -1,8 +1,8 @@
 local name = "platform";
 
-local build(arch) = {
+local build(arch, distro) = {
     kind: "pipeline",
-    name: arch,
+    name: arch + " " + distro,
 
     platform: {
         os: "linux",
@@ -99,7 +99,7 @@ local build(arch) = {
                 },
                 timeout: "2m",
                 command_timeout: "2m",
-                target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + arch,
+                target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + distro + " "  + arch,
                 source: "artifact/*",
 		             strip_components: 1
             },
@@ -110,7 +110,7 @@ local build(arch) = {
     ],
     services: [{
         name: "device",
-        image: "syncloud/systemd-" + arch,
+        image: "syncloud/platform-" + distro + '-' + arch,
         privileged: true,
         volumes: [
             {
@@ -144,6 +144,8 @@ local build(arch) = {
 };
 
 [
-    build("arm"),
-    build("amd64")
+    build("arm", "jessie"),
+    build("amd64", "jessie"),
+    build("arm", "buster"),
+    build("amd64", "buster")
 ]
