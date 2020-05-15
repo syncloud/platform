@@ -64,7 +64,7 @@ steps:
       from_secret: artifact_key
     source: artifact/*
     strip_components: 1
-    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-jessie arm
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-jessie-arm
     timeout: 2m
     username: artifact
   when:
@@ -169,7 +169,7 @@ steps:
       from_secret: artifact_key
     source: artifact/*
     strip_components: 1
-    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-jessie amd64
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-jessie-amd64
     timeout: 2m
     username: artifact
   when:
@@ -263,7 +263,7 @@ steps:
       from_secret: artifact_key
     source: artifact/*
     strip_components: 1
-    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-buster arm
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-buster-arm
     timeout: 2m
     username: artifact
   when:
@@ -368,7 +368,7 @@ steps:
       from_secret: artifact_key
     source: artifact/*
     strip_components: 1
-    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-buster amd64
+    target: /home/artifact/repo/platform/${DRONE_BUILD_NUMBER}-buster-amd64
     timeout: 2m
     username: artifact
   when:

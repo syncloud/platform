@@ -99,7 +99,7 @@ local build(arch, distro) = {
                 },
                 timeout: "2m",
                 command_timeout: "2m",
-                target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + distro + " "  + arch,
+                target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + distro + "-"  + arch,
                 source: "artifact/*",
 		             strip_components: 1
             },
