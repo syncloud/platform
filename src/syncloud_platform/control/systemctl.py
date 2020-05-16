@@ -32,8 +32,11 @@ class Systemctl:
 
         if self.__stop(filename) in ("unknown", "inactive"):
             return
-
-        check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
+        try:
+            check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
+        except CalledProcessError as e:
+            log.error(e.output)
+            raise e
         systemd_file = self.__systemd_file(filename)
         if os.path.isfile(systemd_file):
             os.remove(systemd_file)
