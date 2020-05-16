@@ -22,7 +22,7 @@ class Systemctl:
         try:
             check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
         except CalledProcessError as e:
-            self.log.error(str(e.output))
+            self.log.error(e.output.decode())
             raise e
 
     def remove_service(self, service):
@@ -35,7 +35,7 @@ class Systemctl:
         try:
             check_output('systemctl disable {0} 2>&1'.format(filename), shell=True)
         except CalledProcessError as e:
-            self.log.error(str(e.output))
+            self.log.error(e.output.decode())
             raise e
         systemd_file = self.__systemd_file(filename)
         if os.path.isfile(systemd_file):
@@ -101,11 +101,11 @@ class Systemctl:
             log.info('starting {0}'.format(service))
             check_output('systemctl start {0} 2>&1'.format(service), shell=True)
         except CalledProcessError as e:
-            log.error(str(e.output))
+            log.error(e.output.decode())
             try:
                 log.error(check_output('journalctl -u {0} 2>&1'.format(service), shell=True).decode())
             except CalledProcessError as e:
-                log.error(str(e.output))
+                log.error(e.output.decode())
             raise e
 
     def stop_service(self, service):
@@ -124,7 +124,7 @@ class Systemctl:
             log.info('stopping {0}'.format(service))
             check_output('systemctl stop {0} 2>&1'.format(service), shell=True)
         except CalledProcessError as e:
-            result = str(e.output).strip()
+            result = e.output.decode().strip()
 
         log.info("{0}: {1}".format(service, result))
         return result
