@@ -470,7 +470,7 @@ def loop_device(device_host):
     loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'losetup', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'losetup -j {0} | grep {0}'.format(dev_file), password=LOGS_SSH_PASSWORD, retries=3)
-    run_ssh(device_host, 'file -s {0}'.format(loop), password=LOGS_SSH_PASSWORD)
+    # run_ssh(device_host, 'file -s {0}'.format(loop), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'sync', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'partprobe {0}'.format(loop), password=LOGS_SSH_PASSWORD, retries=3)
     yield loop
