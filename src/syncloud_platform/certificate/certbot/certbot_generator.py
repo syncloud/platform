@@ -79,7 +79,7 @@ class CertbotGenerator:
             return CertbotResult(self.certbot_certificate_file(), self.certbot_key_file())
 
         except subprocess.CalledProcessError as e:
-            self.log.warn(e.output)
+            self.log.warn(e.output.decode())
             raise e
 
     def days_until_expiry(self):

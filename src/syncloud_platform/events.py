@@ -25,6 +25,6 @@ class EventTrigger:
                     output = check_output('snap run {0}'.format(command), shell=True).decode()
                     print(output)
             except CalledProcessError as e:
-                self.log.error('event error: {0}'.format(e.output))
+                self.log.error('event error: {0}'.format(e.output.decode()))
                 self.log.error(traceback.format_exc())
 

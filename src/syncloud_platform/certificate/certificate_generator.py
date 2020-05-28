@@ -54,7 +54,7 @@ class CertificateGenerator:
 
         except CalledProcessError as e:
             self.log.warn('unable to generate real certificate (process exception): {0}'.format(e))
-            self.log.warn(e.output)
+            self.log.warn(e.output.decode())
         except Exception as e:
             self.log.exception(e)
 
@@ -136,7 +136,7 @@ class CertificateGenerator:
 
         except CalledProcessError as e:
             self.log.warn('unable to generate self-signed certificate: {0}'.format(e))
-            self.log.warn(e.output)
+            self.log.warn(e.output.decode())
             raise e
 
         self.nginx.reload_public()
