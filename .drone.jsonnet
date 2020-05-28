@@ -23,6 +23,7 @@ local build(arch, distro) = {
             commands: [
                 "VERSION=$(cat version)",
                 "./build.sh " + name + " $VERSION"
+                "./integration/testapp/build.sh "
             ]
         },
         {
