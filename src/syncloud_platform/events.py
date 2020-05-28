@@ -19,8 +19,9 @@ class EventTrigger:
             app_id = app.app.id
             try:
                 info = check_output('snap info {0}'.format(app_id), shell=True).decode()
-                command = 'snap run {0}.{1}'.format(app_id, action)
-                if command in info:
+                command_name = '{0}.{1}'.format(app_id, action)
+                if command_name in info:
+                    command = 'snap run {0}'.format(command_name)
                     self.log.info('executing {0}'.format(command))
                     output = check_output(command, shell=True).decode()
                     print(output)
