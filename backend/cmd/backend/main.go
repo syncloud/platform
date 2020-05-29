@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/syncloud/platform/event"
 	"log"
 	"os"
 
@@ -25,10 +26,11 @@ func main() {
 func Backend() *rest.Backend {
 	master := job.NewMaster()
 	backup := backup.NewDefault()
+	eventTrigger := event.New()
 	installer := installer.New()
 	storage := storage.New()
 	worker := job.NewWorker(master, backup, installer, storage)
 
-	return rest.NewBackend(master, backup, worker)
+	return rest.NewBackend(master, backup, eventTrigger, worker)
 
 }

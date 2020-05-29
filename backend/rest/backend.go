@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/syncloud/platform/event"
 	"log"
 	"net"
 	"net/http"
@@ -13,16 +14,18 @@ import (
 )
 
 type Backend struct {
-	Master *job.Master
-	backup *backup.Backup
-	worker *job.Worker
+	Master       *job.Master
+	backup       *backup.Backup
+	eventTrigger *event.EventTrigger
+	worker       *job.Worker
 }
 
-func NewBackend(master *job.Master, backup *backup.Backup, worker *job.Worker) *Backend {
+func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.EventTrigger, worker *job.Worker) *Backend {
 	return &Backend{
-		Master: master,
-		backup: backup,
-		worker: worker,
+		Master:       master,
+		backup:       backup,
+		eventTrigger: eventTrigger,
+		worker:       worker,
 	}
 }
 
@@ -36,6 +39,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade))
 	http.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat))
 	http.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend))
+	http.HandleFunc("/event/trigger", Handle(backend.EventTrigger))
 
 	server := http.Server{}
 
@@ -146,6 +150,14 @@ func (backend *Backend) StorageFormat(w http.ResponseWriter, req *http.Request) 
 	device := req.FormValue("device")
 	backend.Master.Offer(job.JobStorageFormat{Device: device})
 	return "submitted", nil
+}
+
+func (backend *Backend) EventTrigger(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+	if err := req.ParseForm(); err != nil {
+		return nil, errors.New("cannot parse post form")
+	}
+	eventName := req.FormValue("event")
+	return "ok", backend.eventTrigger.Trigger(eventName)
 }
 
 func (backend *Backend) StorageBootExtend(w http.ResponseWriter, req *http.Request) (interface{}, error) {
