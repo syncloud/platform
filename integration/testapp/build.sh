@@ -12,8 +12,6 @@ ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 cp -r ${DIR}/meta ${BUILD_DIR}
-echo "version: $VERSION" >> ${BUILD_DIR}/meta/snap.yaml
-echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 
 mksquashfs ${BUILD_DIR} ${DIR}/testapp.snap -noappend -comp xz -no-xattrs -all-root

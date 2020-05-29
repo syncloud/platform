@@ -9,3 +9,4 @@ description: Test app
 grade: stable
 name: testapp
 summary: Test app
+version: 1
