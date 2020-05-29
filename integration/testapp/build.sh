@@ -1,15 +1,20 @@
 #!/bin/bash -xe
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+BUILD_DIR=${DIR}/build
+mkdir ${BUILD_DIR}
+
+wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python3-${ARCH}.tar.gz
+tar xf python3-${ARCH}.tar.gz
+mv python3 ${BUILD_DIR}/python
+${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-rm -rf ${DIR}/*.snap
-SNAP_DIR=${DIR}/build
-mkdir ${SNAP_DIR}
-cp -r ${DIR}/meta ${SNAP_DIR}/
-echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
-echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
-echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+
+cp -r ${DIR}/meta ${BUILD_DIR}/
+echo "version: $VERSION" >> ${BUILD_DIR}/meta/snap.yaml
+echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
+echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 
 mksquashfs ${SNAP_DIR} ${DIR}/testapp_1_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
-cp ${DIR}/*.snap ${DIR}/artifact
+cp ${DIR}/*.snap ${DIR}/../../artifact

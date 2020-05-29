@@ -1,0 +1,6 @@
+#!/snap/testapp/current/python/bin/python
+
+from syncloudlib.application.paths import get_data_dir
+
+with open('/var/snap/testapp/common/on_storage_change', 'wb+') as f:
+    f.write(get_data_dir('testapp'))

@@ -1,0 +1,7 @@
+#!/snap/testapp/current/python/bin/python
+
+from syncloudlib.application.urls import get_app_url
+
+with open('/var/snap/testapp/common/on_access_change', 'wb+') as f:
+    f.write(get_app_url('testapp'))
+
