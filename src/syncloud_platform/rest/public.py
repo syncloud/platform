@@ -335,6 +335,7 @@ def app_image():
 @app.route("/rest/installer/<path:path>", methods=["GET"])
 @app.route("/rest/job/<path:path>", methods=["GET"])
 @app.route("/rest/storage/<path:path>", methods=["POST"])
+@app.route("/rest/event/<path:path>", methods=["POST"])
 @redirect_if_not_activated
 @login_required
 def backend_proxy(path):
