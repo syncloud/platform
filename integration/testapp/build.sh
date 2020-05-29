@@ -11,11 +11,10 @@ mv python3 ${BUILD_DIR}/python
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-cp -r ${DIR}/meta ${BUILD_DIR}/
+cp -r ${DIR}/meta ${BUILD_DIR}
 echo "version: $VERSION" >> ${BUILD_DIR}/meta/snap.yaml
 echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 
-mksquashfs ${SNAP_DIR} ${DIR}/testapp_1_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
+mksquashfs ${BUILD_DIR} ${DIR}/testapp_1_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
 cp ${DIR}/*.snap ${DIR}/../../artifact
-
