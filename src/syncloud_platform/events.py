@@ -1,6 +1,6 @@
 import traceback
 from syncloudlib import logger
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError, STDOUT
 
 
 class EventTrigger:
@@ -23,11 +23,13 @@ class EventTrigger:
                 if command_name in info:
                     command = 'snap run {0}'.format(command_name)
                     self.log.info('executing {0}'.format(command))
-                    output = check_output(command, shell=True).decode()
+                    output = check_output(command, shell=True, stderr=STDOUT).decode()
                     print(output)
             except CalledProcessError as e:
                 self.log.error('event output {0}'.format(e.output.decode()))
                 if e.stderr:
                     self.log.error('event error {0}'.format(e.stderr.decode()))
+                if e.stdout:
+                    self.log.error('event stdout {0}'.format(e.stdout.decode()))
                 self.log.error(traceback.format_exc())
 
