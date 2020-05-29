@@ -16,5 +16,5 @@ echo "version: $VERSION" >> ${BUILD_DIR}/meta/snap.yaml
 echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 
-mksquashfs ${BUILD_DIR} ${DIR}/testapp_1_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
+mksquashfs ${BUILD_DIR} ${DIR}/testapp.snap -noappend -comp xz -no-xattrs -all-root
 cp ${DIR}/*.snap ${DIR}/../../artifact

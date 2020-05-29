@@ -1,6 +1,6 @@
 import json
 from os import makedirs
-from os.path import dirname, isdir, split
+from os.path import dirname, isdir, split, join
 from subprocess import check_output
 
 import jinja2
@@ -59,6 +59,9 @@ def test_start(module_setup, device, app, domain, device_host):
 
 def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, app_archive_path)
+
+def test_install_testapp(device_host):
+    local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, join(DIR, 'testapp', 'testapp.snap'))
 
 
 def test_cryptography_openssl_version(device_host):
