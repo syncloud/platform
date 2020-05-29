@@ -397,7 +397,7 @@ def test_rest_installed_apps(device, device_host, artifact_dir):
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) == 1
+    assert len(json.loads(response.text)['apps']) == 2
 
 
 def test_rest_installed_app(device, device_host, artifact_dir):
