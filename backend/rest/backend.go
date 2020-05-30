@@ -48,7 +48,7 @@ func (backend *Backend) Start(socket string) {
 		panic(err)
 	}
 	log.Println("Started backend")
-	server.Serve(unixListener)
+	_ = server.Serve(unixListener)
 
 }
 

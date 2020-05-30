@@ -1,11 +1,14 @@
 package event
 
 import (
+	"github.com/syncloud/platform/snap"
 	"log"
 	"os/exec"
 )
 
-type EventTrigger struct{}
+type EventTrigger struct {
+	snap *snap.Snap
+}
 
 const (
 	SNAP_INFO_CMD = "snap info"
@@ -13,7 +16,9 @@ const (
 )
 
 func New() *EventTrigger {
-	return &EventTrigger{}
+	return &EventTrigger{
+		snap: snap.New(),
+	}
 }
 
 func (storage *EventTrigger) Trigger(event string) error {
