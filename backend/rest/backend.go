@@ -16,11 +16,11 @@ import (
 type Backend struct {
 	Master       *job.Master
 	backup       *backup.Backup
-	eventTrigger *event.EventTrigger
+	eventTrigger *event.Trigger
 	worker       *job.Worker
 }
 
-func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.EventTrigger, worker *job.Worker) *Backend {
+func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker) *Backend {
 	return &Backend{
 		Master:       master,
 		backup:       backup,
@@ -68,7 +68,7 @@ func fail(w http.ResponseWriter, err error) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		fmt.Fprintf(w, string(responseJson))
+		_, _ = fmt.Fprintf(w, string(responseJson))
 	}
 }
 
@@ -81,7 +81,7 @@ func success(w http.ResponseWriter, data interface{}) {
 	if err != nil {
 		fail(w, err)
 	} else {
-		fmt.Fprintf(w, string(responseJson))
+		_, _ = fmt.Fprintf(w, string(responseJson))
 	}
 }
 
@@ -98,11 +98,11 @@ func Handle(f func(w http.ResponseWriter, req *http.Request) (interface{}, error
 	}
 }
 
-func (backend *Backend) BackupList(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupList(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
 	return backend.backup.List()
 }
 
-func (backend *Backend) BackupRemove(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupRemove(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
 	file, ok := req.URL.Query()["file"]
 	if !ok || len(file) < 1 {
 		return nil, errors.New("file is missing")
@@ -114,53 +114,51 @@ func (backend *Backend) BackupRemove(w http.ResponseWriter, req *http.Request) (
 	return "removed", nil
 }
 
-func (backend *Backend) BackupCreate(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupCreate(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
 	apps, ok := req.URL.Query()["app"]
 	if !ok || len(apps) < 1 {
 		return nil, errors.New("app is missing")
 	}
-
-	backend.Master.Offer(job.JobBackupCreate{App: apps[0]})
+	_ = backend.Master.Offer(job.JobBackupCreate{App: apps[0]})
 	return "submitted", nil
 }
 
-func (backend *Backend) BackupRestore(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupRestore(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
 	files, ok := req.URL.Query()["file"]
 	if !ok || len(files) < 1 {
 		return nil, errors.New("file is missing")
 	}
-
-	backend.Master.Offer(job.JobBackupRestore{File: files[0]})
+	_ = backend.Master.Offer(job.JobBackupRestore{File: files[0]})
 	return "submitted", nil
 }
 
-func (backend *Backend) InstallerUpgrade(w http.ResponseWriter, req *http.Request) (interface{}, error) {
-	backend.Master.Offer(job.JobInstallerUpgrade{})
+func (backend *Backend) InstallerUpgrade(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
+	_ = backend.Master.Offer(job.JobInstallerUpgrade{})
 	return "submitted", nil
 }
 
-func (backend *Backend) JobStatus(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) JobStatus(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
 	return backend.Master.Status().String(), nil
 }
 
-func (backend *Backend) StorageFormat(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) StorageFormat(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
 	if err := req.ParseForm(); err != nil {
 		return nil, errors.New("cannot parse post form")
 	}
 	device := req.FormValue("device")
-	backend.Master.Offer(job.JobStorageFormat{Device: device})
+	_ = backend.Master.Offer(job.JobStorageFormat{Device: device})
 	return "submitted", nil
 }
 
-func (backend *Backend) EventTrigger(w http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) EventTrigger(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
 	if err := req.ParseForm(); err != nil {
 		return nil, errors.New("cannot parse post form")
 	}
 	eventName := req.FormValue("event")
-	return "ok", backend.eventTrigger.Trigger(eventName)
+	return "ok", backend.eventTrigger.RunEventOnAllAps(eventName)
 }
 
-func (backend *Backend) StorageBootExtend(w http.ResponseWriter, req *http.Request) (interface{}, error) {
-	backend.Master.Offer(job.JobStorageBootExtend{})
+func (backend *Backend) StorageBootExtend(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
+	_ = backend.Master.Offer(job.JobStorageBootExtend{})
 	return "submitted", nil
 }

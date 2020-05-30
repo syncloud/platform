@@ -1,6 +1,6 @@
-import traceback
 from syncloudlib import logger
-from subprocess import check_output, CalledProcessError, STDOUT
+
+from src.syncloud_platform.rest.backend_proxy import backend_request
 
 
 class EventTrigger:
@@ -15,21 +15,7 @@ class EventTrigger:
         self._trigger_app_event('access-change')
 
     def _trigger_app_event(self, action):
-        for app in self.installer.installed_all_apps():
-            app_id = app.app.id
-            try:
-                info = check_output('snap info {0}'.format(app_id), shell=True).decode()
-                command_name = '{0}.{1}'.format(app_id, action)
-                if command_name in info:
-                    command = 'snap run {0}'.format(command_name)
-                    self.log.info('executing {0}'.format(command))
-                    output = check_output(command, shell=True, stderr=STDOUT).decode()
-                    print(output)
-            except CalledProcessError as e:
-                self.log.error('event output {0}'.format(e.output.decode()))
-                if e.stderr:
-                    self.log.error('event error {0}'.format(e.stderr.decode()))
-                if e.stdout:
-                    self.log.error('event stdout {0}'.format(e.stdout.decode()))
-                self.log.error(traceback.format_exc())
-
+        try:
+            backend_request("POST", "/event/trigger", {"event": action})
+        except Exception as e:
+            self.log.error('event error: {0}'.format(str(e)))

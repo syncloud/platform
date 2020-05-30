@@ -1,4 +1,4 @@
-package snap
+package snapd
 
 import (
 	"context"
@@ -14,23 +14,16 @@ const (
 	SOCKET = "/var/run/snapd.socket"
 )
 
-type Snap struct {
+type Snapd struct {
 	client http.Client
 }
 
-type Apps struct {
-	Result []App `json:"result"`
+type Response struct {
+	Result []Snap `json:"result"`
 }
 
-type App struct {
-	Name    string `json:"name"`
-	Summary string `json:"summary"`
-	Channel string `json:"channel"`
-	Version string `json:"version"`
-}
-
-func New() *Snap {
-	return &Snap{
+func New() *Snapd {
+	return &Snapd{
 		client: http.Client{
 			Transport: &http.Transport{
 				DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
@@ -41,7 +34,7 @@ func New() *Snap {
 	}
 }
 
-func (snap *Snap) ListAllApps() ([]App, error) {
+func (snap *Snapd) ListAllApps() ([]Snap, error) {
 	resp, err := snap.client.Get("http://unix/v2/snaps")
 	if err != nil {
 		log.Println(err)
@@ -57,12 +50,12 @@ func (snap *Snap) ListAllApps() ([]App, error) {
 	if err != nil {
 		log.Println(err)
 	}
-	var apps Apps
-	err = json.Unmarshal(bodyBytes, &apps)
+	var response Response
+	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	return apps.Result, nil
+	return response.Result, nil
 
 }
