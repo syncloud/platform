@@ -1,6 +1,6 @@
 from syncloudlib import logger
 
-from src.syncloud_platform.rest.backend_proxy import backend_request
+from syncloud_platform.rest.backend_proxy import backend_request
 
 
 class EventTrigger:
