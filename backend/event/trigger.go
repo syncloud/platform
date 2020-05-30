@@ -28,7 +28,7 @@ func (storage *Trigger) RunEventOnAllAps(event string) error {
 		if found {
 			var cmd = app.RunCommand()
 			log.Println("Running: ", cmd)
-			_, err := exec.Command(cmd).CombinedOutput()
+			_, err := exec.Command("snap", "run", cmd).CombinedOutput()
 			if err != nil {
 				log.Printf("snapd run failed: %v", err)
 				return err
