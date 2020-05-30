@@ -7,7 +7,7 @@ type Snap struct {
 	Summary string `json:"summary"`
 	Channel string `json:"channel"`
 	Version string `json:"version"`
-	Apps []App `json:"apps"`
+	Apps    []App  `json:"apps"`
 }
 
 type App struct {
@@ -25,5 +25,5 @@ func (snap *Snap) FindApp(app string) (bool, *App) {
 }
 
 func (app *App) RunCommand() string {
-	return fmt.Sprint("snap run %v.%v", app.Snap, app.Name)
+	return fmt.Sprintf("snap run %v.%v", app.Snap, app.Name)
 }
