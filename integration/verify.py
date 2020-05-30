@@ -297,10 +297,6 @@ def test_openssl_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/openssl/bin/openssl --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
 
 
-def test_testapp_access_change_hook(device_host):
-    run_ssh(device_host, 'snap run testapp.access-change', password=LOGS_SSH_PASSWORD)
-
-
 def test_set_access_mode_with_certbot(device, device_host):
 
     response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
@@ -314,6 +310,10 @@ def test_set_access_mode_with_certbot(device, device_host):
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
+
+
+def test_testapp_access_change_hook(device_host):
+    run_ssh(device_host, 'snap run testapp.access-change', password=LOGS_SSH_PASSWORD)
 
 
 def test_show_https_certificate(device_host):

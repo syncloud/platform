@@ -25,5 +25,5 @@ func (snap *Snap) FindApp(app string) (bool, *App) {
 }
 
 func (app *App) RunCommand() string {
-	return fmt.Sprintf("snap run %v.%v", app.Snap, app.Name)
+	return fmt.Sprintf("/usr/bin/snap run %v.%v", app.Snap, app.Name)
 }
