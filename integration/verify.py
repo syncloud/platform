@@ -337,6 +337,13 @@ def test_network_interfaces(device, device_host):
     assert response.status_code == 200
 
 
+def test_send_logs(device, device_host):
+    response = device.login().get('https://{0}/rest/send_log?include_support=false'.format(device_host), verify=False,)
+    print(response.text)
+    assert '"success": true' in response.text
+    assert response.status_code == 200
+
+
 def test_available_apps(device, device_host, artifact_dir):
     response = device.login().get('https://{0}/rest/available_apps'.format(device_host), verify=False)
     with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:

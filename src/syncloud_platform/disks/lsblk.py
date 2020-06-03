@@ -187,4 +187,4 @@ class Disk:
         return next((p for p in self.partitions if p.is_root_fs()), None)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.name, ','.join(map(str, self.partitions)))
+        return '{0}: {1}'.format(self.name, ','.join(list(map(str, self.partitions))))
