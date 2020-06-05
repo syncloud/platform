@@ -360,7 +360,7 @@ def test_device_url(device, device_host, artifact_dir):
     assert response.status_code == 200
 
 
-def test_protocol(device, device_host, app_dir, ssh_env_vars, app_domain):
+def test_api_url_443(device, device_host, app_dir, ssh_env_vars, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
@@ -379,7 +379,10 @@ def test_protocol(device, device_host, app_dir, ssh_env_vars, app_domain):
    
     assert app_domain in url, url
     assert 'https' in url, url
-   
+
+
+def test_api_url_10000(device, device_host, app_dir, ssh_env_vars, app_domain):
+
     response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                   params={'upnp_enabled': 'false',
                                           'external_access': 'false', 'public_ip': 0,
@@ -395,6 +398,16 @@ def test_protocol(device, device_host, app_dir, ssh_env_vars, app_domain):
    
     assert app_domain in url, url
     assert 'https' in url, url
+
+
+def test_set_access_error(device, device_host):
+
+    response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+                                  params={'upnp_enabled': 'false',
+                                          'external_access': 'true', 'public_ip': 0,
+                                          'certificate_port': 0, 'access_port': 0})
+    assert '"success": false' in response.text
+    assert response.status_code == 200
 
                                         
 def test_cron(app_dir, ssh_env_vars, device_host):

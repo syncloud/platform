@@ -14,32 +14,33 @@ def nocache(f):
 
 
 def redirect_if_not_activated(f):
-    platform_user_config = get_injector().user_platform_config
-    log = get_logger('redirect_if_not_activated')
 
     def new_func(*args, **kwargs):
-        try:
-            if platform_user_config.is_activated():
-                return make_response(f(*args, **kwargs))
-        except Exception as e:
-            log.error('unable to verify activation status, assume it is not activated, {0}'.format(str(e)))
-        
-        return redirect('/activate.html')
+        if _is_activated():
+            return make_response(f(*args, **kwargs))
+        else:
+            return redirect('/activate.html')
 
     return update_wrapper(new_func, f)
 
 
 def redirect_if_activated(f):
-    platform_user_config = get_injector().user_platform_config
-    log = get_logger('redirect_if_activated')
-
     def new_func(*args, **kwargs):
-        try:
-            if platform_user_config.is_activated():
-                return redirect('/')
-        except Exception as e:
-            log.error('unable to verify activation status, assume it is not activated, {0}'.format(str(e)))
-
-        return make_response(f(*args, **kwargs))
+        if _is_activated():
+            return redirect('/')
+        else:
+            return make_response(f(*args, **kwargs))
 
     return update_wrapper(new_func, f)
+
+
+def _is_activated():
+    log = get_logger('activated_check')
+    platform_user_config = get_injector().user_platform_config
+    activated = False
+    try:
+        activated = platform_user_config.is_activated()
+    except Exception as e:
+        log.error('unable to verify activation status, assume it is not activated, {0}'.format(str(e)))
+
+    return activated
