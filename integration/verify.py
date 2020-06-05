@@ -407,7 +407,7 @@ def test_set_access_error(device, device_host):
                                           'external_access': 'true', 'public_ip': 0,
                                           'certificate_port': 0, 'access_port': 0})
     assert '"success": false' in response.text
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
 
                                         
 def test_cron(app_dir, ssh_env_vars, device_host):
