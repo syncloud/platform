@@ -1,5 +1,4 @@
 import logging
-import shutil
 from os.path import join
 
 from syncloudlib import logger, fs
@@ -36,10 +35,6 @@ class PlatformInstaller:
             'app_data_prefix': config.APP_DATA_PREFIX
         }
         gen.generate_files(self.templates_path, self.config_dir, variables)
-
-        network_interface_file = join(self.config_dir, 'etc/network/interfaces')
-        network_interface_file_target = '/etc/network/interfaces'
-        shutil.copy(network_interface_file, network_interface_file_target)
 
         data_dirs = [
             join(self.data_dir, 'webapps'),
