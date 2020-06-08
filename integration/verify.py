@@ -415,7 +415,12 @@ def test_cron(app_dir, ssh_env_vars, device_host):
     run_ssh(device_host, '{0}/bin/cron'.format(app_dir),
             password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
 
-                                        
+
+def test_real_certificate(app_dir, ssh_env_vars, device_host):
+    run_ssh(device_host, '{0}/bin/generate_real_certificate.py'.format(app_dir),
+            password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+
+
 def test_install_app(device, device_host):
     session = device.login()
     session.get('https://{0}/rest/install?app_id={1}'.format(device_host, 'files'), verify=False)
