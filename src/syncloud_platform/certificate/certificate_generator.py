@@ -145,7 +145,7 @@ class CertificateGenerator:
         if not os.path.exists(self.platform_config.get_ssl_certificate_file()):
             return False
         cert = crypto.load_certificate(
-            crypto.FILETYPE_PEM, file(self.platform_config.get_ssl_certificate_file()).read())
+            crypto.FILETYPE_PEM, open(self.platform_config.get_ssl_certificate_file()).read())
         if cert.get_issuer().CN == cert.get_subject().CN:
             self.log.info('issuer: {0}'.format(cert.get_issuer().CN))
             self.log.info('self signed certificate')
