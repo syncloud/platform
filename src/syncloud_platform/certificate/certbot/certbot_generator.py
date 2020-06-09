@@ -90,7 +90,7 @@ class CertbotGenerator:
             return 0
 
         cert = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.certbot_certificate_file()).read())
-        days = expiry_date_string_to_days(cert.get_notAfter())
+        days = expiry_date_string_to_days(cert.get_notAfter().decode())
         return days
 
     def new_domains(self):
@@ -116,7 +116,7 @@ def get_subj_alt_name(peer_cert):
     for i in range(peer_cert.get_extension_count()):
         ext = peer_cert.get_extension(i)
         ext_name = ext.get_short_name()
-        if ext_name != 'subjectAltName':
+        if ext_name.decode() != 'subjectAltName':
             continue
 
         # PyOpenSSL returns extension data in ASN.1 encoded form
