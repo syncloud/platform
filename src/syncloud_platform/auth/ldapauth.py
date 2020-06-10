@@ -103,12 +103,12 @@ def authenticate(name, password):
     conn = ldap.initialize('ldap://localhost:389')
     try:
         conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
+    except ldap.INVALID_CREDENTIALS:
+        conn.unbind()
+        raise Exception('Invalid credentials')
     except Exception as e:
         conn.unbind()
-        if 'desc' in e:
-            raise Exception(e['desc'])
-        else:
-            raise Exception(str(e))
+        raise Exception(str(e))
 
 
 def make_secret(password):
