@@ -8,22 +8,11 @@ if [[ -z "$1" ]]; then
 fi
 
 DEVICE=$1
-
 PARTITION=1
 
 dd if=/dev/zero of=${DEVICE} bs=512 count=1 conv=notrunc
 export LD_LIBRARY_PATH=${DIR}/gptfdisk/lib
-echo "
-o
-p
-n
-p
-${PARTITION}
-
-
-p
-w
-q
-" | ${DIR}/gptfdisk/bin/gdisk ${DEVICE}
-
-mkfs.ext4 ${DEVICE}${PARTITION}
+${DIR}/gptfdisk/bin/sgdisk -o ${DEVICE}
+${DIR}/gptfdisk/bin/sgdisk -n ${PARTITION} ${DEVICE}
+${DIR}/gptfdisk/bin/sgdisk -p ${DEVICE}
+mkfs.ext4 -F ${DEVICE}${PARTITION}
