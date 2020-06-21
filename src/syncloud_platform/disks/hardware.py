@@ -8,14 +8,11 @@ from syncloud_platform.gaplib.linux import parted
 
 from syncloud_platform.rest.service_exception import ServiceException
 
-supported_fs_options = {
-    # 'vfat': 'rw,nosuid,relatime,fmask=0000,dmask=0000,codepage=437,iocharset=iso8859-1,'
-    #         'shortname=mixed,showexec,utf8,flush,errors=remount-ro',
-    # 'ntfs': 'rw,nosuid,relatime,user_id=0,group_id=0,permissions,allow_other,blksize=4096',
-    # 'exfat': 'rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other,blksize=4096',
-    'ext2': 'rw,nosuid,nodev,relatime',
-    'ext3': 'rw,nosuid,nodev,relatime',
-    'ext4': 'rw,nosuid,relatime,data=ordered'
+supported_fs = {
+    'ext2',
+    'ext3',
+    'ext4',
+    'raid'
 }
 
 EXTENDABLE_FREE_PERCENT = 10
@@ -66,13 +63,13 @@ class Hardware:
             raise Exception(error_message)
 
         fs_type = partition.fs_type
-        if fs_type not in supported_fs_options:
+        if fs_type not in supported_fs:
             error_message = 'Filesystem type is not supported: {0}' \
-                            ', use on of the following: {1}'.format(fs_type, supported_fs_options.keys())
+                            ', use on of the following: {1}'.format(fs_type, supported_fs)
             self.log.error(error_message)
             raise ServiceException(error_message)
 
-        self.systemctl.add_mount(device, fs_type, supported_fs_options[fs_type])
+        self.systemctl.add_mount(device)
 
         relink_disk(
             self.platform_config.get_disk_link(),

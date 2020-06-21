@@ -67,7 +67,7 @@ class Lsblk:
                 and self.path_checker.external_disk_link_exists():
             active = True
 
-        return Partition(lsblk_entry.size, lsblk_entry.name, mount_point, active, lsblk_entry.fs_type, mountable)
+        return Partition(lsblk_entry.size, lsblk_entry.name, mount_point, active, lsblk_entry.get_fs_type(), mountable)
 
     def is_external_disk_attached(self, lsblk_output=None, disk_dir=None):
         if not disk_dir:
@@ -140,6 +140,10 @@ class LsblkEntry:
         match = re.match(r'(.*?)p?\d*$', self.name)
         return match.group(1)
 
+    def get_fs_type(self):
+        if self.type.startswith('raid'):
+            return 'raid'
+        return self.fs_type
 
 class Partition:
     def __init__(self, size, device, mount_point, active, fs_type, mountable):
