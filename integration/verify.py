@@ -15,6 +15,11 @@ from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+from syncloudlib.application.storage import init_storage
+from syncloudlib.application.service import restart
+from syncloudlib.application.paths import get_data_dir, get_app_dir
+from syncloudlib.application.config import set_dkim_key, get_dkim_key
+from syncloudlib.application.urls import get_app_url
 
 
 DIR = dirname(__file__)
@@ -48,7 +53,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
     request.addfinalizer(module_teardown)
 
 
-def test_start(module_setup, device, app, domain, device_host):
+def test_start(module_setup, device, app, domain, device_host, data_dir):
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
     device.run_ssh('mkdir /log', throw=True)
@@ -227,42 +232,31 @@ def test_app_unix_socket(app_dir, data_dir, app_data_dir, device_domain, device)
     assert response.text == 'OK', response.text
 
 
-def test_api_service_restart(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python '
-                                   '/integration/api_wrapper_service_restart.py '
-                                   'platform.nginx-public'.format(app_dir),
-                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
-    assert 'OK' in response, response
+def test_api_service_restart():
+    status = restart('platform.nginx-public')
+    assert 'OK' in status, status
 
 
-def test_api_install_path(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_dir.py platform'.format(app_dir),
-                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+def test_api_install_path(app_dir):
+    response = get_app_dir('platform')
     assert app_dir in response, response
  
     
-def test_api_config_dkim_key(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python '
-                                   '/integration/api_wrapper_config_set_dkim_key.py dkim123'.format(app_dir),
-                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+def test_api_config_dkim_key():
+    response = set_dkim_key('dkim123')
     assert 'OK' in response, response
 
-    response = run_ssh(app_domain, '{0}/python/bin/python '
-                                   '/integration/api_wrapper_config_get_dkim_key.py'.format(app_dir),
-                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    response = get_dkim_key()
     assert 'dkim123' in response, response
 
  
-def test_api_data_path(app_dir, data_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python '
-                                   '/integration/api_wrapper_data_dir.py platform'.format(app_dir),
-                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+def test_api_data_path(data_dir):
+    response = get_data_dir('platform')
     assert data_dir in response, response
 
  
-def test_api_url(app_dir, app_domain, ssh_env_vars):
-    response = run_ssh(app_domain, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),
-                       password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+def test_api_url(app_domain):
+    response = get_app_url('platform')
     assert app_domain in response, response
 
 
@@ -360,7 +354,7 @@ def test_device_url(device, device_host, artifact_dir):
     assert response.status_code == 200
 
 
-def test_api_url_443(device, device_host, app_dir, ssh_env_vars, app_domain):
+def test_api_url_443(device, device_host, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
@@ -374,14 +368,13 @@ def test_api_url_443(device, device_host, app_dir, ssh_env_vars, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
-    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),
-                  password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    url = get_app_url('platform')
    
     assert app_domain in url, url
     assert 'https' in url, url
 
 
-def test_api_url_10000(device, device_host, app_dir, ssh_env_vars, app_domain):
+def test_api_url_10000(device, device_host, app_domain):
 
     response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                   params={'upnp_enabled': 'false',
@@ -393,8 +386,7 @@ def test_api_url_10000(device, device_host, app_dir, ssh_env_vars, app_domain):
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
-    url = run_ssh(device_host, '{0}/python/bin/python /integration/api_wrapper_app_url.py platform'.format(app_dir),
-                  password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+    url = get_app_url('platform')
    
     assert app_domain in url, url
     assert 'https' in url, url
@@ -555,21 +547,21 @@ def disk_activate(loop, device, device_host, ssh_env_vars, app_dir):
     response = device.login().get('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
                                   params={'device': loop})
     assert response.status_code == 200
-    return current_disk_link(device_host, ssh_env_vars, app_dir)
+    return current_disk_link(device)
 
 
 def disk_deactivate(loop, device, device_host, ssh_env_vars, app_dir):
     response = device.login().get('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
                                   params={'device': loop})
     assert response.status_code == 200
-    return current_disk_link(device_host, ssh_env_vars, app_dir)
+    return current_disk_link(device)
 
 
-def current_disk_link(device_host, ssh_env_vars, app_dir):
-    return run_ssh(device_host,
-                   '{0}/python/bin/python /integration/api_wrapper_storage_init.py platform root'.format(app_dir),
-                   password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
-
+def current_disk_link(device):
+    link = init_storage('platform', 'root')
+    dir = device.run_ssh("realpath {}".format(link))
+    return dir
+    
 
 def test_if_cron_is_enabled_after_install(device_host):
     cron_is_enabled_after_install(device_host)

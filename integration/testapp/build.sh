@@ -5,6 +5,7 @@ ARCH=$(uname -m)
 BUILD_DIR=${DIR}/build
 mkdir ${BUILD_DIR}
 
+rm -rf python3-${ARCH}.tar.gz
 wget --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python3-${ARCH}.tar.gz
 tar xf python3-${ARCH}.tar.gz
 mv python3 ${BUILD_DIR}/python

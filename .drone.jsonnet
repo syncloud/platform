@@ -46,6 +46,9 @@ local build(arch, distro) = {
             name: "test-intergation",
             image: "syncloud/build-deps-" + arch,
             commands: [
+              "./integration/wait-ssh.sh",
+              "mkdir -p /var/snap/platform/common",
+              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device",
               "pip2 install -r dev_requirements.txt",
               "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
               "DOMAIN=$(cat domain)",
