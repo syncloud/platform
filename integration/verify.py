@@ -10,7 +10,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from syncloudlib.http import wait_for_response
 from syncloudlib.integration.hosts import add_host_alias_by_ip
-from syncloudlib.integration.installer import local_install, wait_for_installer, get_data_dir
+from syncloudlib.integration.installer import local_install, wait_for_installer
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
 
@@ -30,7 +30,7 @@ LOGS_SSH_PASSWORD = DEFAULT_LOGS_SSH_PASSWORD
 
 @pytest.fixture(scope="session")
 def app_data_dir():
-    return get_data_dir('app')
+    return '/var/snap/{0}/common'.format('app')
 
 
 @pytest.fixture(scope="session")
@@ -40,6 +40,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
         device.scp_to_device('{0}/config.runtime'.format(data_dir), artifact_dir)
         device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('/snap/platform/current/bin/cli ipv4 public > {0}/cli.ipv4.public.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)    #
         device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)    
@@ -53,7 +54,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
     request.addfinalizer(module_teardown)
 
 
-def test_start(module_setup, device, app, domain, device_host, data_dir):
+def test_start(module_setup, device, app, domain, device_host, log_dir):
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
     device.run_ssh('mkdir /log', throw=True)
@@ -90,19 +91,13 @@ def test_https_port_validation_url(device_host):
 
 def test_non_activated_device_login_redirect_to_activation(device_host):
     response = requests.post('https://{0}/rest/login'.format(device_host), allow_redirects=False, verify=False)
-    assert response.status_code == 302
-    assert response.headers['Location'] == 'https://{0}/activate.html'.format(device_host)
+    assert response.status_code == 501
 
 
 def test_activation_status_false(device_host):
     response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 200
     assert not json.loads(response.text)["activated"], response.text
-
-
-def test_non_activated_activate_page(device_host):
-    response = requests.get('https://{0}/activate.html'.format(device_host), allow_redirects=False, verify=False)
-    assert response.status_code == 200
 
 
 def test_id_redirect_backward_compatibility(device_host):
@@ -119,7 +114,7 @@ def test_id_before_activation(device_host):
 
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             data={'main_domain': main_domain,
+                             json={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
@@ -127,29 +122,30 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
 
-   
-def test_reactivate_bad(device_host, domain, main_domain, device_user, device_password,
-                        redirect_user, redirect_password):
+
+def test_reactivate_activated_device(device_host, domain, main_domain, device_user, device_password,
+                                     redirect_user, redirect_password):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             data={'main_domain': main_domain,
+                             json={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, allow_redirects=False, verify=False)
-    assert response.status_code == 302
+    assert response.status_code == 502
 
 
-def test_drop_activation(device_host):
-    run_ssh(device_host, 'rm /var/snap/platform/common/platform.db', password=LOGS_SSH_PASSWORD)
+def test_drop_activation(device):
+    device.run_ssh('rm /var/snap/platform/common/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/common')
 
 
 def test_reactivate_good(device_host, domain, main_domain, device_user, device_password,
                          redirect_user, redirect_password, device):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             data={'main_domain': main_domain,
+                             json={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
@@ -177,7 +173,7 @@ def test_reactivate_after_deactivate(device_host, domain, main_domain, device_us
                          redirect_user, redirect_password, device):
 
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             data={'main_domain': main_domain,
+                             json={'main_domain': main_domain,
                                    'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
@@ -195,14 +191,8 @@ def test_activation_status_true(device_host):
     assert json.loads(response.text)["activated"], response.text
 
     
-def test_public_web_unauthorized_browser_redirect(device_host):
+def test_unauthorized(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
-    assert response.status_code == 302
-
-
-def test_public_web_unauthorized_ajax_not_redirect(device_host):
-    response = requests.get('https://{0}/rest/user'.format(device_host),
-                            allow_redirects=False, verify=False, headers={'X-Requested-With': 'XMLHttpRequest'})
     assert response.status_code == 401
 
 
@@ -288,15 +278,16 @@ def test_certbot_cli(app_dir, device_host):
 
 
 def test_openssl_cli(app_dir, device_host):
-    run_ssh(device_host, '{0}/openssl/bin/openssl --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, '{0}/openssl/bin/openssl help'.format(app_dir), password=LOGS_SSH_PASSWORD)
 
 
 def test_set_access_mode_with_certbot(device, device_host):
 
-    response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                  params={'upnp_enabled': 'false',
-                                          'external_access': 'false', 'public_ip': 0,
-                                          'certificate_port': 0, 'access_port': 0})
+    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+                                   json={'upnp_enabled': False,
+                                         'external_access': False,
+                                         'public_ip': 0,
+                                         'certificate_port': 0, 'access_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -325,14 +316,14 @@ def test_get_access(device, device_host):
 
 
 def test_network_interfaces(device, device_host):
-    response = device.login().get('https://{0}/rest/access/network_interfaces'.format(device_host), verify=False,)
+    response = device.login().get('https://{0}/rest/access/network_interfaces'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
 def test_send_logs(device, device_host):
-    response = device.login().get('https://{0}/rest/send_log?include_support=false'.format(device_host), verify=False,)
+    response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(device_host), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
@@ -359,10 +350,10 @@ def test_api_url_443(device, device_host, app_domain):
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                  params={'upnp_enabled': 'false',
-                                          'external_access': 'false', 'public_ip': 0,
-                                          'certificate_port': 443, 'access_port': 443})
+    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+                                   json={'upnp_enabled': False,
+                                         'external_access': False, 'public_ip': 0,
+                                         'certificate_port': 443, 'access_port': 443})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -376,10 +367,10 @@ def test_api_url_443(device, device_host, app_domain):
 
 def test_api_url_10000(device, device_host, app_domain):
 
-    response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                  params={'upnp_enabled': 'false',
-                                          'external_access': 'false', 'public_ip': 0,
-                                          'certificate_port': 80, 'access_port': 10000})
+    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+                                   json={'upnp_enabled': False,
+                                         'external_access': False, 'public_ip': 0,
+                                         'certificate_port': 80, 'access_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -394,10 +385,10 @@ def test_api_url_10000(device, device_host, app_domain):
 
 def test_set_access_error(device, device_host):
 
-    response = device.login().get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                  params={'upnp_enabled': 'false',
-                                          'external_access': 'true', 'public_ip': 0,
-                                          'certificate_port': 0, 'access_port': 0})
+    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+                                   json={'upnp_enabled': False,
+                                         'external_access': True, 'public_ip': 0,
+                                         'certificate_port': 0, 'access_port': 0})
     assert '"success": false' in response.text
     assert 'Unable to verify open ports' in response.text
     assert response.status_code == 500, response.text
@@ -415,7 +406,7 @@ def test_real_certificate(app_dir, ssh_env_vars, device_host):
 
 def test_install_app(device, device_host):
     session = device.login()
-    session.get('https://{0}/rest/install?app_id={1}'.format(device_host, 'files'), verify=False)
+    session.post('https://{0}/rest/install'.format(device_host), json={'app_id': 'files'}, verify=False)
     wait_for_installer(session, device_host)
 
 
@@ -446,12 +437,12 @@ def test_rest_not_installed_app(device, device_host, artifact_dir):
 
 def test_installer_upgrade(device, device_host):
     session = device.login()
-    response = device.http_get('/rest/installer/upgrade')
+    response = session.post('https://{0}/rest/installer/upgrade'.format(device_host), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
 
-    response = device.http_get('/rest/installer/upgrade')
+    response = session.post('https://{0}/rest/installer/upgrade'.format(device_host), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
@@ -460,8 +451,7 @@ def test_installer_upgrade(device, device_host):
 def test_backup_app(device, artifact_dir, device_host):
     
     session = device.login()
-    
-    response = device.http_get('/rest/backup/create?app=files')
+    response = session.post('https://{0}/rest/backup/create'.format(device_host), json={'app': 'files'}, verify=False)
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
@@ -475,7 +465,7 @@ def test_backup_app(device, artifact_dir, device_host):
     backup = json.loads(response.text)['data'][0]
     device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
     
-    response = device.http_get('/rest/backup/restore?app=files&file={0}/{1}'.format(backup['path'], backup['file']))
+    response = session.post('https://{0}/rest/backup/restore?app=files&file={0}/{1}'.format(device_host, backup['path'], backup['file']), verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
                       lambda r:  json.loads(r.text)['data'] == 'JobStatusIdle')
@@ -544,15 +534,15 @@ def disk_activate(loop, device, device_host, ssh_env_vars, app_dir):
     assert loop in response.text
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
-                                  params={'device': loop})
+    response = device.login().post('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
+                                  json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
 
 
 def disk_deactivate(loop, device, device_host, ssh_env_vars, app_dir):
-    response = device.login().get('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
-                                  params={'device': loop})
+    response = device.login().post('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
+                                  json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
 
@@ -601,3 +591,4 @@ def test_nginx_performance(device_host):
 
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
+

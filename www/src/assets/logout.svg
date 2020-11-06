@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27.01 23">
+    <defs>
+        <style>.cls-1{isolation:isolate;}.cls-2{fill:#fff;fill-rule:evenodd;}</style>
+    </defs>
+    <title>logout</title>
+    <g id="Rectangle_3" data-name="Rectangle 3" class="cls-1">
+        <g id="Rectangle_3-2" data-name="Rectangle 3">
+            <path class="cls-2"
+                  d="M4.85,18.2a2,2,0,0,1-.61-1.47V6.27A2,2,0,0,1,4.85,4.8a2,2,0,0,1,1.46-.62H16.7V0.31A18.84,18.84,0,0,0,14.33.16l-4-.11L8.39,0A8,8,0,0,0,2.52,2.46,8.08,8.08,0,0,0,.08,8.36v6.27a8.08,8.08,0,0,0,2.44,5.91A8,8,0,0,0,8.39,23h6.23a7.58,7.58,0,0,0,2.08-.31V18.82H6.31A2,2,0,0,1,4.85,18.2Zm22.24-6.7L18.78,4.18V8.36H12.54v6.27h6.23v4.18Z"
+                  transform="translate(-0.08 0)"/>
+        </g>
+    </g>
+</svg>

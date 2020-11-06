@@ -103,7 +103,6 @@ class Device:
         if not internet_ok:
             raise Exception('Internet is not available, check your device connection')
 
-        
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         self.logger.info('set_access: external_access={0}'.format(external_access))
 

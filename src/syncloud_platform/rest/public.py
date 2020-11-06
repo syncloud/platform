@@ -10,7 +10,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 
 from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.injector import get_injector
-from syncloud_platform.rest.flask_decorators import nocache, redirect_if_not_activated, redirect_if_activated
+from syncloud_platform.rest.flask_decorators import nocache, fail_if_not_activated, fail_if_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.gaplib import linux
@@ -31,10 +31,7 @@ login_manager.init_app(app)
 
 @login_manager.unauthorized_handler
 def _callback():
-    if request.is_xhr:
-        return 'Unauthorised', 401
-    else:
-        return redirect('/login.html')
+    return 'Unauthorised', 401
 
 
 @app.route("/rest/id", methods=["GET"])
@@ -51,23 +48,24 @@ def activation_status():
 
 
 @app.route("/rest/activate", methods=["POST"])
-@redirect_if_activated
+@fail_if_activated
 def activate():
 
-    device_username = request.form['device_username'].lower()
-    device_password = request.form['device_password']
+    request_json = request.json
+    device_username = request_json['device_username'].lower()
+    device_password = request_json['device_password']
         
     validator = InternalValidator()
     validator.validate(device_username, device_password)
     
     main_domain = 'syncloud.it'
-    if 'main_domain' in request.form:
-        main_domain = request.form['main_domain']
+    if 'main_domain' in request_json:
+        main_domain = request_json['main_domain']
 
     internal.activate(
-        request.form['redirect_email'],
-        request.form['redirect_password'],
-        request.form['user_domain'],
+        request_json['redirect_email'],
+        request_json['redirect_password'],
+        request_json['user_domain'],
         device_username,
         device_password,
         main_domain
@@ -76,17 +74,18 @@ def activate():
 
 
 @app.route("/rest/activate_custom_domain", methods=["POST"])
-@redirect_if_activated
+@fail_if_activated
 def activate_custom_domain():
 
-    device_username = request.form['device_username'].lower()
-    device_password = request.form['device_password']
+    request_json = request.json
+    device_username = request_json['device_username'].lower()
+    device_password = request_json['device_password']
         
     validator = InternalValidator()
     validator.validate(device_username, device_password)
 
     internal.activate_custom_domain(
-        request.form['full_domain'],
+        request_json['full_domain'],
         device_username,
         device_password,
     )
@@ -98,14 +97,14 @@ def load_user(email):
     return FlaskUser(User(email))
 
 
-@app.route("/rest/login", methods=["GET", "POST"])
-@redirect_if_not_activated
+@app.route("/rest/login", methods=["POST"])
+@fail_if_not_activated
 def login():
-
-    if 'name' in request.form and 'password' in request.form:
+    request_json = request.json
+    if 'username' in request_json and 'password' in request_json:
         try:
-            authenticate(request.form['name'], request.form['password'])
-            user_flask = FlaskUser(User(request.form['name']))
+            authenticate(request_json['username'], request_json['password'])
+            user_flask = FlaskUser(User(request_json['username']))
             login_user(user_flask, remember=False)
             # next_url = request.get('next_url', '/')
             return redirect("/")
@@ -117,7 +116,7 @@ def login():
 
 
 @app.route("/rest/logout", methods=["POST"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def logout():
     logout_user()
@@ -125,122 +124,113 @@ def logout():
 
 
 @app.route("/rest/user", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
 @app.route("/rest/installed_apps", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def installed_apps():
     return jsonify(apps=convertible.to_dict(public.installed_apps())), 200
 
 
 @app.route("/rest/app", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def app_status():
     return jsonify(info=convertible.to_dict(public.get_app(request.args['app_id']))), 200
 
 
-@app.route("/rest/install", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/install", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def install():
-    public.install(request.args['app_id'])
-    return 'OK', 200
+    public.install(request.json['app_id'])
+    return jsonify(success=True), 200
 
 
-@app.route("/rest/remove", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/remove", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def remove():
-    return jsonify(message=public.remove(request.args['app_id'])), 200
+    return jsonify(message=public.remove(request.json['app_id'])), 200
 
 
-@app.route("/rest/restart", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/restart", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def restart():
     public.restart()
-    return 'OK', 200
+    return jsonify(success=True), 200
 
 
-@app.route("/rest/shutdown", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/shutdown", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def shutdown():
     public.shutdown()
-    return 'OK', 200
+    return jsonify(success=True), 200
 
 
-@app.route("/rest/upgrade", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/upgrade", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def upgrade():
-
-    force = False
-    if 'force' in request.args:
-        force = request.args['force'] == 'true'
-
-    channel = public.platform_config.get_channel()
-    if 'channel' in request.args:
-        channel = request.args['channel']
-
-    public.upgrade(request.args['app_id'], channel, force)
-
-    return 'OK', 200
+    public.upgrade(request.json['app_id'])
+    return jsonify(success=True), 200
 
 
 @app.route("/rest/available_apps", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
 @app.route("/rest/access/port_mappings", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def port_mappings():
     return jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
 
 
 @app.route("/rest/access/access", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def access():
     return jsonify(success=True, data=public.access()), 200
 
 
-@app.route("/rest/access/set_access", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/access/set_access", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def set_access():
     public_ip = None
-    if 'public_ip' in request.args:
-        public_ip = request.args['public_ip']
+    request_json = request.json
+    if 'public_ip' in request_json:
+        public_ip = request_json['public_ip']
     public.set_access(
-        request.args['upnp_enabled'] == 'true',
-        request.args['external_access'] == 'true',
+        request_json['upnp_enabled'],
+        request_json['external_access'],
         public_ip,
-        int(request.args['certificate_port']),
-        int(request.args['access_port'])
+        int(request_json['certificate_port']),
+        int(request_json['access_port'])
     )
     return jsonify(success=True), 200
 
 
 @app.route("/rest/access/network_interfaces", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def network_interfaces():
     return jsonify(success=True, data=dict(interfaces=public.network_interfaces())), 200
 
 
-@app.route("/rest/send_log", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/send_log", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def send_log():
     include_support = request.args['include_support'] == 'true'
@@ -249,63 +239,63 @@ def send_log():
 
 
 @app.route("/rest/settings/device_domain", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def device_domain():
     return jsonify(success=True, device_domain=public.domain()), 200
 
 
 @app.route("/rest/settings/device_url", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def device_url():
     return jsonify(success=True, device_url=public.device_url()), 200
 
 
 @app.route("/rest/settings/disks", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def disks():
     return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
 
 
 @app.route("/rest/settings/boot_disk", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def boot_disk():
     return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
 
 
-@app.route("/rest/settings/disk_activate", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/settings/disk_activate", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def disk_activate():
-    return jsonify(success=True, disks=public.disk_activate(request.args['device'])), 200
+    return jsonify(success=True, disks=public.disk_activate(request.json['device'])), 200
 
 
 @app.route("/rest/settings/versions", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def versions():
     return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
 
 
 @app.route("/rest/settings/installer_status", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def installer_status():
     return jsonify(is_running=public.installer_status()), 200
 
 
-@app.route("/rest/settings/disk_deactivate", methods=["GET"])
-@redirect_if_not_activated
+@app.route("/rest/settings/disk_deactivate", methods=["POST"])
+@fail_if_not_activated
 @login_required
 def disk_deactivate():
     return jsonify(success=True, disks=public.disk_deactivate()), 200
 
 
 @app.route("/rest/settings/regenerate_certificate", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def regenerate_certificate():
     public.regenerate_certificate()
@@ -313,15 +303,16 @@ def regenerate_certificate():
 
 
 @app.route("/rest/settings/deactivate", methods=["POST"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def deactivate():
+    logout_user()
     public.user_platform_config.set_deactivated()
     return jsonify(success=True), 200
 
 
 @app.route("/rest/app_image", methods=["GET"])
-@redirect_if_not_activated
+@fail_if_not_activated
 @login_required
 def app_image():
     channel = request.args['channel']
@@ -331,15 +322,19 @@ def app_image():
                     content_type=r.headers['Content-Type'])
 
 
-@app.route("/rest/backup/<path:path>", methods=["GET"])
-@app.route("/rest/installer/<path:path>", methods=["GET"])
-@app.route("/rest/job/<path:path>", methods=["GET"])
-@app.route("/rest/storage/<path:path>", methods=["POST"])
-@app.route("/rest/event/<path:path>", methods=["POST"])
-@redirect_if_not_activated
+@app.route("/rest/backup/list", methods=["GET"])
+@app.route("/rest/backup/create", methods=["POST"])
+@app.route("/rest/backup/restore", methods=["POST"])
+@app.route("/rest/backup/remove", methods=["POST"])
+@app.route("/rest/installer/upgrade", methods=["POST"])
+@app.route("/rest/job/status", methods=["GET"])
+@app.route("/rest/storage/disk_format", methods=["POST"])
+@app.route("/rest/storage/boot_extend", methods=["POST"])
+@app.route("/rest/event/trigger", methods=["POST"])
+@fail_if_not_activated
 @login_required
-def backend_proxy(path):
-    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.form)
+def backend_proxy():
+    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
 
 

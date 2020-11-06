@@ -16,7 +16,7 @@ func New() *Trigger {
 	}
 }
 
-func (storage *Trigger) RunEventOnAllAps(event string) error {
+func (storage *Trigger) RunEventOnAllApps(event string) error {
 
 	snaps, err := storage.snap.ListAllApps()
 	if err != nil {

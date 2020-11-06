@@ -24,13 +24,11 @@ class Snap:
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={'action': 'install'})
         self.logger.info("install response: {0}".format(response.text))
 
-    def upgrade(self, app_id, channel, force):
+    def upgrade(self, app_id):
         self.logger.info('snap upgrade')
         session = requests_unixsocket.Session()
         response = session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={
-            'action': 'refresh',
-            'channel': channel,
-            'ignore-validation': force
+            'action': 'refresh'
         })
         self.logger.info("refresh response: {0}".format(response.text))
         snapd_response = json.loads(response.text)

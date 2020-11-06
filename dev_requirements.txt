@@ -3,5 +3,5 @@ responses==0.5.0
 mockito
 selenium==3.141.0
 requests==2.11.1
-syncloud-lib==193
+syncloud-lib==197
 urllib3==1.25.9

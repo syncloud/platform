@@ -18,11 +18,41 @@ local build(arch, distro) = {
             ]
         },
         {
-            name: "build",
+            name: "build web",
+            image: "node",
+            commands: [
+                "mkdir -p build/platform",
+                "cd www",
+                "npm install --unsafe-perm=true",
+                "npm run test",
+                "npm run lint",
+                "npm run build",
+                "cp -r dist ../build/platform/www"
+            ]
+        },
+        {
+            name: "build backend",
+            image: "golang:1.14",
+            commands: [
+                "cd backend",
+                "go test ./... -cover",
+                "CGO_ENABLED=0 go build -o ../build/platform/bin/backend cmd/backend/main.go",
+                "CGO_ENABLED=0 go build -o ../build/platform/bin/cli cmd/cli/main.go"
+            ]
+        },
+        {
+            name: "build uwsgi",
+            image: "syncloud/build-deps-" + arch,
+            commands: [
+                "./build-uwsgi.sh"
+            ]
+        },
+        {
+            name: "package",
             image: "syncloud/build-deps-" + arch,
             commands: [
                 "VERSION=$(cat version)",
-                "./build.sh " + name + " $VERSION",
+                "./build.sh $VERSION",
                 "./integration/testapp/build.sh "
             ]
         },
@@ -31,15 +61,6 @@ local build(arch, distro) = {
             image: "syncloud/build-deps-" + arch,
             commands: [
                 "./unit-test.sh",
-            ]
-        },
-        {
-            name: "test-js",
-            image: "syncloud/build-deps-" + arch,
-            commands: [
-              "export PATH=$(pwd)/node/bin:$PATH",
-              "cd www",
-              "npm run test"
             ]
         },
         {

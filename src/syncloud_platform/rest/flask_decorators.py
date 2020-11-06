@@ -13,21 +13,20 @@ def nocache(f):
     return update_wrapper(new_func, f)
 
 
-def redirect_if_not_activated(f):
-
+def fail_if_not_activated(f):
     def new_func(*args, **kwargs):
         if _is_activated():
             return make_response(f(*args, **kwargs))
         else:
-            return redirect('/activate.html')
+            return 'Device is not activated', 501
 
     return update_wrapper(new_func, f)
 
 
-def redirect_if_activated(f):
+def fail_if_activated(f):
     def new_func(*args, **kwargs):
         if _is_activated():
-            return redirect('/')
+            return 'Device is activated', 502
         else:
             return make_response(f(*args, **kwargs))
 
