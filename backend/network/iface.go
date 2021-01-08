@@ -27,8 +27,8 @@ func LocalIPv6() (net.IP, error) {
 }
 
 func PublicIPv4() (string, error) {
-	url := "https://api.ipify.org?format=text"
-	// http://myexternalip.com
+	//url := "https://api.ipify.org?format=text"
+	url := "https://myexternalip.com/raw"
 	// http://api.ident.me
 	// http://whatismyipaddress.com/api
 	resp, err := http.Get(url)
