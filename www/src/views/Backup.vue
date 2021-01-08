@@ -8,7 +8,7 @@
         </div>
         <div class="row-no-gutters settingsblock">
 
-          <div id="backupGrid" style="width: 100%; height: 100%" class="ag-theme-balham"></div>
+          <div id="backupGrid" style="width: 100%; height: 300px" class="ag-theme-balham"></div>
 
         </div>
 
@@ -102,8 +102,8 @@ export default {
           cellRenderer: (params) => {
             const div = document.createElement('div')
             div.innerHTML = `
-                <i class='fa fa-undo' style='padding-left: 20px;  cursor:pointer;'></i>
-                <i class='fa fa-trash' style='padding-left: 20px;  cursor:pointer;'></i>
+                <i class='fa fa-undo fa-2x' style='padding-left: 20px;  cursor:pointer;'></i>
+                <i class='fa fa-trash fa-2x' style='padding-left: 20px;  cursor:pointer;'></i>
              `
             const buttons = div.querySelectorAll('i')
             buttons[0].addEventListener('click', () => {
@@ -124,12 +124,13 @@ export default {
           }
         }
       ],
-      suppressDragLeaveHidesColumns: true,
-      domLayout: 'autoHeight'
+      suppressDragLeaveHidesColumns: true
     }
 
     const eGridDiv = document.querySelector('#backupGrid')
+    eGridDiv.innerHTML = ''
     this.grid = new Grid(eGridDiv, this.gridOptions)
+    console.log('grid')
     this.reload()
   },
   methods: {
