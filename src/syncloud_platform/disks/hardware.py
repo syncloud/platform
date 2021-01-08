@@ -65,7 +65,7 @@ class Hardware:
         fs_type = partition.fs_type
         if fs_type not in supported_fs:
             error_message = 'Filesystem type is not supported: {0}' \
-                            ', use on of the following: {1}'.format(fs_type, supported_fs)
+                            ', use one of the following: {1}'.format(fs_type, supported_fs)
             self.log.error(error_message)
             raise ServiceException(error_message)
 

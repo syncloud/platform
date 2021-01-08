@@ -176,6 +176,7 @@ def test_installed_app(driver, ui_mode, screenshot_dir):
 def test_remove_app(driver, ui_mode, screenshot_dir):
     remove = 'btn_remove'
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
+    wait_for_loading(driver)
     driver.find_element_by_id(remove).click()
     confirm = 'btn_confirm'
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
@@ -187,6 +188,7 @@ def test_remove_app(driver, ui_mode, screenshot_dir):
 def test_install_app(driver, ui_mode, screenshot_dir):
     install = 'btn_install'
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
+    wait_for_loading(driver)
     driver.find_element_by_id(install).click()
     confirm = 'btn_confirm'
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
