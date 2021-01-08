@@ -233,6 +233,7 @@ def menu(driver, ui_mode, screenshot_dir, element_id):
             element.click()
             if ui_mode == "mobile":
                 wait_driver.until(EC.invisibility_of_element_located((By.ID, find_id)))
+            wait_for_loading(driver)
             return
         except Exception as e:
             exception = e
@@ -264,3 +265,9 @@ def settings(driver, screenshot_dir, ui_mode, setting):
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, setting)))
     setting = driver.find_element_by_id(setting)
     setting.click()
+    wait_for_loading(driver)
+
+
+def wait_for_loading(driver):
+    wait_driver = WebDriverWait(driver, 120)
+    wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'loadingoverlay')))
