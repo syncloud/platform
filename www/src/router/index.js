@@ -14,7 +14,8 @@ const routes = [
   { path: '/storage', name: 'Storage', component: () => import('../views/Storage.vue') },
   { path: '/internalmemory', name: 'InternalMemory', component: () => import('../views/InternalMemory.vue') },
   { path: '/updates', name: 'Updates', component: () => import('../views/Updates.vue') },
-  { path: '/support', name: 'Support', component: () => import('../views/Support.vue') }
+  { path: '/support', name: 'Support', component: () => import('../views/Support.vue') },
+  { path: '/:catchAll(.*)', redirect: '/' }
 ]
 
 const router = createRouter({
