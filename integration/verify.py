@@ -207,21 +207,6 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_app_unix_socket(app_dir, data_dir, app_data_dir, device_domain, device):
-    
-    nginx_template = '{0}/nginx.app.test.conf'.format(DIR)
-    nginx_runtime = '{0}/nginx.app.test.conf.runtime'.format(DIR)
-    generate_file_jinja(nginx_template, nginx_runtime, {'app_data': app_data_dir, 'platform_data': data_dir})
-    device.scp_to_device(nginx_runtime, '/')
-    device.run_ssh('mkdir -p {0}'.format(app_data_dir))
-    device.run_ssh('{0}/nginx/sbin/nginx '
-                   '-c /nginx.app.test.conf.runtime '
-                   '-g \'error_log {1}/log/test_nginx_app_error.log warn;\''.format(app_dir, data_dir))
-    response = requests.get('https://app.{0}'.format(device_domain), timeout=60, verify=False)
-    assert response.status_code == 200
-    assert response.text == 'OK', response.text
-
-
 def test_api_service_restart():
     status = restart('platform.nginx-public')
     assert 'OK' in status, status
@@ -248,27 +233,6 @@ def test_api_data_path(data_dir):
 def test_api_url(app_domain):
     response = get_app_url('platform')
     assert app_domain in response, response
-
-
-def generate_file_jinja(from_path, to_path, variables):
-    from_path_dir, from_path_filename = split(from_path)
-    loader = jinja2.FileSystemLoader(searchpath=from_path_dir)
-
-    env_parameters = dict(
-        loader=loader,
-        # some files like udev rules want empty lines at the end
-        # trim_blocks=True,
-        # lstrip_blocks=True,
-        undefined=jinja2.StrictUndefined
-    )
-    environment = jinja2.Environment(**env_parameters)
-    template = environment.get_template(from_path_filename)
-    output = template.render(variables)
-    to_path_dir = dirname(to_path)
-    if not isdir(to_path_dir):
-        makedirs(to_path_dir)
-    with open(to_path, 'wb+') as fh:
-        fh.write(output.encode("UTF-8"))
 
 
 def test_certbot_cli(app_dir, device_host):
