@@ -15,4 +15,5 @@ export LD_LIBRARY_PATH=${DIR}/gptfdisk/lib
 ${DIR}/gptfdisk/bin/sgdisk -o ${DEVICE}
 ${DIR}/gptfdisk/bin/sgdisk -n ${PARTITION} ${DEVICE}
 ${DIR}/gptfdisk/bin/sgdisk -p ${DEVICE}
-mkfs.ext4 -F ${DEVICE}${PARTITION}
+PARTITION_DEVICE=$(lsblk -pl -o NAME,TYPE ${DEVICE} | grep part | awk '{print $1}')
+mkfs.ext4 -F ${PARTITION_DEVICE}
