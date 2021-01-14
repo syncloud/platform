@@ -10,6 +10,26 @@ PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "^${PARTITION_NU
 PART_START_SECTORS=$(expr ${PART_START_BYTES} / 512)
 PART_END_SECTORS=$(expr ${DEVICE_SIZE_BYTES} / 512 - 1)
 
+PTTYPE=$(fdisk -l ${DEVICE} | grep "Disklabel type:" | awk '{ print $3 }')
+if [[ $PTTYPE == "gpt" ]]; then
+  GPT_BACKUP_HEADER_SIZE=33
+  PART_END_SECTORS=$(expr ${PART_END_SECTORS} - ${GPT_BACKUP_HEADER_SIZE})
+
+echo "
+p
+d
+${PARTITION_NUM}
+p
+n
+${PARTITION_NUM}
+${PART_START_SECTORS}
+${PART_END_SECTORS}
+p
+w
+" | fdisk ${DEVICE}
+
+else
+
 echo "
 p
 d
@@ -24,6 +44,8 @@ p
 w
 q
 " | fdisk ${DEVICE}
+
+fi
 
 partprobe
 

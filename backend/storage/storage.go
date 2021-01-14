@@ -10,7 +10,7 @@ type Storage struct {
 
 const (
 	STORAGE_FORMAT_CMD      = "/snap/platform/current/bin/disk_format.sh"
-	STORAGE_BOOT_EXTEND_CMD = "/snap/platform/current/bin/resize-sd-partition.sh"
+	STORAGE_BOOT_EXTEND_CMD = "/snap/platform/current/bin/boot_extend.sh"
 )
 
 func New() *Storage {
