@@ -24,4 +24,4 @@ ldd ${PYTHON_DIR}/bin/uwsgi
 cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${PYTHON_DIR}/lib
 cp --remove-destination /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libuuid.so* ${PYTHON_DIR}/lib
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libjansson.so* ${PYTHON_DIR}/lib
-${PYTHON_DIR}/bin/uwsgi --help
+#${PYTHON_DIR}/bin/uwsgi --help
