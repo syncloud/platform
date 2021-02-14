@@ -1,9 +1,9 @@
 import getpass
 import uuid
 
-from syncloudlib import logger, fs
 import requests
 from syncloud_platform.config.config import WEB_CERTIFICATE_PORT, WEB_ACCESS_PORT, WEB_PROTOCOL
+from syncloudlib import logger, fs
 
 http_network_protocol = 'TCP'
 
@@ -106,10 +106,6 @@ class Device:
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         self.logger.info('set_access: external_access={0}'.format(external_access))
 
-        update_token = self.user_platform_config.get_domain_update_token()
-        if update_token is None:
-            return
-        
         drill = self.port_drill_factory.get_drill(upnp_enabled, external_access, manual_public_ip,
                                                   manual_certificate_port, manual_access_port)
 
@@ -122,11 +118,13 @@ class Device:
         router_port = None
         if mapping:
             router_port = mapping.external_port
-        
+
         external_ip = drill.external_ip()
-        
-        self.redirect_service.sync(external_ip, router_port, WEB_ACCESS_PORT, WEB_PROTOCOL,
-                                   update_token, external_access)
+
+        if self.user_platform_config.is_redirect_enabled():
+            self.redirect_service.sync(external_ip, router_port, WEB_ACCESS_PORT, WEB_PROTOCOL,
+                                       self.user_platform_config.get_domain_update_token(), external_access)
+
         self.user_platform_config.update_device_access(upnp_enabled, external_access,
                                                        manual_public_ip, manual_certificate_port, manual_access_port)
         self.event_trigger.trigger_app_event_domain()
