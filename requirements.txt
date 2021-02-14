@@ -19,3 +19,4 @@ netifaces==0.10.4
 NAT-PMP==1.1
 uWSGI==2.0.19.1
 passlib==1.7.2
+cryptography==3.3.1
