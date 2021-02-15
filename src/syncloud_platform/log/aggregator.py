@@ -18,7 +18,7 @@ class Aggregator:
         results.append(run('mount'))
         results.append(run('journalctl'))
         results.append(run('systemctl status --state=inactive snap.*'))
-        results.append(run('top -n 1'))
+        results.append(run('COLUMNS=1000 top -n 1 -bc'))
         results.append(run('ping google.com -c 5'))
         results.append(run('df'))
         results.append(run('lsblk'))
