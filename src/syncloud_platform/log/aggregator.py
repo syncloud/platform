@@ -21,7 +21,7 @@ class Aggregator:
         results.append(run('COLUMNS=1000 top -n 1 -bc'))
         results.append(run('ping google.com -c 5'))
         results.append(run('df'))
-        results.append(run('lsblk'))
+        results.append(run('lsblk -o +UUID'))
         results.append(run('uptime'))
         logs = '\n----------------------\n'.join(results)
         return logs
