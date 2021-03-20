@@ -6,7 +6,7 @@ NAME="platform"
 BUILD_DIR=${DIR}/build/${NAME}
 
 ${BUILD_DIR}/python/bin/pip install pipdeptree
-${BUILD_DIR}/python/bin/pipdeptree
+${BUILD_DIR}/python/bin/python ${BUILD_DIR}/python/bin/pipdeptree
 
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/dev_requirements.txt
 
