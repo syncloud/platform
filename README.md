@@ -1,4 +1,4 @@
-## [Syncloud](https://syncloud.org)
+## Syncloud (https://syncloud.org)
 
 Simple self-hosting of popular apps.
 
@@ -8,17 +8,7 @@ We are open to cooperation with hardware vendors interested in including Synclou
 
 ### Apps
 
-* [Nextcloud](https://nextcloud.com/): File sharing, calendar, contacts.
-* [Diaspora](https://diasporafoundation.org/): Social network.
-* [Rocketchat](https://rocket.chat/): Text, voice and video messaging.
-* [Mail](https://roundcube.net/): Email messaging with Roundcube web.
-* [GOGS](https://gogs.io/): Git source code hosting.
-* [Syncthing](https://syncthing.net/): File synchronization between devices.
-* [WordPress](https://wordpress.org/): Blogging, mailing lists and forums, media galleries, and online stores.
-* [Notes](https://standardnotes.org/): Safe place for your notes, thoughts, and life's work.
-* [Users](https://github.com/kakwa/ldapcherr/): User management app.
-* [Pi-hole](https://pi-hole.net): Network-wide Ad Blocking.
-* [OpenVPN](https://openvpn.net): Secure connection to your Syncloud device over the Internet.
+https://syncloud.org/apps.html
 
 ### Download
 
