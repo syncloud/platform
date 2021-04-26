@@ -118,6 +118,7 @@ class Systemctl:
 
         try:
             log.info('checking {0}'.format(service))
+            # TODO: exit code 3 when inactive
             result = check_output('systemctl is-active {0} 2>&1'.format(service), shell=True).decode().strip()
             log.info('stopping {0}'.format(service))
             check_output('systemctl stop {0} 2>&1'.format(service), shell=True)

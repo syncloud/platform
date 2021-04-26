@@ -45,7 +45,7 @@ class Lsblk:
                 disks[device] = disk
 
             elif lsblk_entry.type == 'part':
-                self.log.info('adding regular parrition: {0}'.format(lsblk_entry.name))
+                self.log.info('adding regular partition: {0}'.format(lsblk_entry.name))
                 partition = self.create_partition(lsblk_entry)
                 parent_device = lsblk_entry.parent_device()
                 disk = disks[parent_device]
@@ -144,6 +144,7 @@ class LsblkEntry:
         if self.type.startswith('raid'):
             return 'raid'
         return self.fs_type
+
 
 class Partition:
     def __init__(self, size, device, mount_point, active, fs_type, mountable):
