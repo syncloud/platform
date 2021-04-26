@@ -14,7 +14,12 @@
                 </li>
                 <li>
                   <a id="domain_type_custom" data-toggle="tab" href="#domain_custom" @click="domainType = 'custom'">
-                    My own domain
+                    Custom domain
+                  </a>
+                </li>
+                <li>
+                  <a id="domain_type_managed" data-toggle="tab" href="#domain_managed" @click="domainType = 'managed'">
+                    Managed domain
                   </a>
                 </li>
               </ul>
@@ -25,7 +30,7 @@
               <div id="domain_syncloud" class="tab-pane fade in active">
                 <div style="text-align: center">
                   <h2 style="display: inline-block">Syncloud Account</h2>
-                  <button data-toggle="modal" data-target="#help_syncloud_account" type=button
+                  <button @click="showSyncloudAccountHelp" type=button
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
                   </button>
@@ -43,7 +48,18 @@
               </div>
               <div id="domain_custom" class="tab-pane fade" style="text-align: center">
                 <h2 style="display: inline-block">Device Name</h2>
-                <button data-toggle="modal" data-target="#help_custom_domain" type=button
+                <button @click="showCustomDomainHelp" type=button
+                        style="vertical-align: super; background:transparent;">
+                  <i class='fa fa-question-circle fa-lg'></i>
+                </button>
+                <input placeholder="Top level domain like example.com"
+                       class="domain" id="full_domain" type="text" style="width:100% !important;" v-model="domain"
+                       >
+                <div class="alert alert-danger alert90" id="full_domain_alert" style="display: none;"></div>
+              </div>
+              <div id="domain_managed" class="tab-pane fade" style="text-align: center">
+                <h2 style="display: inline-block">Device Name</h2>
+                <button @click="showCustomDomainHelp" type=button
                         style="vertical-align: super; background:transparent;">
                   <i class='fa fa-question-circle fa-lg'></i>
                 </button>
@@ -56,7 +72,7 @@
 
             <div style="text-align: center">
               <h2 style="display: inline-block">Device Credentials</h2>
-              <button data-toggle="modal" data-target="#help_device_credential" type=button
+              <button @click="showDeviceCredentialHelp" type=button
                       style="vertical-align: super; background:transparent;">
                 <i class='fa fa-question-circle fa-lg'></i>
               </button>
@@ -78,96 +94,65 @@
     </div>
   </div>
 
-  <div id="help_custom_domain" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Custom domain</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">If you have a domain you own, make sure you have correct records on your DNS server:
-            </div>
-            <span><br></span>
-            <div class="btext" style="padding-left: 10px">A [Device IP] example.com</div>
-            <div class="btext" style="padding-left: 10px">CNAME *.example.com example.com</div>
-
-            <span><br></span>
-
-            <div class="btext">If you do not have a DNS server and want to try on your LAN, edit your hosts file:</div>
-            <span><br></span>
-            <div class="btext" style="padding-left: 10px">[Device IP] example.com (device itself)</div>
-            <div class="btext" style="padding-left: 10px">[Device IP] [app].example.com (line per app)</div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-        </div>
+  <Dialog ref="help_managed_domain">
+    <template v-slot:title>Managed domain</template>
+    <template v-slot:text>
+      <div class="btext">If you have a domain you own, we can manage DNS records for you (requires Premium Account).
       </div>
-    </div>
-  </div>
+      <span><br></span>
+      <div class="btext" style="padding-left: 10px">A [Device IP] example.com</div>
+      <div class="btext" style="padding-left: 10px">CNAME *.example.com example.com</div>
 
-  <div id="help_syncloud_account" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Syncloud account</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">
-              You can use free Syncloud name service (DNS) to get a device name at syncloud.it:
-              <br>
-              You need to register at <a href="https://syncloud.it" role="button">syncloud.it</a> to control one or more
-              device names.
-              <br>
-              Syncloud account is also used for notifications about new releases.
-              <br>
-              It is only used to assign a dns name to IP of your device and update IP when it changes.
-              Data transfer happens directly between your apps and device.
-            </div>
+      <span><br></span>
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-        </div>
+      <div class="btext">If you do not have a DNS server and want to try on your LAN, edit your hosts file:</div>
+      <span><br></span>
+      <div class="btext" style="padding-left: 10px">[Device IP] example.com (device itself)</div>
+      <div class="btext" style="padding-left: 10px">[Device IP] [app].example.com (line per app)</div>
+    </template>
+  </Dialog>
+
+  <Dialog ref="help_custom_domain">
+    <template v-slot:title>Custom domain</template>
+    <template v-slot:text>
+      <div class="btext">If you have a domain you own, make sure you have correct records on your DNS server:
       </div>
-    </div>
-  </div>
+      <span><br></span>
+      <div class="btext" style="padding-left: 10px">A [Device IP] example.com</div>
+      <div class="btext" style="padding-left: 10px">CNAME *.example.com example.com</div>
 
-  <div id="help_device_credential" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Device credentials</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">
-              Device credentials are used to access your device and all the apps (as admin user).
-              They are stored on device and no one knows them. If you forget them you will need to reactivate your
-              device.
-            </div>
+      <span><br></span>
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+      <div class="btext">If you do not have a DNS server and want to try on your LAN, edit your hosts file:</div>
+      <span><br></span>
+      <div class="btext" style="padding-left: 10px">[Device IP] example.com (device itself)</div>
+      <div class="btext" style="padding-left: 10px">[Device IP] [app].example.com (line per app)</div>
+    </template>
+  </Dialog>
+
+  <Dialog ref="help_syncloud_account">
+    <template v-slot:title>Syncloud account</template>
+    <template v-slot:text>
+      You can use free Syncloud name service (DNS) to get a device name at syncloud.it:
+      <br>
+      You need to register at <a href="https://syncloud.it" role="button">syncloud.it</a> to control one or more
+      device names.
+      <br>
+      Syncloud account is also used for notifications about new releases.
+      <br>
+      It is only used to assign a dns name to IP of your device and update IP when it changes.
+      Data transfer happens directly between your apps and device.
+    </template>
+  </Dialog>
+
+  <Dialog ref="help_device_credential">
+    <template v-slot:title>Device credentials</template>
+    <template v-slot:text>
+      Device credentials are used to access your device and all the apps (as admin user).
+      They are stored on device and no one knows them. If you forget them you will need to reactivate your
+      device.
+    </template>
+  </Dialog>
 
   <Error ref="error" :enable-logs="false"/>
 
@@ -180,6 +165,7 @@ import 'bootstrap'
 import 'bootstrap-switch'
 import Error from '@/components/Error'
 import 'gasparesganga-jquery-loading-overlay'
+import Dialog from '@/components/Dialog'
 
 export default {
   name: 'Activate',
@@ -188,6 +174,7 @@ export default {
     onLogout: Function
   },
   components: {
+    Dialog,
     Error
   },
   data () {
@@ -248,6 +235,18 @@ export default {
           this.progressHide()
           this.$refs.error.showAxios(err)
         })
+    },
+    showDeviceCredentialHelp () {
+      this.$refs.help_device_credential.show()
+    },
+    showSyncloudAccountHelp () {
+      this.$refs.help_syncloud_account.show()
+    },
+    showCustomDomainHelp () {
+      this.$refs.help_custom_domain.show()
+    },
+    showManagedDomainHelp () {
+      this.$refs.help_custom_domain.show()
     }
   }
 }
