@@ -41,7 +41,7 @@
                 </div>
                 <div style="padding: 10px">
                   Syncloud will manage DNS records for [name].syncloud.it domain.
-                  <button style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectFreeDomain">
+                  <button id="btn_free_domain" style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectFreeDomain">
                     Free
                   </button>
                 </div>
@@ -98,7 +98,7 @@
                   </button>
                 </div>
                 <div style="padding: 10px; float: right; width: 40%">
-                  <button class="buttonblue" @click="stepper.next()">
+                  <button id="btn_next" class="buttonblue" @click="stepper.next()">
                     Next
                   </button>
                 </div>
@@ -126,7 +126,7 @@
                    </button>
                  </div>
                  <div style="padding: 10px; float: right; width: 40%">
-                   <button class="buttonblue" @click="activate" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
+                   <button id="btn_activate" class="buttonblue" @click="activate" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
                      Finish
                    </button>
                  </div>
