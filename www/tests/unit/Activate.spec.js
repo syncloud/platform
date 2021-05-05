@@ -113,6 +113,7 @@ test('Activate free domain error', async () => {
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
   await wrapper.find('#user_domain').setValue('domain')
+  await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')

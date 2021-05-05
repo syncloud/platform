@@ -53,7 +53,7 @@
                 </div>
               </div>
               <div id="domain-account-part" class="content" role="tabpanel" aria-labelledby="domain-account-part-trigger">
-                <div :style="{ display: domainType !== 'custom' ? 'block' : 'none' }">
+                <div v-if="domainType === 'syncloud'">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Syncloud Account</h2>
                     <button @click="showSyncloudAccountHelp" type=button
@@ -61,23 +61,21 @@
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
                   </div>
+
                   <input placeholder="syncloud.it email" class="emailinput" id="email"
                          type="text" v-model="redirectEmail">
                   <div class="alert alert-danger alert90" id="email_alert" style="display: none;"></div>
                   <input placeholder="syncloud.it password" class="passinput"
                          id="redirect_password" type="password" v-model="redirectPassword">
                   <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
-                </div>
 
-                <div style="text-align: center">
-                  <h2 style="display: inline-block">Device Name</h2>
-                  <button @click="showCustomDomainHelp" type=button
-                          style="vertical-align: super; background:transparent;">
-                    <i class='fa fa-question-circle fa-lg'></i>
-                  </button>
-                </div>
-
-                <div v-if=" domainType === 'syncloud' ">
+                  <div style="text-align: center">
+                    <h2 style="display: inline-block">Device Name</h2>
+                    <button @click="showCustomDomainHelp" type=button
+                            style="vertical-align: super; background:transparent;">
+                      <i class='fa fa-question-circle fa-lg'></i>
+                    </button>
+                  </div>
 
                   <input placeholder="Name" class="domain" id="user_domain" type="text" v-model="domain">
                   <span>.syncloud.it</span>
@@ -85,10 +83,46 @@
 
                 </div>
 
-                <div v-if=" domainType !== 'syncloud' ">
+                <div v-if=" domainType === 'custom' ">
+                  <div style="text-align: center">
+                    <h2 style="display: inline-block">Custom Device Name</h2>
+                    <button @click="showCustomDomainHelp" type=button
+                            style="vertical-align: super; background:transparent;">
+                      <i class='fa fa-question-circle fa-lg'></i>
+                    </button>
+                  </div>
                   <input placeholder="Top level domain like example.com"
                          class="domain" id="full_domain" type="text" style="width:100% !important;" v-model="domain">
                   <div class="alert alert-danger alert90" id="full_domain_alert" style="display: none;"></div>
+
+                </div>
+
+                <div v-if=" domainType === 'managed' ">
+                  <div style="text-align: center">
+                    <h2 style="display: inline-block">Syncloud Account</h2>
+                    <button @click="showSyncloudAccountHelp" type=button
+                            style="vertical-align: super; background:transparent;">
+                      <i class='fa fa-question-circle fa-lg'></i>
+                    </button>
+                  </div>
+
+                  <input placeholder="syncloud.it email" class="emailinput" id="managed_email"
+                         type="text" v-model="redirectEmail">
+                  <div class="alert alert-danger alert90" id="managed_email_alert" style="display: none;"></div>
+                  <input placeholder="syncloud.it password" class="passinput"
+                         id="managed_redirect_password" type="password" v-model="redirectPassword">
+                  <div class="alert alert-danger alert90" id="managed_redirect_password_alert" style="display: none;"></div>
+
+                  <div style="text-align: center">
+                    <h2 style="display: inline-block">Managed Device Name</h2>
+                    <button @click="showCustomDomainHelp" type=button
+                            style="vertical-align: super; background:transparent;">
+                      <i class='fa fa-question-circle fa-lg'></i>
+                    </button>
+                  </div>
+                  <input placeholder="Top level domain like example.com"
+                         class="domain" id="managed_domain" type="text" style="width:100% !important;" v-model="domain">
+                  <div class="alert alert-danger alert90" id="managed_domain_alert" style="display: none;"></div>
 
                 </div>
 
@@ -144,16 +178,6 @@
     <template v-slot:text>
       <div class="btext">If you have a domain you own, we can manage DNS records for you (requires Premium Account).
       </div>
-      <span><br></span>
-      <div class="btext" style="padding-left: 10px">A [Device IP] example.com</div>
-      <div class="btext" style="padding-left: 10px">CNAME *.example.com example.com</div>
-
-      <span><br></span>
-
-      <div class="btext">If you do not have a DNS server and want to try on your LAN, edit your hosts file:</div>
-      <span><br></span>
-      <div class="btext" style="padding-left: 10px">[Device IP] example.com (device itself)</div>
-      <div class="btext" style="padding-left: 10px">[Device IP] [app].example.com (line per app)</div>
     </template>
   </Dialog>
 
@@ -273,6 +297,21 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
+    activateManagedDomain () {
+      axios
+        .post('/rest/activate_managed_domain', {
+          redirect_email: this.redirectEmail,
+          redirect_password: this.redirectPassword,
+          user_domain: this.domain,
+          device_username: this.deviceUsername,
+          device_password: this.devicePassword
+        })
+        .then(this.forceCertificateRecheck)
+        .catch(err => {
+          this.progressHide()
+          this.$refs.error.showAxios(err)
+        })
+    },
     activateCustomDomain () {
       axios
         .post('/rest/activate_custom_domain', {
@@ -296,7 +335,7 @@ export default {
       this.$refs.help_custom_domain.show()
     },
     showManagedDomainHelp () {
-      this.$refs.help_custom_domain.show()
+      this.$refs.help_managed_domain.show()
     },
     selectManagedDomain () {
       this.domainType = 'managed'

@@ -24,8 +24,8 @@ class Device:
         self.nginx = nginx
 
     def prepare_redirect(self, redirect_email, redirect_password, main_domain):
-        
-        redirect_api_url = 'http://api.' + main_domain
+
+        redirect_api_url = 'https://api.' + main_domain
 
         self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
         self.user_platform_config.set_redirect_enabled(True)

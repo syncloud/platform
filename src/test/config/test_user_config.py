@@ -9,7 +9,7 @@ from os import path
 def test_domain():
     config = PlatformUserConfig(temp_file())
     config.init_user_config()
-    
+
     config.update_redirect('syncloud.it', 'http://api.syncloud.it')
     assert 'syncloud.it' == config.get_redirect_domain()
     assert 'http://api.syncloud.it' == config.get_redirect_api_url()
@@ -42,11 +42,12 @@ user_update_token = token2
         os.remove(config_db)
     config = PlatformUserConfig(config_db, old_config_file)
     assert config.get_redirect_domain() == 'syncloud.it'
-    assert config.get_upnp() == True
-    assert config.is_redirect_enabled() == True
-    assert config.get_external_access() == False
-    
+    assert config.get_upnp()
+    assert config.is_redirect_enabled()
+    assert not config.get_external_access()
+
     assert not path.isfile(old_config_file)
+
 
 def test_none():
     config_db = join(dirname(__file__), 'db')
@@ -54,4 +55,3 @@ def test_none():
         os.remove(config_db)
     config = PlatformUserConfig(config_db)
     config.set_web_secret_key(None)
-    
