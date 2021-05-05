@@ -109,7 +109,7 @@ test('Activate free domain error', async () => {
   )
 
   await flushPromises()
-
+  await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
   await wrapper.find('#user_domain').setValue('domain')
@@ -169,7 +169,7 @@ test('Activate custom domain', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#domain_type_custom').trigger('click')
+  await wrapper.find('#btn_custom_domain').trigger('click')
   await wrapper.find('#full_domain').setValue('domain')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')

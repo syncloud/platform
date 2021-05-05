@@ -130,7 +130,6 @@ export default {
     const eGridDiv = document.querySelector('#backupGrid')
     eGridDiv.innerHTML = ''
     this.grid = new Grid(eGridDiv, this.gridOptions)
-    console.log('grid')
     this.reload()
   },
   methods: {

@@ -35,7 +35,7 @@
               <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger" style="text-align: center">
                 <div style="padding: 10px">
                   Syncloud will manage DNS records for your domain (like example.com), requires Premium account.
-                  <button style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectManagedDomain">
+                  <button id="btn_managed_domain" style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectManagedDomain">
                     Managed
                   </button>
                 </div>
@@ -47,7 +47,7 @@
                 </div>
                 <div style="padding: 10px">
                   You will manage DNS records for your domain (like example.com).
-                  <button style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectCustomDomain">
+                  <button id="btn_custom_domain" style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectCustomDomain">
                     Custom
                   </button>
                 </div>
