@@ -1,4 +1,5 @@
 local name = "platform";
+local browser = "firefox";
 
 local build(arch, distro) = {
     kind: "pipeline",
@@ -76,23 +77,37 @@ local build(arch, distro) = {
               "cd integration",
               "py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=" + name
             ]
-        },
-        if arch == "arm" then {} else
+        }
+    ] + ( if arch == "arm" then [] else [
         {
-            name: "test-ui",
+            name: "test-ui-desktop",
             image: "syncloud/build-deps-" + arch,
             commands: [
               "pip2 install -r dev_requirements.txt",
               "DOMAIN=$(cat domain)",
               "cd integration",
-              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=" + name,
-              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=" + name,
+              "py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
                 path: "/dev/shm"
             }]
         },
+        {
+            name: "test-ui-mobile",
+            image: "syncloud/build-deps-" + arch,
+            commands: [
+              "pip2 install -r dev_requirements.txt",
+              "DOMAIN=$(cat domain)",
+              "cd integration",
+              "py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=" + name + " --browser=" + browser,
+            ],
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        }
+    ]) + [
         {
             name: "upload",
             image: "syncloud/build-deps-" + arch,
@@ -133,21 +148,31 @@ local build(arch, distro) = {
             }
         }
     ],
-    services: [{
-        name: "device",
-        image: "syncloud/platform-" + distro + '-' + arch,
-        privileged: true,
-        volumes: [
-            {
-                name: "dbus",
-                path: "/var/run/dbus"
-            },
-            {
-                name: "dev",
-                path: "/dev"
-            }
-        ]
-    }],
+    services: [
+        {
+            name: "device",
+            image: "syncloud/platform-" + distro + '-' + arch,
+            privileged: true,
+            volumes: [
+                {
+                    name: "dbus",
+                    path: "/var/run/dbus"
+                },
+                {
+                    name: "dev",
+                    path: "/dev"
+                }
+            ]
+        }
+    ] + if arch == "arm" then [] else [{
+            name: "selenium",
+            image: "selenium/standalone-" + browser + ":4.0.0-beta-3-prerelease-20210402",
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        }
+    ],
     volumes: [
         {
             name: "dbus",
