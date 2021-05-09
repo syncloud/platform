@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/redirect"
 	"log"
 	"os"
 
@@ -25,12 +28,16 @@ func main() {
 
 func Backend() *rest.Backend {
 	master := job.NewMaster()
-	backup := backup.NewDefault()
+	backupService := backup.NewDefault()
 	eventTrigger := event.New()
-	installer := installer.New()
-	storage := storage.New()
-	worker := job.NewWorker(master, backup, installer, storage)
+	installerService := installer.New()
+	storageService := storage.New()
+	oldConfig := fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
+	conf := fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_COMMON"))
+	configuration := config.New(conf, oldConfig)
+	redirectService := redirect.New(configuration)
+	worker := job.NewWorker(master, backupService, installerService, storageService)
 
-	return rest.NewBackend(master, backup, eventTrigger, worker)
+	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService)
 
 }

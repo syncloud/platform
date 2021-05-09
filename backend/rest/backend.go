@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
 	"log"
 	"net"
@@ -19,14 +20,16 @@ type Backend struct {
 	backup       *backup.Backup
 	eventTrigger *event.Trigger
 	worker       *job.Worker
+	redirect     *redirect.Redirect
 }
 
-func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker) *Backend {
+func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker, redirect *redirect.Redirect) *Backend {
 	return &Backend{
 		Master:       master,
 		backup:       backup,
 		eventTrigger: eventTrigger,
 		worker:       worker,
+		redirect:     redirect,
 	}
 }
 
