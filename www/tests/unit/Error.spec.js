@@ -173,3 +173,38 @@ test('Parameters message', async () => {
 
   wrapper.unmount()
 })
+
+test('Parameters message clean', async () => {
+  const mockRouter = { push: jest.fn() }
+
+  const wrapper = mount(Error, {
+    attachTo: document.body,
+    props: {
+      testing: true
+    }
+  })
+
+  await wrapper.vm.showAxios({
+    response: {
+      status: 500,
+      data: { parameters_messages: [{ parameter: 'test_parameter1', messages: ['1', '2'] }] }
+    }
+  })
+  await wrapper.vm.showAxios({
+    response: {
+      status: 500,
+      data: { parameters_messages: [{ parameter: 'test_parameter1', messages: ['3', '4'] }] }
+    }
+  })
+  await flushPromises()
+
+  expect(mockRouter.push).toHaveBeenCalledTimes(0)
+
+  expect(wrapper.find('#test_parameter1').exists()).toBe(true)
+
+  let alerts = wrapper.findAll('#test_parameter1_alert')
+  expect(alerts.length).toBe(1)
+  expect(alerts[0].text()).toBe('3\n4')
+
+  wrapper.unmount()
+})

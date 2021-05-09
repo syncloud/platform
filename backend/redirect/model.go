@@ -11,3 +11,9 @@ type UserResponse struct {
 type User struct {
 	UpdateToken string `json:"update_token"`
 }
+
+type DomainAvailabilityRequest struct {
+	UserDomain *string `json:"user_domain,omitempty"`
+	Password   *string `json:"password,omitempty"`
+	Email      *string `json:"email,omitempty"`
+}

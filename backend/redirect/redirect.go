@@ -1,9 +1,11 @@
 package redirect
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
+	"github.com/syncloud/platform/rest/model"
 	"io"
 	"log"
 	"net/http"
@@ -19,7 +21,22 @@ func New(userPlatformConfig *config.PlatformUserConfig) *Redirect {
 	}
 }
 
-func (r *Redirect) Login(email string, password string) (*User, error) {
+func (r *Redirect) DomainAvailability(request model.RedirectCheckFreeDomainRequest) error {
+	url := fmt.Sprintf("%s/domain/availability", r.userPlatformConfig.GetRedirectApiUrl())
+	requestJson, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	return CheckHttpError(resp.StatusCode, body)
+}
+
+func (r *Redirect) authenticate(email string, password string) (*User, error) {
 	url := fmt.Sprintf("%s/user/get?email=%s&password=%s", r.userPlatformConfig.GetRedirectApiUrl(), email, password)
 	resp, err := http.Get(url)
 	if err != nil {

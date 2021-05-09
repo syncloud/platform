@@ -11,7 +11,7 @@
                 <button type="button" class="step-trigger" role="tab" aria-controls="domain-type-part"
                         id="domain-type-part-trigger">
                   <span class="bs-stepper-circle">1</span>
-                  <span class="bs-stepper-label">Domain Type</span>
+                  <span class="bs-stepper-label">Type</span>
                 </button>
               </div>
               <div class="line"></div>
@@ -19,7 +19,7 @@
                 <button type="button" class="step-trigger" role="tab" aria-controls="domain-account-part"
                         id="domain-account-part-trigger">
                   <span class="bs-stepper-circle">2</span>
-                  <span class="bs-stepper-label">Domain Account</span>
+                  <span class="bs-stepper-label">Name</span>
                 </button>
               </div>
               <div class="line"></div>
@@ -27,32 +27,37 @@
                 <button type="button" class="step-trigger" role="tab" aria-controls="device-credentials-part"
                         id="device-credentials-part-trigger">
                   <span class="bs-stepper-circle">3</span>
-                  <span class="bs-stepper-label">Device Credentials</span>
+                  <span class="bs-stepper-label">Credentials</span>
                 </button>
               </div>
             </div>
             <div class="bs-stepper-content">
-              <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger" style="text-align: center">
+              <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger"
+                   style="text-align: center">
                 <div style="padding: 10px">
                   Syncloud will manage DNS records for your domain (like example.com), requires Premium account.
-                  <button id="btn_managed_domain" style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectManagedDomain">
+                  <button id="btn_managed_domain" style="width: 80%; margin-top: 10px" class="buttonblue"
+                          @click="selectManagedDomain">
                     Managed
                   </button>
                 </div>
                 <div style="padding: 10px">
                   Syncloud will manage DNS records for [name].syncloud.it domain.
-                  <button id="btn_free_domain" style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectFreeDomain">
+                  <button id="btn_free_domain" style="width: 80%; margin-top: 10px" class="buttonblue"
+                          @click="selectFreeDomain">
                     Free
                   </button>
                 </div>
                 <div style="padding: 10px">
                   You will manage DNS records for your domain (like example.com).
-                  <button id="btn_custom_domain" style="width: 80%; margin-top: 10px" class="buttonblue" @click="selectCustomDomain">
+                  <button id="btn_custom_domain" style="width: 80%; margin-top: 10px" class="buttonblue"
+                          @click="selectCustomDomain">
                     Custom
                   </button>
                 </div>
               </div>
-              <div id="domain-account-part" class="content" role="tabpanel" aria-labelledby="domain-account-part-trigger">
+              <div id="domain-account-part" class="content" role="tabpanel"
+                   aria-labelledby="domain-account-part-trigger">
                 <div v-if="domainType === 'syncloud'">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Syncloud Account</h2>
@@ -106,12 +111,13 @@
                     </button>
                   </div>
 
-                  <input placeholder="syncloud.it email" class="emailinput" id="managed_email"
+                  <input placeholder="syncloud.it email" class="emailinput" id="email"
                          type="text" v-model="redirectEmail">
-                  <div class="alert alert-danger alert90" id="managed_email_alert" style="display: none;"></div>
+                  <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
                   <input placeholder="syncloud.it password" class="passinput"
-                         id="managed_redirect_password" type="password" v-model="redirectPassword">
-                  <div class="alert alert-danger alert90" id="managed_redirect_password_alert" style="display: none;"></div>
+                         id="redirect_password" type="password" v-model="redirectPassword">
+                  <div class="alert alert-danger alert90" id="redirect_password_alert"
+                       style="display: none;"></div>
 
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Managed Device Name</h2>
@@ -132,38 +138,40 @@
                   </button>
                 </div>
                 <div style="padding: 10px; float: right; width: 40%">
-                  <button id="btn_next" class="buttonblue" @click="stepper.next()">
+                  <button id="btn_next" class="buttonblue" @click="domainAvailability">
                     Next
                   </button>
                 </div>
               </div>
 
-               <div id="device-credentials-part" class="content" role="tabpanel" aria-labelledby="device-credentials-part-trigger">
+              <div id="device-credentials-part" class="content" role="tabpanel"
+                   aria-labelledby="device-credentials-part-trigger">
 
-                 <div style="text-align: center">
-                   <h2 style="display: inline-block">Device Credentials</h2>
-                   <button @click="showDeviceCredentialHelp" type=button
-                           style="vertical-align: super; background:transparent;">
-                     <i class='fa fa-question-circle fa-lg'></i>
-                   </button>
-                 </div>
+                <div style="text-align: center">
+                  <h2 style="display: inline-block">Device Credentials</h2>
+                  <button @click="showDeviceCredentialHelp" type=button
+                          style="vertical-align: super; background:transparent;">
+                    <i class='fa fa-question-circle fa-lg'></i>
+                  </button>
+                </div>
 
-                 <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername">
-                 <div class="alert alert-danger alert90" id="device_username_alert" style="display: none;"></div>
-                 <input placeholder="Password" class="passinput" id="device_password" type="password"
-                        v-model="devicePassword">
-                 <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
+                <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername">
+                <div class="alert alert-danger alert90" id="device_username_alert" style="display: none;"></div>
+                <input placeholder="Password" class="passinput" id="device_password" type="password"
+                       v-model="devicePassword">
+                <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
 
-                 <div style="padding: 10px; float: left; width: 40%">
-                   <button class="buttonblue" @click="stepper.previous()">
-                     Previous
-                   </button>
-                 </div>
-                 <div style="padding: 10px; float: right; width: 40%">
-                   <button id="btn_activate" class="buttonblue" @click="activate" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
-                     Finish
-                   </button>
-                 </div>
+                <div style="padding: 10px; float: left; width: 40%">
+                  <button class="buttonblue" @click="stepper.previous()">
+                    Previous
+                  </button>
+                </div>
+                <div style="padding: 10px; float: right; width: 40%">
+                  <button id="btn_activate" class="buttonblue" @click="activate"
+                          data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
+                    Finish
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -348,6 +356,24 @@ export default {
     selectFreeDomain () {
       this.domainType = 'syncloud'
       this.stepper.next()
+    },
+    domainAvailability () {
+      this.progressShow()
+      axios
+        .post('/rest/redirect/domain/availability',
+          {
+            redirect_email: this.redirectEmail,
+            redirect_password: this.redirectPassword,
+            user_domain: this.domain
+          })
+        .then(response => {
+          this.stepper.next()
+          this.progressHide()
+        })
+        .catch(err => {
+          this.progressHide()
+          this.$refs.error.showAxios(err)
+        })
     }
   }
 }
@@ -356,6 +382,7 @@ export default {
 @import '../style/site.css';
 @import '../style/material-icons.css';
 @import '~bs-stepper/dist/css/bs-stepper.css';
+
 .active .bs-stepper-circle {
   background-color: #02a0dc;
 }

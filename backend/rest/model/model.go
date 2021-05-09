@@ -20,6 +20,12 @@ type EventTriggerRequest struct {
 	Event string `json:"event"`
 }
 
+type RedirectCheckFreeDomainRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Domain   string `json:"domain"`
+}
+
 type Response struct {
 	Success bool         `json:"success"`
 	Message *string      `json:"message,omitempty"`

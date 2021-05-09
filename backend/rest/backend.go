@@ -44,6 +44,7 @@ func (backend *Backend) Start(socket string) {
 	http.HandleFunc("/storage/disk_format", Handle(http.MethodPost, backend.StorageFormat))
 	http.HandleFunc("/storage/boot_extend", Handle(http.MethodPost, backend.StorageBootExtend))
 	http.HandleFunc("/event/trigger", Handle(http.MethodPost, backend.EventTrigger))
+	http.HandleFunc("/redirect/domain/availability", Handle(http.MethodPost, backend.RedirectCheckFreeDomain))
 
 	server := http.Server{}
 
@@ -167,6 +168,16 @@ func (backend *Backend) EventTrigger(_ http.ResponseWriter, req *http.Request) (
 		return nil, errors.New("event is missing")
 	}
 	return "ok", backend.eventTrigger.RunEventOnAllApps(request.Event)
+}
+
+func (backend *Backend) RedirectCheckFreeDomain(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
+	var request model.RedirectCheckFreeDomainRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		log.Printf("parse error: %v", err.Error())
+		return nil, errors.New("cannot parse request")
+	}
+	return "OK", backend.redirect.DomainAvailability(request)
 }
 
 func (backend *Backend) StorageBootExtend(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
