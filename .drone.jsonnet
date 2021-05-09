@@ -33,7 +33,7 @@ local build(arch, distro) = {
         },
         {
             name: "build backend",
-            image: "golang:1.14",
+            image: "golang:1.16.3",
             commands: [
                 "cd backend",
                 "go test ./... -cover",
