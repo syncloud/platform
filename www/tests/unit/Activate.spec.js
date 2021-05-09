@@ -31,7 +31,9 @@ test('Activate free domain', async () => {
     devicePassword = request.device_password
     return [200, { success: true }]
   })
-
+  mock.onPost('/rest/redirect/domain/availability').reply(200, {
+    message: 'ok'
+  })
   const wrapper = mount(Activate,
     {
       attachTo: document.body,
@@ -86,6 +88,10 @@ test('Activate free domain error', async () => {
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate').reply(500, {
     message: 'not ok'
+  })
+
+  mock.onPost('/rest/redirect/domain/availability').reply(200, {
+    message: 'ok'
   })
 
   const wrapper = mount(Activate,
