@@ -10,7 +10,7 @@ import (
 
 func TestDomain(t *testing.T) {
 	db := tempFile().Name()
-	os.Remove(db)
+	_ = os.Remove(db)
 	config := New(db, tempFile().Name())
 	config.EnsureDb()
 
@@ -57,7 +57,7 @@ user_update_token = token2
 	}
 
 	db := tempFile().Name()
-	os.Remove(db)
+	_ = os.Remove(db)
 	config := New(db, oldConfigFile.Name())
 	config.EnsureDb()
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())

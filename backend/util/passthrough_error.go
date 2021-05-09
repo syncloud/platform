@@ -1,10 +1,10 @@
 package util
 
 type PassThroughJsonError struct {
-	message string
-	json    string
+	Message string
+	Json    string
 }
 
 func (p *PassThroughJsonError) Error() string {
-	return p.message
+	return p.Message
 }

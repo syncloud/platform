@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/util"
 	"io"
 	"log"
 	"net/http"
@@ -28,7 +27,7 @@ func (r *Redirect) Login(email string, password string) (*User, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
-	err = util.CheckHttpError(resp.StatusCode, body)
+	err = CheckHttpError(resp.StatusCode, body)
 	if err != nil {
 		return nil, err
 	}
