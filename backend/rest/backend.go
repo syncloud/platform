@@ -33,7 +33,12 @@ func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.T
 	}
 }
 
-func (backend *Backend) Start(socket string) {
+func (backend *Backend) Start(network string, address string) {
+	unixListener, err := net.Listen(network, address)
+	if err != nil {
+		panic(err)
+	}
+
 	go backend.worker.Start()
 	http.HandleFunc("/job/status", Handle(http.MethodGet, backend.JobStatus))
 	http.HandleFunc("/backup/list", Handle(http.MethodGet, backend.BackupList))
@@ -48,10 +53,6 @@ func (backend *Backend) Start(socket string) {
 
 	server := http.Server{}
 
-	unixListener, err := net.Listen("unix", socket)
-	if err != nil {
-		panic(err)
-	}
 	log.Println("Started backend")
 	_ = server.Serve(unixListener)
 

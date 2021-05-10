@@ -16,14 +16,18 @@ var OldBoolTrue = "True"
 var OldBoolFalse = "False"
 
 type PlatformUserConfig struct {
-	file          string
-	oldConfigFile string
+	file           string
+	oldConfigFile  string
+	redirectDomain string
+	redirectUrl    string
 }
 
-func New(file string, oldConfigFile string) *PlatformUserConfig {
+func New(file string, oldConfigFile string, redirectDomain string, redirectUrl string) *PlatformUserConfig {
 	return &PlatformUserConfig{
-		file:          file,
-		oldConfigFile: oldConfigFile,
+		file:           file,
+		oldConfigFile:  oldConfigFile,
+		redirectDomain: redirectDomain,
+		redirectUrl:    redirectUrl,
 	}
 }
 
@@ -94,17 +98,17 @@ func (c *PlatformUserConfig) open() *sql.DB {
 	return db
 }
 
-func (c *PlatformUserConfig) UpdateRedirect(domain string, api_url string) {
+func (c *PlatformUserConfig) UpdateRedirect(domain string, apiUrl string) {
 	c.upsert("redirect.domain", domain)
-	c.upsert("redirect.api_url", api_url)
+	c.upsert("redirect.api_url", apiUrl)
 }
 
 func (c *PlatformUserConfig) GetRedirectDomain() string {
-	return c.get("redirect.domain", "syncloud.it")
+	return c.get("redirect.domain", c.redirectDomain)
 }
 
 func (c *PlatformUserConfig) GetRedirectApiUrl() string {
-	return c.get("redirect.api_url", "https://api.syncloud.it")
+	return c.get("redirect.api_url", c.redirectUrl)
 }
 
 func (c PlatformUserConfig) GetUpnp() bool {
