@@ -438,7 +438,7 @@ def test_rest_backup_list(device, device_host, artifact_dir):
     assert json.loads(response.text)['success']
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.fixture(scope='function')
 def loop_device(device_host):
     dev_file = '/tmp/disk'
     loop_device_cleanup(device_host, dev_file, password=LOGS_SSH_PASSWORD)
