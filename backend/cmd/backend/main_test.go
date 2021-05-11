@@ -7,7 +7,7 @@ import (
 
 func TestHandlerGood(t *testing.T) {
 
-	backend := Backend()
+	backend := Backend("", "", "")
 
 	assert.NotNil(t, backend.Master)
 
