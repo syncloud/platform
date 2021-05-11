@@ -82,9 +82,10 @@ local build(arch, distro) = {
     ] + ( if arch == "arm" then [] else [
         {
             name: "test-ui-desktop",
-            image: "syncloud/build-deps-" + arch,
+            image: "python:3.9-buster",
             commands: [
-              "pip2 install -r dev_requirements.txt",
+              "apt-get update && apt-get install -y sshpass openssh-client",
+              "pip install -r dev_requirements.txt",
               "DOMAIN=$(cat domain)",
               "cd integration",
               "py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=" + name + " --browser=" + browser,
@@ -96,9 +97,10 @@ local build(arch, distro) = {
         },
         {
             name: "test-ui-mobile",
-            image: "syncloud/build-deps-" + arch,
+            image: "python:3.9-buster",
             commands: [
-              "pip2 install -r dev_requirements.txt",
+              "apt-get update && apt-get install -y sshpass openssh-client",
+              "pip install -r dev_requirements.txt",
               "DOMAIN=$(cat domain)",
               "cd integration",
               "py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=" + name + " --browser=" + browser,
