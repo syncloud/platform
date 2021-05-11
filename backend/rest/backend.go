@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
+	"github.com/syncloud/platform/storage"
 	"log"
 	"net"
 	"net/http"
@@ -21,15 +23,19 @@ type Backend struct {
 	eventTrigger *event.Trigger
 	worker       *job.Worker
 	redirect     *redirect.Redirect
+	installer    installer.AppInstaller
+	storage      *storage.Storage
 }
 
-func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker, redirect *redirect.Redirect) *Backend {
+func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker, redirect *redirect.Redirect, installerService *installer.Installer, storageService *storage.Storage) *Backend {
 	return &Backend{
 		Master:       master,
 		backup:       backup,
 		eventTrigger: eventTrigger,
 		worker:       worker,
 		redirect:     redirect,
+		installer:    installerService,
+		storage:      storageService,
 	}
 }
 
@@ -59,6 +65,7 @@ func (backend *Backend) Start(network string, address string) {
 }
 
 func fail(w http.ResponseWriter, err error) {
+	log.Println("error: ", err)
 	appError := err.Error()
 	response := model.Response{
 		Success: false,
@@ -126,7 +133,7 @@ func (backend *Backend) BackupCreate(_ http.ResponseWriter, req *http.Request) (
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("app is missing")
 	}
-	_ = backend.Master.Offer(job.JobBackupCreate{App: request.App})
+	_ = backend.Master.Offer(func() { backend.backup.Create(request.App) })
 	return "submitted", nil
 }
 
@@ -137,12 +144,12 @@ func (backend *Backend) BackupRestore(_ http.ResponseWriter, req *http.Request) 
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	_ = backend.Master.Offer(job.JobBackupRestore{File: request.File})
+	_ = backend.Master.Offer(func() { backend.backup.Restore(request.File) })
 	return "submitted", nil
 }
 
 func (backend *Backend) InstallerUpgrade(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
-	_ = backend.Master.Offer(job.JobInstallerUpgrade{})
+	_ = backend.Master.Offer(func() { backend.installer.Upgrade() })
 	return "submitted", nil
 }
 
@@ -157,7 +164,7 @@ func (backend *Backend) StorageFormat(_ http.ResponseWriter, req *http.Request) 
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("device is missing")
 	}
-	_ = backend.Master.Offer(job.JobStorageFormat{Device: request.Device})
+	_ = backend.Master.Offer(func() { backend.storage.Format(request.Device) })
 	return "submitted", nil
 }
 
@@ -182,6 +189,6 @@ func (backend *Backend) RedirectCheckFreeDomain(_ http.ResponseWriter, req *http
 }
 
 func (backend *Backend) StorageBootExtend(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
-	_ = backend.Master.Offer(job.JobStorageBootExtend{})
+	_ = backend.Master.Offer(func() { backend.storage.BootExtend() })
 	return "submitted", nil
 }

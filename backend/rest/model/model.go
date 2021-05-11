@@ -21,9 +21,9 @@ type EventTriggerRequest struct {
 }
 
 type RedirectCheckFreeDomainRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Domain   string `json:"domain"`
+	Email    string `json:"redirect_email"`
+	Password string `json:"redirect_password"`
+	Domain   string `json:"user_domain"`
 }
 
 type Response struct {

@@ -19,25 +19,7 @@ func (status JobStatus) String() string {
 
 type JobMaster interface {
 	Status() JobStatus
-	Offer(job interface{}) error
-	Take() (interface{}, error)
+	Offer(job func()) error
+	Take() (func(), error)
 	Complete() error
-}
-
-type JobBackupCreate struct {
-	App string
-}
-
-type JobBackupRestore struct {
-	File string
-}
-
-type JobInstallerUpgrade struct {
-}
-
-type JobStorageFormat struct {
-	Device string
-}
-
-type JobStorageBootExtend struct {
 }

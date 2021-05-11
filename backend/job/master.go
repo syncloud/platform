@@ -8,7 +8,7 @@ import (
 type Master struct {
 	mutex  *sync.Mutex
 	status JobStatus
-	job    interface{}
+	job    func()
 }
 
 func NewMaster() *Master {
@@ -16,7 +16,6 @@ func NewMaster() *Master {
 	master := &Master{
 		mutex:  &sync.Mutex{},
 		status: JobStatusIdle,
-		job:    nil,
 	}
 	return master
 }
@@ -27,7 +26,7 @@ func (master *Master) Status() JobStatus {
 	return master.status
 }
 
-func (master *Master) Offer(job interface{}) error {
+func (master *Master) Offer(job func()) error {
 	master.mutex.Lock()
 	defer master.mutex.Unlock()
 	if master.status == JobStatusIdle {
@@ -39,7 +38,7 @@ func (master *Master) Offer(job interface{}) error {
 	}
 }
 
-func (master *Master) Take() (interface{}, error) {
+func (master *Master) Take() (func(), error) {
 
 	master.mutex.Lock()
 	defer master.mutex.Unlock()

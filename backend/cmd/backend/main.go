@@ -59,8 +59,7 @@ func Backend(configDb string, redirectDomain string, redirectUrl string) *rest.B
 	oldConfig := fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
 	configuration := config.New(configDb, oldConfig, redirectDomain, redirectUrl)
 	redirectService := redirect.New(configuration)
-	worker := job.NewWorker(master, backupService, installerService, storageService)
-
-	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService)
+	worker := job.NewWorker(master)
+	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService)
 
 }
