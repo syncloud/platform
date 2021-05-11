@@ -362,8 +362,8 @@ export default {
       axios
         .post('/rest/redirect/domain/availability',
           {
-            redirect_email: this.redirectEmail,
-            redirect_password: this.redirectPassword,
+            email: this.redirectEmail,
+            password: this.redirectPassword,
             user_domain: this.domain
           })
         .then(response => {
