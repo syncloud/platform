@@ -39,7 +39,7 @@ func (r *Redirect) DomainAvailability(request model.RedirectCheckFreeDomainReque
 	return CheckHttpError(resp.StatusCode, body)
 }
 
-func (r *Redirect) authenticate(email string, password string) (*User, error) {
+func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	url := fmt.Sprintf("%s/user/get?email=%s&password=%s", r.userPlatformConfig.GetRedirectApiUrl(), email, password)
 	resp, err := http.Get(url)
 	if err != nil {

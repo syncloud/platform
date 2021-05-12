@@ -103,6 +103,14 @@ func (c *PlatformUserConfig) UpdateRedirect(domain string, apiUrl string) {
 	c.upsert("redirect.api_url", apiUrl)
 }
 
+func (c *PlatformUserConfig) SetUserEmail(userEmail string) {
+	c.upsert("redirect.user_email", userEmail)
+}
+
+func (c *PlatformUserConfig) SetUserUpdateToken(userUpdateToken string) {
+	c.upsert("redirect.user_update_token", userUpdateToken)
+}
+
 func (c *PlatformUserConfig) GetRedirectDomain() string {
 	return c.get("redirect.domain", c.redirectDomain)
 }
@@ -124,6 +132,10 @@ func (c *PlatformUserConfig) IsRedirectEnabled() bool {
 func (c *PlatformUserConfig) GetExternalAccess() bool {
 	result := c.get("platform.external_access", DbFalse)
 	return c.toBool(result)
+}
+
+func (c *PlatformUserConfig) SetRedirectEnabled(enabled bool) {
+	c.upsert("platform.redirect_enabled", c.fromBool(enabled))
 }
 
 func (c *PlatformUserConfig) upsert(key string, value string) {
