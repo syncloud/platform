@@ -332,14 +332,14 @@ def app_image():
 @app.route("/rest/event/trigger", methods=["POST"])
 @fail_if_not_activated
 @login_required
-def backend_proxy():
+def backend_proxy_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
 
 
 @app.route("/rest/redirect/domain/availability", methods=["POST"])
 @fail_if_activated
-def backend_proxy():
+def backend_proxy_not_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
 
