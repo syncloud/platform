@@ -115,7 +115,7 @@ local build(arch, distro) = {
     ]) + [
         {
             name: "upload",
-            image: "syncloud/build-deps-" + arch,
+            image: "python:3.9-buster",
             environment: {
                 AWS_ACCESS_KEY_ID: {
                     from_secret: "AWS_ACCESS_KEY_ID"
@@ -127,7 +127,7 @@ local build(arch, distro) = {
             commands: [
               "VERSION=$(cat version)",
               "PACKAGE=$(cat package.name)",
-              "pip2 install -r dev_requirements.txt",
+              "pip install syncloud-lib s3cmd",
               "syncloud-upload.sh " + name + " $DRONE_BRANCH $VERSION $PACKAGE"
             ]
         },
