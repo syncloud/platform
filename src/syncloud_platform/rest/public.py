@@ -13,7 +13,6 @@ from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.flask_decorators import nocache, fail_if_not_activated, fail_if_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
-from syncloud_platform.gaplib import linux
 from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
 from syncloud_platform.rest.internal_validator import InternalValidator
@@ -331,9 +330,15 @@ def app_image():
 @app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/event/trigger", methods=["POST"])
-@app.route("/rest/redirect/domain/availability", methods=["POST"])
 @fail_if_not_activated
 @login_required
+def backend_proxy():
+    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
+    return response.text, response.status_code
+
+
+@app.route("/rest/redirect/domain/availability", methods=["POST"])
+@fail_if_activated
 def backend_proxy():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
