@@ -37,9 +37,9 @@ local build(arch, distro) = {
             commands: [
                 "cd backend",
                 "go test ./... -cover",
-                "go build -a -ldflags "-linkmode external -extldflags '-static' -s -w" -o ../build/platform/bin/backend cmd/backend/main.go",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/backend cmd/backend/main.go",
                 "../build/platform/bin/backend -h",
-                "go build -a -ldflags "-linkmode external -extldflags '-static' -s -w" -o ../build/platform/bin/cli cmd/cli/main.go",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/cli cmd/cli/main.go",
                 "../build/platform/bin/cli -h"
             ]
         },
