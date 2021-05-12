@@ -51,7 +51,7 @@ def test_activate(driver, selenium, device_host,
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
     selenium.screenshot('activate-redirect')
-    wait_for(lambda: selenium.find_by_id('device_username').send_keys(""))
+    wait_for(lambda: selenium.find_by_id('device_username').send_keys(device_user))
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
