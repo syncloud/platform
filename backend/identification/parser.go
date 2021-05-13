@@ -1,7 +1,6 @@
 package identification
 
 import (
-	"fmt"
 	"github.com/bigkevmcd/go-configparser"
 	"log"
 	"net"
@@ -17,14 +16,13 @@ type Parser struct {
 	config *configparser.ConfigParser
 }
 
-func New(filename string) (*Parser, error) {
-
+func New(filename string) *Parser {
 	config, err := configparser.NewConfigParserFromFile(filename)
 	if err != nil {
-		return nil, fmt.Errorf("cannot load id config: %s, %s", filename, err)
+		log.Printf("cannot load id config: %s, %s", filename, err)
+		config = configparser.New()
 	}
-
-	return &Parser{config: config}, nil
+	return &Parser{config: config}
 }
 
 func (p *Parser) get(key string, def string) string {

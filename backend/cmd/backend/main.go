@@ -25,8 +25,9 @@ func main() {
 	configDb := rootCmd.PersistentFlags().String("config", defaultConfigDb, "sqlite config db")
 	redirectDomain := rootCmd.PersistentFlags().String("redirect-domain", "syncloud.it", "redirect domain")
 	redirectUrl := rootCmd.PersistentFlags().String("redirect-url", "https://api.syncloud.it", "redirect url")
+	idConfig := rootCmd.PersistentFlags().String("identification-config", "/etc/syncloud/id.cfg", "id config")
 
-	backend, err := Backend(*configDb, *redirectDomain, *redirectUrl)
+	backend, err := Backend(*configDb, *redirectDomain, *redirectUrl, *idConfig)
 	if err != nil {
 		log.Print("error: ", err)
 		os.Exit(1)
@@ -58,7 +59,7 @@ func main() {
 	}
 }
 
-func Backend(configDb string, redirectDomain string, defaultRedirectUrl string) (*rest.Backend, error) {
+func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, idConfig string) (*rest.Backend, error) {
 	master := job.NewMaster()
 	backupService := backup.NewDefault()
 	eventTrigger := event.New()
@@ -73,10 +74,7 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string) 
 		return nil, fmt.Errorf("unable to parse redirect base url: %s", redirectApiUrl)
 	}
 
-	id, err := identification.New("/etc/syncloud/id.cfg")
-	if err != nil {
-		return nil, err
-	}
+	id := identification.New(idConfig)
 	redirectService := redirect.New(configuration, id)
 	worker := job.NewWorker(master)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl), nil
