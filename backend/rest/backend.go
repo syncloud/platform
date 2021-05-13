@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/redirect"
@@ -20,49 +21,59 @@ import (
 )
 
 type Backend struct {
-	Master       *job.Master
-	backup       *backup.Backup
-	eventTrigger *event.Trigger
-	worker       *job.Worker
-	redirect     *redirect.Redirect
-	installer    installer.AppInstaller
-	storage      *storage.Storage
+	Master        *job.Master
+	backup        *backup.Backup
+	eventTrigger  *event.Trigger
+	worker        *job.Worker
+	redirect      *redirect.Redirect
+	installer     installer.AppInstaller
+	storage       *storage.Storage
+	redirectProxy *httputil.ReverseProxy
 }
 
-func NewBackend(master *job.Master, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker, redirect *redirect.Redirect, installerService *installer.Installer, storageService *storage.Storage) *Backend {
+func NewBackend(master *job.Master, backup *backup.Backup,
+	eventTrigger *event.Trigger, worker *job.Worker,
+	redirect *redirect.Redirect, installerService *installer.Installer,
+	storageService *storage.Storage, redirectUrl *url.URL) *Backend {
+
 	return &Backend{
-		Master:       master,
-		backup:       backup,
-		eventTrigger: eventTrigger,
-		worker:       worker,
-		redirect:     redirect,
-		installer:    installerService,
-		storage:      storageService,
+		Master:        master,
+		backup:        backup,
+		eventTrigger:  eventTrigger,
+		worker:        worker,
+		redirect:      redirect,
+		installer:     installerService,
+		storage:       storageService,
+		redirectProxy: httputil.NewSingleHostReverseProxy(redirectUrl),
 	}
 }
 
 func (backend *Backend) Start(network string, address string) {
-	unixListener, err := net.Listen(network, address)
+	listener, err := net.Listen(network, address)
 	if err != nil {
 		panic(err)
 	}
 
 	go backend.worker.Start()
-	http.HandleFunc("/job/status", Handle(http.MethodGet, backend.JobStatus))
-	http.HandleFunc("/backup/list", Handle(http.MethodGet, backend.BackupList))
-	http.HandleFunc("/backup/create", Handle(http.MethodPost, backend.BackupCreate))
-	http.HandleFunc("/backup/restore", Handle(http.MethodPost, backend.BackupRestore))
-	http.HandleFunc("/backup/remove", Handle(http.MethodPost, backend.BackupRemove))
-	http.HandleFunc("/installer/upgrade", Handle(http.MethodPost, backend.InstallerUpgrade))
-	http.HandleFunc("/storage/disk_format", Handle(http.MethodPost, backend.StorageFormat))
-	http.HandleFunc("/storage/boot_extend", Handle(http.MethodPost, backend.StorageBootExtend))
-	http.HandleFunc("/event/trigger", Handle(http.MethodPost, backend.EventTrigger))
-	http.HandleFunc("/redirect/domain/availability", backend.RedirectProxy)
+
+	r := mux.NewRouter()
+	r.HandleFunc("/job/status", Handle(backend.JobStatus)).Methods("GET")
+	r.HandleFunc("/backup/list", Handle(backend.BackupList)).Methods("GET")
+	r.HandleFunc("/backup/create", Handle(backend.BackupCreate)).Methods("POST")
+	r.HandleFunc("/backup/restore", Handle(backend.BackupRestore)).Methods("POST")
+	r.HandleFunc("/backup/remove", Handle(backend.BackupRemove)).Methods("POST")
+	r.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade)).Methods("POST")
+	r.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat)).Methods("POST")
+	r.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend)).Methods("POST")
+	r.HandleFunc("/event/trigger", Handle(backend.EventTrigger)).Methods("POST")
+	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
+
+	r.Use(middleware)
 
 	server := http.Server{}
 
 	log.Println("Started backend")
-	_ = server.Serve(unixListener)
+	_ = server.Serve(listener)
 
 }
 
@@ -94,14 +105,17 @@ func success(w http.ResponseWriter, data interface{}) {
 	}
 }
 
-func Handle(method string, f func(w http.ResponseWriter, req *http.Request) (interface{}, error)) func(w http.ResponseWriter, req *http.Request) {
+func middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func Handle(f func(req *http.Request) (interface{}, error)) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
 		log.Printf("request: %s\n", req.URL.Path)
-		if req.Method != method {
-			fail(w, errors.New(fmt.Sprintf("wrong method %s, should be %s", req.Method, method)))
-		}
-		w.Header().Add("Content-Type", "application/json")
-		data, err := f(w, req)
+		data, err := f(req)
 		if err != nil {
 			fail(w, err)
 		} else {
@@ -110,11 +124,11 @@ func Handle(method string, f func(w http.ResponseWriter, req *http.Request) (int
 	}
 }
 
-func (backend *Backend) BackupList(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
+func (backend *Backend) BackupList(_ *http.Request) (interface{}, error) {
 	return backend.backup.List()
 }
 
-func (backend *Backend) BackupRemove(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupRemove(req *http.Request) (interface{}, error) {
 	var request model.BackupRemoveRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -128,7 +142,7 @@ func (backend *Backend) BackupRemove(_ http.ResponseWriter, req *http.Request) (
 	return "removed", nil
 }
 
-func (backend *Backend) BackupCreate(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 	var request model.BackupCreateRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -139,7 +153,7 @@ func (backend *Backend) BackupCreate(_ http.ResponseWriter, req *http.Request) (
 	return "submitted", nil
 }
 
-func (backend *Backend) BackupRestore(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 	var request model.BackupRestoreRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -150,16 +164,16 @@ func (backend *Backend) BackupRestore(_ http.ResponseWriter, req *http.Request) 
 	return "submitted", nil
 }
 
-func (backend *Backend) InstallerUpgrade(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
+func (backend *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
 	_ = backend.Master.Offer(func() { backend.installer.Upgrade() })
 	return "submitted", nil
 }
 
-func (backend *Backend) JobStatus(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
+func (backend *Backend) JobStatus(_ *http.Request) (interface{}, error) {
 	return backend.Master.Status().String(), nil
 }
 
-func (backend *Backend) StorageFormat(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) StorageFormat(req *http.Request) (interface{}, error) {
 	var request model.StorageFormatRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -170,7 +184,7 @@ func (backend *Backend) StorageFormat(_ http.ResponseWriter, req *http.Request) 
 	return "submitted", nil
 }
 
-func (backend *Backend) EventTrigger(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
+func (backend *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 	var request model.EventTriggerRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -180,19 +194,7 @@ func (backend *Backend) EventTrigger(_ http.ResponseWriter, req *http.Request) (
 	return "ok", backend.eventTrigger.RunEventOnAllApps(request.Event)
 }
 
-func (backend *Backend) RedirectProxy(w http.ResponseWriter, req *http.Request) {
-	redirectApiUrl := backend.redirect.UserPlatformConfig.GetRedirectApiUrl()
-	redirectUrl, err := url.Parse(redirectApiUrl)
-	if err != nil {
-		err := fmt.Errorf("unable to parse redirect base url: %s", redirectApiUrl)
-		log.Println(err)
-		fail(w, err)
-	}
-	proxy := httputil.NewSingleHostReverseProxy(redirectUrl)
-	proxy.ServeHTTP(w, req)
-}
-
-func (backend *Backend) StorageBootExtend(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {
+func (backend *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
 	_ = backend.Master.Offer(func() { backend.storage.BootExtend() })
 	return "submitted", nil
 }
