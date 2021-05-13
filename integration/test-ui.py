@@ -13,7 +13,7 @@ TMP_DIR = '/tmp/syncloud/ui'
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, device, artifact_dir, ui_mode, data_dir, driver):
+def module_setup(request, device, artifact_dir, ui_mode, data_dir):
     def module_teardown():
         device.activated()
         ui_logs = join(artifact_dir, 'ui-log-{0}'.format(ui_mode))
@@ -24,7 +24,7 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir, driver):
         device.scp_from_device('{0}/*'.format(TMP_DIR), ui_logs)
         device.scp_from_device('{0}/log/*'.format(data_dir), ui_logs)
         check_output('chmod -R a+r {0}'.format(ui_logs), shell=True)
-        driver.quit()
+
     request.addfinalizer(module_teardown)
 
 
@@ -272,3 +272,7 @@ def settings(driver, screenshot_dir, ui_mode, setting):
 def wait_for_loading(driver):
     wait_driver = WebDriverWait(driver, 120)
     wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'loadingoverlay')))
+
+
+def test_teardown(driver):
+    driver.quit()
