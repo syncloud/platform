@@ -3,7 +3,9 @@ package redirect
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/syncloud/platform/config"
+	"github.com/syncloud/platform/identification"
 	"io"
 	"log"
 	"net/http"
@@ -11,11 +13,13 @@ import (
 
 type Redirect struct {
 	UserPlatformConfig *config.PlatformUserConfig
+	identification     *identification.Parser
 }
 
-func New(userPlatformConfig *config.PlatformUserConfig) *Redirect {
+func New(userPlatformConfig *config.PlatformUserConfig, identification *identification.Parser) *Redirect {
 	return &Redirect{
 		UserPlatformConfig: userPlatformConfig,
+		identification:     identification,
 	}
 }
 
@@ -40,11 +44,15 @@ func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	return &redirectUserResponse.Data, nil
 }
 
-/*func Acquire(email string, password string, userDomain string) {
+func (r *Redirect) Acquire(email string, password string, userDomain string) error {
 	uuid.NodeID()
 
-	device_id = id.id()
-	data =
+	_, err := r.identification.Id()
+	if err != nil {
+		return err
+	}
+
+	/*data =
 	{
 		'email': email,
 		'password': password,
@@ -57,5 +65,6 @@ func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	response = requests.post(url, data)
 	util.check_http_error(response)
 	response_data = convertible.from_json(response.text)
-	return response_data
-}*/
+	return response_data*/
+	return err
+}

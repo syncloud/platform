@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/redirect"
 	"log"
 	"net/url"
@@ -65,13 +66,18 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string) 
 	storageService := storage.New()
 	oldConfig := fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
 	configuration := config.New(configDb, oldConfig, redirectDomain, defaultRedirectUrl)
+	configuration.EnsureDb()
 	redirectApiUrl := configuration.GetRedirectApiUrl()
 	redirectUrl, err := url.Parse(redirectApiUrl)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse redirect base url: %s", redirectApiUrl)
 	}
 
-	redirectService := redirect.New(configuration)
+	id, err := identification.New("/etc/syncloud/id.cfg")
+	if err != nil {
+		return nil, err
+	}
+	redirectService := redirect.New(configuration, id)
 	worker := job.NewWorker(master)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl), nil
 

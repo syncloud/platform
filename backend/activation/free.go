@@ -17,6 +17,7 @@ type FreePlatformUserConfig interface {
 
 type FreeRedirect interface {
 	Authenticate(email string, password string) (*redirect.User, error)
+	Acquire(email string, password string, userDomain string) error
 }
 
 type Free struct {
@@ -46,15 +47,15 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 		return err
 	}
 	f.config.SetUserUpdateToken(user.UpdateToken)
-	//name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
 
 	/*
 
+			name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
+			response := f.redirect.Acquire(redirectEmail, redirectPassword, userDomainLower)
 
-	   response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain_lower)
-	   self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
+		   self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
 
-	   self._activate_common(name, device_username, device_password, email)
+		   self._activate_common(name, device_username, device_password, email)
 	*/
 	return fmt.Errorf("not implemented yet")
 }
