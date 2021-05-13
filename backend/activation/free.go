@@ -46,10 +46,10 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 		return err
 	}
 	f.config.SetUserUpdateToken(user.UpdateToken)
+	//name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
 
 	/*
 
-	   name, email = parse_username(device_username, '{0}.{1}'.format(user_domain_lower, main_domain))
 
 	   response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain_lower)
 	   self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
@@ -73,4 +73,12 @@ func (f *Free) prepareRedirect(redirectEmail string, redirectPassword string, ma
 	}
 	return user, nil
 
+}
+
+func ParseUsername(username string, domain string) (string, string) {
+	if strings.Contains(username, "@") {
+		return strings.Split(username, "@")[0], username
+	}
+	email := fmt.Sprintf("%s@%s", username, domain)
+	return username, email
 }

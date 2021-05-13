@@ -12,6 +12,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/job"
@@ -55,7 +57,7 @@ func (backend *Backend) Start(network string, address string) {
 	http.HandleFunc("/storage/disk_format", Handle(http.MethodPost, backend.StorageFormat))
 	http.HandleFunc("/storage/boot_extend", Handle(http.MethodPost, backend.StorageBootExtend))
 	http.HandleFunc("/event/trigger", Handle(http.MethodPost, backend.EventTrigger))
-	http.HandleFunc("/redirect/domain/availability", Handle(http.MethodPost, backend.RedirectCheckFreeDomain))
+	http.HandleFunc("/redirect/domain/availability", backend.RedirectProxy)
 
 	server := http.Server{}
 
@@ -178,14 +180,16 @@ func (backend *Backend) EventTrigger(_ http.ResponseWriter, req *http.Request) (
 	return "ok", backend.eventTrigger.RunEventOnAllApps(request.Event)
 }
 
-func (backend *Backend) RedirectCheckFreeDomain(_ http.ResponseWriter, req *http.Request) (interface{}, error) {
-	var request model.RedirectCheckFreeDomainRequest
-	err := json.NewDecoder(req.Body).Decode(&request)
+func (backend *Backend) RedirectProxy(w http.ResponseWriter, req *http.Request) {
+	redirectApiUrl := backend.redirect.UserPlatformConfig.GetRedirectApiUrl()
+	redirectUrl, err := url.Parse(redirectApiUrl)
 	if err != nil {
-		log.Printf("parse error: %v", err.Error())
-		return nil, errors.New("cannot parse request")
+		err := fmt.Errorf("unable to parse redirect base url: %s", redirectApiUrl)
+		log.Println(err)
+		fail(w, err)
 	}
-	return "OK", backend.redirect.DomainAvailability(request)
+	proxy := httputil.NewSingleHostReverseProxy(redirectUrl)
+	proxy.ServeHTTP(w, req)
 }
 
 func (backend *Backend) StorageBootExtend(_ http.ResponseWriter, _ *http.Request) (interface{}, error) {

@@ -1,46 +1,26 @@
 package redirect
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/rest/model"
 	"io"
 	"log"
 	"net/http"
 )
 
 type Redirect struct {
-	userPlatformConfig *config.PlatformUserConfig
+	UserPlatformConfig *config.PlatformUserConfig
 }
 
 func New(userPlatformConfig *config.PlatformUserConfig) *Redirect {
 	return &Redirect{
-		userPlatformConfig: userPlatformConfig,
+		UserPlatformConfig: userPlatformConfig,
 	}
-}
-
-func (r *Redirect) DomainAvailability(request model.RedirectCheckFreeDomainRequest) error {
-	url := fmt.Sprintf("%s/domain/availability", r.userPlatformConfig.GetRedirectApiUrl())
-	requestJson, err := json.Marshal(request)
-	if err != nil {
-		return err
-	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	return CheckHttpError(resp.StatusCode, body)
 }
 
 func (r *Redirect) Authenticate(email string, password string) (*User, error) {
-	url := fmt.Sprintf("%s/user/get?email=%s&password=%s", r.userPlatformConfig.GetRedirectApiUrl(), email, password)
+	url := fmt.Sprintf("%s/user/get?email=%s&password=%s", r.UserPlatformConfig.GetRedirectApiUrl(), email, password)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -59,3 +39,23 @@ func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	}
 	return &redirectUserResponse.Data, nil
 }
+
+/*func Acquire(email string, password string, userDomain string) {
+	uuid.NodeID()
+
+	device_id = id.id()
+	data =
+	{
+		'email': email,
+		'password': password,
+		'user_domain': user_domain,
+		'device_mac_address': device_id.mac_address,
+		'device_name': device_id.name,
+		'device_title': device_id.title,
+	}
+	url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/acquire")
+	response = requests.post(url, data)
+	util.check_http_error(response)
+	response_data = convertible.from_json(response.text)
+	return response_data
+}*/
