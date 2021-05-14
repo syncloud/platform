@@ -100,14 +100,26 @@ def test_activation_status_false(device_host):
 
 def test_id_redirect_backward_compatibility(device_host):
     response = requests.get('http://{0}:81/rest/id'.format(device_host), allow_redirects=False)
-    assert 'mac_address' in response.text
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
+    response_json = json.loads(response.text)
+    assert 'data' in response_json
+    assert 'success' in response_json
+    assert 'message' in response_json
+    assert 'mac_address' in response_json['data']
+    assert 'title' in response_json['data']
+    assert 'name' in response_json['data']
 
 
 def test_id_before_activation(device_host):
     response = requests.get('https://{0}/rest/id'.format(device_host), allow_redirects=False, verify=False)
-    assert 'mac_address' in response.text
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
+    response_json = json.loads(response.text)
+    assert 'data' in response_json
+    assert 'success' in response_json
+    assert 'message' in response_json
+    assert 'mac_address' in response_json['data']
+    assert 'title' in response_json['data']
+    assert 'name' in response_json['data']
 
 
 def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
@@ -21,30 +22,33 @@ import (
 )
 
 type Backend struct {
-	Master        *job.Master
-	backup        *backup.Backup
-	eventTrigger  *event.Trigger
-	worker        *job.Worker
-	redirect      *redirect.Redirect
-	installer     installer.AppInstaller
-	storage       *storage.Storage
-	redirectProxy *httputil.ReverseProxy
+	Master         *job.Master
+	backup         *backup.Backup
+	eventTrigger   *event.Trigger
+	worker         *job.Worker
+	redirect       *redirect.Redirect
+	installer      installer.AppInstaller
+	storage        *storage.Storage
+	redirectProxy  *httputil.ReverseProxy
+	identification *identification.Parser
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Redirect, installerService *installer.Installer,
-	storageService *storage.Storage, redirectUrl *url.URL) *Backend {
+	storageService *storage.Storage, redirectUrl *url.URL,
+	identification *identification.Parser) *Backend {
 
 	return &Backend{
-		Master:        master,
-		backup:        backup,
-		eventTrigger:  eventTrigger,
-		worker:        worker,
-		redirect:      redirect,
-		installer:     installerService,
-		storage:       storageService,
-		redirectProxy: httputil.NewSingleHostReverseProxy(redirectUrl),
+		Master:         master,
+		backup:         backup,
+		eventTrigger:   eventTrigger,
+		worker:         worker,
+		redirect:       redirect,
+		installer:      installerService,
+		storage:        storageService,
+		redirectProxy:  httputil.NewSingleHostReverseProxy(redirectUrl),
+		identification: identification,
 	}
 }
 
@@ -67,6 +71,7 @@ func (backend *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/event/trigger", Handle(backend.EventTrigger)).Methods("POST")
 	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
+	r.HandleFunc("/id", Handle(backend.Id)).Methods("GET")
 
 	r.Use(middleware)
 
@@ -185,6 +190,7 @@ func (backend *Backend) StorageFormat(req *http.Request) (interface{}, error) {
 }
 
 func (backend *Backend) EventTrigger(req *http.Request) (interface{}, error) {
+	log.Printf("event trigger")
 	var request model.EventTriggerRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -192,6 +198,15 @@ func (backend *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 		return nil, errors.New("event is missing")
 	}
 	return "ok", backend.eventTrigger.RunEventOnAllApps(request.Event)
+}
+
+func (backend *Backend) Id(_ *http.Request) (interface{}, error) {
+	id, err := backend.identification.Id()
+	if err != nil {
+		log.Printf("parse error: %v", err.Error())
+		return nil, errors.New("id is not available")
+	}
+	return id, nil
 }
 
 func (backend *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {

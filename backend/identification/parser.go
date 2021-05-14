@@ -7,9 +7,9 @@ import (
 )
 
 type Id struct {
-	name       string
-	title      string
-	macAddress string
+	Name       string `json:"name"`
+	Title      string `json:"title"`
+	MacAddress string `json:"mac_address"`
 }
 
 type Parser struct {

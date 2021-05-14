@@ -77,6 +77,6 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	id := identification.New(idConfig)
 	redirectService := redirect.New(configuration, id)
 	worker := job.NewWorker(master)
-	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl), nil
+	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id), nil
 
 }

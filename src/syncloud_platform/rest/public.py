@@ -33,11 +33,6 @@ def _callback():
     return 'Unauthorised', 401
 
 
-@app.route("/rest/id", methods=["GET"])
-def identification():
-    return jsonify(success=True, message='', data=convertible.to_dict(internal.identification())), 200
-
-
 @app.route("/rest/activation_status", methods=["GET"])
 def activation_status():
     try:
@@ -340,6 +335,12 @@ def backend_proxy_activated():
 @app.route("/rest/redirect/domain/availability", methods=["POST"])
 @fail_if_activated
 def backend_proxy_not_activated():
+    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
+    return response.text, response.status_code
+
+
+@app.route("/rest/id", methods=["GET"])
+def identification():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
 
