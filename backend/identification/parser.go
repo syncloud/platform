@@ -13,26 +13,27 @@ type Id struct {
 }
 
 type Parser struct {
-	config *configparser.ConfigParser
+	filename string
 }
 
 func New(filename string) *Parser {
-	config, err := configparser.NewConfigParserFromFile(filename)
-	if err != nil {
-		log.Printf("cannot load id config: %s, %s", filename, err)
-		config = configparser.New()
-	}
-	return &Parser{config: config}
+	return &Parser{filename: filename}
 }
 
 func (p *Parser) get(key string, def string) string {
-	option, err := p.config.HasOption("id", key)
+	config, err := configparser.NewConfigParserFromFile(p.filename)
+	if err != nil {
+		log.Printf("cannot load id config: %s, %s", p.filename, err)
+		config = configparser.New()
+	}
+
+	option, err := config.HasOption("id", key)
 	if err != nil {
 		log.Printf("identification key (%s) error: %s", key, err)
 		return def
 	}
 	if option {
-		option, err := p.config.Get("id", key)
+		option, err := config.Get("id", key)
 		if err != nil {
 			log.Printf("identification key (%s) error: %s", key, err)
 			return def
