@@ -27,17 +27,16 @@ func main() {
 	redirectUrl := rootCmd.PersistentFlags().String("redirect-url", "https://api.syncloud.it", "redirect url")
 	idConfig := rootCmd.PersistentFlags().String("identification-config", "/etc/syncloud/id.cfg", "id config")
 
-	backend, err := Backend(*configDb, *redirectDomain, *redirectUrl, *idConfig)
-	if err != nil {
-		log.Print("error: ", err)
-		os.Exit(1)
-	}
-
 	var tcpCmd = &cobra.Command{
 		Use:   "tcp [address]",
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			backend, err := Backend(*configDb, *redirectDomain, *redirectUrl, *idConfig)
+			if err != nil {
+				log.Print("error: ", err)
+				os.Exit(1)
+			}
 			backend.Start("tcp", args[0])
 		},
 	}
@@ -48,6 +47,11 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = os.Remove(args[0])
+			backend, err := Backend(*configDb, *redirectDomain, *redirectUrl, *idConfig)
+			if err != nil {
+				log.Print("error: ", err)
+				os.Exit(1)
+			}
 			backend.Start("unix", args[0])
 		},
 	}

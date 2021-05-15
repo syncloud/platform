@@ -72,6 +72,7 @@ func (backend *Backend) Start(network string, address string) {
 	r.HandleFunc("/event/trigger", Handle(backend.EventTrigger)).Methods("POST")
 	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
 	r.HandleFunc("/id", Handle(backend.Id)).Methods("GET")
+	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
 
@@ -110,14 +111,19 @@ func success(w http.ResponseWriter, data interface{}) {
 
 func middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s: %s", r.Method, r.RequestURI)
 		w.Header().Add("Content-Type", "application/json")
 		next.ServeHTTP(w, r)
 	})
 }
 
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("404 %s: %s", r.Method, r.RequestURI)
+	http.NotFound(w, r)
+}
+
 func Handle(f func(req *http.Request) (interface{}, error)) func(w http.ResponseWriter, req *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		log.Printf("request: %s\n", req.URL.Path)
 		data, err := f(req)
 		if err != nil {
 			fail(w, err)
