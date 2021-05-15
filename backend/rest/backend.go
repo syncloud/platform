@@ -75,10 +75,8 @@ func (backend *Backend) Start(network string, address string) {
 
 	r.Use(middleware)
 
-	server := http.Server{}
-
 	log.Println("Started backend")
-	_ = server.Serve(listener)
+	_ = http.Serve(listener, r)
 
 }
 
