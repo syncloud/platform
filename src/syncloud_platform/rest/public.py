@@ -341,7 +341,7 @@ def backend_proxy_not_activated():
 
 @app.route("/rest/id", methods=["GET"])
 def identification():
-    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
+    response = backend_request("GET", "/id", None)
     return response.text, response.status_code
 
 
