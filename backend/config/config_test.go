@@ -11,15 +11,17 @@ import (
 func TestDomain(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config := New(db, tempFile().Name(), "syncloud.it", "https://api.syncloud.it")
-	config.EnsureDb()
+	config, err := New(db, tempFile().Name(), "syncloud.it", "https://api.syncloud.it")
+	assert.Nil(t, err)
 
-	config.UpdateRedirect("syncloud.it", "https://api.syncloud.it")
+	config.UpdateRedirectDomain("syncloud.it")
+	config.UpdateRedirectApiUrl("https://api.syncloud.it")
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())
 
 	assert.Equal(t, "https://api.syncloud.it", config.GetRedirectApiUrl())
 
-	config.UpdateRedirect("syncloud.info", "https://api.syncloud.info:81")
+	config.UpdateRedirectDomain("syncloud.info")
+	config.UpdateRedirectApiUrl("https://api.syncloud.info:81")
 	assert.Equal(t, "syncloud.info", config.GetRedirectDomain())
 	assert.Equal(t, "https://api.syncloud.info:81", config.GetRedirectApiUrl())
 }
@@ -58,8 +60,9 @@ user_update_token = token2
 
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config := New(db, oldConfigFile.Name(), "syncloud.it", "https://api.syncloud.it")
-	config.EnsureDb()
+	config, err := New(db, oldConfigFile.Name(), "syncloud.it", "https://api.syncloud.it")
+	assert.Nil(t, err)
+
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())
 	assert.True(t, config.GetUpnp())
 	assert.True(t, config.IsRedirectEnabled())

@@ -8,16 +8,28 @@ import (
 	"strings"
 )
 
+type FreeActivateRequest struct {
+	RedirectEmail    string `json:"redirect_email"`
+	RedirectPassword string `json:"redirect_password"`
+	Domain           string `json:"user_domain"`
+	DeviceUsername   string `json:"device_username"`
+	DevicePassword   string `json:"device_password"`
+}
+
 type FreePlatformUserConfig interface {
 	SetRedirectEnabled(enabled bool)
-	UpdateRedirect(domain string, apiUrl string)
+	UpdateRedirectDomain(domain string)
+	UpdateRedirectApiUrl(apiUrl string)
 	SetUserUpdateToken(userUpdateToken string)
 	SetUserEmail(userEmail string)
+	UpdateUserDomain(domain string)
+	UpdateDomainToken(token string)
+	GetRedirectDomain() string
 }
 
 type FreeRedirect interface {
 	Authenticate(email string, password string) (*redirect.User, error)
-	Acquire(email string, password string, userDomain string) error
+	Acquire(email string, password string, userDomain string) (*redirect.Domain, error)
 }
 
 type Free struct {
@@ -34,7 +46,7 @@ func New(internet connection.Checker, config FreePlatformUserConfig, redirect Fr
 	}
 }
 
-func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomain string, deviceUsername string, devicePassword string, mainDomain string) error {
+func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomain string, deviceUsername string, devicePassword string) error {
 	userDomainLower := strings.ToLower(userDomain)
 	log.Printf("activate %s, %s", userDomainLower, deviceUsername)
 
@@ -42,30 +54,32 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 	if err != nil {
 		return err
 	}
-	user, err := f.prepareRedirect(redirectEmail, redirectPassword, mainDomain)
+	user, err := f.prepareRedirect(redirectEmail, redirectPassword)
 	if err != nil {
 		return err
 	}
 	f.config.SetUserUpdateToken(user.UpdateToken)
+	mainDomain := f.config.GetRedirectDomain()
+	name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
+	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, userDomainLower)
+	if err != nil {
+		return err
+	}
+	f.config.UpdateUserDomain(domain.UserDomain)
+	if domain.UpdateToken == nil {
+		return fmt.Errorf("domain update token is missing")
+	}
+	f.config.UpdateDomainToken(*domain.UpdateToken)
+	return ActivateCommon(name, deviceUsername, devicePassword, email)
+}
 
-	/*
-
-			name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
-			response := f.redirect.Acquire(redirectEmail, redirectPassword, userDomainLower)
-
-		   self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
-
-		   self._activate_common(name, device_username, device_password, email)
-	*/
+func ActivateCommon(name string, username string, password string, email string) error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (f *Free) prepareRedirect(redirectEmail string, redirectPassword string, mainDomain string) (*redirect.User, error) {
-	redirectApiUrl := fmt.Sprintf("https://api.%s", mainDomain)
-
-	log.Printf("prepare redirect %s, %s", redirectEmail, redirectApiUrl)
+func (f *Free) prepareRedirect(redirectEmail string, redirectPassword string) (*redirect.User, error) {
+	log.Printf("prepare redirect %s", redirectEmail)
 	f.config.SetRedirectEnabled(true)
-	f.config.UpdateRedirect(mainDomain, redirectApiUrl)
 	f.config.SetUserEmail(redirectEmail)
 
 	user, err := f.redirect.Authenticate(redirectEmail, redirectPassword)

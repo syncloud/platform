@@ -23,28 +23,23 @@ class Device:
         self.logger = logger.get_logger('Device')
         self.nginx = nginx
 
-    def prepare_redirect(self, redirect_email, redirect_password, main_domain):
+    def prepare_redirect(self, redirect_email, redirect_password):
 
-        redirect_api_url = 'https://api.' + main_domain
-
-        self.logger.info("prepare redirect {0}, {1}".format(redirect_email, redirect_api_url))
+        self.logger.info("prepare redirect {0}".format(redirect_email))
         self.user_platform_config.set_redirect_enabled(True)
-        
-        self.user_platform_config.update_redirect(main_domain, redirect_api_url)
         self.user_platform_config.set_user_email(redirect_email)
-
         user = self.redirect_service.get_user(redirect_email, redirect_password)
         return user
 
-    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password, main_domain):
+    def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password):
         user_domain_lower = user_domain.lower()
         self.logger.info("activate {0}, {1}".format(user_domain_lower, device_username))
         
         self._check_internet_connection()
-        
-        user = self.prepare_redirect(redirect_email, redirect_password, main_domain)
+        user = self.prepare_redirect(redirect_email, redirect_password)
         self.user_platform_config.set_user_update_token(user.update_token)
-      
+
+        main_domain = self.user_platform_config.get_redirect_domain()
         name, email = parse_username(device_username, '{0}.{1}'.format(user_domain_lower, main_domain))
      
         response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain_lower)

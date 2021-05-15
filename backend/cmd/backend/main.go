@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/config"
+	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/redirect"
@@ -21,8 +22,7 @@ import (
 func main() {
 
 	var rootCmd = &cobra.Command{Use: "backend"}
-	defaultConfigDb := fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_COMMON"))
-	configDb := rootCmd.PersistentFlags().String("config", defaultConfigDb, "sqlite config db")
+	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
 	redirectDomain := rootCmd.PersistentFlags().String("redirect-domain", "syncloud.it", "redirect domain")
 	redirectUrl := rootCmd.PersistentFlags().String("redirect-url", "https://api.syncloud.it", "redirect url")
 	idConfig := rootCmd.PersistentFlags().String("identification-config", "/etc/syncloud/id.cfg", "id config")
@@ -69,18 +69,20 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	eventTrigger := event.New()
 	installerService := installer.New()
 	storageService := storage.New()
-	oldConfig := fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
-	configuration := config.New(configDb, oldConfig, redirectDomain, defaultRedirectUrl)
-	configuration.EnsureDb()
+	configuration, err := config.New(configDb, config.OldConfig, redirectDomain, defaultRedirectUrl)
+	if err != nil {
+		return nil, err
+	}
 	redirectApiUrl := configuration.GetRedirectApiUrl()
 	redirectUrl, err := url.Parse(redirectApiUrl)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse redirect base url: %s", redirectApiUrl)
+		return nil, err
 	}
 
 	id := identification.New(idConfig)
 	redirectService := redirect.New(configuration, id)
 	worker := job.NewWorker(master)
-	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id), nil
+	freeActivation := activation.New(&connection.Internet{}, configuration, redirectService)
+	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
 
 }

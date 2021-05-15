@@ -120,10 +120,14 @@ def test_id_before_activation(device_host):
     assert 'name' in response_json['data']
 
 
-def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
+def test_set_redirect(device, main_domain, redirect_api_url):
+    device.run_ssh('snap platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap platform.cli config set redirect.api_url {}'.format(redirect_api_url))
+
+
+def test_activate_device(device_host, domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': 'user1',
@@ -131,11 +135,10 @@ def test_activate_device(device_host, domain, main_domain, redirect_user, redire
     assert response.status_code == 200, response.text
 
 
-def test_reactivate_activated_device(device_host, domain, main_domain, device_user, device_password,
+def test_reactivate_activated_device(device_host, domain, device_user, device_password,
                                      redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': device_user,
@@ -148,11 +151,15 @@ def test_drop_activation(device):
     device.run_ssh('ls -la /var/snap/platform/common')
 
 
-def test_reactivate_good(device_host, domain, main_domain, device_user, device_password,
+def test_set_redirect_again(device, main_domain, redirect_api_url):
+    device.run_ssh('snap platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap platform.cli config set redirect.api_url {}'.format(redirect_api_url))
+
+
+def test_reactivate_good(device_host, domain, device_user, device_password,
                          redirect_user, redirect_password, device):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': device_user,
@@ -177,11 +184,10 @@ def test_activation_status_false_after_deactivate(device_host):
     assert not json.loads(response.text)["activated"], response.text
 
 
-def test_reactivate_after_deactivate(device_host, domain, main_domain, device_user, device_password,
+def test_reactivate_after_deactivate(device_host, domain, device_user, device_password,
                                      redirect_user, redirect_password, device):
     response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
                                    'device_username': device_user,

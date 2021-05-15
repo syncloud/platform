@@ -52,17 +52,12 @@ def activate():
     validator = InternalValidator()
     validator.validate(device_username, device_password)
 
-    main_domain = 'syncloud.it'
-    if 'main_domain' in request_json:
-        main_domain = request_json['main_domain']
-
     device.activate(
         request_json['redirect_email'],
         request_json['redirect_password'],
         request_json['user_domain'],
         device_username,
-        device_password,
-        main_domain
+        device_password
     )
     return identification()
 

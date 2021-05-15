@@ -22,26 +22,42 @@ type PlatformUserConfig struct {
 	redirectUrl    string
 }
 
-func New(file string, oldConfigFile string, redirectDomain string, redirectUrl string) *PlatformUserConfig {
-	return &PlatformUserConfig{
+var OldConfig string
+var DefaultConfigDb string
+
+func init() {
+	OldConfig = fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
+	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_COMMON"))
+}
+
+func New(file string, oldConfigFile string, redirectDomain string, redirectUrl string) (*PlatformUserConfig, error) {
+	config := &PlatformUserConfig{
 		file:           file,
 		oldConfigFile:  oldConfigFile,
 		redirectDomain: redirectDomain,
 		redirectUrl:    redirectUrl,
 	}
+	err := config.ensureDb()
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
 }
 
-func (c *PlatformUserConfig) EnsureDb() {
+func (c *PlatformUserConfig) ensureDb() error {
 	_, err := os.Stat(c.file)
 	if os.IsNotExist(err) {
-		c.initDb()
+		err = c.initDb()
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = os.Stat(c.oldConfigFile)
 	if err == nil {
 		c.migrate()
 	}
-
+	return nil
 }
 
 func (c *PlatformUserConfig) migrate() {
@@ -63,7 +79,7 @@ func (c *PlatformUserConfig) migrate() {
 			if value == OldBoolTrue || value == OldBoolFalse {
 				dbValue = c.fromBool(value == OldBoolTrue)
 			}
-			c.upsert(fmt.Sprintf("%s.%s", section, key), dbValue)
+			c.Upsert(fmt.Sprintf("%s.%s", section, key), dbValue)
 		}
 	}
 	c.SetWebSecretKey(uuid.New().String())
@@ -74,20 +90,19 @@ func (c *PlatformUserConfig) migrate() {
 }
 
 func (c *PlatformUserConfig) SetWebSecretKey(value string) {
-	c.upsert("platform.web_secret_key", value)
+	c.Upsert("platform.web_secret_key", value)
 }
 
-func (c *PlatformUserConfig) initDb() {
+func (c *PlatformUserConfig) initDb() error {
 	db := c.open()
 	defer db.Close()
 
 	initDbSql := "create table config (key varchar primary key, value varchar)"
 	_, err := db.Exec(initDbSql)
 	if err != nil {
-		log.Printf("%q: %s\n", err, initDbSql)
-		return
+		return fmt.Errorf("unable to init db (%s): %s", c.file, err)
 	}
-
+	return nil
 }
 
 func (c *PlatformUserConfig) open() *sql.DB {
@@ -98,57 +113,67 @@ func (c *PlatformUserConfig) open() *sql.DB {
 	return db
 }
 
-func (c *PlatformUserConfig) UpdateRedirect(domain string, apiUrl string) {
-	c.upsert("redirect.domain", domain)
-	c.upsert("redirect.api_url", apiUrl)
+func (c *PlatformUserConfig) UpdateRedirectDomain(domain string) {
+	c.Upsert("redirect.domain", domain)
+}
+
+func (c *PlatformUserConfig) UpdateRedirectApiUrl(apiUrl string) {
+	c.Upsert("redirect.api_url", apiUrl)
 }
 
 func (c *PlatformUserConfig) SetUserEmail(userEmail string) {
-	c.upsert("redirect.user_email", userEmail)
+	c.Upsert("redirect.user_email", userEmail)
 }
 
 func (c *PlatformUserConfig) SetUserUpdateToken(userUpdateToken string) {
-	c.upsert("redirect.user_update_token", userUpdateToken)
+	c.Upsert("redirect.user_update_token", userUpdateToken)
 }
 
 func (c *PlatformUserConfig) GetRedirectDomain() string {
-	return c.get("redirect.domain", c.redirectDomain)
+	return c.Get("redirect.domain", c.redirectDomain)
 }
 
 func (c *PlatformUserConfig) GetRedirectApiUrl() string {
-	return c.get("redirect.api_url", c.redirectUrl)
+	return c.Get("redirect.api_url", c.redirectUrl)
 }
 
 func (c PlatformUserConfig) GetUpnp() bool {
-	result := c.get("platform.upnp", DbTrue)
+	result := c.Get("platform.upnp", DbTrue)
 	return c.toBool(result)
 }
 
 func (c *PlatformUserConfig) IsRedirectEnabled() bool {
-	result := c.get("platform.redirect_enabled", DbFalse)
+	result := c.Get("platform.redirect_enabled", DbFalse)
 	return c.toBool(result)
 }
 
 func (c *PlatformUserConfig) GetExternalAccess() bool {
-	result := c.get("platform.external_access", DbFalse)
+	result := c.Get("platform.external_access", DbFalse)
 	return c.toBool(result)
 }
 
 func (c *PlatformUserConfig) SetRedirectEnabled(enabled bool) {
-	c.upsert("platform.redirect_enabled", c.fromBool(enabled))
+	c.Upsert("platform.redirect_enabled", c.fromBool(enabled))
 }
 
-func (c *PlatformUserConfig) upsert(key string, value string) {
+func (c *PlatformUserConfig) UpdateUserDomain(domain string) {
+	c.Upsert("platform.user_domain", domain)
+}
+
+func (c *PlatformUserConfig) UpdateDomainToken(token string) {
+	c.Upsert("platform.domain_update_token", token)
+}
+
+func (c *PlatformUserConfig) Upsert(key string, value string) {
 	db := c.open()
 	defer db.Close()
-	log.Printf("setting %s=%s", key, value)
 	_, err := db.Exec("INSERT OR REPLACE INTO config VALUES (?, ?)", key, value)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (c *PlatformUserConfig) get(key string, defaultValue string) string {
+func (c *PlatformUserConfig) Get(key string, defaultValue string) string {
 	db := c.open()
 	defer db.Close()
 	var value string

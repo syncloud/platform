@@ -1,13 +1,12 @@
 package redirect
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/identification"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -31,6 +30,9 @@ func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	err = CheckHttpError(resp.StatusCode, body)
 	if err != nil {
 		return nil, err
@@ -38,33 +40,47 @@ func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	var redirectUserResponse UserResponse
 	err = json.Unmarshal(body, &redirectUserResponse)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 	return &redirectUserResponse.Data, nil
 }
 
-func (r *Redirect) Acquire(email string, password string, userDomain string) error {
-	uuid.NodeID()
+func (r *Redirect) Acquire(email string, password string, userDomain string) (*Domain, error) {
 
-	_, err := r.identification.Id()
+	deviceId, err := r.identification.Id()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	/*data =
-	{
-		'email': email,
-		'password': password,
-		'user_domain': user_domain,
-		'device_mac_address': device_id.mac_address,
-		'device_name': device_id.name,
-		'device_title': device_id.title,
+	request := &FreeDomainAcquireRequest{
+		Email:            email,
+		Password:         password,
+		UserDomain:       userDomain,
+		DeviceMacAddress: deviceId.MacAddress,
+		DeviceName:       deviceId.Name,
+		DeviceTitle:      deviceId.Title}
+	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "/domain/acquire")
+	requestJson, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
 	}
-	url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/acquire")
-	response = requests.post(url, data)
-	util.check_http_error(response)
-	response_data = convertible.from_json(response.text)
-	return response_data*/
-	return err
+	responseJson, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
+	if err != nil {
+		return nil, err
+	}
+	defer responseJson.Body.Close()
+	body, err := io.ReadAll(responseJson.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = CheckHttpError(responseJson.StatusCode, body)
+	if err != nil {
+		return nil, err
+	}
+	var response Domain
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+	return &response, nil
 }

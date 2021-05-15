@@ -1,5 +1,7 @@
 package redirect
 
+import "time"
+
 type Response struct {
 	Message string `json:"message"`
 }
@@ -16,4 +18,31 @@ type DomainAvailabilityRequest struct {
 	UserDomain *string `json:"user_domain,omitempty"`
 	Password   *string `json:"password,omitempty"`
 	Email      *string `json:"email,omitempty"`
+}
+
+type FreeDomainAcquireRequest struct {
+	UserDomain       string `json:"user_domain,omitempty"`
+	Password         string `json:"password,omitempty"`
+	Email            string `json:"email,omitempty"`
+	DeviceMacAddress string `json:"device_mac_address,omitempty"`
+	DeviceName       string `json:"device_name,omitempty"`
+	DeviceTitle      string `json:"device_title,omitempty"`
+}
+
+type Domain struct {
+	UserDomain       string     `json:"user_domain,omitempty"`
+	Ip               *string    `json:"ip,omitempty"`
+	Ipv6             *string    `json:"ipv6,omitempty"`
+	DkimKey          *string    `json:"dkim_key,omitempty"`
+	LocalIp          *string    `json:"local_ip,omitempty"`
+	MapLocalAddress  bool       `json:"map_local_address,omitempty"`
+	UpdateToken      *string    `json:"update_token,omitempty"`
+	LastUpdate       *time.Time `json:"last_update,omitempty"`
+	DeviceMacAddress *string    `json:"device_mac_address,omitempty"`
+	DeviceName       *string    `json:"device_name,omitempty"`
+	DeviceTitle      *string    `json:"device_title,omitempty"`
+	PlatformVersion  *string    `json:"platform_version,omitempty"`
+	WebProtocol      *string    `json:"web_protocol,omitempty"`
+	WebPort          *int       `json:"web_port,omitempty"`
+	WebLocalPort     *int       `json:"web_local_port,omitempty"`
 }

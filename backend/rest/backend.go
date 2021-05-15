@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
@@ -31,13 +32,14 @@ type Backend struct {
 	storage        *storage.Storage
 	redirectProxy  *httputil.ReverseProxy
 	identification *identification.Parser
+	activation     *activation.Free
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Redirect, installerService *installer.Installer,
 	storageService *storage.Storage, redirectUrl *url.URL,
-	identification *identification.Parser) *Backend {
+	identification *identification.Parser, activation *activation.Free) *Backend {
 
 	return &Backend{
 		Master:         master,
@@ -49,6 +51,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		storage:        storageService,
 		redirectProxy:  NewReverseProxy(redirectUrl),
 		identification: identification,
+		activation:     activation,
 	}
 }
 
@@ -79,8 +82,9 @@ func (backend *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/event/trigger", Handle(backend.EventTrigger)).Methods("POST")
-	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
+	r.HandleFunc("/activate/free", Handle(backend.EventTrigger)).Methods("POST")
 	r.HandleFunc("/id", Handle(backend.Id)).Methods("GET")
+	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -203,7 +207,6 @@ func (backend *Backend) StorageFormat(req *http.Request) (interface{}, error) {
 }
 
 func (backend *Backend) EventTrigger(req *http.Request) (interface{}, error) {
-	log.Printf("event trigger")
 	var request model.EventTriggerRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -211,6 +214,15 @@ func (backend *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 		return nil, errors.New("event is missing")
 	}
 	return "ok", backend.eventTrigger.RunEventOnAllApps(request.Event)
+}
+
+func (backend *Backend) Activate(req *http.Request) (interface{}, error) {
+	var request activation.FreeActivateRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return nil, err
+	}
+	return "ok", backend.activation.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.RedirectPassword)
 }
 
 func (backend *Backend) Id(_ *http.Request) (interface{}, error) {
