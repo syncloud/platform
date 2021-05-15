@@ -104,7 +104,6 @@ def test_id_redirect_backward_compatibility(device_host):
     response_json = json.loads(response.text)
     assert 'data' in response_json
     assert 'success' in response_json
-    assert 'message' in response_json
     assert 'mac_address' in response_json['data']
     assert 'title' in response_json['data']
     assert 'name' in response_json['data']
@@ -116,7 +115,6 @@ def test_id_before_activation(device_host):
     response_json = json.loads(response.text)
     assert 'data' in response_json
     assert 'success' in response_json
-    assert 'message' in response_json
     assert 'mac_address' in response_json['data']
     assert 'title' in response_json['data']
     assert 'name' in response_json['data']
