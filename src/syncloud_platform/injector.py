@@ -18,7 +18,6 @@ from syncloud_platform.insider.port_mapper_factory import PortMapperFactory
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.insider.upnpc import UpnpPortMapper
 from syncloud_platform.log.aggregator import Aggregator
-from syncloud_platform.rest.facade.internal import Internal
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.snap.snap import Snap
 from syncloud_platform.disks.lsblk import Lsblk
@@ -84,7 +83,6 @@ class Injector:
                              self.port_drill_factory, self.platform_cron, self.ldap_auth,
                              self.event_trigger, self.tls, self.nginx)
 
-        self.internal = Internal(self.platform_config, self.device, self.redirect_service, self.log_aggregator)
         self.path_checker = PathChecker(self.platform_config)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger,
