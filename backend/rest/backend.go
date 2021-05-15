@@ -47,9 +47,18 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		redirect:       redirect,
 		installer:      installerService,
 		storage:        storageService,
-		redirectProxy:  httputil.NewSingleHostReverseProxy(redirectUrl),
+		redirectProxy:  NewReverseProxy(redirectUrl),
 		identification: identification,
 	}
+}
+
+func NewReverseProxy(target *url.URL) *httputil.ReverseProxy {
+	director := func(req *http.Request) {
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Host = target.Host
+	}
+	return &httputil.ReverseProxy{Director: director}
 }
 
 func (backend *Backend) Start(network string, address string) {
