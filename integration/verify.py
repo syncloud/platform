@@ -121,8 +121,8 @@ def test_id_before_activation(device_host):
 
 
 def test_set_redirect(device, main_domain, redirect_api_url):
-    device.run_ssh('snap platform.cli config set redirect.domain {}'.format(main_domain))
-    device.run_ssh('snap platform.cli config set redirect.api_url {}'.format(redirect_api_url))
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url {}'.format(redirect_api_url))
 
 
 def test_activate_device(device_host, domain, redirect_user, redirect_password):
