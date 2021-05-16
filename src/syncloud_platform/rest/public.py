@@ -19,7 +19,6 @@ from syncloud_platform.rest.internal_validator import InternalValidator
 
 injector = get_injector()
 public = injector.public
-internal = injector.internal
 device = injector.device
 
 app = Flask(__name__)
