@@ -59,7 +59,7 @@ test('Activate free domain', async () => {
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain').setValue('domain')
+  await wrapper.find('#user_domain_input').setValue('domain')
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
@@ -118,7 +118,7 @@ test('Activate free domain error', async () => {
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain').setValue('domain')
+  await wrapper.find('#user_domain_input').setValue('domain')
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
@@ -127,6 +127,59 @@ test('Activate free domain error', async () => {
   await flushPromises()
 
   expect(error).toBe('not ok')
+
+  wrapper.unmount()
+})
+
+test('Activate free domain availability error', async () => {
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.parameters_messages[0].messages[0]
+  }
+  const mockRouter = { push: jest.fn() }
+
+  const mock = new MockAdapter(axios)
+  mock.onPost('/rest/activate').reply(500, {
+    message: 'not ok'
+  })
+
+  mock.onPost('/rest/redirect/domain/availability').reply(400, {
+      success: false,
+      parameters_messages: [
+        { parameter: 'user_domain', messages: ['domain is already taken'] }
+      ]
+  })
+
+  const wrapper = mount(Activate,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Dialog: true
+        },
+        mocks: {
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#email').setValue('r email')
+  await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#user_domain_input').setValue('domain')
+  await wrapper.find('#btn_next').trigger('click')
+
+  await flushPromises()
+
+  expect(error).toBe('domain is already taken')
 
   wrapper.unmount()
 })

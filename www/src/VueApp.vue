@@ -49,10 +49,10 @@ export default {
         .catch(_ => {
           axios.get('/rest/activation_status')
             .then(response => {
+              this.loggedIn = false
               if (!response.data.activated) {
                 this.$router.push('/activate')
               } else {
-                this.loggedIn = false
                 if (!publicRoutes.includes(this.currentPath)) {
                   this.$router.push('/login')
                 }

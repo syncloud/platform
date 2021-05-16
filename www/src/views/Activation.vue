@@ -63,7 +63,7 @@ export default {
       axios
         .post('/rest/settings/deactivate')
         .then(_ => {
-          this.$router.push('/activate')
+          this.onLogout()
         })
         .catch(err => {
           this.$refs.error.showAxios(err)

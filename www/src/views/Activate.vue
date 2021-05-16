@@ -1,10 +1,10 @@
 <template>
   <div class="wrapper">
     <div class="content">
-      <div class="block1 wd12" id="block1">
+      <div class="block1 wd12" id="block_activate">
         <h1>Activate</h1>
 
-        <div class="formblock" id="block_activate">
+        <div class="formblock">
           <div class="bs-stepper">
             <div class="bs-stepper-header" role="tablist">
               <div class="step" data-target="#domain-type-part">
@@ -60,7 +60,7 @@
                    aria-labelledby="domain-account-part-trigger">
                 <div v-if="domainType === 'syncloud'">
                   <div style="text-align: center">
-                    <h2 style="display: inline-block">Syncloud Account</h2>
+                    <h2 style="display: inline-block">Domain Account</h2>
                     <button @click="showSyncloudAccountHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
@@ -73,6 +73,10 @@
                   <input placeholder="syncloud.it password" class="passinput"
                          id="redirect_password" type="password" v-model="redirectPassword">
                   <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
+                  <div style="padding-right:10px; float: right">
+                    Do not have an account?
+                    <a href="https://syncloud.it" class="btn btn-info" role="button" style="line-height: 10px" target="_blank">register</a>
+                  </div>
 
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
@@ -82,8 +86,10 @@
                     </button>
                   </div>
 
-                  <input placeholder="Name" class="domain" id="user_domain" type="text" v-model="domain">
-                  <span>.syncloud.it</span>
+                  <div id="user_domain">
+                    <input placeholder="Name" class="domain" id="user_domain_input" type="text" v-model="domain">
+                    <span>.syncloud.it</span>
+                  </div>
                   <div class="alert alert-danger alert90" id="user_domain_alert" style="display: none;"></div>
 
                 </div>
@@ -132,12 +138,12 @@
 
                 </div>
 
-                <div style="padding: 10px; float: left; width: 40%">
+                <div style="padding: 10px; float: left;">
                   <button class="buttonblue" @click="stepper.previous()">
                     Previous
                   </button>
                 </div>
-                <div style="padding: 10px; float: right; width: 40%">
+                <div style="padding: 10px; float: right;">
                   <button id="btn_next" class="buttonblue" @click="domainAvailability">
                     Next
                   </button>
@@ -161,12 +167,12 @@
                        v-model="devicePassword">
                 <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
 
-                <div style="padding: 10px; float: left; width: 40%">
+                <div style="padding: 10px; float: left;">
                   <button class="buttonblue" @click="stepper.previous()">
                     Previous
                   </button>
                 </div>
-                <div style="padding: 10px; float: right; width: 40%">
+                <div style="padding: 10px; float: right;">
                   <button id="btn_activate" class="buttonblue" @click="activate"
                           data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
                     Finish
@@ -208,14 +214,14 @@
   </Dialog>
 
   <Dialog ref="help_syncloud_account">
-    <template v-slot:title>Syncloud account</template>
+    <template v-slot:title>Domain account</template>
     <template v-slot:text>
-      You can use free Syncloud name service (DNS) to get a device name at syncloud.it:
+      You can use free Syncloud name service (DNS) to get a device name at <b>syncloud.it</b>.
       <br>
-      You need to register at <a href="https://syncloud.it" role="button">syncloud.it</a> to control one or more
+      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> a domain account to control one or more
       device names.
       <br>
-      Syncloud account is also used for notifications about new releases.
+      Domain account is also used for notifications about new releases.
       <br>
       It is only used to assign a dns name to IP of your device and update IP when it changes.
       Data transfer happens directly between your apps and device.

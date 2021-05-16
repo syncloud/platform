@@ -451,17 +451,19 @@ const mock = function (app, server, compiler) {
     res.json({ success: true })
   })
   app.post('/rest/redirect/domain/availability', function (req, res) {
-    // res.json({
-    //   success: true
-    // })
-    res.status(400).json({
-      success: false,
-      parameters_messages: [
-        { parameter: 'redirect_password', messages: ['wrong password'] },
-        { parameter: 'user_domain', messages: ['domain is already taken'] }
-      ]
-    })
-
+    if (req.body.user_domain === '1') {
+      res.status(400).json({
+        success: false,
+        parameters_messages: [
+          { parameter: 'redirect_password', messages: ['wrong password'] },
+          { parameter: 'user_domain', messages: ['domain is already taken'] }
+        ]
+      })
+    } else {
+      res.json({
+        success: true
+      })
+    }
   })
 }
 
