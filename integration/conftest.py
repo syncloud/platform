@@ -11,4 +11,4 @@ def project_dir():
 
 @pytest.fixture(scope="session")
 def redirect_api_url(main_domain):
-    return 'https://api.'.format(main_domain)
+    return 'https://api.{}'.format(main_domain)
