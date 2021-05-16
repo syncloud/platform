@@ -5,12 +5,14 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
+	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/redirect"
 	"log"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/installer"
@@ -64,6 +66,10 @@ func main() {
 }
 
 func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, idConfig string) (*rest.Backend, error) {
+
+	cronService := cron.New(cron.Job, time.Minute*5)
+	cronService.Start()
+
 	master := job.NewMaster()
 	backupService := backup.NewDefault()
 	eventTrigger := event.New()

@@ -89,8 +89,8 @@ func (c *PlatformUserConfig) migrate() {
 	}
 }
 
-func (c *PlatformUserConfig) SetWebSecretKey(value string) {
-	c.Upsert("platform.web_secret_key", value)
+func (c *PlatformUserConfig) SetWebSecretKey(key string) {
+	c.Upsert("platform.web_secret_key", key)
 }
 
 func (c *PlatformUserConfig) initDb() error {
@@ -154,6 +154,10 @@ func (c *PlatformUserConfig) GetExternalAccess() bool {
 
 func (c *PlatformUserConfig) SetRedirectEnabled(enabled bool) {
 	c.Upsert("platform.redirect_enabled", c.fromBool(enabled))
+}
+
+func (c *PlatformUserConfig) SetActivated() {
+	c.Upsert("platform.activated", DbTrue)
 }
 
 func (c *PlatformUserConfig) UpdateUserDomain(domain string) {

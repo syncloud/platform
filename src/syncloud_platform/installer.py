@@ -58,9 +58,6 @@ class PlatformInstaller:
 
         injector.tls.init_certificate()
 
-        injector.platform_cron.remove()
-        injector.platform_cron.create()
-
         ldap_auth = injector.ldap_auth
         ldap_auth.init()
 

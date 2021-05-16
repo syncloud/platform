@@ -1,4 +1,3 @@
-import getpass
 import uuid
 
 import requests
@@ -63,9 +62,6 @@ class Device:
         
     def _activate_common(self, name, device_username, device_password, email):
     
-        self.platform_cron.remove()
-        self.platform_cron.create()
-
         self.set_access(False, False, None, 0, 0)
 
         self.logger.info("activating ldap")
@@ -150,9 +146,6 @@ class Device:
         
         self.redirect_service.sync(external_ip, router_port, WEB_ACCESS_PORT, WEB_PROTOCOL,
                                    update_token, external_access)
-
-        if not getpass.getuser() == self.platform_config.cron_user():
-            fs.chownpath(self.platform_config.data_dir(), self.platform_config.cron_user())
 
     def add_port(self, local_port, protocol):
         external_access = self.user_platform_config.get_external_access()

@@ -2,6 +2,7 @@ package activation
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"log"
@@ -25,6 +26,8 @@ type FreePlatformUserConfig interface {
 	UpdateUserDomain(domain string)
 	UpdateDomainToken(token string)
 	GetRedirectDomain() string
+	SetActivated()
+	SetWebSecretKey(key string)
 }
 
 type FreeRedirect interface {
@@ -70,10 +73,26 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 		return fmt.Errorf("domain update token is missing")
 	}
 	f.config.UpdateDomainToken(*domain.UpdateToken)
-	return ActivateCommon(name, deviceUsername, devicePassword, email)
+	return f.ActivateCommon(name, deviceUsername, devicePassword, email)
 }
 
-func ActivateCommon(name string, username string, password string, email string) error {
+func (f *Free) ActivateCommon(name string, username string, password string, email string) error {
+	//self.set_access(False, False, None, 0, 0)
+
+	log.Println("activating ldap")
+	f.config.SetWebSecretKey(uuid.New().String())
+
+	//self.tls.generate_self_signed_certificate()
+
+	//self.auth.reset(name, device_username, device_password, email)
+
+	//self.nginx.init_config()
+	//self.nginx.reload_public()
+
+	f.config.SetActivated()
+
+	log.Println("activation completed")
+
 	return fmt.Errorf("not implemented yet")
 }
 

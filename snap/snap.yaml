@@ -51,6 +51,8 @@ apps:
     restart-condition: always
   cli:
     command: bin/cli
+  python:
+    command: python/bin/python
 
 confinement: strict
 description: Syncloud Platform

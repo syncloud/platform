@@ -1,7 +1,6 @@
 requests==2.11.1
 beautifulsoup4==4.3.2
 IPy==1.0
-python-crontab==1.7.2
 massedit==0.67.1
 werkzeug==0.16.1
 Flask==0.12.4
