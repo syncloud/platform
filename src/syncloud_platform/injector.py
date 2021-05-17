@@ -9,7 +9,6 @@ from syncloud_platform.config.config import PlatformConfig, PLATFORM_APP_NAME
 from syncloud_platform.config.user_config import PlatformUserConfig
 from syncloud_platform.control.systemctl import Systemctl
 from syncloud_platform.device import Device
-from syncloud_platform.insider.cron import PlatformCron
 from syncloud_platform.insider.device_info import DeviceInfo
 from syncloud_platform.insider.natpmpc import NatPmpPortMapper
 from syncloud_platform.insider.port_config import PortConfig
@@ -69,7 +68,6 @@ class Injector:
                                                    self.port_mapper_factory)
         self.device_info = DeviceInfo(self.user_platform_config, self.port_config)
         self.snap = Snap(self.platform_config, self.device_info)
-        self.platform_cron = PlatformCron(self.platform_config)
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.snap)
@@ -80,7 +78,7 @@ class Injector:
                                         self.certbot_genetator)
         
         self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service,
-                             self.port_drill_factory, self.platform_cron, self.ldap_auth,
+                             self.port_drill_factory, self.ldap_auth,
                              self.event_trigger, self.tls, self.nginx)
 
         self.path_checker = PathChecker(self.platform_config)

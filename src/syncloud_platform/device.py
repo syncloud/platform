@@ -10,14 +10,13 @@ http_network_protocol = 'TCP'
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, platform_cron, ldap_auth, event_trigger, tls, nginx):
+                 port_drill_factory, ldap_auth, event_trigger, tls, nginx):
         self.tls = tls
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.redirect_service = redirect_service
         self.port_drill_factory = port_drill_factory
         self.auth = ldap_auth
-        self.platform_cron = platform_cron
         self.event_trigger = event_trigger
         self.logger = logger.get_logger('Device')
         self.nginx = nginx
