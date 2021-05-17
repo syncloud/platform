@@ -21,20 +21,16 @@ class Device:
         self.logger = logger.get_logger('Device')
         self.nginx = nginx
 
-    def prepare_redirect(self, redirect_email, redirect_password):
-
-        self.logger.info("prepare redirect {0}".format(redirect_email))
-        self.user_platform_config.set_redirect_enabled(True)
-        self.user_platform_config.set_user_email(redirect_email)
-        user = self.redirect_service.get_user(redirect_email, redirect_password)
-        return user
-
     def activate(self, redirect_email, redirect_password, user_domain, device_username, device_password):
         user_domain_lower = user_domain.lower()
         self.logger.info("activate {0}, {1}".format(user_domain_lower, device_username))
         
         self._check_internet_connection()
-        user = self.prepare_redirect(redirect_email, redirect_password)
+
+        self.logger.info("prepare redirect {0}".format(redirect_email))
+        self.user_platform_config.set_redirect_enabled(True)
+        self.user_platform_config.set_user_email(redirect_email)
+        user = self.redirect_service.get_user(redirect_email, redirect_password)
         self.user_platform_config.set_user_update_token(user.update_token)
 
         main_domain = self.user_platform_config.get_redirect_domain()
@@ -42,7 +38,10 @@ class Device:
      
         response_data = self.redirect_service.acquire(redirect_email, redirect_password, user_domain_lower)
         self.user_platform_config.update_domain(response_data.user_domain, response_data.update_token)
-   
+
+        self.redirect_service.sync(None, None, WEB_ACCESS_PORT, WEB_PROTOCOL,
+                                   self.user_platform_config.get_domain_update_token(), False)
+
         self._activate_common(name, device_username, device_password, email)
 
     def activate_custom_domain(self, full_domain, device_username, device_password):
@@ -61,7 +60,7 @@ class Device:
         
     def _activate_common(self, name, device_username, device_password, email):
     
-        self.set_access(False, False, None, 0, 0)
+        self.reset_access()
 
         self.logger.info("activating ldap")
         self.user_platform_config.set_web_secret_key(str(uuid.uuid4().hex))
@@ -92,6 +91,11 @@ class Device:
         
         if not internet_ok:
             raise Exception('Internet is not available, check your device connection')
+
+    def reset_access(self):
+        self.logger.info('reset access')
+        self.user_platform_config.update_device_access(False, False, None, 0, 0)
+        self.event_trigger.trigger_app_event_domain()
 
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         self.logger.info('set_access: external_access={0}'.format(external_access))

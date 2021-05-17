@@ -73,11 +73,15 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 		return fmt.Errorf("domain update token is missing")
 	}
 	f.config.UpdateDomainToken(*domain.UpdateToken)
+
+	//self.redirect_service.sync(None, None, WEB_ACCESS_PORT, WEB_PROTOCOL,
+	//	self.user_platform_config.get_domain_update_token(), False)
+
 	return f.ActivateCommon(name, deviceUsername, devicePassword, email)
 }
 
 func (f *Free) ActivateCommon(name string, username string, password string, email string) error {
-	//self.set_access(False, False, None, 0, 0)
+	f.resetAccess()
 
 	log.Println("activating ldap")
 	f.config.SetWebSecretKey(uuid.New().String())
@@ -94,6 +98,12 @@ func (f *Free) ActivateCommon(name string, username string, password string, ema
 	log.Println("activation completed")
 
 	return fmt.Errorf("not implemented yet")
+}
+
+func (f *Free) resetAccess() {
+	log.Println("reset access")
+	//f.config.update_device_access(False, False, None, 0, 0)
+	//self.event_trigger.trigger_app_event_domain()
 }
 
 func (f *Free) prepareRedirect(redirectEmail string, redirectPassword string) (*redirect.User, error) {
