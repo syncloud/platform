@@ -526,15 +526,13 @@ def current_disk_link(device):
     return device.run_ssh("realpath {}".format(link))
 
 
-def test_if_cron_is_enabled_after_install(device_host):
-    cron_is_enabled_after_install(device_host)
+def test_if_cron_is_empty_after_install(device_host):
+    cron_is_empty_after_install(device_host)
 
 
-def cron_is_enabled_after_install(device_host):
+def cron_is_empty_after_install(device_host):
     crontab = run_ssh(device_host, "crontab -l", password=LOGS_SSH_PASSWORD)
-    assert len(crontab.splitlines()) == 1
-    assert 'cron' in crontab, crontab
-    assert not crontab.startswith('#'), crontab
+    assert len(crontab.splitlines()) == 0, crontab
 
 
 def test_settings_versions(device_host, device, artifact_dir):
@@ -554,8 +552,8 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
 
-def test_if_cron_is_enabled_after_upgrade(device_host):
-    cron_is_enabled_after_install(device_host)
+def test_if_cron_is_empty_after_upgrade(device_host):
+    cron_is_empty_after_install(device_host)
 
 
 def test_nginx_performance(device_host):

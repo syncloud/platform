@@ -1,5 +1,6 @@
 import logging
 from os.path import join
+from subprocess import check_output, CalledProcessError
 
 from syncloudlib import logger, fs
 
@@ -72,7 +73,11 @@ class PlatformInstaller:
 
     def pre_refresh(self):
         injector = get_injector()
-        injector.platform_cron.remove()
+        # crontab was migrated into backend process
+        try:
+            check_output('crontab -u root -r', shell=True)
+        except CalledProcessError as e:
+            self.log.error(e.output.decode())
 
     def post_refresh(self):
         self.init_configs()
