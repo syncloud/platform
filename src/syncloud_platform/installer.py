@@ -70,9 +70,12 @@ class PlatformInstaller:
         user_config = PlatformUserConfig()
         user_config.init_config()
         self.init_services()
+        self.clear_crontab()
 
     def pre_refresh(self):
-        injector = get_injector()
+        self.clear_crontab()
+
+    def clear_crontab(self):
         # crontab was migrated into backend process
         try:
             check_output('crontab -u root -r', shell=True)
