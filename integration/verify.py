@@ -368,9 +368,8 @@ def test_set_access_error(device, device_host):
     assert response.status_code == 500, response.text
 
 
-def test_cron(app_dir, ssh_env_vars, device_host):
-    run_ssh(device_host, '{0}/bin/cron'.format(app_dir),
-            password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+def test_cron(device):
+    device.run_ssh('snap run platform.cli cron')
 
 
 def test_real_certificate(app_dir, ssh_env_vars, device_host):

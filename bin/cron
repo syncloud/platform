@@ -1,6 +1,0 @@
-#!/bin/bash -e
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
-unset PYTHONHOME
-unset PYTHONPATH
-sleep $(( RANDOM % (60*3) ))
-${DIR}/python/bin/python ${DIR}/bin/cron.py "$@"

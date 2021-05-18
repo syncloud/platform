@@ -5,10 +5,8 @@ import (
 	"os/exec"
 )
 
-func Job() {
+func Job() error {
 	out, err := exec.Command("snap", "run", "platform.python", "/snap/platform/current/bin/cron.py").CombinedOutput()
 	log.Printf("Cron: %s", out)
-	if err != nil {
-		log.Printf("Cron failed: %s", err)
-	}
+	return err
 }

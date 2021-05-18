@@ -1,14 +1,17 @@
 package cron
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 type Cron struct {
-	job     func()
+	job     func() error
 	started bool
 	delay   time.Duration
 }
 
-func New(job func(), delay time.Duration) *Cron {
+func New(job func() error, delay time.Duration) *Cron {
 	return &Cron{job: job, delay: delay}
 }
 
@@ -16,7 +19,10 @@ func (c *Cron) Start() {
 	c.started = true
 	go func() {
 		for c.started {
-			c.job()
+			err := c.job()
+			if err != nil {
+				log.Printf("Cron job failed: %s", err)
+			}
 			time.Sleep(c.delay)
 		}
 	}()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/config"
+	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/network"
 	"log"
 	"net"
@@ -68,7 +69,7 @@ func main() {
 	var configFile string
 	var cmdConfig = &cobra.Command{
 		Use:   "config",
-		Short: "Update config",
+		Short: "Manage config",
 	}
 	cmdConfig.PersistentFlags().StringVar(&configFile, "file", config.DefaultConfigDb, "config file")
 
@@ -79,8 +80,7 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			configuration, err := config.New(configFile, config.OldConfig, "", "")
 			if err != nil {
-				fmt.Printf("error: %s\n", err)
-				return
+				log.Fatal(err)
 			}
 			key := args[0]
 			value := args[1]
@@ -97,15 +97,25 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			configuration, err := config.New(configFile, config.OldConfig, "", "")
 			if err != nil {
-				fmt.Printf("error: %s\n", err)
-				return
+				log.Fatal(err)
 			}
 			fmt.Println(configuration.Get(args[0], ""))
 		},
 	}
 	cmdConfig.AddCommand(cmdConfigGet)
 
+	var cmdCron = &cobra.Command{
+		Use:   "cron",
+		Short: "Run cron job",
+		Run: func(cmd *cobra.Command, args []string) {
+			err := cron.Job()
+			if err != nil {
+				log.Fatalf("error: %s\n", err)
+			}
+		},
+	}
+
 	var rootCmd = &cobra.Command{Use: "cli"}
-	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig)
+	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron)
 	rootCmd.Execute()
 }
