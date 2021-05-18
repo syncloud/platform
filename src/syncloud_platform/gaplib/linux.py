@@ -39,11 +39,13 @@ def local_ip():
         raise(Exception("Can't get local ip address"))
     return ip
 
+
 def local_ip_v6():
     try:
         return check_output("/snap/platform/current/bin/cli ipv6", shell=True).decode()
     except CalledProcessError as e:
         return None
+
 
 def public_ip_v4():
     try:
@@ -51,11 +53,14 @@ def public_ip_v4():
     except CalledProcessError as e:
         return None
 
+
 def is_ip_public(ip):
     return ip_type(ip) == 'PUBLIC'
 
+
 def ip_type(ip):
     return IP(ip).iptype()
+
 
 def parted(device):
     return check_output('parted {0} unit % print free --script --machine'.format(device).split(" ")).decode()

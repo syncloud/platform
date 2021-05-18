@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/identification"
+	"github.com/syncloud/platform/network"
+	"github.com/syncloud/platform/version"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -59,7 +62,7 @@ func (r *Redirect) Acquire(email string, password string, userDomain string) (*D
 		DeviceMacAddress: deviceId.MacAddress,
 		DeviceName:       deviceId.Name,
 		DeviceTitle:      deviceId.Title}
-	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "/domain/acquire")
+	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "/domain/acquire_v2")
 	requestJson, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
@@ -83,4 +86,76 @@ func (r *Redirect) Acquire(email string, password string, userDomain string) (*D
 		return nil, err
 	}
 	return &response, nil
+}
+
+func (r *Redirect) Reset(updateToken string) error {
+	return r.Update(nil, nil, config.WebAccessPort, config.WebProtocol, updateToken, false)
+}
+
+func (r *Redirect) Update(externalIp *string, webPort *int, webLocalPort int, webProtocol string, updateToken string, externalAccess bool) error {
+
+	platformVersion, err := version.PlatformVersion()
+	if err != nil {
+		return err
+	}
+
+	localIp, err := network.LocalIPv4()
+	if err != nil {
+		return err
+	}
+
+	request := &FreeDomainUpdateRequest{
+		Token:           updateToken,
+		PlatformVersion: platformVersion,
+		LocalIp:         localIp.String(),
+		MapLocalAddress: !externalAccess,
+		WebProtocol:     webProtocol,
+		WebPort:         webPort,
+		WebLocalPort:    webLocalPort,
+	}
+
+	if externalIp == nil {
+		externalIp, err := network.PublicIPv4()
+		if err != nil {
+			return err
+		}
+		log.Printf("warning getting external ip: %s", externalIp)
+	}
+
+	if externalAccess {
+		request.Ip = externalIp
+	}
+
+	ipv6Addr, err := network.IPv6()
+	if err == nil {
+		ipv6 := ipv6Addr.String()
+		request.Ipv6 = &ipv6
+	}
+
+	dkimKey := r.UserPlatformConfig.GetDkimKey()
+	if dkimKey != nil {
+		request.DkimKey = dkimKey
+	}
+
+	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "/domain/update")
+
+	log.Printf("url: %s", url)
+	requestJson, err := json.Marshal(request)
+	log.Printf("request: %s", requestJson)
+
+	responseJson, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
+	if err != nil {
+		return err
+	}
+	defer responseJson.Body.Close()
+	body, err := io.ReadAll(responseJson.Body)
+	if err != nil {
+		return err
+	}
+	err = CheckHttpError(responseJson.StatusCode, body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

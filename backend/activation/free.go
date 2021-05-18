@@ -28,11 +28,13 @@ type FreePlatformUserConfig interface {
 	GetRedirectDomain() string
 	SetActivated()
 	SetWebSecretKey(key string)
+	GetDomainUpdateToken() *string
 }
 
 type FreeRedirect interface {
 	Authenticate(email string, password string) (*redirect.User, error)
 	Acquire(email string, password string, userDomain string) (*redirect.Domain, error)
+	Reset(updateToken string) error
 }
 
 type Free struct {
@@ -57,10 +59,14 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 	if err != nil {
 		return err
 	}
-	user, err := f.prepareRedirect(redirectEmail, redirectPassword)
+
+	f.config.SetRedirectEnabled(true)
+	f.config.SetUserEmail(redirectEmail)
+	user, err := f.redirect.Authenticate(redirectEmail, redirectPassword)
 	if err != nil {
 		return err
 	}
+
 	f.config.SetUserUpdateToken(user.UpdateToken)
 	mainDomain := f.config.GetRedirectDomain()
 	name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
@@ -68,14 +74,21 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 	if err != nil {
 		return err
 	}
+
 	f.config.UpdateUserDomain(domain.UserDomain)
 	if domain.UpdateToken == nil {
 		return fmt.Errorf("domain update token is missing")
 	}
 	f.config.UpdateDomainToken(*domain.UpdateToken)
 
-	//self.redirect_service.sync(None, None, WEB_ACCESS_PORT, WEB_PROTOCOL,
-	//	self.user_platform_config.get_domain_update_token(), False)
+	domainUpdateToken := f.config.GetDomainUpdateToken()
+	if domainUpdateToken == nil {
+		return fmt.Errorf("no update domain token found in config")
+	}
+	err = f.redirect.Reset(*domainUpdateToken)
+	if err != nil {
+		return err
+	}
 
 	return f.ActivateCommon(name, deviceUsername, devicePassword, email)
 }
@@ -104,19 +117,6 @@ func (f *Free) resetAccess() {
 	log.Println("reset access")
 	//f.config.update_device_access(False, False, None, 0, 0)
 	//self.event_trigger.trigger_app_event_domain()
-}
-
-func (f *Free) prepareRedirect(redirectEmail string, redirectPassword string) (*redirect.User, error) {
-	log.Printf("prepare redirect %s", redirectEmail)
-	f.config.SetRedirectEnabled(true)
-	f.config.SetUserEmail(redirectEmail)
-
-	user, err := f.redirect.Authenticate(redirectEmail, redirectPassword)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-
 }
 
 func ParseUsername(username string, domain string) (string, string) {

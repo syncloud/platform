@@ -43,7 +43,7 @@ func main() {
 		Short: "Print IPv6",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ip, err := network.LocalIPv6()
+			ip, err := network.IPv6()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -56,7 +56,7 @@ func main() {
 		Short: "Print IPv6 prefix",
 		//Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ip, err := network.LocalIPv6()
+			ip, err := network.IPv6()
 			if err != nil {
 				log.Fatal(err)
 			}

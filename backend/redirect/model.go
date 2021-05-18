@@ -29,6 +29,19 @@ type FreeDomainAcquireRequest struct {
 	DeviceTitle      string `json:"device_title,omitempty"`
 }
 
+type FreeDomainUpdateRequest struct {
+	Ip              *string `json:"ip,omitempty"`
+	LocalIp         string  `json:"local_ip"`
+	MapLocalAddress bool    `json:"map_local_address,omitempty"`
+	Token           string  `json:"token"`
+	Ipv6            *string `json:"ipv6,omitempty"`
+	DkimKey         *string `json:"dkim_key,omitempty"`
+	PlatformVersion string  `json:"platform_version"`
+	WebProtocol     string  `json:"web_protocol"`
+	WebLocalPort    int     `json:"web_local_port"`
+	WebPort         *int    `json:"web_port,omitempty"`
+}
+
 type Domain struct {
 	UserDomain       string     `json:"user_domain,omitempty"`
 	Ip               *string    `json:"ip,omitempty"`

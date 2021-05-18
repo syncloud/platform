@@ -10,10 +10,13 @@ import (
 	"os"
 )
 
-var DbTrue = "true"
-var DbFalse = "false"
-var OldBoolTrue = "True"
-var OldBoolFalse = "False"
+const DbTrue = "true"
+const DbFalse = "false"
+const OldBoolTrue = "True"
+const OldBoolFalse = "False"
+const WebCertificatePort = 80
+const WebAccessPort = 443
+const WebProtocol = "https"
 
 type PlatformUserConfig struct {
 	file           string
@@ -177,18 +180,26 @@ func (c *PlatformUserConfig) Upsert(key string, value string) {
 	}
 }
 
-func (c *PlatformUserConfig) Get(key string, defaultValue string) string {
+func (c *PlatformUserConfig) GetOrNil(key string) *string {
 	db := c.open()
 	defer db.Close()
 	var value string
 	err := db.QueryRow("select value from config where key = ?", key).Scan(&value)
 	switch {
 	case err == sql.ErrNoRows:
-		return defaultValue
+		return nil
 	case err != nil:
 		log.Fatal(err)
 	}
-	return value
+	return &value
+}
+
+func (c *PlatformUserConfig) Get(key string, defaultValue string) string {
+	value := c.GetOrNil(key)
+	if value == nil {
+		return defaultValue
+	}
+	return *value
 }
 
 func (c *PlatformUserConfig) toBool(dbValue string) bool {
@@ -201,4 +212,12 @@ func (c *PlatformUserConfig) fromBool(value bool) string {
 	} else {
 		return DbFalse
 	}
+}
+
+func (c *PlatformUserConfig) GetDkimKey() *string {
+	return c.GetOrNil("dkim_key")
+}
+
+func (c *PlatformUserConfig) GetDomainUpdateToken() *string {
+	return c.GetOrNil("platform.domain_update_token")
 }
