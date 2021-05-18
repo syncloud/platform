@@ -76,16 +76,8 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 	}
 
 	f.config.UpdateUserDomain(domain.UserDomain)
-	if domain.UpdateToken == nil {
-		return fmt.Errorf("domain update token is missing")
-	}
-	f.config.UpdateDomainToken(*domain.UpdateToken)
-
-	domainUpdateToken := f.config.GetDomainUpdateToken()
-	if domainUpdateToken == nil {
-		return fmt.Errorf("no update domain token found in config")
-	}
-	err = f.redirect.Reset(*domainUpdateToken)
+	f.config.UpdateDomainToken(domain.UpdateToken)
+	err = f.redirect.Reset(domain.UpdateToken)
 	if err != nil {
 		return err
 	}
