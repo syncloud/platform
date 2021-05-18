@@ -531,8 +531,8 @@ def test_if_cron_is_empty_after_install(device_host):
 
 
 def cron_is_empty_after_install(device_host):
-    crontab = run_ssh(device_host, "crontab -l", password=LOGS_SSH_PASSWORD)
-    assert len(crontab.splitlines()) == 0, crontab
+    crontab = run_ssh(device_host, "crontab -l", password=LOGS_SSH_PASSWORD, throw=False)
+    assert 'no crontab for root' in crontab, crontab
 
 
 def test_settings_versions(device_host, device, artifact_dir):
