@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/activation"
+	"github.com/syncloud/platform/auth"
+	"github.com/syncloud/platform/certificate"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
@@ -88,7 +90,7 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	id := identification.New(idConfig)
 	redirectService := redirect.New(configuration, id)
 	worker := job.NewWorker(master)
-	freeActivation := activation.New(&connection.Internet{}, configuration, redirectService)
+	freeActivation := activation.New(&connection.Internet{}, configuration, redirectService, certificate.New(), auth.New())
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
 
 }

@@ -3,6 +3,8 @@ package activation
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/syncloud/platform/auth"
+	"github.com/syncloud/platform/certificate"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"log"
@@ -29,6 +31,12 @@ type FreePlatformUserConfig interface {
 	SetActivated()
 	SetWebSecretKey(key string)
 	GetDomainUpdateToken() *string
+	SetExternalAccess(enabled bool)
+	SetUpnp(enabled bool)
+	SetPublicIp(publicIp string)
+	SetManualCertificatePort(manualCertificatePort int)
+	SetManualAccessPort(manualAccessPort int)
+	DeletePublicIp()
 }
 
 type FreeRedirect interface {
@@ -38,22 +46,33 @@ type FreeRedirect interface {
 }
 
 type Free struct {
-	internet connection.Checker
-	config   FreePlatformUserConfig
-	redirect FreeRedirect
+	internet             connection.Checker
+	config               FreePlatformUserConfig
+	redirect             FreeRedirect
+	certificateGenerator *certificate.Generator
+	auth                 *auth.LdapAuth
 }
 
-func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect) *Free {
+func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.LdapAuth) *Free {
 	return &Free{
-		internet: internet,
-		config:   config,
-		redirect: redirect,
+		internet:             internet,
+		config:               config,
+		redirect:             redirect,
+		certificateGenerator: certificateGenerator,
+		auth:                 auth,
 	}
 }
 
 func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomain string, deviceUsername string, devicePassword string) error {
 	userDomainLower := strings.ToLower(userDomain)
-	log.Printf("activate %s, %s", userDomainLower, deviceUsername)
+	err := f.ActivateFreeDomain(redirectEmail, redirectPassword, userDomainLower)
+	if err != nil {
+		return err
+	}
+	return f.ActivateDevice(deviceUsername, devicePassword, userDomainLower)
+}
+func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string, userDomain string) error {
+	log.Printf("activate: %s", userDomain)
 
 	err := f.internet.Check()
 	if err != nil {
@@ -68,32 +87,30 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 	}
 
 	f.config.SetUserUpdateToken(user.UpdateToken)
-	mainDomain := f.config.GetRedirectDomain()
-	name, email := ParseUsername(deviceUsername, fmt.Sprintf("%s.%s", userDomainLower, mainDomain))
-	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, userDomainLower)
+	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, userDomain)
 	if err != nil {
 		return err
 	}
 
 	f.config.UpdateUserDomain(domain.UserDomain)
 	f.config.UpdateDomainToken(domain.UpdateToken)
-	err = f.redirect.Reset(domain.UpdateToken)
-	if err != nil {
-		return err
-	}
-
-	return f.ActivateCommon(name, deviceUsername, devicePassword, email)
+	return f.redirect.Reset(domain.UpdateToken)
 }
 
-func (f *Free) ActivateCommon(name string, username string, password string, email string) error {
+func (f *Free) ActivateDevice(username string, password string, userDomain string) error {
+	mainDomain := f.config.GetRedirectDomain()
+	name, email := ParseUsername(username, fmt.Sprintf("%s.%s", userDomain, mainDomain))
 	f.resetAccess()
 
 	log.Println("activating ldap")
 	f.config.SetWebSecretKey(uuid.New().String())
 
-	//self.tls.generate_self_signed_certificate()
+	err := f.certificateGenerator.GenerateSelfSigned()
+	if err != nil {
+		return err
+	}
 
-	//self.auth.reset(name, device_username, device_password, email)
+	f.auth.Reset(name, username, password, email)
 
 	//self.nginx.init_config()
 	//self.nginx.reload_public()
@@ -107,7 +124,11 @@ func (f *Free) ActivateCommon(name string, username string, password string, ema
 
 func (f *Free) resetAccess() {
 	log.Println("reset access")
-	//f.config.update_device_access(False, False, None, 0, 0)
+	f.config.SetUpnp(false)
+	f.config.SetExternalAccess(false)
+	f.config.DeletePublicIp()
+	f.config.SetManualCertificatePort(0)
+	f.config.SetManualAccessPort(0)
 	//self.event_trigger.trigger_app_event_domain()
 }
 

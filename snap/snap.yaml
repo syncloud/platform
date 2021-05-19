@@ -53,6 +53,8 @@ apps:
     command: bin/cli
   python:
     command: python/bin/python
+  openssl:
+    command: openssl/bin/openssl
 
 confinement: strict
 description: Syncloud Platform

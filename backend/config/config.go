@@ -8,6 +8,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
+	"strconv"
 )
 
 const DbTrue = "true"
@@ -180,6 +181,15 @@ func (c *PlatformUserConfig) Upsert(key string, value string) {
 	}
 }
 
+func (c *PlatformUserConfig) Delete(key string) {
+	db := c.open()
+	defer db.Close()
+	_, err := db.Exec("DELETE FROM config WHERE key = ?", key)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (c *PlatformUserConfig) GetOrNil(key string) *string {
 	db := c.open()
 	defer db.Close()
@@ -220,4 +230,28 @@ func (c *PlatformUserConfig) GetDkimKey() *string {
 
 func (c *PlatformUserConfig) GetDomainUpdateToken() *string {
 	return c.GetOrNil("platform.domain_update_token")
+}
+
+func (c *PlatformUserConfig) SetExternalAccess(enabled bool) {
+	c.Upsert("platform.external_access", c.fromBool(enabled))
+}
+
+func (c *PlatformUserConfig) SetUpnp(enabled bool) {
+	c.Upsert("platform.upnp", c.fromBool(enabled))
+}
+
+func (c *PlatformUserConfig) SetPublicIp(publicIp string) {
+	c.Upsert("platform.public_ip", publicIp)
+}
+
+func (c *PlatformUserConfig) DeletePublicIp() {
+	c.Delete("platform.public_ip")
+}
+
+func (c *PlatformUserConfig) SetManualCertificatePort(manualCertificatePort int) {
+	c.Upsert("platform.manual_certificate_port", strconv.Itoa(manualCertificatePort))
+}
+
+func (c *PlatformUserConfig) SetManualAccessPort(manualAccessPort int) {
+	c.Upsert("platform.manual_access_port", strconv.Itoa(manualAccessPort))
 }

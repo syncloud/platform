@@ -11,9 +11,6 @@ class Nginx:
         self.device_info = device_info
         self.log = logger.get_logger('nginx')
 
-    def reload_internal(self):
-        self.systemctl.reload_service('platform.nginx-internal')
-    
     def reload_public(self):
         self.systemctl.reload_service('platform.nginx-public')
 
