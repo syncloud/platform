@@ -12,7 +12,7 @@ _site
 *.iml
 .cache
 .coin.cache
-version
+./version
 logs
 *.snap
 .pytest_cache
