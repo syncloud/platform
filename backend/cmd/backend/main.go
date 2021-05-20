@@ -11,6 +11,7 @@ import (
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/redirect"
+	"github.com/syncloud/platform/snap"
 	"log"
 	"net/url"
 	"os"
@@ -90,7 +91,8 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	id := identification.New(idConfig)
 	redirectService := redirect.New(configuration, id)
 	worker := job.NewWorker(master)
-	freeActivation := activation.New(&connection.Internet{}, configuration, redirectService, certificate.New(), auth.New())
+	ldapAuth := auth.New(snap.NewService())
+	freeActivation := activation.New(&connection.Internet{}, configuration, redirectService, certificate.New(), ldapAuth)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
 
 }

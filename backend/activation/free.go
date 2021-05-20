@@ -110,7 +110,10 @@ func (f *Free) ActivateDevice(username string, password string, userDomain strin
 		return err
 	}
 
-	f.auth.Reset(name, username, password, email)
+	err = f.auth.Reset(name, username, password, email)
+	if err != nil {
+		return err
+	}
 
 	//self.nginx.init_config()
 	//self.nginx.reload_public()

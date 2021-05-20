@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"github.com/syncloud/platform/snap"
 	"strings"
 )
 
@@ -9,15 +10,18 @@ const ldapUserConfDir = "slapd.d"
 const Domain = "dc=syncloud,dc=org"
 
 type LdapAuth struct {
+	snapService *snap.Service
 }
 
-func New() *LdapAuth {
-	//self.systemctl = systemctl
-	//self.log = get_logger('ldap')
+func New(snapService *snap.Service) *LdapAuth {
 	//self.config = platform_config
 	//self.user_conf_dir = join(self.config.data_dir(), ldap_user_conf_dir)
 	//self.ldap_root = '{0}/openldap'.format(self.config.app_dir())
-	return &LdapAuth{}
+	return &LdapAuth{
+		snapService: snapService,
+		//userConfDir: path.Join(self.config.data_dir(), ldapUserConfDir),
+
+	}
 }
 
 func (ldap *LdapAuth) Installed() bool {
@@ -41,36 +45,41 @@ func (ldap *LdapAuth) Init() {
 
 	*/
 }
-func (ldap *LdapAuth) Reset(name string, user string, password string, email string) {
+func (ldap *LdapAuth) Reset(name string, user string, password string, email string) error {
+	err := ldap.snapService.Stop("platform.openldap")
+	if err != nil {
+		return err
+	}
+	//os.RemoveAll(user_conf_dir)
+
 	/*
-	   	        self.systemctl.stop_service('platform.openldap')
 
-	              fs.removepath(self.user_conf_dir)
 
-	              files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
-	              for f in files:
-	                  os.remove(f)
+	   files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
+	   for f in files:
+	       os.remove(f)
 
-	              self.init()
+	   self.init()
 
-	              self.systemctl.start_service('platform.openldap')
+	   self.systemctl.start_service('platform.openldap')
 
-	              _, filename = tempfile.mkstemp()
-	              try:
-	                  gen.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
-	                      'name': name,
-	                      'user': user,
-	                      'email': email,
-	                      'password': make_secret(password)
-	                  })
+	   _, filename = tempfile.mkstemp()
+	   try:
+	       gen.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
+	           'name': name,
+	           'user': user,
+	           'email': email,
+	           'password': make_secret(password)
+	       })
 
-	                  self._init_db(filename)
-	              finally:
-	                  os.remove(filename)
+	       self._init_db(filename)
+	   finally:
+	       os.remove(filename)
 
-	              check_output(generate_change_password_cmd(password), shell=True)
+	   check_output(generate_change_password_cmd(password), shell=True)
 
 	*/
+	return nil
 }
 
 func (ldap *LdapAuth) initDb(filename string) {
