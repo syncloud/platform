@@ -12,7 +12,7 @@ type SystemConfig struct {
 	parser *configparser.ConfigParser
 }
 
-const File = "/snap/platform/current/config/platform.cfg"
+const File = "/var/snap/platform/common/config/platform.cfg"
 
 func NewSystemConfig(file string) (*SystemConfig, error) {
 	parser, err := configparser.NewConfigParserFromFile(file)
