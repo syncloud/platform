@@ -11,7 +11,7 @@ import (
 func TestDomain(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := New(db, tempFile().Name(), "syncloud.it", "https://api.syncloud.it")
+	config, err := NewUserConfig(db, tempFile().Name(), "syncloud.it", "https://api.syncloud.it")
 	assert.Nil(t, err)
 
 	config.UpdateRedirectDomain("syncloud.it")
@@ -60,7 +60,7 @@ user_update_token = token2
 
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := New(db, oldConfigFile.Name(), "syncloud.it", "https://api.syncloud.it")
+	config, err := NewUserConfig(db, oldConfigFile.Name(), "syncloud.it", "https://api.syncloud.it")
 	assert.Nil(t, err)
 
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())

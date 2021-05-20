@@ -15,11 +15,8 @@ const DbTrue = "true"
 const DbFalse = "false"
 const OldBoolTrue = "True"
 const OldBoolFalse = "False"
-const WebCertificatePort = 80
-const WebAccessPort = 443
-const WebProtocol = "https"
 
-type PlatformUserConfig struct {
+type UserConfig struct {
 	file           string
 	oldConfigFile  string
 	redirectDomain string
@@ -34,8 +31,8 @@ func init() {
 	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_COMMON"))
 }
 
-func New(file string, oldConfigFile string, redirectDomain string, redirectUrl string) (*PlatformUserConfig, error) {
-	config := &PlatformUserConfig{
+func NewUserConfig(file string, oldConfigFile string, redirectDomain string, redirectUrl string) (*UserConfig, error) {
+	config := &UserConfig{
 		file:           file,
 		oldConfigFile:  oldConfigFile,
 		redirectDomain: redirectDomain,
@@ -48,7 +45,7 @@ func New(file string, oldConfigFile string, redirectDomain string, redirectUrl s
 	return config, nil
 }
 
-func (c *PlatformUserConfig) ensureDb() error {
+func (c *UserConfig) ensureDb() error {
 	_, err := os.Stat(c.file)
 	if os.IsNotExist(err) {
 		err = c.initDb()
@@ -64,7 +61,7 @@ func (c *PlatformUserConfig) ensureDb() error {
 	return nil
 }
 
-func (c *PlatformUserConfig) migrate() {
+func (c *UserConfig) migrate() {
 
 	oldConfig, err := configparser.NewConfigParserFromFile(c.oldConfigFile)
 	if err != nil {
@@ -93,11 +90,11 @@ func (c *PlatformUserConfig) migrate() {
 	}
 }
 
-func (c *PlatformUserConfig) SetWebSecretKey(key string) {
+func (c *UserConfig) SetWebSecretKey(key string) {
 	c.Upsert("platform.web_secret_key", key)
 }
 
-func (c *PlatformUserConfig) initDb() error {
+func (c *UserConfig) initDb() error {
 	db := c.open()
 	defer db.Close()
 
@@ -109,7 +106,7 @@ func (c *PlatformUserConfig) initDb() error {
 	return nil
 }
 
-func (c *PlatformUserConfig) open() *sql.DB {
+func (c *UserConfig) open() *sql.DB {
 	db, err := sql.Open("sqlite3", c.file)
 	if err != nil {
 		log.Fatal(err)
@@ -117,62 +114,62 @@ func (c *PlatformUserConfig) open() *sql.DB {
 	return db
 }
 
-func (c *PlatformUserConfig) UpdateRedirectDomain(domain string) {
+func (c *UserConfig) UpdateRedirectDomain(domain string) {
 	c.Upsert("redirect.domain", domain)
 }
 
-func (c *PlatformUserConfig) UpdateRedirectApiUrl(apiUrl string) {
+func (c *UserConfig) UpdateRedirectApiUrl(apiUrl string) {
 	c.Upsert("redirect.api_url", apiUrl)
 }
 
-func (c *PlatformUserConfig) SetUserEmail(userEmail string) {
+func (c *UserConfig) SetUserEmail(userEmail string) {
 	c.Upsert("redirect.user_email", userEmail)
 }
 
-func (c *PlatformUserConfig) SetUserUpdateToken(userUpdateToken string) {
+func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 	c.Upsert("redirect.user_update_token", userUpdateToken)
 }
 
-func (c *PlatformUserConfig) GetRedirectDomain() string {
+func (c *UserConfig) GetRedirectDomain() string {
 	return c.Get("redirect.domain", c.redirectDomain)
 }
 
-func (c *PlatformUserConfig) GetRedirectApiUrl() string {
+func (c *UserConfig) GetRedirectApiUrl() string {
 	return c.Get("redirect.api_url", c.redirectUrl)
 }
 
-func (c PlatformUserConfig) GetUpnp() bool {
+func (c UserConfig) GetUpnp() bool {
 	result := c.Get("platform.upnp", DbTrue)
 	return c.toBool(result)
 }
 
-func (c *PlatformUserConfig) IsRedirectEnabled() bool {
+func (c *UserConfig) IsRedirectEnabled() bool {
 	result := c.Get("platform.redirect_enabled", DbFalse)
 	return c.toBool(result)
 }
 
-func (c *PlatformUserConfig) GetExternalAccess() bool {
+func (c *UserConfig) GetExternalAccess() bool {
 	result := c.Get("platform.external_access", DbFalse)
 	return c.toBool(result)
 }
 
-func (c *PlatformUserConfig) SetRedirectEnabled(enabled bool) {
+func (c *UserConfig) SetRedirectEnabled(enabled bool) {
 	c.Upsert("platform.redirect_enabled", c.fromBool(enabled))
 }
 
-func (c *PlatformUserConfig) SetActivated() {
+func (c *UserConfig) SetActivated() {
 	c.Upsert("platform.activated", DbTrue)
 }
 
-func (c *PlatformUserConfig) UpdateUserDomain(domain string) {
+func (c *UserConfig) UpdateUserDomain(domain string) {
 	c.Upsert("platform.user_domain", domain)
 }
 
-func (c *PlatformUserConfig) UpdateDomainToken(token string) {
+func (c *UserConfig) UpdateDomainToken(token string) {
 	c.Upsert("platform.domain_update_token", token)
 }
 
-func (c *PlatformUserConfig) Upsert(key string, value string) {
+func (c *UserConfig) Upsert(key string, value string) {
 	db := c.open()
 	defer db.Close()
 	_, err := db.Exec("INSERT OR REPLACE INTO config VALUES (?, ?)", key, value)
@@ -181,7 +178,7 @@ func (c *PlatformUserConfig) Upsert(key string, value string) {
 	}
 }
 
-func (c *PlatformUserConfig) Delete(key string) {
+func (c *UserConfig) Delete(key string) {
 	db := c.open()
 	defer db.Close()
 	_, err := db.Exec("DELETE FROM config WHERE key = ?", key)
@@ -190,7 +187,7 @@ func (c *PlatformUserConfig) Delete(key string) {
 	}
 }
 
-func (c *PlatformUserConfig) GetOrNil(key string) *string {
+func (c *UserConfig) GetOrNil(key string) *string {
 	db := c.open()
 	defer db.Close()
 	var value string
@@ -204,7 +201,7 @@ func (c *PlatformUserConfig) GetOrNil(key string) *string {
 	return &value
 }
 
-func (c *PlatformUserConfig) Get(key string, defaultValue string) string {
+func (c *UserConfig) Get(key string, defaultValue string) string {
 	value := c.GetOrNil(key)
 	if value == nil {
 		return defaultValue
@@ -212,11 +209,11 @@ func (c *PlatformUserConfig) Get(key string, defaultValue string) string {
 	return *value
 }
 
-func (c *PlatformUserConfig) toBool(dbValue string) bool {
+func (c *UserConfig) toBool(dbValue string) bool {
 	return dbValue == DbTrue
 }
 
-func (c *PlatformUserConfig) fromBool(value bool) string {
+func (c *UserConfig) fromBool(value bool) string {
 	if value {
 		return DbTrue
 	} else {
@@ -224,34 +221,34 @@ func (c *PlatformUserConfig) fromBool(value bool) string {
 	}
 }
 
-func (c *PlatformUserConfig) GetDkimKey() *string {
+func (c *UserConfig) GetDkimKey() *string {
 	return c.GetOrNil("dkim_key")
 }
 
-func (c *PlatformUserConfig) GetDomainUpdateToken() *string {
+func (c *UserConfig) GetDomainUpdateToken() *string {
 	return c.GetOrNil("platform.domain_update_token")
 }
 
-func (c *PlatformUserConfig) SetExternalAccess(enabled bool) {
+func (c *UserConfig) SetExternalAccess(enabled bool) {
 	c.Upsert("platform.external_access", c.fromBool(enabled))
 }
 
-func (c *PlatformUserConfig) SetUpnp(enabled bool) {
+func (c *UserConfig) SetUpnp(enabled bool) {
 	c.Upsert("platform.upnp", c.fromBool(enabled))
 }
 
-func (c *PlatformUserConfig) SetPublicIp(publicIp string) {
+func (c *UserConfig) SetPublicIp(publicIp string) {
 	c.Upsert("platform.public_ip", publicIp)
 }
 
-func (c *PlatformUserConfig) DeletePublicIp() {
+func (c *UserConfig) DeletePublicIp() {
 	c.Delete("platform.public_ip")
 }
 
-func (c *PlatformUserConfig) SetManualCertificatePort(manualCertificatePort int) {
+func (c *UserConfig) SetManualCertificatePort(manualCertificatePort int) {
 	c.Upsert("platform.manual_certificate_port", strconv.Itoa(manualCertificatePort))
 }
 
-func (c *PlatformUserConfig) SetManualAccessPort(manualAccessPort int) {
+func (c *UserConfig) SetManualAccessPort(manualAccessPort int) {
 	c.Upsert("platform.manual_access_port", strconv.Itoa(manualAccessPort))
 }

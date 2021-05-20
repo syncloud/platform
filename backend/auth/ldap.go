@@ -3,86 +3,123 @@ package auth
 import (
 	"fmt"
 	"github.com/syncloud/platform/snap"
+	"golang.org/x/crypto/bcrypt"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
+	"os/exec"
+	"path"
 	"strings"
 )
 
 const ldapUserConfDir = "slapd.d"
+const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
 
 type LdapAuth struct {
 	snapService *snap.Service
+	userConfDir string
+	userDataDir string
+	ldapRoot    string
+	configDir   string
 }
 
-func New(snapService *snap.Service) *LdapAuth {
-	//self.config = platform_config
-	//self.user_conf_dir = join(self.config.data_dir(), ldap_user_conf_dir)
-	//self.ldap_root = '{0}/openldap'.format(self.config.app_dir())
+func New(snapService *snap.Service, dataDir string, appDir string, configDir string) *LdapAuth {
+
 	return &LdapAuth{
 		snapService: snapService,
-		//userConfDir: path.Join(self.config.data_dir(), ldapUserConfDir),
-
+		userConfDir: path.Join(dataDir, ldapUserConfDir),
+		userDataDir: path.Join(dataDir, ldapUserDataDir),
+		ldapRoot:    path.Join(appDir, "openldap"),
+		configDir:   configDir,
 	}
 }
 
-func (ldap *LdapAuth) Installed() bool {
+func (l *LdapAuth) Installed() bool {
 	//return os.path.isdir(join(self.config.data_dir(), ldap_user_conf_dir))
 	return false
 }
 
-func (ldap *LdapAuth) Init() {
-	/*
-	    if self.installed():
-	       self.log.info('ldap config already initialized')
-	       return
-
-	   self.log.info('initializing ldap config')
-	   fs.makepath(self.user_conf_dir)
-	   init_script = '{0}/ldap/slapd.ldif'.format(self.config.config_dir())
-
-	   check_output(
-	       '{0}/sbin/slapadd.sh -F {1} -b "cn=config" -l {2}'.format(
-	           self.ldap_root, self.user_conf_dir, init_script), shell=True)
-
-	*/
-}
-func (ldap *LdapAuth) Reset(name string, user string, password string, email string) error {
-	err := ldap.snapService.Stop("platform.openldap")
+func (l *LdapAuth) Init() error {
+	if l.Installed() {
+		log.Println("ldap config already initialized")
+		return nil
+	}
+	log.Println("initializing ldap config")
+	err := os.MkdirAll(l.userConfDir, 755)
 	if err != nil {
 		return err
 	}
-	//os.RemoveAll(user_conf_dir)
 
-	/*
+	initScript := path.Join(l.configDir, "ldap", "slapd.ldif")
 
-
-	   files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
-	   for f in files:
-	       os.remove(f)
-
-	   self.init()
-
-	   self.systemctl.start_service('platform.openldap')
-
-	   _, filename = tempfile.mkstemp()
-	   try:
-	       gen.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
-	           'name': name,
-	           'user': user,
-	           'email': email,
-	           'password': make_secret(password)
-	       })
-
-	       self._init_db(filename)
-	   finally:
-	       os.remove(filename)
-
-	   check_output(generate_change_password_cmd(password), shell=True)
-
-	*/
+	cmd := fmt.Sprintf("%s/sbin/slapadd.sh", l.ldapRoot)
+	output, err := exec.Command(cmd, "-F", l.userConfDir, "-b", "cn=config", "-l", initScript).CombinedOutput()
+	if err != nil {
+		return err
+	}
+	log.Println(output)
 	return nil
 }
 
-func (ldap *LdapAuth) initDb(filename string) {
+func (l *LdapAuth) Reset(name string, user string, password string, email string) error {
+	err := l.snapService.Stop("platform.openldap")
+	if err != nil {
+		return err
+	}
+	err = os.RemoveAll(l.userConfDir)
+	if err != nil {
+		return err
+	}
+
+	err = os.RemoveAll(l.userDataDir)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(l.userDataDir, 755)
+	if err != nil {
+		return err
+	}
+
+	err = l.Init()
+	if err != nil {
+		return err
+	}
+	err = l.snapService.Start("platform.openldap")
+	if err != nil {
+		return err
+	}
+
+	tmpFile, err := ioutil.TempFile("", "")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpFile.Name())
+	file, err := ioutil.ReadFile(path.Join(l.configDir, "ldap", "init.ldif"))
+	if err != nil {
+		return err
+	}
+	passwordHash, err := makeSecret(password)
+	if err != nil {
+		return err
+	}
+	ldif := string(file)
+	ldif = strings.ReplaceAll(ldif, "${name}", name)
+	ldif = strings.ReplaceAll(ldif, "${user}", user)
+	ldif = strings.ReplaceAll(ldif, "${email}", email)
+	ldif = strings.ReplaceAll(ldif, "${password}", *passwordHash)
+	err = ioutil.WriteFile(tmpFile.Name(), []byte(ldif), 644)
+	if err != nil {
+		return err
+	}
+
+	l.initDb(tmpFile.Name())
+	err = ChangeSystemPassword(password)
+	return err
+}
+
+func (l *LdapAuth) initDb(filename string) {
 	/*        success = False
 	for i in range(0, 3):
 	    try:
@@ -99,7 +136,7 @@ func (ldap *LdapAuth) initDb(filename string) {
 	*/
 }
 
-func (ldap *LdapAuth) ldapAdd(filename string, bindDn string) {
+func (l *LdapAuth) ldapAdd(filename string, bindDn string) {
 	/*        bind_dn_option = ''
 	if bind_dn:
 	    bind_dn_option = '-D "{0}"'.format(bind_dn)
@@ -108,10 +145,15 @@ func (ldap *LdapAuth) ldapAdd(filename string, bindDn string) {
 	*/
 }
 
-func GenerateChangePasswordCmd(password string) string {
-	//TODO: fix me, we should not depend on bash limitations for passwords
-	//return fmt.Sprintf("echo \"root:%s\" | chpasswd", strings.ReplaceAll()password.replace('"', '\\"').replace("$", "\\$"))
-	return ""
+func ChangeSystemPassword(password string) error {
+	cmd := exec.Command("chpasswd")
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return err
+	}
+
+	_, err = io.WriteString(stdin, fmt.Sprintf("root:%s", password))
+	return err
 }
 
 func ToLdapDc(fullDomain string) string {
@@ -132,7 +174,11 @@ func Authenticate(name string, password string) {
 	*/
 }
 
-func makeSecret(password string) string {
-	//return hash.ldap_salted_sha1.hash(password)
-	return ""
+func makeSecret(password string) (*string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	hashString := string(hash)
+	return &hashString, nil
 }

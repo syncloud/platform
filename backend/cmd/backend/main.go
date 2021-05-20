@@ -78,21 +78,40 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	eventTrigger := event.New()
 	installerService := installer.New()
 	storageService := storage.New()
-	configuration, err := config.New(configDb, config.OldConfig, redirectDomain, defaultRedirectUrl)
+	userConfig, err := config.NewUserConfig(configDb, config.OldConfig, redirectDomain, defaultRedirectUrl)
 	if err != nil {
 		return nil, err
 	}
-	redirectApiUrl := configuration.GetRedirectApiUrl()
+	redirectApiUrl := userConfig.GetRedirectApiUrl()
 	redirectUrl, err := url.Parse(redirectApiUrl)
 	if err != nil {
 		return nil, err
 	}
 
 	id := identification.New(idConfig)
-	redirectService := redirect.New(configuration, id)
+	redirectService := redirect.New(userConfig, id)
 	worker := job.NewWorker(master)
-	ldapAuth := auth.New(snap.NewService())
-	freeActivation := activation.New(&connection.Internet{}, configuration, redirectService, certificate.New(), ldapAuth)
+	systemConfig, err := config.NewSystemConfig(config.File)
+	if err != nil {
+		return nil, err
+	}
+
+	snapService := snap.NewService()
+	dataDir, err := systemConfig.DataDir()
+	if err != nil {
+		return nil, err
+	}
+	appDir, err := systemConfig.AppDir()
+	if err != nil {
+		return nil, err
+	}
+	configDir, err := systemConfig.ConfigDir()
+	if err != nil {
+		return nil, err
+	}
+	ldapAuth := auth.New(snapService, *dataDir, *appDir, *configDir)
+	freeActivation := activation.New(&connection.Internet{}, userConfig, redirectService, certificate.New(), ldapAuth)
+
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
 
 }

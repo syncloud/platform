@@ -14,11 +14,11 @@ import (
 )
 
 type Redirect struct {
-	UserPlatformConfig *config.PlatformUserConfig
+	UserPlatformConfig *config.UserConfig
 	identification     *identification.Parser
 }
 
-func New(userPlatformConfig *config.PlatformUserConfig, identification *identification.Parser) *Redirect {
+func New(userPlatformConfig *config.UserConfig, identification *identification.Parser) *Redirect {
 	return &Redirect{
 		UserPlatformConfig: userPlatformConfig,
 		identification:     identification,
