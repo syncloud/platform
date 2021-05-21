@@ -298,7 +298,7 @@ export default {
     },
     activateFreeDomain () {
       axios
-        .post('/rest/activate', {
+        .post('/rest/activate/free', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
           user_domain: this.domain,

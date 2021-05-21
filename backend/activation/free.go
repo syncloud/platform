@@ -6,6 +6,7 @@ import (
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/certificate"
 	"github.com/syncloud/platform/connection"
+	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"log"
@@ -53,9 +54,10 @@ type Free struct {
 	certificateGenerator *certificate.Generator
 	auth                 *auth.LdapAuth
 	nginx                *nginx.Nginx
+	trigger              *event.Trigger
 }
 
-func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.LdapAuth, nginx *nginx.Nginx) *Free {
+func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.LdapAuth, nginx *nginx.Nginx, trigger *event.Trigger) *Free {
 	return &Free{
 		internet:             internet,
 		config:               config,
@@ -63,6 +65,7 @@ func New(internet connection.Checker, config FreePlatformUserConfig, redirect Fr
 		certificateGenerator: certificateGenerator,
 		auth:                 auth,
 		nginx:                nginx,
+		trigger:              trigger,
 	}
 }
 
@@ -144,8 +147,7 @@ func (f *Free) resetAccess() error {
 	f.config.DeletePublicIp()
 	f.config.SetManualCertificatePort(0)
 	f.config.SetManualAccessPort(0)
-	//self.event_trigger.trigger_app_event_domain()
-	return fmt.Errorf("not implemented yet")
+	return f.trigger.RunAccessChangeEvent()
 }
 
 func ParseUsername(username string, domain string) (string, string) {

@@ -113,7 +113,7 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	}
 	ldapAuth := auth.New(snapService, *dataDir, *appDir, *configDir)
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
-	freeActivation := activation.New(&connection.Internet{}, userConfig, redirectService, certificate.New(), ldapAuth, nginxService)
+	freeActivation := activation.New(&connection.Internet{}, userConfig, redirectService, certificate.New(), ldapAuth, nginxService, eventTrigger)
 
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
 

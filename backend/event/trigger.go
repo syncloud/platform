@@ -16,9 +16,13 @@ func New() *Trigger {
 	}
 }
 
-func (storage *Trigger) RunEventOnAllApps(event string) error {
+func (t *Trigger) RunAccessChangeEvent() error {
+	return t.RunEventOnAllApps("access-change")
+}
 
-	snaps, err := storage.snap.ListAllApps()
+func (t *Trigger) RunEventOnAllApps(event string) error {
+
+	snaps, err := t.snap.ListAllApps()
 	if err != nil {
 		log.Printf("snap info failed: %v", err)
 		return err
