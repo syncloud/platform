@@ -6,6 +6,7 @@ import (
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/certificate"
 	"github.com/syncloud/platform/connection"
+	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"log"
 	"strings"
@@ -25,7 +26,7 @@ type FreePlatformUserConfig interface {
 	UpdateRedirectApiUrl(apiUrl string)
 	SetUserUpdateToken(userUpdateToken string)
 	SetUserEmail(userEmail string)
-	UpdateUserDomain(domain string)
+	SetUserDomain(domain string)
 	UpdateDomainToken(token string)
 	GetRedirectDomain() string
 	SetActivated()
@@ -51,15 +52,17 @@ type Free struct {
 	redirect             FreeRedirect
 	certificateGenerator *certificate.Generator
 	auth                 *auth.LdapAuth
+	nginx                *nginx.Nginx
 }
 
-func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.LdapAuth) *Free {
+func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.LdapAuth, nginx *nginx.Nginx) *Free {
 	return &Free{
 		internet:             internet,
 		config:               config,
 		redirect:             redirect,
 		certificateGenerator: certificateGenerator,
 		auth:                 auth,
+		nginx:                nginx,
 	}
 }
 
@@ -92,7 +95,7 @@ func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string,
 		return err
 	}
 
-	f.config.UpdateUserDomain(domain.UserDomain)
+	f.config.SetUserDomain(domain.UserDomain)
 	f.config.UpdateDomainToken(domain.UpdateToken)
 	return f.redirect.Reset(domain.UpdateToken)
 }
@@ -100,12 +103,15 @@ func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string,
 func (f *Free) ActivateDevice(username string, password string, userDomain string) error {
 	mainDomain := f.config.GetRedirectDomain()
 	name, email := ParseUsername(username, fmt.Sprintf("%s.%s", userDomain, mainDomain))
-	f.resetAccess()
+	err := f.resetAccess()
+	if err != nil {
+		return err
+	}
 
 	log.Println("activating ldap")
 	f.config.SetWebSecretKey(uuid.New().String())
 
-	err := f.certificateGenerator.GenerateSelfSigned()
+	err = f.certificateGenerator.GenerateSelfSigned()
 	if err != nil {
 		return err
 	}
@@ -115,17 +121,23 @@ func (f *Free) ActivateDevice(username string, password string, userDomain strin
 		return err
 	}
 
-	//self.nginx.init_config()
-	//self.nginx.reload_public()
+	err = f.nginx.InitConfig()
+	if err != nil {
+		return err
+	}
+	err = f.nginx.ReloadPublic()
+	if err != nil {
+		return err
+	}
 
 	f.config.SetActivated()
 
 	log.Println("activation completed")
 
-	return fmt.Errorf("not implemented yet")
+	return nil
 }
 
-func (f *Free) resetAccess() {
+func (f *Free) resetAccess() error {
 	log.Println("reset access")
 	f.config.SetUpnp(false)
 	f.config.SetExternalAccess(false)
@@ -133,6 +145,7 @@ func (f *Free) resetAccess() {
 	f.config.SetManualCertificatePort(0)
 	f.config.SetManualAccessPort(0)
 	//self.event_trigger.trigger_app_event_domain()
+	return fmt.Errorf("not implemented yet")
 }
 
 func ParseUsername(username string, domain string) (string, string) {

@@ -161,8 +161,12 @@ func (c *UserConfig) SetActivated() {
 	c.Upsert("platform.activated", DbTrue)
 }
 
-func (c *UserConfig) UpdateUserDomain(domain string) {
+func (c *UserConfig) SetUserDomain(domain string) {
 	c.Upsert("platform.user_domain", domain)
+}
+
+func (c *UserConfig) GetUserDomain() *string {
+	return c.GetOrNil("platform.user_domain")
 }
 
 func (c *UserConfig) UpdateDomainToken(token string) {
@@ -251,4 +255,22 @@ func (c *UserConfig) SetManualCertificatePort(manualCertificatePort int) {
 
 func (c *UserConfig) SetManualAccessPort(manualAccessPort int) {
 	c.Upsert("platform.manual_access_port", strconv.Itoa(manualAccessPort))
+}
+
+func (c *UserConfig) GetCustomDomain() *string {
+	return c.GetOrNil("platform.custom_domain")
+}
+
+func (c *UserConfig) GetDeviceDomain() *string {
+	if c.IsRedirectEnabled() {
+		userDomain := c.GetUserDomain()
+		if userDomain != nil {
+			domain := fmt.Sprintf("%s.%s", *userDomain, c.GetRedirectDomain())
+			return &domain
+		} else {
+			return nil
+		}
+	} else {
+		return c.GetCustomDomain()
+	}
 }

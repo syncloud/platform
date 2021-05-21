@@ -10,8 +10,10 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
+	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/snap"
+	"github.com/syncloud/platform/systemd"
 	"log"
 	"net/url"
 	"os"
@@ -110,7 +112,8 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 		return nil, err
 	}
 	ldapAuth := auth.New(snapService, *dataDir, *appDir, *configDir)
-	freeActivation := activation.New(&connection.Internet{}, userConfig, redirectService, certificate.New(), ldapAuth)
+	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
+	freeActivation := activation.New(&connection.Internet{}, userConfig, redirectService, certificate.New(), ldapAuth, nginxService)
 
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
 

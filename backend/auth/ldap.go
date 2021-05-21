@@ -37,8 +37,8 @@ func New(snapService *snap.Service, dataDir string, appDir string, configDir str
 }
 
 func (l *LdapAuth) Installed() bool {
-	//return os.path.isdir(join(self.config.data_dir(), ldap_user_conf_dir))
-	return false
+	_, err := os.Stat(l.userConfDir)
+	return err == nil
 }
 
 func (l *LdapAuth) Init() error {
@@ -54,7 +54,7 @@ func (l *LdapAuth) Init() error {
 
 	initScript := path.Join(l.configDir, "ldap", "slapd.ldif")
 
-	cmd := fmt.Sprintf("%s/sbin/slapadd.sh", l.ldapRoot)
+	cmd := path.Join(l.ldapRoot, "sbin", "slapadd.sh")
 	output, err := exec.Command(cmd, "-F", l.userConfDir, "-b", "cn=config", "-l", initScript).CombinedOutput()
 	if err != nil {
 		return err
@@ -91,16 +91,17 @@ func (l *LdapAuth) Reset(name string, user string, password string, email string
 		return err
 	}
 
+	passwordHash, err := makeSecret(password)
+	if err != nil {
+		return err
+	}
+
 	tmpFile, err := ioutil.TempFile("", "")
 	if err != nil {
 		return err
 	}
 	defer os.Remove(tmpFile.Name())
 	file, err := ioutil.ReadFile(path.Join(l.configDir, "ldap", "init.ldif"))
-	if err != nil {
-		return err
-	}
-	passwordHash, err := makeSecret(password)
 	if err != nil {
 		return err
 	}
@@ -114,12 +115,17 @@ func (l *LdapAuth) Reset(name string, user string, password string, email string
 		return err
 	}
 
-	l.initDb(tmpFile.Name())
+	err = l.initDb(tmpFile.Name())
+	if err != nil {
+		return err
+	}
+
 	err = ChangeSystemPassword(password)
 	return err
 }
 
-func (l *LdapAuth) initDb(filename string) {
+func (l *LdapAuth) initDb(filename string) error {
+	return l.ldapAdd(filename, Domain)
 	/*        success = False
 	for i in range(0, 3):
 	    try:
@@ -136,13 +142,13 @@ func (l *LdapAuth) initDb(filename string) {
 	*/
 }
 
-func (l *LdapAuth) ldapAdd(filename string, bindDn string) {
-	/*        bind_dn_option = ''
-	if bind_dn:
-	    bind_dn_option = '-D "{0}"'.format(bind_dn)
-	check_output('{0}/bin/ldapadd.sh -x -w syncloud {1} -f {2}'.format(
-	            self.ldap_root, bind_dn_option, filename), shell=True)
-	*/
+func (l *LdapAuth) ldapAdd(filename string, bindDn string) error {
+	cmd := path.Join(l.ldapRoot, "bin", "ldapadd.sh")
+	_, err := exec.Command(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename).CombinedOutput()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ChangeSystemPassword(password string) error {

@@ -38,6 +38,10 @@ func (c *SystemConfig) ConfigDir() (*string, error) {
 	return c.get("config_dir")
 }
 
+func (c *SystemConfig) NginxConfigDir() (*string, error) {
+	return c.get("nginx_config_dir")
+}
+
 func (c *SystemConfig) get(key string) (*string, error) {
 	value, err := c.parser.Get("platform", key)
 	if err != nil {
