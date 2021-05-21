@@ -126,7 +126,7 @@ def test_set_redirect(device, main_domain, redirect_api_url):
 
 
 def test_activate_device(device_host, domain, redirect_user, redirect_password):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
@@ -137,7 +137,7 @@ def test_activate_device(device_host, domain, redirect_user, redirect_password):
 
 def test_reactivate_activated_device(device_host, domain, device_user, device_password,
                                      redirect_user, redirect_password):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
@@ -158,7 +158,7 @@ def test_set_redirect_again(device, main_domain, redirect_api_url):
 
 def test_reactivate_good(device_host, domain, device_user, device_password,
                          redirect_user, redirect_password, device):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,
@@ -186,7 +186,7 @@ def test_activation_status_false_after_deactivate(device_host):
 
 def test_reactivate_after_deactivate(device_host, domain, device_user, device_password,
                                      redirect_user, redirect_password, device):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'user_domain': domain,

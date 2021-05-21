@@ -22,7 +22,7 @@ test('Activate free domain', async () => {
     }
   }
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate').reply(function (config) {
+  mock.onPost('/rest/activate/free').reply(function (config) {
     const request = JSON.parse(config.data)
     redirectEmail = request.redirect_email
     redirectPassword = request.redirect_password
@@ -86,7 +86,7 @@ test('Activate free domain error', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate').reply(500, {
+  mock.onPost('/rest/activate/free').reply(500, {
     message: 'not ok'
   })
 
@@ -139,7 +139,7 @@ test('Activate free domain availability error', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate').reply(500, {
+  mock.onPost('/rest/activate/free').reply(500, {
     message: 'not ok'
   })
 
