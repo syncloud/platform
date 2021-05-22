@@ -52,12 +52,12 @@ type Free struct {
 	config               FreePlatformUserConfig
 	redirect             FreeRedirect
 	certificateGenerator *certificate.Generator
-	auth                 *auth.LdapAuth
+	auth                 *auth.Service
 	nginx                *nginx.Nginx
 	trigger              *event.Trigger
 }
 
-func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.LdapAuth, nginx *nginx.Nginx, trigger *event.Trigger) *Free {
+func New(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, certificateGenerator *certificate.Generator, auth *auth.Service, nginx *nginx.Nginx, trigger *event.Trigger) *Free {
 	return &Free{
 		internet:             internet,
 		config:               config,

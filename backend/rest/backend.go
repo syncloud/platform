@@ -27,7 +27,7 @@ type Backend struct {
 	backup         *backup.Backup
 	eventTrigger   *event.Trigger
 	worker         *job.Worker
-	redirect       *redirect.Redirect
+	redirect       *redirect.Service
 	installer      installer.AppInstaller
 	storage        *storage.Storage
 	redirectProxy  *httputil.ReverseProxy
@@ -37,7 +37,7 @@ type Backend struct {
 
 func NewBackend(master *job.Master, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
-	redirect *redirect.Redirect, installerService *installer.Installer,
+	redirect *redirect.Service, installerService *installer.Installer,
 	storageService *storage.Storage, redirectUrl *url.URL,
 	identification *identification.Parser, activation *activation.Free) *Backend {
 

@@ -2,6 +2,7 @@ package version
 
 import (
 	"io/ioutil"
+	"strings"
 )
 
 func PlatformVersion() (string, error) {
@@ -9,6 +10,6 @@ func PlatformVersion() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(content), nil
+	return strings.TrimSpace(string(content)), nil
 
 }

@@ -17,7 +17,7 @@ const ldapUserConfDir = "slapd.d"
 const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
 
-type LdapAuth struct {
+type Service struct {
 	snapService *snap.Service
 	userConfDir string
 	userDataDir string
@@ -25,9 +25,9 @@ type LdapAuth struct {
 	configDir   string
 }
 
-func New(snapService *snap.Service, dataDir string, appDir string, configDir string) *LdapAuth {
+func New(snapService *snap.Service, dataDir string, appDir string, configDir string) *Service {
 
-	return &LdapAuth{
+	return &Service{
 		snapService: snapService,
 		userConfDir: path.Join(dataDir, ldapUserConfDir),
 		userDataDir: path.Join(dataDir, ldapUserDataDir),
@@ -36,12 +36,12 @@ func New(snapService *snap.Service, dataDir string, appDir string, configDir str
 	}
 }
 
-func (l *LdapAuth) Installed() bool {
+func (l *Service) Installed() bool {
 	_, err := os.Stat(l.userConfDir)
 	return err == nil
 }
 
-func (l *LdapAuth) Init() error {
+func (l *Service) Init() error {
 	if l.Installed() {
 		log.Println("ldap config already initialized")
 		return nil
@@ -63,7 +63,7 @@ func (l *LdapAuth) Init() error {
 	return nil
 }
 
-func (l *LdapAuth) Reset(name string, user string, password string, email string) error {
+func (l *Service) Reset(name string, user string, password string, email string) error {
 	log.Println("resetting ldap")
 
 	err := l.snapService.Stop("platform.openldap")
@@ -126,7 +126,7 @@ func (l *LdapAuth) Reset(name string, user string, password string, email string
 	return err
 }
 
-func (l *LdapAuth) initDb(filename string) error {
+func (l *Service) initDb(filename string) error {
 	return l.ldapAdd(filename, Domain)
 	/*        success = False
 	for i in range(0, 3):
@@ -144,7 +144,7 @@ func (l *LdapAuth) initDb(filename string) error {
 	*/
 }
 
-func (l *LdapAuth) ldapAdd(filename string, bindDn string) error {
+func (l *Service) ldapAdd(filename string, bindDn string) error {
 	cmd := path.Join(l.ldapRoot, "bin", "ldapadd.sh")
 	_, err := exec.Command(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename).CombinedOutput()
 	if err != nil {

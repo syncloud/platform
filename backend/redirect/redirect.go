@@ -13,19 +13,19 @@ import (
 	"net/http"
 )
 
-type Redirect struct {
+type Service struct {
 	UserPlatformConfig *config.UserConfig
 	identification     *identification.Parser
 }
 
-func New(userPlatformConfig *config.UserConfig, identification *identification.Parser) *Redirect {
-	return &Redirect{
+func New(userPlatformConfig *config.UserConfig, identification *identification.Parser) *Service {
+	return &Service{
 		UserPlatformConfig: userPlatformConfig,
 		identification:     identification,
 	}
 }
 
-func (r *Redirect) Authenticate(email string, password string) (*User, error) {
+func (r *Service) Authenticate(email string, password string) (*User, error) {
 	url := fmt.Sprintf("%s/user/get?email=%s&password=%s", r.UserPlatformConfig.GetRedirectApiUrl(), email, password)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *Redirect) Authenticate(email string, password string) (*User, error) {
 	return &redirectUserResponse.Data, nil
 }
 
-func (r *Redirect) Acquire(email string, password string, userDomain string) (*Domain, error) {
+func (r *Service) Acquire(email string, password string, userDomain string) (*Domain, error) {
 
 	deviceId, err := r.identification.Id()
 	if err != nil {
@@ -86,17 +86,17 @@ func (r *Redirect) Acquire(email string, password string, userDomain string) (*D
 	if err != nil {
 		return nil, err
 	}
-  if !response.Success {
-    return nil, fmt.Errorf("failed to acquire domain")
-  }
+	if !response.Success {
+		return nil, fmt.Errorf("failed to acquire domain")
+	}
 	return response.Data, nil
 }
 
-func (r *Redirect) Reset(updateToken string) error {
+func (r *Service) Reset(updateToken string) error {
 	return r.Update(nil, nil, config.WebAccessPort, config.WebProtocol, updateToken, false)
 }
 
-func (r *Redirect) Update(externalIp *string, webPort *int, webLocalPort int, webProtocol string, updateToken string, externalAccess bool) error {
+func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, webProtocol string, updateToken string, externalAccess bool) error {
 
 	platformVersion, err := version.PlatformVersion()
 	if err != nil {
@@ -163,4 +163,3 @@ func (r *Redirect) Update(externalIp *string, webPort *int, webLocalPort int, we
 
 	return nil
 }
-
