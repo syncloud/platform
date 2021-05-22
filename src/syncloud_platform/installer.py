@@ -27,6 +27,7 @@ class PlatformInstaller:
         
         variables = {
             'apps_root': config.APPS_ROOT,
+            'data_root': config.DATA_ROOT,
             'configs_root': config.DATA_ROOT,
             'config_root': self.data_dir,
             'config_dir': self.config_dir,
