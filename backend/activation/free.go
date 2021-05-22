@@ -111,7 +111,6 @@ func (f *Free) ActivateDevice(username string, password string, userDomain strin
 		return err
 	}
 
-	log.Println("activating ldap")
 	f.config.SetWebSecretKey(uuid.New().String())
 
 	err = f.certificateGenerator.GenerateSelfSigned()

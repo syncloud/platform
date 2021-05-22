@@ -64,6 +64,8 @@ func (l *LdapAuth) Init() error {
 }
 
 func (l *LdapAuth) Reset(name string, user string, password string, email string) error {
+	log.Println("resetting ldap")
+
 	err := l.snapService.Stop("platform.openldap")
 	if err != nil {
 		return err
