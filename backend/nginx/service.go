@@ -2,21 +2,32 @@ package nginx
 
 import (
 	"fmt"
-	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/systemd"
 	"io/ioutil"
 	"log"
 	"path"
 	"strings"
 )
 
-type Nginx struct {
-	systemd      *systemd.Control
-	systemConfig *config.SystemConfig
-	userConfig   *config.UserConfig
+type Systemd interface {
+	ReloadService(service string) error
 }
 
-func New(systemd *systemd.Control, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *Nginx {
+type SystemConfig interface {
+	ConfigDir() (*string, error)
+	NginxConfigDir() (*string, error)
+}
+
+type UserConfig interface {
+	GetDeviceDomain() *string
+}
+
+type Nginx struct {
+	systemd      Systemd
+	systemConfig SystemConfig
+	userConfig   UserConfig
+}
+
+func New(systemd Systemd, systemConfig SystemConfig, userConfig UserConfig) *Nginx {
 	return &Nginx{
 		systemd:      systemd,
 		userConfig:   userConfig,
@@ -45,7 +56,7 @@ func (n *Nginx) InitConfig() error {
 	}
 
 	template := string(templateFile)
-	template = strings.ReplaceAll(template, "${user_domain}", *domain)
+	template = strings.ReplaceAll(template, "{{ user_domain }}", strings.ReplaceAll(*domain, ".", "\\."))
 	log.Printf("nginx config: %s", template)
 	nginxConfigDir, err := n.systemConfig.NginxConfigDir()
 	if err != nil {
@@ -53,6 +64,6 @@ func (n *Nginx) InitConfig() error {
 	}
 	nginxConfigFile := path.Join(*nginxConfigDir, "nginx.conf")
 	log.Printf("nginx config file: %s", nginxConfigFile)
-	err = ioutil.WriteFile(nginxConfigFile, []byte(template), 644)
+	err = ioutil.WriteFile(nginxConfigFile, []byte(template), 0644)
 	return err
 }

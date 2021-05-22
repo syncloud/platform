@@ -27,13 +27,11 @@ class PlatformInstaller:
         
         variables = {
             'apps_root': config.APPS_ROOT,
-            'data_root': config.DATA_ROOT,
             'configs_root': config.DATA_ROOT,
             'config_root': self.data_dir,
             'config_dir': self.config_dir,
             'app_dir': config.INSTALL_DIR,
-            'app_data': config.DATA_DIR,
-            'app_data_prefix': config.APP_DATA_PREFIX
+            'app_data': config.DATA_DIR
         }
         gen.generate_files(self.templates_path, self.config_dir, variables)
 

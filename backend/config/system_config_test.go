@@ -21,8 +21,7 @@ nginx_config_dir: %(data_dir)s/dir
 		log.Fatal(err)
 	}
 
-	db := tempFile().Name()
-	_ = os.Remove(db)
+	defer func() { _ = os.Remove(configFile.Name()) }()
 	config, err := NewSystemConfig(configFile.Name())
 	assert.Nil(t, err)
 	dir, err := config.NginxConfigDir()

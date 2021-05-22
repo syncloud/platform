@@ -19,7 +19,6 @@ def env(key, default_value):
 
 INSTALL_DIR = env('SNAP', 'not_set')
 DATA_DIR = env('SNAP_COMMON', 'not_set')
-APP_DATA_PREFIX = 'common/'
 
 
 class PlatformConfig:
