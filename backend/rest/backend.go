@@ -82,7 +82,7 @@ func (backend *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/event/trigger", Handle(backend.EventTrigger)).Methods("POST")
-	r.HandleFunc("/activate/free", Handle(backend.EventTrigger)).Methods("POST")
+	r.HandleFunc("/activate/free", Handle(backend.Activate)).Methods("POST")
 	r.HandleFunc("/id", Handle(backend.Id)).Methods("GET")
 	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
