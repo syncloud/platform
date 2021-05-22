@@ -43,7 +43,7 @@ func (c *SystemConfig) NginxConfigDir() (*string, error) {
 }
 
 func (c *SystemConfig) get(key string) (*string, error) {
-	value, err := c.parser.Get("platform", key)
+	value, err := c.parser.GetInterpolated("platform", key)
 	if err != nil {
 		return nil, err
 	}
