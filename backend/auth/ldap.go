@@ -102,7 +102,7 @@ func (l *Service) Reset(name string, user string, password string, email string)
 	if err != nil {
 		return err
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
 	file, err := ioutil.ReadFile(path.Join(l.configDir, "ldap", "init.ldif"))
 	if err != nil {
 		return err

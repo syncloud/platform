@@ -5,6 +5,7 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/systemd"
 	"io/ioutil"
+	"log"
 	"path"
 	"strings"
 )
@@ -45,10 +46,13 @@ func (n *Nginx) InitConfig() error {
 
 	template := string(templateFile)
 	template = strings.ReplaceAll(template, "${user_domain}", *domain)
+	log.Printf("nginx config: %s", template)
 	nginxConfigDir, err := n.systemConfig.NginxConfigDir()
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path.Join(*nginxConfigDir, "nginx.conf"), []byte(template), 644)
+	nginxConfigFile := path.Join(*nginxConfigDir, "nginx.conf")
+	log.Printf("nginx config file: %s", nginxConfigFile)
+	err = ioutil.WriteFile(nginxConfigFile, []byte(template), 644)
 	return err
 }
