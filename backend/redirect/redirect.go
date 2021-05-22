@@ -62,7 +62,7 @@ func (r *Redirect) Acquire(email string, password string, userDomain string) (*D
 		DeviceMacAddress: deviceId.MacAddress,
 		DeviceName:       deviceId.Name,
 		DeviceTitle:      deviceId.Title}
-	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "/domain/acquire_v2")
+	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "domain/acquire_v2")
 	requestJson, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
@@ -80,6 +80,7 @@ func (r *Redirect) Acquire(email string, password string, userDomain string) (*D
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("acquire response: %s", body)
 	var response Domain
 	err = json.Unmarshal(body, &response)
 	if err != nil {
@@ -119,7 +120,7 @@ func (r *Redirect) Update(externalIp *string, webPort *int, webLocalPort int, we
 		if err != nil {
 			return err
 		}
-		log.Printf("warning getting external ip: %s", externalIp)
+		log.Printf("getting external ip: %s", externalIp)
 	}
 
 	if externalAccess {
@@ -137,7 +138,7 @@ func (r *Redirect) Update(externalIp *string, webPort *int, webLocalPort int, we
 		request.DkimKey = dkimKey
 	}
 
-	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "/domain/update")
+	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "domain/update")
 
 	log.Printf("url: %s", url)
 	requestJson, err := json.Marshal(request)
