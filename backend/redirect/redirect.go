@@ -81,12 +81,15 @@ func (r *Redirect) Acquire(email string, password string, userDomain string) (*D
 		return nil, err
 	}
 	log.Printf("acquire response: %s", body)
-	var response Domain
+	var response FreeDomainAcquireResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return nil, err
 	}
-	return &response, nil
+  if !response.Success {
+    return nil, fmt.Errorf("failed to acquire domain")
+  }
+	return response.Data, nil
 }
 
 func (r *Redirect) Reset(updateToken string) error {
@@ -160,3 +163,4 @@ func (r *Redirect) Update(externalIp *string, webPort *int, webLocalPort int, we
 
 	return nil
 }
+
