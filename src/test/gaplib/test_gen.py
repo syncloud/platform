@@ -26,12 +26,14 @@ def test_simple_substitution():
 
 
 def test_unknown_variable():
-    with pytest.raises(Exception):
-        template_text = '{{ variable }}'
-        empty_template_filename = temp_file(text=template_text);
-        target_filename = temp_file();
-        remove(target_filename)
-        gen.generate_file_jinja(empty_template_filename, target_filename, {})
+    template_text = '{{ variable }}'
+    empty_template_filename = temp_file(text=template_text);
+    target_filename = temp_file();
+    remove(target_filename)
+    gen.generate_file_jinja(empty_template_filename, target_filename, {})
+    assert isfile(target_filename)
+    target_text = read_text(target_filename)
+    assert target_text == template_text
 
 
 def test_custom_variable_tags():
