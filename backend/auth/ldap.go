@@ -120,7 +120,7 @@ func (l *Service) Reset(name string, user string, password string, email string)
 		return err
 	}
 
-	err = ChangeSystemPassword(password)
+	//err = ChangeSystemPassword(password)
 	return err
 }
 
