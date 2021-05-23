@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
@@ -145,11 +144,9 @@ func (l *Service) initDb(filename string) error {
 
 func (l *Service) ldapAdd(filename string, bindDn string) error {
 	cmd := path.Join(l.ldapRoot, "bin", "ldapadd.sh")
-	_, err := exec.Command(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename).CombinedOutput()
-	if err != nil {
-		return err
-	}
-	return nil
+	output, err := exec.Command(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename).CombinedOutput()
+	log.Printf("ldapad output: %s", output)
+	return err
 }
 
 func ChangeSystemPassword(password string) error {
@@ -158,8 +155,13 @@ func ChangeSystemPassword(password string) error {
 	if err != nil {
 		return err
 	}
-
-	_, err = io.WriteString(stdin, fmt.Sprintf("root:%s", password))
+	defer func() { _ = stdin.Close() }()
+	_, err = io.WriteString(stdin, fmt.Sprintf("root:%s\n", password))
+	if err != nil {
+		return err
+	}
+	out, err := cmd.CombinedOutput()
+	log.Printf("chpasswd output: %s", out)
 	return err
 }
 
@@ -184,15 +186,15 @@ func Authenticate(name string, password string) {
 func makeSecret(password string) string {
 	hasher := sha1.New()
 	hasher.Write([]byte(password))
-	salt := make([]byte, 4)
-	_, err := rand.Read(salt)
-	if err != nil {
-		log.Printf("unable to generate password salt: %s", err)
-		salt = []byte("salt")
-	}
-	hasher.Write(salt)
+	//salt := make([]byte, 4)
+	//_, err := rand.Read(salt)
+	//if err != nil {
+	//	log.Printf("unable to generate password salt: %s", err)
+	//	salt = []byte("salt")
+	//}
+	//hasher.Write(salt)
 	hash := hasher.Sum(nil)
-	hashWithSalt := append(hash, salt...)
-	encodedHash := base64.StdEncoding.EncodeToString(hashWithSalt)
-	return fmt.Sprintf("{SSHA}%s", encodedHash)
+	//hashWithSalt := append(hash, salt...)
+	encodedHash := base64.StdEncoding.EncodeToString(hash)
+	return fmt.Sprintf("{SHA}%s", encodedHash)
 }
