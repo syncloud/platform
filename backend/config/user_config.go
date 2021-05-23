@@ -161,6 +161,10 @@ func (c *UserConfig) SetActivated() {
 	c.Upsert("platform.activated", DbTrue)
 }
 
+func (c *UserConfig) IsActivated() bool {
+	return c.toBool(c.Get("platform.activated", DbFalse))
+}
+
 func (c *UserConfig) SetUserDomain(domain string) {
 	c.Upsert("platform.user_domain", domain)
 }
@@ -262,6 +266,10 @@ func (c *UserConfig) GetCustomDomain() *string {
 }
 
 func (c *UserConfig) GetDeviceDomain() *string {
+	if !c.IsActivated() {
+		localhost := "localhost"
+		return &localhost
+	}
 	if c.IsRedirectEnabled() {
 		userDomain := c.GetUserDomain()
 		if userDomain != nil {
