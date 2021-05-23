@@ -15,6 +15,7 @@ func TestToLdapDc(t *testing.T) {
 	assert.Equal(t, ToLdapDc("user.syncloud.it"), "dc=user,dc=syncloud,dc=it")
 }
 
-//func TestMakeSecret(t *testing.T) {
-//	assert.True(t, len(makeSecret("password")) > 1)
-//}
+func TestMakeSecret(t *testing.T) {
+	secret := makeSecret("test123")
+	assert.True(t, len(secret) > 1)
+}

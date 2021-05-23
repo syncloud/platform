@@ -13,4 +13,5 @@ def test_to_ldap_dc():
 
 
 def test_make_secret():
-    make_secret('password')
+    secret = make_secret('password')
+    assert len(secret) > 0

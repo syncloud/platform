@@ -1,9 +1,11 @@
 package auth
 
 import (
+	"crypto/rand"
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"github.com/syncloud/platform/snap"
-	"golang.org/x/crypto/bcrypt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -93,10 +95,7 @@ func (l *Service) Reset(name string, user string, password string, email string)
 		return err
 	}
 
-	passwordHash, err := makeSecret(password)
-	if err != nil {
-		return err
-	}
+	passwordHash := makeSecret(password)
 
 	tmpFile, err := ioutil.TempFile("", "")
 	if err != nil {
@@ -111,7 +110,7 @@ func (l *Service) Reset(name string, user string, password string, email string)
 	ldif = strings.ReplaceAll(ldif, "${name}", name)
 	ldif = strings.ReplaceAll(ldif, "${user}", user)
 	ldif = strings.ReplaceAll(ldif, "${email}", email)
-	ldif = strings.ReplaceAll(ldif, "${password}", *passwordHash)
+	ldif = strings.ReplaceAll(ldif, "${password}", passwordHash)
 	err = ioutil.WriteFile(tmpFile.Name(), []byte(ldif), 644)
 	if err != nil {
 		return err
@@ -182,11 +181,18 @@ func Authenticate(name string, password string) {
 	*/
 }
 
-func makeSecret(password string) (*string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func makeSecret(password string) string {
+	hasher := sha1.New()
+	hasher.Write([]byte(password))
+	salt := make([]byte, 4)
+	_, err := rand.Read(salt)
 	if err != nil {
-		return nil, err
+		log.Printf("unable to generate password salt: %s", err)
+		salt = []byte("salt")
 	}
-	hashString := string(hash)
-	return &hashString, nil
+	hasher.Write(salt)
+	hash := hasher.Sum(nil)
+	hashWithSalt := append(hash, salt...)
+	encodedHash := base64.URLEncoding.EncodeToString(hashWithSalt)
+	return fmt.Sprintf("{SSHA}%s", encodedHash)
 }
