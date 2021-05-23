@@ -14,7 +14,7 @@ def generate_file_jinja(from_path, to_path, variables, variable_tags=('{{', '}}'
         # some files like udev rules want empty lines at the end
         # trim_blocks=True,
         # lstrip_blocks=True,
-        # undefined=jinja2.StrictUndefined,
+        undefined=jinja2.StrictUndefined,
         variable_start_string=variable_start_tag,
         variable_end_string=variable_end_tag
     )

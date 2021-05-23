@@ -1,4 +1,5 @@
 import logging
+import shutil
 from os.path import join
 from subprocess import check_output, CalledProcessError
 
@@ -24,17 +25,7 @@ class PlatformInstaller:
     
     def init_configs(self):
         linux.fix_locale()
-        
-        variables = {
-            'apps_root': config.APPS_ROOT,
-            'data_root': config.DATA_ROOT,
-            'configs_root': config.DATA_ROOT,
-            'config_root': self.data_dir,
-            'config_dir': self.config_dir,
-            'app_dir': config.INSTALL_DIR,
-            'app_data': config.DATA_DIR
-        }
-        gen.generate_files(self.templates_path, self.config_dir, variables)
+        shutil.copytree(self.templates_path, self.config_dir)
 
         data_dirs = [
             join(self.data_dir, 'webapps'),
