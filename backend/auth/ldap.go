@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/rand"
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
@@ -186,15 +187,15 @@ func Authenticate(name string, password string) {
 func makeSecret(password string) string {
 	hasher := sha1.New()
 	hasher.Write([]byte(password))
-	//salt := make([]byte, 4)
-	//_, err := rand.Read(salt)
-	//if err != nil {
-	//	log.Printf("unable to generate password salt: %s", err)
-	//	salt = []byte("salt")
-	//}
-	//hasher.Write(salt)
+	salt := make([]byte, 4)
+	_, err := rand.Read(salt)
+	if err != nil {
+		log.Printf("unable to generate password salt: %s", err)
+		salt = []byte("salt")
+	}
+	hasher.Write(salt)
 	hash := hasher.Sum(nil)
-	//hashWithSalt := append(hash, salt...)
-	encodedHash := base64.StdEncoding.EncodeToString(hash)
-	return fmt.Sprintf("{SHA}%s", encodedHash)
+	hashWithSalt := append(hash, salt...)
+	encodedHash := base64.StdEncoding.EncodeToString(hashWithSalt)
+	return fmt.Sprintf("{SSHA}%s", encodedHash)
 }

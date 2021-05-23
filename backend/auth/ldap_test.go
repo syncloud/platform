@@ -16,6 +16,6 @@ func TestToLdapDc(t *testing.T) {
 }
 
 func TestMakeSecret(t *testing.T) {
-	secret := makeSecret("abcd123")
+	secret := makeSecret("syncloud")
 	assert.True(t, len(secret) > 1)
 }

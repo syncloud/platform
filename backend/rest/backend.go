@@ -222,7 +222,7 @@ func (backend *Backend) Activate(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return "ok", backend.activation.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.RedirectPassword)
+	return "ok", backend.activation.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
 }
 
 func (backend *Backend) Id(_ *http.Request) (interface{}, error) {
