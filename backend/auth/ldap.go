@@ -193,6 +193,6 @@ func makeSecret(password string) string {
 	hasher.Write(salt)
 	hash := hasher.Sum(nil)
 	hashWithSalt := append(hash, salt...)
-	encodedHash := base64.URLEncoding.EncodeToString(hashWithSalt)
+	encodedHash := base64.StdEncoding.EncodeToString(hashWithSalt)
 	return fmt.Sprintf("{SSHA}%s", encodedHash)
 }
