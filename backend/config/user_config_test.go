@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestDomain(t *testing.T) {
+func TestRedirectDomain(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config, err := NewUserConfig(db, tempFile().Name(), "syncloud.it", "https://api.syncloud.it")
@@ -24,6 +24,39 @@ func TestDomain(t *testing.T) {
 	config.UpdateRedirectApiUrl("https://api.syncloud.info:81")
 	assert.Equal(t, "syncloud.info", config.GetRedirectDomain())
 	assert.Equal(t, "https://api.syncloud.info:81", config.GetRedirectApiUrl())
+}
+
+func TestDeviceDomain_NonActivated(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config, err := NewUserConfig(db, tempFile().Name(), "", "")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "localhost", *config.GetDeviceDomain())
+}
+
+func TestDeviceDomain_ActivatedFree(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config, err := NewUserConfig(db, tempFile().Name(), "example.com", "")
+	assert.Nil(t, err)
+
+	config.SetActivated()
+	config.SetRedirectEnabled(true)
+	config.SetUserDomain("test")
+	assert.Equal(t, "test.example.com", *config.GetDeviceDomain())
+}
+
+func TestDeviceDomain_ActivatedCustom(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config, err := NewUserConfig(db, tempFile().Name(), "wrong", "")
+	assert.Nil(t, err)
+
+	config.SetActivated()
+	config.SetRedirectEnabled(false)
+	config.SetCustomDomain("example.com")
+	assert.Equal(t, "example.com", *config.GetDeviceDomain())
 }
 
 func tempFile() *os.File {

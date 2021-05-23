@@ -265,6 +265,10 @@ func (c *UserConfig) GetCustomDomain() *string {
 	return c.GetOrNil("platform.custom_domain")
 }
 
+func (c *UserConfig) SetCustomDomain(domain string) {
+	c.Upsert("platform.custom_domain", domain)
+}
+
 func (c *UserConfig) GetDeviceDomain() *string {
 	if !c.IsActivated() {
 		localhost := "localhost"
