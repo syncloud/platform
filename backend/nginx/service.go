@@ -1,7 +1,6 @@
 package nginx
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"path"
@@ -18,7 +17,7 @@ type SystemConfig interface {
 }
 
 type UserConfig interface {
-	GetDeviceDomain() *string
+	GetDeviceDomain() string
 }
 
 type Nginx struct {
@@ -41,9 +40,6 @@ func (n *Nginx) ReloadPublic() error {
 
 func (n *Nginx) InitConfig() error {
 	domain := n.userConfig.GetDeviceDomain()
-	if domain == nil {
-		return fmt.Errorf("device domain is not set")
-	}
 
 	configDir, err := n.systemConfig.ConfigDir()
 	if err != nil {
@@ -56,7 +52,7 @@ func (n *Nginx) InitConfig() error {
 	}
 
 	template := string(templateFile)
-	template = strings.ReplaceAll(template, "{{ user_domain }}", strings.ReplaceAll(*domain, ".", "\\."))
+	template = strings.ReplaceAll(template, "{{ user_domain }}", strings.ReplaceAll(domain, ".", "\\."))
 	log.Printf("nginx config: %s", template)
 	nginxConfigDir, err := n.systemConfig.NginxConfigDir()
 	if err != nil {

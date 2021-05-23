@@ -269,20 +269,18 @@ func (c *UserConfig) SetCustomDomain(domain string) {
 	c.Upsert("platform.custom_domain", domain)
 }
 
-func (c *UserConfig) GetDeviceDomain() *string {
-	if !c.IsActivated() {
-		localhost := "localhost"
-		return &localhost
-	}
+func (c *UserConfig) GetDeviceDomain() string {
+	domain := "localhost"
 	if c.IsRedirectEnabled() {
 		userDomain := c.GetUserDomain()
 		if userDomain != nil {
-			domain := fmt.Sprintf("%s.%s", *userDomain, c.GetRedirectDomain())
-			return &domain
-		} else {
-			return nil
+			domain = fmt.Sprintf("%s.%s", *userDomain, c.GetRedirectDomain())
 		}
 	} else {
-		return c.GetCustomDomain()
+		customDomain := c.GetCustomDomain()
+		if customDomain != nil {
+			domain = *customDomain
+		}
 	}
+	return domain
 }

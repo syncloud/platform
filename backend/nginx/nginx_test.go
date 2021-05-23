@@ -32,8 +32,8 @@ type UserConfigMock struct {
 	deviceDomain string
 }
 
-func (u *UserConfigMock) GetDeviceDomain() *string {
-	return &u.deviceDomain
+func (u *UserConfigMock) GetDeviceDomain() string {
+	return u.deviceDomain
 }
 
 func TestSubstitution(t *testing.T) {

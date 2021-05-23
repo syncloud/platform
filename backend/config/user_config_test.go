@@ -32,31 +32,29 @@ func TestDeviceDomain_NonActivated(t *testing.T) {
 	config, err := NewUserConfig(db, tempFile().Name(), "", "")
 	assert.Nil(t, err)
 
-	assert.Equal(t, "localhost", *config.GetDeviceDomain())
+	assert.Equal(t, "localhost", config.GetDeviceDomain())
 }
 
-func TestDeviceDomain_ActivatedFree(t *testing.T) {
+func TestDeviceDomain_Free(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config, err := NewUserConfig(db, tempFile().Name(), "example.com", "")
 	assert.Nil(t, err)
 
-	config.SetActivated()
 	config.SetRedirectEnabled(true)
 	config.SetUserDomain("test")
-	assert.Equal(t, "test.example.com", *config.GetDeviceDomain())
+	assert.Equal(t, "test.example.com", config.GetDeviceDomain())
 }
 
-func TestDeviceDomain_ActivatedCustom(t *testing.T) {
+func TestDeviceDomain_Custom(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config, err := NewUserConfig(db, tempFile().Name(), "wrong", "")
 	assert.Nil(t, err)
 
-	config.SetActivated()
 	config.SetRedirectEnabled(false)
 	config.SetCustomDomain("example.com")
-	assert.Equal(t, "example.com", *config.GetDeviceDomain())
+	assert.Equal(t, "example.com", config.GetDeviceDomain())
 }
 
 func tempFile() *os.File {
