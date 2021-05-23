@@ -15,10 +15,7 @@ func New() *Control {
 func (c *Control) ReloadService(service string) error {
 
 	log.Printf("reloading %s\n", service)
-	_, err := exec.Command("systemctl", "reload", service).CombinedOutput()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	output, err := exec.Command("systemctl", "reload", service).CombinedOutput()
+	log.Printf("systemctl output: %s", string(output))
+	return err
 }
