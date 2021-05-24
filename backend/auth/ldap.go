@@ -156,11 +156,10 @@ func ChangeSystemPassword(password string) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = stdin.Close() }()
-	_, err = io.WriteString(stdin, fmt.Sprintf("root:%s\n", password))
-	if err != nil {
-		return err
-	}
+	go func() {
+	    defer func() { _ = stdin.Close() }()
+	    io.WriteString(stdin, fmt.Sprintf("root:%s\n", password))
+	}()
 	out, err := cmd.CombinedOutput()
 	log.Printf("chpasswd output: %s", out)
 	return err
