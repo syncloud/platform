@@ -25,7 +25,7 @@ class PlatformInstaller:
     
     def init_configs(self):
         linux.fix_locale()
-        shutil.copytree(self.templates_path, self.config_dir)
+        shutil.copytree(self.templates_path, self.config_dir, dirs_exist_ok=True)
 
         data_dirs = [
             join(self.data_dir, 'webapps'),
