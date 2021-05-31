@@ -124,6 +124,67 @@ test('Enable external access', async () => {
   wrapper.unmount()
 })
 
+test('Enable external access empty manual ports', async () => {
+  let savedExternalAccess
+  let savedAccessPort = -1
+  let savedCertificatePort = -1
+  let errorCount = 0
+  const showError = jest.fn()
+  const setAccess = jest.fn()
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access/access').reply(200,
+    {
+      data: {
+        external_access: false,
+        upnp_available: false,
+        upnp_enabled: false,
+        public_ip: '111.111.111.111'
+      },
+      success: true
+    }
+  )
+
+  mock.onGet('/rest/access/port_mappings').reply(200, {
+    port_mappings: [ ],
+    success: true
+  })
+  mock.onPost('/rest/access/set_access').reply(function (config) {
+    setAccess()
+    return [200, { success: true }]
+  })
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: { id: String }
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#tgl_external').trigger('toggle')
+  await wrapper.find('#btn_save').trigger('click')
+
+  expect(showError).toHaveBeenCalledTimes(1)
+  expect(setAccess).toHaveBeenCalledTimes(0)
+  wrapper.unmount()
+})
+
 test('Enable auto port mapping (upnp)', async () => {
   let savedUpnpEnabled
   const showError = jest.fn()
