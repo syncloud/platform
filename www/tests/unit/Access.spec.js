@@ -125,10 +125,6 @@ test('Enable external access', async () => {
 })
 
 test('Enable external access empty manual ports', async () => {
-  let savedExternalAccess
-  let savedAccessPort = -1
-  let savedCertificatePort = -1
-  let errorCount = 0
   const showError = jest.fn()
   const setAccess = jest.fn()
 
