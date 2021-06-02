@@ -4,9 +4,9 @@
       <div class="block1 wd12" id="block_activate">
         <h1>Activate</h1>
 
-        <div class="formblock">
+        <div>
           <div class="bs-stepper">
-            <div class="bs-stepper-header" role="tablist">
+            <div class="bs-stepper-header" role="tablist" style="max-width: 500px; margin: 0 auto">
               <div class="step" data-target="#domain-type-part">
                 <button type="button" class="step-trigger" role="tab" aria-controls="domain-type-part"
                         id="domain-type-part-trigger">
@@ -33,35 +33,50 @@
             </div>
             <div class="bs-stepper-content">
               <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger"
-                   style="text-align: center">
-                <div style="padding: 10px">
-                  Syncloud will manage DNS records for your domain (like example.com), requires Premium account.
-                  <button id="btn_managed_domain" style="width: 80%; margin-top: 10px" class="buttonblue"
-                          @click="selectManagedDomain">
-                    Managed
-                  </button>
+                   style="text-align: center; max-width: 800px; margin: 0 auto">
+                <div class="columns">
+                  <ul class="price">
+                    <li class="header">Managed</li>
+                    <li class="description">Syncloud will manage DNS records for your domain (like example.com), requires Premium account</li>
+                    <li>
+                      <button id="btn_managed_domain" class="buttongreen"
+                              @click="selectManagedDomain">
+                        Select
+                      </button>
+                    </li>
+                  </ul>
                 </div>
-                <div style="padding: 10px">
-                  Syncloud will manage DNS records for [name].syncloud.it domain.
-                  <button id="btn_free_domain" style="width: 80%; margin-top: 10px" class="buttonblue"
-                          @click="selectFreeDomain">
-                    Free
-                  </button>
+                <div class="columns">
+                  <ul class="price">
+                    <li class="header">Free</li>
+                    <li class="description">Syncloud will manage DNS records for [name].syncloud.it domain</li>
+                    <li>
+                      <button id="btn_free_domain" class="buttongreen"
+                              @click="selectFreeDomain">
+                        Select
+                      </button>
+                    </li>
+                  </ul>
                 </div>
-                <div style="padding: 10px">
-                  You will manage DNS records for your domain (like example.com).
-                  <button id="btn_custom_domain" style="width: 80%; margin-top: 10px" class="buttonblue"
-                          @click="selectCustomDomain">
-                    Custom
-                  </button>
+                <div class="columns">
+                  <ul class="price">
+                    <li class="header">Custom</li>
+                    <li class="description">You will manage DNS records for your domain (like example.com)</li>
+                    <li>
+                      <button id="btn_custom_domain" class="buttongreen"
+                              @click="selectCustomDomain">
+                        Select
+                      </button>
+                    </li>
+                  </ul>
                 </div>
               </div>
-              <div id="domain-account-part" class="content" role="tabpanel"
+              <div id="domain-account-part" class="content formblock" role="tabpanel"
                    aria-labelledby="domain-account-part-trigger">
-                <div v-if="domainType === 'syncloud'">
+                <div v-if="domainType === 'free'">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Domain Account</h2>
-                    <button @click="showSyncloudAccountHelp" type=button
+                    <button @click="showFreeAccountHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -73,11 +88,12 @@
                   <input placeholder="syncloud.it password" class="passinput"
                          id="redirect_password" type="password" v-model="redirectPassword">
                   <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
-                  <div style="padding-right:10px; float: right">
-                    Do not have an account?
-                    <a href="https://syncloud.it" class="btn btn-info" role="button" style="line-height: 10px" target="_blank">register</a>
+                  <div style=" display: flow-root">
+                    <div style="padding-right:10px; float: right">
+                      Do not have an account?
+                      <a href="https://syncloud.it" class="btn btn-info" role="button" style="line-height: 10px" target="_blank">register</a>
+                    </div>
                   </div>
-
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
                     <button @click="showCustomDomainHelp" type=button
@@ -96,7 +112,7 @@
 
                 <div v-if=" domainType === 'custom' ">
                   <div style="text-align: center">
-                    <h2 style="display: inline-block">Custom Device Name</h2>
+                    <h2 style="display: inline-block">Device Name</h2>
                     <button @click="showCustomDomainHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
@@ -111,7 +127,7 @@
                 <div v-if=" domainType === 'managed' ">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Syncloud Account</h2>
-                    <button @click="showSyncloudAccountHelp" type=button
+                    <button @click="showManagedAccountHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -126,8 +142,8 @@
                        style="display: none;"></div>
 
                   <div style="text-align: center">
-                    <h2 style="display: inline-block">Managed Device Name</h2>
-                    <button @click="showCustomDomainHelp" type=button
+                    <h2 style="display: inline-block">Device Name</h2>
+                    <button @click="showManagedDomainHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -149,8 +165,7 @@
                   </button>
                 </div>
               </div>
-
-              <div id="device-credentials-part" class="content" role="tabpanel"
+              <div id="device-credentials-part" class="content formblock" role="tabpanel"
                    aria-labelledby="device-credentials-part-trigger">
 
                 <div style="text-align: center">
@@ -190,7 +205,7 @@
   <Dialog ref="help_managed_domain">
     <template v-slot:title>Managed domain</template>
     <template v-slot:text>
-      <div class="btext">If you have a domain you own, we can manage DNS records for you (requires Premium Account).
+      <div class="btext">Syncloud will manage DNS records for your personal domain name
       </div>
     </template>
   </Dialog>
@@ -216,10 +231,25 @@
   <Dialog ref="help_syncloud_account">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
-      You can use free Syncloud name service (DNS) to get a device name at <b>syncloud.it</b>.
+      Free Syncloud account name service (DNS) for device names at <b>syncloud.it</b>.
       <br>
-      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> a domain account to control one or more
+      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an account to control one or more
       device names.
+      <br>
+      Domain account is also used for notifications about new releases.
+      <br>
+      It is only used to assign a dns name to IP of your device and update IP when it changes.
+      Data transfer happens directly between your apps and device.
+    </template>
+  </Dialog>
+
+  <Dialog ref="help_managed_account">
+    <template v-slot:title>Domain account</template>
+    <template v-slot:text>
+      Premium Syncloud account name service (DNS) for personal domain name management (like example.com).
+      <br>
+      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an account to control one or more
+      device names. Then request a premium plan in your Account services.
       <br>
       Domain account is also used for notifications about new releases.
       <br>
@@ -263,7 +293,7 @@ export default {
   },
   data () {
     return {
-      domainType: 'syncloud',
+      domainType: 'free',
       loading: false,
       redirectEmail: '',
       redirectPassword: '',
@@ -287,7 +317,7 @@ export default {
       event.preventDefault()
       this.progressShow()
       $('#form_activate .alert').remove()
-      if (this.domainType === 'syncloud') {
+      if (this.domainType === 'free') {
         this.activateFreeDomain()
       } else {
         this.activateCustomDomain()
@@ -342,8 +372,11 @@ export default {
     showDeviceCredentialHelp () {
       this.$refs.help_device_credential.show()
     },
-    showSyncloudAccountHelp () {
-      this.$refs.help_syncloud_account.show()
+    showFreeAccountHelp () {
+      this.$refs.help_free_account.show()
+    },
+    showManagedAccountHelp () {
+      this.$refs.help_managed_account.show()
     },
     showCustomDomainHelp () {
       this.$refs.help_custom_domain.show()
@@ -360,7 +393,7 @@ export default {
       this.stepper.next()
     },
     selectFreeDomain () {
-      this.domainType = 'syncloud'
+      this.domainType = 'free'
       this.stepper.next()
     },
     domainAvailability () {
@@ -391,5 +424,52 @@ export default {
 
 .active .bs-stepper-circle {
   background-color: #02a0dc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.columns {
+  float: left;
+  width: 33.3%;
+  padding: 8px;
+}
+
+.price {
+  list-style-type: none;
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 0;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.price:hover {
+  box-shadow: 0 8px 12px 0 rgba(0,0,0,0.2)
+}
+
+.price li {
+  border-bottom: 1px solid #eee;
+  padding: 20px;
+  text-align: center;
+}
+
+.price .header {
+  background-color: #00aeef;
+  font-size: 20px;
+}
+
+.price .description {
+  min-height: 125px;
+}
+
+@media only screen and (max-width: 600px) {
+  .columns {
+    width: 100%;
+  }
+  .price .description {
+    min-height: 0px;
+  }
 }
 </style>
