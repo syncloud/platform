@@ -26,7 +26,7 @@ test('Activate free domain', async () => {
     const request = JSON.parse(config.data)
     redirectEmail = request.redirect_email
     redirectPassword = request.redirect_password
-    domain = request.user_domain
+    domain = request.domain
     deviceUsername = request.device_username
     devicePassword = request.device_password
     return [200, { success: true }]
@@ -59,7 +59,7 @@ test('Activate free domain', async () => {
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain_input').setValue('domain')
+  await wrapper.find('#domain_input').setValue('domain')
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
@@ -118,7 +118,7 @@ test('Activate free domain error', async () => {
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain_input').setValue('domain')
+  await wrapper.find('#domain_input').setValue('domain')
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
@@ -174,7 +174,7 @@ test('Activate free domain availability error', async () => {
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain_input').setValue('domain')
+  await wrapper.find('#domain_input').setValue('domain')
   await wrapper.find('#btn_next').trigger('click')
 
   await flushPromises()
@@ -201,7 +201,7 @@ test('Activate custom domain', async () => {
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate_custom_domain').reply(function (config) {
     const request = JSON.parse(config.data)
-    domain = request.full_domain
+    domain = request.domain
     deviceUsername = request.device_username
     devicePassword = request.device_password
     return [200, { success: true }]
@@ -230,7 +230,7 @@ test('Activate custom domain', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_custom_domain').trigger('click')
-  await wrapper.find('#full_domain').setValue('domain')
+  await wrapper.find('#domain').setValue('domain')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')

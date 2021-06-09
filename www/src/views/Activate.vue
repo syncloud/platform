@@ -103,7 +103,7 @@
                   </div>
 
                   <div id="domain">
-                    <input placeholder="Name" class="domain" id="user_domain_input" type="text" v-model="domain">
+                    <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
                     <span>.syncloud.it</span>
                   </div>
                   <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
