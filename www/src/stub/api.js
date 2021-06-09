@@ -456,7 +456,7 @@ const mock = function (app, server, compiler) {
         success: false,
         parameters_messages: [
           { parameter: 'redirect_password', messages: ['wrong password'] },
-          { parameter: 'user_domain', messages: ['domain is already taken'] }
+          { parameter: 'domain', messages: ['domain is already taken'] }
         ]
       })
     } else {

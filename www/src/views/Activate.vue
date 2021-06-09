@@ -102,11 +102,11 @@
                     </button>
                   </div>
 
-                  <div id="user_domain">
+                  <div id="domain">
                     <input placeholder="Name" class="domain" id="user_domain_input" type="text" v-model="domain">
                     <span>.syncloud.it</span>
                   </div>
-                  <div class="alert alert-danger alert90" id="user_domain_alert" style="display: none;"></div>
+                  <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
                 </div>
 
@@ -119,8 +119,8 @@
                     </button>
                   </div>
                   <input placeholder="Top level domain like example.com"
-                         class="domain" id="full_domain" type="text" style="width:100% !important;" v-model="domain">
-                  <div class="alert alert-danger alert90" id="full_domain_alert" style="display: none;"></div>
+                         class="domain" id="domain" type="text" style="width:100% !important;" v-model="domain">
+                  <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
                 </div>
 
@@ -149,8 +149,8 @@
                     </button>
                   </div>
                   <input placeholder="Top level domain like example.com"
-                         class="domain" id="managed_domain" type="text" style="width:100% !important;" v-model="domain">
-                  <div class="alert alert-danger alert90" id="managed_domain_alert" style="display: none;"></div>
+                         class="domain" id="domain" type="text" style="width:100% !important;" v-model="domain">
+                  <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
                 </div>
 
@@ -331,7 +331,7 @@ export default {
         .post('/rest/activate/free', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
-          user_domain: this.domain,
+          domain: this.domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword
         })
@@ -346,7 +346,7 @@ export default {
         .post('/rest/activate_managed_domain', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
-          user_domain: this.domain,
+          domain: this.domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword
         })
@@ -359,7 +359,7 @@ export default {
     activateCustomDomain () {
       axios
         .post('/rest/activate_custom_domain', {
-          full_domain: this.domain,
+          domain: this.domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword
         })

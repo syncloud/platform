@@ -126,6 +126,7 @@ func (l *Service) Reset(name string, user string, password string, email string)
 }
 
 func (l *Service) initDb(filename string) error {
+	//TODO: wait for ldap to start?
 	return l.ldapAdd(filename, Domain)
 	/*        success = False
 	for i in range(0, 3):
@@ -157,8 +158,8 @@ func ChangeSystemPassword(password string) error {
 		return err
 	}
 	go func() {
-	    defer func() { _ = stdin.Close() }()
-	    io.WriteString(stdin, fmt.Sprintf("root:%s\n", password))
+		defer func() { _ = stdin.Close() }()
+		io.WriteString(stdin, fmt.Sprintf("root:%s\n", password))
 	}()
 	out, err := cmd.CombinedOutput()
 	log.Printf("chpasswd output: %s", out)

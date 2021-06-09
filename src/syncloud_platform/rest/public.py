@@ -40,27 +40,6 @@ def activation_status():
         return jsonify(activated=False), 200
 
 
-@app.route("/rest/activate", methods=["POST"])
-@fail_if_activated
-def activate():
-
-    request_json = request.json
-    device_username = request_json['device_username'].lower()
-    device_password = request_json['device_password']
-        
-    validator = InternalValidator()
-    validator.validate(device_username, device_password)
-
-    device.activate(
-        request_json['redirect_email'],
-        request_json['redirect_password'],
-        request_json['user_domain'],
-        device_username,
-        device_password
-    )
-    return identification()
-
-
 @app.route("/rest/activate_custom_domain", methods=["POST"])
 @fail_if_activated
 def activate_custom_domain():
@@ -73,7 +52,7 @@ def activate_custom_domain():
     validator.validate(device_username, device_password)
 
     device.activate_custom_domain(
-        request_json['full_domain'],
+        request_json['domain'],
         device_username,
         device_password,
     )
