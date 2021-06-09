@@ -128,7 +128,7 @@ def test_activate_device(device_host, domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': domain,
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
@@ -139,7 +139,7 @@ def test_reactivate_activated_device(device_host, domain, device_user, device_pa
     response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, allow_redirects=False, verify=False)
     assert response.status_code == 502
@@ -160,7 +160,7 @@ def test_reactivate_good(device_host, domain, device_user, device_password,
     response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200
@@ -188,7 +188,7 @@ def test_reactivate_after_deactivate(device_host, domain, device_user, device_pa
     response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200
