@@ -42,7 +42,18 @@ func TestDeviceDomain_Free(t *testing.T) {
 	assert.Nil(t, err)
 
 	config.SetRedirectEnabled(true)
-	config.SetUserDomain("test")
+	config.SetDomain("test.example.com")
+	assert.Equal(t, "test.example.com", config.GetDeviceDomain())
+}
+
+func TestDeviceBackwardsCompatibleDomain_Free(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config, err := NewUserConfig(db, tempFile().Name(), "example.com", "")
+	assert.Nil(t, err)
+
+	config.SetRedirectEnabled(true)
+	config.setDeprecatedUserDomain("test")
 	assert.Equal(t, "test.example.com", config.GetDeviceDomain())
 }
 

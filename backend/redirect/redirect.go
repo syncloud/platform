@@ -48,7 +48,7 @@ func (r *Service) Authenticate(email string, password string) (*User, error) {
 	return &redirectUserResponse.Data, nil
 }
 
-func (r *Service) Acquire(email string, password string, userDomain string) (*Domain, error) {
+func (r *Service) Acquire(email string, password string, domain string) (*Domain, error) {
 
 	deviceId, err := r.identification.Id()
 	if err != nil {
@@ -58,7 +58,7 @@ func (r *Service) Acquire(email string, password string, userDomain string) (*Do
 	request := &FreeDomainAcquireRequest{
 		Email:            email,
 		Password:         password,
-		UserDomain:       userDomain,
+		Domain:           domain,
 		DeviceMacAddress: deviceId.MacAddress,
 		DeviceName:       deviceId.Name,
 		DeviceTitle:      deviceId.Title}

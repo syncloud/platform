@@ -165,11 +165,19 @@ func (c *UserConfig) IsActivated() bool {
 	return c.toBool(c.Get("platform.activated", DbFalse))
 }
 
-func (c *UserConfig) SetUserDomain(domain string) {
+func (c *UserConfig) SetDomain(domain string) {
+	c.Upsert("platform.domain", domain)
+}
+
+func (c *UserConfig) GetDomain() *string {
+	return c.GetOrNil("platform.domain")
+}
+
+func (c *UserConfig) setDeprecatedUserDomain(domain string) {
 	c.Upsert("platform.user_domain", domain)
 }
 
-func (c *UserConfig) GetUserDomain() *string {
+func (c *UserConfig) GetDeprecatedUserDomain() *string {
 	return c.GetOrNil("platform.user_domain")
 }
 
@@ -270,17 +278,22 @@ func (c *UserConfig) SetCustomDomain(domain string) {
 }
 
 func (c *UserConfig) GetDeviceDomain() string {
-	domain := "localhost"
+	result := "localhost"
 	if c.IsRedirectEnabled() {
-		userDomain := c.GetUserDomain()
-		if userDomain != nil {
-			domain = fmt.Sprintf("%s.%s", *userDomain, c.GetRedirectDomain())
+		domain := c.GetDomain()
+		if domain != nil {
+			result = *domain
+		} else {
+			userDomain := c.GetDeprecatedUserDomain()
+			if userDomain != nil {
+				result = fmt.Sprintf("%s.%s", *userDomain, c.GetRedirectDomain())
+			}
 		}
 	} else {
 		customDomain := c.GetCustomDomain()
 		if customDomain != nil {
-			domain = *customDomain
+			result = *customDomain
 		}
 	}
-	return domain
+	return result
 }

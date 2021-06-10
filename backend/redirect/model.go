@@ -21,7 +21,7 @@ type DomainAvailabilityRequest struct {
 }
 
 type FreeDomainAcquireRequest struct {
-	UserDomain       string `json:"user_domain,omitempty"`
+	Domain           string `json:"domain,omitempty"`
 	Password         string `json:"password,omitempty"`
 	Email            string `json:"email,omitempty"`
 	DeviceMacAddress string `json:"device_mac_address,omitempty"`
@@ -43,12 +43,12 @@ type FreeDomainUpdateRequest struct {
 }
 
 type FreeDomainAcquireResponse struct {
-  Success bool `json:"success"`
-  Data *Domain `json:"data,omitempty"`
+	Success bool    `json:"success"`
+	Data    *Domain `json:"data,omitempty"`
 }
 
 type Domain struct {
-	UserDomain       string     `json:"user_domain,omitempty"`
+	Name             string     `json:"name,omitempty"`
 	Ip               *string    `json:"ip,omitempty"`
 	Ipv6             *string    `json:"ipv6,omitempty"`
 	DkimKey          *string    `json:"dkim_key,omitempty"`

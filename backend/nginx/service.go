@@ -2,7 +2,6 @@ package nginx
 
 import (
 	"io/ioutil"
-	"log"
 	"path"
 	"strings"
 )
@@ -53,13 +52,11 @@ func (n *Nginx) InitConfig() error {
 
 	template := string(templateFile)
 	template = strings.ReplaceAll(template, "{{ user_domain }}", strings.ReplaceAll(domain, ".", "\\."))
-	log.Printf("nginx config: %s", template)
 	nginxConfigDir, err := n.systemConfig.NginxConfigDir()
 	if err != nil {
 		return err
 	}
 	nginxConfigFile := path.Join(*nginxConfigDir, "nginx.conf")
-	log.Printf("nginx config file: %s", nginxConfigFile)
 	err = ioutil.WriteFile(nginxConfigFile, []byte(template), 0644)
 	return err
 }

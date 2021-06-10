@@ -53,6 +53,8 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
+    device.run_ssh('mkdir /etc/syncloud', throw=True)
+    device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
     device.run_ssh('snap remove platform', throw=True)
     add_host_alias_by_ip(app, domain, device_host)

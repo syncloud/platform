@@ -27,7 +27,7 @@ type FreePlatformUserConfig interface {
 	UpdateRedirectApiUrl(apiUrl string)
 	SetUserUpdateToken(userUpdateToken string)
 	SetUserEmail(userEmail string)
-	SetUserDomain(domain string)
+	SetDomain(domain string)
 	UpdateDomainToken(token string)
 	GetRedirectDomain() string
 	SetActivated()
@@ -43,7 +43,7 @@ type FreePlatformUserConfig interface {
 
 type FreeRedirect interface {
 	Authenticate(email string, password string) (*redirect.User, error)
-	Acquire(email string, password string, userDomain string) (*redirect.Domain, error)
+	Acquire(email string, password string, domain string) (*redirect.Domain, error)
 	Reset(updateToken string) error
 }
 
@@ -77,8 +77,8 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomai
 	}
 	return f.ActivateDevice(deviceUsername, devicePassword, userDomainLower)
 }
-func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string, userDomain string) error {
-	log.Printf("activate: %s", userDomain)
+func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string, requestDomain string) error {
+	log.Printf("activate: %s", requestDomain)
 
 	err := f.internet.Check()
 	if err != nil {
@@ -93,12 +93,12 @@ func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string,
 	}
 
 	f.config.SetUserUpdateToken(user.UpdateToken)
-	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, userDomain)
+	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, requestDomain)
 	if err != nil {
 		return err
 	}
 
-	f.config.SetUserDomain(domain.UserDomain)
+	f.config.SetDomain(domain.Name)
 	f.config.UpdateDomainToken(domain.UpdateToken)
 	return f.redirect.Reset(domain.UpdateToken)
 }

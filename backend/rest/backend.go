@@ -64,27 +64,27 @@ func NewReverseProxy(target *url.URL) *httputil.ReverseProxy {
 	return &httputil.ReverseProxy{Director: director}
 }
 
-func (backend *Backend) Start(network string, address string) {
+func (b *Backend) Start(network string, address string) {
 	listener, err := net.Listen(network, address)
 	if err != nil {
 		panic(err)
 	}
 
-	go backend.worker.Start()
+	go b.worker.Start()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/job/status", Handle(backend.JobStatus)).Methods("GET")
-	r.HandleFunc("/backup/list", Handle(backend.BackupList)).Methods("GET")
-	r.HandleFunc("/backup/create", Handle(backend.BackupCreate)).Methods("POST")
-	r.HandleFunc("/backup/restore", Handle(backend.BackupRestore)).Methods("POST")
-	r.HandleFunc("/backup/remove", Handle(backend.BackupRemove)).Methods("POST")
-	r.HandleFunc("/installer/upgrade", Handle(backend.InstallerUpgrade)).Methods("POST")
-	r.HandleFunc("/storage/disk_format", Handle(backend.StorageFormat)).Methods("POST")
-	r.HandleFunc("/storage/boot_extend", Handle(backend.StorageBootExtend)).Methods("POST")
-	r.HandleFunc("/event/trigger", Handle(backend.EventTrigger)).Methods("POST")
-	r.HandleFunc("/activate/free", Handle(backend.Activate)).Methods("POST")
-	r.HandleFunc("/id", Handle(backend.Id)).Methods("GET")
-	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", backend.redirectProxy))
+	r.HandleFunc("/job/status", Handle(b.JobStatus)).Methods("GET")
+	r.HandleFunc("/backup/list", Handle(b.BackupList)).Methods("GET")
+	r.HandleFunc("/backup/create", Handle(b.BackupCreate)).Methods("POST")
+	r.HandleFunc("/backup/restore", Handle(b.BackupRestore)).Methods("POST")
+	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
+	r.HandleFunc("/installer/upgrade", Handle(b.InstallerUpgrade)).Methods("POST")
+	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
+	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
+	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
+	r.HandleFunc("/activate/free", Handle(b.Activate)).Methods("POST")
+	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
+	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", b.redirectProxy))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -146,87 +146,87 @@ func Handle(f func(req *http.Request) (interface{}, error)) func(w http.Response
 	}
 }
 
-func (backend *Backend) BackupList(_ *http.Request) (interface{}, error) {
-	return backend.backup.List()
+func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
+	return b.backup.List()
 }
 
-func (backend *Backend) BackupRemove(req *http.Request) (interface{}, error) {
+func (b *Backend) BackupRemove(req *http.Request) (interface{}, error) {
 	var request model.BackupRemoveRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	err = backend.backup.Remove(request.File)
+	err = b.backup.Remove(request.File)
 	if err != nil {
 		return nil, err
 	}
 	return "removed", nil
 }
 
-func (backend *Backend) BackupCreate(req *http.Request) (interface{}, error) {
+func (b *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 	var request model.BackupCreateRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("app is missing")
 	}
-	_ = backend.Master.Offer(func() { backend.backup.Create(request.App) })
+	_ = b.Master.Offer(func() { b.backup.Create(request.App) })
 	return "submitted", nil
 }
 
-func (backend *Backend) BackupRestore(req *http.Request) (interface{}, error) {
+func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 	var request model.BackupRestoreRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	_ = backend.Master.Offer(func() { backend.backup.Restore(request.File) })
+	_ = b.Master.Offer(func() { b.backup.Restore(request.File) })
 	return "submitted", nil
 }
 
-func (backend *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	_ = backend.Master.Offer(func() { backend.installer.Upgrade() })
+func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
+	_ = b.Master.Offer(func() { b.installer.Upgrade() })
 	return "submitted", nil
 }
 
-func (backend *Backend) JobStatus(_ *http.Request) (interface{}, error) {
-	return backend.Master.Status().String(), nil
+func (b *Backend) JobStatus(_ *http.Request) (interface{}, error) {
+	return b.Master.Status().String(), nil
 }
 
-func (backend *Backend) StorageFormat(req *http.Request) (interface{}, error) {
+func (b *Backend) StorageFormat(req *http.Request) (interface{}, error) {
 	var request model.StorageFormatRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("device is missing")
 	}
-	_ = backend.Master.Offer(func() { backend.storage.Format(request.Device) })
+	_ = b.Master.Offer(func() { b.storage.Format(request.Device) })
 	return "submitted", nil
 }
 
-func (backend *Backend) EventTrigger(req *http.Request) (interface{}, error) {
+func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 	var request model.EventTriggerRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("event is missing")
 	}
-	return "ok", backend.eventTrigger.RunEventOnAllApps(request.Event)
+	return "ok", b.eventTrigger.RunEventOnAllApps(request.Event)
 }
 
-func (backend *Backend) Activate(req *http.Request) (interface{}, error) {
+func (b *Backend) Activate(req *http.Request) (interface{}, error) {
 	var request activation.FreeActivateRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		return nil, err
 	}
-	return "ok", backend.activation.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
+	return "ok", b.activation.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
 }
 
-func (backend *Backend) Id(_ *http.Request) (interface{}, error) {
-	id, err := backend.identification.Id()
+func (b *Backend) Id(_ *http.Request) (interface{}, error) {
+	id, err := b.identification.Id()
 	if err != nil {
 		log.Printf("parse error: %v", err.Error())
 		return nil, errors.New("id is not available")
@@ -234,7 +234,7 @@ func (backend *Backend) Id(_ *http.Request) (interface{}, error) {
 	return id, nil
 }
 
-func (backend *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
-	_ = backend.Master.Offer(func() { backend.storage.BootExtend() })
+func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
+	_ = b.Master.Offer(func() { b.storage.BootExtend() })
 	return "submitted", nil
 }
