@@ -403,7 +403,7 @@ export default {
           {
             email: this.redirectEmail,
             password: this.redirectPassword,
-            user_domain: this.domain
+            domain: this.domain
           })
         .then(response => {
           this.stepper.next()

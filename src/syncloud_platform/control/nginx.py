@@ -16,7 +16,7 @@ class Nginx:
 
     def init_config(self):
         domain = self.device_info.domain()
-        variables = {'user_domain': domain.replace(".", "\\.")}
+        variables = {'domain': domain.replace(".", "\\.")}
         gen.generate_file_jinja(
             join(self.config.config_dir(), 'nginx', 'public.conf'), 
             join(self.config.nginx_config_dir(), 'nginx.conf'),

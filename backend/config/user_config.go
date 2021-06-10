@@ -177,7 +177,7 @@ func (c *UserConfig) setDeprecatedUserDomain(domain string) {
 	c.Upsert("platform.user_domain", domain)
 }
 
-func (c *UserConfig) GetDeprecatedUserDomain() *string {
+func (c *UserConfig) getDeprecatedUserDomain() *string {
 	return c.GetOrNil("platform.user_domain")
 }
 
@@ -284,7 +284,7 @@ func (c *UserConfig) GetDeviceDomain() string {
 		if domain != nil {
 			result = *domain
 		} else {
-			userDomain := c.GetDeprecatedUserDomain()
+			userDomain := c.getDeprecatedUserDomain()
 			if userDomain != nil {
 				result = fmt.Sprintf("%s.%s", *userDomain, c.GetRedirectDomain())
 			}

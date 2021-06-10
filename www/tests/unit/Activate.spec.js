@@ -146,7 +146,7 @@ test('Activate free domain availability error', async () => {
   mock.onPost('/rest/redirect/domain/availability').reply(400, {
       success: false,
       parameters_messages: [
-        { parameter: 'user_domain', messages: ['domain is already taken'] }
+        { parameter: 'domain', messages: ['domain is already taken'] }
       ]
   })
 

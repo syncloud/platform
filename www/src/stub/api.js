@@ -451,7 +451,7 @@ const mock = function (app, server, compiler) {
     res.json({ success: true })
   })
   app.post('/rest/redirect/domain/availability', function (req, res) {
-    if (req.body.user_domain === '1') {
+    if (req.body.domain === '1') {
       res.status(400).json({
         success: false,
         parameters_messages: [

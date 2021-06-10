@@ -51,7 +51,7 @@ func (n *Nginx) InitConfig() error {
 	}
 
 	template := string(templateFile)
-	template = strings.ReplaceAll(template, "{{ user_domain }}", strings.ReplaceAll(domain, ".", "\\."))
+	template = strings.ReplaceAll(template, "{{ domain }}", strings.ReplaceAll(domain, ".", "\\."))
 	nginxConfigDir, err := n.systemConfig.NginxConfigDir()
 	if err != nil {
 		return err

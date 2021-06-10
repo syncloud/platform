@@ -16,7 +16,7 @@ import (
 type FreeActivateRequest struct {
 	RedirectEmail    string `json:"redirect_email"`
 	RedirectPassword string `json:"redirect_password"`
-	Domain           string `json:"user_domain"`
+	Domain           string `json:"domain"`
 	DeviceUsername   string `json:"device_username"`
 	DevicePassword   string `json:"device_password"`
 }
@@ -69,13 +69,13 @@ func New(internet connection.Checker, config FreePlatformUserConfig, redirect Fr
 	}
 }
 
-func (f *Free) Activate(redirectEmail string, redirectPassword string, userDomain string, deviceUsername string, devicePassword string) error {
-	userDomainLower := strings.ToLower(userDomain)
-	err := f.ActivateFreeDomain(redirectEmail, redirectPassword, userDomainLower)
+func (f *Free) Activate(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
+	domainLower := strings.ToLower(domain)
+	err := f.ActivateFreeDomain(redirectEmail, redirectPassword, domainLower)
 	if err != nil {
 		return err
 	}
-	return f.ActivateDevice(deviceUsername, devicePassword, userDomainLower)
+	return f.ActivateDevice(deviceUsername, devicePassword, domainLower)
 }
 func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string, requestDomain string) error {
 	log.Printf("activate: %s", requestDomain)
