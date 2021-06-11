@@ -69,13 +69,14 @@ func New(internet connection.Checker, config FreePlatformUserConfig, redirect Fr
 	}
 }
 
-func (f *Free) Activate(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
-	domainLower := strings.ToLower(domain)
-	err := f.ActivateFreeDomain(redirectEmail, redirectPassword, domainLower)
+func (f *Free) Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
+	domain := fmt.Sprintf("%s.%s",strings.ToLower(requestDomain), f.config.GetRedirectDomain())
+  
+	err := f.ActivateFreeDomain(redirectEmail, redirectPassword, domain)
 	if err != nil {
 		return err
 	}
-	return f.ActivateDevice(deviceUsername, devicePassword, domainLower)
+	return f.ActivateDevice(deviceUsername, devicePassword, domain)
 }
 func (f *Free) ActivateFreeDomain(redirectEmail string, redirectPassword string, requestDomain string) error {
 	log.Printf("activate: %s", requestDomain)
