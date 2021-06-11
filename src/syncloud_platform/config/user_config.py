@@ -75,6 +75,9 @@ class PlatformUserConfig:
     def get_custom_domain(self):
         return self._get('platform.custom_domain')
 
+    def get_domain(self):
+        return self._get('platform.domain')
+
     def get_user_domain(self):
         return self._get('platform.user_domain')
 

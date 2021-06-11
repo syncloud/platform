@@ -21,9 +21,13 @@ class DeviceInfo:
         domain = 'localhost'
 
         if self.user_platform_config.is_redirect_enabled():
-            user_domain = self.user_platform_config.get_user_domain()
-            if user_domain is not None:
-                domain = '{0}.{1}'.format(user_domain, self.user_platform_config.get_redirect_domain())
+            full_domain = self.user_platform_config.get_domain()
+            if full_domain is not None:
+                domain = full_domain
+            else:
+                user_domain = self.user_platform_config.get_user_domain()
+                if user_domain is not None:
+                    domain = '{0}.{1}'.format(user_domain, self.user_platform_config.get_redirect_domain())
         else:
             custom = self.user_platform_config.get_custom_domain()
             if custom:
