@@ -446,7 +446,7 @@ const mock = function (app, server, compiler) {
     //   ]
     // })
   })
-  app.post('/rest/activate_custom_domain', function (req, res) {
+  app.post('/rest/activate/custom', function (req, res) {
     state.activated = true
     res.json({ success: true })
   })

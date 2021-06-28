@@ -199,7 +199,7 @@ test('Activate custom domain', async () => {
   }
 
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate_custom_domain').reply(function (config) {
+  mock.onPost('/rest/activate/custom').reply(function (config) {
     const request = JSON.parse(config.data)
     domain = request.domain
     deviceUsername = request.device_username

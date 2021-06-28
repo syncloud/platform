@@ -15,7 +15,6 @@ from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
-from syncloud_platform.rest.internal_validator import InternalValidator
 
 injector = get_injector()
 public = injector.public
@@ -38,25 +37,6 @@ def activation_status():
         return jsonify(activated=get_injector().user_platform_config.is_activated()), 200
     except Exception as e:
         return jsonify(activated=False), 200
-
-
-@app.route("/rest/activate_custom_domain", methods=["POST"])
-@fail_if_activated
-def activate_custom_domain():
-
-    request_json = request.json
-    device_username = request_json['device_username'].lower()
-    device_password = request_json['device_password']
-        
-    validator = InternalValidator()
-    validator.validate(device_username, device_password)
-
-    device.activate_custom_domain(
-        request_json['domain'],
-        device_username,
-        device_password,
-    )
-    return identification()
 
 
 @login_manager.user_loader
@@ -307,6 +287,7 @@ def backend_proxy_activated():
 
 @app.route("/rest/redirect/domain/availability", methods=["POST"])
 @app.route("/rest/activate/free", methods=["POST"])
+@app.route("/rest/activate/custom", methods=["POST"])
 @fail_if_activated
 def backend_proxy_not_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)

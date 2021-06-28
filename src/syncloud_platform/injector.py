@@ -78,8 +78,8 @@ class Injector:
                                         self.certbot_genetator)
         
         self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service,
-                             self.port_drill_factory, self.ldap_auth,
-                             self.event_trigger, self.tls, self.nginx)
+                             self.port_drill_factory,
+                             self.event_trigger)
 
         self.path_checker = PathChecker(self.platform_config)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)

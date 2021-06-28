@@ -317,10 +317,15 @@ export default {
       event.preventDefault()
       this.progressShow()
       $('#form_activate .alert').remove()
-      if (this.domainType === 'free') {
-        this.activateFreeDomain()
-      } else {
-        this.activateCustomDomain()
+      switch(this.domainType) {
+        case 'premium':
+          this.activatePremiumDomain();
+          break
+        case 'custom':
+          this.activateCustomDomain()
+          break
+        default:
+          this.activateFreeDomain();
       }
     },
     forceCertificateRecheck () {
@@ -358,7 +363,7 @@ export default {
     },
     activateCustomDomain () {
       axios
-        .post('/rest/activate_custom_domain', {
+        .post('/rest/activate/custom_domain', {
           domain: this.domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword

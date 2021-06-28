@@ -20,7 +20,6 @@ type UserConfig struct {
 	file           string
 	oldConfigFile  string
 	redirectDomain string
-	redirectUrl    string
 }
 
 var OldConfig string
@@ -31,12 +30,11 @@ func init() {
 	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_COMMON"))
 }
 
-func NewUserConfig(file string, oldConfigFile string, redirectDomain string, redirectUrl string) (*UserConfig, error) {
+func NewUserConfig(file string, oldConfigFile string, redirectDomain string) (*UserConfig, error) {
 	config := &UserConfig{
 		file:           file,
 		oldConfigFile:  oldConfigFile,
 		redirectDomain: redirectDomain,
-		redirectUrl:    redirectUrl,
 	}
 	err := config.ensureDb()
 	if err != nil {
@@ -135,7 +133,7 @@ func (c *UserConfig) GetRedirectDomain() string {
 }
 
 func (c *UserConfig) GetRedirectApiUrl() string {
-	return c.Get("redirect.api_url", c.redirectUrl)
+	return fmt.Sprintf("https://api.%s", c.GetRedirectDomain())
 }
 
 func (c UserConfig) GetUpnp() bool {

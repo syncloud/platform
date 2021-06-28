@@ -31,7 +31,6 @@ func main() {
 	var rootCmd = &cobra.Command{Use: "backend"}
 	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
 	redirectDomain := rootCmd.PersistentFlags().String("redirect-domain", "syncloud.it", "redirect domain")
-	redirectUrl := rootCmd.PersistentFlags().String("redirect-url", "https://api.syncloud.it", "redirect url")
 	idConfig := rootCmd.PersistentFlags().String("identification-config", "/etc/syncloud/id.cfg", "id config")
 
 	var tcpCmd = &cobra.Command{
@@ -39,7 +38,7 @@ func main() {
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			backend, err := Backend(*configDb, *redirectDomain, *redirectUrl, *idConfig)
+			backend, err := Backend(*configDb, *redirectDomain, *idConfig)
 			if err != nil {
 				log.Print("error: ", err)
 				os.Exit(1)
@@ -54,7 +53,7 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = os.Remove(args[0])
-			backend, err := Backend(*configDb, *redirectDomain, *redirectUrl, *idConfig)
+			backend, err := Backend(*configDb, *redirectDomain, *idConfig)
 			if err != nil {
 				log.Print("error: ", err)
 				os.Exit(1)
@@ -70,7 +69,7 @@ func main() {
 	}
 }
 
-func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, idConfig string) (*rest.Backend, error) {
+func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Backend, error) {
 
 	cronService := cron.New(cron.Job, time.Minute*5)
 	cronService.Start()
@@ -80,7 +79,7 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	eventTrigger := event.New()
 	installerService := installer.New()
 	storageService := storage.New()
-	userConfig, err := config.NewUserConfig(configDb, config.OldConfig, redirectDomain, defaultRedirectUrl)
+	userConfig, err := config.NewUserConfig(configDb, config.OldConfig, redirectDomain)
 	if err != nil {
 		return nil, err
 	}
@@ -113,8 +112,12 @@ func Backend(configDb string, redirectDomain string, defaultRedirectUrl string, 
 	}
 	ldapService := auth.New(snapService, *dataDir, *appDir, *configDir)
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
-	freeActivation := activation.New(&connection.Internet{}, userConfig, redirectService, certificate.New(), ldapService, nginxService, eventTrigger)
+	certificateGenerator := certificate.New()
+	device := activation.NewDevice(userConfig, certificateGenerator, ldapService, nginxService, eventTrigger)
+	activationFree := activation.NewFree(&connection.Internet{}, userConfig, redirectService, device)
+	activationCustom := activation.NewCustom(&connection.Internet{}, userConfig, redirectService, device)
 
-	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService, installerService, storageService, redirectUrl, id, freeActivation), nil
+	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
+		installerService, storageService, redirectUrl, id, activationFree, activationCustom), nil
 
 }

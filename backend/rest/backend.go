@@ -23,35 +23,40 @@ import (
 )
 
 type Backend struct {
-	Master         *job.Master
-	backup         *backup.Backup
-	eventTrigger   *event.Trigger
-	worker         *job.Worker
-	redirect       *redirect.Service
-	installer      installer.AppInstaller
-	storage        *storage.Storage
-	redirectProxy  *httputil.ReverseProxy
-	identification *identification.Parser
-	activation     *activation.Free
+	Master           *job.Master
+	backup           *backup.Backup
+	eventTrigger     *event.Trigger
+	worker           *job.Worker
+	redirect         *redirect.Service
+	installer        installer.AppInstaller
+	storage          *storage.Storage
+	redirectProxy    *httputil.ReverseProxy
+	identification   *identification.Parser
+	activationFree   *activation.Free
+	activationCustom *activation.Custom
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Service, installerService *installer.Installer,
 	storageService *storage.Storage, redirectUrl *url.URL,
-	identification *identification.Parser, activation *activation.Free) *Backend {
+	identification *identification.Parser,
+	activationFree *activation.Free,
+	activationCustom *activation.Custom,
+) *Backend {
 
 	return &Backend{
-		Master:         master,
-		backup:         backup,
-		eventTrigger:   eventTrigger,
-		worker:         worker,
-		redirect:       redirect,
-		installer:      installerService,
-		storage:        storageService,
-		redirectProxy:  NewReverseProxy(redirectUrl),
-		identification: identification,
-		activation:     activation,
+		Master:           master,
+		backup:           backup,
+		eventTrigger:     eventTrigger,
+		worker:           worker,
+		redirect:         redirect,
+		installer:        installerService,
+		storage:          storageService,
+		redirectProxy:    NewReverseProxy(redirectUrl),
+		identification:   identification,
+		activationFree:   activationFree,
+		activationCustom: activationCustom,
 	}
 }
 
@@ -82,7 +87,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
-	r.HandleFunc("/activate/free", Handle(b.Activate)).Methods("POST")
+	r.HandleFunc("/activate/free", Handle(b.ActivateFree)).Methods("POST")
+	r.HandleFunc("/activate/custom", Handle(b.ActivateCustom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
 	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", b.redirectProxy))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
@@ -96,16 +102,21 @@ func (b *Backend) Start(network string, address string) {
 
 func fail(w http.ResponseWriter, err error) {
 	log.Println("error: ", err)
-	appError := err.Error()
 	response := model.Response{
 		Success: false,
-		Message: &appError,
+		Message: err.Error(),
+	}
+	statusCode := http.StatusInternalServerError
+	switch v := err.(type) {
+	case *model.ParameterError:
+		response.ParametersMessages = v.ParameterErrors
+		statusCode = 400
 	}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), statusCode)
 	} else {
-		_, _ = fmt.Fprintf(w, string(responseJson))
+		http.Error(w, string(responseJson), statusCode)
 	}
 }
 
@@ -216,13 +227,29 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 	return "ok", b.eventTrigger.RunEventOnAllApps(request.Event)
 }
 
-func (b *Backend) Activate(req *http.Request) (interface{}, error) {
+func (b *Backend) ActivateFree(req *http.Request) (interface{}, error) {
 	var request activation.FreeActivateRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		return nil, err
 	}
-	return "ok", b.activation.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
+	return "ok", b.activationFree.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
+}
+
+func (b *Backend) ActivateCustom(req *http.Request) (interface{}, error) {
+	var request activation.CustomActivateRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return nil, err
+	}
+	if len(request.DeviceUsername) < 3 {
+		return nil, model.SingleParameterError("device_username", "less than 3 characters")
+	}
+	if len(request.DevicePassword) < 7 {
+		return nil, model.SingleParameterError("device_password", "less than 7 characters")
+	}
+
+	return "ok", b.activationCustom.Activate(request.Domain, request.DeviceUsername, request.DevicePassword)
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {

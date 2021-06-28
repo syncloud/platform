@@ -21,7 +21,8 @@ type EventTriggerRequest struct {
 }
 
 type Response struct {
-	Success bool         `json:"success"`
-	Message *string      `json:"message,omitempty"`
-	Data    *interface{} `json:"data,omitempty"`
+	Success            bool                 `json:"success"`
+	Message            string               `json:"message,omitempty"`
+	Data               *interface{}         `json:"data,omitempty"`
+	ParametersMessages *[]ParameterMessages `json:"parameters_messages,omitempty"`
 }

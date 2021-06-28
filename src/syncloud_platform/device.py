@@ -1,8 +1,5 @@
-import uuid
-
-import requests
 from syncloud_platform.config.config import WEB_CERTIFICATE_PORT, WEB_ACCESS_PORT, WEB_PROTOCOL
-from syncloudlib import logger, fs
+from syncloudlib import logger
 
 http_network_protocol = 'TCP'
 
@@ -10,69 +7,13 @@ http_network_protocol = 'TCP'
 class Device:
 
     def __init__(self, platform_config, user_platform_config, redirect_service,
-                 port_drill_factory, ldap_auth, event_trigger, tls, nginx):
-        self.tls = tls
+                 port_drill_factory, event_trigger):
         self.platform_config = platform_config
         self.user_platform_config = user_platform_config
         self.redirect_service = redirect_service
         self.port_drill_factory = port_drill_factory
-        self.auth = ldap_auth
         self.event_trigger = event_trigger
         self.logger = logger.get_logger('Device')
-        self.nginx = nginx
-
-    def activate_custom_domain(self, full_domain, device_username, device_password):
-        full_domain_lower = full_domain.lower()
-        self.logger.info("activate custom {0}, {1}".format(full_domain_lower, device_username))
-        
-        self._check_internet_connection()
-        
-        self.user_platform_config.set_redirect_enabled(False)
-        self.user_platform_config.set_custom_domain(full_domain_lower)
-
-        name, email = parse_username(device_username, full_domain_lower)
-        self.user_platform_config.set_user_email(email)
-       
-        self._activate_common(name, device_username, device_password, email)
-        
-    def _activate_common(self, name, device_username, device_password, email):
-    
-        self.reset_access()
-
-        self.logger.info("activating ldap")
-        self.user_platform_config.set_web_secret_key(str(uuid.uuid4().hex))
-
-        self.tls.generate_self_signed_certificate()
-
-        self.auth.reset(name, device_username, device_password, email)
-        
-        self.nginx.init_config()
-        self.nginx.reload_public()
-
-        self.user_platform_config.set_activated()
-
-        self.logger.info("activation completed")
-
-    def _check_internet_connection(self):
-        check_url = 'http://apps.syncloud.org/releases/stable/index'
-        internet_ok = True
-        try:
-            response = requests.get(check_url)
-            self.logger.info('Internet check, response status_code: {0}'.format(response.status_code))
-            if response.status_code != 200:
-                internet_ok = False
-         
-        except Exception as e:
-            self.logger.error('Internet check url {0} is not reachable, error: {1}'.format(check_url, str(e)))
-            internet_ok = False
-        
-        if not internet_ok:
-            raise Exception('Internet is not available, check your device connection')
-
-    def reset_access(self):
-        self.logger.info('reset access')
-        self.user_platform_config.update_device_access(False, False, None, 0, 0)
-        self.event_trigger.trigger_app_event_domain()
 
     def set_access(self, upnp_enabled, external_access, manual_public_ip, manual_certificate_port, manual_access_port):
         self.logger.info('set_access: external_access={0}'.format(external_access))
@@ -147,12 +88,3 @@ class Device:
                                                   manual_certificate_port, manual_access_port)
         drill.remove(local_port, protocol)
 
-
-def parse_username(username, domain):
-    if '@' in username:
-        result = username.split('@')
-        name = result[0]
-        return name, username
-    else:
-        email = '{0}@{1}'.format(username, domain)
-        return username, email
