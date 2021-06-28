@@ -36,11 +36,11 @@
                    style="text-align: center; max-width: 800px; margin: 0 auto">
                 <div class="columns">
                   <ul class="price">
-                    <li class="header">Managed</li>
-                    <li class="description">Syncloud will manage DNS records for your domain (like example.com), requires Premium account</li>
+                    <li class="header">Premium</li>
+                    <li class="description">Syncloud will manage DNS records for your domain (like example.com)</li>
                     <li>
-                      <button id="btn_managed_domain" class="buttongreen"
-                              @click="selectManagedDomain">
+                      <button id="btn_premium_domain" class="buttongreen"
+                              @click="selectPremiumDomain">
                         Select
                       </button>
                     </li>
@@ -124,10 +124,10 @@
 
                 </div>
 
-                <div v-if=" domainType === 'managed' ">
+                <div v-if=" domainType === 'premium' ">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Syncloud Account</h2>
-                    <button @click="showManagedAccountHelp" type=button
+                    <button @click="showPremiumAccountHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -243,7 +243,7 @@
     </template>
   </Dialog>
 
-  <Dialog ref="help_managed_account">
+  <Dialog ref="help_premium_account">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
       Premium Syncloud account name service (DNS) for personal domain name management (like example.com).
@@ -341,9 +341,9 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    activateManagedDomain () {
+    activatePremiumDomain () {
       axios
-        .post('/rest/activate_managed_domain', {
+        .post('/rest/activate_premium_domain', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
           domain: this.domain,
@@ -375,8 +375,8 @@ export default {
     showFreeAccountHelp () {
       this.$refs.help_free_account.show()
     },
-    showManagedAccountHelp () {
-      this.$refs.help_managed_account.show()
+    showPremiumAccountHelp () {
+      this.$refs.help_premium_account.show()
     },
     showCustomDomainHelp () {
       this.$refs.help_custom_domain.show()
@@ -384,8 +384,8 @@ export default {
     showManagedDomainHelp () {
       this.$refs.help_managed_domain.show()
     },
-    selectManagedDomain () {
-      this.domainType = 'managed'
+    selectPremiumDomain () {
+      this.domainType = 'premium'
       this.stepper.next()
     },
     selectCustomDomain () {
