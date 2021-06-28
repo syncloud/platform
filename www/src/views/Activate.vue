@@ -91,7 +91,8 @@
                   <div style=" display: flow-root">
                     <div style="padding-right:10px; float: right">
                       Do not have an account?
-                      <a href="https://syncloud.it" class="btn btn-info" role="button" style="line-height: 10px" target="_blank">register</a>
+                      <a href="https://syncloud.it" class="btn btn-info" role="button" style="line-height: 10px"
+                         target="_blank">register</a>
                     </div>
                   </div>
                   <div style="text-align: center">
@@ -160,7 +161,7 @@
                   </button>
                 </div>
                 <div style="padding: 10px; float: right;">
-                  <button id="btn_next" class="buttonblue" @click="domainAvailability">
+                  <button id="btn_next" class="buttonblue" @click="selectDeviceName">
                     Next
                   </button>
                 </div>
@@ -233,7 +234,8 @@
     <template v-slot:text>
       Free Syncloud account name service (DNS) for device names at <b>syncloud.it</b>.
       <br>
-      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an account to control one or more
+      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an
+      account to control one or more
       device names.
       <br>
       Domain account is also used for notifications about new releases.
@@ -248,7 +250,8 @@
     <template v-slot:text>
       Premium Syncloud account name service (DNS) for personal domain name management (like example.com).
       <br>
-      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an account to control one or more
+      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an
+      account to control one or more
       device names. Then request a premium plan in your Account services.
       <br>
       Domain account is also used for notifications about new releases.
@@ -317,15 +320,15 @@ export default {
       event.preventDefault()
       this.progressShow()
       $('#form_activate .alert').remove()
-      switch(this.domainType) {
+      switch (this.domainType) {
         case 'premium':
-          this.activatePremiumDomain();
+          this.activatePremiumDomain()
           break
         case 'custom':
           this.activateCustomDomain()
           break
         default:
-          this.activateFreeDomain();
+          this.activateFreeDomain()
       }
     },
     forceCertificateRecheck () {
@@ -363,7 +366,7 @@ export default {
     },
     activateCustomDomain () {
       axios
-        .post('/rest/activate/custom_domain', {
+        .post('/rest/activate/custom', {
           domain: this.domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword
@@ -400,6 +403,13 @@ export default {
     selectFreeDomain () {
       this.domainType = 'free'
       this.stepper.next()
+    },
+    selectDeviceName () {
+      if (this.domainType === 'custom') {
+        this.stepper.next()
+      } else {
+        this.domainAvailability()
+      }
     },
     domainAvailability () {
       this.progressShow()
@@ -451,7 +461,7 @@ export default {
 }
 
 .price:hover {
-  box-shadow: 0 8px 12px 0 rgba(0,0,0,0.2)
+  box-shadow: 0 8px 12px 0 rgba(0, 0, 0, 0.2)
 }
 
 .price li {
@@ -473,6 +483,7 @@ export default {
   .columns {
     width: 100%;
   }
+
   .price .description {
     min-height: 0px;
   }

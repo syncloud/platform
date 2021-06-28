@@ -207,6 +207,12 @@ test('Activate custom domain', async () => {
     return [200, { success: true }]
   })
 
+  let availabilityCalled = false
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    availabilityCalled = true
+    return [200, { success: true }]
+  })
+
   const wrapper = mount(Activate,
     {
       attachTo: document.body,
@@ -233,6 +239,8 @@ test('Activate custom domain', async () => {
   await wrapper.find('#domain').setValue('domain')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#btn_next').trigger('click')
+
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -242,6 +250,7 @@ test('Activate custom domain', async () => {
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
   expect(reloaded).toBe(true)
+  expect(availabilityCalled).toBe(false)
 
   wrapper.unmount()
 })
