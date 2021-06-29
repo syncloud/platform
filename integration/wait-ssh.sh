@@ -2,7 +2,7 @@
 
 attempts=100
 attempt=0
-CMD="sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@device"
+CMD="sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@$1"
 
 set +e
 ${CMD} date

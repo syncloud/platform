@@ -215,6 +215,29 @@ func (c *UserConfig) GetOrNil(key string) *string {
 	return &value
 }
 
+func (c *UserConfig) List() map[string]string {
+	db := c.open()
+	defer db.Close()
+	rows, err := db.Query("select key, value from config")
+	values := make(map[string]string, 0)
+	if err != nil {
+		log.Println(err)
+		return values
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var key string
+		var value string
+
+		if err := rows.Scan(&key, &value); err != nil {
+			log.Println("Unable to scan results:", err)
+			continue
+		}
+		values[key] = value
+	}
+	return values
+}
+
 func (c *UserConfig) Get(key string, defaultValue string) string {
 	value := c.GetOrNil(key)
 	if value == nil {

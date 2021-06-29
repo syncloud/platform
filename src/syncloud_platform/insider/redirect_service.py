@@ -80,7 +80,7 @@ class RedirectService:
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
-        self.logger.debug('url: ' + url)
+        self.logger.info('url: ' + url)
         json = convertible.to_json(data)
         self.logger.info('request: ' + json)
         response = requests.post(url, json)

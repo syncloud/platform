@@ -49,15 +49,6 @@ func NewFree(internet connection.Checker, config FreePlatformUserConfig, redirec
 
 func (f *Free) Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
 	domain := fmt.Sprintf("%s.%s", strings.ToLower(requestDomain), f.config.GetRedirectDomain())
-	err := f.activateFreeDomain(redirectEmail, redirectPassword, domain)
-	if err != nil {
-		return err
-	}
-	name, email := ParseUsername(deviceUsername, domain)
-	return f.device.ActivateDevice(deviceUsername, devicePassword, name, email)
-}
-
-func (f *Free) activateFreeDomain(redirectEmail string, redirectPassword string, requestDomain string) error {
 	log.Printf("activate: %s", requestDomain)
 
 	err := f.internet.Check()
@@ -73,12 +64,18 @@ func (f *Free) activateFreeDomain(redirectEmail string, redirectPassword string,
 	}
 
 	f.config.SetUserUpdateToken(user.UpdateToken)
-	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, requestDomain)
+	domainResponse, err := f.redirect.Acquire(redirectEmail, redirectPassword, requestDomain)
 	if err != nil {
 		return err
 	}
 
-	f.config.SetDomain(domain.Name)
-	f.config.UpdateDomainToken(domain.UpdateToken)
-	return f.redirect.Reset(domain.UpdateToken)
+	f.config.SetDomain(domainResponse.Name)
+	f.config.UpdateDomainToken(domainResponse.UpdateToken)
+	err = f.redirect.Reset(domainResponse.UpdateToken)
+	if err != nil {
+		return err
+	}
+
+	name, email := ParseUsername(deviceUsername, domain)
+	return f.device.ActivateDevice(deviceUsername, devicePassword, name, email)
 }

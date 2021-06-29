@@ -104,6 +104,22 @@ func main() {
 	}
 	cmdConfig.AddCommand(cmdConfigGet)
 
+	var cmdConfigList = &cobra.Command{
+		Use:   "list",
+		Short: "List config key value",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			configuration, err := config.NewUserConfig(configFile, config.OldConfig, "")
+			if err != nil {
+				log.Fatal(err)
+			}
+			for key, value := range configuration.List() {
+				log.Printf("%s:%s\n", key, value)
+			}
+		},
+	}
+	cmdConfig.AddCommand(cmdConfigList)
+
 	var cmdCron = &cobra.Command{
 		Use:   "cron",
 		Short: "Run cron job",
