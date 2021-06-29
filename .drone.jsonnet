@@ -76,7 +76,7 @@ local build(arch) = {
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=jessie --domain=$(cat domain) --app-archive-path=$(realpath $(cat package.name)) --device-host=device-jessie --app=" + name
+              "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath $(cat ../package.name)) --device-host=device-jessie --app=" + name
             ]
         },
         {
@@ -89,7 +89,7 @@ local build(arch) = {
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=buster --domain=$(cat domain) --app-archive-path=$(realpath $(cat package.name)) --device-host=device-buster --app=" + name
+              "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath $(cat ../package.name)) --device-host=device-buster --app=" + name
             ]
         }
     ] + ( if arch == "arm" then [] else [
@@ -100,7 +100,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
@@ -114,7 +114,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
