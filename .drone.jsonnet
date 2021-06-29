@@ -15,7 +15,7 @@ local build(arch, distro) = {
             image: "syncloud/build-deps-" + arch,
             commands: [
                 "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version",
-                "echo " + arch + "-$DRONE_BRANCH > domain"
+                "echo " + distro + "-" + arch + "-$DRONE_BRANCH > domain"
             ]
         },
         {
