@@ -116,8 +116,8 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	device := activation.NewDevice(userConfig, certificateGenerator, ldapService, nginxService, eventTrigger)
 	activationFree := activation.NewFree(&connection.Internet{}, userConfig, redirectService, device)
 	activationCustom := activation.NewCustom(&connection.Internet{}, userConfig, redirectService, device)
-
+	activate := rest.NewActivateBackend(activationFree, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-		installerService, storageService, redirectUrl, id, activationFree, activationCustom), nil
+		installerService, storageService, redirectUrl, id, activate), nil
 
 }
