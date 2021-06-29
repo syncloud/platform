@@ -156,7 +156,7 @@ def test_reactivate_activated_device(device_host, domain, device_user, device_pa
                                    'domain': domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, allow_redirects=False, verify=False)
-    assert response.status_code == 502
+    assert response.status_code == 502, response.text
 
 
 def test_drop_activation(device):
