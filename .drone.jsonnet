@@ -73,7 +73,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
               "./integration/wait-ssh.sh device-jessie",
               "mkdir -p /var/snap/platform/common",
-              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device",
+              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s verify.py --distro=jessie --domain=$(cat domain) --app-archive-path=$(realpath $(cat package.name)) --device-host=device-jessie --app=" + name
@@ -86,7 +86,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
               "./integration/wait-ssh.sh device-buster",
               "mkdir -p /var/snap/platform/common",
-              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device",
+              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s verify.py --distro=buster --domain=$(cat domain) --app-archive-path=$(realpath $(cat package.name)) --device-host=device-buster --app=" + name

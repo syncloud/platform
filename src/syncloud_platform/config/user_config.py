@@ -25,17 +25,16 @@ class PlatformUserConfig:
             if isfile(self.old_config_file):
                 self.migrate_user_config()
 
-    def update_redirect(self, domain, api_url):
+    def update_redirect(self, domain):
         self._upsert([
-            ('redirect.domain', domain),
-            ('redirect.api_url', api_url)
+            ('redirect.domain', domain)
         ])
 
     def get_redirect_domain(self):
         return self._get('redirect.domain', 'syncloud.it')
 
     def get_redirect_api_url(self):
-        return self._get('redirect.api_url', 'https://api.syncloud.it')
+        return "https://api.{}".format(self.get_redirect_domain())
 
     def set_user_update_token(self, user_update_token):
         self._upsert([
