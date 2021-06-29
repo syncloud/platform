@@ -39,7 +39,7 @@ func TestHandlerFail(t *testing.T) {
 	Handle(func(req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Equal(t, `{"success":false,"message":"error"}`, rr.Body.String())
+	assert.Equal(t, `{"success":false,"message":"error"}`+"\n", rr.Body.String())
 }
 
 func TestBackupCreateFail(t *testing.T) {
@@ -50,5 +50,5 @@ func TestBackupCreateFail(t *testing.T) {
 	Handle(func(req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Equal(t, `{"success":false,"message":"error"}`, rr.Body.String())
+	assert.Equal(t, `{"success":false,"message":"error"}`+"\n", rr.Body.String())
 }

@@ -113,11 +113,15 @@ func fail(w http.ResponseWriter, err error) {
 		statusCode = 400
 	}
 	responseJson, err := json.Marshal(response)
+	responseText := ""
 	if err != nil {
-		http.Error(w, err.Error(), statusCode)
+		responseText = err.Error()
 	} else {
-		http.Error(w, string(responseJson), statusCode)
+		responseText = string(responseJson)
+		//TODO: probably change to some error code
+		statusCode = http.StatusOK
 	}
+	http.Error(w, responseText, statusCode)
 }
 
 func success(w http.ResponseWriter, data interface{}) {
