@@ -49,7 +49,7 @@ func NewFree(internet connection.Checker, config FreePlatformUserConfig, redirec
 
 func (f *Free) Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
 	domain := fmt.Sprintf("%s.%s", strings.ToLower(requestDomain), f.config.GetRedirectDomain())
-	log.Printf("activate: %s", requestDomain)
+	log.Printf("activate: %s", domain)
 
 	err := f.internet.Check()
 	if err != nil {
@@ -64,7 +64,7 @@ func (f *Free) Activate(redirectEmail string, redirectPassword string, requestDo
 	}
 
 	f.config.SetUserUpdateToken(user.UpdateToken)
-	domainResponse, err := f.redirect.Acquire(redirectEmail, redirectPassword, requestDomain)
+	domainResponse, err := f.redirect.Acquire(redirectEmail, redirectPassword, domain)
 	if err != nil {
 		return err
 	}
