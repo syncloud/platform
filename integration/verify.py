@@ -126,15 +126,25 @@ def test_set_redirect(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
-def test_activate_custom(device_host):
+def test_activate_custom(device, device_host, main_domain):
     response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
                              json={'domain': 'example.com',
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
+    device.run_ssh('rm /var/snap/platform/common/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
-def test_drop_activation_custom(device, main_domain):
+def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password):
+    response = requests.post('https://{0}/rest/activate/premium'.format(device_host),
+                             json={'redirect_email': redirect_user,
+                                   'redirect_password': redirect_password,
+                                   'domain': 'example.com',
+                                   'device_username': 'user1',
+                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
+    assert response.status_code == 200, response.text
     device.run_ssh('rm /var/snap/platform/common/platform.db')
     device.run_ssh('ls -la /var/snap/platform/common')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
