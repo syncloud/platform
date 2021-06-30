@@ -134,7 +134,7 @@ def test_activate_custom(device_host):
     assert response.status_code == 200, response.text
 
 
-def test_drop_activation_custom(device):
+def test_drop_activation_custom(device, main_domain):
     device.run_ssh('rm /var/snap/platform/common/platform.db')
     device.run_ssh('ls -la /var/snap/platform/common')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
