@@ -140,7 +140,6 @@ def test_drop_activation_custom(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
-
 def test_activate_device(device_host, domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate/free'.format(device_host),
                              json={'redirect_email': redirect_user,
@@ -162,7 +161,7 @@ def test_reactivate_activated_device(device_host, domain, device_user, device_pa
     assert response.status_code == 502, response.text
 
 
-def test_drop_activation(device):
+def test_drop_activation(device, main_domain):
     device.run_ssh('rm /var/snap/platform/common/platform.db')
     device.run_ssh('ls -la /var/snap/platform/common')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
@@ -573,3 +572,4 @@ def test_nginx_performance(device_host):
 
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
+
