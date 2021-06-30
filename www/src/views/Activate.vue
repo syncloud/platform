@@ -149,8 +149,10 @@
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
                   </div>
-                  <input placeholder="Top level domain like example.com"
-                         class="domain" id="domain" type="text" style="width:100% !important;" v-model="domain">
+                  <div id="domain">
+                    <input placeholder="Top level domain like example.com"
+                           class="domain" id="domain_premium" type="text" style="width:100% !important;" v-model="domain">
+                  </div>
                   <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
                 </div>
@@ -351,7 +353,7 @@ export default {
     },
     activatePremiumDomain () {
       axios
-        .post('/rest/activate_premium_domain', {
+        .post('/rest/activate/premium', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
           domain: this.domain,

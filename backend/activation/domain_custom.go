@@ -25,11 +25,11 @@ type CustomPlatformUserConfig interface {
 type Custom struct {
 	internet connection.Checker
 	config   CustomPlatformUserConfig
-	redirect FreeRedirect
+	redirect ManagedRedirect
 	device   *Device
 }
 
-func NewCustom(internet connection.Checker, config CustomPlatformUserConfig, redirect FreeRedirect, device *Device) *Custom {
+func NewCustom(internet connection.Checker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device) *Custom {
 	return &Custom{
 		internet: internet,
 		config:   config,

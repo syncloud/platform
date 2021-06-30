@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type FreeActivateRequest struct {
+type ManagedActivateRequest struct {
 	RedirectEmail    string `json:"redirect_email"`
 	RedirectPassword string `json:"redirect_password"`
 	Domain           string `json:"domain"`
@@ -16,7 +16,7 @@ type FreeActivateRequest struct {
 	DevicePassword   string `json:"device_password"`
 }
 
-type FreePlatformUserConfig interface {
+type ManagedPlatformUserConfig interface {
 	SetRedirectEnabled(enabled bool)
 	SetUserUpdateToken(userUpdateToken string)
 	SetUserEmail(userEmail string)
@@ -25,21 +25,21 @@ type FreePlatformUserConfig interface {
 	GetRedirectDomain() string
 }
 
-type FreeRedirect interface {
+type ManagedRedirect interface {
 	Authenticate(email string, password string) (*redirect.User, error)
 	Acquire(email string, password string, domain string) (*redirect.Domain, error)
 	Reset(updateToken string) error
 }
 
-type Free struct {
+type Managed struct {
 	internet connection.Checker
-	config   FreePlatformUserConfig
-	redirect FreeRedirect
+	config   ManagedPlatformUserConfig
+	redirect ManagedRedirect
 	device   DeviceActivation
 }
 
-func NewFree(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, device DeviceActivation) *Free {
-	return &Free{
+func NewFree(internet connection.Checker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation) *Managed {
+	return &Managed{
 		internet: internet,
 		config:   config,
 		redirect: redirect,
@@ -47,8 +47,16 @@ func NewFree(internet connection.Checker, config FreePlatformUserConfig, redirec
 	}
 }
 
-func (f *Free) Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
+func (f *Managed) Free(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
 	domain := fmt.Sprintf("%s.%s", strings.ToLower(requestDomain), f.config.GetRedirectDomain())
+	return f.activate(redirectEmail, redirectPassword, domain, deviceUsername, devicePassword)
+}
+
+func (f *Managed) Premium(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
+	return f.activate(redirectEmail, redirectPassword, domain, deviceUsername, devicePassword)
+}
+
+func (f *Managed) activate(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
 	log.Printf("activate: %s", domain)
 
 	err := f.internet.Check()

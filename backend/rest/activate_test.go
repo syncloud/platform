@@ -12,7 +12,7 @@ import (
 
 type ActivateFreeStub struct{}
 
-func (a *ActivateFreeStub) Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
+func (a *ActivateFreeStub) Free(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
 	return nil
 }
 
@@ -57,7 +57,7 @@ func TestActivate_CustomGood(t *testing.T) {
 
 func TestActivate_FreeLoginShort(t *testing.T) {
 	activate := NewActivateBackend(&ActivateFreeStub{}, &ActivateCustomStub{})
-	request := &activation.FreeActivateRequest{Domain: "example.com", DeviceUsername: "a", DevicePassword: "password"}
+	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "a", DevicePassword: "password"}
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
@@ -68,7 +68,7 @@ func TestActivate_FreeLoginShort(t *testing.T) {
 
 func TestActivate_FreePasswordShort(t *testing.T) {
 	activate := NewActivateBackend(&ActivateFreeStub{}, &ActivateCustomStub{})
-	request := &activation.FreeActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "pass"}
+	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "pass"}
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
@@ -79,7 +79,7 @@ func TestActivate_FreePasswordShort(t *testing.T) {
 
 func TestActivate_FreeGood(t *testing.T) {
 	activate := NewActivateBackend(&ActivateFreeStub{}, &ActivateCustomStub{})
-	request := &activation.FreeActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "password"}
+	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "password"}
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))

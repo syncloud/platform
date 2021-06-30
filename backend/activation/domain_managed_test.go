@@ -69,7 +69,7 @@ func (d *DeviceActivationStub) ActivateDevice(username string, password string, 
 func TestFree_Activate(t *testing.T) {
 	freeRedirect := &FreeRedirectStub{}
 	free := NewFree(&InternetCheckerStub{}, &FreePlatformUserConfigStub{}, freeRedirect, &DeviceActivationStub{})
-	err := free.Activate("mail", "password", "test", "username", "password")
+	err := free.Free("mail", "password", "test", "username", "password")
 	assert.Nil(t, err)
 
 	assert.Equal(t, "test.syncloud.it", freeRedirect.domain)

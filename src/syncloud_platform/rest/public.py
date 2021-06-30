@@ -288,6 +288,7 @@ def backend_proxy_activated():
 @app.route("/rest/redirect/domain/availability", methods=["POST"])
 @app.route("/rest/activate/free", methods=["POST"])
 @app.route("/rest/activate/custom", methods=["POST"])
+@app.route("/rest/activate/premium", methods=["POST"])
 @fail_if_activated
 def backend_proxy_not_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
