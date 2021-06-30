@@ -137,6 +137,8 @@ def test_activate_custom(device_host):
 def test_drop_activation_custom(device):
     device.run_ssh('rm /var/snap/platform/common/platform.db')
     device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+
 
 
 def test_activate_device(device_host, domain, redirect_user, redirect_password):
@@ -163,9 +165,6 @@ def test_reactivate_activated_device(device_host, domain, device_user, device_pa
 def test_drop_activation(device):
     device.run_ssh('rm /var/snap/platform/common/platform.db')
     device.run_ssh('ls -la /var/snap/platform/common')
-
-
-def test_set_redirect_again(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
