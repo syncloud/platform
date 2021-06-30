@@ -128,7 +128,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
@@ -142,7 +142,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",

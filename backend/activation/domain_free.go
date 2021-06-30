@@ -35,10 +35,10 @@ type Free struct {
 	internet connection.Checker
 	config   FreePlatformUserConfig
 	redirect FreeRedirect
-	device   *Device
+	device   DeviceActivation
 }
 
-func NewFree(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, device *Device) *Free {
+func NewFree(internet connection.Checker, config FreePlatformUserConfig, redirect FreeRedirect, device DeviceActivation) *Free {
 	return &Free{
 		internet: internet,
 		config:   config,

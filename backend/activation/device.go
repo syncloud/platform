@@ -30,6 +30,10 @@ type DevicePlatformUserConfig interface {
 	DeletePublicIp()
 }
 
+type DeviceActivation interface {
+	ActivateDevice(username string, password string, name string, email string) error
+}
+
 func NewDevice(
 	config DevicePlatformUserConfig,
 	certificateGenerator *certificate.Generator,
