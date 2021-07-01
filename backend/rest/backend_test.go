@@ -38,7 +38,7 @@ func TestHandlerFail(t *testing.T) {
 	rr := httptest.NewRecorder()
 	Handle(func(req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 	assert.Equal(t, `{"success":false,"message":"error"}`+"\n", rr.Body.String())
 }
 
@@ -49,6 +49,6 @@ func TestBackupCreateFail(t *testing.T) {
 	rr := httptest.NewRecorder()
 	Handle(func(req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
-	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 	assert.Equal(t, `{"success":false,"message":"error"}`+"\n", rr.Body.String())
 }

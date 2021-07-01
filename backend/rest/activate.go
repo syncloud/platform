@@ -21,9 +21,9 @@ type Activate struct {
 	custom  CustomActivation
 }
 
-func NewActivateBackend(free ManagedActivation, custom CustomActivation) *Activate {
+func NewActivateBackend(managed ManagedActivation, custom CustomActivation) *Activate {
 	return &Activate{
-		managed: free,
+		managed: managed,
 		custom:  custom,
 	}
 }

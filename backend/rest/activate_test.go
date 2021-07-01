@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/syncloud/platform/activation"
 	"net/http"
 	"testing"
@@ -10,13 +11,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type ManagedActivationStub struct{}
+type ManagedActivationStub struct {
+	error bool
+}
 
 func (a *ManagedActivationStub) Free(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
+	if a.error {
+		return fmt.Errorf("error")
+	}
 	return nil
 }
 
 func (a *ManagedActivationStub) Premium(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
+	if a.error {
+		return fmt.Errorf("error")
+	}
 	return nil
 }
 
@@ -90,4 +99,15 @@ func TestActivate_FreeGood(t *testing.T) {
 	message, err := activate.Free(req)
 	assert.Equal(t, "ok", message)
 	assert.Nil(t, err)
+}
+
+func TestActivate_FreeRedirectError(t *testing.T) {
+	managed := &ManagedActivationStub{error: true}
+	activate := NewActivateBackend(managed, &CustomActivationStub{})
+	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "password"}
+	body, err := json.Marshal(request)
+	assert.Nil(t, err)
+	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
+	_, err = activate.Free(req)
+	assert.NotNil(t, err)
 }

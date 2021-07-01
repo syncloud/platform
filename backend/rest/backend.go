@@ -115,8 +115,6 @@ func fail(w http.ResponseWriter, err error) {
 		responseText = err.Error()
 	} else {
 		responseText = string(responseJson)
-		//TODO: probably change to some error code
-		statusCode = http.StatusOK
 	}
 	http.Error(w, responseText, statusCode)
 }
