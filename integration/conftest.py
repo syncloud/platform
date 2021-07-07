@@ -1,3 +1,4 @@
+import syncloudlib.integration.conftest
 from os.path import dirname, join, exists
 import os
 from syncloudlib.integration.conftest import *
@@ -11,15 +12,8 @@ def project_dir():
 
 
 def pytest_addoption(parser):
+    syncloudlib.integration.conftest.pytest_addoption(parser)
     parser.addoption("--distro", action="store")
-    parser.addoption("--domain", action="store")
-    parser.addoption("--device-host", action="store")
-    parser.addoption("--app-archive-path", action="store")
-    parser.addoption("--app", action="store")
-    parser.addoption("--ui-mode", action="store", default="desktop")
-    parser.addoption("--device-user", action="store", default="user")
-    parser.addoption("--build-number", action="store", default="local")
-    parser.addoption("--browser", action="store", default="firefox")
     parser.addoption("--arch", action="store", default="unset-arch")
 
 
