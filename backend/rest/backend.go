@@ -134,14 +134,14 @@ func success(w http.ResponseWriter, data interface{}) {
 
 func middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("%s: %s", r.Method, r.RequestURI)
+		fmt.Printf("%s: %s\n", r.Method, r.RequestURI)
 		w.Header().Add("Content-Type", "application/json")
 		next.ServeHTTP(w, r)
 	})
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("404 %s: %s", r.Method, r.RequestURI)
+	fmt.Printf("404 %s: %s\n", r.Method, r.RequestURI)
 	http.NotFound(w, r)
 }
 
@@ -164,7 +164,7 @@ func (b *Backend) BackupRemove(req *http.Request) (interface{}, error) {
 	var request model.BackupRemoveRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		fmt.Printf("parse error: %v", err.Error())
+		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("file is missing")
 	}
 	err = b.backup.Remove(request.File)
@@ -178,7 +178,7 @@ func (b *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 	var request model.BackupCreateRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		fmt.Printf("parse error: %v", err.Error())
+		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("app is missing")
 	}
 	_ = b.Master.Offer(func() { b.backup.Create(request.App) })
@@ -189,7 +189,7 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 	var request model.BackupRestoreRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		fmt.Printf("parse error: %v", err.Error())
+		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("file is missing")
 	}
 	_ = b.Master.Offer(func() { b.backup.Restore(request.File) })
@@ -209,7 +209,7 @@ func (b *Backend) StorageFormat(req *http.Request) (interface{}, error) {
 	var request model.StorageFormatRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		fmt.Printf("parse error: %v", err.Error())
+		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("device is missing")
 	}
 	_ = b.Master.Offer(func() { b.storage.Format(request.Device) })
@@ -220,7 +220,7 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 	var request model.EventTriggerRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		fmt.Printf("parse error: %v", err.Error())
+		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("event is missing")
 	}
 	return "ok", b.eventTrigger.RunEventOnAllApps(request.Event)
@@ -229,7 +229,7 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 	id, err := b.identification.Id()
 	if err != nil {
-		fmt.Printf("parse error: %v", err.Error())
+		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("id is not available")
 	}
 	return id, nil
