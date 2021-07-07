@@ -20,11 +20,17 @@ def pytest_addoption(parser):
     parser.addoption("--device-user", action="store", default="user")
     parser.addoption("--build-number", action="store", default="local")
     parser.addoption("--browser", action="store", default="firefox")
+    parser.addoption("--arch", action="store", default="unset-arch")
 
 
 @pytest.fixture(scope='session')
 def distro(request):
     return request.config.getoption("--distro")
+
+
+@pytest.fixture(scope='session')
+def arch(request):
+    return request.config.getoption("--arch")
 
 
 @pytest.fixture(scope="session")

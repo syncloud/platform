@@ -137,11 +137,11 @@ def test_activate_custom(device, device_host, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
-def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password):
+def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
     response = requests.post('https://{0}/rest/activate/premium'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'domain': 'example.com',
+                                   'domain': '{}-syncloudexample.com'.format(arch),
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text

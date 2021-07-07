@@ -69,6 +69,14 @@ local build(arch) = {
         {
             name: "test-intergation-jessie",
             image: "python:3.9-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
               "./integration/wait-ssh.sh device-jessie",
@@ -76,12 +84,20 @@ local build(arch) = {
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name
+              "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=" + $REDIRECT_USER + " --redirect-password=" + $REDIRECT_PASSWORD
             ]
         },
         {
             name: "test-intergation-buster",
             image: "python:3.9-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
               "./integration/wait-ssh.sh device-buster",
@@ -89,7 +105,7 @@ local build(arch) = {
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name
+              "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=" + $REDIRECT_USER + " --redirect-password=" + $REDIRECT_PASSWORD
             ]
         }
     ] + ( if arch == "arm" then [] else [
@@ -100,7 +116,7 @@ local build(arch) = {
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
