@@ -10,6 +10,7 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
+	"github.com/syncloud/platform/logger"
 	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/snap"
@@ -27,6 +28,9 @@ import (
 )
 
 func main() {
+
+	log.SetFlags(0)
+	log.SetOutput(&logger.Logger{})
 
 	var rootCmd = &cobra.Command{Use: "backend"}
 	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
