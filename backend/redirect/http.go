@@ -12,15 +12,17 @@ func CheckHttpError(status int, body []byte) error {
 	}
 	var redirectResponse Response
 	err := json.Unmarshal(body, &redirectResponse)
+	bodyString := string(body)
 	if err != nil {
 		log.Printf("error parsing redirect response: %v\n", err)
 		return &util.PassThroughJsonError{
 			Message: "Unable to parse Redirect response",
-			Json:    string(body),
+			Json:    bodyString,
 		}
 	}
+	log.Printf("http error: %s\n", bodyString)
 	return &util.PassThroughJsonError{
 		Message: redirectResponse.Message,
-		Json:    string(body),
+		Json:    bodyString,
 	}
 }
