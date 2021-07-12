@@ -19,7 +19,7 @@ export PATH=${PYTHON_DIR}/bin:$PATH
 SNAP_DIR=${DIR}/build/snap
 
 apt update
-apt install -y wget squashfs-tools
+apt install -y wget squashfs-tools dpkg-dev
 
 cp -r ${DIR}/bin/* ${BUILD_DIR}/bin
 
