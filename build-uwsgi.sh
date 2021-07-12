@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ARCH=$(uname -m)
 
 apt update
-apt install -y wget build-essential
+apt install -y wget build-essential libsasl2-dev libldap2-dev libssl-dev
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/platform
