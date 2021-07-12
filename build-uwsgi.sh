@@ -4,7 +4,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ARCH=$(uname -m)
 
 apt update
-apr install -y wget
+apt install -y wget
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/platform
