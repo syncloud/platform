@@ -12,7 +12,7 @@ local build(arch, testUI) = {
     steps: [
         {
             name: "version",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version",
                 "echo " + arch + "-$DRONE_BRANCH > domain"
@@ -45,14 +45,14 @@ local build(arch, testUI) = {
         },
         {
             name: "build uwsgi",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "./build-uwsgi.sh"
             ]
         },
         {
             name: "package",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "VERSION=$(cat version)",
                 "./build.sh $VERSION",
@@ -61,7 +61,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-unit",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "./unit-test.sh",
             ]
