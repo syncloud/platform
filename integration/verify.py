@@ -459,7 +459,7 @@ def test_backup_app(device, artifact_dir, device_host):
     device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
 
     response = session.post(
-        'https://{0}/rest/backup/restore?app=files&file={0}/{1}'.format(device_host, backup['path'], backup['file']),
+        'https://{0}/rest/backup/restore?app=files&file={1}/{2}'.format(device_host, backup['path'], backup['file']),
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),

@@ -1,7 +1,7 @@
 local name = "platform";
 local browser = "firefox";
 
-local build(arch) = {
+local build(arch, testUI) = {
     kind: "pipeline",
     name: arch,
 
@@ -108,7 +108,7 @@ local build(arch) = {
               "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
-    ] + ( if arch == "arm" then [] else [
+    ] + ( if testUI then [
         {
             name: "test-ui-desktop-jessie",
             image: "python:3.9-buster",
@@ -165,7 +165,7 @@ local build(arch) = {
                 path: "/dev/shm"
             }]
         }
-    ]) + [
+    ] else []) + [
         {
             name: "upload",
             image: "python:3.9-buster",
@@ -237,7 +237,7 @@ local build(arch) = {
                 }
             ]
         }
-    ] + if arch == "arm" then [] else [{
+    ] + if testUI then [{
             name: "selenium",
             image: "selenium/standalone-" + browser + ":4.0.0-beta-3-prerelease-20210402",
             volumes: [{
@@ -245,7 +245,7 @@ local build(arch) = {
                 path: "/dev/shm"
             }]
         }
-    ],
+    ] else [],
     volumes: [
         {
             name: "dbus",
@@ -267,6 +267,7 @@ local build(arch) = {
 };
 
 [
-    build("arm"),
-    build("amd64")
+    build("arm", false),
+    build("arm64", true),
+    build("amd64", false)
 ]
