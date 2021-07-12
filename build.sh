@@ -18,6 +18,9 @@ PYTHON_DIR=${BUILD_DIR}/python
 export PATH=${PYTHON_DIR}/bin:$PATH
 SNAP_DIR=${DIR}/build/snap
 
+apt update
+apt install -y wget squashfs-tools
+
 cp -r ${DIR}/bin/* ${BUILD_DIR}/bin
 
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/nginx-${ARCH}.tar.gz
