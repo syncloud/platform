@@ -226,6 +226,12 @@ def test_activation_status_true(device_host):
     assert json.loads(response.text)["activated"], response.text
 
 
+def test_redirect_info(device_host, main_domain):
+    response = requests.get('https://{0}/redirect/info'.format(device_host), allow_redirects=False,
+                            verify=False)
+    assert response.status_code == 200
+    assert json.loads(response.text)["domain"] == main_domain, response.text
+
 def test_unauthorized(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 401

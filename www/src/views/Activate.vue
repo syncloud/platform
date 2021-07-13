@@ -49,7 +49,8 @@
                 <div class="columns">
                   <ul class="price">
                     <li class="header">Free</li>
-                    <li class="description">Syncloud will manage DNS records for [name].syncloud.it domain</li>
+                    <li class="description">Syncloud will manage DNS records for [name].{{ redirect_domain }} domain
+                    </li>
                     <li>
                       <button id="btn_free_domain" class="buttongreen"
                               @click="selectFreeDomain">
@@ -82,22 +83,23 @@
                     </button>
                   </div>
 
-                  <input placeholder="syncloud.it email" class="emailinput" id="email"
+                  <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
                          type="text" v-model="redirectEmail">
                   <div class="alert alert-danger alert90" id="email_alert" style="display: none;"></div>
-                  <input placeholder="syncloud.it password" class="passinput"
+                  <input :placeholder="redirect_domain + ' password'" class="passinput"
                          id="redirect_password" type="password" v-model="redirectPassword">
                   <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
                   <div style=" display: flow-root">
                     <div style="padding-right:10px; float: right">
                       Do not have an account?
-                      <a href="https://syncloud.it" class="btn btn-info" role="button" style="line-height: 10px"
+                      <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
+                         style="line-height: 10px"
                          target="_blank">register</a>
                     </div>
                   </div>
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showCustomDomainHelp" type=button
+                    <button @click="showManagedDomainHelp" type=button
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -105,7 +107,7 @@
 
                   <div id="domain">
                     <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
-                    <span>.syncloud.it</span>
+                    <span>.{{ redirect_domain }}</span>
                   </div>
                   <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
@@ -134,10 +136,10 @@
                     </button>
                   </div>
 
-                  <input placeholder="syncloud.it email" class="emailinput" id="email"
+                  <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
                          type="text" v-model="redirectEmail">
                   <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
-                  <input placeholder="syncloud.it password" class="passinput"
+                  <input :placeholder="redirect_domain + ' password'" class="passinput"
                          id="redirect_password" type="password" v-model="redirectPassword">
                   <div class="alert alert-danger alert90" id="redirect_password_alert"
                        style="display: none;"></div>
@@ -151,7 +153,8 @@
                   </div>
                   <div id="domain">
                     <input placeholder="Top level domain like example.com"
-                           class="domain" id="domain_premium" type="text" style="width:100% !important;" v-model="domain">
+                           class="domain" id="domain_premium" type="text" style="width:100% !important;"
+                           v-model="domain">
                   </div>
                   <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
@@ -231,12 +234,13 @@
     </template>
   </Dialog>
 
-  <Dialog ref="help_syncloud_account">
+  <Dialog ref="help_free_account">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
-      Free Syncloud account name service (DNS) for device names at <b>syncloud.it</b>.
+      Free Syncloud account name service (DNS) for device names at <b>{{ redirect_domain }}</b>.
       <br>
-      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an
+      You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
+                     target="_blank">register</a> an
       account to control one or more
       device names.
       <br>
@@ -252,7 +256,8 @@
     <template v-slot:text>
       Premium Syncloud account name service (DNS) for personal domain name management (like example.com).
       <br>
-      You need to <a href="https://syncloud.it" class="btn btn-info" role="button" target="_blank">register</a> an
+      You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
+                     target="_blank">register</a> an
       account to control one or more
       device names. Then request a premium plan in your Account services.
       <br>
@@ -303,6 +308,7 @@ export default {
       redirectEmail: '',
       redirectPassword: '',
       domain: '',
+      redirect_domain: 'syncloud.it',
       deviceUsername: '',
       devicePassword: '',
       stepper: Stepper
@@ -310,6 +316,14 @@ export default {
   },
   mounted () {
     this.stepper = new Stepper(document.querySelector('.bs-stepper'))
+    axios
+      .get('/rest/redirect/info')
+      .then(response => {
+        this.redirect_domain = response.data.domain
+      })
+      .catch(err => {
+        this.$refs.error.showAxios(err)
+      })
   },
   methods: {
     progressShow () {
@@ -341,7 +355,7 @@ export default {
         .post('/rest/activate/free', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
-          domain: this.domain,
+          domain: this.domain + '.' + this.redirect_domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword
         })

@@ -122,6 +122,6 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	activationCustom := activation.NewCustom(&connection.Internet{}, userConfig, redirectService, device)
 	activate := rest.NewActivateBackend(activationFree, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-		installerService, storageService, redirectUrl, id, activate), nil
+		installerService, storageService, redirectUrl, id, activate, userConfig), nil
 
 }

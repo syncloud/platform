@@ -1,5 +1,9 @@
 package model
 
+type RedirectInfoResponse struct {
+	Domain string `json:"domain"`
+}
+
 type BackupCreateRequest struct {
 	App string `json:"app"`
 }

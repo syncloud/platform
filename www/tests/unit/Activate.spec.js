@@ -34,6 +34,12 @@ test('Activate free domain', async () => {
   mock.onPost('/rest/redirect/domain/availability').reply(200, {
     message: 'ok'
   })
+  mock.onGet('/rest/redirect/info').reply(200,
+    {
+      domain: 'test.com'
+    }
+  )
+
   const wrapper = mount(Activate,
     {
       attachTo: document.body,
@@ -70,7 +76,7 @@ test('Activate free domain', async () => {
   expect(showError).toHaveBeenCalledTimes(0)
   expect(redirectEmail).toBe('r email')
   expect(redirectPassword).toBe('r password')
-  expect(domain).toBe('domain')
+  expect(domain).toBe('domain.test.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
   expect(reloaded).toBe(true)

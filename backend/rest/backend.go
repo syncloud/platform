@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
@@ -31,6 +32,7 @@ type Backend struct {
 	redirectProxy  *httputil.ReverseProxy
 	identification *identification.Parser
 	activate       *Activate
+	userConfig     *config.UserConfig
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -38,7 +40,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	redirect *redirect.Service, installerService *installer.Installer,
 	storageService *storage.Storage, redirectUrl *url.URL,
 	identification *identification.Parser,
-	activate *Activate,
+	activate *Activate, userConfig *config.UserConfig,
 ) *Backend {
 
 	return &Backend{
@@ -52,6 +54,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		redirectProxy:  NewReverseProxy(redirectUrl),
 		identification: identification,
 		activate:       activate,
+		userConfig:     userConfig,
 	}
 }
 
@@ -86,7 +89,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/activate/premium", Handle(b.activate.Premium)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
-	r.PathPrefix("/redirect").Handler(http.StripPrefix("/redirect", b.redirectProxy))
+	r.HandleFunc("/redirect/info", Handle(b.RedirectInfo)).Methods("GET")
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.redirectProxy))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -224,6 +228,13 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 		return nil, errors.New("event is missing")
 	}
 	return "ok", b.eventTrigger.RunEventOnAllApps(request.Event)
+}
+
+func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
+	response := &model.RedirectInfoResponse{
+		Domain: b.userConfig.GetRedirectDomain(),
+	}
+	return response, nil
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {
