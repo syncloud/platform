@@ -17,11 +17,7 @@ test('Activate free domain', async () => {
   const mockRouter = { push: jest.fn() }
   let reloaded = false
   delete window.location
-  window.location = {
-    reload (resetCache) {
-      reloaded = true
-    }
-  }
+  window.location = ''
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate/free').reply(function (config) {
     const request = JSON.parse(config.data)
@@ -81,7 +77,7 @@ test('Activate free domain', async () => {
   expect(domain).toBe('domain.test.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(reloaded).toBe(true)
+  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
 
   wrapper.unmount()
 })
@@ -202,11 +198,7 @@ test('Activate custom domain', async () => {
   const mockRouter = { push: jest.fn() }
   let reloaded = false
   delete window.location
-  window.location = {
-    reload (resetCache) {
-      reloaded = true
-    }
-  }
+  window.location = ''
 
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate/custom').reply(function (config) {
@@ -260,7 +252,7 @@ test('Activate custom domain', async () => {
   expect(domain).toBe('domain')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(reloaded).toBe(true)
+  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
   expect(availabilityCalled).toBe(false)
 
   wrapper.unmount()
@@ -277,11 +269,7 @@ test('Activate premium domain', async () => {
   const mockRouter = { push: jest.fn() }
   let reloaded = false
   delete window.location
-  window.location = {
-    reload (resetCache) {
-      reloaded = true
-    }
-  }
+  window.location = ''
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate/premium').reply(function (config) {
     const request = JSON.parse(config.data)
@@ -340,7 +328,7 @@ test('Activate premium domain', async () => {
   expect(domain).toBe('example.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(reloaded).toBe(true)
+  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
   expect(availabilityDomain).toBe('example.com')
 
   wrapper.unmount()
