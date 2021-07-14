@@ -233,6 +233,13 @@ def test_activation_status_true(device_host):
     assert json.loads(response.text)["activated"], response.text
 
 
+def test_device_url(device_host, domain):
+    response = requests.get('https://{0}/rest/device_url'.format(device_host), allow_redirects=False,
+                            verify=False)
+    assert response.status_code == 200
+    assert json.loads(response.text)["device_url"] == 'https://{}'.format(domain), response.text
+
+
 def test_unauthorized(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 401
