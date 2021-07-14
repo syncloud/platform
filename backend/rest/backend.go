@@ -231,6 +231,7 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
+  fmt.Printf("redirect info\n")
 	response := &model.RedirectInfoResponse{
 		Domain: b.userConfig.GetRedirectDomain(),
 	}
