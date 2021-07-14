@@ -37,8 +37,8 @@ import 'bootstrap-switch'
 export default {
   name: 'Activation',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {
@@ -63,7 +63,7 @@ export default {
       axios
         .post('/rest/settings/deactivate')
         .then(_ => {
-          this.onLogout()
+          this.checkUserSession()
         })
         .catch(err => {
           this.$refs.error.showAxios(err)

@@ -28,8 +28,8 @@ import $ from 'jquery'
 export default {
   name: 'AppCenter',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {

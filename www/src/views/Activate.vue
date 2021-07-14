@@ -294,8 +294,8 @@ import Dialog from '@/components/Dialog'
 export default {
   name: 'Activate',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   components: {
     Dialog,
@@ -316,14 +316,16 @@ export default {
   },
   mounted () {
     this.stepper = new Stepper(document.querySelector('.bs-stepper'))
-    axios
-      .get('/rest/redirect_info')
-      .then(response => {
-        this.redirect_domain = response.data.data.domain
-      })
-      .catch(err => {
-        this.$refs.error.showAxios(err)
-      })
+    if (!this.activated) {
+      axios
+        .get('/rest/redirect_info')
+        .then(response => {
+          this.redirect_domain = response.data.data.domain
+        })
+        .catch(err => {
+          this.$refs.error.showAxios(err)
+        })
+    }
   },
   methods: {
     progressShow () {
@@ -348,7 +350,7 @@ export default {
       }
     },
     forceCertificateRecheck () {
-      window.location.reload(true)
+      window.location = '/?t=' + (new Date()).getTime()
     },
     activateFreeDomain () {
       axios

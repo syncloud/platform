@@ -29,6 +29,10 @@ import $ from 'jquery'
 
 export default {
   name: 'Apps',
+  props: {
+    checkUserSession: Function,
+    activated: Boolean
+  },
   components: {
     Error
   },

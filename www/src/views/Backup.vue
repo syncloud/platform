@@ -65,8 +65,8 @@ import * as Common from '../js/common.js'
 export default {
   name: 'Backup',
   props: {
-    onLogout: Function,
-    onLogin: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {

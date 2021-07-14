@@ -70,7 +70,11 @@
 
 <script>
 export default {
-  name: 'Settings'
+  name: 'Settings',
+  props: {
+    checkUserSession: Function,
+    activated: Boolean
+  }
 }
 </script>
 <style>

@@ -65,8 +65,8 @@ export default {
     Error
   },
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {

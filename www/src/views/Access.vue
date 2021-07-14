@@ -186,8 +186,8 @@ function error (message) {
 export default {
   name: 'Access',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {

@@ -25,7 +25,8 @@ test('Login', async () => {
     {
       attachTo: document.body,
       props: {
-        onLogin: jest.fn()
+        checkUserSession: jest.fn(),
+        activated: true
       },
       global: {
         stubs: {

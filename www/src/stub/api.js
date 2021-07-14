@@ -466,7 +466,11 @@ const mock = function (app, server, compiler) {
     }
   })
   app.get('/rest/redirect_info', function (req, res) {
-    res.json({ success: true, data: { domain: 'test.com' } })
+    if (state.activated) {
+      res.status(502).json({ message: 'Device is activated' })
+    } else {
+      res.json({ success: true, data: { domain: 'test.com' } })
+    }
   })
 }
 
