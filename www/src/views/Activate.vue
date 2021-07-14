@@ -319,7 +319,7 @@ export default {
     axios
       .get('/rest/redirect_info')
       .then(response => {
-        this.redirect_domain = response.data.domain
+        this.redirect_domain = response.data.data.domain
       })
       .catch(err => {
         this.$refs.error.showAxios(err)

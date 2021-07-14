@@ -466,7 +466,7 @@ const mock = function (app, server, compiler) {
     }
   })
   app.get('/rest/redirect_info', function (req, res) {
-    res.json({ domain: 'test.com' })
+    res.json({ success: true, data: { domain: 'test.com' } })
   })
 }
 
