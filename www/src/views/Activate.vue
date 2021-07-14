@@ -317,7 +317,7 @@ export default {
   mounted () {
     this.stepper = new Stepper(document.querySelector('.bs-stepper'))
     axios
-      .get('/rest/redirect/info')
+      .get('/rest/redirect_info')
       .then(response => {
         this.redirect_domain = response.data.domain
       })

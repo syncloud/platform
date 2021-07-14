@@ -34,7 +34,7 @@ test('Activate free domain', async () => {
   mock.onPost('/rest/redirect/domain/availability').reply(200, {
     message: 'ok'
   })
-  mock.onGet('/rest/redirect/info').reply(200, { domain: 'test.com' })
+  mock.onGet('/rest/redirect_info').reply(200, { domain: 'test.com' })
 
   const wrapper = mount(Activate,
     {
@@ -95,7 +95,7 @@ test('Activate free domain error', async () => {
   mock.onPost('/rest/redirect/domain/availability').reply(200, {
     message: 'ok'
   })
-  mock.onGet('/rest/redirect/info').reply(200, { domain: 'test.com' })
+  mock.onGet('/rest/redirect_info').reply(200, { domain: 'test.com' })
 
   const wrapper = mount(Activate,
     {
@@ -152,7 +152,7 @@ test('Activate free domain availability error', async () => {
         { parameter: 'domain', messages: ['domain is already taken'] }
       ]
   })
-  mock.onGet('/rest/redirect/info').reply(200, { domain: 'test.com' })
+  mock.onGet('/rest/redirect_info').reply(200, { domain: 'test.com' })
 
   const wrapper = mount(Activate,
     {
@@ -216,7 +216,7 @@ test('Activate custom domain', async () => {
     availabilityCalled = true
     return [200, { success: true }]
   })
-  mock.onGet('/rest/redirect/info').reply(200, { domain: 'test.com' })
+  mock.onGet('/rest/redirect_info').reply(200, { domain: 'test.com' })
 
   const wrapper = mount(Activate,
     {
@@ -288,7 +288,7 @@ test('Activate premium domain', async () => {
   mock.onPost('/rest/redirect/domain/availability').reply(200, {
     message: 'ok'
   })
-  mock.onGet('/rest/redirect/info').reply(200, { domain: 'test.com' })
+  mock.onGet('/rest/redirect_info').reply(200, { domain: 'test.com' })
 
   const wrapper = mount(Activate,
     {

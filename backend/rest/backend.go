@@ -89,7 +89,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/activate/premium", Handle(b.activate.Premium)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
-	r.HandleFunc("/redirect/info", Handle(b.RedirectInfo)).Methods("GET")
+	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.redirectProxy))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 

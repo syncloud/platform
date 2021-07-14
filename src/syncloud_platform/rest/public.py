@@ -286,7 +286,7 @@ def backend_proxy_activated():
 
 
 @app.route("/rest/redirect/domain/availability", methods=["POST"])
-@app.route("/rest/redirect/info", methods=["GET"])
+@app.route("/rest/redirect_info", methods=["GET"])
 @app.route("/rest/activate/free", methods=["POST"])
 @app.route("/rest/activate/custom", methods=["POST"])
 @app.route("/rest/activate/premium", methods=["POST"])
