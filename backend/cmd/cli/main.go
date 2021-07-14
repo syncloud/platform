@@ -1,16 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
+	"github.com/syncloud/platform/logger"
 	"github.com/syncloud/platform/network"
 	"log"
 	"net"
 )
 
 func main() {
+
+	log.SetFlags(0)
+	log.SetOutput(&logger.Logger{})
 
 	var cmdIpv4 = &cobra.Command{
 		Use:   "ipv4 [public]",
@@ -21,7 +24,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Print(ip.String())
+			log.Print(ip.String())
 		},
 	}
 	var cmdIpv4public = &cobra.Command{
@@ -33,7 +36,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Print(ip)
+			log.Print(ip)
 		},
 	}
 	cmdIpv4.AddCommand(cmdIpv4public)
@@ -47,7 +50,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Print(ip.String())
+			log.Print(ip.String())
 		},
 	}
 	var prefixSize int
@@ -60,7 +63,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Printf("%v/%v", ip.Mask(net.CIDRMask(prefixSize, 128)), prefixSize)
+			log.Printf("%v/%v", ip.Mask(net.CIDRMask(prefixSize, 128)), prefixSize)
 		},
 	}
 	cmdIpv6prefix.Flags().IntVarP(&prefixSize, "size", "s", 64, "Prefix size")
@@ -85,7 +88,7 @@ func main() {
 			key := args[0]
 			value := args[1]
 			configuration.Upsert(key, value)
-			fmt.Printf("set config: %s, key: %s, value: %s\n", configFile, key, value)
+			log.Printf("set config: %s, key: %s, value: %s\n", configFile, key, value)
 		},
 	}
 	cmdConfig.AddCommand(cmdConfigSet)
@@ -99,7 +102,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(configuration.Get(args[0], ""))
+			log.Println(configuration.Get(args[0], ""))
 		},
 	}
 	cmdConfig.AddCommand(cmdConfigGet)
