@@ -12,6 +12,7 @@ test('Activate free domain', async () => {
   let domain = ''
   let deviceUsername = ''
   let devicePassword = ''
+  let availabilityDomain = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
   let reloaded = false
@@ -31,8 +32,12 @@ test('Activate free domain', async () => {
     devicePassword = request.device_password
     return [200, { success: true }]
   })
-  mock.onPost('/rest/redirect/domain/availability').reply(200, {
-    message: 'ok'
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    const request = JSON.parse(config.data)
+    availabilityDomain = request.domain
+    redirectEmail = request.email
+    redirectPassword = request.password
+    return [200, { success: true }]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
 
@@ -70,6 +75,7 @@ test('Activate free domain', async () => {
   await flushPromises()
 
   expect(showError).toHaveBeenCalledTimes(0)
+  expect(availabilityDomain).toBe('domain.test.com')
   expect(redirectEmail).toBe('r email')
   expect(redirectPassword).toBe('r password')
   expect(domain).toBe('domain.test.com')
@@ -266,6 +272,7 @@ test('Activate premium domain', async () => {
   let domain = ''
   let deviceUsername = ''
   let devicePassword = ''
+  let availabilityDomain = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
   let reloaded = false
@@ -285,8 +292,12 @@ test('Activate premium domain', async () => {
     devicePassword = request.device_password
     return [200, { success: true }]
   })
-  mock.onPost('/rest/redirect/domain/availability').reply(200, {
-    message: 'ok'
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    const request = JSON.parse(config.data)
+    availabilityDomain = request.domain
+    redirectEmail = request.email
+    redirectPassword = request.password
+    return [200, { success: true }]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
 
@@ -330,6 +341,7 @@ test('Activate premium domain', async () => {
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
   expect(reloaded).toBe(true)
+  expect(availabilityDomain).toBe('example.com')
 
   wrapper.unmount()
 })

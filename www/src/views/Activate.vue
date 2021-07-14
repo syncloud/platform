@@ -355,7 +355,7 @@ export default {
         .post('/rest/activate/free', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
-          domain: this.domain + '.' + this.redirect_domain,
+          domain: this.fullDomain(),
           device_username: this.deviceUsername,
           device_password: this.devicePassword
         })
@@ -427,6 +427,12 @@ export default {
         this.domainAvailability()
       }
     },
+    fullDomain () {
+      if (this.domainType === 'free') {
+        return this.domain + '.' + this.redirect_domain
+      }
+      return this.domain
+    },
     domainAvailability () {
       this.progressShow()
       axios
@@ -434,7 +440,7 @@ export default {
           {
             email: this.redirectEmail,
             password: this.redirectPassword,
-            domain: this.domain
+            domain: this.fullDomain()
           })
         .then(response => {
           this.stepper.next()
