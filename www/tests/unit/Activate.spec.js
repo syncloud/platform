@@ -15,7 +15,6 @@ test('Activate free domain', async () => {
   let availabilityDomain = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
-  let reloaded = false
   delete window.location
   window.location = ''
   const mock = new MockAdapter(axios)
@@ -196,7 +195,6 @@ test('Activate custom domain', async () => {
   let devicePassword = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
-  let reloaded = false
   delete window.location
   window.location = ''
 
@@ -267,7 +265,6 @@ test('Activate premium domain', async () => {
   let availabilityDomain = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
-  let reloaded = false
   delete window.location
   window.location = ''
   const mock = new MockAdapter(axios)
