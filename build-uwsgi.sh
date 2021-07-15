@@ -13,7 +13,7 @@ export PATH=${PYTHON_DIR}/bin:$PATH
 
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python3-${ARCH}.tar.gz
 tar xf python3-${ARCH}.tar.gz
-mv python3 ${BUILD_DIR}
+mv python3 ${BUILD_DIR}/python
 
 cd ${DIR}
 export UWSGI_PROFILE_OVERRIDE=ssl=false
