@@ -85,9 +85,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
-	r.HandleFunc("/activate/free", Handle(b.activate.Free)).Methods("POST")
+	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
-	r.HandleFunc("/activate/premium", Handle(b.activate.Premium)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.redirectProxy))
@@ -231,7 +230,7 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
-  fmt.Printf("redirect info\n")
+	fmt.Printf("redirect info\n")
 	response := &model.RedirectInfoResponse{
 		Domain: b.userConfig.GetRedirectDomain(),
 	}

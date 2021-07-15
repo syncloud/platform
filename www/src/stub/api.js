@@ -435,7 +435,7 @@ const mock = function (app, server, compiler) {
   app.post('/rest/send_log', function (req, res) {
     res.json({ success: true })
   })
-  app.post('/rest/activate/free', function (req, res) {
+  app.post('/rest/activate/managed', function (req, res) {
     state.activated = true
     res.json({ success: true })
     // res.status(500).json({

@@ -7,21 +7,12 @@ import (
 	"net/http"
 )
 
-type ManagedActivation interface {
-	Free(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error
-	Premium(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error
-}
-
-type CustomActivation interface {
-	Activate(requestDomain string, deviceUsername string, devicePassword string) error
-}
-
 type Activate struct {
-	managed ManagedActivation
-	custom  CustomActivation
+	managed activation.ManagedActivation
+	custom  activation.CustomActivation
 }
 
-func NewActivateBackend(managed ManagedActivation, custom CustomActivation) *Activate {
+func NewActivateBackend(managed activation.ManagedActivation, custom activation.CustomActivation) *Activate {
 	return &Activate{
 		managed: managed,
 		custom:  custom,
@@ -41,7 +32,7 @@ func (a *Activate) Custom(req *http.Request) (interface{}, error) {
 	return "ok", a.custom.Activate(request.Domain, request.DeviceUsername, request.DevicePassword)
 }
 
-func (a *Activate) Free(req *http.Request) (interface{}, error) {
+func (a *Activate) Managed(req *http.Request) (interface{}, error) {
 	var request activation.ManagedActivateRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
@@ -51,20 +42,7 @@ func (a *Activate) Free(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return "ok", a.managed.Free(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
-}
-
-func (a *Activate) Premium(req *http.Request) (interface{}, error) {
-	var request activation.ManagedActivateRequest
-	err := json.NewDecoder(req.Body).Decode(&request)
-	if err != nil {
-		return nil, err
-	}
-	err = validate(request.DeviceUsername, request.DevicePassword)
-	if err != nil {
-		return nil, err
-	}
-	return "ok", a.managed.Premium(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
+	return "ok", a.managed.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
 }
 
 func validate(username string, password string) error {

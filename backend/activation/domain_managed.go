@@ -1,11 +1,9 @@
 package activation
 
 import (
-	"fmt"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"log"
-	"strings"
 )
 
 type ManagedActivateRequest struct {
@@ -31,6 +29,10 @@ type ManagedRedirect interface {
 	Reset(updateToken string) error
 }
 
+type ManagedActivation interface {
+	Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error
+}
+
 type Managed struct {
 	internet connection.Checker
 	config   ManagedPlatformUserConfig
@@ -47,16 +49,7 @@ func NewFree(internet connection.Checker, config ManagedPlatformUserConfig, redi
 	}
 }
 
-func (f *Managed) Free(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
-	domain := fmt.Sprintf("%s.%s", strings.ToLower(requestDomain), f.config.GetRedirectDomain())
-	return f.activate(redirectEmail, redirectPassword, domain, deviceUsername, devicePassword)
-}
-
-func (f *Managed) Premium(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
-	return f.activate(redirectEmail, redirectPassword, domain, deviceUsername, devicePassword)
-}
-
-func (f *Managed) activate(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
+func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
 	log.Printf("activate: %s", domain)
 
 	err := f.internet.Check()

@@ -138,7 +138,7 @@ def test_activate_custom(device, device_host, main_domain):
 
 
 def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
-    response = requests.post('https://{0}/rest/activate/premium'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'domain': '{}-syncloudexample.com'.format(arch),
@@ -151,7 +151,7 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
 
 
 def test_activate_device(device_host, domain, redirect_user, redirect_password):
-    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'domain': domain,
@@ -162,7 +162,7 @@ def test_activate_device(device_host, domain, redirect_user, redirect_password):
 
 def test_reactivate_activated_device(device_host, domain, device_user, device_password,
                                      redirect_user, redirect_password):
-    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'domain': domain,
@@ -179,7 +179,7 @@ def test_drop_activation(device, main_domain):
 
 def test_reactivate_good(device_host, domain, device_user, device_password,
                          redirect_user, redirect_password, device):
-    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'domain': domain,
@@ -214,7 +214,7 @@ def test_redirect_info(device_host, main_domain):
 
 def test_reactivate_after_deactivate(device_host, domain, device_user, device_password,
                                      redirect_user, redirect_password, device):
-    response = requests.post('https://{0}/rest/activate/free'.format(device_host),
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
                                    'domain': domain,

@@ -354,7 +354,7 @@ export default {
     },
     activateFreeDomain () {
       axios
-        .post('/rest/activate/free', {
+        .post('/rest/activate/managed', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
           domain: this.fullDomain(),
@@ -369,7 +369,7 @@ export default {
     },
     activatePremiumDomain () {
       axios
-        .post('/rest/activate/premium', {
+        .post('/rest/activate/managed', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
           domain: this.domain,

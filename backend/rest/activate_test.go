@@ -15,7 +15,7 @@ type ManagedActivationStub struct {
 	error bool
 }
 
-func (a *ManagedActivationStub) Free(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
+func (a *ManagedActivationStub) Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
 	if a.error {
 		return fmt.Errorf("error")
 	}
@@ -74,7 +74,7 @@ func TestActivate_FreeLoginShort(t *testing.T) {
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
-	message, err := activate.Free(req)
+	message, err := activate.Managed(req)
 	assert.Nil(t, message)
 	assert.NotNil(t, err)
 }
@@ -85,7 +85,7 @@ func TestActivate_FreePasswordShort(t *testing.T) {
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
-	message, err := activate.Free(req)
+	message, err := activate.Managed(req)
 	assert.Nil(t, message)
 	assert.NotNil(t, err)
 }
@@ -96,7 +96,7 @@ func TestActivate_FreeGood(t *testing.T) {
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
-	message, err := activate.Free(req)
+	message, err := activate.Managed(req)
 	assert.Equal(t, "ok", message)
 	assert.Nil(t, err)
 }
@@ -108,6 +108,6 @@ func TestActivate_FreeRedirectError(t *testing.T) {
 	body, err := json.Marshal(request)
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
-	_, err = activate.Free(req)
+	_, err = activate.Managed(req)
 	assert.NotNil(t, err)
 }

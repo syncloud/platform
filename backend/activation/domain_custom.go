@@ -22,6 +22,10 @@ type CustomPlatformUserConfig interface {
 	SetCustomDomain(domain string)
 }
 
+type CustomActivation interface {
+	Activate(requestDomain string, deviceUsername string, devicePassword string) error
+}
+
 type Custom struct {
 	internet connection.Checker
 	config   CustomPlatformUserConfig
