@@ -27,6 +27,11 @@ def arch(request):
     return request.config.getoption("--arch")
 
 
+@pytest.fixture(scope='session')
+def full_domain(domain, main_domain):
+    return '{}.{}'.format(domain, main_domain)
+
+
 @pytest.fixture(scope="session")
 def artifact_dir(project_dir, distro):
     dir = join(project_dir, 'artifact', distro)

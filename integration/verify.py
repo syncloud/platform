@@ -160,12 +160,12 @@ def test_activate_device(device_host, domain, redirect_user, redirect_password):
     assert response.status_code == 200, response.text
 
 
-def test_reactivate_activated_device(device_host, domain, device_user, device_password,
+def test_reactivate_activated_device(device_host, full_domain, device_user, device_password,
                                      redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'domain': domain,
+                                   'domain': full_domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, allow_redirects=False, verify=False)
     assert response.status_code == 502, response.text
@@ -177,12 +177,12 @@ def test_drop_activation(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
-def test_reactivate_good(device_host, domain, device_user, device_password,
+def test_reactivate_good(device_host, full_domain, device_user, device_password,
                          redirect_user, redirect_password, device):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'domain': domain,
+                                   'domain': full_domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200
@@ -212,12 +212,12 @@ def test_redirect_info(device_host, main_domain):
     assert json.loads(response.text)['data']["domain"] == main_domain, response.text
 
 
-def test_reactivate_after_deactivate(device_host, domain, device_user, device_password,
+def test_reactivate_after_deactivate(device_host, full_domain, device_user, device_password,
                                      redirect_user, redirect_password, device):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'domain': domain,
+                                   'domain': full_domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200
@@ -231,13 +231,6 @@ def test_activation_status_true(device_host):
                             verify=False)
     assert response.status_code == 200
     assert json.loads(response.text)["activated"], response.text
-
-
-def test_device_url(device_host, domain):
-    response = requests.get('https://{0}/rest/device_url'.format(device_host), allow_redirects=False,
-                            verify=False)
-    assert response.status_code == 200
-    assert json.loads(response.text)["device_url"] == 'https://{}'.format(domain), response.text
 
 
 def test_unauthorized(device_host):
@@ -349,12 +342,13 @@ def test_available_apps(device, device_host, artifact_dir):
     assert len(json.loads(response.text)['apps']) > 1
 
 
-def test_device_url(device, device_host, artifact_dir):
+def test_device_url(device, device_host, artifact_dir, full_domain):
     response = device.login().get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
     with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
+    assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
 
 def test_api_url_443(device, device_host, app_domain):
