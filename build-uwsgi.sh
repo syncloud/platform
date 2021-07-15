@@ -11,7 +11,7 @@ BUILD_DIR=${DIR}/build/platform
 PYTHON_DIR=${BUILD_DIR}/python
 export PATH=${PYTHON_DIR}/bin:$PATH
 
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/python3/python-${ARCH}.tar.gz
+wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python1-${ARCH}.tar.gz
 tar xf python-${ARCH}.tar.gz
 mv python ${BUILD_DIR}
 
