@@ -1,26 +1,16 @@
 package job
 
 import (
-	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/installer"
-	"github.com/syncloud/platform/storage"
 	"log"
 	"time"
 )
 
 type Worker struct {
-	backup    backup.AppBackup
-	installer installer.AppInstaller
-	storage   storage.DiskStorage
-	master    JobMaster
+	master JobMaster
 }
 
-func NewWorker(
-	master JobMaster,
-	backup backup.AppBackup,
-	installer installer.AppInstaller,
-	storage storage.DiskStorage) *Worker {
-	return &Worker{backup, installer, storage, master}
+func NewWorker(master JobMaster) *Worker {
+	return &Worker{master}
 }
 
 func (worker *Worker) Start() {
@@ -36,23 +26,10 @@ func (worker *Worker) Do() bool {
 	if err != nil {
 		return false
 	}
-	switch jobtype := job.(type) {
-	case JobBackupCreate:
-		v := job.(JobBackupCreate)
-		worker.backup.Create(v.App)
-	case JobBackupRestore:
-		v := job.(JobBackupRestore)
-		worker.backup.Restore(v.File)
-	case JobInstallerUpgrade:
-		worker.installer.Upgrade()
-	case JobStorageFormat:
-		v := job.(JobStorageFormat)
-		worker.storage.Format(v.Device)
-	case JobStorageBootExtend:
-		worker.storage.BootExtend()
-	default:
-		log.Println("not supported job type", jobtype)
+	job()
+	err = worker.master.Complete()
+	if err != nil {
+		log.Println("error: ", err)
 	}
-	worker.master.Complete()
 	return true
 }

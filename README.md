@@ -31,7 +31,7 @@ Install [Node.js](https://nodejs.org/en/download)
 ````
 cd www
 npm install
-npm start
+npm serve
 ````
 
 ### Building a package locally

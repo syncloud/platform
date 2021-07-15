@@ -129,8 +129,8 @@ import 'gasparesganga-jquery-loading-overlay'
 export default {
   name: 'App',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {

@@ -14,7 +14,7 @@ func TestIPv4(t *testing.T) {
 
 func TestIPv6(t *testing.T) {
 
-	ip, err := LocalIPv6()
+	ip, err := IPv6()
 
 	assert.True(t, err != nil || ip != nil)
 }

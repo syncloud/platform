@@ -37,22 +37,6 @@ class RedirectService:
 
         return user
 
-    def acquire(self, email, password, user_domain):
-        device_id = id.id()
-        data = {
-            'email': email,
-            'password': password,
-            'user_domain': user_domain,
-            'device_mac_address': device_id.mac_address,
-            'device_name': device_id.name,
-            'device_title': device_id.title,
-        }
-        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/acquire")
-        response = requests.post(url, data)
-        util.check_http_error(response)
-        response_data = convertible.from_json(response.text)
-        return response_data
-        
     def sync(self, external_ip, web_port, web_local_port, web_protocol, update_token, external_access):
         
         map_local_address = not external_access
@@ -96,7 +80,7 @@ class RedirectService:
 
         url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
 
-        self.logger.debug('url: ' + url)
+        self.logger.info('url: ' + url)
         json = convertible.to_json(data)
         self.logger.info('request: ' + json)
         response = requests.post(url, json)

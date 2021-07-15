@@ -65,8 +65,8 @@ import * as Common from '../js/common.js'
 export default {
   name: 'Backup',
   props: {
-    onLogout: Function,
-    onLogin: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {
@@ -130,7 +130,6 @@ export default {
     const eGridDiv = document.querySelector('#backupGrid')
     eGridDiv.innerHTML = ''
     this.grid = new Grid(eGridDiv, this.gridOptions)
-    console.log('grid')
     this.reload()
   },
   methods: {

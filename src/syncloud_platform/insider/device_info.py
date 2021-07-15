@@ -18,15 +18,21 @@ class DeviceInfo:
         self.user_platform_config = user_platform_config
 
     def domain(self):
+        domain = 'localhost'
+
         if self.user_platform_config.is_redirect_enabled():
-            user_domain = self.user_platform_config.get_user_domain()
-            if user_domain is not None:
-                return '{0}.{1}'.format(user_domain, self.user_platform_config.get_redirect_domain())
+            full_domain = self.user_platform_config.get_domain()
+            if full_domain is not None:
+                domain = full_domain
             else:
-                return None
+                user_domain = self.user_platform_config.get_user_domain()
+                if user_domain is not None:
+                    domain = '{0}.{1}'.format(user_domain, self.user_platform_config.get_redirect_domain())
         else:
-            return self.user_platform_config.get_custom_domain()
- 
+            custom = self.user_platform_config.get_custom_domain()
+            if custom:
+                domain = custom
+        return domain
 
     def app_domain(self, app_name):
         return '{0}.{1}'.format(app_name, self.domain())

@@ -13,14 +13,11 @@ from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.flask_decorators import nocache, fail_if_not_activated, fail_if_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
-from syncloud_platform.gaplib import linux
 from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
-from syncloud_platform.rest.internal_validator import InternalValidator
 
 injector = get_injector()
 public = injector.public
-internal = injector.internal
 device = injector.device
 
 app = Flask(__name__)
@@ -34,62 +31,12 @@ def _callback():
     return 'Unauthorised', 401
 
 
-@app.route("/rest/id", methods=["GET"])
-def identification():
-    return jsonify(success=True, message='', data=convertible.to_dict(internal.identification())), 200
-
-
 @app.route("/rest/activation_status", methods=["GET"])
 def activation_status():
     try:
         return jsonify(activated=get_injector().user_platform_config.is_activated()), 200
     except Exception as e:
         return jsonify(activated=False), 200
-
-
-@app.route("/rest/activate", methods=["POST"])
-@fail_if_activated
-def activate():
-
-    request_json = request.json
-    device_username = request_json['device_username'].lower()
-    device_password = request_json['device_password']
-        
-    validator = InternalValidator()
-    validator.validate(device_username, device_password)
-    
-    main_domain = 'syncloud.it'
-    if 'main_domain' in request_json:
-        main_domain = request_json['main_domain']
-
-    internal.activate(
-        request_json['redirect_email'],
-        request_json['redirect_password'],
-        request_json['user_domain'],
-        device_username,
-        device_password,
-        main_domain
-    )
-    return identification()
-
-
-@app.route("/rest/activate_custom_domain", methods=["POST"])
-@fail_if_activated
-def activate_custom_domain():
-
-    request_json = request.json
-    device_username = request_json['device_username'].lower()
-    device_password = request_json['device_password']
-        
-    validator = InternalValidator()
-    validator.validate(device_username, device_password)
-
-    internal.activate_custom_domain(
-        request_json['full_domain'],
-        device_username,
-        device_password,
-    )
-    return identification()
 
 
 @login_manager.user_loader
@@ -333,8 +280,24 @@ def app_image():
 @app.route("/rest/event/trigger", methods=["POST"])
 @fail_if_not_activated
 @login_required
-def backend_proxy():
+def backend_proxy_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
+    return response.text, response.status_code
+
+
+@app.route("/rest/redirect/domain/availability", methods=["POST"])
+@app.route("/rest/redirect_info", methods=["GET"])
+@app.route("/rest/activate/managed", methods=["POST"])
+@app.route("/rest/activate/custom", methods=["POST"])
+@fail_if_activated
+def backend_proxy_not_activated():
+    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
+    return response.text, response.status_code
+
+
+@app.route("/rest/id", methods=["GET"])
+def identification():
+    response = backend_request("GET", "/id", None)
     return response.text, response.status_code
 
 

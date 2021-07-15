@@ -1,8 +1,9 @@
 local name = "platform";
+local browser = "firefox";
 
-local build(arch, distro) = {
+local build(arch, testUI) = {
     kind: "pipeline",
-    name: arch + " " + distro,
+    name: arch,
 
     platform: {
         os: "linux",
@@ -11,7 +12,7 @@ local build(arch, distro) = {
     steps: [
         {
             name: "version",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version",
                 "echo " + arch + "-$DRONE_BRANCH > domain"
@@ -19,7 +20,7 @@ local build(arch, distro) = {
         },
         {
             name: "build web",
-            image: "node",
+            image: "node:16.1.0",
             commands: [
                 "mkdir -p build/platform",
                 "cd www",
@@ -32,24 +33,26 @@ local build(arch, distro) = {
         },
         {
             name: "build backend",
-            image: "golang:1.14",
+            image: "golang:1.16.4",
             commands: [
                 "cd backend",
                 "go test ./... -cover",
-                "CGO_ENABLED=0 go build -o ../build/platform/bin/backend cmd/backend/main.go",
-                "CGO_ENABLED=0 go build -o ../build/platform/bin/cli cmd/cli/main.go"
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/backend cmd/backend/main.go",
+                "../build/platform/bin/backend -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/cli cmd/cli/main.go",
+                "../build/platform/bin/cli -h"
             ]
         },
         {
             name: "build uwsgi",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:jessie-slim",
             commands: [
                 "./build-uwsgi.sh"
             ]
         },
         {
             name: "package",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "VERSION=$(cat version)",
                 "./build.sh $VERSION",
@@ -58,35 +61,62 @@ local build(arch, distro) = {
         },
         {
             name: "test-unit",
-            image: "syncloud/build-deps-" + arch,
+            image: "debian:buster-slim",
             commands: [
                 "./unit-test.sh",
             ]
         },
         {
-            name: "test-intergation",
-            image: "syncloud/build-deps-" + arch,
+            name: "test-intergation-jessie",
+            image: "python:3.9-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
-              "./integration/wait-ssh.sh",
+              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
+              "./integration/wait-ssh.sh device-jessie",
               "mkdir -p /var/snap/platform/common",
-              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device",
-              "pip2 install -r dev_requirements.txt",
-              "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
-              "DOMAIN=$(cat domain)",
+              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
+              "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=" + name
+              "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         },
-        if arch == "arm" then {} else
         {
-            name: "test-ui",
-            image: "syncloud/build-deps-" + arch,
+            name: "test-intergation-buster",
+            image: "python:3.9-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
-              "pip2 install -r dev_requirements.txt",
-              "DOMAIN=$(cat domain)",
+              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
+              "./integration/wait-ssh.sh device-buster",
+              "mkdir -p /var/snap/platform/common",
+              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
+              "pip install -r dev_requirements.txt",
               "cd integration",
-              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=" + name,
-              "xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=" + name,
+              "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+            ]
+        }
+    ] + ( if testUI then [
+        {
+            name: "test-ui-desktop-jessie",
+            image: "python:3.9-buster",
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
@@ -94,8 +124,51 @@ local build(arch, distro) = {
             }]
         },
         {
+            name: "test-ui-desktop-buster",
+            image: "python:3.9-buster",
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
+            ],
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        },
+        {
+            name: "test-ui-mobile-jessie",
+            image: "python:3.9-buster",
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
+            ],
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        },
+        {
+            name: "test-ui-mobile-buster",
+            image: "python:3.9-buster",
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
+            ],
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        }
+    ] else []) + [
+        {
             name: "upload",
-            image: "syncloud/build-deps-" + arch,
+            image: "python:3.9-buster",
             environment: {
                 AWS_ACCESS_KEY_ID: {
                     from_secret: "AWS_ACCESS_KEY_ID"
@@ -107,7 +180,7 @@ local build(arch, distro) = {
             commands: [
               "VERSION=$(cat version)",
               "PACKAGE=$(cat package.name)",
-              "pip2 install -r dev_requirements.txt",
+              "pip install syncloud-lib s3cmd",
               "syncloud-upload.sh " + name + " $DRONE_BRANCH $VERSION $PACKAGE"
             ]
         },
@@ -124,7 +197,7 @@ local build(arch, distro) = {
                 },
                 timeout: "2m",
                 command_timeout: "2m",
-                target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + distro + "-"  + arch,
+                target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + arch,
                 source: "artifact/*",
 		             strip_components: 1
             },
@@ -133,21 +206,46 @@ local build(arch, distro) = {
             }
         }
     ],
-    services: [{
-        name: "device",
-        image: "syncloud/platform-" + distro + '-' + arch,
-        privileged: true,
-        volumes: [
-            {
-                name: "dbus",
-                path: "/var/run/dbus"
-            },
-            {
-                name: "dev",
-                path: "/dev"
-            }
-        ]
-    }],
+    services: [
+        {
+            name: "device-jessie",
+            image: "syncloud/platform-jessie-" + arch,
+            privileged: true,
+            volumes: [
+                {
+                    name: "dbus",
+                    path: "/var/run/dbus"
+                },
+                {
+                    name: "dev",
+                    path: "/dev"
+                }
+            ]
+        },
+        {
+            name: "device-buster",
+            image: "syncloud/platform-buster-" + arch,
+            privileged: true,
+            volumes: [
+                {
+                    name: "dbus",
+                    path: "/var/run/dbus"
+                },
+                {
+                    name: "dev",
+                    path: "/dev"
+                }
+            ]
+        }
+    ] + if testUI then [{
+            name: "selenium",
+            image: "selenium/standalone-" + browser + ":4.0.0-beta-3-prerelease-20210402",
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        }
+    ] else [],
     volumes: [
         {
             name: "dbus",
@@ -169,8 +267,7 @@ local build(arch, distro) = {
 };
 
 [
-    build("arm", "jessie"),
-    build("amd64", "jessie"),
-    build("arm", "buster"),
-    build("amd64", "buster")
+    build("arm", false),
+    #build("arm64", true),
+    build("amd64", false)
 ]

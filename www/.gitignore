@@ -4,3 +4,4 @@ node_modules
 .env.*.local
 npm-debug.log*
 .idea
+coverage

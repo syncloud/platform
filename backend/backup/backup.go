@@ -33,15 +33,15 @@ func New(dir string) *Backup {
 	}
 }
 
-func (this *Backup) List() ([]File, error) {
-	files, err := ioutil.ReadDir(this.backupDir)
+func (backup *Backup) List() ([]File, error) {
+	files, err := ioutil.ReadDir(backup.backupDir)
 	if err != nil {
-		log.Println("Cannot get list of files in ", this.backupDir, err)
+		log.Println("Cannot get list of files in ", backup.backupDir, err)
 		return nil, err
 	}
 	var names []File
 	for _, x := range files {
-		names = append(names, File{this.backupDir, x.Name()})
+		names = append(names, File{backup.backupDir, x.Name()})
 	}
 
 	return names, nil

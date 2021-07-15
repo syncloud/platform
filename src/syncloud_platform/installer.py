@@ -1,5 +1,7 @@
 import logging
+import shutil
 from os.path import join
+from subprocess import check_output, CalledProcessError
 
 from syncloudlib import logger, fs
 
@@ -23,18 +25,7 @@ class PlatformInstaller:
     
     def init_configs(self):
         linux.fix_locale()
-        
-        variables = {
-            'apps_root': config.APPS_ROOT,
-            'data_root': config.DATA_ROOT,
-            'configs_root': config.DATA_ROOT,
-            'config_root': self.data_dir,
-            'config_dir': self.config_dir,
-            'app_dir': config.INSTALL_DIR,
-            'app_data': config.DATA_DIR,
-            'app_data_prefix': config.APP_DATA_PREFIX
-        }
-        gen.generate_files(self.templates_path, self.config_dir, variables)
+        shutil.copytree(self.templates_path, self.config_dir, dirs_exist_ok=True)
 
         data_dirs = [
             join(self.data_dir, 'webapps'),
@@ -58,9 +49,6 @@ class PlatformInstaller:
 
         injector.tls.init_certificate()
 
-        injector.platform_cron.remove()
-        injector.platform_cron.create()
-
         ldap_auth = injector.ldap_auth
         ldap_auth.init()
 
@@ -72,10 +60,17 @@ class PlatformInstaller:
         user_config = PlatformUserConfig()
         user_config.init_config()
         self.init_services()
+        self.clear_crontab()
 
     def pre_refresh(self):
-        injector = get_injector()
-        injector.platform_cron.remove()
+        self.clear_crontab()
+
+    def clear_crontab(self):
+        # crontab was migrated into backend process
+        try:
+            check_output('crontab -u root -r', shell=True)
+        except CalledProcessError as e:
+            self.log.error(e.output.decode())
 
     def post_refresh(self):
         self.init_configs()

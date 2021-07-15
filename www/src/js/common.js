@@ -65,12 +65,3 @@ export function getValue (values, name) {
   }
   return null
 }
-
-export function sendLogs (includeSupport, onAlways, onError) {
-  axios.get('/rest/send_log', { params: { include_support: includeSupport } })
-    .then(onAlways).fail(onError)
-}
-
-export function sendLog (onAlways, onError) {
-  axios.get('/rest/send_log').then(onAlways).catch(onError)
-}

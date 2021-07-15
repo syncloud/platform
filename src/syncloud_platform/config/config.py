@@ -19,7 +19,6 @@ def env(key, default_value):
 
 INSTALL_DIR = env('SNAP', 'not_set')
 DATA_DIR = env('SNAP_COMMON', 'not_set')
-APP_DATA_PREFIX = 'common/'
 
 
 class PlatformConfig:
@@ -61,20 +60,11 @@ class PlatformConfig:
     def nginx_config_dir(self):
         return self.__get('nginx_config_dir')
 
-    def cron_user(self):
-        return self.__get('cron_user')
-
-    def cron_cmd(self):
-        return self.__get('cron_cmd')
-
     def openssl(self):
         return self.__get('openssl')
 
     def nginx(self):
         return self.__get('nginx')
-
-    def cron_schedule(self):
-        return self.__get('cron_schedule')
 
     def get_log_root(self):
         return self.__get('log_root')

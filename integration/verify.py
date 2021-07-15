@@ -33,15 +33,15 @@ def app_data_dir():
 @pytest.fixture(scope="session")
 def module_setup(request, data_dir, device, app_dir, artifact_dir):
     def module_teardown():
-        device.scp_to_device('{0}/config'.format(data_dir), artifact_dir)
-        device.scp_to_device('{0}/config.runtime'.format(data_dir), artifact_dir)
+        device.scp_from_device('{0}/config'.format(data_dir), artifact_dir)
+        device.scp_from_device('{0}/config.runtime'.format(data_dir), artifact_dir)
         device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
-        device.run_ssh('snap platform.cli ipv4 public > {0}/cli.ipv4.public.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('snap run platform.cli ipv4 public > {0}/cli.ipv4.public.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('snap run platform.cli config list > {0}/cli.config.list.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/ > {1}/app.data.ls.log'.format(data_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)
-        device.run_ssh('ls -la {0}/www/public > {1}/app.www.public.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), artifact_dir)
@@ -54,6 +54,8 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
+    device.run_ssh('mkdir /etc/syncloud', throw=True)
+    device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
     device.run_ssh('snap remove platform', throw=True)
     add_host_alias_by_ip(app, domain, device_host)
@@ -100,51 +102,87 @@ def test_activation_status_false(device_host):
 
 def test_id_redirect_backward_compatibility(device_host):
     response = requests.get('http://{0}:81/rest/id'.format(device_host), allow_redirects=False)
-    assert 'mac_address' in response.text
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
+    response_json = json.loads(response.text)
+    assert 'data' in response_json
+    assert 'success' in response_json
+    assert 'mac_address' in response_json['data']
+    assert 'title' in response_json['data']
+    assert 'name' in response_json['data']
 
 
 def test_id_before_activation(device_host):
     response = requests.get('https://{0}/rest/id'.format(device_host), allow_redirects=False, verify=False)
-    assert 'mac_address' in response.text
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
+    response_json = json.loads(response.text)
+    assert 'data' in response_json
+    assert 'success' in response_json
+    assert 'mac_address' in response_json['data']
+    assert 'title' in response_json['data']
+    assert 'name' in response_json['data']
 
 
-def test_activate_device(device_host, domain, main_domain, redirect_user, redirect_password):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+def test_set_redirect(device, main_domain):
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+
+
+def test_activate_custom(device, device_host, main_domain):
+    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+                             json={'domain': 'example.com',
+                                   'device_username': 'user1',
+                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
+    assert response.status_code == 200, response.text
+    device.run_ssh('rm /var/snap/platform/common/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+
+
+def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': '{}-syncloudexample.com'.format(arch),
+                                   'device_username': 'user1',
+                                   'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
+    assert response.status_code == 200, response.text
+    device.run_ssh('rm /var/snap/platform/common/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+
+
+def test_activate_device(device_host, full_domain, redirect_user, redirect_password):
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
+                             json={'redirect_email': redirect_user,
+                                   'redirect_password': redirect_password,
+                                   'domain': full_domain,
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
 
 
-def test_reactivate_activated_device(device_host, domain, main_domain, device_user, device_password,
+def test_reactivate_activated_device(device_host, full_domain, device_user, device_password,
                                      redirect_user, redirect_password):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': full_domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, allow_redirects=False, verify=False)
-    assert response.status_code == 502
+    assert response.status_code == 502, response.text
 
 
-def test_drop_activation(device):
+def test_drop_activation(device, main_domain):
     device.run_ssh('rm /var/snap/platform/common/platform.db')
     device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
-def test_reactivate_good(device_host, domain, main_domain, device_user, device_password,
+def test_reactivate_good(device_host, full_domain, device_user, device_password,
                          redirect_user, redirect_password, device):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': full_domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200
@@ -167,13 +205,19 @@ def test_activation_status_false_after_deactivate(device_host):
     assert not json.loads(response.text)["activated"], response.text
 
 
-def test_reactivate_after_deactivate(device_host, domain, main_domain, device_user, device_password,
+def test_redirect_info(device_host, main_domain):
+    response = requests.get('https://{0}/rest/redirect_info'.format(device_host), allow_redirects=False,
+                            verify=False)
+    assert response.status_code == 200
+    assert json.loads(response.text)['data']["domain"] == main_domain, response.text
+
+
+def test_reactivate_after_deactivate(device_host, full_domain, device_user, device_password,
                                      redirect_user, redirect_password, device):
-    response = requests.post('https://{0}/rest/activate'.format(device_host),
-                             json={'main_domain': main_domain,
-                                   'redirect_email': redirect_user,
+    response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
+                             json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
-                                   'user_domain': domain,
+                                   'domain': full_domain,
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200
@@ -298,12 +342,13 @@ def test_available_apps(device, device_host, artifact_dir):
     assert len(json.loads(response.text)['apps']) > 1
 
 
-def test_device_url(device, device_host, artifact_dir):
+def test_device_url(device, device_host, artifact_dir, full_domain):
     response = device.login().get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
     with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
+    assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
 
 def test_api_url_443(device, device_host, app_domain):
@@ -352,9 +397,8 @@ def test_set_access_error(device, device_host):
     assert response.status_code == 500, response.text
 
 
-def test_cron(app_dir, ssh_env_vars, device_host):
-    run_ssh(device_host, '{0}/bin/cron'.format(app_dir),
-            password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
+def test_cron(device):
+    device.run_ssh('snap run platform.cli cron')
 
 
 def test_real_certificate(app_dir, ssh_env_vars, device_host):
@@ -423,7 +467,8 @@ def test_backup_app(device, artifact_dir, device_host):
     device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
 
     response = session.post(
-        'https://{0}/rest/backup/restore?app=files&file={0}/{1}'.format(device_host, backup['path'], backup['file']),
+        'https://{0}/rest/backup/restore'.format(device_host),
+        json={'app': 'files', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
@@ -438,7 +483,7 @@ def test_rest_backup_list(device, device_host, artifact_dir):
     assert json.loads(response.text)['success']
 
 
-@pytest.yield_fixture(scope='function')
+@pytest.fixture(scope='function')
 def loop_device(device_host):
     dev_file = '/tmp/disk'
     loop_device_cleanup(device_host, dev_file, password=LOGS_SSH_PASSWORD)
@@ -510,15 +555,13 @@ def current_disk_link(device):
     return device.run_ssh("realpath {}".format(link))
 
 
-def test_if_cron_is_enabled_after_install(device_host):
-    cron_is_enabled_after_install(device_host)
+def test_if_cron_is_empty_after_install(device_host):
+    cron_is_empty_after_install(device_host)
 
 
-def cron_is_enabled_after_install(device_host):
-    crontab = run_ssh(device_host, "crontab -l", password=LOGS_SSH_PASSWORD)
-    assert len(crontab.splitlines()) == 1
-    assert 'cron' in crontab, crontab
-    assert not crontab.startswith('#'), crontab
+def cron_is_empty_after_install(device_host):
+    crontab = run_ssh(device_host, "crontab -l", password=LOGS_SSH_PASSWORD, throw=False)
+    assert 'no crontab for root' in crontab, crontab
 
 
 def test_settings_versions(device_host, device, artifact_dir):
@@ -538,8 +581,8 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
 
-def test_if_cron_is_enabled_after_upgrade(device_host):
-    cron_is_enabled_after_install(device_host)
+def test_if_cron_is_empty_after_upgrade(device_host):
+    cron_is_empty_after_install(device_host)
 
 
 def test_nginx_performance(device_host):
@@ -548,3 +591,4 @@ def test_nginx_performance(device_host):
 
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
+

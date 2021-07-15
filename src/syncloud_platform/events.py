@@ -16,6 +16,7 @@ class EventTrigger:
 
     def _trigger_app_event(self, action):
         try:
+            self.log.info('event trigger: {0}'.format(action))
             backend_request("POST", "/event/trigger", {"event": action})
         except Exception as e:
             self.log.error('event error: {0}'.format(str(e)))

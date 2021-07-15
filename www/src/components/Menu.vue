@@ -60,7 +60,7 @@ export default {
   props: {
     activeTab: String,
     loggedIn: Boolean,
-    onLogout: Function
+    checkUserSession: Function
   },
   data () {
     return {
@@ -80,7 +80,7 @@ export default {
     logout: function (_) {
       axios.post('/rest/logout')
         .then(_ => {
-          this.onLogout()
+          this.checkUserSession()
         })
         .catch(err => {
           console.log(err)

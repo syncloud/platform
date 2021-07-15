@@ -39,34 +39,6 @@ class LdapAuth:
             '{0}/sbin/slapadd.sh -F {1} -b "cn=config" -l {2}'.format(
                 self.ldap_root, self.user_conf_dir, init_script), shell=True)
 
-    def reset(self, name, user, password, email):
-
-        self.systemctl.stop_service('platform.openldap')
-
-        fs.removepath(self.user_conf_dir)
-
-        files = glob.glob('{0}/openldap-data/*'.format(self.config.data_dir()))
-        for f in files:
-            os.remove(f)
-
-        self.init()
-
-        self.systemctl.start_service('platform.openldap')
-
-        _, filename = tempfile.mkstemp()
-        try:
-            gen.transform_file('{0}/ldap/init.ldif'.format(self.config.config_dir()), filename, {
-                'name': name,
-                'user': user,
-                'email': email,
-                'password': make_secret(password)
-            })
-
-            self._init_db(filename)
-        finally:
-            os.remove(filename)
-
-        check_output(generate_change_password_cmd(password), shell=True)
 
     def _init_db(self, filename):
         success = False
@@ -89,14 +61,6 @@ class LdapAuth:
             bind_dn_option = '-D "{0}"'.format(bind_dn)
         check_output('{0}/bin/ldapadd.sh -x -w syncloud {1} -f {2}'.format(
                     self.ldap_root, bind_dn_option, filename), shell=True)
-
-
-def generate_change_password_cmd(password):
-    return 'echo "root:{0}" | chpasswd'.format(password.replace('"', '\\"').replace("$", "\\$"))
-
-
-def to_ldap_dc(full_domain):
-    return 'dc=' + ',dc='.join(full_domain.split('.'))
 
 
 def authenticate(name, password):

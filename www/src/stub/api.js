@@ -7,7 +7,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: false,
   availableAppsSuccess: true,
-  activated: true,
+  activated: false,
   accessSuccess: true,
   diskActionSuccess: true
 }
@@ -435,7 +435,7 @@ const mock = function (app, server, compiler) {
   app.post('/rest/send_log', function (req, res) {
     res.json({ success: true })
   })
-  app.post('/rest/activate', function (req, res) {
+  app.post('/rest/activate/managed', function (req, res) {
     state.activated = true
     res.json({ success: true })
     // res.status(500).json({
@@ -446,9 +446,31 @@ const mock = function (app, server, compiler) {
     //   ]
     // })
   })
-  app.post('/rest/activate_custom_domain', function (req, res) {
+  app.post('/rest/activate/custom', function (req, res) {
     state.activated = true
     res.json({ success: true })
+  })
+  app.post('/rest/redirect/domain/availability', function (req, res) {
+    if (req.body.domain === '1') {
+      res.status(400).json({
+        success: false,
+        parameters_messages: [
+          { parameter: 'redirect_password', messages: ['wrong password'] },
+          { parameter: 'domain', messages: ['domain is already taken'] }
+        ]
+      })
+    } else {
+      res.json({
+        success: true
+      })
+    }
+  })
+  app.get('/rest/redirect_info', function (req, res) {
+    if (state.activated) {
+      res.status(502).json({ message: 'Device is activated' })
+    } else {
+      res.json({ success: true, data: { domain: 'test.com' } })
+    }
   })
 }
 

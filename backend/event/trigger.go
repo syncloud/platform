@@ -1,26 +1,30 @@
 package event
 
 import (
-	"github.com/syncloud/platform/snapd"
+	"github.com/syncloud/platform/snap"
 	"log"
 	"os/exec"
 )
 
 type Trigger struct {
-	snap *snapd.Snapd
+	snap *snap.Snapd
 }
 
 func New() *Trigger {
 	return &Trigger{
-		snap: snapd.New(),
+		snap: snap.New(),
 	}
 }
 
-func (storage *Trigger) RunEventOnAllApps(event string) error {
+func (t *Trigger) RunAccessChangeEvent() error {
+	return t.RunEventOnAllApps("access-change")
+}
 
-	snaps, err := storage.snap.ListAllApps()
+func (t *Trigger) RunEventOnAllApps(event string) error {
+
+	snaps, err := t.snap.ListAllApps()
 	if err != nil {
-		log.Printf("snapd info failed: %v", err)
+		log.Printf("snap info failed: %v", err)
 		return err
 	}
 	for _, snap := range snaps {
@@ -30,7 +34,7 @@ func (storage *Trigger) RunEventOnAllApps(event string) error {
 			log.Println("Running: ", cmd)
 			_, err := exec.Command("snap", "run", cmd).CombinedOutput()
 			if err != nil {
-				log.Printf("snapd run failed: %v", err)
+				log.Printf("snap run failed: %v", err)
 				return err
 			}
 		}

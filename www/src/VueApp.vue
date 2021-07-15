@@ -1,6 +1,6 @@
 <template>
-  <Menu v-bind:activeTab="currentPath" v-bind:onLogout="checkUserSession" v-bind:loggedIn="loggedIn"/>
-  <router-view v-bind:onLogin="checkUserSession" v-bind:onLogout="checkUserSession"/>
+  <Menu v-bind:activeTab="currentPath" v-bind:checkUserSession="checkUserSession" v-bind:loggedIn="loggedIn"/>
+  <router-view v-bind:checkUserSession="checkUserSession" :activated="activated"/>
   <Error ref="app_error" name="app_error"/>
 </template>
 <script>
@@ -23,7 +23,8 @@ export default {
     return {
       currentPath: '',
       loggedIn: undefined,
-      email: ''
+      email: '',
+      activated: true
     }
   },
   name: 'VueApp',
@@ -49,10 +50,11 @@ export default {
         .catch(_ => {
           axios.get('/rest/activation_status')
             .then(response => {
+              this.loggedIn = false
               if (!response.data.activated) {
+                this.activated = false
                 this.$router.push('/activate')
               } else {
-                this.loggedIn = false
                 if (!publicRoutes.includes(this.currentPath)) {
                   this.$router.push('/login')
                 }

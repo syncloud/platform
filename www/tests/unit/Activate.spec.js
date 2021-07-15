@@ -12,25 +12,29 @@ test('Activate free domain', async () => {
   let domain = ''
   let deviceUsername = ''
   let devicePassword = ''
+  let availabilityDomain = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
-  let reloaded = false
   delete window.location
-  window.location = {
-    reload (resetCache) {
-      reloaded = true
-    }
-  }
+  window.location = ''
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate').reply(function (config) {
+  mock.onPost('/rest/activate/managed').reply(function (config) {
     const request = JSON.parse(config.data)
     redirectEmail = request.redirect_email
     redirectPassword = request.redirect_password
-    domain = request.user_domain
+    domain = request.domain
     deviceUsername = request.device_username
     devicePassword = request.device_password
     return [200, { success: true }]
   })
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    const request = JSON.parse(config.data)
+    availabilityDomain = request.domain
+    redirectEmail = request.email
+    redirectPassword = request.password
+    return [200, { success: true }]
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
 
   const wrapper = mount(Activate,
     {
@@ -54,9 +58,11 @@ test('Activate free domain', async () => {
 
   await flushPromises()
 
+  await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain').setValue('domain')
+  await wrapper.find('#domain_input').setValue('domain')
+  await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
@@ -64,12 +70,13 @@ test('Activate free domain', async () => {
   await flushPromises()
 
   expect(showError).toHaveBeenCalledTimes(0)
+  expect(availabilityDomain).toBe('domain.test.com')
   expect(redirectEmail).toBe('r email')
   expect(redirectPassword).toBe('r password')
-  expect(domain).toBe('domain')
+  expect(domain).toBe('domain.test.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(reloaded).toBe(true)
+  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
 
   wrapper.unmount()
 })
@@ -82,9 +89,14 @@ test('Activate free domain error', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate').reply(500, {
+  mock.onPost('/rest/activate/managed').reply(500, {
     message: 'not ok'
   })
+
+  mock.onPost('/rest/redirect/domain/availability').reply(200, {
+    message: 'ok'
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
 
   const wrapper = mount(Activate,
     {
@@ -107,10 +119,11 @@ test('Activate free domain error', async () => {
   )
 
   await flushPromises()
-
+  await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#user_domain').setValue('domain')
+  await wrapper.find('#domain_input').setValue('domain')
+  await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
@@ -122,28 +135,84 @@ test('Activate free domain error', async () => {
   wrapper.unmount()
 })
 
+test('Activate free domain availability error', async () => {
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.parameters_messages[0].messages[0]
+  }
+  const mockRouter = { push: jest.fn() }
+
+  const mock = new MockAdapter(axios)
+  mock.onPost('/rest/activate/managed').reply(500, {
+    message: 'not ok'
+  })
+
+  mock.onPost('/rest/redirect/domain/availability').reply(400, {
+      success: false,
+      parameters_messages: [
+        { parameter: 'domain', messages: ['domain is already taken'] }
+      ]
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+
+  const wrapper = mount(Activate,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Dialog: true
+        },
+        mocks: {
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#email').setValue('r email')
+  await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#domain_input').setValue('domain')
+  await wrapper.find('#btn_next').trigger('click')
+
+  await flushPromises()
+
+  expect(error).toBe('domain is already taken')
+
+  wrapper.unmount()
+})
+
 test('Activate custom domain', async () => {
   let domain = ''
   let deviceUsername = ''
   let devicePassword = ''
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
-  let reloaded = false
   delete window.location
-  window.location = {
-    reload (resetCache) {
-      reloaded = true
-    }
-  }
+  window.location = ''
 
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/activate_custom_domain').reply(function (config) {
+  mock.onPost('/rest/activate/custom').reply(function (config) {
     const request = JSON.parse(config.data)
-    domain = request.full_domain
+    domain = request.domain
     deviceUsername = request.device_username
     devicePassword = request.device_password
     return [200, { success: true }]
   })
+
+  let availabilityCalled = false
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    availabilityCalled = true
+    return [200, { success: true }]
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
 
   const wrapper = mount(Activate,
     {
@@ -167,10 +236,12 @@ test('Activate custom domain', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#domain_type_custom').trigger('click')
-  await wrapper.find('#full_domain').setValue('domain')
+  await wrapper.find('#btn_custom_domain').trigger('click')
+  await wrapper.find('#domain').setValue('domain')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#btn_next').trigger('click')
+
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -179,7 +250,84 @@ test('Activate custom domain', async () => {
   expect(domain).toBe('domain')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(reloaded).toBe(true)
+  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
+  expect(availabilityCalled).toBe(false)
 
   wrapper.unmount()
 })
+
+test('Activate premium domain', async () => {
+  let redirectEmail = ''
+  let redirectPassword = ''
+  let domain = ''
+  let deviceUsername = ''
+  let devicePassword = ''
+  let availabilityDomain = ''
+  const showError = jest.fn()
+  const mockRouter = { push: jest.fn() }
+  delete window.location
+  window.location = ''
+  const mock = new MockAdapter(axios)
+  mock.onPost('/rest/activate/managed').reply(function (config) {
+    const request = JSON.parse(config.data)
+    redirectEmail = request.redirect_email
+    redirectPassword = request.redirect_password
+    domain = request.domain
+    deviceUsername = request.device_username
+    devicePassword = request.device_password
+    return [200, { success: true }]
+  })
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    const request = JSON.parse(config.data)
+    availabilityDomain = request.domain
+    redirectEmail = request.email
+    redirectPassword = request.password
+    return [200, { success: true }]
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+
+  const wrapper = mount(Activate,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Dialog: true
+        },
+        mocks: {
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#btn_premium_domain').trigger('click')
+  await wrapper.find('#email').setValue('r email')
+  await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#domain_premium').setValue('example.com')
+  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#device_username').setValue('user')
+  await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#btn_activate').trigger('click')
+
+  await flushPromises()
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(redirectEmail).toBe('r email')
+  expect(redirectPassword).toBe('r password')
+  expect(domain).toBe('example.com')
+  expect(deviceUsername).toBe('user')
+  expect(devicePassword).toBe('password')
+  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
+  expect(availabilityDomain).toBe('example.com')
+
+  wrapper.unmount()
+})
+

@@ -55,8 +55,8 @@ import 'bootstrap'
 export default {
   name: 'Login',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {
@@ -80,7 +80,7 @@ export default {
         .then(_ => {
           btn.button('reset')
           $('#form-login input').prop('disabled', false)
-          this.onLogin()
+          this.checkUserSession()
           this.$router.push('/')
         })
         .catch(err => {

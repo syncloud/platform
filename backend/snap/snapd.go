@@ -1,4 +1,4 @@
-package snapd
+package snap
 
 import (
 	"context"

@@ -186,8 +186,8 @@ function error (message) {
 export default {
   name: 'Access',
   props: {
-    onLogin: Function,
-    onLogout: Function
+    checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {
@@ -197,8 +197,8 @@ export default {
       publicIp: 0,
       upnp: false,
       upnpAvailable: false,
-      accessPort: { type: Number, default: 0 },
-      certificatePort: { type: Number, default: 0 },
+      accessPort: 0,
+      certificatePort: 0,
       visibility: 'hidden'
     }
   },

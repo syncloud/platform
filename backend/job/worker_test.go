@@ -22,7 +22,7 @@ func (mock *backupMock) Restore(file string) {
 }
 
 type masterMock struct {
-	job       interface{}
+	job       func()
 	taken     int
 	completed int
 }
@@ -30,11 +30,11 @@ type masterMock struct {
 func (mock *masterMock) Status() JobStatus {
 	return JobStatusIdle
 }
-func (mock *masterMock) Offer(job interface{}) error {
+func (mock *masterMock) Offer(job func()) error {
 	mock.job = job
 	return nil
 }
-func (mock *masterMock) Take() (interface{}, error) {
+func (mock *masterMock) Take() (func(), error) {
 	mock.taken++
 	return mock.job, nil
 }
@@ -64,31 +64,17 @@ func (mock *storageMock) Format(device string) {
 func (mock *storageMock) BootExtend() {
 	mock.bootextended++
 }
-func TestBackupCreate(t *testing.T) {
-	master := &masterMock{}
-	backup := &backupMock{}
-	storage := &storageMock{}
-	installer := &installerMock{}
-	worker := NewWorker(master, backup, installer, storage)
 
-	master.Offer(JobBackupCreate{"app"})
+func TestJob(t *testing.T) {
+	master := &masterMock{}
+	worker := NewWorker(master)
+
+	ran := false
+	err := master.Offer(func() { ran = true })
 	worker.Do()
 
-	assert.Equal(t, 1, backup.created)
-	assert.Equal(t, 1, master.completed)
-
-}
-
-func TestNotSupported(t *testing.T) {
-	master := &masterMock{}
-	backup := &backupMock{}
-	storage := &storageMock{}
-	installer := &installerMock{}
-	worker := NewWorker(master, backup, installer, storage)
-
-	master.Offer("not supported type")
-	worker.Do()
-
+	assert.Nil(t, err)
+	assert.True(t, ran)
 	assert.Equal(t, 1, master.completed)
 
 }
