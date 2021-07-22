@@ -42,14 +42,14 @@ def local_ip():
 
 def local_ip_v6():
     try:
-        return check_output("/snap/platform/current/bin/cli ipv6", shell=True).decode()
+        return check_output("/snap/platform/current/bin/cli ipv6", shell=True).decode().strip()
     except CalledProcessError as e:
         return None
 
 
 def public_ip_v4():
     try:
-        return check_output("/snap/platform/current/bin/cli ipv4 public", shell=True).decode()
+        return check_output("/snap/platform/current/bin/cli ipv4 public", shell=True).decode().strip()
     except CalledProcessError as e:
         return None
 
