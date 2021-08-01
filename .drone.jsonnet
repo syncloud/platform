@@ -48,6 +48,16 @@ local build(arch, testUI) = {
             image: "debian:jessie-slim",
             commands: [
                 "./build-uwsgi.sh"
+            ],
+            volumes: [
+                {
+                    name: "docker",
+                    path: "/usr/bin/docker"
+                },
+                {
+                    name: "docker.sock",
+                    path: "/var/run/docker.sock"
+                }
             ]
         },
         {
@@ -262,6 +272,18 @@ local build(arch, testUI) = {
         {
             name: "shm",
             temp: {}
+        },
+        {
+            name: "docker",
+            host: {
+                path: "/usr/bin/docker"
+            }
+        },
+        {
+            name: "docker.sock",
+            host: {
+                path: "/var/run/docker.sock"
+            }
         }
     ]
 };
