@@ -3,8 +3,8 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ARCH=$(uname -m)
 
-#apt update
-#apt install -y libltdl7 libnss3
+apt update
+apt install -y libltdl7 libnss3
 
 ARCH=$(uname -m)
 BUILD_DIR=${DIR}/build/platform/python
