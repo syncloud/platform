@@ -73,6 +73,7 @@ local build(arch, testUI) = {
             name: "test-unit",
             image: "python:3.9-buster",
             commands: [
+              "pip install -r requirements.txt",
               "pip install -r dev_requirements.txt",
               "cd src",
               "py.test test"
