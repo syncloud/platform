@@ -71,9 +71,11 @@ local build(arch, testUI) = {
         },
         {
             name: "test-unit",
-            image: "debian:buster-slim",
+            image: "python:3.9-buster",
             commands: [
-                "./unit-test.sh",
+              "pip install -r dev_requirements.txt",
+              "cd src",
+              "py.test test"
             ]
         },
         {
@@ -293,4 +295,5 @@ local build(arch, testUI) = {
     build("arm64", true),
     build("amd64", false)
 ]
+
 
