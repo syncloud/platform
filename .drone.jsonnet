@@ -73,6 +73,8 @@ local build(arch, testUI) = {
             name: "test-unit",
             image: "python:3.9-buster",
             commands: [
+              "apt update",
+              "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3",
               "pip install -r requirements.txt",
               "pip install -r dev_requirements.txt",
               "cd src",
@@ -296,5 +298,3 @@ local build(arch, testUI) = {
     build("arm64", true),
     build("amd64", false)
 ]
-
-

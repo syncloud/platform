@@ -3,9 +3,6 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ARCH=$(uname -m)
 
-apt update
-apt install -y libltdl7 libnss3
-
 ARCH=$(uname -m)
 BUILD_DIR=${DIR}/build/platform/python
 docker ps -a -q --filter ancestor=python:syncloud --format="{{.ID}}" | xargs docker stop | xargs docker rm || true
@@ -40,7 +37,3 @@ cd ${DIR}
 #export CPPFLAGS=-I${PYTHON_DIR}/include
 #export LDFLAGS=-L${PYTHON_DIR}/lib
 #export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
-
-#${PYTHON_DIR}/bin/pip install -r ${DIR}/requirements.txt
-#ldd ${PYTHON_DIR}/bin/uwsgi
-#${PYTHON_DIR}/bin/uwsgi --help
