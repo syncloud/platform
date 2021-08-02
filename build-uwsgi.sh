@@ -7,7 +7,7 @@ ARCH=$(uname -m)
 #apt install -y libltdl7 libnss3
 
 ARCH=$(uname -m)
-BUILD_DIR=${DIR}/build/platfoem/python
+BUILD_DIR=${DIR}/build/platform/python
 docker ps -a -q --filter ancestor=python:syncloud --format="{{.ID}}" | xargs docker stop | xargs docker rm || true
 docker rmi python:syncloud || true
 docker build -t python:syncloud .
