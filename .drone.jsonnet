@@ -45,7 +45,7 @@ local build(arch, testUI) = {
         },
         {
             name: "build uwsgi",
-            image: "debian:jessie-slim",
+            image: "debian:buster-slim",
             commands: [
                 "./build-uwsgi.sh"
             ],
