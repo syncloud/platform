@@ -22,6 +22,7 @@ tar xf python.tar
 rm -rf python.tar
 cp ${DIR}/bin/python ${BUILD_DIR}/bin
 cp ${DIR}/bin/pip ${BUILD_DIR}/bin
+cp ${DIR}/bin/uwsgi ${BUILD_DIR}/bin
 rm -rf ${BUILD_DIR}/usr/src
 
 #apt update
