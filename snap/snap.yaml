@@ -27,7 +27,7 @@ apps:
     restart-condition: always
   uwsgi-api:
     command: bin/service.uwsgi.sh api
-    daemon: forking
+    daemon: notify
     plugs:
     - network
     - network-bind
@@ -35,7 +35,7 @@ apps:
     restart-condition: always
   uwsgi-public:
     command: bin/service.uwsgi.sh public
-    daemon: forking
+    daemon: notify
     plugs:
     - network
     - network-bind
