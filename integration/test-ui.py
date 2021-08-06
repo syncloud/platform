@@ -30,7 +30,6 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
 
 def test_start(app, device_host, module_setup):
     pass
-#    add_host_alias(app, device_host)
 
 
 def test_deactivate(device, device_host):
