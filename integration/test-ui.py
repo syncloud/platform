@@ -28,7 +28,8 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
     request.addfinalizer(module_teardown)
 
 
-#def test_start(app, device_host, module_setup):
+def test_start(app, device_host, module_setup):
+    pass
 #    add_host_alias(app, device_host)
 
 
