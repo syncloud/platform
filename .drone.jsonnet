@@ -127,6 +127,14 @@ local build(arch, testUI) = {
         {
             name: "test-ui-desktop-jessie",
             image: "python:3.9-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
@@ -141,6 +149,14 @@ local build(arch, testUI) = {
         {
             name: "test-ui-desktop-buster",
             image: "python:3.9-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client",
               "pip install -r dev_requirements.txt",
