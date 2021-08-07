@@ -46,6 +46,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('btn_free_domain').click()
     wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
     selenium.find_by_id('email').send_keys(redirect_user)
+    selenium.screenshot('activate-redirect-email')
     selenium.find_by_id('redirect_password').send_keys(redirect_password)
     selenium.find_by_id('domain_input').send_keys(domain)
     selenium.screenshot('activate-type')
