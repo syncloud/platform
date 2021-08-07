@@ -52,7 +52,8 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('btn_next').click()
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
-  #  wait_for(lambda: selenium.find_by_id('device_username').send_keys(device_user))
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_upassword')))
+    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(device_user))
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
@@ -246,7 +247,7 @@ def menu(driver, ui_mode, screenshot_dir, element_id):
     raise exception
 
 
-def wait_for(method):
+def wait_for(selenium, method):
     retries = 10
     retry = 0
     exception = None
@@ -259,6 +260,7 @@ def wait_for(method):
             print('error (attempt {0}/{1}): {2}'.format(retry + 1, retries, str(e)))
             time.sleep(1)
         retry += 1
+    selenium.screenshot('exception')
     raise exception
 
 
