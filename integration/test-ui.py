@@ -44,7 +44,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_xpath("//h1[text()='Activate']")
     selenium.screenshot('activate-empty')
     selenium.find_by_id('btn_free_domain').click()
-    wait_for(lambda: selenium.find_by_id('email').send_keys(""))
+    wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
     selenium.find_by_id('email').send_keys(redirect_user)
     selenium.find_by_id('redirect_password').send_keys(redirect_password)
     selenium.find_by_id('domain_input').send_keys(domain)
