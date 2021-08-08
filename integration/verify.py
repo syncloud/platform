@@ -44,6 +44,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
         device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('df -h > {0}/df.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), artifact_dir)
         device.scp_from_device('{0}/log/*'.format(data_dir), artifact_dir)
         check_output('chmod -R a+r {0}'.format(artifact_dir), shell=True)
