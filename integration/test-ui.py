@@ -53,7 +53,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('btn_next').click()
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
-    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_upassword')))
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
     wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(device_user))
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
@@ -280,3 +280,4 @@ def wait_for_loading(driver):
 
 def test_teardown(driver):
     driver.quit()
+
