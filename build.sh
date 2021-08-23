@@ -26,7 +26,7 @@ cp -r ${DIR}/bin/* ${BUILD_DIR}/bin
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/nginx/nginx-${ARCH}.tar.gz
 tar xf nginx-${ARCH}.tar.gz
 mv nginx ${BUILD_DIR}
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/gptfdisk-${ARCH}.tar.gz
+wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/gptfdisk/gptfdisk-${ARCH}.tar.gz
 tar xf gptfdisk-${ARCH}.tar.gz
 mv gptfdisk ${BUILD_DIR}
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/openldap-${ARCH}.tar.gz
