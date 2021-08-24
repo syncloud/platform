@@ -25,26 +25,26 @@ olcPidFile: /var/snap/platform/common/openldap/slapd.pid
 #
 # Load dynamic backend modules:
 #
-#dn: cn=module,cn=config
-#objectClass: olcModuleList
-#cn: module
-#olcModulepath:/snap/platform/current/openldap/libexec/openldap
-#olcModuleload:	back_bdb.la
+dn: cn=module,cn=config
+objectClass: olcModuleList
+cn: module
+olcModulepath:/snap/platform/current/openldap/usr/lib/ldap
+olcModuleload:	back_mdb
 #olcModuleload:	back_hdb.la
 #olcModuleload:	back_ldap.la
 #olcModuleload:	back_passwd.la
 #olcModuleload:	back_shell.la
-#olcModuleLoad: ppolicy
+olcModuleLoad: ppolicy
 
 dn: cn=schema,cn=config
 objectClass: olcSchemaConfig
 cn: schema
 
-include: file:///snap/platform/current/openldap/etc/openldap/schema/core.ldif
-include: file:///snap/platform/current/openldap/etc/openldap/schema/cosine.ldif
-include: file:///snap/platform/current/openldap/etc/openldap/schema/inetorgperson.ldif
-include: file:///snap/platform/current/openldap/etc/openldap/schema/nis.ldif
-include: file:///snap/platform/current/openldap/etc/openldap/schema/ppolicy.ldif
+include: file:///snap/platform/current/openldap/etc/ldap/schema/core.ldif
+include: file:///snap/platform/current/openldap/etc/ldap/schema/cosine.ldif
+include: file:///snap/platform/current/openldap/etc/ldap/schema/inetorgperson.ldif
+include: file:///snap/platform/current/openldap/etc/ldap/schema/nis.ldif
+include: file:///snap/platform/current/openldap/etc/ldap/schema/ppolicy.ldif
 
 # Frontend settings
 #

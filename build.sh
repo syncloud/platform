@@ -29,7 +29,7 @@ mv nginx ${BUILD_DIR}
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/gptfdisk/gptfdisk-${ARCH}.tar.gz
 tar xf gptfdisk-${ARCH}.tar.gz
 mv gptfdisk ${BUILD_DIR}
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/openldap-${ARCH}.tar.gz
+wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/openssl-${ARCH}.tar.gz
