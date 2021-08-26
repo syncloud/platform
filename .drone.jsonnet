@@ -71,7 +71,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-unit",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             commands: [
               "apt update",
               "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3",
@@ -83,7 +83,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-intergation-jessie",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -104,7 +104,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-intergation-buster",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -126,7 +126,7 @@ local build(arch, testUI) = {
     ] + ( if testUI then [
         {
             name: "test-ui-desktop-jessie",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -148,7 +148,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-desktop-buster",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -170,7 +170,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-mobile-jessie",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -192,7 +192,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-mobile-buster",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -215,7 +215,7 @@ local build(arch, testUI) = {
     ] else []) + [
         {
             name: "upload",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 AWS_ACCESS_KEY_ID: {
                     from_secret: "AWS_ACCESS_KEY_ID"

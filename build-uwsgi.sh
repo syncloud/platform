@@ -11,8 +11,8 @@ BUILD_DIR=${DIR}/build/platform/python
 docker ps -a -q --filter ancestor=python:syncloud --format="{{.ID}}" | xargs docker stop | xargs docker rm || true
 docker rmi python:syncloud || true
 docker build -t python:syncloud .
-docker run python:syncloud python --help
-docker run python:syncloud uwsgi --help
+docker run --rm python:syncloud python --help
+docker run --rm python:syncloud uwsgi --help
 docker create --name=python python:syncloud
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
