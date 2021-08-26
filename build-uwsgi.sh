@@ -6,7 +6,6 @@ ARCH=$(uname -m)
 apt update
 apt install -y libltdl7 libnss3
 
-
 ARCH=$(uname -m)
 BUILD_DIR=${DIR}/build/platform/python
 docker ps -a -q --filter ancestor=python:syncloud --format="{{.ID}}" | xargs docker stop | xargs docker rm || true
@@ -24,21 +23,3 @@ cp ${DIR}/bin/python ${BUILD_DIR}/bin
 cp ${DIR}/bin/pip ${BUILD_DIR}/bin
 cp ${DIR}/bin/uwsgi ${BUILD_DIR}/bin
 rm -rf ${BUILD_DIR}/usr/src
-
-#apt update
-#apt install -y wget build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev
-cd ${DIR}
-
-#BUILD_DIR=${DIR}/build/platform
-#PYTHON_DIR=${BUILD_DIR}/python
-#export PATH=${PYTHON_DIR}/bin:$PATH
-
-#wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/1/python3-${ARCH}.tar.gz
-#tar xf python3-${ARCH}.tar.gz
-#mv python3 ${BUILD_DIR}/python
-
-#cd ${DIR}
-#export UWSGI_PROFILE_OVERRIDE=ssl=false
-#export CPPFLAGS=-I${PYTHON_DIR}/include
-#export LDFLAGS=-L${PYTHON_DIR}/lib
-#export LD_LIBRARY_PATH=${PYTHON_DIR}/lib
