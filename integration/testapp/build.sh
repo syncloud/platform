@@ -15,3 +15,4 @@ echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 
 mksquashfs ${BUILD_DIR} ${DIR}/testapp.snap -noappend -comp xz -no-xattrs -all-root
 cp ${DIR}/*.snap ${DIR}/../../artifact
+rm -rf ${BUILD_DIR}
