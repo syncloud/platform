@@ -5,7 +5,7 @@ ARCH=$(uname -m)
 BUILD_DIR=${DIR}/build
 mkdir ${BUILD_DIR}
 
-cp -R ${DIR}/../build/platform/python ${BUILD_DIR}/python
+cp -R ${DIR}/../../build/platform/python ${BUILD_DIR}/python
 
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 cp -r ${DIR}/meta ${BUILD_DIR}
