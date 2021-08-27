@@ -80,7 +80,8 @@ local build(arch, testUI) = {
               "cd src",
               "py.test test"
             ]
-        },
+        }
+    ] + ( if arch != "arm64" then [
         {
             name: "test-intergation-jessie",
             image: "python:3.9-slim-buster",
@@ -101,7 +102,7 @@ local build(arch, testUI) = {
               "cd integration",
               "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
-        },
+        }] else []) + 
         {
             name: "test-intergation-buster",
             image: "python:3.9-slim-buster",
@@ -123,7 +124,7 @@ local build(arch, testUI) = {
               "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
-    ] + ( if testUI then [
+    ] + ( if testUI && arch != "arm64" then [
         {
             name: "test-ui-desktop-jessie",
             image: "python:3.9-slim-buster",
@@ -147,28 +148,6 @@ local build(arch, testUI) = {
             }]
         },
         {
-            name: "test-ui-desktop-buster",
-            image: "python:3.9-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
-            commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
-              "pip install -r dev_requirements.txt",
-              "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
-            ],
-            volumes: [{
-                name: "shm",
-                path: "/dev/shm"
-            }]
-        },
-        {
             name: "test-ui-mobile-jessie",
             image: "python:3.9-slim-buster",
             environment: {
@@ -184,6 +163,28 @@ local build(arch, testUI) = {
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
+            ],
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        }] else [])  + ( if testUI then [
+        {
+            name: "test-ui-desktop-buster",
+            image: "python:3.9-slim-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
@@ -253,7 +254,7 @@ local build(arch, testUI) = {
             }
         }
     ],
-    services: [
+    services: ( if arch != "arm64" then [ 
         {
             name: "device-jessie",
             image: "syncloud/platform-jessie-" + arch,
@@ -268,10 +269,10 @@ local build(arch, testUI) = {
                     path: "/dev"
                 }
             ]
-        },
+        }] else []) + [
         {
             name: "device-buster",
-            image: "syncloud/platform-buster-" + arch,
+            image: "syncloud/bootstrap-buster-" + arch,
             privileged: true,
             volumes: [
                 {
