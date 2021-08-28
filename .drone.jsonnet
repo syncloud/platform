@@ -74,7 +74,7 @@ local build(arch, testUI) = {
             image: "python:3.9-slim-buster",
             commands: [
               "apt update",
-              "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3",
+              "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3 libffi-dev",
               "pip install -r requirements.txt",
               "pip install -r dev_requirements.txt",
               "cd src",
@@ -94,7 +94,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
+              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
               "./integration/wait-ssh.sh device-jessie",
               "mkdir -p /var/snap/platform/common",
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
@@ -115,7 +115,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
+              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
               "./integration/wait-ssh.sh device-buster",
               "mkdir -p /var/snap/platform/common",
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
@@ -137,7 +137,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
@@ -159,7 +159,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
@@ -181,7 +181,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
@@ -203,7 +203,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
