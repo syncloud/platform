@@ -257,7 +257,7 @@ local build(arch, testUI) = {
     services: ( if arch != "arm64" then [ 
         {
             name: "device-jessie",
-            image: "syncloud/platform-jessie-" + arch,
+            image: "syncloud/bootstrap-jessie-" + arch,
             privileged: true,
             volumes: [
                 {
