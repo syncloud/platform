@@ -232,7 +232,7 @@ local build(arch, testUI) = {
               "syncloud-upload.sh " + name + " $DRONE_BRANCH $VERSION $PACKAGE"
             ]
         },
-     {
+        {
             name: "artifact",
             image: "appleboy/drone-scp",
             settings: {
