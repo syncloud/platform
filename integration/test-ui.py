@@ -28,8 +28,8 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
     request.addfinalizer(module_teardown)
 
 
-#def test_start(app, device_host, module_setup):
-#    add_host_alias(app, device_host)
+def test_start(app, device_host, module_setup):
+    pass
 
 
 def test_deactivate(device, device_host):
@@ -44,14 +44,17 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_xpath("//h1[text()='Activate']")
     selenium.screenshot('activate-empty')
     selenium.find_by_id('btn_free_domain').click()
-    wait_for(lambda: selenium.find_by_id('email').send_keys(""))
+    wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
     selenium.find_by_id('email').send_keys(redirect_user)
+    selenium.screenshot('activate-redirect-email')
     selenium.find_by_id('redirect_password').send_keys(redirect_password)
     selenium.find_by_id('domain_input').send_keys(domain)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
     selenium.screenshot('activate-redirect')
-    wait_for(lambda: selenium.find_by_id('device_username').send_keys(device_user))
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
+    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(device_user))
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
@@ -174,26 +177,26 @@ def test_installed_app(driver, ui_mode, screenshot_dir):
     screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
 
 
-def test_remove_app(driver, ui_mode, screenshot_dir):
-    remove = 'btn_remove'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
-    driver.find_element_by_id(remove).click()
-    confirm = 'btn_confirm'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-    driver.find_element_by_id(confirm).click()
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
-    screenshots(driver, screenshot_dir, 'app_removed-' + ui_mode)
+# def test_remove_app(driver, ui_mode, screenshot_dir):
+#     remove = 'btn_remove'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
+#     driver.find_element_by_id(remove).click()
+#     confirm = 'btn_confirm'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
+#     driver.find_element_by_id(confirm).click()
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
+#     screenshots(driver, screenshot_dir, 'app_removed-' + ui_mode)
 
 
-def test_install_app(driver, ui_mode, screenshot_dir):
-    install = 'btn_install'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
-    driver.find_element_by_id(install).click()
-    confirm = 'btn_confirm'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-    driver.find_element_by_id(confirm).click()
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
-    screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
+# def test_install_app(driver, ui_mode, screenshot_dir):
+#     install = 'btn_install'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
+#     driver.find_element_by_id(install).click()
+#     confirm = 'btn_confirm'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
+#     driver.find_element_by_id(confirm).click()
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
+#     screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
 
 
 def test_not_installed_app(driver, ui_mode, screenshot_dir):
@@ -245,7 +248,7 @@ def menu(driver, ui_mode, screenshot_dir, element_id):
     raise exception
 
 
-def wait_for(method):
+def wait_for(selenium, method):
     retries = 10
     retry = 0
     exception = None
@@ -258,6 +261,7 @@ def wait_for(method):
             print('error (attempt {0}/{1}): {2}'.format(retry + 1, retries, str(e)))
             time.sleep(1)
         retry += 1
+    selenium.screenshot('exception')
     raise exception
 
 
@@ -276,3 +280,4 @@ def wait_for_loading(driver):
 
 def test_teardown(driver):
     driver.quit()
+

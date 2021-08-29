@@ -1,4 +1,10 @@
 apps:
+  service:
+    command: bin/service.sh
+    daemon: simple
+    start-timeout: 200s
+    restart-condition: always
+
   storage-change:
     command: bin/storage-change
   access-change:

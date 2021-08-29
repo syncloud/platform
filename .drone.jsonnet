@@ -45,9 +45,19 @@ local build(arch, testUI) = {
         },
         {
             name: "build uwsgi",
-            image: "debian:jessie-slim",
+            image: "debian:buster-slim",
             commands: [
                 "./build-uwsgi.sh"
+            ],
+            volumes: [
+                {
+                    name: "docker",
+                    path: "/usr/bin/docker"
+                },
+                {
+                    name: "docker.sock",
+                    path: "/var/run/docker.sock"
+                }
             ]
         },
         {
@@ -61,14 +71,20 @@ local build(arch, testUI) = {
         },
         {
             name: "test-unit",
-            image: "debian:buster-slim",
+            image: "python:3.9-slim-buster",
             commands: [
-                "./unit-test.sh",
+              "apt update",
+              "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3 libffi-dev",
+              "pip install -r requirements.txt",
+              "pip install -r dev_requirements.txt",
+              "cd src",
+              "py.test test"
             ]
-        },
+        }
+    ] + ( if arch != "arm64" then [
         {
             name: "test-intergation-jessie",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -78,7 +94,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
+              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
               "./integration/wait-ssh.sh device-jessie",
               "mkdir -p /var/snap/platform/common",
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
@@ -86,10 +102,10 @@ local build(arch, testUI) = {
               "cd integration",
               "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
-        },
+        }] else []) + [
         {
             name: "test-intergation-buster",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -99,7 +115,7 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils",
+              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
               "./integration/wait-ssh.sh device-buster",
               "mkdir -p /var/snap/platform/common",
               "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
@@ -108,29 +124,23 @@ local build(arch, testUI) = {
               "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
-    ] + ( if testUI then [
+    ] + ( if (testUI) && (arch != "arm64") then [
         {
             name: "test-ui-desktop-jessie",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser
-            ],
-            volumes: [{
-                name: "shm",
-                path: "/dev/shm"
-            }]
-        },
-        {
-            name: "test-ui-desktop-buster",
-            image: "python:3.9-buster",
-            commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
-              "pip install -r dev_requirements.txt",
-              "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
@@ -139,12 +149,42 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-mobile-jessie",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
+            ],
+            volumes: [{
+                name: "shm",
+                path: "/dev/shm"
+            }]
+        }] else [])  + ( if testUI then [
+        {
+            name: "test-ui-desktop-buster",
+            image: "python:3.9-slim-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
@@ -153,12 +193,20 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-mobile-buster",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
+            environment: {
+                REDIRECT_USER: {
+                    from_secret: "REDIRECT_USER"
+                },
+                REDIRECT_PASSWORD: {
+                    from_secret: "REDIRECT_PASSWORD"
+                }
+            },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client",
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster --app=" + name + " --browser=" + browser,
+              "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
             ],
             volumes: [{
                 name: "shm",
@@ -168,7 +216,7 @@ local build(arch, testUI) = {
     ] else []) + [
         {
             name: "upload",
-            image: "python:3.9-buster",
+            image: "python:3.9-slim-buster",
             environment: {
                 AWS_ACCESS_KEY_ID: {
                     from_secret: "AWS_ACCESS_KEY_ID"
@@ -184,7 +232,7 @@ local build(arch, testUI) = {
               "syncloud-upload.sh " + name + " $DRONE_BRANCH $VERSION $PACKAGE"
             ]
         },
-     {
+        {
             name: "artifact",
             image: "appleboy/drone-scp",
             settings: {
@@ -206,10 +254,10 @@ local build(arch, testUI) = {
             }
         }
     ],
-    services: [
+    services: ( if arch != "arm64" then [ 
         {
             name: "device-jessie",
-            image: "syncloud/platform-jessie-" + arch,
+            image: "syncloud/bootstrap-" + arch,
             privileged: true,
             volumes: [
                 {
@@ -221,10 +269,10 @@ local build(arch, testUI) = {
                     path: "/dev"
                 }
             ]
-        },
+        }] else []) + [
         {
             name: "device-buster",
-            image: "syncloud/platform-buster-" + arch,
+            image: "syncloud/bootstrap-buster-" + arch,
             privileged: true,
             volumes: [
                 {
@@ -237,7 +285,7 @@ local build(arch, testUI) = {
                 }
             ]
         }
-    ] + if testUI then [{
+    ] + ( if testUI then [{
             name: "selenium",
             image: "selenium/standalone-" + browser + ":4.0.0-beta-3-prerelease-20210402",
             volumes: [{
@@ -245,7 +293,7 @@ local build(arch, testUI) = {
                 path: "/dev/shm"
             }]
         }
-    ] else [],
+    ] else [] ),
     volumes: [
         {
             name: "dbus",
@@ -262,12 +310,24 @@ local build(arch, testUI) = {
         {
             name: "shm",
             temp: {}
+        },
+        {
+            name: "docker",
+            host: {
+                path: "/usr/bin/docker"
+            }
+        },
+        {
+            name: "docker.sock",
+            host: {
+                path: "/var/run/docker.sock"
+            }
         }
     ]
 };
 
 [
     build("arm", false),
-    #build("arm64", true),
-    build("amd64", false)
+    build("arm64", false),
+    build("amd64", true)
 ]

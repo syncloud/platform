@@ -1,4 +1,5 @@
 import json
+import time
 from os.path import dirname, join
 from subprocess import check_output
 
@@ -44,6 +45,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
         device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/www > {1}/app.www.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la /data/platform/backup > {0}/data.platform.backup.ls.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('df -h > {0}/df.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), artifact_dir)
         device.scp_from_device('{0}/log/*'.format(data_dir), artifact_dir)
         check_output('chmod -R a+r {0}'.format(artifact_dir), shell=True)
@@ -54,10 +56,10 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
+    device.run_ssh('/integration/install-snapd.sh', throw=True)
     device.run_ssh('mkdir /etc/syncloud', throw=True)
     device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
-    device.run_ssh('snap remove platform', throw=True)
     add_host_alias_by_ip(app, domain, device_host)
     add_host_alias_by_ip("app", domain, device_host)
 
@@ -249,14 +251,14 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
+def test_api_install_path(app_dir):
+    response = retry(lambda: get_app_dir('platform'))
+    assert app_dir in response, response
+
+
 def test_api_service_restart():
     status = restart('platform.nginx-public')
     assert 'OK' in status, status
-
-
-def test_api_install_path(app_dir):
-    response = get_app_dir('platform')
-    assert app_dir in response, response
 
 
 def test_api_config_dkim_key():
@@ -406,10 +408,11 @@ def test_real_certificate(app_dir, ssh_env_vars, device_host):
             password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
 
 
-def test_install_app(device, device_host):
-    session = device.login()
-    session.post('https://{0}/rest/install'.format(device_host), json={'app_id': 'files'}, verify=False)
-    wait_for_installer(session, device_host)
+# adding new arch, no apps in the store yet
+# def test_install_app(device, device_host):
+#     session = device.login()
+#     session.post('https://{0}/rest/install'.format(device_host), json={'app_id': 'files'}, verify=False)
+#     wait_for_installer(session, device_host)
 
 
 def test_rest_installed_apps(device, device_host, artifact_dir):
@@ -418,15 +421,15 @@ def test_rest_installed_apps(device, device_host, artifact_dir):
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) == 2
+    assert len(json.loads(response.text)['apps']) == 1
 
-
-def test_rest_installed_app(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
-    assert response.status_code == 200
-    with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
-        the_file.write(response.text)
-    assert response.status_code == 200
+# adding new arch, no apps in the store yet
+# def test_rest_installed_app(device, device_host, artifact_dir):
+#     response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+#     assert response.status_code == 200
+#     with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
+#         the_file.write(response.text)
+#     assert response.status_code == 200
 
 
 def test_rest_not_installed_app(device, device_host, artifact_dir):
@@ -452,7 +455,7 @@ def test_installer_upgrade(device, device_host):
 
 def test_backup_app(device, artifact_dir, device_host):
     session = device.login()
-    response = session.post('https://{0}/rest/backup/create'.format(device_host), json={'app': 'files'}, verify=False)
+    response = session.post('https://{0}/rest/backup/create'.format(device_host), json={'app': 'testapp'}, verify=False)
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
@@ -468,7 +471,7 @@ def test_backup_app(device, artifact_dir, device_host):
 
     response = session.post(
         'https://{0}/rest/backup/restore'.format(device_host),
-        json={'app': 'files', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
+        json={'app': 'testapp', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
@@ -592,3 +595,16 @@ def test_nginx_performance(device_host):
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
 
+
+def retry(method, retries=10):
+    attempt = 0
+    exception = None
+    while attempt < retries:
+        try:
+            return method()
+        except Exception as e:
+            exception = e
+            print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
+            time.sleep(1)
+        attempt += 1
+    raise exception
