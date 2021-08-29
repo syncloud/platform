@@ -1,4 +1,5 @@
 import json
+import time
 from os.path import dirname, join
 from subprocess import check_output
 
@@ -250,14 +251,14 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
+def test_api_install_path(app_dir):
+    response = retry(get_app_dir('platform'))
+    assert app_dir in response, response
+
+
 def test_api_service_restart():
     status = restart('platform.nginx-public')
     assert 'OK' in status, status
-
-
-def test_api_install_path(app_dir):
-    response = get_app_dir('platform')
-    assert app_dir in response, response
 
 
 def test_api_config_dkim_key():
@@ -593,3 +594,16 @@ def test_nginx_performance(device_host):
 def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
 
+
+def retry(method, retries=10):
+    attempt = 0
+    exception = None
+    while attempt < retries:
+        try:
+            return method()
+        except Exception as e:
+            exception = e
+            print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
+            time.sleep(1)
+        attempt += 1
+    raise exception
