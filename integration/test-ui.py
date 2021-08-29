@@ -177,26 +177,26 @@ def test_installed_app(driver, ui_mode, screenshot_dir):
     screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
 
 
-def test_remove_app(driver, ui_mode, screenshot_dir):
-    remove = 'btn_remove'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
-    driver.find_element_by_id(remove).click()
-    confirm = 'btn_confirm'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-    driver.find_element_by_id(confirm).click()
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
-    screenshots(driver, screenshot_dir, 'app_removed-' + ui_mode)
+# def test_remove_app(driver, ui_mode, screenshot_dir):
+#     remove = 'btn_remove'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
+#     driver.find_element_by_id(remove).click()
+#     confirm = 'btn_confirm'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
+#     driver.find_element_by_id(confirm).click()
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
+#     screenshots(driver, screenshot_dir, 'app_removed-' + ui_mode)
 
 
-def test_install_app(driver, ui_mode, screenshot_dir):
-    install = 'btn_install'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
-    driver.find_element_by_id(install).click()
-    confirm = 'btn_confirm'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-    driver.find_element_by_id(confirm).click()
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
-    screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
+# def test_install_app(driver, ui_mode, screenshot_dir):
+#     install = 'btn_install'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
+#     driver.find_element_by_id(install).click()
+#     confirm = 'btn_confirm'
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
+#     driver.find_element_by_id(confirm).click()
+#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
+#     screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
 
 
 def test_not_installed_app(driver, ui_mode, screenshot_dir):
