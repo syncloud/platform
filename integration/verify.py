@@ -408,10 +408,11 @@ def test_real_certificate(app_dir, ssh_env_vars, device_host):
             password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
 
 
-def test_install_app(device, device_host):
-    session = device.login()
-    session.post('https://{0}/rest/install'.format(device_host), json={'app_id': 'files'}, verify=False)
-    wait_for_installer(session, device_host)
+# adding new arch, no apps in the store yet
+# def test_install_app(device, device_host):
+#     session = device.login()
+#     session.post('https://{0}/rest/install'.format(device_host), json={'app_id': 'files'}, verify=False)
+#     wait_for_installer(session, device_host)
 
 
 def test_rest_installed_apps(device, device_host, artifact_dir):
@@ -420,15 +421,15 @@ def test_rest_installed_apps(device, device_host, artifact_dir):
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) == 2
+    assert len(json.loads(response.text)['apps']) == 1
 
-
-def test_rest_installed_app(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
-    assert response.status_code == 200
-    with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
-        the_file.write(response.text)
-    assert response.status_code == 200
+# adding new arch, no apps in the store yet
+# def test_rest_installed_app(device, device_host, artifact_dir):
+#     response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+#     assert response.status_code == 200
+#     with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
+#         the_file.write(response.text)
+#     assert response.status_code == 200
 
 
 def test_rest_not_installed_app(device, device_host, artifact_dir):
@@ -454,7 +455,7 @@ def test_installer_upgrade(device, device_host):
 
 def test_backup_app(device, artifact_dir, device_host):
     session = device.login()
-    response = session.post('https://{0}/rest/backup/create'.format(device_host), json={'app': 'files'}, verify=False)
+    response = session.post('https://{0}/rest/backup/create'.format(device_host), json={'app': 'testapp'}, verify=False)
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
@@ -470,7 +471,7 @@ def test_backup_app(device, artifact_dir, device_host):
 
     response = session.post(
         'https://{0}/rest/backup/restore'.format(device_host),
-        json={'app': 'files', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
+        json={'app': 'testapp', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
