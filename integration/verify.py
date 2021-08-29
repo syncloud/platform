@@ -252,7 +252,7 @@ def test_platform_rest(device_host):
 
 
 def test_api_install_path(app_dir):
-    response = retry(get_app_dir('platform'))
+    response = retry(lambda: get_app_dir('platform'))
     assert app_dir in response, response
 
 
