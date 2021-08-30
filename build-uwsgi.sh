@@ -19,6 +19,8 @@ cd ${BUILD_DIR}
 docker export python -o python.tar
 tar xf python.tar
 rm -rf python.tar
+docker rm python
+docker rmi python:syncloud
 cp ${DIR}/bin/python ${BUILD_DIR}/bin
 cp ${DIR}/bin/pip ${BUILD_DIR}/bin
 cp ${DIR}/bin/uwsgi ${BUILD_DIR}/bin

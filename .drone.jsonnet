@@ -20,7 +20,7 @@ local build(arch, testUI) = {
         },
         {
             name: "build web",
-            image: "node:16.1.0",
+            image: "node:16.1.0-slim",
             commands: [
                 "mkdir -p build/platform",
                 "cd www",
@@ -71,7 +71,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-unit",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             commands: [
               "apt update",
               "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3 libffi-dev",
@@ -84,7 +84,7 @@ local build(arch, testUI) = {
     ] + ( if arch != "arm64" then [
         {
             name: "test-intergation-jessie",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -105,7 +105,7 @@ local build(arch, testUI) = {
         }] else []) + [
         {
             name: "test-intergation-buster",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -127,7 +127,7 @@ local build(arch, testUI) = {
     ] + ( if (testUI) && (arch != "arm64") then [
         {
             name: "test-ui-desktop-jessie",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -149,7 +149,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-mobile-jessie",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -171,7 +171,7 @@ local build(arch, testUI) = {
         }] else [])  + ( if testUI then [
         {
             name: "test-ui-desktop-buster",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -193,7 +193,7 @@ local build(arch, testUI) = {
         },
         {
             name: "test-ui-mobile-buster",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
                     from_secret: "REDIRECT_USER"
@@ -216,7 +216,7 @@ local build(arch, testUI) = {
     ] else []) + [
         {
             name: "upload",
-            image: "python:3.9-slim-buster",
+            image: "python:3.8-slim-buster",
             environment: {
                 AWS_ACCESS_KEY_ID: {
                     from_secret: "AWS_ACCESS_KEY_ID"
