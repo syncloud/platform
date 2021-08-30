@@ -20,8 +20,9 @@ local build(arch, testUI) = {
         },
         {
             name: "build web",
-            image: "node:16.1.0-slim",
+            image: "node:16.1.0-alpine",
             commands: [
+                "apk add --update --no-cache python2",
                 "mkdir -p build/platform",
                 "cd www",
                 "npm install --unsafe-perm=true",
