@@ -22,10 +22,10 @@ local build(arch, testUI) = {
             name: "build web",
             image: "node:16.1.0-alpine",
             commands: [
-                "apk add --update --no-cache python2",
+                "apk add --update --no-cache python2 alpine-sdk ",
                 "mkdir -p build/platform",
                 "cd www",
-                "npm install --unsafe-perm=true",
+                "npm install",
                 "npm run test",
                 "npm run lint",
                 "npm run build",
