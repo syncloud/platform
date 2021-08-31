@@ -58,6 +58,7 @@ def test_start(module_setup, device, app, domain, device_host):
     device.scp_to_device(DIR, '/', throw=True)
     device.run_ssh('/integration/install-snapd.sh', throw=True)
     device.run_ssh('mkdir /etc/syncloud', throw=True)
+    device.run_ssh('rm -rf /usr/lib/sasl2', throw=True)
     device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
     add_host_alias_by_ip(app, domain, device_host)
