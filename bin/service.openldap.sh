@@ -10,6 +10,7 @@ fi
 
 export LD_LIBRARY_PATH=$DIR/openldap/lib
 export SASL_PATH=$DIR/openldap/lib
+export SASL_CONF_PATH=$DIR/openldap/lib
 
 SOCKET="${SNAP_COMMON}/openldap.socket"
 case $1 in
