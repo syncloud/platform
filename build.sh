@@ -21,7 +21,8 @@ SNAP_DIR=${DIR}/build/snap
 apt update
 apt install -y wget squashfs-tools dpkg-dev
 
-cp -r ${DIR}/bin/* ${BUILD_DIR}/bin
+cp -r ${DIR}/bin ${BUILD_DIR}
+cp -r ${DIR}/config ${BUILD_DIR}
 
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/nginx/nginx-${ARCH}.tar.gz
 tar xf nginx-${ARCH}.tar.gz
@@ -41,8 +42,6 @@ rm -f version
 echo ${VERSION} >> version
 ${PYTHON_DIR}/bin/python setup.py install
 cd ..
-
-cp -r ${DIR}/config ${BUILD_DIR}/config.templates
 
 mkdir ${BUILD_DIR}/META
 echo ${NAME} >> ${BUILD_DIR}/META/app

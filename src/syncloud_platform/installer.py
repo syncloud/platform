@@ -19,13 +19,11 @@ class PlatformInstaller:
             logger.init(logging.DEBUG, True)
 
         self.log = logger.get_logger('installer')
-        self.templates_path = join(config.INSTALL_DIR, 'config.templates')
         self.config_dir = join(config.DATA_DIR, 'config')
         self.data_dir = config.DATA_DIR
     
     def init_configs(self):
         linux.fix_locale()
-        shutil.copytree(self.templates_path, self.config_dir, dirs_exist_ok=True)
 
         data_dirs = [
             join(self.data_dir, 'webapps'),

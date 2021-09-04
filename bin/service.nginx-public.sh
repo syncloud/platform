@@ -9,17 +9,17 @@ fi
 
 case $1 in
 start)
-    ${DIR}/nginx/sbin/nginx -t -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
-    exec $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
+    ${DIR}/nginx/sbin/nginx -t -c /var/snap/platform/current/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
+    exec $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
     ;;
 post-start)
     timeout 5 /bin/bash -c 'until echo > /dev/tcp/localhost/80; do sleep 1; done'
     ;;
 reload)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -s reload -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
+    $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -s reload -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
     ;;
 stop)
-    $DIR/nginx/sbin/nginx -c ${SNAP_COMMON}/config.runtime/nginx/nginx.conf -s stop -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
+    $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -s stop -g 'error_log '${SNAP_COMMON}'/log/nginx_public_error.log warn;'
     ;;
 *)
     echo "not valid command"
