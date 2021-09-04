@@ -19,7 +19,6 @@ class PlatformInstaller:
             logger.init(logging.DEBUG, True)
 
         self.log = logger.get_logger('installer')
-        self.config_dir = join(config.DATA_DIR, 'config')
         self.data_dir = config.DATA_DIR
     
     def init_configs(self):

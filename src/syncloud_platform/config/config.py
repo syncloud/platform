@@ -17,7 +17,6 @@ def env(key, default_value):
         return os.environ[key]
     return default_value
 
-INSTALL_DIR = env('SNAP', 'not_set')
 DATA_DIR = env('SNAP_COMMON', 'not_set')
 
 
@@ -26,7 +25,7 @@ class PlatformConfig:
     def __init__(self, config_dir):
         self.parser = ConfigParser()
         self.filename = join(config_dir, PLATFORM_CONFIG_NAME)
-        if (not isfile(self.filename)):
+        if not isfile(self.filename):
             raise Exception('platform config does not exist: {0}'.format(self.filename))
         self.parser.read(self.filename)
 

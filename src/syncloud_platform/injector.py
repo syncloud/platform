@@ -37,7 +37,7 @@ default_injector = None
 def get_injector(debug=False):
     global default_injector
     if default_injector is None:
-        config_dir = join(environ['SNAP_COMMON'], 'config')
+        config_dir = join(environ['SNAP'], 'config')
         default_injector = Injector(config_dir=config_dir, debug=debug)
     return default_injector
 
