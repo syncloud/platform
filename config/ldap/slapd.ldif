@@ -29,12 +29,14 @@ dn: cn=module,cn=config
 objectClass: olcModuleList
 cn: module
 olcModulepath:/snap/platform/current/openldap/usr/lib/ldap
-olcModuleload:	back_mdb
+olcModuleLoad: memberof.la
+olcModuleload: back_mdb.la
+olcModuleload: back_ldap.la
+olcModuleLoad: ppolicy.la
+
 #olcModuleload:	back_hdb.la
-#olcModuleload:	back_ldap.la
 #olcModuleload:	back_passwd.la
 #olcModuleload:	back_shell.la
-olcModuleLoad: ppolicy
 
 dn: cn=schema,cn=config
 objectClass: olcSchemaConfig
