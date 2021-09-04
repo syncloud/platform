@@ -26,7 +26,8 @@ apps:
     - network-bind
     restart-condition: always
   uwsgi-api:
-    command: bin/service.uwsgi.sh api
+    command: bin/service.uwsgi.sh api start
+    stop-command: bin/service.uwsgi.sh api stop
     daemon: notify
     plugs:
     - network
@@ -34,7 +35,8 @@ apps:
     start-timeout: 200s
     restart-condition: always
   uwsgi-public:
-    command: bin/service.uwsgi.sh public
+    command: bin/service.uwsgi.sh public start
+    stop-command: bin/service.uwsgi.sh public stop
     daemon: notify
     plugs:
     - network
