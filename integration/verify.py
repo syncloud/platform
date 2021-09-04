@@ -585,6 +585,18 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
 
+def test_remove(app_archive_path, device_host, device):
+    device.run_ssh('snap remove platform')
+
+
+def test_install_stable_from_store(app_archive_path, device_host, device):
+    device.run_ssh('snap install platform')
+
+
+def test_upgrade(app_archive_path, device_host, device):
+    local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+
+
 def test_if_cron_is_empty_after_upgrade(device_host):
     cron_is_empty_after_install(device_host)
 

@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	"time"
 )
 
 const ldapUserConfDir = "slapd.d"
@@ -126,28 +127,23 @@ func (l *Service) Reset(name string, user string, password string, email string)
 }
 
 func (l *Service) initDb(filename string) error {
-	//TODO: wait for ldap to start?
-	return l.ldapAdd(filename, Domain)
-	/*        success = False
-	for i in range(0, 3):
-	    try:
-	        self.ldapadd(filename, DOMAIN)
-	        success = True
-	        break
-	    except Exception as e:
-	        self.log.warn(str(e))
-	        self.log.warn("probably ldap is still starting, will retry {0}".format(i))
-	        time.sleep(1)
-
-	if not success:
-	    raise Exception("Unable to initialize ldap db")
-	*/
+	var err error
+	for i := 0; i < 10; i++ {
+		err = l.ldapAdd(filename, Domain)
+		if err == nil {
+			break
+		}
+		log.Println(err)
+		log.Printf("probably ldap is still starting, will retry %d\n", i)
+		time.Sleep(time.Second * 1)
+	}
+	return err
 }
 
 func (l *Service) ldapAdd(filename string, bindDn string) error {
 	cmd := path.Join(l.ldapRoot, "bin", "ldapadd.sh")
 	output, err := exec.Command(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename).CombinedOutput()
-	log.Printf("ldapad output: %s", output)
+	log.Printf("ldapadd output: %s", output)
 	return err
 }
 
