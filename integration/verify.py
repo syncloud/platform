@@ -36,7 +36,6 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
     def module_teardown():
         device.scp_from_device('{0}/config'.format(data_dir), artifact_dir)
         device.scp_from_device('{0}/config.runtime'.format(data_dir), artifact_dir)
-        device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
         device.run_ssh('snap run platform.cli ipv4 public > {0}/cli.ipv4.public.log'.format(TMP_DIR), throw=False)
         device.run_ssh('snap run platform.cli config list > {0}/cli.config.list.log'.format(TMP_DIR), throw=False)
@@ -54,6 +53,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 
 
 def test_start(module_setup, device, app, domain, device_host):
+    device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
     device.run_ssh('/integration/install-snapd.sh', throw=True)
@@ -585,12 +585,14 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
 
-def test_remove(app_archive_path, device_host, device):
+def test_remove(device):
+    device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
     device.run_ssh('snap remove platform')
 
 
-def test_install_stable_from_store(app_archive_path, device_host, device):
+def test_install_stable_from_store(device):
     device.run_ssh('snap install platform')
+    device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
 
 
 def test_upgrade(app_archive_path, device_host, device):
