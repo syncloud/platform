@@ -11,7 +11,7 @@ import (
 type SystemdMock struct {
 }
 
-func (s *SystemdMock) ReloadService(service string) error {
+func (s *SystemdMock) ReloadService(_ string) error {
 	return nil
 }
 
