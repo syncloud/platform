@@ -16,16 +16,16 @@ func (s *SystemdMock) ReloadService(service string) error {
 }
 
 type SystemConfigMock struct {
-	configDir      string
-	nginxConfigDir string
+	configDir string
+	dataDir   string
 }
 
 func (s *SystemConfigMock) ConfigDir() (*string, error) {
 	return &s.configDir, nil
 }
 
-func (s *SystemConfigMock) NginxConfigDir() (*string, error) {
-	return &s.nginxConfigDir, nil
+func (s *SystemConfigMock) DataDir() (*string, error) {
+	return &s.dataDir, nil
 }
 
 type UserConfigMock struct {
@@ -43,7 +43,7 @@ func TestSubstitution(t *testing.T) {
 
 	configDir := path.Join("..", "..", "config")
 	systemd := &SystemdMock{}
-	systemConfig := &SystemConfigMock{configDir: configDir, nginxConfigDir: outputDir}
+	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
 	userConfig := &UserConfigMock{"example.com"}
 	nginx := New(systemd, systemConfig, userConfig)
 	assert.Nil(t, err)
