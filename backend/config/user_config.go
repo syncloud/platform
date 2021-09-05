@@ -27,7 +27,7 @@ var DefaultConfigDb string
 
 func init() {
 	OldConfig = fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
-	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_COMMON"))
+	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_DATA"))
 }
 
 func NewUserConfig(file string, oldConfigFile string, redirectDomain string) (*UserConfig, error) {

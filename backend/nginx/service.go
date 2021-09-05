@@ -12,7 +12,7 @@ type Systemd interface {
 
 type SystemConfig interface {
 	ConfigDir() (*string, error)
-	NginxConfigDir() (*string, error)
+	DataDir() (*string, error)
 }
 
 type UserConfig interface {
@@ -52,7 +52,7 @@ func (n *Nginx) InitConfig() error {
 
 	template := string(templateFile)
 	template = strings.ReplaceAll(template, "{{ domain }}", strings.ReplaceAll(domain, ".", "\\."))
-	nginxConfigDir, err := n.systemConfig.NginxConfigDir()
+	nginxConfigDir, err := n.systemConfig.DataDir()
 	if err != nil {
 		return err
 	}

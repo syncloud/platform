@@ -9,8 +9,8 @@ cn: config
 #
 # Define global ACLs to disable default read access.
 #
-olcArgsFile: /var/snap/platform/common/openldap/slapd.args
-olcPidFile: /var/snap/platform/common/openldap/slapd.pid
+olcArgsFile: /var/snap/platform/current/openldap/slapd.args
+olcPidFile: /var/snap/platform/current/openldap/slapd.pid
 #
 # Do not enable referrals until AFTER you have a working directory
 # service AND an understanding of referrals.
@@ -117,7 +117,7 @@ olcRootPW: syncloud
 # The database directory MUST exist prior to running slapd AND 
 # should only be accessible by the slapd and slap tools.
 # Mode 700 recommended.
-olcDbDirectory:	/var/snap/platform/common/openldap-data
+olcDbDirectory:	/var/snap/platform/current/openldap-data
 # Indices to maintain
 olcDbIndex: objectClass eq
 

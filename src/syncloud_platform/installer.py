@@ -1,6 +1,6 @@
 import logging
 import shutil
-from os.path import join
+from os.path import join, isdir
 from subprocess import check_output, CalledProcessError
 
 from syncloudlib import logger, fs
@@ -19,14 +19,16 @@ class PlatformInstaller:
             logger.init(logging.DEBUG, True)
 
         self.log = logger.get_logger('installer')
-        self.data_dir = config.DATA_DIR
-    
+        self.data_dir = '/var/snap/platform/current'
+        self.common_dir = '/var/snap/platform/current'
+        self.slapd_config_dir = join(self.runtime_config_dir, 'slapd.d')
+
+
     def init_configs(self):
         linux.fix_locale()
 
         data_dirs = [
-            join(self.data_dir, 'webapps'),
-            join(self.data_dir, 'log'),
+            join(self.common_dir, 'log'),
             join(self.data_dir, 'nginx'),
             join(self.data_dir, 'openldap'),
             join(self.data_dir, 'openldap-data'),
@@ -73,7 +75,13 @@ class PlatformInstaller:
         self.init_configs()
         user_config = PlatformUserConfig()
         user_config.init_config()
+        self.migrate_ldap()
         self.init_services()
+
+    def migrate_ldap(self):
+        old_config = '/var/snap/platform/common/slapd.d'
+        if not isdir(self.slapd_config_dir):
+            shutil.copytree(old_config, self.slapd_config_dir)
 
     def configure(self):
         pass

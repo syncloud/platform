@@ -28,12 +28,12 @@ type Service struct {
 	configDir   string
 }
 
-func New(snapService *snap.Service, dataDir string, appDir string, configDir string) *Service {
+func New(snapService *snap.Service, runtimeConfigDir string, appDir string, configDir string) *Service {
 
 	return &Service{
 		snapService: snapService,
-		userConfDir: path.Join(dataDir, ldapUserConfDir),
-		userDataDir: path.Join(dataDir, ldapUserDataDir),
+		userConfDir: path.Join(runtimeConfigDir, ldapUserConfDir),
+		userDataDir: path.Join(runtimeConfigDir, ldapUserDataDir),
 		ldapRoot:    path.Join(appDir, "openldap"),
 		configDir:   configDir,
 	}

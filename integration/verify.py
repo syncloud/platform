@@ -135,8 +135,8 @@ def test_activate_custom(device, device_host, main_domain):
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
-    device.run_ssh('rm /var/snap/platform/common/platform.db')
-    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('rm /var/snap/platform/current/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
@@ -148,8 +148,8 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
-    device.run_ssh('rm /var/snap/platform/common/platform.db')
-    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('rm /var/snap/platform/current/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
@@ -175,8 +175,8 @@ def test_reactivate_activated_device(device_host, full_domain, device_user, devi
 
 
 def test_drop_activation(device, main_domain):
-    device.run_ssh('rm /var/snap/platform/common/platform.db')
-    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('rm /var/snap/platform/current/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
@@ -586,7 +586,7 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
 
 
 def test_remove(device):
-    device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
     device.run_ssh('snap remove platform')
 
 

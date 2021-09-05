@@ -30,16 +30,16 @@ func (c *SystemConfig) DataDir() (*string, error) {
 	return c.get("data_dir")
 }
 
+func (c *SystemConfig) CommonDir() (*string, error) {
+	return c.get("common_dir")
+}
+
 func (c *SystemConfig) AppDir() (*string, error) {
 	return c.get("app_dir")
 }
 
 func (c *SystemConfig) ConfigDir() (*string, error) {
 	return c.get("config_dir")
-}
-
-func (c *SystemConfig) NginxConfigDir() (*string, error) {
-	return c.get("nginx_config_dir")
 }
 
 func (c *SystemConfig) get(key string) (*string, error) {

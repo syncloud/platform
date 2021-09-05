@@ -19,5 +19,5 @@ class Nginx:
         variables = {'domain': domain.replace(".", "\\.")}
         gen.generate_file_jinja(
             join(self.config.config_dir(), 'nginx', 'public.conf'), 
-            join(self.config.nginx_config_dir(), 'nginx.conf'),
+            join(self.config.data_dir(), 'nginx.conf'),
             variables)

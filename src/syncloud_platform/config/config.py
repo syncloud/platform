@@ -17,8 +17,6 @@ def env(key, default_value):
         return os.environ[key]
     return default_value
 
-DATA_DIR = env('SNAP_COMMON', 'not_set')
-
 
 class PlatformConfig:
 
@@ -56,8 +54,8 @@ class PlatformConfig:
     def bin_dir(self):
         return self.__get('bin_dir')
 
-    def nginx_config_dir(self):
-        return self.__get('nginx_config_dir')
+    def common_dir(self):
+        return self.__get('common_dir')
 
     def openssl(self):
         return self.__get('openssl')
