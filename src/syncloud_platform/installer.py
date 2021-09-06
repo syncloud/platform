@@ -5,7 +5,6 @@ from subprocess import check_output, CalledProcessError
 
 from syncloudlib import logger, fs
 
-from syncloud_platform.config import config
 from syncloud_platform.config.user_config import PlatformUserConfig
 from syncloud_platform.gaplib import linux, gen
 from syncloud_platform.injector import get_injector
@@ -21,7 +20,7 @@ class PlatformInstaller:
         self.log = logger.get_logger('installer')
         self.data_dir = '/var/snap/platform/current'
         self.common_dir = '/var/snap/platform/current'
-        self.slapd_config_dir = join(self.runtime_config_dir, 'slapd.d')
+        self.slapd_config_dir = join(self.data_dir, 'slapd.d')
 
 
     def init_configs(self):
@@ -82,6 +81,6 @@ class PlatformInstaller:
         old_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):
             shutil.copytree(old_config, self.slapd_config_dir)
-
+            # TODO: migrate module loading config
     def configure(self):
         pass
