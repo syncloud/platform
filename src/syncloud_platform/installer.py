@@ -84,7 +84,7 @@ class PlatformInstaller:
             shutil.copytree(old_config, self.slapd_config_dir)
 
             shutil.copyfile(join(self.snap_dir, 'config/ldap/upgrade/cn=module{0}.ldif'),
-                            join(self.slapd_config_dir, 'cn=config'))
+                            join(self.slapd_config_dir, 'cn=config/cn=module{0}.ldif'))
             check_output('sed -i "s#{0}#{1}#g" {2}/cn=config.ldif'.format(self.slapd_config_dir, self.common_dir, self.data_dir), shell=True)
             check_output('sed -i "s#{0}#{1}#g" {2}/cn=config/olcDatabase={{3}}mdb.ldif.ldif'.format(self.slapd_config_dir, self.common_dir, self.data_dir), shell=True)
 
