@@ -19,7 +19,7 @@ class PlatformInstaller:
 
         self.log = logger.get_logger('installer')
         self.data_dir = '/var/snap/platform/current'
-        self.common_dir = '/var/snap/platform/current'
+        self.common_dir = '/var/snap/platform/common'
         self.slapd_config_dir = join(self.data_dir, 'slapd.d')
 
 
