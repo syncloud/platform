@@ -12,7 +12,7 @@ start)
     exec $DIR/python/bin/uwsgi --ini /snap/platform/current/config/uwsgi/"$1".ini
     ;;
 stop)
-    exec $DIR/python/bin/uwsgi --stop /snap/platform/current/uwsgi."$1".pid
+    exec $DIR/python/bin/uwsgi --stop /var/snap/platform/current/uwsgi."$1".pid
     ;;
 *)
     echo "not valid command"
