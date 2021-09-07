@@ -597,6 +597,7 @@ def test_install_stable_from_store(device):
 
 def test_upgrade(app_archive_path, device_host, device):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+    device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
 def test_if_cron_is_empty_after_upgrade(device_host):

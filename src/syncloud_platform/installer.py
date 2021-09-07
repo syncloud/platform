@@ -18,6 +18,7 @@ class PlatformInstaller:
             logger.init(logging.DEBUG, True)
 
         self.log = logger.get_logger('installer')
+        self.snap_dir = '/snap/platform/current'
         self.data_dir = '/var/snap/platform/current'
         self.common_dir = '/var/snap/platform/common'
         self.slapd_config_dir = join(self.data_dir, 'slapd.d')
@@ -81,6 +82,11 @@ class PlatformInstaller:
         old_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):
             shutil.copytree(old_config, self.slapd_config_dir)
-            # TODO: migrate module loading config
+
+            shutil.copyfile(join(self.snap_dir, 'config/ldap/upgrade/cn=module{0}.ldif'),
+                            join(self.slapd_config_dir, 'cn=config'))
+            check_output('sed -i "s#{0}#{1}#g" {2}/cn=config.ldif'.format(self.slapd_config_dir, self.common_dir, self.data_dir), shell=True)
+            check_output('sed -i "s#{0}#{1}#g" {2}/cn=config/olcDatabase={{3}}mdb.ldif.ldif'.format(self.slapd_config_dir, self.common_dir, self.data_dir), shell=True)
+
     def configure(self):
         pass
