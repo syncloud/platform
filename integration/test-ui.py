@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from syncloudlib.integration.screenshots import screenshots
-from syncloudlib.integration.hosts import add_host_alias
+import requests
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
@@ -33,9 +33,11 @@ def test_start(app, device_host, module_setup):
 
 
 def test_deactivate(device, device_host):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False)
-    assert '"success": true' in response.text
-    assert response.status_code == 200
+    response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
+    if response.status_code != 501:
+        response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False)
+        assert '"success": true' in response.text
+        assert response.status_code == 200
 
 
 def test_activate(driver, selenium, device_host,
