@@ -56,7 +56,7 @@ def test_activate(driver, selenium, device_host,
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
-    #wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(device_user))
+    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(""))
     selenium.find_by_id('device_username').send_keys(device_user)
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
