@@ -591,7 +591,7 @@ def test_remove(device):
 
 
 def test_install_stable_from_store(device, arch):
-    if arch is not 'arm64':
+    if arch != 'arm64':
         device.run_ssh('snap install platform')
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
 

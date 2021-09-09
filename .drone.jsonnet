@@ -125,7 +125,7 @@ local build(arch, testUI) = {
               "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
-    ] + ( if (testUI) && (arch != "arm64") then [
+    ] + ( if testUI then [
         {
             name: "test-ui-desktop-jessie",
             image: "python:3.8-slim-buster",
@@ -169,7 +169,7 @@ local build(arch, testUI) = {
                 name: "shm",
                 path: "/dev/shm"
             }]
-        }] else [])  + ( if testUI then [
+        },
         {
             name: "test-ui-desktop-buster",
             image: "python:3.8-slim-buster",
