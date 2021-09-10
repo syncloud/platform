@@ -596,7 +596,7 @@ def test_install_stable_from_store(device, arch):
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
 
 
-def test_upgrade(app_archive_path, device_host, device):
+def test_upgrade(app_archive_path, device_host, device, arch):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
     if arch != 'arm64':
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
