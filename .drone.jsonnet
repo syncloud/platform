@@ -48,7 +48,6 @@ local build(arch, testUI) = {
             image: "golang:1.16.4",
             commands: [
                 "cd integration/api",
-                "go test ./... -cover",
                 "go test -c -o api.test"
             ]
         },

@@ -9,7 +9,7 @@ func TestGetAppDir(t *testing.T) {
 
 	dir, err := GetAppDir("platform")
 
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	assert.Equal(t, "/snap/platform/current", dir)
 }
 
@@ -17,7 +17,7 @@ func TestRestart(t *testing.T) {
 
 	status, err := Restart("platform.nginx-public")
 
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	assert.Contains(t, "OK", status)
 }
 
