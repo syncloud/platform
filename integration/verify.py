@@ -623,6 +623,6 @@ def retry(method, retries=10):
         except Exception as e:
             exception = e
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
-            time.sleep(1)
+            time.sleep(5)
         attempt += 1
     raise exception
