@@ -30,7 +30,7 @@ func do(method string, url string, data interface{}) (*string, error) {
 		}
 		dataReader = bytes.NewReader(requestJson)
 	}
-	request, err := http.NewRequest(method, fmt.Sprintf("http://unix/%s", url), dataReader)
+	request, err := http.NewRequest(method, fmt.Sprintf("http://unix%s", url), dataReader)
 	if err != nil {
 		return nil, err
 	}
