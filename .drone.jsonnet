@@ -45,6 +45,14 @@ local build(arch, testUI) = {
             ]
         },
         {
+            name: "build api test",
+            image: "golang:1.16.4",
+            commands: [
+                "cd integration/api",
+                "go test -c -o api.test"
+            ]
+        },
+        {
             name: "build uwsgi",
             image: "debian:buster-slim",
             commands: [
@@ -97,8 +105,6 @@ local build(arch, testUI) = {
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
               "./integration/wait-ssh.sh device-jessie",
-              "mkdir -p /var/snap/platform/common",
-              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-jessie",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
@@ -118,8 +124,6 @@ local build(arch, testUI) = {
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
               "./integration/wait-ssh.sh device-buster",
-              "mkdir -p /var/snap/platform/common",
-              "sshpass -p syncloud ssh -o StrictHostKeyChecking=no -fN -L /var/snap/platform/common/api.socket:/var/snap/platform/common/api.socket root@device-buster",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"

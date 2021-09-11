@@ -252,32 +252,9 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_api_install_path(app_dir):
-    response = retry(lambda: get_app_dir('platform'))
-    assert app_dir in response, response
-
-
-def test_api_service_restart():
-    status = restart('platform.nginx-public')
-    assert 'OK' in status, status
-
-
-def test_api_config_dkim_key():
-    response = set_dkim_key('dkim123')
-    assert 'OK' in response, response
-
-    response = get_dkim_key()
-    assert 'dkim123' in response, response
-
-
-def test_api_data_path(data_dir):
-    response = get_data_dir('platform')
-    assert data_dir in response, response
-
-
-def test_api_url(app_domain):
-    response = get_app_url('platform')
-    assert app_domain in response, response
+def test_api(device):
+    device.scp_to_device(join(DIR, "api/api.test"), '/', throw=True)
+    device.run_ssh('/api.test')
 
 
 def test_certbot_cli(app_dir, device_host):
@@ -354,7 +331,7 @@ def test_device_url(device, device_host, artifact_dir, full_domain):
     assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
 
-def test_api_url_443(device, device_host, app_domain):
+def test_api_url_443(device, device_host,):
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
@@ -367,13 +344,9 @@ def test_api_url_443(device, device_host, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
-    url = get_app_url('platform')
-
-    assert app_domain in url, url
-    assert 'https' in url, url
 
 
-def test_api_url_10000(device, device_host, app_domain):
+def test_api_url_10000(device, device_host):
     response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                    json={'upnp_enabled': False,
                                          'external_access': False, 'public_ip': 0,
@@ -383,11 +356,6 @@ def test_api_url_10000(device, device_host, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
-
-    url = get_app_url('platform')
-
-    assert app_domain in url, url
-    assert 'https' in url, url
 
 
 def test_set_access_error(device, device_host):
