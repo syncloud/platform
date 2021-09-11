@@ -7,12 +7,12 @@ import (
 )
 
 type Trigger struct {
-	snap *snap.Snapd
+	snapd *snap.Snapd
 }
 
-func New() *Trigger {
+func New(snapd *snap.Snapd) *Trigger {
 	return &Trigger{
-		snap: snap.New(),
+		snapd: snapd,
 	}
 }
 
@@ -22,13 +22,13 @@ func (t *Trigger) RunAccessChangeEvent() error {
 
 func (t *Trigger) RunEventOnAllApps(event string) error {
 
-	snaps, err := t.snap.ListAllApps()
+	snaps, err := t.snapd.ListAllApps()
 	if err != nil {
 		log.Printf("snap info failed: %v", err)
 		return err
 	}
-	for _, snap := range snaps {
-		found, app := snap.FindApp(event)
+	for _, info := range snaps {
+		found, app := info.FindApp(event)
 		if found {
 			var cmd = app.RunCommand()
 			log.Println("Running: ", cmd)

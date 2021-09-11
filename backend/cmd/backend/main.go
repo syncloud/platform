@@ -80,7 +80,9 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 
 	master := job.NewMaster()
 	backupService := backup.NewDefault()
-	eventTrigger := event.New()
+	snapClient := snap.NewClient()
+	snapd := snap.New(snapClient)
+	eventTrigger := event.New(snapd)
 	installerService := installer.New()
 	storageService := storage.New()
 	userConfig, err := config.NewUserConfig(configDb, config.OldConfig, redirectDomain)
