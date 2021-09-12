@@ -33,6 +33,7 @@ def test_start(app, device_host, module_setup):
 
 
 def test_deactivate(device, device_host, main_domain):
+    device.activated()
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
