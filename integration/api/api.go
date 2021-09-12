@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,11 +9,13 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 const socket = "/var/snap/platform/common/api.socket"
 
-func do(method string, url string, data interface{}) (*string, error) {
+func do(method string, url string, data url.Values) (*string, error) {
 	client := http.Client{
 		Transport: &http.Transport{
 			DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
@@ -24,17 +25,13 @@ func do(method string, url string, data interface{}) (*string, error) {
 	}
 	var dataReader io.Reader
 	if data != nil {
-		requestJson, err := json.Marshal(data)
-		if err != nil {
-			return nil, err
-		}
-		dataReader = bytes.NewReader(requestJson)
+		dataReader = strings.NewReader(data.Encode())
 	}
 	request, err := http.NewRequest(method, fmt.Sprintf("http://unix%s", url), dataReader)
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	responseString, err := client.Do(request)
 	if err != nil {
 		return nil, err
@@ -66,11 +63,11 @@ func GetAppDir(app string) (*string, error) {
 }
 
 func Restart(service string) (*string, error) {
-	return do(http.MethodPost, "/service/restart", &ServiceRestart{Name: service})
+	return do(http.MethodPost, "/service/restart", url.Values{"name": {service}})
 }
 
 func SetDkimKey(dkimKey string) (*string, error) {
-	return do(http.MethodPost, "/config/set_dkim_key", &DkimKey{dkimKey})
+	return do(http.MethodPost, "/config/set_dkim_key", url.Values{"dkim_key": {dkimKey}})
 }
 
 func GetDkimKey() (*string, error) {
