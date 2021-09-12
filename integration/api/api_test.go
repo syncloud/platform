@@ -34,7 +34,7 @@ func TestConfigDkimKey(t *testing.T) {
 func TestDataPath(t *testing.T) {
 	dataDir, err := GetDataDir("platform")
 	assert.Nil(t, err)
-	assert.Equal(t, "/var/snap/platform/current", *dataDir)
+	assert.Equal(t, "/var/snap/platform/common", *dataDir)
 }
 
 func TestUrl(t *testing.T) {
