@@ -14,11 +14,6 @@ from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-from syncloudlib.application.storage import init_storage
-from syncloudlib.application.service import restart
-from syncloudlib.application.paths import get_data_dir, get_app_dir
-from syncloudlib.application.config import set_dkim_key, get_dkim_key
-from syncloudlib.application.urls import get_app_url
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud'
@@ -523,8 +518,7 @@ def disk_deactivate(loop, device, device_host):
 
 
 def current_disk_link(device):
-    link = init_storage('platform', 'root')
-    return device.run_ssh("realpath {}".format(link))
+    return device.run_ssh("realpath /data/platform")
 
 
 def test_if_cron_is_empty_after_install(device_host):
