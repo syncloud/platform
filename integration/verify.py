@@ -472,7 +472,7 @@ def loop_device(device_host):
 
 def disk_writable(device_host):
     run_ssh(device_host, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, "touch /data/platform/test.file", password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
