@@ -32,7 +32,9 @@ def test_start(app, device_host, module_setup):
     pass
 
 
-def test_deactivate(device, device_host):
+def test_deactivate(device, device_host, main_domain):
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
     if response.status_code != 501:
         response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False)
