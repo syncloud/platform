@@ -34,11 +34,12 @@ func TestConfigDkimKey(t *testing.T) {
 func TestDataPath(t *testing.T) {
 	dataDir, err := GetDataDir("platform")
 	assert.Nil(t, err)
-	assert.Equal(t, "/var/snap/platform/current", dataDir)
+	assert.Equal(t, "/var/snap/platform/current", *dataDir)
 }
 
 func TestUrl(t *testing.T) {
 	url, err := GetAppUrl("platform")
 	assert.Nil(t, err)
-	assert.Contains(t, ".syncloud.info", *url)
+	assert.Contains(t, *url, ".syncloud.info")
+	assert.Contains(t, *url, "https://platform.")
 }
