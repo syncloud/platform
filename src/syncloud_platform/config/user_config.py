@@ -4,10 +4,9 @@ import uuid
 from configparser import ConfigParser
 from os.path import isfile, join
 from syncloudlib import logger
-from syncloud_platform.config import config
 
-USER_CONFIG_FILE_OLD = join(config.DATA_DIR, 'user_platform.cfg')
-USER_CONFIG_DB = join(config.DATA_DIR, 'platform.db')
+USER_CONFIG_FILE_OLD = '/var/snap/platform/common/user_platform.cfg'
+USER_CONFIG_DB = '/var/snap/platform/current/platform.db'
 
 TRUE = 'true'
 FALSE = 'false'

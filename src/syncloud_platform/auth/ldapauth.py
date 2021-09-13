@@ -11,7 +11,7 @@ from syncloudlib import gen, fs
 from syncloudlib.logger import get_logger
 import time
 
-ldap_user_conf_dir = 'slapd.d'
+ldap_user_conf_dir = '/var/snap/platform/current/slapd.d'
 DOMAIN="dc=syncloud,dc=org"
 
 
@@ -20,11 +20,11 @@ class LdapAuth:
         self.systemctl = systemctl
         self.log = get_logger('ldap')
         self.config = platform_config
-        self.user_conf_dir = join(self.config.data_dir(), ldap_user_conf_dir)
+        self.user_conf_dir = ldap_user_conf_dir
         self.ldap_root = '{0}/openldap'.format(self.config.app_dir())
 
     def installed(self):
-        return os.path.isdir(join(self.config.data_dir(), ldap_user_conf_dir))
+        return os.path.isdir(self.user_conf_dir)
 
     def init(self):
         if self.installed():

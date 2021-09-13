@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from syncloudlib.integration.screenshots import screenshots
-from syncloudlib.integration.hosts import add_host_alias
+import requests
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
@@ -32,10 +32,16 @@ def test_start(app, device_host, module_setup):
     pass
 
 
-def test_deactivate(device, device_host):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False)
-    assert '"success": true' in response.text
-    assert response.status_code == 200
+def test_deactivate(device, device_host, main_domain):
+    device.activated()
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap restart platform.backend')
+
+    response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
+    if response.status_code != 501:
+        response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False)
+        assert '"success": true' in response.text
+        assert response.status_code == 200
 
 
 def test_activate(driver, selenium, device_host,
@@ -54,7 +60,8 @@ def test_activate(driver, selenium, device_host,
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
-    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(device_user))
+    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(""))
+    selenium.find_by_id('device_username').send_keys(device_user)
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()

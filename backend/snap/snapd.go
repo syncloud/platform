@@ -1,12 +1,10 @@
 package snap
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 )
 
@@ -14,23 +12,21 @@ const (
 	SOCKET = "/var/run/snapd.socket"
 )
 
+type SnapdClient interface {
+	Get(url string) (resp *http.Response, err error)
+}
+
 type Snapd struct {
-	client http.Client
+	client SnapdClient
 }
 
 type Response struct {
 	Result []Snap `json:"result"`
 }
 
-func New() *Snapd {
+func New(client SnapdClient) *Snapd {
 	return &Snapd{
-		client: http.Client{
-			Transport: &http.Transport{
-				DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
-					return net.Dial("unix", SOCKET)
-				},
-			},
-		},
+		client: client,
 	}
 }
 
@@ -49,7 +45,9 @@ func (snap *Snapd) ListAllApps() ([]Snap, error) {
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
+
 	var response Response
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {

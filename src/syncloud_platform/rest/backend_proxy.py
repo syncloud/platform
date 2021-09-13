@@ -1,6 +1,6 @@
 import requests_unixsocket
 
-socket_file = '/var/snap/platform/common/backend.sock'
+socket_file = '/var/snap/platform/current/backend.sock'
 socket = 'http+unix://{0}'.format(socket_file.replace('/', '%2F'))
 
 

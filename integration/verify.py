@@ -14,11 +14,6 @@ from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-from syncloudlib.application.storage import init_storage
-from syncloudlib.application.service import restart
-from syncloudlib.application.paths import get_data_dir, get_app_dir
-from syncloudlib.application.config import set_dkim_key, get_dkim_key
-from syncloudlib.application.urls import get_app_url
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud'
@@ -36,7 +31,6 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
     def module_teardown():
         device.scp_from_device('{0}/config'.format(data_dir), artifact_dir)
         device.scp_from_device('{0}/config.runtime'.format(data_dir), artifact_dir)
-        device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
         device.run_ssh('snap run platform.cli ipv4 public > {0}/cli.ipv4.public.log'.format(TMP_DIR), throw=False)
         device.run_ssh('snap run platform.cli config list > {0}/cli.config.list.log'.format(TMP_DIR), throw=False)
@@ -54,6 +48,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 
 
 def test_start(module_setup, device, app, domain, device_host):
+    device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
     device.run_ssh('/integration/install-snapd.sh', throw=True)
@@ -135,8 +130,8 @@ def test_activate_custom(device, device_host, main_domain):
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
-    device.run_ssh('rm /var/snap/platform/common/platform.db')
-    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('rm /var/snap/platform/current/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
@@ -148,8 +143,8 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
-    device.run_ssh('rm /var/snap/platform/common/platform.db')
-    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('rm /var/snap/platform/current/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
@@ -175,8 +170,8 @@ def test_reactivate_activated_device(device_host, full_domain, device_user, devi
 
 
 def test_drop_activation(device, main_domain):
-    device.run_ssh('rm /var/snap/platform/common/platform.db')
-    device.run_ssh('ls -la /var/snap/platform/common')
+    device.run_ssh('rm /var/snap/platform/current/platform.db')
+    device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
 
 
@@ -252,32 +247,9 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
-def test_api_install_path(app_dir):
-    response = retry(lambda: get_app_dir('platform'))
-    assert app_dir in response, response
-
-
-def test_api_service_restart():
-    status = restart('platform.nginx-public')
-    assert 'OK' in status, status
-
-
-def test_api_config_dkim_key():
-    response = set_dkim_key('dkim123')
-    assert 'OK' in response, response
-
-    response = get_dkim_key()
-    assert 'dkim123' in response, response
-
-
-def test_api_data_path(data_dir):
-    response = get_data_dir('platform')
-    assert data_dir in response, response
-
-
-def test_api_url(app_domain):
-    response = get_app_url('platform')
-    assert app_domain in response, response
+def test_api(device):
+    device.scp_to_device(join(DIR, "api/api.test"), '/', throw=True)
+    device.run_ssh('/api.test')
 
 
 def test_certbot_cli(app_dir, device_host):
@@ -354,7 +326,7 @@ def test_device_url(device, device_host, artifact_dir, full_domain):
     assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
 
-def test_api_url_443(device, device_host, app_domain):
+def test_api_url_443(device, device_host,):
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
 
@@ -367,13 +339,9 @@ def test_api_url_443(device, device_host, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
-    url = get_app_url('platform')
-
-    assert app_domain in url, url
-    assert 'https' in url, url
 
 
-def test_api_url_10000(device, device_host, app_domain):
+def test_api_url_10000(device, device_host):
     response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                    json={'upnp_enabled': False,
                                          'external_access': False, 'public_ip': 0,
@@ -383,11 +351,6 @@ def test_api_url_10000(device, device_host, app_domain):
 
     response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
     assert response.status_code == 200
-
-    url = get_app_url('platform')
-
-    assert app_domain in url, url
-    assert 'https' in url, url
 
 
 def test_set_access_error(device, device_host):
@@ -509,7 +472,7 @@ def loop_device(device_host):
 
 def disk_writable(device_host):
     run_ssh(device_host, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, "touch /data/platform/test.file", password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
@@ -555,8 +518,7 @@ def disk_deactivate(loop, device, device_host):
 
 
 def current_disk_link(device):
-    link = init_storage('platform', 'root')
-    return device.run_ssh("realpath {}".format(link))
+    return device.run_ssh("realpath /data/platform")
 
 
 def test_if_cron_is_empty_after_install(device_host):
@@ -585,6 +547,23 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
 
+def test_remove(device):
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
+    device.run_ssh('snap remove platform')
+
+
+def test_install_stable_from_store(device, arch):
+    if arch != 'arm64':
+        device.run_ssh('snap install platform')
+        device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
+
+
+def test_upgrade(app_archive_path, device_host, device, arch):
+    local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+    if arch != 'arm64':
+        device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
+
+
 def test_if_cron_is_empty_after_upgrade(device_host):
     cron_is_empty_after_install(device_host)
 
@@ -606,6 +585,6 @@ def retry(method, retries=10):
         except Exception as e:
             exception = e
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
-            time.sleep(1)
+            time.sleep(5)
         attempt += 1
     raise exception

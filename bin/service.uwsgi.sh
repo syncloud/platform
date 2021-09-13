@@ -1,12 +1,22 @@
-#!/bin/bash
+#!/bin/bash -e
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 
-if [[ -z "$1" ]]; then
-    echo "usage $0 [internal|public]"
+if [[ -z "$2" ]]; then
+    echo "usage $0 [internal|public] [stop|start]"
     exit 1
 fi
 
-#export LD_LIBRARY_PATH=$DIR/python/lib
+case $2 in
+start)
+    exec $DIR/python/bin/uwsgi --ini /snap/platform/current/config/uwsgi/"$1".ini
+    ;;
+stop)
+    exec $DIR/python/bin/uwsgi --stop /var/snap/platform/current/uwsgi."$1".pid
+    ;;
+*)
+    echo "not valid command"
+    exit 1
+    ;;
+esac
 
-exec $DIR/python/bin/uwsgi --ini ${SNAP_COMMON}/config/uwsgi/$1.ini
