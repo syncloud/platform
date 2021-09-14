@@ -1,6 +1,6 @@
 import logging
 import shutil
-from os.path import join, isdir
+from os.path import join, isfile, isdir
 from subprocess import check_output, CalledProcessError
 
 from syncloudlib import logger, fs
@@ -73,15 +73,30 @@ class PlatformInstaller:
 
     def post_refresh(self):
         self.init_configs()
+        self.migrate_common_to_current()
         user_config = PlatformUserConfig()
         user_config.init_config()
-        self.migrate_ldap()
         self.init_services()
 
-    def migrate_ldap(self):
-        old_config = '/var/snap/platform/common/slapd.d'
+    def migrate_common_to_current(self):
+        old_config_db = '/var/snap/platform/common/platform.db'
+        new_config_db = '/var/snap/platform/current/platform.db'
+        if not isfile(new_config_db):
+            shutil.copyfile(old_config_db, new_config_db)
+
+        old_certificate = '/var/snap/platform/common/syncloud.crt'
+        new_certificate = '/var/snap/platform/current/syncloud.crt'
+        if not isfile(new_certificate):
+            shutil.copyfile(old_certificate, new_certificate)
+
+        old_key = '/var/snap/platform/common/syncloud.key'
+        new_key = '/var/snap/platform/current/syncloud.key'
+        if not isfile(new_key):
+            shutil.copyfile(old_key, new_key)
+
+        old_slapd_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):
-            shutil.copytree(old_config, self.slapd_config_dir)
+            shutil.copytree(old_slapd_config, self.slapd_config_dir)
 
             shutil.copyfile(join(self.snap_dir, 'config/ldap/upgrade/cn=module{0}.ldif'),
                             join(self.slapd_config_dir, 'cn=config/cn=module{0}.ldif'))
