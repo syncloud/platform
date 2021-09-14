@@ -94,6 +94,11 @@ class PlatformInstaller:
         if not isfile(new_key):
             shutil.copyfile(old_key, new_key)
 
+        old_certbot = '/var/snap/platform/common/certbot'
+        new_certbot = '/var/snap/platform/current/certbot'
+        if not isdir(new_certbot):
+            shutil.copytree(old_certbot, new_certbot)
+
         old_slapd_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):
             shutil.copytree(old_slapd_config, self.slapd_config_dir)
