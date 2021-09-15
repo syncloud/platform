@@ -559,6 +559,15 @@ def test_install_stable_from_store(device, arch):
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
 
 
+def test_activate_stable(device, device_host, main_domain, device_user, device_password):
+    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+                             json={'domain': 'example.com',
+                                   'device_username': device_user,
+                                   'device_password': device_password}, verify=False)
+    assert response.status_code == 200, response.text
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+
+
 def test_upgrade(app_archive_path, device_host, device, arch):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
     if arch != 'arm64':
