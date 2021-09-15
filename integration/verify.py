@@ -571,7 +571,7 @@ def test_activate_stable(device, device_host, main_domain, device_user, device_p
 def test_upgrade(app_archive_path, device_host, device, arch):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
     if arch != 'arm64':
-        device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
+        device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
 def test_login_after_upgrade(device):
