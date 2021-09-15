@@ -565,6 +565,10 @@ def test_upgrade(app_archive_path, device_host, device, arch):
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
+def test_login_after_upgrade(device):
+    device.login()
+
+
 def test_if_cron_is_empty_after_upgrade(device_host):
     cron_is_empty_after_install(device_host)
 
