@@ -8,7 +8,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from syncloudlib.http import wait_for_response
-from syncloudlib.integration.hosts import add_host_alias_by_ip
+from syncloudlib.integration.hosts import add_host_alias
 from syncloudlib.integration.installer import local_install, wait_for_installer
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
@@ -57,8 +57,8 @@ def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('rm -rf /usr/lib/sasl2', throw=True)
     device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
-    add_host_alias_by_ip(app, domain, device_host)
-    add_host_alias_by_ip("app", domain, device_host)
+    add_host_alias(app, device_host, domain)
+    add_host_alias("app", device_host, domain)
 
 
 def test_install(app_archive_path, device_host):
