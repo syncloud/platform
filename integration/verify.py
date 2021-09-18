@@ -49,6 +49,8 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
 
 
 def test_start(module_setup, device, app, domain, device_host):
+    add_host_alias(app, device_host, domain)
+    add_host_alias("app", device_host, domain)
     device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
@@ -57,9 +59,7 @@ def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('rm -rf /usr/lib/sasl2', throw=True)
     device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
-    add_host_alias(app, device_host, domain)
-    add_host_alias("app", device_host, domain)
-
+    
 
 def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, app_archive_path)
