@@ -94,6 +94,11 @@ class PlatformInstaller:
         if not isfile(new_key):
             shutil.copyfile(old_key, new_key)
 
+        old_ldap_data = '/var/snap/platform/common/openldap-data'
+        new_ldap_data = '/var/snap/platform/current/openldap-data'
+        if not isdir(new_ldap_data):
+            shutil.copytree(old_ldap_data, new_ldap_data)
+
         old_certbot = '/var/snap/platform/common/certbot'
         new_certbot = '/var/snap/platform/current/certbot'
         if not isdir(new_certbot):
