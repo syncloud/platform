@@ -28,6 +28,11 @@ def arch(request):
 
 
 @pytest.fixture(scope='session')
+def main_domain():
+    return 'syncloud.info'
+
+
+@pytest.fixture(scope='session')
 def full_domain(domain, main_domain):
     return '{}.{}'.format(domain, main_domain)
 
