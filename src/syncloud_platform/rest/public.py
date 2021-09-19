@@ -42,9 +42,9 @@ def activation_status():
 
 
 @login_manager.user_loader
-def load_user(email):
-    log.info('loading user {0}'.format(email))
-    return FlaskUser(User(email))
+def load_user(user):
+    log.info('loading user {0}'.format(user.name))
+    return FlaskUser(user)
 
 
 @app.route("/rest/login", methods=["POST"])
