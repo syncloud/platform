@@ -8,13 +8,13 @@ import requests
 from flask import jsonify, request, redirect, Flask, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 
-from syncloud_platform.auth.ldapauth import authenticate
 from syncloud_platform.injector import get_injector
 from syncloud_platform.rest.flask_decorators import nocache, fail_if_not_activated, fail_if_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
 from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
+from syncloudlib.logger import get_logger
 
 injector = get_injector()
 public = injector.public
@@ -24,6 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = public.user_platform_config.get_web_secret_key()
 login_manager = LoginManager()
 login_manager.init_app(app)
+log = get_logger('ldap')
 
 
 @login_manager.unauthorized_handler
@@ -41,6 +42,7 @@ def activation_status():
 
 @login_manager.user_loader
 def load_user(email):
+    log.info('loading user {0}'.format(email))
     return FlaskUser(User(email))
 
 
@@ -50,7 +52,7 @@ def login():
     request_json = request.json
     if 'username' in request_json and 'password' in request_json:
         try:
-            authenticate(request_json['username'], request_json['password'])
+            injector.ldap_auth.authenticate(request_json['username'], request_json['password'])
             user_flask = FlaskUser(User(request_json['username']))
             login_user(user_flask, remember=False)
             # next_url = request.get('next_url', '/')
