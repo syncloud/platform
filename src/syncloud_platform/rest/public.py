@@ -43,8 +43,8 @@ def activation_status():
 
 @login_manager.user_loader
 def load_user(user):
-    log.info('loading user {0}'.format(user.name))
-    return FlaskUser(user)
+    log.info('loading user {0}'.format(user))
+    return FlaskUser(User(user))
 
 
 @app.route("/rest/login", methods=["POST"])
@@ -77,6 +77,7 @@ def logout():
 @fail_if_not_activated
 @login_required
 def user():
+    log.info('login user {0}'.format(current_user.user))
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
