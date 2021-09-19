@@ -29,6 +29,7 @@ log = get_logger('ldap')
 
 @login_manager.unauthorized_handler
 def _callback():
+    self.log.warn('Unauthorised handler 401')
     return 'Unauthorised', 401
 
 

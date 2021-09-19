@@ -60,11 +60,13 @@ class LdapAuth:
         conn = ldap.initialize('ldap://localhost:389')
         try:
             conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
-            self.log.warn('{0} authenticated'.format(name))
+            self.log.info('{0} authenticated'.format(name))
         except ldap.INVALID_CREDENTIALS:
+            self.log.warn('{0} not authenticated'.format(name))
             conn.unbind()
             raise Exception('Invalid credentials')
         except Exception as e:
+            self.log.warn('{0} not authenticated'.format(name))
             conn.unbind()
             raise Exception(str(e))
 
