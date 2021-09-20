@@ -55,6 +55,7 @@ def login():
         try:
             injector.ldap_auth.authenticate(request_json['username'], request_json['password'])
             user_flask = FlaskUser(User(request_json['username']))
+            log.info('login user {0}'.format(user_flask.user.name))
             login_user(user_flask, remember=False)
             # next_url = request.get('next_url', '/')
             return redirect("/")
@@ -69,6 +70,7 @@ def login():
 @fail_if_not_activated
 @login_required
 def logout():
+    log.info('logout user {0}'.format(current_user.user.name))
     logout_user()
     return 'User logged out', 200
 
@@ -77,7 +79,7 @@ def logout():
 @fail_if_not_activated
 @login_required
 def user():
-    log.info('login user {0}'.format(current_user.user))
+    log.info('current user {0}'.format(current_user.user.name))
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
