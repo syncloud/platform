@@ -190,8 +190,8 @@ def test_reactivate_good(device_host, full_domain, device_user, device_password,
     device.ssh_password = device_password
 
 
-def test_deactivate(device, device_host):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(device_host), verify=False,
+def test_deactivate(device, domain):
+    response = device.login().post('https://{0}/rest/settings/deactivate'.format(domain), verify=False,
                                    allow_redirects=False)
     assert '"success": true' in response.text
     assert response.status_code == 200
@@ -263,8 +263,8 @@ def test_openssl_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/openssl/bin/openssl help'.format(app_dir), password=LOGS_SSH_PASSWORD)
 
 
-def test_set_access_mode_with_certbot(device, device_host):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+def test_set_access_mode_with_certbot(device, domain):
+    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
                                          'external_access': False,
                                          'public_ip': 0,
@@ -288,30 +288,30 @@ def test_show_https_certificate(device_host):
                          "openssl x509 -inform pem -noout -text", password=LOGS_SSH_PASSWORD)
 
 
-def test_get_access(device, device_host):
-    response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
+def test_get_access(device, domain):
+    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert '"upnp_enabled": false' in response.text
     assert response.status_code == 200
 
 
-def test_network_interfaces(device, device_host):
-    response = device.login().get('https://{0}/rest/access/network_interfaces'.format(device_host), verify=False)
+def test_network_interfaces(device, domain):
+    response = device.login().get('https://{0}/rest/access/network_interfaces'.format(domain), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
-def test_send_logs(device, device_host):
-    response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(device_host), verify=False)
+def test_send_logs(device, domain):
+    response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(domain), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
-def test_available_apps(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/available_apps'.format(device_host), verify=False)
+def test_available_apps(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/available_apps'.format(domain), verify=False)
     with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
@@ -327,35 +327,35 @@ def test_device_url(device, device_host, artifact_dir, full_domain):
     assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
 
-def test_api_url_443(device, device_host,):
-    response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
+def test_api_url_443(device, domain):
+    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
                                          'external_access': False, 'public_ip': 0,
                                          'certificate_port': 443, 'access_port': 443})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
+    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
     assert response.status_code == 200
 
 
-def test_api_url_10000(device, device_host):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+def test_api_url_10000(device, domain):
+    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
                                          'external_access': False, 'public_ip': 0,
                                          'certificate_port': 80, 'access_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/access/access'.format(device_host), verify=False)
+    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
     assert response.status_code == 200
 
 
-def test_set_access_error(device, device_host):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(device_host), verify=False,
+def test_set_access_error(device, domain):
+    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
                                          'external_access': True, 'public_ip': 0,
                                          'certificate_port': 0, 'access_port': 0})
@@ -374,14 +374,14 @@ def test_real_certificate(app_dir, ssh_env_vars, device_host):
 
 
 # adding new arch, no apps in the store yet
-# def test_install_app(device, device_host):
+# def test_install_app(device, domain):
 #     session = device.login()
-#     session.post('https://{0}/rest/install'.format(device_host), json={'app_id': 'files'}, verify=False)
+#     session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
 #     wait_for_installer(session, device_host)
 
 
-def test_rest_installed_apps(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/installed_apps'.format(device_host), verify=False)
+def test_rest_installed_apps(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/installed_apps'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
@@ -389,42 +389,42 @@ def test_rest_installed_apps(device, device_host, artifact_dir):
     assert len(json.loads(response.text)['apps']) == 1
 
 # adding new arch, no apps in the store yet
-# def test_rest_installed_app(device, device_host, artifact_dir):
-#     response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+# def test_rest_installed_app(device, domain, artifact_dir):
+#     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
 #     assert response.status_code == 200
 #     with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
 #         the_file.write(response.text)
 #     assert response.status_code == 200
 
 
-def test_rest_not_installed_app(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=nextcloud'.format(device_host), verify=False)
+def test_rest_not_installed_app(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=nextcloud'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.app.not.installed.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
 
 
-def test_installer_upgrade(device, device_host):
+def test_installer_upgrade(device, domain):
     session = device.login()
-    response = session.post('https://{0}/rest/installer/upgrade'.format(device_host), verify=False)
+    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
                       lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
 
-    response = session.post('https://{0}/rest/installer/upgrade'.format(device_host), verify=False)
+    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
                       lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
 
 
-def test_backup_app(device, artifact_dir, device_host):
+def test_backup_app(device, artifact_dir, domain):
     session = device.login()
-    response = session.post('https://{0}/rest/backup/create'.format(device_host), json={'app': 'testapp'}, verify=False)
+    response = session.post('https://{0}/rest/backup/create'.format(domain), json={'app': 'testapp'}, verify=False)
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
                       lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
 
     response = device.http_get('/rest/backup/list')
@@ -435,16 +435,16 @@ def test_backup_app(device, artifact_dir, device_host):
     device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
 
     response = session.post(
-        'https://{0}/rest/backup/restore'.format(device_host),
+        'https://{0}/rest/backup/restore'.format(domain),
         json={'app': 'testapp', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
         verify=False)
     assert response.status_code == 200
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(device_host),
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
                       lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
 
 
-def test_rest_backup_list(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/backup/list'.format(device_host), verify=False)
+def test_rest_backup_list(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/backup/list'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.backup.list.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
@@ -499,20 +499,20 @@ def disk_create(loop, fs, device_host):
     run_ssh(device_host, 'umount {0}'.format(loop), password=LOGS_SSH_PASSWORD)
 
 
-def disk_activate(loop, device, device_host):
-    response = device.login().get('http://{0}/rest/settings/disks'.format(device_host))
+def disk_activate(loop, device, domain):
+    response = device.login().get('http://{0}/rest/settings/disks'.format(domain))
     print(response.text)
     assert loop in response.text
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/settings/disk_activate'.format(device_host), verify=False,
+    response = device.login().post('https://{0}/rest/settings/disk_activate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
 
 
-def disk_deactivate(loop, device, device_host):
-    response = device.login().post('https://{0}/rest/settings/disk_deactivate'.format(device_host), verify=False,
+def disk_deactivate(loop, device, domain):
+    response = device.login().post('https://{0}/rest/settings/disk_deactivate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
@@ -531,8 +531,8 @@ def cron_is_empty_after_install(device_host):
     assert 'no crontab for root' in crontab, crontab
 
 
-def test_settings_versions(device_host, device, artifact_dir):
-    response = device.login().get('https://{0}/rest/settings/versions'.format(device_host), allow_redirects=False,
+def test_settings_versions(domain, device, artifact_dir):
+    response = device.login().get('https://{0}/rest/settings/versions'.format(domain), allow_redirects=False,
                                   verify=False)
     with open('{0}/rest.settings.versions.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
