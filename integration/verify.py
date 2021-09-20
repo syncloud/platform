@@ -471,32 +471,32 @@ def loop_device(device_host):
     loop_device_cleanup(device_host, dev_file, password=LOGS_SSH_PASSWORD)
 
 
-def disk_writable(device_host):
-    run_ssh(device_host, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
+def disk_writable(domain):
+    run_ssh(domain, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
+    run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
-def test_public_settings_disk_add_remove(loop_device, device, fs_type, device_host):
-    disk_create(loop_device, fs_type, device_host)
-    assert disk_activate(loop_device, device, device_host) == '/opt/disk/external/platform'
-    disk_writable(device_host)
-    assert disk_deactivate(loop_device, device, device_host) == '/opt/disk/internal/platform'
+def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain):
+    disk_create(loop_device, fs_type, device)
+    assert disk_activate(loop_device, device, domain) == '/opt/disk/external/platform'
+    disk_writable(domain)
+    assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
 
 
-def disk_create(loop, fs, device_host):
+def disk_create(loop, fs, device):
     tmp_disk = '/tmp/test'
-    run_ssh(device_host, 'mkfs.{0} {1}'.format(fs, loop), password=LOGS_SSH_PASSWORD, retries=3)
+    device.run_ssh('mkfs.{0} {1}'.format(fs, loop), retries=3)
 
-    run_ssh(device_host, 'rm -rf {0}'.format(tmp_disk), password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, 'mkdir {0}'.format(tmp_disk), password=LOGS_SSH_PASSWORD)
-    run_ssh(device_host, 'sync', password=LOGS_SSH_PASSWORD)
+    device.run_ssh('rm -rf {0}'.format(tmp_disk))
+    device.run_ssh('mkdir {0}'.format(tmp_disk))
+    device.run_ssh('sync')
 
-    run_ssh(device_host, 'mount {0} {1}'.format(loop, tmp_disk), password=LOGS_SSH_PASSWORD, retries=3)
-    for mount in run_ssh(device_host, 'mount', debug=True, password=LOGS_SSH_PASSWORD).splitlines():
+    device.run_ssh('mount {0} {1}'.format(loop, tmp_disk), retries=3)
+    for mount in device.run_ssh('mount', debug=True).splitlines():
         if 'loop' in mount:
             print(mount)
-    run_ssh(device_host, 'umount {0}'.format(loop), password=LOGS_SSH_PASSWORD)
+    device.run_ssh('umount {0}'.format(loop))
 
 
 def disk_activate(loop, device, domain):
