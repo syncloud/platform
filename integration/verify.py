@@ -318,8 +318,8 @@ def test_available_apps(device, domain, artifact_dir):
     assert len(json.loads(response.text)['apps']) > 1
 
 
-def test_device_url(device, device_host, artifact_dir, full_domain):
-    response = device.login().get('https://{0}/rest/settings/device_url'.format(device_host), verify=False)
+def test_device_url(device, domain, artifact_dir, full_domain):
+    response = device.login().get('https://{0}/rest/settings/device_url'.format(domain), verify=False)
     with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert '"success": true' in response.text
