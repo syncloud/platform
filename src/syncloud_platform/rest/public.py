@@ -42,9 +42,8 @@ def activation_status():
 
 
 @login_manager.user_loader
-def load_user(user):
-    log.info('loading user {0}'.format(user))
-    log.info('loading user {0}'.format(user.name))
+def load_user(user_id):
+    log.info('loading user {0}'.format(user_id))
     return FlaskUser(User(user))
 
 
