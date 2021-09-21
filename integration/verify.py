@@ -549,6 +549,7 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
 
 
 def test_remove(device):
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.new.log'.format(TMP_DIR))
     device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
     device.run_ssh('snap remove platform')
 
@@ -556,6 +557,7 @@ def test_remove(device):
 def test_install_stable_from_store(device, arch):
     if arch != 'arm64':
         device.run_ssh('snap install platform')
+        device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR))
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
 
 
@@ -571,6 +573,7 @@ def test_activate_stable(device, device_host, main_domain, device_user, device_p
 def test_upgrade(app_archive_path, device_host, device, arch):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
     if arch != 'arm64':
+        device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
         device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
