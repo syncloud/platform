@@ -72,8 +72,8 @@ class PlatformInstaller:
             self.log.error(e.output.decode())
 
     def post_refresh(self):
-        self.init_configs()
         self.migrate_common_to_current()
+        self.init_configs()
         user_config = PlatformUserConfig()
         user_config.init_config()
         self.init_services()
