@@ -554,28 +554,28 @@ def test_remove(device):
     device.run_ssh('snap remove platform')
 
 
-def test_install_stable_from_store(device, arch):
+def test_install_stable_from_store(device, arch, app_archive_path, device_host):
     if arch != 'arm64':
         device.run_ssh('snap install platform')
         # device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR))
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
-
+    else:
+        local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+   
 
 def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
-    if arch != 'arm64':
-        response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
-                                 json={'domain': 'example.com',
-                                       'device_username': device_user,
-                                       'device_password': device_password}, verify=False)
-        assert response.status_code == 200, response.text
+    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+                             json={'domain': 'example.com',
+                                   'device_username': device_user,
+                                   'device_password': device_password}, verify=False)
+    assert response.status_code == 200, response.text
     
 
-def test_upgrade(app_archive_path, device_host, device, arch, main_domain):
+def test_upgrade(app_archive_path, device_host, device, main_domain):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-    if arch != 'arm64':
-        device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
-        device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
 def test_login_after_upgrade(device):
