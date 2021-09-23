@@ -33,7 +33,7 @@ def test_start(app, device_host, module_setup, domain):
     add_host_alias(app, device_host, domain)
 
 
-def test_deactivate(device, device_host, main_domain):
+def test_deactivate(device, device_host, main_domain, domain):
     device.activated()
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
     device.run_ssh('snap restart platform.backend')
