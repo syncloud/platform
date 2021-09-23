@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from syncloudlib.integration.screenshots import screenshots
+from syncloudlib.integration.hosts import add_host_alias
 import requests
 
 DIR = dirname(__file__)
@@ -29,7 +30,7 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
 
 
 def test_start(app, device_host, module_setup):
-    pass
+    add_host_alias(app, device_host, domain)
 
 
 def test_deactivate(device, device_host, main_domain):
