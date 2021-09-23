@@ -561,7 +561,7 @@ def test_install_stable_from_store(device, arch):
         device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
 
 
-def test_activate_stable(device, device_host, main_domain, device_user, device_password):
+def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
     if arch != 'arm64':
         response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
                                  json={'domain': 'example.com',
