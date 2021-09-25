@@ -554,14 +554,11 @@ def test_remove(device):
     device.run_ssh('snap remove platform')
 
 
-def test_install_stable_from_store(device, arch, app_archive_path, device_host):
-    if arch != 'arm64':
-        device.run_ssh('snap install platform')
-        # device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR))
-        device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
-    else:
-        local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
-   
+def test_install_stable_from_store(device, device_host):
+    device.run_ssh('snap install platform')
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/common/slapd.d {0}/slapd.d.old'.format(TMP_DIR))
+    
 
 def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
     response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
