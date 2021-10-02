@@ -253,6 +253,10 @@ def test_api(device):
     device.run_ssh('/api.test')
 
 
+def test_python_ssl(device):
+    device.run_ssh('python -c \'import requests; requests.get("https://www.syncloud.it")\'')
+
+
 def test_certbot_cli(app_dir, device_host):
     output = run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
     assert not output.strip() == ""

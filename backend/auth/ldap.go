@@ -62,7 +62,7 @@ func (l *Service) Init() error {
 	if err != nil {
 		return err
 	}
-	log.Println(output)
+	log.Println(string(output))
 	return nil
 }
 
