@@ -254,7 +254,8 @@ def test_api(device):
 
 
 def test_python_ssl(device):
-    device.run_ssh('python -c \'import requests; requests.get("https://www.syncloud.it")\'')
+    device.scp_to_device(join(DIR, "ssl.test.py"), '/', throw=True)
+    device.run_ssh('/ssl.test.py')
 
 
 def test_certbot_cli(app_dir, device_host):
