@@ -103,8 +103,10 @@ class PlatformInstaller:
         new_certbot = '/var/snap/platform/current/certbot'
         if not isdir(new_certbot):
             shutil.copytree(old_certbot, new_certbot)
-      
-        check_output("sed -i 's#{0}#{1}#g' {1}/renewal/*.conf".format(old_certbot, new_certbot), shell=True)
+
+        renewal_dir = "{0}/renewal".format(new_certbot)
+        if isdir(renewal_dir):
+            check_output("sed -i 's#{0}#{1}#g' {2}/*.conf".format(old_certbot, new_certbot, renewal_dir), shell=True)
 
         old_slapd_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):
