@@ -15,6 +15,9 @@
               </button>
             </div>
             <div class="setline">
+              <span class="span">Note: upgrade System first if available before upgrading Installer.</span>
+            </div>
+            <div class="setline">
               <span class="span">System: </span>
               <span id="txt_platform_version" style="padding-right: 10px">{{ platformVersion }}</span>
               <button
