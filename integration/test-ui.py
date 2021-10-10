@@ -145,7 +145,7 @@ def test_settings_internal_memory(driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'internalmemory')
     header = "//h1[text()='Internal Memory']"
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_updates-' + ui_mode)
+    screenshots(driver, screenshot_dir, 'settings_internal_memory-' + ui_mode)
 
 
 def test_settings_support(driver, ui_mode, screenshot_dir):
