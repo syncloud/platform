@@ -99,11 +99,6 @@ class PlatformInstaller:
         if not isdir(new_ldap_data):
             shutil.copytree(old_ldap_data, new_ldap_data)
 
-        old_certbot = '/var/snap/platform/common/certbot'
-        new_certbot = '/var/snap/platform/current/certbot'
-        if not isdir(new_certbot):
-            shutil.copytree(old_certbot, new_certbot)
-
         check_output("/snap/platform/current/bin/migrate_certbot_to_current.sh", shell=True)
 
         old_slapd_config = '/var/snap/platform/common/slapd.d'
