@@ -148,3 +148,17 @@ NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTY
     assert len(disks) == 1
     assert len(disks[0].partitions) == 1
     assert disks[0].partitions[0].mount_point == '/mnt/md0'
+
+
+def test_unsupported_devices_with_partitions():
+    output = '''
+NAME="/dev/loop16" SIZE="61.9M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="squashfs" MODEL=""
+NAME="/dev/loop16p1" SIZE="953M" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="squashfs" MODEL=""
+NAME="/dev/loop16p2" SIZE="3G" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="squashfs" MODEL=""
+'''
+
+    platform_config = PlatformConfig(CONFIG_DIR)
+    lsblk = Lsblk(platform_config, PathChecker(platform_config))
+
+    disks = lsblk.available_disks(output)
+    assert len(disks) == 0

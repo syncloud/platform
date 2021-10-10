@@ -22,6 +22,9 @@ class Lsblk:
 
         disks = {}
         for line in lsblk_output.splitlines():
+            if not line.strip():
+                continue
+
             self.log.info('parsing line: {0}'.format(line))
             match = re.match(
                 r'NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)"',
@@ -29,7 +32,7 @@ class Lsblk:
 
             lsblk_entry = LsblkEntry(match.group(1), match.group(2), match.group(3),
                                      match.group(4), match.group(5), match.group(6), match.group(7).strip())
-            
+
             if lsblk_entry.is_supported_type() and lsblk_entry.is_supported_fs_type():
                 device = lsblk_entry.name
                 disk_name = lsblk_entry.model
@@ -48,8 +51,9 @@ class Lsblk:
                 self.log.info('adding regular partition: {0}'.format(lsblk_entry.name))
                 partition = self.create_partition(lsblk_entry)
                 parent_device = lsblk_entry.parent_device()
-                disk = disks[parent_device]
-                disk.add_partition(partition)
+                if parent_device in disks:
+                    disk = disks[parent_device]
+                    disk.add_partition(partition)
 
         return disks.values()
 
