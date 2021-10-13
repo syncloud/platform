@@ -6,7 +6,6 @@ from subprocess import check_output, CalledProcessError
 from syncloudlib import logger, fs
 
 from syncloud_platform.config.user_config import PlatformUserConfig
-from syncloud_platform.gaplib import linux, gen
 from syncloud_platform.injector import get_injector
 
 APP_NAME = 'platform'
@@ -23,10 +22,7 @@ class PlatformInstaller:
         self.common_dir = '/var/snap/platform/common'
         self.slapd_config_dir = join(self.data_dir, 'slapd.d')
 
-
     def init_configs(self):
-        linux.fix_locale()
-
         data_dirs = [
             join(self.common_dir, 'log'),
             join(self.data_dir, 'nginx'),
@@ -38,7 +34,9 @@ class PlatformInstaller:
 
         for data_dir in data_dirs:
             fs.makepath(data_dir)
-    
+
+        check_output("/snap/platform/current/bin/update_certs.sh", shell=True)
+
     def init_services(self):
 
         injector = get_injector()
@@ -100,7 +98,6 @@ class PlatformInstaller:
             shutil.copytree(old_ldap_data, new_ldap_data)
 
         check_output("/snap/platform/current/bin/migrate_certbot_to_current.sh", shell=True)
-        check_output("/snap/platform/current/bin/update_certs.sh", shell=True)
 
         old_slapd_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):
