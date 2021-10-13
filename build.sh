@@ -10,7 +10,7 @@ fi
 NAME=platform
 ARCH=$(uname -m)
 VERSION=$1
-
+CA_CERTIFICATES_VERSION=20211004
 cd ${DIR}
 
 BUILD_DIR=${DIR}/build/${NAME}
@@ -23,6 +23,10 @@ apt install -y wget squashfs-tools dpkg-dev
 
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
+
+wget http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb
+dpkg -x ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb .
+mv usr/share/ca-certificates/mozilla ${BUILD_DIR}/certs
 
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/nginx/nginx-${ARCH}.tar.gz
 tar xf nginx-${ARCH}.tar.gz
