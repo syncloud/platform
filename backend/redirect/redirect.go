@@ -26,8 +26,13 @@ func New(userPlatformConfig *config.UserConfig, identification *identification.P
 }
 
 func (r *Service) Authenticate(email string, password string) (*User, error) {
-	url := fmt.Sprintf("%s/user/get?email=%s&password=%s", r.UserPlatformConfig.GetRedirectApiUrl(), email, password)
-	resp, err := http.Get(url)
+  request := &UserCredentials{Email: email, Password: password}
+	url := fmt.Sprintf("%s/user", r.UserPlatformConfig.GetRedirectApiUrl())
+	requestJson, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
 	if err != nil {
 		return nil, err
 	}

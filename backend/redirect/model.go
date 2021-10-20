@@ -29,6 +29,11 @@ type FreeDomainAcquireRequest struct {
 	DeviceTitle      string `json:"device_title,omitempty"`
 }
 
+type UserCredentials struct {
+	Password         string `json:"password,omitempty"`
+	Email            string `json:"email,omitempty"`
+}
+
 type FreeDomainUpdateRequest struct {
 	Ip              *string `json:"ip,omitempty"`
 	LocalIp         string  `json:"local_ip"`
