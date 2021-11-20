@@ -34,7 +34,7 @@ type ManagedActivation interface {
 }
 
 type ManagedCertbot interface {
-	GenerateWithDns(email string) error
+	Generate(email string, domain string) error
 }
 
 type Managed struct {
@@ -42,7 +42,7 @@ type Managed struct {
 	config   ManagedPlatformUserConfig
 	redirect ManagedRedirect
 	device   DeviceActivation
-  certbot ManagedCertbot
+	certbot  ManagedCertbot
 }
 
 func NewFree(internet connection.Checker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, certbot ManagedCertbot) *Managed {
@@ -51,7 +51,7 @@ func NewFree(internet connection.Checker, config ManagedPlatformUserConfig, redi
 		config:   config,
 		redirect: redirect,
 		device:   device,
-    certbot: certbot,
+		certbot:  certbot,
 	}
 }
 
@@ -84,7 +84,7 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	}
 
 	name, email := ParseUsername(deviceUsername, domain)
-  err = f.certbot.GenerateWithDns()
+	err = f.certbot.Generate(email, domain)
 	if err != nil {
 		return err
 	}

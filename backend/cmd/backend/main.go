@@ -4,7 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
-	"github.com/syncloud/platform/certificate"
+	"github.com/syncloud/platform/certificate/certbot"
+	"github.com/syncloud/platform/certificate/selfsigned"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
@@ -118,9 +119,9 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	}
 	ldapService := auth.New(snapService, *dataDir, *appDir, *configDir)
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
-	certificateGenerator := certificate.New()
+	certificateGenerator := selfsigned.New()
 	device := activation.NewDevice(userConfig, certificateGenerator, ldapService, nginxService, eventTrigger)
-	activationFree := activation.NewFree(&connection.Internet{}, userConfig, redirectService, device)
+	activationFree := activation.NewFree(&connection.Internet{}, userConfig, redirectService, device, certbot.New())
 	activationCustom := activation.NewCustom(&connection.Internet{}, userConfig, redirectService, device)
 	activate := rest.NewActivateBackend(activationFree, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,

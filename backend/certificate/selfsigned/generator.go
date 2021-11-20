@@ -1,4 +1,4 @@
-package certificate
+package selfsigned
 
 import (
 	"log"

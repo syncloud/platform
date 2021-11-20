@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/syncloud/platform/auth"
-	"github.com/syncloud/platform/certificate"
+	"github.com/syncloud/platform/certificate/selfsigned"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/nginx"
 	"log"
@@ -13,7 +13,7 @@ import (
 
 type Device struct {
 	config               DevicePlatformUserConfig
-	certificateGenerator *certificate.Generator
+	certificateGenerator *selfsigned.Generator
 	auth                 *auth.Service
 	nginx                *nginx.Nginx
 	trigger              *event.Trigger
@@ -36,7 +36,7 @@ type DeviceActivation interface {
 
 func NewDevice(
 	config DevicePlatformUserConfig,
-	certificateGenerator *certificate.Generator,
+	certificateGenerator *selfsigned.Generator,
 	auth *auth.Service,
 	nginx *nginx.Nginx,
 	trigger *event.Trigger,
