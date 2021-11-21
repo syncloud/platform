@@ -12,7 +12,7 @@ func New() *Generator {
 	return &Generator{}
 }
 
-func (c *Generator) GenerateSelfSigned() error {
+func (c *Generator) Generate() error {
 	log.Println("generating self signed certificate")
 
 	output, err := exec.Command("snap",

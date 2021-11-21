@@ -65,8 +65,8 @@ type DeviceActivationStub struct {
 type ManagedCertbotStub struct {
 }
 
-func (c *ManagedCertbotStub) GenerateWithDns(email string) error {
-  retuen nil
+func (c *ManagedCertbotStub) Generate(email string, domain string) error {
+	return nil
 }
 
 func (d *DeviceActivationStub) ActivateDevice(username string, password string, name string, email string) error {
@@ -75,7 +75,7 @@ func (d *DeviceActivationStub) ActivateDevice(username string, password string, 
 
 func TestFree_Activate(t *testing.T) {
 	freeRedirect := &FreeRedirectStub{}
-	free := NewFree(&InternetCheckerStub{}, &FreePlatformUserConfigStub{}, freeRedirect, &DeviceActivationStub{}, &ManagedCertbotStub{})
+	free := NewManaged(&InternetCheckerStub{}, &FreePlatformUserConfigStub{}, freeRedirect, &DeviceActivationStub{}, &ManagedCertbotStub{})
 	err := free.Activate("mail", "password", "test.syncloud.it", "username", "password")
 	assert.Nil(t, err)
 

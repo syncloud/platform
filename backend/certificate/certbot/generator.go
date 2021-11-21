@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 	"os"
@@ -30,10 +29,13 @@ func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
 }
 
 type Generator struct {
+	dns *DNSProviderSyncloud
 }
 
-func New() *Generator {
-	return &Generator{}
+func New(dns *DNSProviderSyncloud) *Generator {
+	return &Generator{
+		dns: dns,
+	}
 }
 
 func (g *Generator) Generate(email string, domain string) error {
@@ -60,7 +62,7 @@ func (g *Generator) Generate(email string, domain string) error {
 		return err
 	}
 
-	err = client.Challenge.SetTLSALPN01Provider(tlsalpn01.NewProviderServer("", "5001"))
+	err = client.Challenge.SetDNS01Provider(g.dns)
 	if err != nil {
 		return err
 	}

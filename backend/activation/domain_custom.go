@@ -1,6 +1,7 @@
 package activation
 
 import (
+	"github.com/syncloud/platform/certificate/selfsigned"
 	"github.com/syncloud/platform/connection"
 	"log"
 	"strings"
@@ -27,18 +28,20 @@ type CustomActivation interface {
 }
 
 type Custom struct {
-	internet connection.Checker
-	config   CustomPlatformUserConfig
-	redirect ManagedRedirect
-	device   *Device
+	internet        connection.InternetChecker
+	config          CustomPlatformUserConfig
+	redirect        ManagedRedirect
+	device          *Device
+	fakeCertificate *selfsigned.Generator
 }
 
-func NewCustom(internet connection.Checker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device, fakeCertificate *selfsigned.Generator) *Custom {
 	return &Custom{
-		internet: internet,
-		config:   config,
-		redirect: redirect,
-		device:   device,
+		internet:        internet,
+		config:          config,
+		redirect:        redirect,
+		device:          device,
+		fakeCertificate: fakeCertificate,
 	}
 }
 
@@ -55,5 +58,11 @@ func (c *Custom) Activate(requestDomain string, deviceUsername string, devicePas
 	c.config.SetCustomDomain(domain)
 	name, email := ParseUsername(deviceUsername, domain)
 	c.config.SetUserEmail(email)
+
+	err = c.fakeCertificate.Generate()
+	if err != nil {
+		return err
+	}
+
 	return c.device.ActivateDevice(deviceUsername, devicePassword, name, email)
 }

@@ -38,14 +38,14 @@ type ManagedCertbot interface {
 }
 
 type Managed struct {
-	internet connection.Checker
+	internet connection.InternetChecker
 	config   ManagedPlatformUserConfig
 	redirect ManagedRedirect
 	device   DeviceActivation
 	certbot  ManagedCertbot
 }
 
-func NewFree(internet connection.Checker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, certbot ManagedCertbot) *Managed {
+func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, certbot ManagedCertbot) *Managed {
 	return &Managed{
 		internet: internet,
 		config:   config,
@@ -84,6 +84,7 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	}
 
 	name, email := ParseUsername(deviceUsername, domain)
+
 	err = f.certbot.Generate(email, domain)
 	if err != nil {
 		return err

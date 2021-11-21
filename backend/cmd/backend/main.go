@@ -119,11 +119,13 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	}
 	ldapService := auth.New(snapService, *dataDir, *appDir, *configDir)
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
-	certificateGenerator := selfsigned.New()
-	device := activation.NewDevice(userConfig, certificateGenerator, ldapService, nginxService, eventTrigger)
-	activationFree := activation.NewFree(&connection.Internet{}, userConfig, redirectService, device, certbot.New())
-	activationCustom := activation.NewCustom(&connection.Internet{}, userConfig, redirectService, device)
-	activate := rest.NewActivateBackend(activationFree, activationCustom)
+	device := activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
+	internetChecker := connection.NewInternetChecker()
+	realCertificate := certbot.New(certbot.NewDNSProviderSyncloud("set me", redirectService))
+	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCertificate)
+	fakeCertificate := selfsigned.New()
+	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCertificate)
+	activate := rest.NewActivateBackend(activationManaged, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 		installerService, storageService, redirectUrl, id, activate, userConfig), nil
 
