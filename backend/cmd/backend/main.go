@@ -121,7 +121,7 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
 	device := activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
 	internetChecker := connection.NewInternetChecker()
-	realCertificate := certbot.New(certbot.NewDNSProviderSyncloud("set me", redirectService))
+	realCertificate := certbot.New(redirectService)
 	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCertificate)
 	fakeCertificate := selfsigned.New()
 	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCertificate)

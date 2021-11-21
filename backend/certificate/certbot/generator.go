@@ -29,16 +29,16 @@ func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
 }
 
 type Generator struct {
-	dns *DNSProviderSyncloud
+	redirect RedirectCertbot
 }
 
-func New(dns *DNSProviderSyncloud) *Generator {
+func New(redirect RedirectCertbot) *Generator {
 	return &Generator{
-		dns: dns,
+		redirect: redirect,
 	}
 }
 
-func (g *Generator) Generate(email string, domain string) error {
+func (g *Generator) Generate(email string, domain string, token string) error {
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -62,7 +62,7 @@ func (g *Generator) Generate(email string, domain string) error {
 		return err
 	}
 
-	err = client.Challenge.SetDNS01Provider(g.dns)
+	err = client.Challenge.SetDNS01Provider(NewDNSProviderSyncloud(token, g.redirect))
 	if err != nil {
 		return err
 	}

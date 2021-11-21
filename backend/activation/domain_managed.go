@@ -34,7 +34,7 @@ type ManagedActivation interface {
 }
 
 type ManagedCertbot interface {
-	Generate(email string, domain string) error
+	Generate(email string, domain string, token string) error
 }
 
 type Managed struct {
@@ -55,8 +55,8 @@ func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserC
 	}
 }
 
-func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain string, deviceUsername string, devicePassword string) error {
-	log.Printf("activate: %s", domain)
+func (f *Managed) Activate(redirectEmail string, redirectPassword string, domainName string, deviceUsername string, devicePassword string) error {
+	log.Printf("activate: %s", domainName)
 
 	err := f.internet.Check()
 	if err != nil {
@@ -71,21 +71,21 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	}
 
 	f.config.SetUserUpdateToken(user.UpdateToken)
-	domainResponse, err := f.redirect.Acquire(redirectEmail, redirectPassword, domain)
+	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, domainName)
 	if err != nil {
 		return err
 	}
 
-	f.config.SetDomain(domainResponse.Name)
-	f.config.UpdateDomainToken(domainResponse.UpdateToken)
-	err = f.redirect.Reset(domainResponse.UpdateToken)
+	f.config.SetDomain(domain.Name)
+	f.config.UpdateDomainToken(domain.UpdateToken)
+	err = f.redirect.Reset(domain.UpdateToken)
 	if err != nil {
 		return err
 	}
 
-	name, email := ParseUsername(deviceUsername, domain)
+	name, email := ParseUsername(deviceUsername, domain.Name)
 
-	err = f.certbot.Generate(email, domain)
+	err = f.certbot.Generate(email, domain.Name, domain.UpdateToken)
 	if err != nil {
 		return err
 	}
