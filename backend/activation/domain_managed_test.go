@@ -63,9 +63,11 @@ type DeviceActivationStub struct {
 }
 
 type ManagedCertbotStub struct {
+	generated int
 }
 
 func (c *ManagedCertbotStub) Generate(email, domain, token string) error {
+	c.generated++
 	return nil
 }
 
@@ -73,11 +75,26 @@ func (d *DeviceActivationStub) ActivateDevice(username string, password string, 
 	return nil
 }
 
-func TestManaged_Activate(t *testing.T) {
+func TestManaged_ActivateFree_GenerateCertificate(t *testing.T) {
 	managedRedirect := &ManagedRedirectStub{}
-	managed := NewManaged(&InternetCheckerStub{}, &ManagedPlatformUserConfigStub{}, managedRedirect, &DeviceActivationStub{}, &ManagedCertbotStub{})
+	certbot := &ManagedCertbotStub{}
+	config := &ManagedPlatformUserConfigStub{}
+	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, certbot)
 	err := managed.Activate("mail", "password", "test.syncloud.it", "username", "password")
 	assert.Nil(t, err)
 
 	assert.Equal(t, "test.syncloud.it", managedRedirect.domain)
+	assert.Equal(t, 1, certbot.generated)
+}
+
+func TestManaged_ActivatePremium_GenerateCertificate_Later(t *testing.T) {
+	managedRedirect := &ManagedRedirectStub{}
+	certbot := &ManagedCertbotStub{}
+	config := &ManagedPlatformUserConfigStub{}
+	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, certbot)
+	err := managed.Activate("mail", "password", "example.com", "username", "password")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "example.com", managedRedirect.domain)
+	assert.Equal(t, 0, certbot.generated)
 }

@@ -1,9 +1,11 @@
 package activation
 
 import (
+	"fmt"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"log"
+	"strings"
 )
 
 type ManagedActivateRequest struct {
@@ -85,10 +87,16 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 
 	name, email := ParseUsername(deviceUsername, domain.Name)
 
-	err = f.certbot.Generate(email, domain.Name, domain.UpdateToken)
-	if err != nil {
-		return err
+	if isFree(domain.Name, f.config.GetRedirectDomain()) {
+		err = f.certbot.Generate(email, domain.Name, domain.UpdateToken)
+		if err != nil {
+			return err
+		}
 	}
 
 	return f.device.ActivateDevice(deviceUsername, devicePassword, name, email)
+}
+
+func isFree(domain string, mainDomain string) bool {
+	return strings.HasSuffix(domain, fmt.Sprintf(".%s", mainDomain))
 }
