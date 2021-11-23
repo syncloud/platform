@@ -30,11 +30,13 @@ func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
 
 type Generator struct {
 	redirect RedirectCertbot
+  test bool
 }
 
-func New(redirect RedirectCertbot) *Generator {
+func New(redirect RedirectCertbot, test bool) *Generator {
 	return &Generator{
 		redirect: redirect,
+    test: test,
 	}
 }
 
@@ -51,7 +53,9 @@ func (g *Generator) Generate(email string, domain string, token string) error {
 	}
 
 	config := lego.NewConfig(&myUser)
-
+  if g.test {
+      config.CADirURL = lego.LEDirectoryStaging
+  }
 	// This CA URL is configured for a local dev instance of Boulder running in Docker in a VM.
 	//config.CADirURL = "http://192.168.99.100:4000/directory"
 	//config.Certificate.KeyType = certcrypto.RSA2048

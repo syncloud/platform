@@ -146,6 +146,7 @@ func (c *UserConfig) IsRedirectEnabled() bool {
 	return c.toBool(result)
 }
 
+
 func (c *UserConfig) GetExternalAccess() bool {
 	result := c.Get("platform.external_access", DbFalse)
 	return c.toBool(result)
@@ -161,6 +162,10 @@ func (c *UserConfig) SetActivated() {
 
 func (c *UserConfig) IsActivated() bool {
 	return c.toBool(c.Get("platform.activated", DbFalse))
+}
+
+func (c *UserConfig) IsCertbotStaging() bool {
+	return c.toBool(c.Get("certbot.staging", DbFalse))
 }
 
 func (c *UserConfig) SetDomain(domain string) {
