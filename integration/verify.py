@@ -59,8 +59,7 @@ def test_start(module_setup, device, app, domain, device_host):
     device.run_ssh('rm -rf /usr/lib/sasl2', throw=True)
     device.scp_to_device(join(DIR, 'id.cfg'), '/etc/syncloud', throw=True)
     device.run_ssh('mkdir /log', throw=True)
-    device.run_ssh('snap run platform.cli config set certbot.staging true', throw=False)
-
+    
 
 def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, app_archive_path)
@@ -124,6 +123,7 @@ def test_id_before_activation(device_host):
 
 def test_set_redirect(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
 def test_activate_custom(device, device_host, main_domain):
