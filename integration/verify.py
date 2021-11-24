@@ -263,11 +263,6 @@ def test_python_ssl(device):
     device.run_ssh('/ssl.test.py')
 
 
-def test_certbot_cli(app_dir, device_host):
-    output = run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
-    assert not output.strip() == ""
-    run_ssh(device_host, '{0}/bin/certbot --help nginx'.format(app_dir), password=LOGS_SSH_PASSWORD)
-
 
 def test_openssl_cli(app_dir, device_host):
     run_ssh(device_host, '{0}/openssl/bin/openssl help'.format(app_dir), password=LOGS_SSH_PASSWORD)
