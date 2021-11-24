@@ -124,6 +124,7 @@ def test_id_before_activation(device_host):
 def test_set_redirect(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
     device.run_ssh('snap run platform.cli config set certbot.staging true')
+    device.run_ssh('snap restart platform.backend')
 
 
 def test_activate_custom(device, device_host, main_domain):
