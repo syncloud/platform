@@ -1,6 +1,9 @@
 package certbot
 
-import "github.com/go-acme/lego/v4/challenge/dns01"
+import (
+	"github.com/go-acme/lego/v4/challenge/dns01"
+	"time"
+)
 
 type DNSProviderSyncloud struct {
 	token    string
@@ -27,4 +30,8 @@ func (d *DNSProviderSyncloud) Present(domain, _, keyAuth string) error {
 func (d *DNSProviderSyncloud) CleanUp(domain, _, keyAuth string) error {
 	fqdn, value := dns01.GetRecord(domain, keyAuth)
 	return d.redirect.CertbotCleanUp(d.token, fqdn, value)
+}
+
+func (d *DNSProviderSyncloud) Timeout() (timeout, interval time.Duration) {
+	return 2 * time.Minute, 4 * time.Second
 }
