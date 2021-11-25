@@ -121,7 +121,7 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
 	device := activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
 	internetChecker := connection.NewInternetChecker()
-	realCertificate := certbot.New(redirectService, userConfig.IsCertbotStaging())
+	realCertificate := certbot.New(redirectService, userConfig)
 	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCertificate)
 	fakeCertificate := fake.New()
 	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCertificate)
@@ -130,6 +130,3 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 		installerService, storageService, redirectUrl, id, activate, userConfig), nil
 
 }
-
-
-

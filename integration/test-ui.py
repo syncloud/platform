@@ -37,8 +37,7 @@ def test_deactivate(device, device_host, main_domain, domain):
     device.activated()
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
     device.run_ssh('snap run platform.cli config set certbot.staging true')
-    device.run_ssh('snap restart platform.backend')
-    
+
     response = device.login().post('https://{0}/rest/settings/deactivate'.format(domain), verify=False)
     assert '"success": true' in response.text
     assert response.status_code == 200

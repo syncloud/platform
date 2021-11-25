@@ -30,13 +30,17 @@ func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
 
 type Generator struct {
 	redirect RedirectCertbot
-	test     bool
+	config   GeneratorConfig
 }
 
-func New(redirect RedirectCertbot, test bool) *Generator {
+type GeneratorConfig interface {
+	IsCertbotStaging() bool
+}
+
+func New(redirect RedirectCertbot, config GeneratorConfig) *Generator {
 	return &Generator{
 		redirect: redirect,
-		test:     test,
+		config:   config,
 	}
 }
 
@@ -52,12 +56,12 @@ func (g *Generator) Generate(email string, domain string, token string) error {
 		key:   privateKey,
 	}
 
-	config := lego.NewConfig(&myUser)
-	if g.test {
-		config.CADirURL = lego.LEDirectoryStaging
+	certbotConfig := lego.NewConfig(&myUser)
+	if g.config.IsCertbotStaging() {
+		certbotConfig.CADirURL = lego.LEDirectoryStaging
 	}
 
-	client, err := lego.NewClient(config)
+	client, err := lego.NewClient(certbotConfig)
 	if err != nil {
 		return err
 	}
