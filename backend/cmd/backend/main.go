@@ -5,7 +5,7 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/certificate/certbot"
-	"github.com/syncloud/platform/certificate/selfsigned"
+	"github.com/syncloud/platform/certificate/fake"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
@@ -123,7 +123,7 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	internetChecker := connection.NewInternetChecker()
 	realCertificate := certbot.New(redirectService, userConfig.IsCertbotStaging())
 	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCertificate)
-	fakeCertificate := selfsigned.New()
+	fakeCertificate := fake.New()
 	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCertificate)
 	activate := rest.NewActivateBackend(activationManaged, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,

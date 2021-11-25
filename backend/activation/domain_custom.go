@@ -1,7 +1,7 @@
 package activation
 
 import (
-	"github.com/syncloud/platform/certificate/selfsigned"
+	"github.com/syncloud/platform/certificate/fake"
 	"github.com/syncloud/platform/connection"
 	"log"
 	"strings"
@@ -32,10 +32,10 @@ type Custom struct {
 	config          CustomPlatformUserConfig
 	redirect        ManagedRedirect
 	device          *Device
-	fakeCertificate *selfsigned.Generator
+	fakeCertificate *fake.Generator
 }
 
-func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device, fakeCertificate *selfsigned.Generator) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device, fakeCertificate *fake.Generator) *Custom {
 	return &Custom{
 		internet:        internet,
 		config:          config,

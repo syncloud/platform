@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/syncloud/platform/auth"
-	"github.com/syncloud/platform/certificate/selfsigned"
+	"github.com/syncloud/platform/certificate/fake"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/nginx"
 	"log"
@@ -13,7 +13,7 @@ import (
 
 type Device struct {
 	config               DevicePlatformUserConfig
-	certificateGenerator *selfsigned.Generator
+	certificateGenerator *fake.Generator
 	auth                 *auth.Service
 	nginx                *nginx.Nginx
 	trigger              *event.Trigger

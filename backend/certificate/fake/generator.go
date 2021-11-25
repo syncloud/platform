@@ -1,4 +1,4 @@
-package selfsigned
+package fake
 
 import (
 	"log"
