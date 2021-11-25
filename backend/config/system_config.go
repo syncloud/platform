@@ -42,6 +42,14 @@ func (c *SystemConfig) ConfigDir() (*string, error) {
 	return c.get("config_dir")
 }
 
+func (c *SystemConfig) SslCertificateFile() (*string, error) {
+	return c.get("ssl_certificate_file")
+}
+
+func (c *SystemConfig) SslKeyFile() (*string, error) {
+	return c.get("ssl_key_file")
+}
+
 func (c *SystemConfig) get(key string) (*string, error) {
 	value, err := c.parser.GetInterpolated("platform", key)
 	if err != nil {
@@ -49,4 +57,3 @@ func (c *SystemConfig) get(key string) (*string, error) {
 	}
 	return &value, nil
 }
-

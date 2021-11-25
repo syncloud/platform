@@ -29,18 +29,25 @@ func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
 }
 
 type Generator struct {
-	redirect RedirectCertbot
-	config   GeneratorConfig
+	redirect     RedirectCertbot
+	userConfig   GeneratorUserConfig
+	systemConfig GeneratorSystemConfig
 }
 
-type GeneratorConfig interface {
+type GeneratorUserConfig interface {
 	IsCertbotStaging() bool
 }
 
-func New(redirect RedirectCertbot, config GeneratorConfig) *Generator {
+type GeneratorSystemConfig interface {
+	SslCertificateFile() (*string, error)
+	SslKeyFile() (*string, error)
+}
+
+func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig GeneratorSystemConfig) *Generator {
 	return &Generator{
-		redirect: redirect,
-		config:   config,
+		redirect:     redirect,
+		userConfig:   userConfig,
+		systemConfig: systemConfig,
 	}
 }
 
@@ -57,7 +64,7 @@ func (g *Generator) Generate(email string, domain string, token string) error {
 	}
 
 	certbotConfig := lego.NewConfig(&myUser)
-	if g.config.IsCertbotStaging() {
+	if g.userConfig.IsCertbotStaging() {
 		certbotConfig.CADirURL = lego.LEDirectoryStaging
 	}
 
@@ -86,12 +93,20 @@ func (g *Generator) Generate(email string, domain string, token string) error {
 		return err
 	}
 
-	err = os.WriteFile("/var/snap/platform/current/syncloud.crt", certificates.Certificate, 0644)
+	certificateFile, err := g.systemConfig.SslCertificateFile()
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(*certificateFile, certificates.Certificate, 0644)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile("/var/snap/platform/current/syncloud.key", certificates.PrivateKey, 0644)
+	keyFile, err := g.systemConfig.SslKeyFile()
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(*keyFile, certificates.PrivateKey, 0644)
 	if err != nil {
 		return err
 	}
