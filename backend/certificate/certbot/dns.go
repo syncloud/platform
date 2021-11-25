@@ -33,5 +33,6 @@ func (d *DNSProviderSyncloud) CleanUp(domain, _, keyAuth string) error {
 }
 
 func (d *DNSProviderSyncloud) Timeout() (timeout, interval time.Duration) {
-	return 5 * time.Minute, 1 * time.Minute,
+	return 5 * time.Minute, 1 * time.Minute
 }
+
