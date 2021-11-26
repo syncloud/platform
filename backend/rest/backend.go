@@ -56,11 +56,19 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	}
 }
 
-func NewReverseProxy(target *url.URL) *httputil.ReverseProxy {
+func (b *Backend) NewReverseProxy() *httputil.ReverseProxy {
 	director := func(req *http.Request) {
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.Host = target.Host
+		redirectApiUrl := b.userConfig.GetRedirectApiUrl()
+		redirectUrl, err := url.Parse(redirectApiUrl)
+		if err != nil {
+			fmt.Printf("proxy url error: %v", err)
+			return
+		}
+		fmt.Printf("proxy url: %v", redirectUrl)
+
+		req.URL.Scheme = redirectUrl.Scheme
+		req.URL.Host = redirectUrl.Host
+		req.Host = redirectUrl.Host
 	}
 	return &httputil.ReverseProxy{Director: director}
 }
@@ -87,7 +95,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
-	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.RedirectProxy()))
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -225,21 +233,6 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 		return nil, errors.New("event is missing")
 	}
 	return "ok", b.eventTrigger.RunEventOnAllApps(request.Event)
-}
-
-func (b *Backend) RedirectProxy() http.Handler {
-	redirectApiUrl := b.userConfig.GetRedirectApiUrl()
-	redirectUrl, err := url.Parse(redirectApiUrl)
-	if err != nil {
-		return http.HandlerFunc(
-			func(resp http.ResponseWriter, req *http.Request) {
-				fmt.Printf("http: proxy error: %v", err)
-				resp.WriteHeader(http.StatusBadGateway)
-			},
-		)
-	}
-	fmt.Printf("proxy url: %v", redirectUrl)
-	return NewReverseProxy(redirectUrl)
 }
 
 func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
