@@ -29,7 +29,6 @@ type Backend struct {
 	redirect       *redirect.Service
 	installer      installer.AppInstaller
 	storage        *storage.Storage
-	redirectProxy  *httputil.ReverseProxy
 	identification *identification.Parser
 	activate       *Activate
 	userConfig     *config.UserConfig
@@ -38,7 +37,7 @@ type Backend struct {
 func NewBackend(master *job.Master, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Service, installerService *installer.Installer,
-	storageService *storage.Storage, redirectUrl *url.URL,
+	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 ) *Backend {
@@ -51,7 +50,6 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		redirect:       redirect,
 		installer:      installerService,
 		storage:        storageService,
-		redirectProxy:  NewReverseProxy(redirectUrl),
 		identification: identification,
 		activate:       activate,
 		userConfig:     userConfig,
@@ -89,7 +87,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
-	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.redirectProxy))
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.RedirectProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -227,6 +225,20 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 		return nil, errors.New("event is missing")
 	}
 	return "ok", b.eventTrigger.RunEventOnAllApps(request.Event)
+}
+
+func (b *Backend) RedirectProxy() http.Handler {
+	redirectApiUrl := b.userConfig.GetRedirectApiUrl()
+	redirectUrl, err := url.Parse(redirectApiUrl)
+	if err != nil {
+		return http.HandlerFunc(
+			func(resp http.ResponseWriter, req *http.Request) {
+				fmt.Printf("http: proxy error: %v", err)
+				resp.WriteHeader(http.StatusBadGateway)
+			},
+		)
+	}
+	return NewReverseProxy(redirectUrl)
 }
 
 func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {

@@ -17,7 +17,6 @@ import (
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/systemd"
 	"log"
-	"net/url"
 	"os"
 	"time"
 
@@ -90,11 +89,6 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	if err != nil {
 		return nil, err
 	}
-	redirectApiUrl := userConfig.GetRedirectApiUrl()
-	redirectUrl, err := url.Parse(redirectApiUrl)
-	if err != nil {
-		return nil, err
-	}
 
 	id := identification.New(idConfig)
 	redirectService := redirect.New(userConfig, id)
@@ -127,6 +121,6 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCertificate)
 	activate := rest.NewActivateBackend(activationManaged, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-		installerService, storageService, redirectUrl, id, activate, userConfig), nil
+		installerService, storageService, id, activate, userConfig), nil
 
 }
