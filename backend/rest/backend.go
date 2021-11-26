@@ -238,6 +238,7 @@ func (b *Backend) RedirectProxy() http.Handler {
 			},
 		)
 	}
+	fmt.Printf("proxy url: %v", redirectUrl)
 	return NewReverseProxy(redirectUrl)
 }
 
