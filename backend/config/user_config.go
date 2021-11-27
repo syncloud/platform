@@ -146,7 +146,6 @@ func (c *UserConfig) IsRedirectEnabled() bool {
 	return c.toBool(result)
 }
 
-
 func (c *UserConfig) GetExternalAccess() bool {
 	result := c.Get("platform.external_access", DbFalse)
 	return c.toBool(result)

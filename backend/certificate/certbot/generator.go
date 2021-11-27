@@ -85,8 +85,11 @@ func (g *Generator) Generate(email string, domain string, token string) error {
 	myUser.Registration = reg
 
 	request := certificate.ObtainRequest{
-		Domains: []string{fmt.Sprintf("*.%s", domain)},
-		Bundle:  true,
+		Domains: []string{
+			domain,
+			fmt.Sprintf("*.%s", domain),
+		},
+		Bundle: true,
 	}
 	certificates, err := client.Certificate.Obtain(request)
 	if err != nil {
