@@ -40,15 +40,15 @@ func (r *Service) Authenticate(email string, password string) (*User, error) {
 	return &redirectUserResponse.Data, nil
 }
 
-func (r *Service) CertbotPresent(token, fqdn, value string) error {
-	request := &CertbotPresentRequest{Token: token, Fqdn: fqdn, Value: value}
+func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
+	request := &CertbotPresentRequest{Token: token, Fqdn: fqdn, Values: value}
 	url := fmt.Sprintf("%s/certbot/present", r.UserPlatformConfig.GetRedirectApiUrl())
 	_, err := r.postAndCheck(url, request)
 	return err
 }
 
-func (r *Service) CertbotCleanUp(token, fqdn, value string) error {
-	request := &CertbotCleanUpRequest{Token: token, Fqdn: fqdn, Value: value}
+func (r *Service) CertbotCleanUp(token, fqdn string) error {
+	request := &CertbotCleanUpRequest{Token: token, Fqdn: fqdn}
 	url := fmt.Sprintf("%s/certbot/cleanup", r.UserPlatformConfig.GetRedirectApiUrl())
 	_, err := r.postAndCheck(url, request)
 	return err

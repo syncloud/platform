@@ -8,11 +8,12 @@ import (
 type DNSProviderSyncloud struct {
 	token    string
 	redirect RedirectCertbot
+	values   []string
 }
 
 type RedirectCertbot interface {
-	CertbotPresent(token, fqdn, value string) error
-	CertbotCleanUp(token, fqdn, value string) error
+	CertbotPresent(token, fqdn string, value ...string) error
+	CertbotCleanUp(token, fqdn string) error
 }
 
 func NewDNSProviderSyncloud(token string, redirect RedirectCertbot) *DNSProviderSyncloud {
@@ -24,12 +25,14 @@ func NewDNSProviderSyncloud(token string, redirect RedirectCertbot) *DNSProvider
 
 func (d *DNSProviderSyncloud) Present(domain, _, keyAuth string) error {
 	fqdn, value := dns01.GetRecord(domain, keyAuth)
-	return d.redirect.CertbotPresent(d.token, fqdn, value)
+	d.values = append(d.values, value)
+	return d.redirect.CertbotPresent(d.token, fqdn, d.values...)
 }
 
 func (d *DNSProviderSyncloud) CleanUp(domain, _, keyAuth string) error {
-	fqdn, value := dns01.GetRecord(domain, keyAuth)
-	return d.redirect.CertbotCleanUp(d.token, fqdn, value)
+	d.values = make([]string, 0)
+	fqdn, _ := dns01.GetRecord(domain, keyAuth)
+	return d.redirect.CertbotCleanUp(d.token, fqdn)
 }
 
 func (d *DNSProviderSyncloud) Timeout() (timeout, interval time.Duration) {

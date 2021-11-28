@@ -35,15 +35,14 @@ type UserCredentials struct {
 }
 
 type CertbotPresentRequest struct {
-	Fqdn  string `json:"fqdn,omitempty"`
-	Token string `json:"token,omitempty"`
-	Value string `json:"value,omitempty"`
+	Fqdn   string   `json:"fqdn,omitempty"`
+	Token  string   `json:"token,omitempty"`
+	Values []string `json:"values,omitempty"`
 }
 
 type CertbotCleanUpRequest struct {
 	Fqdn  string `json:"fqdn,omitempty"`
 	Token string `json:"token,omitempty"`
-	Value string `json:"value,omitempty"`
 }
 
 type FreeDomainUpdateRequest struct {
