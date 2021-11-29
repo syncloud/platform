@@ -35,8 +35,12 @@ type ManagedActivation interface {
 	Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error
 }
 
-type ManagedCertbot interface {
+type Real interface {
 	Generate(email string, domain string, token string) error
+}
+
+type Fake interface {
+	Generate() error
 }
 
 type Managed struct {
@@ -44,16 +48,18 @@ type Managed struct {
 	config   ManagedPlatformUserConfig
 	redirect ManagedRedirect
 	device   DeviceActivation
-	certbot  ManagedCertbot
+	realCert Real
+	fakeCert Fake
 }
 
-func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, certbot ManagedCertbot) *Managed {
+func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, realCert Real, fakeCert Fake) *Managed {
 	return &Managed{
 		internet: internet,
 		config:   config,
 		redirect: redirect,
 		device:   device,
-		certbot:  certbot,
+		realCert: realCert,
+		fakeCert: fakeCert,
 	}
 }
 
@@ -87,7 +93,12 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	name, email := ParseUsername(deviceUsername, domain.Name)
 
 	if isFree(domain.Name, f.config.GetRedirectDomain()) {
-		err = f.certbot.Generate(email, domain.Name, domain.UpdateToken)
+		err = f.realCert.Generate(email, domain.Name, domain.UpdateToken)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = f.fakeCert.Generate()
 		if err != nil {
 			return err
 		}

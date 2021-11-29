@@ -9,6 +9,7 @@ import (
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
+	"github.com/syncloud/platform/certificate/config"
 	"os"
 )
 
@@ -31,19 +32,14 @@ func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
 type Generator struct {
 	redirect     RedirectCertbot
 	userConfig   GeneratorUserConfig
-	systemConfig GeneratorSystemConfig
+	systemConfig config.GeneratorSystemConfig
 }
 
 type GeneratorUserConfig interface {
 	IsCertbotStaging() bool
 }
 
-type GeneratorSystemConfig interface {
-	SslCertificateFile() (*string, error)
-	SslKeyFile() (*string, error)
-}
-
-func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig GeneratorSystemConfig) *Generator {
+func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig config.GeneratorSystemConfig) *Generator {
 	return &Generator{
 		redirect:     redirect,
 		userConfig:   userConfig,
@@ -96,20 +92,14 @@ func (g *Generator) Generate(email string, domain string, token string) error {
 		return err
 	}
 
-	certificateFile, err := g.systemConfig.SslCertificateFile()
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(*certificateFile, certificates.Certificate, 0644)
+	certificateFile := g.systemConfig.SslCertificateFile()
+	err = os.WriteFile(certificateFile, certificates.Certificate, 0644)
 	if err != nil {
 		return err
 	}
 
-	keyFile, err := g.systemConfig.SslKeyFile()
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(*keyFile, certificates.PrivateKey, 0644)
+	keyFile := g.systemConfig.SslKeyFile()
+	err = os.WriteFile(keyFile, certificates.PrivateKey, 0644)
 	if err != nil {
 		return err
 	}

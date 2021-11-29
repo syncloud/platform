@@ -1,15 +1,19 @@
 package fake
 
 import (
+	"github.com/syncloud/platform/certificate/config"
 	"log"
 	"os/exec"
 )
 
 type Generator struct {
+	systemConfig config.GeneratorSystemConfig
 }
 
-func New() *Generator {
-	return &Generator{}
+func New(systemConfig config.GeneratorSystemConfig) *Generator {
+	return &Generator{
+		systemConfig: systemConfig,
+	}
 }
 
 func (c *Generator) Generate() error {
@@ -20,8 +24,8 @@ func (c *Generator) Generate() error {
 		"req",
 		"-x509", "-nodes",
 		"-newkey", "rsa:2048",
-		"-keyout", "server.rsa.key",
-		"-out", "server.rsa.crt",
+		"-keyout", c.systemConfig.SslKeyFile(),
+		"-out", c.systemConfig.SslCertificateFile(),
 		"-days", "3650",
 		"-subj", "/C=UK/ST=Syncloud/L=Syncloud/O=Syncloud/CN=syncloud").CombinedOutput()
 	log.Printf("openssl output: %s", string(output))

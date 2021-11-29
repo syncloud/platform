@@ -99,26 +99,17 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	}
 
 	snapService := snap.NewService()
-	dataDir, err := systemConfig.DataDir()
-	if err != nil {
-		return nil, err
-	}
-	appDir, err := systemConfig.AppDir()
-	if err != nil {
-		return nil, err
-	}
-	configDir, err := systemConfig.ConfigDir()
-	if err != nil {
-		return nil, err
-	}
-	ldapService := auth.New(snapService, *dataDir, *appDir, *configDir)
+	dataDir := systemConfig.DataDir()
+	appDir := systemConfig.AppDir()
+	configDir := systemConfig.ConfigDir()
+	ldapService := auth.New(snapService, dataDir, appDir, configDir)
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
 	device := activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
 	internetChecker := connection.NewInternetChecker()
-	realCertificate := certbot.New(redirectService, userConfig, systemConfig)
-	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCertificate)
-	fakeCertificate := fake.New()
-	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCertificate)
+	realCert := certbot.New(redirectService, userConfig, systemConfig)
+	fakeCert := fake.New(systemConfig)
+	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCert, fakeCert)
+	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCert)
 	activate := rest.NewActivateBackend(activationManaged, activationCustom)
 	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 		installerService, storageService, id, activate, userConfig), nil

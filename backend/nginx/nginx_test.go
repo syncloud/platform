@@ -20,12 +20,12 @@ type SystemConfigMock struct {
 	dataDir   string
 }
 
-func (s *SystemConfigMock) ConfigDir() (*string, error) {
-	return &s.configDir, nil
+func (s *SystemConfigMock) ConfigDir() string {
+	return s.configDir
 }
 
-func (s *SystemConfigMock) DataDir() (*string, error) {
-	return &s.dataDir, nil
+func (s *SystemConfigMock) DataDir() string {
+	return s.dataDir
 }
 
 type UserConfigMock struct {
