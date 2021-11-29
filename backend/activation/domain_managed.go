@@ -65,7 +65,6 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 		return err
 	}
 
-	f.config.SetRedirectEnabled(true)
 	f.config.SetUserEmail(redirectEmail)
 	user, err := f.redirect.Authenticate(redirectEmail, redirectPassword)
 	if err != nil {
@@ -93,6 +92,7 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 			return err
 		}
 	}
+	f.config.SetRedirectEnabled(true)
 
 	return f.device.ActivateDevice(deviceUsername, devicePassword, name, email)
 }
