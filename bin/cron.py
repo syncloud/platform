@@ -5,6 +5,9 @@ from syncloud_platform.injector import get_injector
 injector = get_injector()
 user_platform_config = injector.user_platform_config
 
+if not user_platform_config.is_activated():
+    return
+
 generate_real_certificate = True
 if user_platform_config.is_redirect_enabled():
     injector.device.sync_all()
