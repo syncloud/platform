@@ -145,7 +145,13 @@ func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestJson))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

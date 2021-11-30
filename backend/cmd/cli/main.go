@@ -57,7 +57,6 @@ func main() {
 	var cmdIpv6prefix = &cobra.Command{
 		Use:   "prefix",
 		Short: "Print IPv6 prefix",
-		//Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ip, err := network.IPv6()
 			if err != nil {
@@ -136,5 +135,9 @@ func main() {
 
 	var rootCmd = &cobra.Command{Use: "cli"}
 	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron)
-	rootCmd.Execute()
+	err := rootCmd.Execute()
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+	}
+
 }

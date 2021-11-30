@@ -77,7 +77,6 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 
 	cronService := cron.New(cron.Job, time.Minute*5)
 	cronService.Start()
-
 	master := job.NewMaster()
 	backupService := backup.NewDefault()
 	snapClient := snap.NewClient()
@@ -89,7 +88,6 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	if err != nil {
 		return nil, err
 	}
-
 	id := identification.New(idConfig)
 	redirectService := redirect.New(userConfig, id)
 	worker := job.NewWorker(master)
@@ -97,7 +95,6 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	if err != nil {
 		return nil, err
 	}
-
 	snapService := snap.NewService()
 	dataDir := systemConfig.DataDir()
 	appDir := systemConfig.AppDir()
@@ -111,7 +108,8 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCert, fakeCert)
 	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCert)
 	activate := rest.NewActivateBackend(activationManaged, activationCustom)
-	return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-		installerService, storageService, id, activate, userConfig), nil
+	backend := rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
+		installerService, storageService, id, activate, userConfig)
+	return backend, nil
 
 }
