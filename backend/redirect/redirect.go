@@ -74,7 +74,7 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("acquire response: %s", body)
+	log.Printf("acquire response: %v\n", body)
 	var response FreeDomainAcquireResponse
 	err = json.Unmarshal(*body, &response)
 	if err != nil {
