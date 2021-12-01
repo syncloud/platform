@@ -34,7 +34,6 @@ func main() {
 
 	var rootCmd = &cobra.Command{Use: "backend"}
 	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
-	redirectDomain := rootCmd.PersistentFlags().String("redirect-domain", "syncloud.it", "redirect domain")
 	idConfig := rootCmd.PersistentFlags().String("identification-config", "/etc/syncloud/id.cfg", "id config")
 
 	var tcpCmd = &cobra.Command{
@@ -42,7 +41,7 @@ func main() {
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			backend, err := Backend(*configDb, *redirectDomain, *idConfig)
+			backend, err := Backend(*configDb, *idConfig)
 			if err != nil {
 				log.Print("error: ", err)
 				os.Exit(1)
@@ -57,7 +56,7 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = os.Remove(args[0])
-			backend, err := Backend(*configDb, *redirectDomain, *idConfig)
+			backend, err := Backend(*configDb, *idConfig)
 			if err != nil {
 				log.Print("error: ", err)
 				os.Exit(1)
@@ -73,7 +72,7 @@ func main() {
 	}
 }
 
-func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Backend, error) {
+func Backend(configDb string, idConfig string) (*rest.Backend, error) {
 
 	cronService := cron.New(cron.Job, time.Minute*5)
 	cronService.Start()
@@ -84,7 +83,7 @@ func Backend(configDb string, redirectDomain string, idConfig string) (*rest.Bac
 	eventTrigger := event.New(snapd)
 	installerService := installer.New()
 	storageService := storage.New()
-	userConfig, err := config.NewUserConfig(configDb, config.OldConfig, redirectDomain)
+	userConfig, err := config.NewUserConfig(configDb, config.OldConfig)
 	if err != nil {
 		return nil, err
 	}

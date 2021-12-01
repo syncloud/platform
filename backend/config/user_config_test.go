@@ -11,16 +11,16 @@ import (
 func TestRedirectDomain(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := NewUserConfig(db, tempFile().Name(), "syncloud.it")
+	config, err := NewUserConfig(db, tempFile().Name())
 	assert.Nil(t, err)
 
-	config.UpdateRedirectDomain("syncloud.it")
+	config.SetRedirectDomain("syncloud.it")
 	config.UpdateRedirectApiUrl("https://api.syncloud.it")
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())
 
 	assert.Equal(t, "https://api.syncloud.it", config.GetRedirectApiUrl())
 
-	config.UpdateRedirectDomain("syncloud.info")
+	config.SetRedirectDomain("syncloud.info")
 	assert.Equal(t, "syncloud.info", config.GetRedirectDomain())
 	assert.Equal(t, "https://api.syncloud.info", config.GetRedirectApiUrl())
 }
@@ -28,7 +28,7 @@ func TestRedirectDomain(t *testing.T) {
 func TestDeviceDomain_NonActivated(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := NewUserConfig(db, tempFile().Name(), "")
+	config, err := NewUserConfig(db, tempFile().Name())
 	assert.Nil(t, err)
 
 	assert.Equal(t, "localhost", config.GetDeviceDomain())
@@ -37,7 +37,8 @@ func TestDeviceDomain_NonActivated(t *testing.T) {
 func TestDeviceDomain_Free(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := NewUserConfig(db, tempFile().Name(), "example.com")
+	config, err := NewUserConfig(db, tempFile().Name())
+	config.SetRedirectDomain("example.com")
 	assert.Nil(t, err)
 
 	config.SetRedirectEnabled(true)
@@ -48,7 +49,8 @@ func TestDeviceDomain_Free(t *testing.T) {
 func TestDeviceBackwardsCompatibleDomain_Free(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := NewUserConfig(db, tempFile().Name(), "example.com")
+	config, err := NewUserConfig(db, tempFile().Name())
+	config.SetRedirectDomain("example.com")
 	assert.Nil(t, err)
 
 	config.SetRedirectEnabled(true)
@@ -59,7 +61,9 @@ func TestDeviceBackwardsCompatibleDomain_Free(t *testing.T) {
 func TestDeviceDomain_Custom(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := NewUserConfig(db, tempFile().Name(), "wrong")
+	config, err := NewUserConfig(db, tempFile().Name())
+	config.SetRedirectDomain("wrong")
+
 	assert.Nil(t, err)
 
 	config.SetRedirectEnabled(false)
@@ -101,7 +105,8 @@ user_update_token = token2
 
 	db := tempFile().Name()
 	_ = os.Remove(db)
-	config, err := NewUserConfig(db, oldConfigFile.Name(), "syncloud.it")
+	config, err := NewUserConfig(db, oldConfigFile.Name())
+	config.SetRedirectDomain("syncloud.it")
 	assert.Nil(t, err)
 
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())

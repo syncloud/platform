@@ -15,11 +15,11 @@ const DbTrue = "true"
 const DbFalse = "false"
 const OldBoolTrue = "True"
 const OldBoolFalse = "False"
+const DefaultRedirectDomain = "syncloud.it"
 
 type UserConfig struct {
-	file           string
-	oldConfigFile  string
-	redirectDomain string
+	file          string
+	oldConfigFile string
 }
 
 var OldConfig string
@@ -30,11 +30,10 @@ func init() {
 	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_DATA"))
 }
 
-func NewUserConfig(file string, oldConfigFile string, redirectDomain string) (*UserConfig, error) {
+func NewUserConfig(file string, oldConfigFile string) (*UserConfig, error) {
 	config := &UserConfig{
-		file:           file,
-		oldConfigFile:  oldConfigFile,
-		redirectDomain: redirectDomain,
+		file:          file,
+		oldConfigFile: oldConfigFile,
 	}
 	err := config.ensureDb()
 	if err != nil {
@@ -112,7 +111,7 @@ func (c *UserConfig) open() *sql.DB {
 	return db
 }
 
-func (c *UserConfig) UpdateRedirectDomain(domain string) {
+func (c *UserConfig) SetRedirectDomain(domain string) {
 	c.Upsert("redirect.domain", domain)
 }
 
@@ -129,7 +128,7 @@ func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 }
 
 func (c *UserConfig) GetRedirectDomain() string {
-	return c.Get("redirect.domain", c.redirectDomain)
+	return c.Get("redirect.domain", DefaultRedirectDomain)
 }
 
 func (c *UserConfig) GetRedirectApiUrl() string {

@@ -80,7 +80,7 @@ func main() {
 		Short: "Set config key value",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			configuration, err := config.NewUserConfig(configFile, config.OldConfig, "")
+			configuration, err := config.NewUserConfig(configFile, config.OldConfig)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -97,7 +97,7 @@ func main() {
 		Short: "Get config key value",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			configuration, err := config.NewUserConfig(configFile, config.OldConfig, "")
+			configuration, err := config.NewUserConfig(configFile, config.OldConfig)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -111,7 +111,7 @@ func main() {
 		Short: "List config key value",
 		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			configuration, err := config.NewUserConfig(configFile, config.OldConfig, "")
+			configuration, err := config.NewUserConfig(configFile, config.OldConfig)
 			if err != nil {
 				log.Fatal(err)
 			}
