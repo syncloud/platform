@@ -1,16 +1,15 @@
 package redirect
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/version"
 	"io"
 	"log"
-	"net/http"
 )
 
 type Service struct {
@@ -145,13 +144,8 @@ func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestJson))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := client.Do(req)
+	client := retryablehttp.NewClient()
+	resp, err := client.Post(url, "application/json", requestJson)
 	if err != nil {
 		return nil, err
 	}
