@@ -34,14 +34,13 @@ func main() {
 
 	var rootCmd = &cobra.Command{Use: "backend"}
 	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
-	idConfig := rootCmd.PersistentFlags().String("identification-config", "/etc/syncloud/id.cfg", "id config")
 
 	var tcpCmd = &cobra.Command{
 		Use:   "tcp [address]",
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			backend, err := Backend(*configDb, *idConfig)
+			backend, err := Backend(*configDb)
 			if err != nil {
 				log.Print("error: ", err)
 				os.Exit(1)
@@ -56,7 +55,7 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = os.Remove(args[0])
-			backend, err := Backend(*configDb, *idConfig)
+			backend, err := Backend(*configDb)
 			if err != nil {
 				log.Print("error: ", err)
 				os.Exit(1)
@@ -72,7 +71,7 @@ func main() {
 	}
 }
 
-func Backend(configDb string, idConfig string) (*rest.Backend, error) {
+func Backend(configDb string) (*rest.Backend, error) {
 
 	cronService := cron.New(cron.Job, time.Minute*5)
 	cronService.Start()
@@ -87,7 +86,7 @@ func Backend(configDb string, idConfig string) (*rest.Backend, error) {
 	if err != nil {
 		return nil, err
 	}
-	id := identification.New(idConfig)
+	id := identification.New()
 	redirectService := redirect.New(userConfig, id)
 	worker := job.NewWorker(master)
 	systemConfig, err := config.NewSystemConfig(config.File)
