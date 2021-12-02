@@ -95,7 +95,10 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	if isFree(domain.Name, f.config.GetRedirectDomain()) {
 		err = f.realCert.Generate(email, domain.Name, domain.UpdateToken)
 		if err != nil {
-			return err
+			err = f.fakeCert.Generate()
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		err = f.fakeCert.Generate()

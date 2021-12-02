@@ -1,6 +1,7 @@
 package activation
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/redirect"
 	"testing"
@@ -68,9 +69,13 @@ func (d *DeviceActivationStub) ActivateDevice(username string, password string, 
 
 type RealCertbotStub struct {
 	generated int
+	fail      bool
 }
 
 func (c *RealCertbotStub) Generate(email, domain, token string) error {
+	if c.fail {
+		return fmt.Errorf("error")
+	}
 	c.generated++
 	return nil
 }
@@ -84,7 +89,7 @@ func (c *FakeCertbotStub) Generate() error {
 	return nil
 }
 
-func TestManaged_ActivateFree_GenerateCertificate(t *testing.T) {
+func TestManaged_ActivateFree_RealCert(t *testing.T) {
 	managedRedirect := &ManagedRedirectStub{}
 	realCert := &RealCertbotStub{}
 	fakeCert := &FakeCertbotStub{}
@@ -96,6 +101,20 @@ func TestManaged_ActivateFree_GenerateCertificate(t *testing.T) {
 	assert.Equal(t, "test.syncloud.it", managedRedirect.domain)
 	assert.Equal(t, 1, realCert.generated)
 	assert.Equal(t, 0, fakeCert.generated)
+}
+
+func TestManaged_ActivateFree_FallbackToFakeCert(t *testing.T) {
+	managedRedirect := &ManagedRedirectStub{}
+	realCert := &RealCertbotStub{fail: true}
+	fakeCert := &FakeCertbotStub{}
+	config := &ManagedPlatformUserConfigStub{}
+	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, fakeCert)
+	err := managed.Activate("mail", "password", "test.syncloud.it", "username", "password")
+	assert.Nil(t, err)
+
+	assert.Equal(t, "test.syncloud.it", managedRedirect.domain)
+	assert.Equal(t, 1, realCert.generated)
+	assert.Equal(t, 1, fakeCert.generated)
 }
 
 func TestManaged_ActivatePremium_GenerateCertificate_Later(t *testing.T) {
