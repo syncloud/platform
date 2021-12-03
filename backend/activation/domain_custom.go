@@ -1,7 +1,6 @@
 package activation
 
 import (
-	"github.com/syncloud/platform/certificate/fake"
 	"github.com/syncloud/platform/connection"
 	"log"
 	"strings"
@@ -15,11 +14,7 @@ type CustomActivateRequest struct {
 
 type CustomPlatformUserConfig interface {
 	SetRedirectEnabled(enabled bool)
-	SetUserUpdateToken(userUpdateToken string)
 	SetUserEmail(userEmail string)
-	SetDomain(domain string)
-	UpdateDomainToken(token string)
-	GetRedirectDomain() string
 	SetCustomDomain(domain string)
 }
 
@@ -30,16 +25,14 @@ type CustomActivation interface {
 type Custom struct {
 	internet        connection.InternetChecker
 	config          CustomPlatformUserConfig
-	redirect        ManagedRedirect
-	device          *Device
-	fakeCertificate *fake.Generator
+	device          DeviceActivation
+	fakeCertificate Fake
 }
 
-func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device, fakeCertificate *fake.Generator) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation, fakeCertificate Fake) *Custom {
 	return &Custom{
 		internet:        internet,
 		config:          config,
-		redirect:        redirect,
 		device:          device,
 		fakeCertificate: fakeCertificate,
 	}

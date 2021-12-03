@@ -68,11 +68,13 @@ func (d *DeviceActivationStub) ActivateDevice(username string, password string, 
 }
 
 type RealCertbotStub struct {
+	attempted int
 	generated int
 	fail      bool
 }
 
 func (c *RealCertbotStub) Generate(email, domain, token string) error {
+	c.attempted += 1
 	if c.fail {
 		return fmt.Errorf("error")
 	}
@@ -113,7 +115,8 @@ func TestManaged_ActivateFree_FallbackToFakeCert(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, "test.syncloud.it", managedRedirect.domain)
-	assert.Equal(t, 1, realCert.generated)
+	assert.Equal(t, 1, realCert.attempted)
+	assert.Equal(t, 0, realCert.generated)
 	assert.Equal(t, 1, fakeCert.generated)
 }
 

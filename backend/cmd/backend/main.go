@@ -104,7 +104,7 @@ func Backend(configDb string) (*rest.Backend, error) {
 	realCert := certbot.New(redirectService, userConfig, systemConfig)
 	fakeCert := fake.New(systemConfig)
 	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCert, fakeCert)
-	activationCustom := activation.NewCustom(internetChecker, userConfig, redirectService, device, fakeCert)
+	activationCustom := activation.NewCustom(internetChecker, userConfig, device, fakeCert)
 	activate := rest.NewActivateBackend(activationManaged, activationCustom)
 	backend := rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 		installerService, storageService, id, activate, userConfig)
