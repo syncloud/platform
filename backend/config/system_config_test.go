@@ -22,8 +22,7 @@ config_dir: %(app_dir)s/dir
 	}
 
 	defer func() { _ = os.Remove(configFile.Name()) }()
-	config, err := NewSystemConfig(configFile.Name())
-	assert.Nil(t, err)
+	config := NewSystemConfig(configFile.Name())
 	dir := config.ConfigDir()
 	assert.Equal(t, "test/dir", dir)
 }

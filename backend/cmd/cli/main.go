@@ -1,9 +1,11 @@
 package main
 
 import (
+	"github.com/golobby/container/v3"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
+	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/logger"
 	"github.com/syncloud/platform/network"
 	"log"
@@ -20,7 +22,7 @@ func main() {
 		Short: "Print IPv4",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ip, err := network.LocalIPv4()
+			ip, err := network.New().LocalIPv4()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -32,7 +34,7 @@ func main() {
 		Short: "Print public IPv4",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ip, err := network.PublicIPv4()
+			ip, err := network.New().PublicIPv4()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -46,7 +48,7 @@ func main() {
 		Short: "Print IPv6",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ip, err := network.IPv6()
+			ip, err := network.New().IPv6()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -58,7 +60,7 @@ func main() {
 		Use:   "prefix",
 		Short: "Print IPv6 prefix",
 		Run: func(cmd *cobra.Command, args []string) {
-			ip, err := network.IPv6()
+			ip, err := network.New().IPv6()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -80,7 +82,8 @@ func main() {
 		Short: "Set config key value",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			configuration, err := config.NewUserConfig(configFile, config.OldConfig)
+			var configuration *config.UserConfig
+			err := container.Resolve(configuration)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -97,7 +100,8 @@ func main() {
 		Short: "Get config key value",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			configuration, err := config.NewUserConfig(configFile, config.OldConfig)
+			var configuration *config.UserConfig
+			err := container.Resolve(configuration)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -111,7 +115,8 @@ func main() {
 		Short: "List config key value",
 		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			configuration, err := config.NewUserConfig(configFile, config.OldConfig)
+			var configuration *config.UserConfig
+			err := container.Resolve(configuration)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -126,15 +131,20 @@ func main() {
 		Use:   "cron",
 		Short: "Run cron job",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := cron.Job()
+			var cronService *cron.Cron
+			err := container.Resolve(cronService)
 			if err != nil {
-				log.Fatalf("error: %s\n", err)
+				log.Fatal(err)
 			}
+			cronService.StartSingle()
 		},
 	}
 
 	var rootCmd = &cobra.Command{Use: "cli"}
 	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron)
+
+	ioc.Init(config.DefaultConfigDb)
+
 	err := rootCmd.Execute()
 	if err != nil {
 		log.Fatalf("error: %v\n", err)

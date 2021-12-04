@@ -15,18 +15,21 @@ type Backup struct {
 }
 
 const (
-	BACKUP_DIR         = "/data/platform/backup"
-	BACKUP_CREATE_CMD  = "/snap/platform/current/bin/backup.sh"
-	BACKUP_RESTORE_CMD = "/snap/platform/current/bin/restore.sh"
+	Dir        = "/data/platform/backup"
+	CreateCmd  = "/snap/platform/current/bin/backup.sh"
+	RestoreCmd = "/snap/platform/current/bin/restore.sh"
 )
 
 func NewDefault() *Backup {
-	return New(BACKUP_DIR)
+	return New(Dir)
 }
 
 func New(dir string) *Backup {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, os.ModePerm)
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			log.Println("unable to create backup dir", err)
+		}
 	}
 	return &Backup{
 		backupDir: dir,
@@ -48,10 +51,10 @@ func (backup *Backup) List() ([]File, error) {
 }
 
 func (backup *Backup) Create(app string) {
-	time := time.Now().Format("2006-0102-150405")
-	file := fmt.Sprintf("%s/%s-%s.tar.gz", backup.backupDir, app, time)
-	log.Println("Running backup create", BACKUP_CREATE_CMD, app, file)
-	out, err := exec.Command(BACKUP_CREATE_CMD, app, file).CombinedOutput()
+	now := time.Now().Format("2006-0102-150405")
+	file := fmt.Sprintf("%s/%s-%s.tar.gz", backup.backupDir, app, now)
+	log.Println("Running backup create", CreateCmd, app, file)
+	out, err := exec.Command(CreateCmd, app, file).CombinedOutput()
 	log.Printf("Backup create output %s", out)
 	if err != nil {
 		log.Printf("Backup create failed: %v", err)
@@ -63,8 +66,8 @@ func (backup *Backup) Create(app string) {
 func (backup *Backup) Restore(file string) {
 	app := strings.Split(file, "-")[0]
 	filePath := fmt.Sprintf("%s/%s", backup.backupDir, file)
-	log.Println("Running backup restore", BACKUP_RESTORE_CMD, app, filePath)
-	out, err := exec.Command(BACKUP_RESTORE_CMD, app, filePath).CombinedOutput()
+	log.Println("Running backup restore", RestoreCmd, app, filePath)
+	out, err := exec.Command(RestoreCmd, app, filePath).CombinedOutput()
 	log.Printf("Backup restore output %s", out)
 	if err != nil {
 		log.Printf("Backup restore failed: %v", err)

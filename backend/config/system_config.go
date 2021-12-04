@@ -15,16 +15,16 @@ type SystemConfig struct {
 
 const File = "/snap/platform/current/config/platform.cfg"
 
-func NewSystemConfig(file string) (*SystemConfig, error) {
+func NewSystemConfig(file string) *SystemConfig {
 	parser, err := configparser.NewConfigParserFromFile(file)
 	if err != nil {
-		return nil, err
+		log.Fatalln(err)
 	}
 
 	config := &SystemConfig{
 		parser: parser,
 	}
-	return config, nil
+	return config
 }
 
 func (c *SystemConfig) DataDir() string {

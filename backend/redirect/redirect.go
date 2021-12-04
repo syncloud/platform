@@ -15,12 +15,14 @@ import (
 type Service struct {
 	UserPlatformConfig *config.UserConfig
 	identification     *identification.Parser
+	networkIface       *network.Interface
 }
 
-func New(userPlatformConfig *config.UserConfig, identification *identification.Parser) *Service {
+func New(userPlatformConfig *config.UserConfig, identification *identification.Parser, networkIface *network.Interface) *Service {
 	return &Service{
 		UserPlatformConfig: userPlatformConfig,
 		identification:     identification,
+		networkIface:       networkIface,
 	}
 }
 
@@ -96,7 +98,7 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 		return err
 	}
 
-	localIp, err := network.LocalIPv4()
+	localIp, err := r.networkIface.LocalIPv4()
 	if err != nil {
 		return err
 	}
@@ -112,7 +114,7 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 	}
 
 	if externalIp == nil {
-		externalIp, err := network.PublicIPv4()
+		externalIp, err := r.networkIface.PublicIPv4()
 		if err != nil {
 			return err
 		}
@@ -123,7 +125,7 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 		request.Ip = externalIp
 	}
 
-	ipv6Addr, err := network.IPv6()
+	ipv6Addr, err := r.networkIface.IPv6()
 	if err == nil {
 		ipv6 := ipv6Addr.String()
 		request.Ipv6 = &ipv6

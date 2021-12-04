@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
+	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/certificate/certbot"
 	"github.com/syncloud/platform/certificate/fake"
 	"github.com/syncloud/platform/config"
@@ -11,20 +12,18 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
+	"github.com/syncloud/platform/installer"
+	"github.com/syncloud/platform/ioc"
+	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/logger"
 	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
+	"github.com/syncloud/platform/rest"
 	"github.com/syncloud/platform/snap"
+	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
 	"log"
 	"os"
-	"time"
-
-	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/installer"
-	"github.com/syncloud/platform/job"
-	"github.com/syncloud/platform/rest"
-	"github.com/syncloud/platform/storage"
 )
 
 func main() {
@@ -65,6 +64,7 @@ func main() {
 	}
 
 	rootCmd.AddCommand(tcpCmd, unixSocketCmd)
+
 	if err := rootCmd.Execute(); err != nil {
 		log.Print("error: ", err)
 		os.Exit(1)
@@ -73,8 +73,13 @@ func main() {
 
 func Backend(configDb string) (*rest.Backend, error) {
 
-	cronService := cron.New(cron.Job, time.Minute*5)
-	cronService.Start()
+	ioc.Init(configDb)
+
+	var userConfig *config.UserConfig
+	ioc.Resolve(&userConfig)
+
+	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
+
 	master := job.NewMaster()
 	backupService := backup.NewDefault()
 	snapClient := snap.NewClient()
@@ -82,17 +87,17 @@ func Backend(configDb string) (*rest.Backend, error) {
 	eventTrigger := event.New(snapd)
 	installerService := installer.New()
 	storageService := storage.New()
-	userConfig, err := config.NewUserConfig(configDb, config.OldConfig)
-	if err != nil {
-		return nil, err
-	}
-	id := identification.New()
-	redirectService := redirect.New(userConfig, id)
+
+	var id *identification.Parser
+	ioc.Resolve(&id)
+
+	var redirectService *redirect.Service
+	ioc.Resolve(&redirectService)
+
 	worker := job.NewWorker(master)
-	systemConfig, err := config.NewSystemConfig(config.File)
-	if err != nil {
-		return nil, err
-	}
+	var systemConfig *config.SystemConfig
+	ioc.Resolve(&systemConfig)
+
 	snapService := snap.NewService()
 	dataDir := systemConfig.DataDir()
 	appDir := systemConfig.AppDir()
@@ -101,7 +106,10 @@ func Backend(configDb string) (*rest.Backend, error) {
 	nginxService := nginx.New(systemd.New(), systemConfig, userConfig)
 	device := activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
 	internetChecker := connection.NewInternetChecker()
-	realCert := certbot.New(redirectService, userConfig, systemConfig)
+
+	var realCert *certbot.Generator
+	ioc.Resolve(&realCert)
+
 	fakeCert := fake.New(systemConfig)
 	activationManaged := activation.NewManaged(internetChecker, userConfig, redirectService, device, realCert, fakeCert)
 	activationCustom := activation.NewCustom(internetChecker, userConfig, device, fakeCert)

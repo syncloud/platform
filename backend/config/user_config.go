@@ -30,16 +30,16 @@ func init() {
 	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_DATA"))
 }
 
-func NewUserConfig(file string, oldConfigFile string) (*UserConfig, error) {
+func NewUserConfig(file string, oldConfigFile string) *UserConfig {
 	config := &UserConfig{
 		file:          file,
 		oldConfigFile: oldConfigFile,
 	}
 	err := config.ensureDb()
 	if err != nil {
-		return nil, err
+		log.Fatalln(err)
 	}
-	return config, nil
+	return config
 }
 
 func (c *UserConfig) ensureDb() error {

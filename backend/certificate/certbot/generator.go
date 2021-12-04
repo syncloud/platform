@@ -10,7 +10,12 @@ import (
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 	"github.com/syncloud/platform/certificate/config"
+	"io/ioutil"
 	"os"
+)
+
+const (
+	CertbotLog = "/var/snap/platform/common/log/certbot.log"
 )
 
 type MyUser struct {
@@ -48,6 +53,14 @@ func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig 
 }
 
 func (g *Generator) Generate(email string, domain string, token string) error {
+	err := g.generate(email, domain, token)
+	if err != nil {
+		err = ioutil.WriteFile(CertbotLog, []byte(err.Error()), 644)
+	}
+	return err
+}
+
+func (g *Generator) generate(email string, domain string, token string) error {
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
