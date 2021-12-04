@@ -1,5 +1,6 @@
 local name = "platform";
 local browser = "firefox";
+local go = "1.17.3"
 
 local build(arch, testUI) = {
     kind: "pipeline",
@@ -34,7 +35,7 @@ local build(arch, testUI) = {
         },
         {
             name: "build backend",
-            image: "golang:1.16.4",
+            image: "golang:" + go,
             commands: [
                 "cd backend",
                 "go test ./... -cover",
@@ -46,7 +47,7 @@ local build(arch, testUI) = {
         },
         {
             name: "build api test",
-            image: "golang:1.16.4",
+            image: "golang:" + go,
             commands: [
                 "cd integration/api",
                 "go test -c -o api.test"
