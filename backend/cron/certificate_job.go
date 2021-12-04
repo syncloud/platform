@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"github.com/syncloud/platform/certificate/certbot"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/network"
 )
@@ -8,12 +9,14 @@ import (
 type CertificateJob struct {
 	userConfig   *config.UserConfig
 	networkIface *network.Interface
+	realCert     *certbot.Generator
 }
 
-func NewCertificateJob(userConfig *config.UserConfig, networkIface *network.Interface) *CertificateJob {
+func NewCertificateJob(userConfig *config.UserConfig, networkIface *network.Interface, realCert *certbot.Generator) *CertificateJob {
 	return &CertificateJob{
 		userConfig:   userConfig,
 		networkIface: networkIface,
+		realCert:     realCert,
 	}
 }
 
@@ -39,8 +42,8 @@ func (j *CertificateJob) Run() error {
 		}
 	}
 	if generateRealCertificate {
-		//injector.tls.generate_real_certificate()
+		return j.realCert.Regenerate()
 	}
 
-	return err
+	return nil
 }

@@ -73,7 +73,7 @@ type RealCertbotStub struct {
 	fail      bool
 }
 
-func (c *RealCertbotStub) Generate(email, domain, token string) error {
+func (c *RealCertbotStub) Generate() error {
 	c.attempted += 1
 	if c.fail {
 		return fmt.Errorf("error")

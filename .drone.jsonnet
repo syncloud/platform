@@ -1,6 +1,6 @@
 local name = "platform";
 local browser = "firefox";
-local go = "1.17.3"
+local go = "1.17.3";
 
 local build(arch, testUI) = {
     kind: "pipeline",

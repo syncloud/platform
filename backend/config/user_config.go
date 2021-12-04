@@ -123,6 +123,10 @@ func (c *UserConfig) SetUserEmail(userEmail string) {
 	c.Upsert("redirect.user_email", userEmail)
 }
 
+func (c *UserConfig) GetUserEmail() *string {
+	return c.GetOrNil("redirect.user_email")
+}
+
 func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 	c.Upsert("redirect.user_update_token", userUpdateToken)
 }

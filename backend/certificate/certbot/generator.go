@@ -42,6 +42,9 @@ type Generator struct {
 
 type GeneratorUserConfig interface {
 	IsCertbotStaging() bool
+	GetUserEmail() *string
+	GetDomain() *string
+	GetDomainUpdateToken() *string
 }
 
 func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig config.GeneratorSystemConfig) *Generator {
@@ -52,23 +55,31 @@ func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig 
 	}
 }
 
-func (g *Generator) Generate(email string, domain string, token string) error {
-	err := g.generate(email, domain, token)
+func (g *Generator) Regenerate() error {
+	return fmt.Errorf("not implemented yet")
+}
+
+func (g *Generator) Generate() error {
+	err := g.generate()
 	if err != nil {
 		err = ioutil.WriteFile(CertbotLog, []byte(err.Error()), 644)
 	}
 	return err
 }
 
-func (g *Generator) generate(email string, domain string, token string) error {
+func (g *Generator) generate() error {
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return err
 	}
 
+	email := g.userConfig.GetUserEmail()
+	if email == nil {
+		return fmt.Errorf("email is not set")
+	}
 	myUser := MyUser{
-		Email: email,
+		Email: *email,
 		key:   privateKey,
 	}
 
@@ -82,7 +93,11 @@ func (g *Generator) generate(email string, domain string, token string) error {
 		return err
 	}
 
-	err = client.Challenge.SetDNS01Provider(NewDNSProviderSyncloud(token, g.redirect))
+	token := g.userConfig.GetDomainUpdateToken()
+	if token == nil {
+		return fmt.Errorf("token is not set")
+	}
+	err = client.Challenge.SetDNS01Provider(NewDNSProviderSyncloud(*token, g.redirect))
 	if err != nil {
 		return err
 	}
@@ -93,10 +108,14 @@ func (g *Generator) generate(email string, domain string, token string) error {
 	}
 	myUser.Registration = reg
 
+	domain := g.userConfig.GetDomain()
+	if domain == nil {
+		return fmt.Errorf("domain is not set")
+	}
 	request := certificate.ObtainRequest{
 		Domains: []string{
-			domain,
-			fmt.Sprintf("*.%s", domain),
+			*domain,
+			fmt.Sprintf("*.%s", *domain),
 		},
 		Bundle: true,
 	}

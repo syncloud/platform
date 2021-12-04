@@ -73,7 +73,7 @@ func main() {
 
 func Backend(configDb string) (*rest.Backend, error) {
 
-	ioc.Init(configDb)
+	ioc.Init(configDb, config.File)
 
 	var userConfig *config.UserConfig
 	ioc.Resolve(&userConfig)

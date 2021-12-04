@@ -12,14 +12,24 @@ import (
 	"time"
 )
 
-func Init(configDb string) {
+func Init(configDb string, systemConfig string) {
 
 	Singleton(func() *config.UserConfig {
 		return config.NewUserConfig(configDb, config.OldConfig)
 	})
 	Singleton(func() *network.Interface { return network.New() })
-	Singleton(func(userConfig *config.UserConfig, iface *network.Interface) *cron.CertificateJob {
-		return cron.NewCertificateJob(userConfig, iface)
+	Singleton(func() *identification.Parser { return identification.New() })
+	Singleton(func() *config.SystemConfig {
+		return config.NewSystemConfig(systemConfig)
+	})
+	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface) *redirect.Service {
+		return redirect.New(userConfig, identification, iface)
+	})
+	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *certbot.Generator {
+		return certbot.New(redirectService, userConfig, systemConfig)
+	})
+	Singleton(func(userConfig *config.UserConfig, iface *network.Interface, realCert *certbot.Generator) *cron.CertificateJob {
+		return cron.NewCertificateJob(userConfig, iface, realCert)
 	})
 	Singleton(func(userConfig *config.UserConfig) *cron.PortsJob {
 		return cron.NewPortsJob(userConfig)
@@ -27,29 +37,19 @@ func Init(configDb string) {
 	Singleton(func(job1 *cron.CertificateJob, job2 *cron.PortsJob, userConfig *config.UserConfig) *cron.Cron {
 		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
 	})
-	Singleton(func() *identification.Parser { return identification.New() })
-	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface) *redirect.Service {
-		return redirect.New(userConfig, identification, iface)
-	})
-	Singleton(func() *config.SystemConfig {
-		return config.NewSystemConfig(config.File)
-	})
-	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *certbot.Generator {
-		return certbot.New(redirectService, userConfig, systemConfig)
-	})
 }
 
 func Singleton(resolver interface{}) {
 	err := container.Singleton(resolver)
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 }
 
 func Resolve(abstraction interface{}) {
 	err := container.Resolve(abstraction)
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 }
 

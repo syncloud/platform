@@ -143,7 +143,7 @@ func main() {
 	var rootCmd = &cobra.Command{Use: "cli"}
 	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron)
 
-	ioc.Init(config.DefaultConfigDb)
+	ioc.Init(config.DefaultConfigDb, config.File)
 
 	err := rootCmd.Execute()
 	if err != nil {

@@ -36,7 +36,7 @@ type ManagedActivation interface {
 }
 
 type Real interface {
-	Generate(email string, domain string, token string) error
+	Generate() error
 }
 
 type Fake interface {
@@ -93,7 +93,7 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	name, email := ParseUsername(deviceUsername, domain.Name)
 
 	if isFree(domain.Name, f.config.GetRedirectDomain()) {
-		err = f.realCert.Generate(email, domain.Name, domain.UpdateToken)
+		err = f.realCert.Generate()
 		if err != nil {
 			err = f.fakeCert.Generate()
 			if err != nil {
