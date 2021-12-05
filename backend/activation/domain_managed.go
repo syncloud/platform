@@ -2,6 +2,7 @@ package activation
 
 import (
 	"fmt"
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"log"
@@ -35,24 +36,16 @@ type ManagedActivation interface {
 	Activate(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error
 }
 
-type Real interface {
-	Generate() error
-}
-
-type Fake interface {
-	Generate() error
-}
-
 type Managed struct {
 	internet connection.InternetChecker
 	config   ManagedPlatformUserConfig
 	redirect ManagedRedirect
 	device   DeviceActivation
-	realCert Real
-	fakeCert Fake
+	realCert cert.Generator
+	fakeCert cert.Generator
 }
 
-func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, realCert Real, fakeCert Fake) *Managed {
+func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, realCert cert.Generator, fakeCert cert.Generator) *Managed {
 	return &Managed{
 		internet: internet,
 		config:   config,

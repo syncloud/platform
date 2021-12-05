@@ -1,4 +1,4 @@
-package config
+package cert
 
 type GeneratorSystemConfig interface {
 	SslCertificateFile() string

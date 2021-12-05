@@ -1,6 +1,7 @@
 package activation
 
 import (
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/connection"
 	"log"
 	"strings"
@@ -26,10 +27,10 @@ type Custom struct {
 	internet        connection.InternetChecker
 	config          CustomPlatformUserConfig
 	device          DeviceActivation
-	fakeCertificate Fake
+	fakeCertificate cert.Generator
 }
 
-func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation, fakeCertificate Fake) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation, fakeCertificate cert.Generator) *Custom {
 	return &Custom{
 		internet:        internet,
 		config:          config,

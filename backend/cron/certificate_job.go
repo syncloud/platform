@@ -1,7 +1,7 @@
 package cron
 
 import (
-	"github.com/syncloud/platform/certificate/certbot"
+	"github.com/syncloud/platform/cert/real"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/network"
 )
@@ -9,10 +9,10 @@ import (
 type CertificateJob struct {
 	userConfig   *config.UserConfig
 	networkIface *network.Interface
-	realCert     *certbot.Generator
+	realCert     *real.Generator
 }
 
-func NewCertificateJob(userConfig *config.UserConfig, networkIface *network.Interface, realCert *certbot.Generator) *CertificateJob {
+func NewCertificateJob(userConfig *config.UserConfig, networkIface *network.Interface, realCert *real.Generator) *CertificateJob {
 	return &CertificateJob{
 		userConfig:   userConfig,
 		networkIface: networkIface,

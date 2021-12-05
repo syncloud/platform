@@ -5,11 +5,12 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/certificate/certbot"
-	"github.com/syncloud/platform/certificate/fake"
+	"github.com/syncloud/platform/cert/fake"
+	"github.com/syncloud/platform/cert/real"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
+	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
@@ -41,10 +42,14 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface) *redirect.Service {
 		return redirect.New(userConfig, identification, iface)
 	})
-	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *certbot.Generator {
-		return certbot.New(redirectService, userConfig, systemConfig)
+	Singleton(func() *date.RealProvider { return date.New() })
+	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *real.Certbot {
+		return real.NewCertbot(redirectService, userConfig, systemConfig)
 	})
-	Singleton(func(userConfig *config.UserConfig, iface *network.Interface, realCert *certbot.Generator) *cron.CertificateJob {
+	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig, provider *date.RealProvider, certbot *real.Certbot) *real.Generator {
+		return real.New(systemConfig, provider, certbot)
+	})
+	Singleton(func(userConfig *config.UserConfig, iface *network.Interface, realCert *real.Generator) *cron.CertificateJob {
 		return cron.NewCertificateJob(userConfig, iface, realCert)
 	})
 	Singleton(func(userConfig *config.UserConfig) *cron.PortsJob {
@@ -73,7 +78,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	})
 	Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
 	Singleton(func(systemConfig *config.SystemConfig) *fake.Generator { return fake.New(systemConfig) })
-	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectService *redirect.Service, device *activation.Device, realCert *certbot.Generator, fakeCert *fake.Generator) *activation.Managed {
+	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectService *redirect.Service, device *activation.Device, realCert *real.Generator, fakeCert *fake.Generator) *activation.Managed {
 		return activation.NewManaged(internetChecker, userConfig, redirectService, device, realCert, fakeCert)
 	})
 	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device, fakeCert *fake.Generator) *activation.Custom {

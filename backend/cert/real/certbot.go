@@ -1,85 +1,32 @@
-package certbot
+package real
 
 import (
-	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/x509"
 	"fmt"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/syncloud/platform/certificate/config"
-	"io/ioutil"
+	"github.com/syncloud/platform/cert"
 	"os"
 )
 
-const (
-	CertbotLog = "/var/snap/platform/common/log/certbot.log"
-)
-
-type MyUser struct {
-	Email        string
-	Registration *registration.Resource
-	key          crypto.PrivateKey
-}
-
-func (u *MyUser) GetEmail() string {
-	return u.Email
-}
-func (u MyUser) GetRegistration() *registration.Resource {
-	return u.Registration
-}
-func (u *MyUser) GetPrivateKey() crypto.PrivateKey {
-	return u.key
-}
-
-type Generator struct {
+type Certbot struct {
 	redirect     RedirectCertbot
 	userConfig   GeneratorUserConfig
-	systemConfig config.GeneratorSystemConfig
+	systemConfig cert.GeneratorSystemConfig
 }
 
-type GeneratorUserConfig interface {
-	IsCertbotStaging() bool
-	GetUserEmail() *string
-	GetDomain() *string
-	GetDomainUpdateToken() *string
-}
-
-func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig config.GeneratorSystemConfig) *Generator {
-	return &Generator{
+func NewCertbot(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig cert.GeneratorSystemConfig) *Certbot {
+	return &Certbot{
 		redirect:     redirect,
 		userConfig:   userConfig,
 		systemConfig: systemConfig,
 	}
 }
 
-func (g *Generator) RegenerateIfNeeded() error {
-
-	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
-	if err != nil {
-		return err
-	}
-
-	cert, err := x509.ParseCertificate(certBytes)
-	if err != nil {
-		return err
-	}
-
-	return fmt.Errorf("not implemented yet")
-}
-
-func (g *Generator) Generate() error {
-	err := g.generate()
-	if err != nil {
-		err = ioutil.WriteFile(CertbotLog, []byte(err.Error()), 644)
-	}
-	return err
-}
-
-func (g *Generator) generate() error {
+func (g *Certbot) Generate() error {
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {

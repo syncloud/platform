@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/cert/real"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
@@ -49,6 +50,7 @@ func main() {
 
 func Start(userConfig string, socketType string, socket string) {
 	ioc.Init(userConfig, config.DefaultSystemConfig, backup.Dir)
+	ioc.Call(func(generator *real.Generator) { generator.Start() })
 	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
 	ioc.Call(func(backupService *backup.Backup) { backupService.Start() })
 	ioc.Call(func(backend *rest.Backend) { backend.Start(socketType, socket) })
