@@ -42,7 +42,7 @@ func (j *CertificateJob) Run() error {
 		}
 	}
 	if generateRealCertificate {
-		return j.realCert.Regenerate()
+		return j.realCert.RegenerateIfNeeded()
 	}
 
 	return nil

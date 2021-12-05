@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/x509"
 	"fmt"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
@@ -55,7 +56,18 @@ func New(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig 
 	}
 }
 
-func (g *Generator) Regenerate() error {
+func (g *Generator) RegenerateIfNeeded() error {
+
+	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
+	if err != nil {
+		return err
+	}
+
+	cert, err := x509.ParseCertificate(certBytes)
+	if err != nil {
+		return err
+	}
+
 	return fmt.Errorf("not implemented yet")
 }
 
