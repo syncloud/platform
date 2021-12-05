@@ -9,8 +9,8 @@ type Storage struct {
 }
 
 const (
-	STORAGE_FORMAT_CMD      = "/snap/platform/current/bin/disk_format.sh"
-	STORAGE_BOOT_EXTEND_CMD = "/snap/platform/current/bin/boot_extend.sh"
+	FormatCmd     = "/snap/platform/current/bin/disk_format.sh"
+	BootExtendCmd = "/snap/platform/current/bin/boot_extend.sh"
 )
 
 func New() *Storage {
@@ -18,8 +18,8 @@ func New() *Storage {
 }
 
 func (storage *Storage) Format(device string) {
-	log.Println("Running storage format: ", STORAGE_FORMAT_CMD, device)
-	out, err := exec.Command(STORAGE_FORMAT_CMD, device).CombinedOutput()
+	log.Println("Running storage format: ", FormatCmd, device)
+	out, err := exec.Command(FormatCmd, device).CombinedOutput()
 	log.Printf("Storage format output %s", out)
 	if err != nil {
 		log.Printf("Storage format failed: %v", err)
@@ -29,8 +29,8 @@ func (storage *Storage) Format(device string) {
 }
 
 func (storage *Storage) BootExtend() {
-	log.Println("Running storage boot extend: ", STORAGE_BOOT_EXTEND_CMD)
-	out, err := exec.Command(STORAGE_BOOT_EXTEND_CMD).CombinedOutput()
+	log.Println("Running storage boot extend: ", BootExtendCmd)
+	out, err := exec.Command(BootExtendCmd).CombinedOutput()
 	log.Printf("Storage boot extend output %s", out)
 	if err != nil {
 		log.Printf("Storage boot extend failed: %v", err)

@@ -31,15 +31,17 @@ func init() {
 }
 
 func NewUserConfig(file string, oldConfigFile string) *UserConfig {
-	config := &UserConfig{
+	return &UserConfig{
 		file:          file,
 		oldConfigFile: oldConfigFile,
 	}
-	err := config.ensureDb()
+}
+
+func (c *UserConfig) Load() {
+	err := c.ensureDb()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	return config
 }
 
 func (c *UserConfig) ensureDb() error {

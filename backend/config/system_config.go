@@ -10,21 +10,24 @@ const WebAccessPort = 443
 const WebProtocol = "https"
 
 type SystemConfig struct {
+	file   string
 	parser *configparser.ConfigParser
 }
 
-const File = "/snap/platform/current/config/platform.cfg"
+const DefaultSystemConfig = "/snap/platform/current/config/platform.cfg"
 
 func NewSystemConfig(file string) *SystemConfig {
-	parser, err := configparser.NewConfigParserFromFile(file)
+	return &SystemConfig{
+		file: file,
+	}
+}
+
+func (c *SystemConfig) Load() {
+	parser, err := configparser.NewConfigParserFromFile(c.file)
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	config := &SystemConfig{
-		parser: parser,
-	}
-	return config
+	c.parser = parser
 }
 
 func (c *SystemConfig) DataDir() string {

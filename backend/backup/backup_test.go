@@ -40,7 +40,9 @@ func TestRemove(t *testing.T) {
 func TestCreateBackupDir(t *testing.T) {
 	dir := createTempDir()
 	defer os.RemoveAll(dir)
-	list, err := New(dir + "/new").List()
+	backup := New(dir + "/new")
+	backup.Start()
+	list, err := backup.List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 0)
 }

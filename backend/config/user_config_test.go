@@ -12,6 +12,7 @@ func TestRedirectDomain(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
 
 	config.SetRedirectDomain("syncloud.it")
 	config.UpdateRedirectApiUrl("https://api.syncloud.it")
@@ -28,7 +29,7 @@ func TestDeviceDomain_NonActivated(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
-
+	config.Load()
 	assert.Equal(t, "localhost", config.GetDeviceDomain())
 }
 
@@ -36,6 +37,7 @@ func TestDeviceDomain_Free(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
 	config.SetRedirectDomain("example.com")
 
 	config.SetRedirectEnabled(true)
@@ -47,6 +49,7 @@ func TestDeviceBackwardsCompatibleDomain_Free(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
 	config.SetRedirectDomain("example.com")
 
 	config.SetRedirectEnabled(true)
@@ -58,6 +61,7 @@ func TestDeviceDomain_Custom(t *testing.T) {
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
 	config.SetRedirectDomain("wrong")
 
 	config.SetRedirectEnabled(false)
@@ -100,6 +104,7 @@ user_update_token = token2
 	db := tempFile().Name()
 	_ = os.Remove(db)
 	config := NewUserConfig(db, oldConfigFile.Name())
+	config.Load()
 	config.SetRedirectDomain("syncloud.it")
 
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())
