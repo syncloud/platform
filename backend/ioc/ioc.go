@@ -5,8 +5,7 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/cert/fake"
-	"github.com/syncloud/platform/cert/real"
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
@@ -43,14 +42,14 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return redirect.New(userConfig, identification, iface)
 	})
 	Singleton(func() *date.RealProvider { return date.New() })
-	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *real.Certbot {
-		return real.NewCertbot(redirectService, userConfig, systemConfig)
+	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *cert.Certbot {
+		return cert.NewCertbot(redirectService, userConfig, systemConfig)
 	})
-	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig, provider *date.RealProvider, certbot *real.Certbot) *real.Generator {
-		return real.New(systemConfig, provider, certbot)
+	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
+		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert)
 	})
-	Singleton(func(userConfig *config.UserConfig, iface *network.Interface, realCert *real.Generator) *cron.CertificateJob {
-		return cron.NewCertificateJob(userConfig, iface, realCert)
+	Singleton(func(userConfig *config.UserConfig, iface *network.Interface, certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
+		return cron.NewCertificateJob(userConfig, iface, certGenerator)
 	})
 	Singleton(func(userConfig *config.UserConfig) *cron.PortsJob {
 		return cron.NewPortsJob(userConfig)
@@ -77,12 +76,12 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
 	})
 	Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
-	Singleton(func(systemConfig *config.SystemConfig) *fake.Generator { return fake.New(systemConfig) })
-	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectService *redirect.Service, device *activation.Device, realCert *real.Generator, fakeCert *fake.Generator) *activation.Managed {
-		return activation.NewManaged(internetChecker, userConfig, redirectService, device, realCert, fakeCert)
+	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake { return cert.NewFake(systemConfig) })
+	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectService *redirect.Service, device *activation.Device, certGenerator *cert.CertificateGenerator) *activation.Managed {
+		return activation.NewManaged(internetChecker, userConfig, redirectService, device, certGenerator)
 	})
-	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device, fakeCert *fake.Generator) *activation.Custom {
-		return activation.NewCustom(internetChecker, userConfig, device, fakeCert)
+	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device, certGenerator *cert.CertificateGenerator) *activation.Custom {
+		return activation.NewCustom(internetChecker, userConfig, device, certGenerator)
 	})
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)

@@ -19,7 +19,7 @@ func (c CustomPlatformUserConfigStub) SetCustomDomain(domain string) {
 }
 
 func TestManaged_ActivateCustom_GenerateFakeCertificate(t *testing.T) {
-	fakeCert := &FakeCertbotStub{}
+	fakeCert := &CerCertbotStub{}
 	config := &CustomPlatformUserConfigStub{}
 	managed := NewCustom(&InternetCheckerStub{}, config, &DeviceActivationStub{}, fakeCert)
 	err := managed.Activate("example.com", "username", "password")

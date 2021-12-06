@@ -1,6 +1,7 @@
-package real
+package cert
 
 import (
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -8,17 +9,43 @@ import (
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
-	"github.com/syncloud/platform/cert"
 	"os"
 )
 
 type Certbot struct {
 	redirect     RedirectCertbot
-	userConfig   GeneratorUserConfig
-	systemConfig cert.GeneratorSystemConfig
+	userConfig   UserConfig
+	systemConfig GeneratorSystemConfig
 }
 
-func NewCertbot(redirect RedirectCertbot, userConfig GeneratorUserConfig, systemConfig cert.GeneratorSystemConfig) *Certbot {
+type UserConfig interface {
+	IsCertbotStaging() bool
+	GetUserEmail() *string
+	GetDomain() *string
+	GetDomainUpdateToken() *string
+}
+
+type User struct {
+	Email        string
+	Registration *registration.Resource
+	key          crypto.PrivateKey
+}
+
+func (u *User) GetEmail() string {
+	return u.Email
+}
+func (u User) GetRegistration() *registration.Resource {
+	return u.Registration
+}
+func (u *User) GetPrivateKey() crypto.PrivateKey {
+	return u.key
+}
+
+type CertbotGenerator interface {
+	Generate() error
+}
+
+func NewCertbot(redirect RedirectCertbot, userConfig UserConfig, systemConfig GeneratorSystemConfig) *Certbot {
 	return &Certbot{
 		redirect:     redirect,
 		userConfig:   userConfig,
@@ -37,7 +64,7 @@ func (g *Certbot) Generate() error {
 	if email == nil {
 		return fmt.Errorf("email is not set")
 	}
-	myUser := MyUser{
+	myUser := User{
 		Email: *email,
 		key:   privateKey,
 	}

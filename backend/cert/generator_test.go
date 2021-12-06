@@ -1,4 +1,4 @@
-package real
+package cert
 
 import (
 	"crypto/ecdsa"
@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
@@ -29,26 +30,16 @@ func (r RedirectCertbotStub) CertbotCleanUp(token, fqdn string) error {
 }
 
 type GeneratorUserConfigStub struct {
-}
-
-func (g GeneratorUserConfigStub) IsCertbotStaging() bool {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (g GeneratorUserConfigStub) GetUserEmail() *string {
-	//TODO implement me
-	panic("implement me")
+	domain         string
+	redirectDomain string
 }
 
 func (g GeneratorUserConfigStub) GetDomain() *string {
-	//TODO implement me
-	panic("implement me")
+	return &g.domain
 }
 
-func (g GeneratorUserConfigStub) GetDomainUpdateToken() *string {
-	//TODO implement me
-	panic("implement me")
+func (g GeneratorUserConfigStub) GetRedirectDomain() string {
+	return g.redirectDomain
 }
 
 type GeneratorSystemConfigStub struct {
@@ -73,11 +64,26 @@ func (p ProviderStub) Now() time.Time {
 }
 
 type CertbotStub struct {
-	count int
+	attempt int
+	count   int
+	fail    bool
 }
 
 func (c *CertbotStub) Generate() error {
+	c.attempt++
+	if c.fail {
+		return fmt.Errorf("certbot fail")
+	}
 	c.count++
+	return nil
+}
+
+type FakeStub struct {
+	count int
+}
+
+func (f FakeStub) Generate() error {
+	f.count++
 	return nil
 }
 
@@ -90,9 +96,12 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: file.Name(),
 	}
+
+	userConfig := &GeneratorUserConfigStub{}
 	certbot := &CertbotStub{}
-	generator := New(systemConfig, provider, certbot)
-	err := generator.RegenerateIfNeeded()
+	fake := &FakeStub{}
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.count)
 }
@@ -106,11 +115,56 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: file.Name(),
 	}
+	userConfig := &GeneratorUserConfigStub{}
 	certbot := &CertbotStub{}
-	generator := New(systemConfig, provider, certbot)
-	err := generator.RegenerateIfNeeded()
+	fake := &FakeStub{}
+
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.count)
+}
+
+func TestRegenerateReal_ForFreeDomain(t *testing.T) {
+
+	now := time.Now()
+	provider := &ProviderStub{now: now}
+	systemConfig := &GeneratorSystemConfigStub{
+		sslCertificateFile: "/unknown",
+	}
+	userConfig := &GeneratorUserConfigStub{
+		domain:         "test.syncloud.it",
+		redirectDomain: "syncloud.it",
+	}
+	certbot := &CertbotStub{}
+	fake := &FakeStub{}
+
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	err := generator.Generate()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, certbot.count)
+}
+
+func TestRegenerateFakeFallback_ForFreeDomain(t *testing.T) {
+
+	now := time.Now()
+	provider := &ProviderStub{now: now}
+	systemConfig := &GeneratorSystemConfigStub{
+		sslCertificateFile: "/unknown",
+	}
+	userConfig := &GeneratorUserConfigStub{
+		domain:         "test.syncloud.it",
+		redirectDomain: "syncloud.it",
+	}
+	certbot := &CertbotStub{fail: true}
+	fake := &FakeStub{}
+
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	err := generator.Generate()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, certbot.attempt)
+	assert.Equal(t, 0, certbot.count)
+	assert.Equal(t, 1, fake.count)
 }
 
 func generateCertificate(now time.Time, duration time.Duration) *os.File {

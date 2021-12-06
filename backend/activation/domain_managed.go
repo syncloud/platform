@@ -1,12 +1,10 @@
 package activation
 
 import (
-	"fmt"
 	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"log"
-	"strings"
 )
 
 type ManagedActivateRequest struct {
@@ -41,18 +39,16 @@ type Managed struct {
 	config   ManagedPlatformUserConfig
 	redirect ManagedRedirect
 	device   DeviceActivation
-	realCert cert.Generator
-	fakeCert cert.Generator
+	cert     cert.Generator
 }
 
-func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, realCert cert.Generator, fakeCert cert.Generator) *Managed {
+func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, cert cert.Generator) *Managed {
 	return &Managed{
 		internet: internet,
 		config:   config,
 		redirect: redirect,
 		device:   device,
-		realCert: realCert,
-		fakeCert: fakeCert,
+		cert:     cert,
 	}
 }
 
@@ -84,26 +80,11 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 	}
 
 	name, email := ParseUsername(deviceUsername, domain.Name)
-
-	if isFree(domain.Name, f.config.GetRedirectDomain()) {
-		err = f.realCert.Generate()
-		if err != nil {
-			err = f.fakeCert.Generate()
-			if err != nil {
-				return err
-			}
-		}
-	} else {
-		err = f.fakeCert.Generate()
-		if err != nil {
-			return err
-		}
-	}
 	f.config.SetRedirectEnabled(true)
+	err = f.cert.Generate()
+	if err != nil {
+		return err
+	}
 
 	return f.device.ActivateDevice(deviceUsername, devicePassword, name, email)
-}
-
-func isFree(domain string, mainDomain string) bool {
-	return strings.HasSuffix(domain, fmt.Sprintf(".%s", mainDomain))
 }

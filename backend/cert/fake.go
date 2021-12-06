@@ -1,24 +1,27 @@
-package fake
+package cert
 
 import (
-	"github.com/syncloud/platform/cert"
 	"log"
 	"os/exec"
 )
 
 const Subject = "/C=UK/ST=Syncloud/L=Syncloud/O=Syncloud/CN=syncloud"
 
-type Generator struct {
-	systemConfig cert.GeneratorSystemConfig
+type Fake struct {
+	systemConfig GeneratorSystemConfig
 }
 
-func New(systemConfig cert.GeneratorSystemConfig) *Generator {
-	return &Generator{
+type FakeGenerator interface {
+	Generate() error
+}
+
+func NewFake(systemConfig GeneratorSystemConfig) *Fake {
+	return &Fake{
 		systemConfig: systemConfig,
 	}
 }
 
-func (c *Generator) Generate() error {
+func (c *Fake) Generate() error {
 	log.Println("generating self signed certificate")
 
 	output, err := exec.Command("snap",

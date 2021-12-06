@@ -67,13 +67,13 @@ func (d *DeviceActivationStub) ActivateDevice(username string, password string, 
 	return nil
 }
 
-type RealCertbotStub struct {
+type CertbotStub struct {
 	attempted int
 	generated int
 	fail      bool
 }
 
-func (c *RealCertbotStub) Generate() error {
+func (c *CertbotStub) Generate() error {
 	c.attempted += 1
 	if c.fail {
 		return fmt.Errorf("error")
@@ -82,54 +82,14 @@ func (c *RealCertbotStub) Generate() error {
 	return nil
 }
 
-type FakeCertbotStub struct {
-	generated int
-}
-
-func (c *FakeCertbotStub) Generate() error {
-	c.generated++
-	return nil
-}
-
-func TestManaged_ActivateFree_RealCert(t *testing.T) {
+func TestManaged_ActivateFree_Cert(t *testing.T) {
 	managedRedirect := &ManagedRedirectStub{}
-	realCert := &RealCertbotStub{}
-	fakeCert := &FakeCertbotStub{}
+	realCert := &CertbotStub{}
 	config := &ManagedPlatformUserConfigStub{}
-	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, fakeCert)
+	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert)
 	err := managed.Activate("mail", "password", "test.syncloud.it", "username", "password")
 	assert.Nil(t, err)
 
 	assert.Equal(t, "test.syncloud.it", managedRedirect.domain)
 	assert.Equal(t, 1, realCert.generated)
-	assert.Equal(t, 0, fakeCert.generated)
-}
-
-func TestManaged_ActivateFree_FallbackToFakeCert(t *testing.T) {
-	managedRedirect := &ManagedRedirectStub{}
-	realCert := &RealCertbotStub{fail: true}
-	fakeCert := &FakeCertbotStub{}
-	config := &ManagedPlatformUserConfigStub{}
-	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, fakeCert)
-	err := managed.Activate("mail", "password", "test.syncloud.it", "username", "password")
-	assert.Nil(t, err)
-
-	assert.Equal(t, "test.syncloud.it", managedRedirect.domain)
-	assert.Equal(t, 1, realCert.attempted)
-	assert.Equal(t, 0, realCert.generated)
-	assert.Equal(t, 1, fakeCert.generated)
-}
-
-func TestManaged_ActivatePremium_GenerateCertificate_Later(t *testing.T) {
-	managedRedirect := &ManagedRedirectStub{}
-	realCert := &RealCertbotStub{}
-	fakeCert := &FakeCertbotStub{}
-	config := &ManagedPlatformUserConfigStub{}
-	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, fakeCert)
-	err := managed.Activate("mail", "password", "example.com", "username", "password")
-	assert.Nil(t, err)
-
-	assert.Equal(t, "example.com", managedRedirect.domain)
-	assert.Equal(t, 0, realCert.generated)
-	assert.Equal(t, 1, fakeCert.generated)
 }

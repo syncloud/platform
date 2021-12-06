@@ -24,18 +24,18 @@ type CustomActivation interface {
 }
 
 type Custom struct {
-	internet        connection.InternetChecker
-	config          CustomPlatformUserConfig
-	device          DeviceActivation
-	fakeCertificate cert.Generator
+	internet connection.InternetChecker
+	config   CustomPlatformUserConfig
+	device   DeviceActivation
+	cert     cert.Generator
 }
 
-func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation, fakeCertificate cert.Generator) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation, cert cert.Generator) *Custom {
 	return &Custom{
-		internet:        internet,
-		config:          config,
-		device:          device,
-		fakeCertificate: fakeCertificate,
+		internet: internet,
+		config:   config,
+		device:   device,
+		cert:     cert,
 	}
 }
 
@@ -53,7 +53,7 @@ func (c *Custom) Activate(requestDomain string, deviceUsername string, devicePas
 	name, email := ParseUsername(deviceUsername, domain)
 	c.config.SetUserEmail(email)
 
-	err = c.fakeCertificate.Generate()
+	err = c.cert.Generate()
 	if err != nil {
 		return err
 	}

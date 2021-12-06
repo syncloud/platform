@@ -1,22 +1,22 @@
 package cron
 
 import (
-	"github.com/syncloud/platform/cert/real"
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/network"
 )
 
 type CertificateJob struct {
-	userConfig   *config.UserConfig
-	networkIface *network.Interface
-	realCert     *real.Generator
+	userConfig    *config.UserConfig
+	networkIface  *network.Interface
+	certGenerator cert.Generator
 }
 
-func NewCertificateJob(userConfig *config.UserConfig, networkIface *network.Interface, realCert *real.Generator) *CertificateJob {
+func NewCertificateJob(userConfig *config.UserConfig, networkIface *network.Interface, certGenerator cert.Generator) *CertificateJob {
 	return &CertificateJob{
-		userConfig:   userConfig,
-		networkIface: networkIface,
-		realCert:     realCert,
+		userConfig:    userConfig,
+		networkIface:  networkIface,
+		certGenerator: certGenerator,
 	}
 }
 
@@ -42,7 +42,7 @@ func (j *CertificateJob) Run() error {
 		}
 	}
 	if generateRealCertificate {
-		return j.realCert.RegenerateIfNeeded()
+		return j.certGenerator.Generate()
 	}
 
 	return nil
