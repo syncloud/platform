@@ -59,7 +59,7 @@ func New(systemConfig cert.GeneratorSystemConfig, dateProvider date.Provider, ce
 }
 
 func (g *Generator) Start() {
-	file, err := os.OpenFile("", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, err := os.OpenFile(Log, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("unable to create certbot logger %v\n", err)
 	}
