@@ -82,7 +82,7 @@ type FakeStub struct {
 	count int
 }
 
-func (f FakeStub) Generate() error {
+func (f *FakeStub) Generate() error {
 	f.count++
 	return nil
 }
@@ -97,7 +97,10 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 		sslCertificateFile: file.Name(),
 	}
 
-	userConfig := &GeneratorUserConfigStub{}
+	userConfig := &GeneratorUserConfigStub{
+		domain:         "test.syncloud.it",
+		redirectDomain: "syncloud.it",
+	}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 	generator := New(systemConfig, userConfig, provider, certbot, fake)
