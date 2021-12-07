@@ -142,7 +142,7 @@ func main() {
 		Short: "Run cron job",
 		Run: func(cmd *cobra.Command, args []string) {
 			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
-			ioc.Call(func(generator *cert.Generator) { generator.Start() })
+			ioc.Call(func(generator *cert.CertificateGenerator) { generator.Start() })
 			ioc.Call(func(cronService *cron.Cron) { cronService.StartSingle() })
 		},
 	}

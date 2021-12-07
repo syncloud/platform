@@ -50,7 +50,7 @@ func main() {
 
 func Start(userConfig string, socketType string, socket string) {
 	ioc.Init(userConfig, config.DefaultSystemConfig, backup.Dir)
-	ioc.Call(func(generator *cert.Generator) { generator.Start() })
+	ioc.Call(func(generator *cert.CertificateGenerator) { generator.Start() })
 	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
 	ioc.Call(func(backupService *backup.Backup) { backupService.Start() })
 	ioc.Call(func(backend *rest.Backend) { backend.Start(socketType, socket) })
