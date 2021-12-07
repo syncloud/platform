@@ -2,12 +2,10 @@ package cert
 
 import (
 	"crypto/x509"
-	"fmt"
 	"github.com/syncloud/platform/date"
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -23,7 +21,6 @@ type Generator interface {
 
 type CertificateGenerator struct {
 	systemConfig GeneratorSystemConfig
-	userConfig   GeneratorUserConfig
 	certbot      CertbotGenerator
 	fake         FakeGenerator
 	dateProvider date.Provider
@@ -35,15 +32,9 @@ type GeneratorSystemConfig interface {
 	SslKeyFile() string
 }
 
-type GeneratorUserConfig interface {
-	GetDomain() *string
-	GetRedirectDomain() string
-}
-
-func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator) *CertificateGenerator {
+func New(systemConfig GeneratorSystemConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator) *CertificateGenerator {
 	return &CertificateGenerator{
 		systemConfig: systemConfig,
-		userConfig:   userConfig,
 		certbot:      certbot,
 		fake:         fake,
 		dateProvider: dateProvider,
@@ -64,20 +55,12 @@ func (g *CertificateGenerator) Generate() error {
 		return nil
 	}
 
-	domain := g.userConfig.GetDomain()
-	if domain == nil {
-		msg := "domain is not set"
-		g.Log(msg)
-		return fmt.Errorf(msg)
+	err := g.certbot.Generate()
+	if err != nil {
+		g.Log("unable to generate fake certificate: %v\n", err)
+		return g.generateFake()
 	}
-
-	if isFree(*domain, g.userConfig.GetRedirectDomain()) {
-		err := g.certbot.Generate()
-		if err == nil {
-			return nil
-		}
-	}
-	return g.generateFake()
+	return nil
 }
 
 func (g *CertificateGenerator) isExpired() bool {
@@ -115,8 +98,4 @@ func (g *CertificateGenerator) generateFake() error {
 
 func (g *CertificateGenerator) Log(format string, v ...interface{}) {
 	g.logger.Printf(format, v...)
-}
-
-func isFree(domain string, mainDomain string) bool {
-	return strings.HasSuffix(domain, fmt.Sprintf(".%s", mainDomain))
 }

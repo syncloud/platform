@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const DbTrue = "true"
@@ -326,4 +327,12 @@ func (c *UserConfig) GetDeviceDomain() string {
 		}
 	}
 	return result
+}
+
+func (c *UserConfig) isDomainFree() (bool, error) {
+	domain := c.GetDomain()
+	if domain == nil {
+		return false, fmt.Errorf("domain is not set")
+	}
+	return strings.HasSuffix(*domain, fmt.Sprintf(".%s", c.GetRedirectDomain())), nil
 }

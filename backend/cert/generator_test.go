@@ -97,13 +97,9 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 		sslCertificateFile: file.Name(),
 	}
 
-	userConfig := &GeneratorUserConfigStub{
-		domain:         "test.syncloud.it",
-		redirectDomain: "syncloud.it",
-	}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	generator := New(systemConfig, provider, certbot, fake)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.count)
@@ -118,51 +114,26 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: file.Name(),
 	}
-	userConfig := &GeneratorUserConfigStub{}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	generator := New(systemConfig, provider, certbot, fake)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.count)
 }
 
-func TestRegenerateReal_ForFreeDomain(t *testing.T) {
+func TestRegenerateFakeFallback(t *testing.T) {
 
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: "/unknown",
-	}
-	userConfig := &GeneratorUserConfigStub{
-		domain:         "test.syncloud.it",
-		redirectDomain: "syncloud.it",
-	}
-	certbot := &CertbotStub{}
-	fake := &FakeStub{}
-
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
-	err := generator.Generate()
-	assert.Nil(t, err)
-	assert.Equal(t, 1, certbot.count)
-}
-
-func TestRegenerateFakeFallback_ForFreeDomain(t *testing.T) {
-
-	now := time.Now()
-	provider := &ProviderStub{now: now}
-	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: "/unknown",
-	}
-	userConfig := &GeneratorUserConfigStub{
-		domain:         "test.syncloud.it",
-		redirectDomain: "syncloud.it",
 	}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	generator := New(systemConfig, provider, certbot, fake)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.attempt)
