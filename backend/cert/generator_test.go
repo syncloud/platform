@@ -30,16 +30,11 @@ func (r RedirectCertbotStub) CertbotCleanUp(token, fqdn string) error {
 }
 
 type GeneratorUserConfigStub struct {
-	domain         string
-	redirectDomain string
+	activated bool
 }
 
-func (g GeneratorUserConfigStub) GetDomain() *string {
-	return &g.domain
-}
-
-func (g GeneratorUserConfigStub) GetRedirectDomain() string {
-	return g.redirectDomain
+func (g *GeneratorUserConfigStub) IsActivated() bool {
+	return g.activated
 }
 
 type GeneratorSystemConfigStub struct {
@@ -97,9 +92,10 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 		sslCertificateFile: file.Name(),
 	}
 
+	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
-	generator := New(systemConfig, provider, certbot, fake)
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.count)
@@ -114,10 +110,11 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: file.Name(),
 	}
+	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, provider, certbot, fake)
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.count)
@@ -130,13 +127,33 @@ func TestRegenerateFakeFallback(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: "/unknown",
 	}
+	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, provider, certbot, fake)
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.attempt)
+	assert.Equal(t, 0, certbot.count)
+	assert.Equal(t, 1, fake.count)
+}
+
+func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
+
+	now := time.Now()
+	provider := &ProviderStub{now: now}
+	systemConfig := &GeneratorSystemConfigStub{
+		sslCertificateFile: "/unknown",
+	}
+	userConfig := &GeneratorUserConfigStub{activated: false}
+	certbot := &CertbotStub{fail: true}
+	fake := &FakeStub{}
+
+	generator := New(systemConfig, userConfig, provider, certbot, fake)
+	err := generator.Generate()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
 	assert.Equal(t, 1, fake.count)
 }

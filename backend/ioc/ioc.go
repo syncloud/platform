@@ -48,11 +48,11 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake {
 		return cert.NewFake(systemConfig)
 	})
-	Singleton(func(systemConfig *config.SystemConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
-		return cert.New(systemConfig, provider, certbot, fakeCert)
+	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
+		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert)
 	})
-	Singleton(func(userConfig *config.UserConfig, iface *network.Interface, certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
-		return cron.NewCertificateJob(userConfig, iface, certGenerator)
+	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
+		return cron.NewCertificateJob(certGenerator)
 	})
 	Singleton(func(userConfig *config.UserConfig) *cron.PortsJob {
 		return cron.NewPortsJob(userConfig)

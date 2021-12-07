@@ -21,6 +21,7 @@ type Generator interface {
 
 type CertificateGenerator struct {
 	systemConfig GeneratorSystemConfig
+	userConfig   GeneratorUserConfig
 	certbot      CertbotGenerator
 	fake         FakeGenerator
 	dateProvider date.Provider
@@ -32,9 +33,14 @@ type GeneratorSystemConfig interface {
 	SslKeyFile() string
 }
 
-func New(systemConfig GeneratorSystemConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator) *CertificateGenerator {
+type GeneratorUserConfig interface {
+	IsActivated() bool
+}
+
+func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator) *CertificateGenerator {
 	return &CertificateGenerator{
 		systemConfig: systemConfig,
+		userConfig:   userConfig,
 		certbot:      certbot,
 		fake:         fake,
 		dateProvider: dateProvider,
@@ -51,6 +57,11 @@ func (g *CertificateGenerator) Start() {
 }
 
 func (g *CertificateGenerator) Generate() error {
+
+	if !g.userConfig.IsActivated() {
+		return g.generateFake()
+	}
+
 	if !g.isExpired() {
 		return nil
 	}

@@ -38,7 +38,8 @@ local build(arch, testUI) = {
             image: "golang:" + go,
             commands: [
                 "cd backend",
-                "go test ./... -cover",
+                "go test ./... -coverprofile cover.out",
+                "go tool cover -func cover.out",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/backend cmd/backend/main.go",
                 "../build/platform/bin/backend -h",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/cli cmd/cli/main.go",
