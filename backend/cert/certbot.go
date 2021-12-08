@@ -79,13 +79,20 @@ func (g *Certbot) Generate() error {
 		return err
 	}
 
-	token := g.userConfig.GetDomainUpdateToken()
-	if token == nil {
-		return fmt.Errorf("token is not set")
-	}
-	err = client.Challenge.SetDNS01Provider(NewDNSProviderSyncloud(*token, g.redirect))
-	if err != nil {
-		return err
+	if g.userConfig.GetDomain() {
+		token := g.userConfig.GetDomainUpdateToken()
+		if token == nil {
+			return fmt.Errorf("token is not set")
+		}
+		err = client.Challenge.SetDNS01Provider(NewDNSProviderSyncloud(*token, g.redirect))
+		if err != nil {
+			return err
+		}
+	} else {
+		err = client.Challenge.SetHTTP01Provider(NewHttpProviderSyncloud())
+		if err != nil {
+			return err
+		}
 	}
 
 	reg, err := client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
