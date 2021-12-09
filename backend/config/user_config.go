@@ -304,6 +304,10 @@ func (c *UserConfig) GetCustomDomain() *string {
 	return c.GetOrNil("platform.custom_domain")
 }
 
+func (c *UserConfig) IsCustomDomain() bool {
+	return c.GetCustomDomain() != nil
+}
+
 func (c *UserConfig) SetCustomDomain(domain string) {
 	c.Upsert("platform.custom_domain", domain)
 }
