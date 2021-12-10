@@ -7,16 +7,19 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
-	"github.com/syncloud/platform/logger"
 	"github.com/syncloud/platform/network"
+	"go.uber.org/zap"
 	"log"
 	"net"
 )
 
 func main() {
 
-	log.SetFlags(0)
-	log.SetOutput(&logger.Logger{})
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
 
 	var rootCmd = &cobra.Command{Use: "cli"}
 	userConfig := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
@@ -26,7 +29,7 @@ func main() {
 		Short: "Print IPv4",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.LocalIPv4()
 				if err != nil {
@@ -41,7 +44,7 @@ func main() {
 		Short: "Print public IPv4",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.PublicIPv4()
 				if err != nil {
@@ -58,7 +61,7 @@ func main() {
 		Short: "Print IPv6",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
@@ -73,7 +76,7 @@ func main() {
 		Use:   "prefix",
 		Short: "Print IPv6 prefix",
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
@@ -98,7 +101,7 @@ func main() {
 		Short: "Set config key value",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(configuration *config.UserConfig) {
 				key := args[0]
 				value := args[1]
@@ -114,7 +117,7 @@ func main() {
 		Short: "Get config key value",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(configuration *config.UserConfig) {
 				log.Println(configuration.Get(args[0], ""))
 			})
@@ -127,7 +130,7 @@ func main() {
 		Short: "List config key value",
 		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(configuration *config.UserConfig) {
 				for key, value := range configuration.List() {
 					log.Printf("%s:%s\n", key, value)
@@ -141,7 +144,7 @@ func main() {
 		Use:   "cron",
 		Short: "Run cron job",
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir)
+			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
 			ioc.Call(func(generator *cert.CertificateGenerator) { generator.Start() })
 			ioc.Call(func(cronService *cron.Cron) { cronService.StartSingle() })
 		},

@@ -21,10 +21,11 @@ import (
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
+	"go.uber.org/zap"
 	"time"
 )
 
-func Init(userConfig string, systemConfig string, backupDir string) {
+func Init(userConfig string, systemConfig string, backupDir string, logger *zap.Logger) {
 
 	Singleton(func() *config.UserConfig {
 		userConfig := config.NewUserConfig(userConfig, config.OldConfig)

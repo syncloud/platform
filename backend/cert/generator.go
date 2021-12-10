@@ -3,9 +3,8 @@ package cert
 import (
 	"crypto/x509"
 	"github.com/syncloud/platform/date"
+	"go.uber.org/zap"
 	"io/ioutil"
-	"log"
-	"os"
 	"time"
 )
 
@@ -25,7 +24,7 @@ type CertificateGenerator struct {
 	certbot      CertbotGenerator
 	fake         FakeGenerator
 	dateProvider date.Provider
-	logger       *log.Logger
+	logger       *zap.Logger
 }
 
 type GeneratorSystemConfig interface {
@@ -37,23 +36,15 @@ type GeneratorUserConfig interface {
 	IsActivated() bool
 }
 
-func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator) *CertificateGenerator {
+func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator, logger *zap.Logger) *CertificateGenerator {
 	return &CertificateGenerator{
 		systemConfig: systemConfig,
 		userConfig:   userConfig,
 		certbot:      certbot,
 		fake:         fake,
 		dateProvider: dateProvider,
-		logger:       log.Default(),
+		logger:       logger,
 	}
-}
-
-func (g *CertificateGenerator) Start() {
-	file, err := os.OpenFile(Log, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		log.Fatalf("unable to create certbot logger %v\n", err)
-	}
-	g.logger = log.New(file, "", log.LstdFlags)
 }
 
 func (g *CertificateGenerator) Generate() error {
@@ -101,12 +92,8 @@ func (g *CertificateGenerator) isExpired() bool {
 func (g *CertificateGenerator) generateFake() error {
 	err := g.fake.Generate()
 	if err != nil {
-		g.Log("unable to generate fake certificate: %v\n", err)
+		g.logger.Info("unable to generate fake certificate: %v\n", err.Error())
 		return err
 	}
 	return nil
-}
-
-func (g *CertificateGenerator) Log(format string, v ...interface{}) {
-	g.logger.Printf(format, v...)
 }

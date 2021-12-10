@@ -2,12 +2,19 @@ package ioc
 
 import (
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"testing"
 )
 
 func TestIoC(t *testing.T) {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+
 	configDb, err := ioutil.TempFile("", "")
 	assert.Nil(t, err)
 	systemConfig, err := ioutil.TempFile("", "")
@@ -26,5 +33,5 @@ config_dir: test
 	backupDir, err := ioutil.TempFile("", "")
 	assert.Nil(t, err)
 
-	Init(configDb.Name(), systemConfig.Name(), backupDir.Name())
+	Init(configDb.Name(), systemConfig.Name(), backupDir.Name(), logger)
 }

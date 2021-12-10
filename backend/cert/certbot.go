@@ -23,7 +23,7 @@ type UserConfig interface {
 	GetUserEmail() *string
 	GetDomain() *string
 	GetDomainUpdateToken() *string
-  IsCustomDomain() bool
+	IsCustomDomain() bool
 }
 
 type User struct {
@@ -80,13 +80,13 @@ func (g *Certbot) Generate() error {
 		return err
 	}
 
-  useHttp := g.userConfig.IsCustomDomain()
+	useHttp := g.userConfig.IsCustomDomain()
 	if useHttp {
-    err = client.Challenge.SetHTTP01Provider(NewHttpProviderSyncloud())
+		err = client.Challenge.SetHTTP01Provider(NewHttpProviderSyncloud())
 		if err != nil {
 			return err
 		}
-  } else {
+	} else {
 		token := g.userConfig.GetDomainUpdateToken()
 		if token == nil {
 			return fmt.Errorf("token is not set")
