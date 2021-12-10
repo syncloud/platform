@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	Log   = "/var/snap/platform/common/log/certbot.log"
 	Day   = time.Hour * 24
 	Month = Day * 30
 )
@@ -59,7 +58,7 @@ func (g *CertificateGenerator) Generate() error {
 
 	err := g.certbot.Generate()
 	if err != nil {
-		g.Log("unable to generate fake certificate: %v\n", err)
+		g.logger.Info("unable to generate fake certificate", zap.Error(err))
 		return g.generateFake()
 	}
 	return nil
@@ -82,7 +81,7 @@ func (g *CertificateGenerator) isExpired() bool {
 	valid := validFor > Month
 	realCert := certificate.Subject.String() != Subject
 	if valid && realCert {
-		g.Log("not regenerating real certificate, valid for days: %d\n", int(validFor.Hours()/24))
+		g.logger.Info("not regenerating real certificate", zap.Int("valid days", int(validFor.Hours()/24)))
 		return false
 	}
 
@@ -92,7 +91,7 @@ func (g *CertificateGenerator) isExpired() bool {
 func (g *CertificateGenerator) generateFake() error {
 	err := g.fake.Generate()
 	if err != nil {
-		g.logger.Info("unable to generate fake certificate: %v\n", err.Error())
+		g.logger.Info("unable to generate fake certificate", zap.Error(err))
 		return err
 	}
 	return nil

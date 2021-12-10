@@ -285,6 +285,7 @@ def app_image():
 @app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/event/trigger", methods=["POST"])
+@app.route("/rest/certificate/log", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

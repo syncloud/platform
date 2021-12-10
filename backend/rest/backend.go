@@ -94,6 +94,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
+	r.HandleFunc("/certificate/log", Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
@@ -244,6 +245,15 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {
+	id, err := b.identification.Id()
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("id is not available")
+	}
+	return id, nil
+}
+
+func (b *Backend) CertificateLog(_ *http.Request) (interface{}, error) {
 	id, err := b.identification.Id()
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err.Error())

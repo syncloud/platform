@@ -18,7 +18,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("can't initialize zap logger: %v", err)
 	}
-	sugaredLogger := logger.Sugar()
 	defer logger.Sync()
 
 	var rootCmd = &cobra.Command{Use: "backend"}
@@ -39,7 +38,7 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = os.Remove(args[0])
-			Start(*configDb, "unix", args[0], sugaredLogger)
+			Start(*configDb, "unix", args[0], logger)
 		},
 	}
 

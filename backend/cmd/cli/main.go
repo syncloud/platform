@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
@@ -145,14 +144,13 @@ func main() {
 		Short: "Run cron job",
 		Run: func(cmd *cobra.Command, args []string) {
 			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
-			ioc.Call(func(generator *cert.CertificateGenerator) { generator.Start() })
 			ioc.Call(func(cronService *cron.Cron) { cronService.StartSingle() })
 		},
 	}
 
 	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron)
 
-	err := rootCmd.Execute()
+	err = rootCmd.Execute()
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}

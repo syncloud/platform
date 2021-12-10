@@ -25,6 +25,10 @@ import (
 	"time"
 )
 
+const (
+	CertificateLogger = "CertificateLogger"
+)
+
 func Init(userConfig string, systemConfig string, backupDir string, logger *zap.Logger) {
 
 	Singleton(func() *config.UserConfig {
@@ -49,8 +53,13 @@ func Init(userConfig string, systemConfig string, backupDir string, logger *zap.
 	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake {
 		return cert.NewFake(systemConfig)
 	})
+	NamedSingleton(CertificateLogger, func() *zap.Logger {
+		return logger.With(zap.String("category", "certificate"))
+	})
 	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
-		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert)
+		var certLogger *zap.Logger
+		NamedResolve(certLogger, CertificateLogger)
+		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, certLogger)
 	})
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
 		return cron.NewCertificateJob(certGenerator)
@@ -105,8 +114,22 @@ func Singleton(resolver interface{}) {
 	}
 }
 
+func NamedSingleton(name string, resolver interface{}) {
+	err := container.NamedSingleton(name, resolver)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func Call(abstraction interface{}) {
 	err := container.Call(abstraction)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func NamedResolve(abstraction interface{}, name string) {
+	err := container.NamedResolve(abstraction, name)
 	if err != nil {
 		panic(err)
 	}

@@ -15,6 +15,7 @@ const routes = [
   { path: '/internalmemory', name: 'InternalMemory', component: () => import('../views/InternalMemory.vue') },
   { path: '/updates', name: 'Updates', component: () => import('../views/Updates.vue') },
   { path: '/support', name: 'Support', component: () => import('../views/Support.vue') },
+  { path: '/certificate', name: 'Certificate', component: () => import('../views/Certificate.vue') },
   { path: '/:catchAll(.*)', redirect: '/' }
 ]
 

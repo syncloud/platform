@@ -1,7 +1,7 @@
 package cert
 
 import (
-	"log"
+	"go.uber.org/zap"
 	"os/exec"
 )
 
@@ -9,20 +9,22 @@ const Subject = "/C=UK/ST=Syncloud/L=Syncloud/O=Syncloud/CN=syncloud"
 
 type Fake struct {
 	systemConfig GeneratorSystemConfig
+	logger       *zap.Logger
 }
 
 type FakeGenerator interface {
 	Generate() error
 }
 
-func NewFake(systemConfig GeneratorSystemConfig) *Fake {
+func NewFake(systemConfig GeneratorSystemConfig, logger *zap.Logger) *Fake {
 	return &Fake{
 		systemConfig: systemConfig,
+		logger:       logger,
 	}
 }
 
 func (c *Fake) Generate() error {
-	log.Println("generating self signed certificate")
+	c.logger.Info("generating self signed certificate")
 
 	output, err := exec.Command("snap",
 		"run", "platform.openssl",
@@ -33,6 +35,6 @@ func (c *Fake) Generate() error {
 		"-out", c.systemConfig.SslCertificateFile(),
 		"-days", "3650",
 		"-subj", Subject).CombinedOutput()
-	log.Printf("openssl output: %s", string(output))
+	c.logger.Info("openssl output", zap.String("output", string(output)))
 	return err
 }
