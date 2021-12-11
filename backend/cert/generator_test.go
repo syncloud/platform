@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"log"
 	"math/big"
@@ -83,7 +84,8 @@ func (f *FakeStub) Generate() error {
 }
 
 func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
-
+	logger, err := zap.NewProduction()
+	assert.Nil(t, err)
 	now := time.Now()
 
 	file := generateCertificate(now, Month-1*Day)
@@ -95,14 +97,16 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
-	err := generator.Generate()
+	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	err = generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.count)
 }
 
 func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 
+	logger, err := zap.NewProduction()
+	assert.Nil(t, err)
 	now := time.Now()
 
 	file := generateCertificate(now, Month+1*Day)
@@ -114,14 +118,16 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
-	err := generator.Generate()
+	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	err = generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.count)
 }
 
 func TestRegenerateFakeFallback(t *testing.T) {
 
+	logger, err := zap.NewProduction()
+	assert.Nil(t, err)
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
@@ -131,8 +137,8 @@ func TestRegenerateFakeFallback(t *testing.T) {
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
-	err := generator.Generate()
+	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	err = generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
@@ -141,6 +147,8 @@ func TestRegenerateFakeFallback(t *testing.T) {
 
 func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 
+	logger, err := zap.NewProduction()
+	assert.Nil(t, err)
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
@@ -150,8 +158,8 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake)
-	err := generator.Generate()
+	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	err = generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)

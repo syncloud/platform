@@ -6,8 +6,10 @@
         <h1>Certificate</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2">
-            <div class="setline">
-              <p>{{log}}</p>
+            <div class="setline" id="logs">
+              <p v-for="(log, index) in logs" :key="index">
+                {{ log }}
+              </p>
             </div>
           </div>
         </div>
@@ -24,8 +26,7 @@ import axios from 'axios'
 import $ from 'jquery'
 import 'bootstrap'
 import Error from '@/components/Error'
-import Switch from '@/components/Switch'
-import * as Common from '@/js/common'
+import 'gasparesganga-jquery-loading-overlay'
 
 export default {
   name: 'Certificate',
@@ -34,23 +35,24 @@ export default {
   },
   props: {
     checkUserSession: Function,
+    activated: Boolean
   },
   data () {
     return {
-      log: ''
+      logs: Array
     }
   },
   mounted () {
     this.progressShow()
 
     axios.get('/rest/certificate/log')
-        .then((resp) => {
-          this.log = resp.data
-        })
-        .catch(err => {
-          this.$refs.error.showAxios(err)
-          this.progressHide()
-        })
+      .then((resp) => {
+        this.logs = resp.data.data
+      })
+      .catch(err => {
+        this.$refs.error.showAxios(err)
+        this.progressHide()
+      })
   },
   methods: {
     progressShow () {
@@ -58,7 +60,7 @@ export default {
     },
     progressHide () {
       $('#block_updates').LoadingOverlay('hide')
-    },
+    }
   }
 }
 </script>

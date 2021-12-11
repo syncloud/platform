@@ -50,11 +50,13 @@ func Init(userConfig string, systemConfig string, backupDir string, logger *zap.
 	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *cert.Certbot {
 		return cert.NewCertbot(redirectService, userConfig, systemConfig)
 	})
-	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake {
-		return cert.NewFake(systemConfig)
-	})
 	NamedSingleton(CertificateLogger, func() *zap.Logger {
 		return logger.With(zap.String("category", "certificate"))
+	})
+	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake {
+		var certLogger *zap.Logger
+		NamedResolve(certLogger, CertificateLogger)
+		return cert.NewFake(systemConfig, certLogger)
 	})
 	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
 		var certLogger *zap.Logger
@@ -89,20 +91,25 @@ func Init(userConfig string, systemConfig string, backupDir string, logger *zap.
 		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
 	})
 	Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
-	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake { return cert.NewFake(systemConfig) })
-	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectService *redirect.Service, device *activation.Device, certGenerator *cert.CertificateGenerator) *activation.Managed {
+	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig,
+		redirectService *redirect.Service, device *activation.Device, certGenerator *cert.CertificateGenerator,
+	) *activation.Managed {
 		return activation.NewManaged(internetChecker, userConfig, redirectService, device, certGenerator)
 	})
-	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device, certGenerator *cert.CertificateGenerator) *activation.Custom {
+	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device,
+		certGenerator *cert.CertificateGenerator) *activation.Custom {
 		return activation.NewCustom(internetChecker, userConfig, device, certGenerator)
 	})
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)
 	})
-	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker, redirectService *redirect.Service,
-		installerService *installer.Installer, storageService *storage.Storage, id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig) *rest.Backend {
+	Singleton(func() *cert.Reader { return cert.NewReader() })
+	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
+		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
+		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, certReader *cert.Reader,
+	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig)
+			installerService, storageService, id, activate, userConfig, certReader)
 	})
 
 }

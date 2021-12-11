@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
@@ -32,6 +33,7 @@ type Backend struct {
 	identification *identification.Parser
 	activate       *Activate
 	userConfig     *config.UserConfig
+	certLogReader  *cert.Reader
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -40,6 +42,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
+	certLogReader *cert.Reader,
 ) *Backend {
 
 	return &Backend{
@@ -53,6 +56,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		identification: identification,
 		activate:       activate,
 		userConfig:     userConfig,
+		certLogReader:  certLogReader,
 	}
 }
 
@@ -94,7 +98,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
-	r.HandleFunc("/certificate/log", Handle(b.Id)).Methods("GET")
+	r.HandleFunc("/certificate/log", Handle(b.CertificateLog)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
@@ -254,12 +258,7 @@ func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) CertificateLog(_ *http.Request) (interface{}, error) {
-	id, err := b.identification.Id()
-	if err != nil {
-		fmt.Printf("parse error: %v\n", err.Error())
-		return nil, errors.New("id is not available")
-	}
-	return id, nil
+	return b.certLogReader.Read(), nil
 }
 
 func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {

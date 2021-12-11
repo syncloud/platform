@@ -7,7 +7,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: false,
   availableAppsSuccess: true,
-  activated: false,
+  activated: true,
   accessSuccess: true,
   diskActionSuccess: true
 }
@@ -471,6 +471,9 @@ const mock = function (app, server, compiler) {
     } else {
       res.json({ success: true, data: { domain: 'test.com' } })
     }
+  })
+  app.get('/rest/certificate/log', function (req, res) {
+    res.json({ success: true, data: ["log 1", "log 2"] })
   })
 }
 

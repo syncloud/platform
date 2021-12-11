@@ -1,17 +1,22 @@
 package cert
 
-import "os/exec"
+import (
+	"os/exec"
+	"strings"
+)
 
-type Log struct{}
+type Reader struct{}
 
-func NewLog() *Log {
-	return &Log{}
+func NewReader() *Reader {
+	return &Reader{}
 }
 
-func (l *Log) Load() string {
-	output, err := exec.Command("journalctl", "-F", l.userConfDir, "-b", "cn=config", "-l", initScript).CombinedOutput()
+func (l *Reader) Read() []string {
+
+	output, err := exec.Command("journalctl", "-u", "snap.platform.backend", "-n", "1000", "--no-pager").CombinedOutput()
 	if err != nil {
-		return err
+		return []string{err.Error()}
 	}
 
+	return strings.Split(string(output), "\n")
 }
