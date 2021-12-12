@@ -473,7 +473,12 @@ const mock = function (app, server, compiler) {
     }
   })
   app.get('/rest/certificate/log', function (req, res) {
-    res.json({ success: true, data: ["log 1", "log 2"] })
+    let logs = []
+    for (let i = 0; i < 100; i++) {
+      logs.push("-- Logs begin at Fri 2021-12-10 21:47:42 UTC, end at Sun 2021-12-12 19:39:56 UTC. --");
+      logs.push("Dec 12 18:24:59 9d50d85a3ca0 platform.backend[4511]: GET: /id                                                                     ");
+    }
+    res.json({ success: true, data: logs})
   })
 }
 

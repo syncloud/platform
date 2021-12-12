@@ -3,7 +3,7 @@ package activation
 import (
 	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/connection"
-	"log"
+	"go.uber.org/zap"
 	"strings"
 )
 
@@ -28,19 +28,22 @@ type Custom struct {
 	config   CustomPlatformUserConfig
 	device   DeviceActivation
 	cert     cert.Generator
+	logger   *zap.Logger
 }
 
-func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation, cert cert.Generator) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation,
+	cert cert.Generator, logger *zap.Logger) *Custom {
 	return &Custom{
 		internet: internet,
 		config:   config,
 		device:   device,
 		cert:     cert,
+		logger:   logger,
 	}
 }
 
 func (c *Custom) Activate(requestDomain string, deviceUsername string, devicePassword string) error {
-	log.Printf("activate custom: %s, %s", requestDomain, deviceUsername)
+	c.logger.Info("activate custom", zap.String("requestDomain", requestDomain), zap.String("deviceUsername", deviceUsername))
 	domain := strings.ToLower(requestDomain)
 
 	err := c.internet.Check()

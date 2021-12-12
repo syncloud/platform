@@ -8,9 +8,8 @@ import (
 	"crypto/x509/pkix"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
+	"github.com/syncloud/platform/log"
 	"io/ioutil"
-	"log"
 	"math/big"
 	"os"
 	"testing"
@@ -84,12 +83,7 @@ func (f *FakeStub) Generate() error {
 }
 
 func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
-	logConfig := zap.NewProductionConfig()
-	logConfig.Encoding = "console"
-	logConfig.EncoderConfig.TimeKey = ""
-	logConfig.EncoderConfig.LevelKey = ""
-	logger, err := logConfig.Build()
-	assert.Nil(t, err)
+	logger := log.Default()
 	now := time.Now()
 
 	file := generateCertificate(now, Month-1*Day)
@@ -102,19 +96,14 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
-	err = generator.Generate()
+	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.count)
 }
 
 func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 
-	logConfig := zap.NewProductionConfig()
-	logConfig.Encoding = "console"
-	logConfig.EncoderConfig.TimeKey = ""
-	logConfig.EncoderConfig.LevelKey = ""
-	logger, err := logConfig.Build()
-	assert.Nil(t, err)
+	logger := log.Default()
 	now := time.Now()
 
 	file := generateCertificate(now, Month+1*Day)
@@ -127,15 +116,14 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	fake := &FakeStub{}
 
 	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
-	err = generator.Generate()
+	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.count)
 }
 
 func TestRegenerateFakeFallback(t *testing.T) {
 
-	logger, err := zap.NewProduction()
-	assert.Nil(t, err)
+	logger := log.Default()
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
@@ -146,7 +134,7 @@ func TestRegenerateFakeFallback(t *testing.T) {
 	fake := &FakeStub{}
 
 	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
-	err = generator.Generate()
+	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
@@ -155,8 +143,8 @@ func TestRegenerateFakeFallback(t *testing.T) {
 
 func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 
-	logger, err := zap.NewProduction()
-	assert.Nil(t, err)
+	logger := log.Default()
+
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
@@ -167,7 +155,7 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	fake := &FakeStub{}
 
 	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
-	err = generator.Generate()
+	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
@@ -175,9 +163,10 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 }
 
 func generateCertificate(now time.Time, duration time.Duration) *os.File {
+
 	privateKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	template := x509.Certificate{
@@ -193,15 +182,15 @@ func generateCertificate(now time.Time, duration time.Duration) *os.File {
 	}
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, privateKey.Public(), privateKey)
 	if err != nil {
-		log.Fatalf("Failed to create certificate: %s", err)
+		panic(err)
 	}
 	certFile, err := ioutil.TempFile("", "")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	err = ioutil.WriteFile(certFile.Name(), derBytes, 0644)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return certFile

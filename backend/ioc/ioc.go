@@ -14,6 +14,7 @@ import (
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
+	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
@@ -22,7 +23,6 @@ import (
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
 	"go.uber.org/zap"
-	"log"
 	"time"
 )
 
@@ -31,14 +31,7 @@ const (
 )
 
 func Init(userConfig string, systemConfig string, backupDir string) {
-	logConfig := zap.NewProductionConfig()
-	logConfig.Encoding = "console"
-	logConfig.EncoderConfig.TimeKey = ""
-	logConfig.EncoderConfig.LevelKey = ""
-	logger, err := logConfig.Build()
-	if err != nil {
-		log.Fatalf("can't initialize zap logger: %v", err)
-	}
+	logger := log.Default()
 
 	Singleton(func() *config.UserConfig {
 		userConfig := config.NewUserConfig(userConfig, config.OldConfig)
@@ -63,7 +56,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return logger
 	})
 	NamedSingleton(CertificateLogger, func() *zap.Logger {
-		return logger.With(zap.String("category", "certificate"))
+		return logger.With(zap.String(log.CategoryKey, log.CategoryValue))
 	})
 	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake {
 		var certLogger *zap.Logger
@@ -105,17 +98,19 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
 	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig,
 		redirectService *redirect.Service, device *activation.Device, certGenerator *cert.CertificateGenerator,
+		logger *zap.Logger,
 	) *activation.Managed {
-		return activation.NewManaged(internetChecker, userConfig, redirectService, device, certGenerator)
+		return activation.NewManaged(internetChecker, userConfig, redirectService, device, certGenerator, logger)
 	})
 	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device,
-		certGenerator *cert.CertificateGenerator) *activation.Custom {
-		return activation.NewCustom(internetChecker, userConfig, device, certGenerator)
+		certGenerator *cert.CertificateGenerator, logger *zap.Logger) *activation.Custom {
+		return activation.NewCustom(internetChecker, userConfig, device, certGenerator, logger)
 	})
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)
 	})
-	Singleton(func() *cert.Reader { return cert.NewReader() })
+	Singleton(func() cert.JournalCtl { return cert.NewJournalCtl() })
+	Singleton(func(journal cert.JournalCtl) *cert.Reader { return cert.NewReader(journal) })
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, certReader *cert.Reader,

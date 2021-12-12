@@ -3,6 +3,7 @@ package activation
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 	"testing"
 )
 
@@ -35,9 +36,11 @@ func (c *CustorCertbotStub) Generate() error {
 }
 
 func TestManaged_ActivateCustom_GenerateFakeCertificate(t *testing.T) {
+	logger := log.Default()
+
 	cert := &CustorCertbotStub{}
 	config := &CustomPlatformUserConfigStub{}
-	managed := NewCustom(&InternetCheckerStub{}, config, &DeviceActivationStub{}, cert)
+	managed := NewCustom(&InternetCheckerStub{}, config, &DeviceActivationStub{}, cert, logger)
 	err := managed.Activate("example.com", "username", "password")
 	assert.Nil(t, err)
 

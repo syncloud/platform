@@ -5,7 +5,7 @@
       <div class="block1 wd12" id="block1">
         <h1>Certificate</h1>
         <div class="row-no-gutters settingsblock">
-          <div class="col2">
+          <div class="col2" style="background-color: #3e454e; color: white; padding: 10px;">
             <div class="setline" id="logs">
               <p v-for="(log, index) in logs" :key="index">
                 {{ log }}

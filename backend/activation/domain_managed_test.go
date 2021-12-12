@@ -3,6 +3,7 @@ package activation
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/redirect"
 	"testing"
 )
@@ -83,10 +84,12 @@ func (c *CertbotStub) Generate() error {
 }
 
 func TestManaged_ActivateFree_Cert(t *testing.T) {
+	logger := log.Default()
+
 	managedRedirect := &ManagedRedirectStub{}
 	realCert := &CertbotStub{}
 	config := &ManagedPlatformUserConfigStub{}
-	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert)
+	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, logger)
 	err := managed.Activate("mail", "password", "test.syncloud.it", "username", "password")
 	assert.Nil(t, err)
 
