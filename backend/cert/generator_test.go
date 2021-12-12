@@ -87,6 +87,7 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	logConfig := zap.NewProductionConfig()
 	logConfig.Encoding = "console"
 	logConfig.EncoderConfig.TimeKey = ""
+	logConfig.EncoderConfig.LevelKey = ""
 	logger, err := logConfig.Build()
 	assert.Nil(t, err)
 	now := time.Now()
@@ -111,6 +112,7 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	logConfig := zap.NewProductionConfig()
 	logConfig.Encoding = "console"
 	logConfig.EncoderConfig.TimeKey = ""
+	logConfig.EncoderConfig.LevelKey = ""
 	logger, err := logConfig.Build()
 	assert.Nil(t, err)
 	now := time.Now()

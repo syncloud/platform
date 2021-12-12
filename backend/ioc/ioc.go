@@ -34,6 +34,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	logConfig := zap.NewProductionConfig()
 	logConfig.Encoding = "console"
 	logConfig.EncoderConfig.TimeKey = ""
+	logConfig.EncoderConfig.LevelKey = ""
 	logger, err := logConfig.Build()
 	if err != nil {
 		log.Fatalf("can't initialize zap logger: %v", err)
