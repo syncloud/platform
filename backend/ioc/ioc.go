@@ -55,12 +55,12 @@ func Init(userConfig string, systemConfig string, backupDir string, logger *zap.
 	})
 	Singleton(func(systemConfig *config.SystemConfig) *cert.Fake {
 		var certLogger *zap.Logger
-		NamedResolve(certLogger, CertificateLogger)
+		NamedResolve(&certLogger, CertificateLogger)
 		return cert.NewFake(systemConfig, certLogger)
 	})
 	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
 		var certLogger *zap.Logger
-		NamedResolve(certLogger, CertificateLogger)
+		NamedResolve(&certLogger, CertificateLogger)
 		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, certLogger)
 	})
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
