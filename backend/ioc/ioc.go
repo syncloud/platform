@@ -22,6 +22,7 @@ import (
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
 	"go.uber.org/zap"
+	"log"
 	"time"
 )
 
@@ -29,7 +30,14 @@ const (
 	CertificateLogger = "CertificateLogger"
 )
 
-func Init(userConfig string, systemConfig string, backupDir string, logger *zap.Logger) {
+func Init(userConfig string, systemConfig string, backupDir string) {
+	logConfig := zap.NewProductionConfig()
+	logConfig.Encoding = "console"
+	logConfig.EncoderConfig.TimeKey = ""
+	logger, err := logConfig.Build()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
 
 	Singleton(func() *config.UserConfig {
 		userConfig := config.NewUserConfig(userConfig, config.OldConfig)
@@ -49,6 +57,9 @@ func Init(userConfig string, systemConfig string, backupDir string, logger *zap.
 	Singleton(func() *date.RealProvider { return date.New() })
 	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *cert.Certbot {
 		return cert.NewCertbot(redirectService, userConfig, systemConfig)
+	})
+	Singleton(func() *zap.Logger {
+		return logger
 	})
 	NamedSingleton(CertificateLogger, func() *zap.Logger {
 		return logger.With(zap.String("category", "certificate"))
@@ -74,7 +85,7 @@ func Init(userConfig string, systemConfig string, backupDir string, logger *zap.
 	})
 	Singleton(func() *job.Master { return job.NewMaster() })
 	Singleton(func(master *job.Master) *job.Worker { return job.NewWorker(master) })
-	Singleton(func() *backup.Backup { return backup.New(backupDir) })
+	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
 	Singleton(func() snap.SnapdClient { return snap.NewClient() })
 	Singleton(func(snapClient snap.SnapdClient) *snap.Snapd { return snap.New(snapClient) })
 	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })

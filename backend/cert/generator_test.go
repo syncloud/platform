@@ -84,7 +84,10 @@ func (f *FakeStub) Generate() error {
 }
 
 func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
-	logger, err := zap.NewProduction()
+	logConfig := zap.NewProductionConfig()
+	logConfig.Encoding = "console"
+	logConfig.EncoderConfig.TimeKey = ""
+	logger, err := logConfig.Build()
 	assert.Nil(t, err)
 	now := time.Now()
 
@@ -105,7 +108,10 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 
 func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 
-	logger, err := zap.NewProduction()
+	logConfig := zap.NewProductionConfig()
+	logConfig.Encoding = "console"
+	logConfig.EncoderConfig.TimeKey = ""
+	logger, err := logConfig.Build()
 	assert.Nil(t, err)
 	now := time.Now()
 

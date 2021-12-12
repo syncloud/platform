@@ -2,8 +2,8 @@ package backup
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,6 +12,7 @@ import (
 
 type Backup struct {
 	backupDir string
+	logger    *zap.Logger
 }
 
 const (
@@ -20,9 +21,10 @@ const (
 	RestoreCmd = "/snap/platform/current/bin/restore.sh"
 )
 
-func New(dir string) *Backup {
+func New(dir string, logger *zap.Logger) *Backup {
 	return &Backup{
 		backupDir: dir,
+		logger:    logger,
 	}
 }
 
@@ -30,7 +32,7 @@ func (b *Backup) Start() {
 	if _, err := os.Stat(b.backupDir); os.IsNotExist(err) {
 		err := os.MkdirAll(b.backupDir, os.ModePerm)
 		if err != nil {
-			log.Println("unable to create backup dir", err)
+			b.logger.Info("unable to create backup dir", zap.Error(err))
 		}
 	}
 }
@@ -38,7 +40,7 @@ func (b *Backup) Start() {
 func (b *Backup) List() ([]File, error) {
 	files, err := ioutil.ReadDir(b.backupDir)
 	if err != nil {
-		log.Println("Cannot get list of files in ", b.backupDir, err)
+		b.logger.Info("Cannot get list of files in ", zap.String("backupDir", b.backupDir), zap.Error(err))
 		return nil, err
 	}
 	var names []File
@@ -52,38 +54,38 @@ func (b *Backup) List() ([]File, error) {
 func (b *Backup) Create(app string) {
 	now := time.Now().Format("2006-0102-150405")
 	file := fmt.Sprintf("%s/%s-%s.tar.gz", b.backupDir, app, now)
-	log.Println("Running backup create", CreateCmd, app, file)
+	b.logger.Info("Running backup create", zap.String("CreateCmd", CreateCmd), zap.String("app", app), zap.String("file", file))
 	out, err := exec.Command(CreateCmd, app, file).CombinedOutput()
-	log.Printf("Backup create output %s", out)
+	b.logger.Info("Backup create output", zap.String("out", string(out)))
 	if err != nil {
-		log.Printf("Backup create failed: %v", err)
+		b.logger.Info("Backup create failed", zap.Error(err))
 	} else {
-		log.Printf("Backup create completed")
+		b.logger.Info("Backup create completed")
 	}
 }
 
-func (b *Backup) Restore(file string) {
-	app := strings.Split(file, "-")[0]
-	filePath := fmt.Sprintf("%s/%s", b.backupDir, file)
-	log.Println("Running backup restore", RestoreCmd, app, filePath)
-	out, err := exec.Command(RestoreCmd, app, filePath).CombinedOutput()
-	log.Printf("Backup restore output %s", out)
+func (b *Backup) Restore(fileName string) {
+	app := strings.Split(fileName, "-")[0]
+	file := fmt.Sprintf("%s/%s", b.backupDir, fileName)
+	b.logger.Info("Running backup restore", zap.String("RestoreCmd", RestoreCmd), zap.String("app", app), zap.String("file", file))
+	out, err := exec.Command(RestoreCmd, app, file).CombinedOutput()
+	b.logger.Info("Backup restore output", zap.String("out", string(out)))
 	if err != nil {
-		log.Printf("Backup restore failed: %v", err)
+		b.logger.Info("Backup restore failed", zap.Error(err))
 	} else {
-		log.Printf("Backup restore complete")
+		b.logger.Info("Backup restore complete")
 	}
 
 }
 
-func (b *Backup) Remove(file string) error {
-	filePath := fmt.Sprintf("%s/%s", b.backupDir, file)
-	log.Println("Removing backup file", filePath)
-	err := os.Remove(filePath)
+func (b *Backup) Remove(fileName string) error {
+	file := fmt.Sprintf("%s/%s", b.backupDir, fileName)
+	b.logger.Info("Removing backup file", zap.String("file", file))
+	err := os.Remove(file)
 	if err != nil {
-		log.Printf("Backup remove failed: %v", err)
+		b.logger.Info("Backup remove failed", zap.Error(err))
 	} else {
-		log.Printf("Backup remove completed")
+		b.logger.Info("Backup remove completed")
 	}
 	return err
 }

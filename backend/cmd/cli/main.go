@@ -28,7 +28,7 @@ func main() {
 		Short: "Print IPv4",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.LocalIPv4()
 				if err != nil {
@@ -43,7 +43,7 @@ func main() {
 		Short: "Print public IPv4",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.PublicIPv4()
 				if err != nil {
@@ -60,7 +60,7 @@ func main() {
 		Short: "Print IPv6",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
@@ -75,7 +75,7 @@ func main() {
 		Use:   "prefix",
 		Short: "Print IPv6 prefix",
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
@@ -100,7 +100,7 @@ func main() {
 		Short: "Set config key value",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(configuration *config.UserConfig) {
 				key := args[0]
 				value := args[1]
@@ -116,7 +116,7 @@ func main() {
 		Short: "Get config key value",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(configuration *config.UserConfig) {
 				log.Println(configuration.Get(args[0], ""))
 			})
@@ -129,7 +129,7 @@ func main() {
 		Short: "List config key value",
 		Args:  cobra.ExactArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(configuration *config.UserConfig) {
 				for key, value := range configuration.List() {
 					log.Printf("%s:%s\n", key, value)
@@ -143,7 +143,7 @@ func main() {
 		Use:   "cron",
 		Short: "Run cron job",
 		Run: func(cmd *cobra.Command, args []string) {
-			ioc.Init(*userConfig, config.DefaultSystemConfig, backup.Dir, logger)
+			Init(*userConfig)
 			ioc.Call(func(cronService *cron.Cron) { cronService.StartSingle() })
 		},
 	}
@@ -155,4 +155,8 @@ func main() {
 		log.Fatalf("error: %v\n", err)
 	}
 
+}
+
+func Init(userConfig string) {
+	ioc.Init(userConfig, config.DefaultSystemConfig, backup.Dir)
 }
