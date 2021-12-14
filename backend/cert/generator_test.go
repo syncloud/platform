@@ -16,19 +16,6 @@ import (
 	"time"
 )
 
-type RedirectCertbotStub struct {
-}
-
-func (r RedirectCertbotStub) CertbotPresent(token, fqdn string, value ...string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r RedirectCertbotStub) CertbotCleanUp(token, fqdn string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 type GeneratorUserConfigStub struct {
 	activated bool
 }
@@ -182,6 +169,27 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	assert.Equal(t, 0, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
 	assert.Equal(t, 1, fake.count)
+}
+
+func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
+
+	logger := log.Default()
+
+	now := time.Now()
+	provider := &ProviderStub{now: now}
+	systemConfig := &GeneratorSystemConfigStub{
+		sslCertificateFile: generateCertificate(now, Month+1*Day, false).Name(),
+	}
+	userConfig := &GeneratorUserConfigStub{activated: false}
+	certbot := &CertbotStub{fail: true}
+	fake := &FakeStub{}
+
+	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	err := generator.Generate()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, certbot.attempt)
+	assert.Equal(t, 0, certbot.count)
+	assert.Equal(t, 0, fake.count)
 }
 
 func generateCertificate(now time.Time, duration time.Duration, real bool) *os.File {
