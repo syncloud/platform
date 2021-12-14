@@ -86,7 +86,7 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	logger := log.Default()
 	now := time.Now()
 
-	file := generateCertificate(now, Month-1*Day)
+	file := generateCertificate(now, Month-1*Day, true)
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: file.Name(),
@@ -106,7 +106,7 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	logger := log.Default()
 	now := time.Now()
 
-	file := generateCertificate(now, Month+1*Day)
+	file := generateCertificate(now, Month+1*Day, true)
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
 		sslCertificateFile: file.Name(),
@@ -141,6 +141,28 @@ func TestRegenerateFakeFallback(t *testing.T) {
 	assert.Equal(t, 1, fake.count)
 }
 
+func TestNotGenerateFakeIfValid(t *testing.T) {
+
+	logger := log.Default()
+	now := time.Now()
+	provider := &ProviderStub{now: now}
+
+	systemConfig := &GeneratorSystemConfigStub{
+		sslCertificateFile: generateCertificate(now, Month+1*Day, false).Name(),
+	}
+	userConfig := &GeneratorUserConfigStub{activated: true}
+	certbot := &CertbotStub{fail: true}
+	fake := &FakeStub{}
+
+	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	err := generator.Generate()
+	assert.Nil(t, err)
+
+	assert.Equal(t, 1, certbot.attempt)
+	assert.Equal(t, 0, certbot.count)
+	assert.Equal(t, 0, fake.count)
+}
+
 func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 
 	logger := log.Default()
@@ -162,18 +184,30 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	assert.Equal(t, 1, fake.count)
 }
 
-func generateCertificate(now time.Time, duration time.Duration) *os.File {
+func generateCertificate(now time.Time, duration time.Duration, real bool) *os.File {
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
 		panic(err)
 	}
 
+	subject := pkix.Name{
+		Organization: []string{"Acme Co"},
+	}
+
+	if !real {
+		subject = pkix.Name{
+			Country:      []string{SubjectCountry},
+			Province:     []string{SubjectProvince},
+			Locality:     []string{SubjectLocality},
+			Organization: []string{SubjectOrganization},
+			CommonName:   SubjectCommonName,
+		}
+	}
+
 	template := x509.Certificate{
-		SerialNumber: big.NewInt(1),
-		Subject: pkix.Name{
-			Organization: []string{"Acme Co"},
-		},
+		SerialNumber:          big.NewInt(1),
+		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              now.Add(duration),
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
