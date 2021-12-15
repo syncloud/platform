@@ -28,7 +28,7 @@ func (c *cert) IsValid() bool {
 }
 
 func (c *cert) IsReal() bool {
-	return c.subject != fmt.Sprintf("CN=%s,O=%s,L=%s,ST=%s,C=%s", SubjectCommonName, SubjectOrganization, SubjectLocality, SubjectProvince, SubjectCountry)
+	return c.subject != fmt.Sprintf("CN=%s,O=%s,L=%s,ST=%s,C=%s", DefaultSubjectCommonName, SubjectOrganization, SubjectLocality, SubjectProvince, SubjectCountry)
 }
 
 func (c *cert) ValidForDays() int {
@@ -90,6 +90,19 @@ func (g *CertificateGenerator) generateReal() error {
 	return g.certbot.Generate()
 }
 
+func (g *CertificateGenerator) generateFake() error {
+	certInfo := g.readCertificateInfo()
+	if certInfo.IsValid() {
+		return nil
+	}
+	err := g.fake.Generate()
+	if err != nil {
+		g.logger.Info(fmt.Sprintf("unable to generate fake certificate: %s", err.Error()))
+		return err
+	}
+	return nil
+}
+
 func (g *CertificateGenerator) readCertificateInfo() *cert {
 
 	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
@@ -106,17 +119,4 @@ func (g *CertificateGenerator) readCertificateInfo() *cert {
 	validFor := certificate.NotAfter.Sub(now)
 	subject := certificate.Subject.String()
 	return &cert{validFor, subject}
-}
-
-func (g *CertificateGenerator) generateFake() error {
-	certInfo := g.readCertificateInfo()
-	if certInfo.IsValid() {
-		return nil
-	}
-	err := g.fake.Generate()
-	if err != nil {
-		g.logger.Info(fmt.Sprintf("unable to generate fake certificate: %s", err.Error()))
-		return err
-	}
-	return nil
 }

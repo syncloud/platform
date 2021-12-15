@@ -2,12 +2,12 @@
 
   <div class="wrapper">
     <div class="content">
-      <div class="block1 wd12" id="block1">
+      <div class="block1">
         <h1>Certificate</h1>
-        <div class="row-no-gutters settingsblock">
-          <div class="col2" style="background-color: #3e454e; color: white; padding: 10px;">
+        <div class="row-no-gutters">
+          <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
             <div class="setline" id="logs">
-              <p v-for="(log, index) in logs" :key="index">
+              <p v-for="(log, index) in logs" :key="index" style="margin: 0px">
                 {{ log }}
               </p>
             </div>

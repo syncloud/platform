@@ -1,16 +1,10 @@
 package cert
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"crypto/x509"
-	"crypto/x509/pkix"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
 	"io/ioutil"
-	"math/big"
 	"os"
 	"testing"
 	"time"
@@ -26,6 +20,7 @@ func (g *GeneratorUserConfigStub) IsActivated() bool {
 
 type GeneratorSystemConfigStub struct {
 	sslCertificateFile string
+	keyFile            string
 }
 
 func (g GeneratorSystemConfigStub) SslCertificateFile() string {
@@ -33,8 +28,7 @@ func (g GeneratorSystemConfigStub) SslCertificateFile() string {
 }
 
 func (g GeneratorSystemConfigStub) SslKeyFile() string {
-	//TODO implement me
-	panic("implement me")
+	return g.keyFile
 }
 
 type ProviderStub struct {
@@ -194,43 +188,30 @@ func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
 
 func generateCertificate(now time.Time, duration time.Duration, real bool) *os.File {
 
-	privateKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-	if err != nil {
-		panic(err)
+	commonName := DefaultSubjectCommonName
+	if real {
+		commonName = "Real"
 	}
 
-	subject := pkix.Name{
-		Organization: []string{"Acme Co"},
-	}
-
-	if !real {
-		subject = pkix.Name{
-			Country:      []string{SubjectCountry},
-			Province:     []string{SubjectProvince},
-			Locality:     []string{SubjectLocality},
-			Organization: []string{SubjectOrganization},
-			CommonName:   SubjectCommonName,
-		}
-	}
-
-	template := x509.Certificate{
-		SerialNumber:          big.NewInt(1),
-		Subject:               subject,
-		NotBefore:             now,
-		NotAfter:              now.Add(duration),
-		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		BasicConstraintsValid: true,
-	}
-	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, privateKey.Public(), privateKey)
-	if err != nil {
-		panic(err)
-	}
 	certFile, err := ioutil.TempFile("", "")
 	if err != nil {
 		panic(err)
 	}
-	err = ioutil.WriteFile(certFile.Name(), derBytes, 0644)
+	keyFile, err := ioutil.TempFile("", "")
+	if err != nil {
+		panic(err)
+	}
+	fake := NewFake(
+		&GeneratorSystemConfigStub{
+			sslCertificateFile: certFile.Name(),
+			keyFile:            keyFile.Name(),
+		},
+		&ProviderStub{now: now},
+		commonName,
+		duration,
+		log.Default(),
+	)
+	err = fake.Generate()
 	if err != nil {
 		panic(err)
 	}
