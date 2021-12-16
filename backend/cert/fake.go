@@ -1,11 +1,13 @@
 package cert
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/pem"
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -75,18 +77,28 @@ func (c *Fake) Generate() error {
 	if err != nil {
 		return err
 	}
+	privateKeyPem := &bytes.Buffer{}
+	err = pem.Encode(privateKeyPem, &pem.Block{Type: "EC PRIVATE KEY", Bytes: privateKeyBytes})
+	if err != nil {
+		return err
+	}
 
 	certificateBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, privateKey.Public(), privateKey)
 	if err != nil {
 		return err
 	}
-
-	err = ioutil.WriteFile(c.systemConfig.SslKeyFile(), privateKeyBytes, 0644)
+	certificatePem := &bytes.Buffer{}
+	err = pem.Encode(certificatePem, &pem.Block{Type: "CERTIFICATE", Bytes: certificateBytes})
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(c.systemConfig.SslCertificateFile(), certificateBytes, 0644)
+	err = ioutil.WriteFile(c.systemConfig.SslKeyFile(), privateKeyPem.Bytes(), 0644)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(c.systemConfig.SslCertificateFile(), certificatePem.Bytes(), 0644)
 	if err != nil {
 		return err
 	}

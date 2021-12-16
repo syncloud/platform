@@ -2,6 +2,7 @@ package cert
 
 import (
 	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
@@ -107,11 +108,14 @@ func (g *CertificateGenerator) readCertificateInfo() *cert {
 
 	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
 	if err != nil {
+		g.logger.Info(fmt.Sprintf("unable to read certificate file: %s", err.Error()))
 		return &cert{0, ""}
 	}
 
-	certificate, err := x509.ParseCertificate(certBytes)
+	block, _ := pem.Decode(certBytes)
+	certificate, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
+		g.logger.Info(fmt.Sprintf("unable to parse certificate: %s", err.Error()))
 		return &cert{0, ""}
 	}
 
