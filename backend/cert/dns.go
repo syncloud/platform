@@ -1,14 +1,17 @@
 package cert
 
 import (
+	"fmt"
 	"github.com/go-acme/lego/v4/challenge/dns01"
+	"go.uber.org/zap"
 	"time"
 )
 
-type DNSProviderSyncloud struct {
-	token    string
-	redirect RedirectCertbot
-	values   []string
+type SyncloudDNS struct {
+	token         string
+	redirect      RedirectCertbot
+	values        []string
+	certbotLogger *zap.Logger
 }
 
 type RedirectCertbot interface {
@@ -16,25 +19,34 @@ type RedirectCertbot interface {
 	CertbotCleanUp(token, fqdn string) error
 }
 
-func NewDNSProviderSyncloud(token string, redirect RedirectCertbot) *DNSProviderSyncloud {
-	return &DNSProviderSyncloud{
-		token:    token,
-		redirect: redirect,
+func NewSyncloudDNS(token string, redirect RedirectCertbot, certbotLogger *zap.Logger) *SyncloudDNS {
+	return &SyncloudDNS{
+		token:         token,
+		redirect:      redirect,
+		certbotLogger: certbotLogger,
 	}
 }
 
-func (d *DNSProviderSyncloud) Present(domain, _, keyAuth string) error {
+func (d *SyncloudDNS) Present(domain, _, keyAuth string) error {
 	fqdn, value := dns01.GetRecord(domain, keyAuth)
 	d.values = append(d.values, value)
-	return d.redirect.CertbotPresent(d.token, fqdn, d.values...)
+	err := d.redirect.CertbotPresent(d.token, fqdn, d.values...)
+	if err != nil {
+		d.certbotLogger.Error(fmt.Sprintf("dns present error: %s", err.Error()))
+	}
+	return err
 }
 
-func (d *DNSProviderSyncloud) CleanUp(domain, _, keyAuth string) error {
+func (d *SyncloudDNS) CleanUp(domain, _, keyAuth string) error {
 	d.values = make([]string, 0)
 	fqdn, _ := dns01.GetRecord(domain, keyAuth)
-	return d.redirect.CertbotCleanUp(d.token, fqdn)
+	err := d.redirect.CertbotCleanUp(d.token, fqdn)
+	if err != nil {
+		d.certbotLogger.Error(fmt.Sprintf("dns cleanup error: %s", err.Error()))
+	}
+	return err
 }
 
-func (d *DNSProviderSyncloud) Timeout() (timeout, interval time.Duration) {
+func (d *SyncloudDNS) Timeout() (timeout, interval time.Duration) {
 	return 5 * time.Minute, 60 * time.Second
 }

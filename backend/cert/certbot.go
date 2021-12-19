@@ -9,13 +9,15 @@ import (
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
+	"go.uber.org/zap"
 	"os"
 )
 
 type Certbot struct {
-	redirect     RedirectCertbot
-	userConfig   UserConfig
-	systemConfig GeneratorSystemConfig
+	redirect      RedirectCertbot
+	userConfig    UserConfig
+	systemConfig  GeneratorSystemConfig
+	certbotLogger *zap.Logger
 }
 
 type UserConfig interface {
@@ -46,11 +48,12 @@ type CertbotGenerator interface {
 	Generate() error
 }
 
-func NewCertbot(redirect RedirectCertbot, userConfig UserConfig, systemConfig GeneratorSystemConfig) *Certbot {
+func NewCertbot(redirect RedirectCertbot, userConfig UserConfig, systemConfig GeneratorSystemConfig, certbotLogger *zap.Logger) *Certbot {
 	return &Certbot{
-		redirect:     redirect,
-		userConfig:   userConfig,
-		systemConfig: systemConfig,
+		redirect:      redirect,
+		userConfig:    userConfig,
+		systemConfig:  systemConfig,
+		certbotLogger: certbotLogger,
 	}
 }
 
@@ -91,7 +94,7 @@ func (g *Certbot) Generate() error {
 		if token == nil {
 			return fmt.Errorf("token is not set")
 		}
-		err = client.Challenge.SetDNS01Provider(NewDNSProviderSyncloud(*token, g.redirect))
+		err = client.Challenge.SetDNS01Provider(NewSyncloudDNS(*token, g.redirect, g.certbotLogger))
 		if err != nil {
 			return err
 		}

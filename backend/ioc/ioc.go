@@ -43,30 +43,36 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		systemConfig.Load()
 		return systemConfig
 	})
+	Singleton(func() *zap.Logger { return logger })
+	NamedSingleton(CertificateLogger, func() *zap.Logger {
+		return logger.With(zap.String(log.CategoryKey, log.CategoryValue))
+	})
 	Singleton(func() *network.Interface { return network.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
+	Singleton(func() *snap.Service { return snap.NewService() })
+	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
+		return nginx.New(systemd.New(), systemConfig, userConfig)
+	})
 	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface) *redirect.Service {
-		return redirect.New(userConfig, identification, iface)
+		var certLogger *zap.Logger
+		NamedResolve(&certLogger, CertificateLogger)
+		return redirect.New(userConfig, identification, iface, logger)
 	})
 	Singleton(func() *date.RealProvider { return date.New() })
 	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *cert.Certbot {
-		return cert.NewCertbot(redirectService, userConfig, systemConfig)
-	})
-	Singleton(func() *zap.Logger {
-		return logger
-	})
-	NamedSingleton(CertificateLogger, func() *zap.Logger {
-		return logger.With(zap.String(log.CategoryKey, log.CategoryValue))
+		var certLogger *zap.Logger
+		NamedResolve(&certLogger, CertificateLogger)
+		return cert.NewCertbot(redirectService, userConfig, systemConfig, certLogger)
 	})
 	Singleton(func(systemConfig *config.SystemConfig, provider *date.RealProvider) *cert.Fake {
 		var certLogger *zap.Logger
 		NamedResolve(&certLogger, CertificateLogger)
 		return cert.NewFake(systemConfig, provider, cert.DefaultSubjectCommonName, cert.DefaultDuration, certLogger)
 	})
-	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake) *cert.CertificateGenerator {
+	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, nginxService *nginx.Nginx) *cert.CertificateGenerator {
 		var certLogger *zap.Logger
 		NamedResolve(&certLogger, CertificateLogger)
-		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, certLogger)
+		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, nginxService, certLogger)
 	})
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
 		return cron.NewCertificateJob(certGenerator)
@@ -85,12 +91,8 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
-	Singleton(func() *snap.Service { return snap.NewService() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir())
-	})
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
-		return nginx.New(systemd.New(), systemConfig, userConfig)
 	})
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
 		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)

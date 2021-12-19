@@ -42,6 +42,7 @@ type CertificateGenerator struct {
 	certbot      CertbotGenerator
 	fake         FakeGenerator
 	dateProvider date.Provider
+	nginx        GeneratorNginx
 	logger       *zap.Logger
 }
 
@@ -54,13 +55,18 @@ type GeneratorUserConfig interface {
 	IsActivated() bool
 }
 
-func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator, logger *zap.Logger) *CertificateGenerator {
+type GeneratorNginx interface {
+	ReloadPublic() error
+}
+
+func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator, nginx GeneratorNginx, logger *zap.Logger) *CertificateGenerator {
 	return &CertificateGenerator{
 		systemConfig: systemConfig,
 		userConfig:   userConfig,
 		certbot:      certbot,
 		fake:         fake,
 		dateProvider: dateProvider,
+		nginx:        nginx,
 		logger:       logger,
 	}
 }
@@ -88,7 +94,11 @@ func (g *CertificateGenerator) generateReal() error {
 		return nil
 	}
 
-	return g.certbot.Generate()
+	err := g.certbot.Generate()
+	if err == nil {
+		err = g.nginx.ReloadPublic()
+	}
+	return err
 }
 
 func (g *CertificateGenerator) generateFake() error {
@@ -101,7 +111,7 @@ func (g *CertificateGenerator) generateFake() error {
 		g.logger.Info(fmt.Sprintf("unable to generate fake certificate: %s", err.Error()))
 		return err
 	}
-	return nil
+	return g.nginx.ReloadPublic()
 }
 
 func (g *CertificateGenerator) readCertificateInfo() *cert {

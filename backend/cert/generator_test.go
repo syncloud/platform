@@ -63,6 +63,15 @@ func (f *FakeStub) Generate() error {
 	return nil
 }
 
+type GeneratorNginxStub struct {
+	reloadPublic int
+}
+
+func (n *GeneratorNginxStub) ReloadPublic() error {
+	n.reloadPublic++
+	return nil
+}
+
 func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	logger := log.Default()
 	now := time.Now()
@@ -76,10 +85,13 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
-	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	nginx := &GeneratorNginxStub{}
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, logger)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.count)
+	assert.Equal(t, 1, nginx.reloadPublic)
+
 }
 
 func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
@@ -95,11 +107,13 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
+	nginx := &GeneratorNginxStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, logger)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.count)
+	assert.Equal(t, 0, nginx.reloadPublic)
 }
 
 func TestRegenerateFakeFallback(t *testing.T) {
@@ -113,13 +127,16 @@ func TestRegenerateFakeFallback(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
+	nginx := &GeneratorNginxStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, logger)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
 	assert.Equal(t, 1, fake.count)
+	assert.Equal(t, 1, nginx.reloadPublic)
+
 }
 
 func TestNotGenerateFakeIfValid(t *testing.T) {
@@ -134,14 +151,16 @@ func TestNotGenerateFakeIfValid(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
+	nginx := &GeneratorNginxStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, logger)
 	err := generator.Generate()
 	assert.Nil(t, err)
 
 	assert.Equal(t, 1, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
 	assert.Equal(t, 0, fake.count)
+	assert.Equal(t, 0, nginx.reloadPublic)
 }
 
 func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
@@ -156,13 +175,15 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: false}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
+	nginx := &GeneratorNginxStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, logger)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
 	assert.Equal(t, 1, fake.count)
+	assert.Equal(t, 1, nginx.reloadPublic)
 }
 
 func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
@@ -177,8 +198,9 @@ func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
 	userConfig := &GeneratorUserConfigStub{activated: false}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
+	nginx := &GeneratorNginxStub{}
 
-	generator := New(systemConfig, userConfig, provider, certbot, fake, logger)
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, logger)
 	err := generator.Generate()
 	assert.Nil(t, err)
 	assert.Equal(t, 0, certbot.attempt)
