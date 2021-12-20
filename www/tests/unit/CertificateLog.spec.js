@@ -2,26 +2,24 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Certificate from '@/views/Certificate'
+import CertificateLog from '@/views/CertificateLog'
 
 jest.setTimeout(30000)
 
-test('Certificate', async () => {
+test('Certificate logs', async () => {
   const showError = jest.fn()
-  const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/certificate').reply(200,
+  mock.onGet('/rest/certificate/log').reply(200,
     {
-      data: {
-          is_valid: true,
-          is_real: false,
-          valid_for_days: 10
-      },
+      data: [
+        "log 1",
+        "log 2"
+      ],
       success: true
     }
   )
-  const wrapper = mount(Certificate,
+  const wrapper = mount(CertificateLog,
     {
       attachTo: document.body,
       global: {
@@ -33,17 +31,14 @@ test('Certificate', async () => {
             }
           },
           Confirmation: true
-        },
-          mocks: {
-              $router: mockRouter
-          }
+        }
       }
     }
   )
 
   await flushPromises()
 
-  await expect(wrapper.find('#valid_days').text()).toBe('10')
+  await expect(wrapper.find('#logs').text()).toBe('log 1log 2')
 
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()

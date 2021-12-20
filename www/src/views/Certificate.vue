@@ -8,17 +8,17 @@
           <div class="col2">
             <div class="setline">
               <span class="span">Valid: </span>
-              <i v-if="valid" class="material-icons icon-good">check_circle</i>
-              <i v-if="!valid" class="material-icons icon-bad">error</i>
+              <i v-if="valid" class="material-icons icon-good" id="valid_good">check_circle</i>
+              <i v-if="!valid" class="material-icons icon-bad" id="valid_bad">error</i>
             </div>
             <div class="setline">
               <span class="span">Valid days: </span>
-              <span class="span">{{ validDays }}</span>
+              <span class="span" id="valid_days">{{ validDays }}</span>
             </div>
             <div class="setline">
               <span class="span">Real: </span>
-              <i v-if="real" class="material-icons icon-good">check_circle</i>
-              <i v-if="!real" class="material-icons icon-bad">error</i>
+              <i v-if="real" class="material-icons icon-good" id="real_good">check_circle</i>
+              <i v-if="!real" class="material-icons icon-bad" id="real_bad">error</i>
             </div>
 
             <div class="setline">
