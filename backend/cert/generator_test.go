@@ -183,7 +183,7 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	assert.Equal(t, 0, certbot.attempt)
 	assert.Equal(t, 0, certbot.count)
 	assert.Equal(t, 1, fake.count)
-	assert.Equal(t, 1, nginx.reloadPublic)
+	assert.Equal(t, 0, nginx.reloadPublic)
 }
 
 func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {

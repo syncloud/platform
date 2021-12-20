@@ -113,12 +113,17 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	})
 	Singleton(func() cert.JournalCtl { return cert.NewJournalCtl() })
 	Singleton(func(journal cert.JournalCtl) *cert.Reader { return cert.NewReader(journal) })
+
+	Singleton(func(certGenerator *cert.CertificateGenerator, certReader *cert.Reader) *rest.Certificate {
+		return rest.NewCertificate(certGenerator, certReader)
+	})
+
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
-		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, certReader *cert.Reader,
+		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, certReader)
+			installerService, storageService, id, activate, userConfig, cert)
 	})
 
 }

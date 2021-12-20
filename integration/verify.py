@@ -262,11 +262,6 @@ def test_python_ssl(device):
     device.run_ssh('/ssl.test.py')
 
 
-
-def test_openssl_cli(app_dir, device_host):
-    run_ssh(device_host, '{0}/openssl/bin/openssl help'.format(app_dir), password=LOGS_SSH_PASSWORD)
-
-
 def test_set_access_mode_with_certbot(device, domain):
     response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
@@ -284,12 +279,6 @@ def test_testapp_access_change(device_host, domain):
 
 def test_testapp_access_change_hook(device_host):
     run_ssh(device_host, 'snap run testapp.access-change', password=LOGS_SSH_PASSWORD)
-
-
-def test_show_https_certificate(device_host):
-    run_ssh(device_host, "echo | "
-                         "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
-                         "openssl x509 -inform pem -noout -text", password=LOGS_SSH_PASSWORD)
 
 
 def test_get_access(device, domain):

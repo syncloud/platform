@@ -1,17 +1,37 @@
 <template>
-
   <div class="wrapper">
     <div class="content">
-      <div class="block1">
+      <div class="block1 wd12" id="block1">
         <h1>Certificate</h1>
-        <div class="row-no-gutters">
-          <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
-            <div class="setline" id="logs">
-              <p v-for="(log, index) in logs" :key="index" style="margin: 0px">
-                {{ log }}
-              </p>
+        <div class="row-no-gutters settingsblock">
+
+          <div class="col2">
+            <div class="setline">
+              <span class="span">Valid: </span>
+              <i v-if="valid" class="material-icons icon-good">check_circle</i>
+              <i v-if="!valid" class="material-icons icon-bad">error</i>
             </div>
+            <div class="setline">
+              <span class="span">Valid days: </span>
+              <span class="span">{{ validDays }}</span>
+            </div>
+            <div class="setline">
+              <span class="span">Real: </span>
+              <i v-if="real" class="material-icons icon-good">check_circle</i>
+              <i v-if="!real" class="material-icons icon-bad">error</i>
+            </div>
+
+            <div class="setline">
+              <span class="span">You can see more details</span>
+              <div class="spandiv">
+                <router-link to="/certificate/log" class="apps hlink">
+                  <button class="buttonblue bwidth smbutton">Log</button>
+                </router-link>
+              </div>
+            </div>
+
           </div>
+
         </div>
       </div>
     </div>
@@ -39,15 +59,20 @@ export default {
   },
   data () {
     return {
-      logs: Array
+      valid: false,
+      real: false,
+      validDays: 0
     }
   },
   mounted () {
     this.progressShow()
 
-    axios.get('/rest/certificate/log')
+    axios.get('/rest/certificate')
       .then((resp) => {
-        this.logs = resp.data.data
+        const data = resp.data.data
+        this.valid = data.is_valid
+        this.real = data.is_real
+        this.validDays = data.valid_for_days
       })
       .catch(err => {
         this.$refs.error.showAxios(err)
@@ -67,4 +92,14 @@ export default {
 <style>
 @import '../style/site.css';
 @import '../style/material-icons.css';
+.icon-good {
+  font-size: 20px;
+  vertical-align: -15%;
+  color: green;
+}
+.icon-bad {
+  font-size: 20px;
+  vertical-align: -15%;
+  color: tomato;
+}
 </style>

@@ -57,9 +57,6 @@ class PlatformConfig:
     def common_dir(self):
         return self.__get('common_dir')
 
-    def openssl(self):
-        return self.__get('openssl')
-
     def nginx(self):
         return self.__get('nginx')
 
@@ -89,33 +86,6 @@ class PlatformConfig:
 
     def get_rest_public_log(self):
         return self.__get('rest_public_log')
-
-    def get_ssl_certificate_file(self):
-        return self.__get('ssl_certificate_file')
-
-    def get_ssl_ca_certificate_file(self):
-        return self.__get('ssl_ca_certificate_file')
-
-    def get_ssl_ca_serial_file(self):
-        return self.__get('ssl_ca_serial_file')
-
-    def get_ssl_certificate_request_file(self):
-        return self.__get('ssl_certificate_request_file')
-
-    def get_default_ssl_certificate_file(self):
-        return self.__get('default_ssl_certificate_file')
-
-    def get_ssl_key_file(self):
-        return self.__get('ssl_key_file')
-
-    def get_ssl_ca_key_file(self):
-        return self.__get('ssl_ca_key_file')
-
-    def get_default_ssl_key_file(self):
-        return self.__get('default_ssl_key_file')
-
-    def get_openssl_config(self):
-        return self.__get('openssl_config')
 
     def get_platform_log(self):
         return self.__get('platform_log')

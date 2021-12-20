@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"github.com/syncloud/platform/certificate"
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -17,23 +18,6 @@ const (
 
 type Generator interface {
 	Generate() error
-}
-
-type cert struct {
-	validFor time.Duration
-	subject  string
-}
-
-func (c *cert) IsValid() bool {
-	return c.validFor > Month
-}
-
-func (c *cert) IsReal() bool {
-	return c.subject != fmt.Sprintf("CN=%s,O=%s,L=%s,ST=%s,C=%s", DefaultSubjectCommonName, SubjectOrganization, SubjectLocality, SubjectProvince, SubjectCountry)
-}
-
-func (c *cert) ValidForDays() int {
-	return int(c.validFor.Hours() / 24)
 }
 
 type CertificateGenerator struct {
@@ -74,22 +58,29 @@ func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dat
 func (g *CertificateGenerator) Generate() error {
 
 	if !g.userConfig.IsActivated() {
-		return g.generateFake()
+		_, err := g.generateFake()
+		return err
 	}
 
 	err := g.generateReal()
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to generate certificate: %s", err.Error()))
-		return g.generateFake()
+		generated, err := g.generateFake()
+		if err != nil {
+			return err
+		}
+		if generated {
+			return g.nginx.ReloadPublic()
+		}
 	}
 	return nil
 }
 
 func (g *CertificateGenerator) generateReal() error {
-	certInfo := g.readCertificateInfo()
-	g.logger.Info("certificate info", zap.Int("valid days", certInfo.ValidForDays()), zap.Bool("real", certInfo.IsReal()))
+	certInfo := g.ReadCertificateInfo()
+	g.logger.Info("certificate info", zap.Int("valid days", certInfo.ValidForDays), zap.Bool("real", certInfo.IsReal))
 
-	if certInfo.IsValid() && certInfo.IsReal() {
+	if certInfo.IsValid && certInfo.IsReal {
 		g.logger.Info("not regenerating real certificate")
 		return nil
 	}
@@ -101,36 +92,41 @@ func (g *CertificateGenerator) generateReal() error {
 	return err
 }
 
-func (g *CertificateGenerator) generateFake() error {
-	certInfo := g.readCertificateInfo()
-	if certInfo.IsValid() {
-		return nil
+func (g *CertificateGenerator) generateFake() (bool, error) {
+	certInfo := g.ReadCertificateInfo()
+	if certInfo.IsValid {
+		return false, nil
 	}
 	err := g.fake.Generate()
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to generate fake certificate: %s", err.Error()))
-		return err
+		return false, err
 	}
-	return g.nginx.ReloadPublic()
+	return true, nil
 }
 
-func (g *CertificateGenerator) readCertificateInfo() *cert {
+func (g *CertificateGenerator) ReadCertificateInfo() *certificate.Info {
 
 	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to read certificate file: %s", err.Error()))
-		return &cert{0, ""}
+		return &certificate.Info{}
 	}
 
 	block, _ := pem.Decode(certBytes)
-	certificate, err := x509.ParseCertificate(block.Bytes)
+	certificateData, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to parse certificate: %s", err.Error()))
-		return &cert{0, ""}
+		return &certificate.Info{}
 	}
 
 	now := g.dateProvider.Now()
-	validFor := certificate.NotAfter.Sub(now)
-	subject := certificate.Subject.String()
-	return &cert{validFor, subject}
+	validFor := certificateData.NotAfter.Sub(now)
+	subject := certificateData.Subject.String()
+	return &certificate.Info{
+		IsValid:      validFor > Month,
+		Subject:      subject,
+		ValidForDays: int(validFor.Hours() / 24),
+		IsReal:       subject != fmt.Sprintf("CN=%s,O=%s,L=%s,ST=%s,C=%s", DefaultSubjectCommonName, SubjectOrganization, SubjectLocality, SubjectProvince, SubjectCountry),
+	}
 }
