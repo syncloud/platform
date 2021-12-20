@@ -44,7 +44,6 @@ class PlatformInstaller:
         hardware = injector.hardware
         hardware.init_disk()
 
-        injector.tls.init_certificate()
         check_output("/snap/platform/current/bin/cli cert", shell=True)
 
         ldap_auth = injector.ldap_auth
