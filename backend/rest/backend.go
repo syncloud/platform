@@ -97,7 +97,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
-	r.HandleFunc("/certificate", Handle(b.certificate.CertificateLog)).Methods("GET")
+	r.HandleFunc("/certificate", Handle(b.certificate.Certificate)).Methods("GET")
 	r.HandleFunc("/certificate/log", Handle(b.certificate.CertificateLog)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))

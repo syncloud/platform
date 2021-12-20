@@ -1,4 +1,4 @@
-package certificate
+package cert
 
 type Info struct {
 	Subject      string `json:"-"`

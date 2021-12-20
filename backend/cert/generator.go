@@ -4,7 +4,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"github.com/syncloud/platform/certificate"
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -105,25 +104,25 @@ func (g *CertificateGenerator) generateFake() (bool, error) {
 	return true, nil
 }
 
-func (g *CertificateGenerator) ReadCertificateInfo() *certificate.Info {
+func (g *CertificateGenerator) ReadCertificateInfo() *Info {
 
 	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to read certificate file: %s", err.Error()))
-		return &certificate.Info{}
+		return &Info{}
 	}
 
 	block, _ := pem.Decode(certBytes)
 	certificateData, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to parse certificate: %s", err.Error()))
-		return &certificate.Info{}
+		return &Info{}
 	}
 
 	now := g.dateProvider.Now()
 	validFor := certificateData.NotAfter.Sub(now)
 	subject := certificateData.Subject.String()
-	return &certificate.Info{
+	return &Info{
 		IsValid:      validFor > Month,
 		Subject:      subject,
 		ValidForDays: int(validFor.Hours() / 24),

@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/syncloud/platform/cert"
-	"github.com/syncloud/platform/certificate"
 	"net/http"
 )
 
@@ -12,7 +11,7 @@ type Certificate struct {
 }
 
 type CertificateInfoReader interface {
-	ReadCertificateInfo() *certificate.Info
+	ReadCertificateInfo() *cert.Info
 }
 
 func NewCertificate(infoReader CertificateInfoReader, certLogReader *cert.Reader) *Certificate {
