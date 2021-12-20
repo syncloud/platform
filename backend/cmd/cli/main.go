@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
@@ -148,7 +149,21 @@ func main() {
 		},
 	}
 
-	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron)
+	var cmdCert = &cobra.Command{
+		Use:   "cert",
+		Short: "Generate certificate",
+		Run: func(cmd *cobra.Command, args []string) {
+			Init(*userConfig)
+			ioc.Call(func(certGenerator *cert.CertificateGenerator) {
+				err := certGenerator.Generate()
+				if err != nil {
+					log.Fatal(err)
+				}
+			})
+		},
+	}
+
+	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron, cmdCert)
 
 	err = rootCmd.Execute()
 	if err != nil {

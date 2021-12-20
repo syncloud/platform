@@ -372,11 +372,6 @@ def test_cron(device):
     device.run_ssh('snap run platform.cli cron')
 
 
-def test_real_certificate(app_dir, ssh_env_vars, device_host):
-    run_ssh(device_host, '{0}/bin/generate_real_certificate.py'.format(app_dir),
-            password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
-
-
 # adding new arch, no apps in the store yet
 # def test_install_app(device, domain):
 #     session = device.login()
