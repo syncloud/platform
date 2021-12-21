@@ -24,8 +24,6 @@ from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.events import EventTrigger
 from syncloud_platform.disks.hardware import Hardware
 from syncloud_platform.control.nginx import Nginx
-from syncloud_platform.certificate.certbot.certbot_generator import CertbotGenerator
-from syncloud_platform.certificate.certificate_generator import CertificateGenerator
 from syncloud_platform.versions import Versions
 from syncloud_platform.network.network import Network
 from syncloud_platform.application.apppaths import AppPaths
@@ -72,11 +70,7 @@ class Injector:
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.snap)
         self.nginx = Nginx(self.platform_config, self.systemctl, self.device_info)
-        self.certbot_genetator = CertbotGenerator(self.platform_config, self.user_platform_config,
-                                                  self.device_info, self.snap)
-        self.tls = CertificateGenerator(self.platform_config, self.user_platform_config, self.device_info, self.nginx,
-                                        self.certbot_genetator)
-        
+
         self.device = Device(self.platform_config, self.user_platform_config, self.redirect_service,
                              self.port_drill_factory,
                              self.event_trigger)
@@ -87,7 +81,7 @@ class Injector:
                                  self.lsblk, self.path_checker, self.systemctl)
         self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device, self.device_info, self.snap,
-                             self.hardware, self.redirect_service, self.log_aggregator, self.certbot_genetator,
+                             self.hardware, self.redirect_service, self.log_aggregator,
                              self.port_mapper_factory, self.network, self.port_config)
 
     def get_app_paths(self, app_name):

@@ -29,18 +29,19 @@ type Backend struct {
 	redirect       *redirect.Service
 	installer      installer.AppInstaller
 	storage        *storage.Storage
-	redirectProxy  *httputil.ReverseProxy
 	identification *identification.Parser
 	activate       *Activate
 	userConfig     *config.UserConfig
+	certificate    *Certificate
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Service, installerService *installer.Installer,
-	storageService *storage.Storage, redirectUrl *url.URL,
+	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
+	certificate *Certificate,
 ) *Backend {
 
 	return &Backend{
@@ -51,18 +52,26 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		redirect:       redirect,
 		installer:      installerService,
 		storage:        storageService,
-		redirectProxy:  NewReverseProxy(redirectUrl),
 		identification: identification,
 		activate:       activate,
 		userConfig:     userConfig,
+		certificate:    certificate,
 	}
 }
 
-func NewReverseProxy(target *url.URL) *httputil.ReverseProxy {
+func (b *Backend) NewReverseProxy() *httputil.ReverseProxy {
 	director := func(req *http.Request) {
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.Host = target.Host
+		redirectApiUrl := b.userConfig.GetRedirectApiUrl()
+		redirectUrl, err := url.Parse(redirectApiUrl)
+		if err != nil {
+			fmt.Printf("proxy url error: %v", err)
+			return
+		}
+		fmt.Printf("proxy url: %v", redirectUrl)
+
+		req.URL.Scheme = redirectUrl.Scheme
+		req.URL.Host = redirectUrl.Host
+		req.Host = redirectUrl.Host
 	}
 	return &httputil.ReverseProxy{Director: director}
 }
@@ -88,8 +97,10 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
+	r.HandleFunc("/certificate", Handle(b.certificate.Certificate)).Methods("GET")
+	r.HandleFunc("/certificate/log", Handle(b.certificate.CertificateLog)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
-	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.redirectProxy))
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)

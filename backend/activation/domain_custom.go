@@ -1,8 +1,9 @@
 package activation
 
 import (
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/connection"
-	"log"
+	"go.uber.org/zap"
 	"strings"
 )
 
@@ -14,11 +15,7 @@ type CustomActivateRequest struct {
 
 type CustomPlatformUserConfig interface {
 	SetRedirectEnabled(enabled bool)
-	SetUserUpdateToken(userUpdateToken string)
 	SetUserEmail(userEmail string)
-	SetDomain(domain string)
-	UpdateDomainToken(token string)
-	GetRedirectDomain() string
 	SetCustomDomain(domain string)
 }
 
@@ -27,23 +24,26 @@ type CustomActivation interface {
 }
 
 type Custom struct {
-	internet connection.Checker
+	internet connection.InternetChecker
 	config   CustomPlatformUserConfig
-	redirect ManagedRedirect
-	device   *Device
+	device   DeviceActivation
+	cert     cert.Generator
+	logger   *zap.Logger
 }
 
-func NewCustom(internet connection.Checker, config CustomPlatformUserConfig, redirect ManagedRedirect, device *Device) *Custom {
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation,
+	cert cert.Generator, logger *zap.Logger) *Custom {
 	return &Custom{
 		internet: internet,
 		config:   config,
-		redirect: redirect,
 		device:   device,
+		cert:     cert,
+		logger:   logger,
 	}
 }
 
 func (c *Custom) Activate(requestDomain string, deviceUsername string, devicePassword string) error {
-	log.Printf("activate custom: %s, %s", requestDomain, deviceUsername)
+	c.logger.Info("activate custom", zap.String("requestDomain", requestDomain), zap.String("deviceUsername", deviceUsername))
 	domain := strings.ToLower(requestDomain)
 
 	err := c.internet.Check()
@@ -55,5 +55,11 @@ func (c *Custom) Activate(requestDomain string, deviceUsername string, devicePas
 	c.config.SetCustomDomain(domain)
 	name, email := ParseUsername(deviceUsername, domain)
 	c.config.SetUserEmail(email)
+
+	err = c.cert.Generate()
+	if err != nil {
+		return err
+	}
+
 	return c.device.ActivateDevice(deviceUsername, devicePassword, name, email)
 }

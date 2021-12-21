@@ -61,6 +61,13 @@
             </router-link>
           </div>
 
+          <div class="colapp app">
+            <router-link to="/certificate" id="certificate" class="app-link">
+              <i class="material-icons settings-icon">security</i>
+              <div class="setting-name"><span class="withline">Certificate</span></div>
+            </router-link>
+          </div>
+
         </div>
       </div>
     </div>

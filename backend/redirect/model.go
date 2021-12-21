@@ -30,8 +30,19 @@ type FreeDomainAcquireRequest struct {
 }
 
 type UserCredentials struct {
-	Password         string `json:"password,omitempty"`
-	Email            string `json:"email,omitempty"`
+	Password string `json:"password,omitempty"`
+	Email    string `json:"email,omitempty"`
+}
+
+type CertbotPresentRequest struct {
+	Fqdn   string   `json:"fqdn,omitempty"`
+	Token  string   `json:"token,omitempty"`
+	Values []string `json:"values,omitempty"`
+}
+
+type CertbotCleanUpRequest struct {
+	Fqdn  string `json:"fqdn,omitempty"`
+	Token string `json:"token,omitempty"`
 }
 
 type FreeDomainUpdateRequest struct {

@@ -9,17 +9,18 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const DbTrue = "true"
 const DbFalse = "false"
 const OldBoolTrue = "True"
 const OldBoolFalse = "False"
+const DefaultRedirectDomain = "syncloud.it"
 
 type UserConfig struct {
-	file           string
-	oldConfigFile  string
-	redirectDomain string
+	file          string
+	oldConfigFile string
 }
 
 var OldConfig string
@@ -30,17 +31,18 @@ func init() {
 	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_DATA"))
 }
 
-func NewUserConfig(file string, oldConfigFile string, redirectDomain string) (*UserConfig, error) {
-	config := &UserConfig{
-		file:           file,
-		oldConfigFile:  oldConfigFile,
-		redirectDomain: redirectDomain,
+func NewUserConfig(file string, oldConfigFile string) *UserConfig {
+	return &UserConfig{
+		file:          file,
+		oldConfigFile: oldConfigFile,
 	}
-	err := config.ensureDb()
+}
+
+func (c *UserConfig) Load() {
+	err := c.ensureDb()
 	if err != nil {
-		return nil, err
+		log.Fatalln(err)
 	}
-	return config, nil
 }
 
 func (c *UserConfig) ensureDb() error {
@@ -112,7 +114,7 @@ func (c *UserConfig) open() *sql.DB {
 	return db
 }
 
-func (c *UserConfig) UpdateRedirectDomain(domain string) {
+func (c *UserConfig) SetRedirectDomain(domain string) {
 	c.Upsert("redirect.domain", domain)
 }
 
@@ -124,12 +126,16 @@ func (c *UserConfig) SetUserEmail(userEmail string) {
 	c.Upsert("redirect.user_email", userEmail)
 }
 
+func (c *UserConfig) GetUserEmail() *string {
+	return c.GetOrNil("redirect.user_email")
+}
+
 func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 	c.Upsert("redirect.user_update_token", userUpdateToken)
 }
 
 func (c *UserConfig) GetRedirectDomain() string {
-	return c.Get("redirect.domain", c.redirectDomain)
+	return c.Get("redirect.domain", DefaultRedirectDomain)
 }
 
 func (c *UserConfig) GetRedirectApiUrl() string {
@@ -161,6 +167,10 @@ func (c *UserConfig) SetActivated() {
 
 func (c *UserConfig) IsActivated() bool {
 	return c.toBool(c.Get("platform.activated", DbFalse))
+}
+
+func (c *UserConfig) IsCertbotStaging() bool {
+	return c.toBool(c.Get("certbot.staging", DbFalse))
 }
 
 func (c *UserConfig) SetDomain(domain string) {
@@ -294,6 +304,10 @@ func (c *UserConfig) GetCustomDomain() *string {
 	return c.GetOrNil("platform.custom_domain")
 }
 
+func (c *UserConfig) IsCustomDomain() bool {
+	return c.GetCustomDomain() != nil
+}
+
 func (c *UserConfig) SetCustomDomain(domain string) {
 	c.Upsert("platform.custom_domain", domain)
 }
@@ -317,4 +331,12 @@ func (c *UserConfig) GetDeviceDomain() string {
 		}
 	}
 	return result
+}
+
+func (c *UserConfig) isDomainFree() (bool, error) {
+	domain := c.GetDomain()
+	if domain == nil {
+		return false, fmt.Errorf("domain is not set")
+	}
+	return strings.HasSuffix(*domain, fmt.Sprintf(".%s", c.GetRedirectDomain())), nil
 }

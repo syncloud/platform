@@ -6,7 +6,14 @@ import (
 	"net/http"
 )
 
-func LocalIPv4() (net.IP, error) {
+type Interface struct {
+}
+
+func New() *Interface {
+	return &Interface{}
+}
+
+func (i *Interface) LocalIPv4() (net.IP, error) {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		return nil, err
@@ -16,7 +23,7 @@ func LocalIPv4() (net.IP, error) {
 	return localAddr.IP, nil
 }
 
-func IPv6() (net.IP, error) {
+func (i *Interface) IPv6() (net.IP, error) {
 	conn, err := net.Dial("udp", "[2001:4860:4860::8888]:80")
 	if err != nil {
 		return nil, err
@@ -26,7 +33,7 @@ func IPv6() (net.IP, error) {
 	return localAddr.IP, nil
 }
 
-func PublicIPv4() (string, error) {
+func (i *Interface) PublicIPv4() (string, error) {
 	//url := "https://api.ipify.org?format=text"
 	url := "https://myexternalip.com/raw"
 	// http://api.ident.me

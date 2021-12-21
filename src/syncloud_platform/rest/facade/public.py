@@ -7,7 +7,7 @@ from syncloud_platform.control import power
 class Public:
 
     def __init__(self, platform_config, user_platform_config, device, device_info, snap, hardware, redirect_service,
-                 log_aggregator, certbot_generator, port_mapper_factory, network, port_config):
+                 log_aggregator, port_mapper_factory, network, port_config):
         self.port_config = port_config
         self.hardware = hardware
         self.platform_config = platform_config
@@ -19,7 +19,6 @@ class Public:
         self.www_dir = self.platform_config.www_root_public()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
-        self.certbot_generator = certbot_generator
         self.port_mapper_factory = port_mapper_factory
         self.network=network
         
@@ -100,9 +99,6 @@ class Public:
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()
         self.redirect_service.send_log(user_token, logs, include_support)
-
-    def regenerate_certificate(self):
-        self.certbot_generator.generate_certificate()
 
     def network_interfaces(self):
         return self.network.interfaces()

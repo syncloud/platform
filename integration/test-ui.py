@@ -7,7 +7,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from syncloudlib.integration.screenshots import screenshots
 from syncloudlib.integration.hosts import add_host_alias
-import requests
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
@@ -33,10 +32,10 @@ def test_start(app, device_host, module_setup, domain):
     add_host_alias(app, device_host, domain)
 
 
-def test_deactivate(device, device_host, main_domain, domain):
+def test_deactivate(device, main_domain, domain):
     device.activated()
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-    device.run_ssh('snap restart platform.backend')
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
 
     response = device.login().post('https://{0}/rest/settings/deactivate'.format(domain), verify=False)
     assert '"success": true' in response.text
@@ -160,6 +159,13 @@ def test_settings_backup(driver, ui_mode, screenshot_dir):
     header = "//h1[text()='Backup']"
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
     screenshots(driver, screenshot_dir, 'settings_backup-' + ui_mode)
+
+
+def test_settings_certificate(driver, ui_mode, screenshot_dir):
+    settings(driver, screenshot_dir, ui_mode, 'certificate')
+    header = "//h1[text()='Certificate']"
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
+    screenshots(driver, screenshot_dir, 'settings_certificate-' + ui_mode)
 
 
 def test_app_center(driver, ui_mode, screenshot_dir):

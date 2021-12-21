@@ -11,8 +11,8 @@ type Systemd interface {
 }
 
 type SystemConfig interface {
-	ConfigDir() (*string, error)
-	DataDir() (*string, error)
+	ConfigDir() string
+	DataDir() string
 }
 
 type UserConfig interface {
@@ -39,24 +39,15 @@ func (n *Nginx) ReloadPublic() error {
 
 func (n *Nginx) InitConfig() error {
 	domain := n.userConfig.GetDeviceDomain()
-
-	configDir, err := n.systemConfig.ConfigDir()
+	configDir := n.systemConfig.ConfigDir()
+	templateFile, err := ioutil.ReadFile(path.Join(configDir, "nginx", "public.conf"))
 	if err != nil {
 		return err
 	}
-
-	templateFile, err := ioutil.ReadFile(path.Join(*configDir, "nginx", "public.conf"))
-	if err != nil {
-		return err
-	}
-
 	template := string(templateFile)
 	template = strings.ReplaceAll(template, "{{ domain }}", strings.ReplaceAll(domain, ".", "\\."))
-	nginxConfigDir, err := n.systemConfig.DataDir()
-	if err != nil {
-		return err
-	}
-	nginxConfigFile := path.Join(*nginxConfigDir, "nginx.conf")
+	nginxConfigDir := n.systemConfig.DataDir()
+	nginxConfigFile := path.Join(nginxConfigDir, "nginx.conf")
 	err = ioutil.WriteFile(nginxConfigFile, []byte(template), 0644)
 	return err
 }
