@@ -6,6 +6,8 @@ import (
 	"net"
 )
 
+const DefaultIdFile = "/etc/syncloud/id.cfg"
+
 type Id struct {
 	Name       string `json:"name"`
 	Title      string `json:"title"`
@@ -16,8 +18,8 @@ type Parser struct {
 	filename string
 }
 
-func New(filename string) *Parser {
-	return &Parser{filename: filename}
+func New() *Parser {
+	return &Parser{filename: DefaultIdFile}
 }
 
 func (p *Parser) get(key string, def string) string {

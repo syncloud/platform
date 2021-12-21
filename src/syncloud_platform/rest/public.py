@@ -247,14 +247,6 @@ def disk_deactivate():
     return jsonify(success=True, disks=public.disk_deactivate()), 200
 
 
-@app.route("/rest/settings/regenerate_certificate", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def regenerate_certificate():
-    public.regenerate_certificate()
-    return jsonify(success=True), 200
-
-
 @app.route("/rest/settings/deactivate", methods=["POST"])
 @fail_if_not_activated
 @login_required
@@ -285,6 +277,8 @@ def app_image():
 @app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/event/trigger", methods=["POST"])
+@app.route("/rest/certificate", methods=["GET"])
+@app.route("/rest/certificate/log", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

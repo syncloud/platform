@@ -5,11 +5,15 @@ import (
 	"net/http"
 )
 
-type Checker interface {
+type InternetChecker interface {
 	Check() error
 }
 
 type Internet struct {
+}
+
+func NewInternetChecker() InternetChecker {
+	return &Internet{}
 }
 
 func (i *Internet) Check() error {

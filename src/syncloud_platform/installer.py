@@ -44,7 +44,7 @@ class PlatformInstaller:
         hardware = injector.hardware
         hardware.init_disk()
 
-        injector.tls.init_certificate()
+        check_output("/snap/platform/current/bin/cli cert", shell=True)
 
         ldap_auth = injector.ldap_auth
         ldap_auth.init()
@@ -96,8 +96,6 @@ class PlatformInstaller:
         new_ldap_data = '/var/snap/platform/current/openldap-data'
         if not isdir(new_ldap_data):
             shutil.copytree(old_ldap_data, new_ldap_data)
-
-        check_output("/snap/platform/current/bin/migrate_certbot_to_current.sh", shell=True)
 
         old_slapd_config = '/var/snap/platform/common/slapd.d'
         if not isdir(self.slapd_config_dir):

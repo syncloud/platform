@@ -1,56 +1,63 @@
 package redirect
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/version"
+	"go.uber.org/zap"
 	"io"
 	"log"
-	"net/http"
 )
 
 type Service struct {
 	UserPlatformConfig *config.UserConfig
 	identification     *identification.Parser
+	networkIface       *network.Interface
+	certbotLogger      *zap.Logger
 }
 
-func New(userPlatformConfig *config.UserConfig, identification *identification.Parser) *Service {
+func New(userPlatformConfig *config.UserConfig, identification *identification.Parser, networkIface *network.Interface, certbotLogger *zap.Logger) *Service {
 	return &Service{
 		UserPlatformConfig: userPlatformConfig,
 		identification:     identification,
+		networkIface:       networkIface,
+		certbotLogger:      certbotLogger,
 	}
 }
 
 func (r *Service) Authenticate(email string, password string) (*User, error) {
-  request := &UserCredentials{Email: email, Password: password}
+	request := &UserCredentials{Email: email, Password: password}
 	url := fmt.Sprintf("%s/user", r.UserPlatformConfig.GetRedirectApiUrl())
-	requestJson, err := json.Marshal(request)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	err = CheckHttpError(resp.StatusCode, body)
+	body, err := r.postAndCheck(url, request)
 	if err != nil {
 		return nil, err
 	}
 	var redirectUserResponse UserResponse
-	err = json.Unmarshal(body, &redirectUserResponse)
+	err = json.Unmarshal(*body, &redirectUserResponse)
 	if err != nil {
 		return nil, err
 	}
 	return &redirectUserResponse.Data, nil
+}
+
+func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
+	request := &CertbotPresentRequest{Token: token, Fqdn: fqdn, Values: value}
+	url := fmt.Sprintf("%s/certbot/present", r.UserPlatformConfig.GetRedirectApiUrl())
+	r.certbotLogger.Info(fmt.Sprintf("dns present: %s", url))
+	_, err := r.postAndCheck(url, request)
+	return err
+}
+
+func (r *Service) CertbotCleanUp(token, fqdn string) error {
+	request := &CertbotCleanUpRequest{Token: token, Fqdn: fqdn}
+	url := fmt.Sprintf("%s/certbot/cleanup", r.UserPlatformConfig.GetRedirectApiUrl())
+	r.certbotLogger.Info(fmt.Sprintf("dns cleanup: %s", url))
+	_, err := r.postAndCheck(url, request)
+	return err
 }
 
 func (r *Service) Acquire(email string, password string, domain string) (*Domain, error) {
@@ -68,26 +75,14 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 		DeviceName:       deviceId.Name,
 		DeviceTitle:      deviceId.Title}
 	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "domain/acquire_v2")
-	requestJson, err := json.Marshal(request)
+
+	body, err := r.postAndCheck(url, request)
 	if err != nil {
 		return nil, err
 	}
-	responseJson, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
-	if err != nil {
-		return nil, err
-	}
-	defer responseJson.Body.Close()
-	body, err := io.ReadAll(responseJson.Body)
-	if err != nil {
-		return nil, err
-	}
-	err = CheckHttpError(responseJson.StatusCode, body)
-	if err != nil {
-		return nil, err
-	}
-	log.Printf("acquire response: %s", body)
+	log.Printf("acquire response: %v\n", body)
 	var response FreeDomainAcquireResponse
-	err = json.Unmarshal(body, &response)
+	err = json.Unmarshal(*body, &response)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +103,7 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 		return err
 	}
 
-	localIp, err := network.LocalIPv4()
+	localIp, err := r.networkIface.LocalIPv4()
 	if err != nil {
 		return err
 	}
@@ -124,7 +119,7 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 	}
 
 	if externalIp == nil {
-		externalIp, err := network.PublicIPv4()
+		externalIp, err := r.networkIface.PublicIPv4()
 		if err != nil {
 			return err
 		}
@@ -135,7 +130,7 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 		request.Ip = externalIp
 	}
 
-	ipv6Addr, err := network.IPv6()
+	ipv6Addr, err := r.networkIface.IPv6()
 	if err == nil {
 		ipv6 := ipv6Addr.String()
 		request.Ipv6 = &ipv6
@@ -147,24 +142,28 @@ func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, web
 	}
 
 	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "domain/update")
+	_, err = r.postAndCheck(url, request)
+	return err
+}
 
-	log.Printf("url: %s", url)
+func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error) {
 	requestJson, err := json.Marshal(request)
-	log.Printf("request: %s", requestJson)
-
-	responseJson, err := http.Post(url, "application/json", bytes.NewBuffer(requestJson))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer responseJson.Body.Close()
-	body, err := io.ReadAll(responseJson.Body)
+	client := retryablehttp.NewClient()
+	resp, err := client.Post(url, "application/json", requestJson)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = CheckHttpError(responseJson.StatusCode, body)
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	return nil
+	err = CheckHttpError(resp.StatusCode, body)
+	if err != nil {
+		return nil, err
+	}
+	return &body, nil
 }

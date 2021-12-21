@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/syncloud/platform/auth"
-	"github.com/syncloud/platform/certificate"
+	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/nginx"
 	"log"
@@ -13,7 +13,7 @@ import (
 
 type Device struct {
 	config               DevicePlatformUserConfig
-	certificateGenerator *certificate.Generator
+	certificateGenerator *cert.Generator
 	auth                 *auth.Service
 	nginx                *nginx.Nginx
 	trigger              *event.Trigger
@@ -36,17 +36,15 @@ type DeviceActivation interface {
 
 func NewDevice(
 	config DevicePlatformUserConfig,
-	certificateGenerator *certificate.Generator,
 	auth *auth.Service,
 	nginx *nginx.Nginx,
 	trigger *event.Trigger,
 ) *Device {
 	return &Device{
-		config:               config,
-		certificateGenerator: certificateGenerator,
-		auth:                 auth,
-		nginx:                nginx,
-		trigger:              trigger,
+		config:  config,
+		auth:    auth,
+		nginx:   nginx,
+		trigger: trigger,
 	}
 }
 
@@ -57,11 +55,6 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 	}
 
 	d.config.SetWebSecretKey(uuid.New().String())
-
-	err = d.certificateGenerator.GenerateSelfSigned()
-	if err != nil {
-		return err
-	}
 
 	err = d.auth.Reset(name, username, password, email)
 	if err != nil {

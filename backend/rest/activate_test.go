@@ -22,13 +22,6 @@ func (a *ManagedActivationStub) Activate(redirectEmail string, redirectPassword 
 	return nil
 }
 
-func (a *ManagedActivationStub) Premium(redirectEmail string, redirectPassword string, requestDomain string, deviceUsername string, devicePassword string) error {
-	if a.error {
-		return fmt.Errorf("error")
-	}
-	return nil
-}
-
 type CustomActivationStub struct{}
 
 func (a CustomActivationStub) Activate(requestDomain string, deviceUsername string, devicePassword string) error {

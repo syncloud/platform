@@ -123,6 +123,7 @@ def test_id_before_activation(device_host):
 
 def test_set_redirect(device, main_domain):
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
 def test_activate_custom(device, device_host, main_domain):
@@ -134,6 +135,7 @@ def test_activate_custom(device, device_host, main_domain):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
 def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
@@ -147,6 +149,7 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
 def test_activate_device(device_host, full_domain, redirect_user, redirect_password):
@@ -174,6 +177,7 @@ def test_drop_activation(device, main_domain):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
 def test_reactivate_good(device_host, full_domain, device_user, device_password,
@@ -258,16 +262,6 @@ def test_python_ssl(device):
     device.run_ssh('/ssl.test.py')
 
 
-def test_certbot_cli(app_dir, device_host):
-    output = run_ssh(device_host, '{0}/bin/certbot --help'.format(app_dir), password=LOGS_SSH_PASSWORD)
-    assert not output.strip() == ""
-    run_ssh(device_host, '{0}/bin/certbot --help nginx'.format(app_dir), password=LOGS_SSH_PASSWORD)
-
-
-def test_openssl_cli(app_dir, device_host):
-    run_ssh(device_host, '{0}/openssl/bin/openssl help'.format(app_dir), password=LOGS_SSH_PASSWORD)
-
-
 def test_set_access_mode_with_certbot(device, domain):
     response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
@@ -285,12 +279,6 @@ def test_testapp_access_change(device_host, domain):
 
 def test_testapp_access_change_hook(device_host):
     run_ssh(device_host, 'snap run testapp.access-change', password=LOGS_SSH_PASSWORD)
-
-
-def test_show_https_certificate(device_host):
-    run_ssh(device_host, "echo | "
-                         "openssl s_client -showcerts -servername localhost -connect localhost:443 2>/dev/null | "
-                         "openssl x509 -inform pem -noout -text", password=LOGS_SSH_PASSWORD)
 
 
 def test_get_access(device, domain):
@@ -371,11 +359,6 @@ def test_set_access_error(device, domain):
 
 def test_cron(device):
     device.run_ssh('snap run platform.cli cron')
-
-
-def test_real_certificate(app_dir, ssh_env_vars, device_host):
-    run_ssh(device_host, '{0}/bin/generate_real_certificate.py'.format(app_dir),
-            password=LOGS_SSH_PASSWORD, env_vars=ssh_env_vars)
 
 
 # adding new arch, no apps in the store yet

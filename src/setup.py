@@ -18,8 +18,6 @@ setup(
               'syncloud_platform.config',
               'syncloud_platform.snap',
               'syncloud_platform.control',
-              'syncloud_platform.certificate',
-              'syncloud_platform.certificate.certbot',
               'syncloud_platform.disks',
               'syncloud_platform.log',
               'syncloud_platform.network'],
