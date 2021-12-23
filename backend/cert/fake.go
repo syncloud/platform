@@ -16,12 +16,13 @@ import (
 )
 
 const (
-	SubjectCountry           = "UK"
-	SubjectProvince          = "Syncloud"
-	SubjectLocality          = "Syncloud"
-	SubjectOrganization      = "Syncloud"
-	DefaultSubjectCommonName = "syncloud"
-	DefaultDuration          = 2 * Month
+	SubjectCountry              = "UK"
+	SubjectProvince             = "Syncloud"
+	SubjectLocality             = "Syncloud"
+	SubjectOrganization         = "Syncloud"
+	DefaultSubjectCommonName    = "syncloud"
+	DefaultSubjectCommonNameOld = "localhost"
+	DefaultDuration             = 2 * Month
 )
 
 type Fake struct {
