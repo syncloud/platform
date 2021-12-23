@@ -126,6 +126,6 @@ func (g *CertificateGenerator) ReadCertificateInfo() *Info {
 		IsValid:      validFor > Month,
 		Subject:      subject,
 		ValidForDays: int(validFor.Hours() / 24),
-		IsReal:       subject != fmt.Sprintf("CN=%s,O=%s,L=%s,ST=%s,C=%s", DefaultSubjectCommonName, SubjectOrganization, SubjectLocality, SubjectProvince, SubjectCountry),
+		IsReal:       certificateData.Subject.CommonName != DefaultSubjectCommonName,
 	}
 }
