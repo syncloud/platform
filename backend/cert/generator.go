@@ -122,10 +122,11 @@ func (g *CertificateGenerator) ReadCertificateInfo() *Info {
 	now := g.dateProvider.Now()
 	validFor := certificateData.NotAfter.Sub(now)
 	subject := certificateData.Subject.String()
+	commonName := certificateData.Subject.CommonName
 	return &Info{
 		IsValid:      validFor > Month,
 		Subject:      subject,
 		ValidForDays: int(validFor.Hours() / 24),
-		IsReal:       certificateData.Subject.CommonName != DefaultSubjectCommonName,
+		IsReal:       commonName != DefaultSubjectCommonName && commonName != DefaultSubjectCommonNameOld,
 	}
 }
