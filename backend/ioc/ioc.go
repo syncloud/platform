@@ -67,7 +67,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(systemConfig *config.SystemConfig, provider *date.RealProvider) *cert.Fake {
 		var certLogger *zap.Logger
 		NamedResolve(&certLogger, CertificateLogger)
-		return cert.NewFake(systemConfig, provider, cert.DefaultSubjectCommonName, cert.DefaultDuration, certLogger)
+		return cert.NewFake(systemConfig, provider, cert.SubjectOrganization, cert.DefaultDuration, certLogger)
 	})
 	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, nginxService *nginx.Nginx) *cert.CertificateGenerator {
 		var certLogger *zap.Logger
