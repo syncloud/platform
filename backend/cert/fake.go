@@ -16,39 +16,38 @@ import (
 )
 
 const (
-	SubjectCountry              = "UK"
-	SubjectProvince             = "Syncloud"
-	SubjectLocality             = "Syncloud"
-	SubjectOrganization         = "Syncloud"
-	DefaultSubjectCommonName    = "syncloud"
-	DefaultSubjectCommonNameOld = "localhost"
-	DefaultDuration             = 2 * Month
+	SubjectCountry      = "UK"
+	SubjectProvince     = "Syncloud"
+	SubjectLocality     = "Syncloud"
+	SubjectOrganization = "Syncloud"
+	SubjectCommonName   = "syncloud"
+	DefaultDuration     = 2 * Month
 )
 
 type Fake struct {
-	systemConfig      GeneratorSystemConfig
-	dateProvider      date.Provider
-	subjectCommonName string
-	duration          time.Duration
-	logger            *zap.Logger
+	systemConfig        GeneratorSystemConfig
+	dateProvider        date.Provider
+	subjectOrganization string
+	duration            time.Duration
+	logger              *zap.Logger
 }
 
 type FakeGenerator interface {
 	Generate() error
 }
 
-func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, subjectCommonName string, duration time.Duration, logger *zap.Logger) *Fake {
+func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, subjectOrganization string, duration time.Duration, logger *zap.Logger) *Fake {
 	return &Fake{
-		systemConfig:      systemConfig,
-		dateProvider:      dateProvider,
-		subjectCommonName: subjectCommonName,
-		duration:          duration,
-		logger:            logger,
+		systemConfig:        systemConfig,
+		dateProvider:        dateProvider,
+		subjectOrganization: subjectOrganization,
+		duration:            duration,
+		logger:              logger,
 	}
 }
 
 func (c *Fake) Generate() error {
-	c.logger.Info("generating self signed certificate")
+	c.logger.Info("generating fake certificate")
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
@@ -59,8 +58,8 @@ func (c *Fake) Generate() error {
 		Country:      []string{SubjectCountry},
 		Province:     []string{SubjectProvince},
 		Locality:     []string{SubjectLocality},
-		Organization: []string{SubjectOrganization},
-		CommonName:   c.subjectCommonName,
+		Organization: []string{c.subjectOrganization},
+		CommonName:   SubjectCommonName,
 	}
 	now := c.dateProvider.Now()
 

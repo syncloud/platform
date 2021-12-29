@@ -210,9 +210,9 @@ func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
 
 func generateCertificate(now time.Time, duration time.Duration, real bool) *os.File {
 
-	commonName := DefaultSubjectCommonName
+	subjectOrganization := SubjectOrganization
 	if real {
-		commonName = "Real"
+		subjectOrganization = "Real"
 	}
 
 	certFile, err := ioutil.TempFile("", "")
@@ -229,7 +229,7 @@ func generateCertificate(now time.Time, duration time.Duration, real bool) *os.F
 			keyFile:            keyFile.Name(),
 		},
 		&ProviderStub{now: now},
-		commonName,
+		subjectOrganization,
 		duration,
 		log.Default(),
 	)
