@@ -23,7 +23,7 @@ type Certbot struct {
 type UserConfig interface {
 	IsCertbotStaging() bool
 	GetUserEmail() *string
-	GetDomain() *string
+	GetDeviceDomain() string
 	GetDomainUpdateToken() *string
 	IsCustomDomain() bool
 }
@@ -106,14 +106,11 @@ func (g *Certbot) Generate() error {
 	}
 	myUser.Registration = reg
 
-	domain := g.userConfig.GetDomain()
-	if domain == nil {
-		return fmt.Errorf("domain is not set")
-	}
+	domain := g.userConfig.GetDeviceDomain()
 	request := certificate.ObtainRequest{
 		Domains: []string{
-			*domain,
-			fmt.Sprintf("*.%s", *domain),
+			domain,
+			fmt.Sprintf("*.%s", domain),
 		},
 		Bundle: true,
 	}

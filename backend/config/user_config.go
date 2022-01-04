@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 )
 
 const DbTrue = "true"
@@ -177,7 +176,7 @@ func (c *UserConfig) SetDomain(domain string) {
 	c.Upsert("platform.domain", domain)
 }
 
-func (c *UserConfig) GetDomain() *string {
+func (c *UserConfig) getDomain() *string {
 	return c.GetOrNil("platform.domain")
 }
 
@@ -315,7 +314,7 @@ func (c *UserConfig) SetCustomDomain(domain string) {
 func (c *UserConfig) GetDeviceDomain() string {
 	result := "localhost"
 	if c.IsRedirectEnabled() {
-		domain := c.GetDomain()
+		domain := c.getDomain()
 		if domain != nil {
 			result = *domain
 		} else {
@@ -331,12 +330,4 @@ func (c *UserConfig) GetDeviceDomain() string {
 		}
 	}
 	return result
-}
-
-func (c *UserConfig) isDomainFree() (bool, error) {
-	domain := c.GetDomain()
-	if domain == nil {
-		return false, fmt.Errorf("domain is not set")
-	}
-	return strings.HasSuffix(*domain, fmt.Sprintf(".%s", c.GetRedirectDomain())), nil
 }
