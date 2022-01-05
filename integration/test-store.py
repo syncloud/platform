@@ -11,5 +11,5 @@ def test_sore(device):
     channel = os.environ["DRONE_BRANCH"]
     if channel == 'stable':
         channel = 'rc'
-    device.login()
+    device.activated()
     device.run_ssh('snap refresh platform --channel={0}'.format(channel))
