@@ -240,6 +240,20 @@ local build(arch, testUI) = {
             ]
         },
         {
+            name: "test-store",
+            image: "python:3.8-slim-buster",
+            
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-storei.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " ",
+            ],
+            when: {
+                branch: ["stable" ]
+            }
+        },
+        {
             name: "artifact",
             image: "appleboy/drone-scp",
             settings: {
