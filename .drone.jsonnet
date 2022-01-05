@@ -247,10 +247,10 @@ local build(arch, testUI) = {
               "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-storei.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " ",
+              "py.test -x -s test-store.py --distro=buster --domain=$(cat ../domain) --device-host=device-buster --app=" + name,
             ],
             when: {
-                branch: ["stable" ]
+                branch: ["stable", "master"]
             }
         },
         {

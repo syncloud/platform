@@ -1,3 +1,5 @@
+import os
+
 from syncloudlib.integration.hosts import add_host_alias
 
 
@@ -6,5 +8,7 @@ def test_start(app, device_host, domain):
 
 
 def test_sore(device):
-    device.run_ssh('snap install platform --channel=rc')
-    channel=rc')
+    channel = os.environ["DRONE_BRANCH"]
+    if channel == 'stable':
+        channel = 'rc'
+    device.run_ssh('snap install platform --channel={0}'.format(channel))
