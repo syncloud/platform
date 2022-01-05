@@ -15,7 +15,7 @@ local build(arch, testUI) = {
             name: "version",
             image: "debian:buster-slim",
             commands: [
-                "echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version",
+                "echo $DRONE_BUILD_NUMBER > version",
                 "echo " + arch + "-$DRONE_BRANCH > domain"
             ]
         },
@@ -238,6 +238,20 @@ local build(arch, testUI) = {
               "pip install syncloud-lib s3cmd",
               "syncloud-upload.sh " + name + " $DRONE_BRANCH $VERSION $PACKAGE"
             ]
+        },
+        {
+            name: "test-store",
+            image: "python:3.8-slim-buster",
+            
+            commands: [
+              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
+              "pip install -r dev_requirements.txt",
+              "cd integration",
+              "py.test -x -s test-store.py --distro=buster --domain=$(cat ../domain) --device-host=device-buster --app=" + name,
+            ],
+            when: {
+                branch: ["stable", "master"]
+            }
         },
         {
             name: "artifact",

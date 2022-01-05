@@ -25,7 +25,7 @@ type UserConfig interface {
 	GetUserEmail() *string
 	GetDeviceDomain() string
 	GetDomainUpdateToken() *string
-	IsCustomDomain() bool
+	IsRedirectEnabled() bool
 }
 
 type User struct {
@@ -83,7 +83,7 @@ func (g *Certbot) Generate() error {
 		return err
 	}
 
-	useHttp := g.userConfig.IsCustomDomain()
+	useHttp := !g.userConfig.IsRedirectEnabled()
 	if useHttp {
 		err = client.Challenge.SetHTTP01Provider(NewHttpProviderSyncloud())
 		if err != nil {
