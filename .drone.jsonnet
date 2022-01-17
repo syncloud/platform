@@ -238,7 +238,10 @@ local build(arch, testUI) = [{
               "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch,
               "chmod +x syncloud-release-*",
               "./syncloud-release-* publish -f $PACKAGE -b $DRONE_BRANCH"
-            ]
+            ],
+            when: {
+                branch: ["stable", "master"]
+            }
         },
         {
             name: "test-store",
