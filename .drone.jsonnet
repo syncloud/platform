@@ -2,7 +2,7 @@ local name = "platform";
 local browser = "firefox";
 local go = "1.17.3";
 
-local build(arch, testUI) = {
+local build(arch, testUI) = [{
     kind: "pipeline",
     name: arch,
 
@@ -223,7 +223,7 @@ local build(arch, testUI) = {
     ] else []) + [
         {
             name: "upload",
-            image: "python:3.8-slim-buster",
+            image: "debian:buster-slim",
             environment: {
                 AWS_ACCESS_KEY_ID: {
                     from_secret: "AWS_ACCESS_KEY_ID"
@@ -233,11 +233,15 @@ local build(arch, testUI) = {
                 }
             },
             commands: [
-              "VERSION=$(cat version)",
               "PACKAGE=$(cat package.name)",
-              "pip install syncloud-lib s3cmd",
-              "syncloud-upload.sh " + name + " $DRONE_BRANCH $VERSION $PACKAGE"
-            ]
+              "apt update && apt install -y wget",
+              "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch,
+              "chmod +x syncloud-release-*",
+              "./syncloud-release-* publish -f $PACKAGE -b $DRONE_BRANCH"
+            ],
+            when: {
+                branch: ["stable", "master"]
+            }
         },
         {
             name: "test-store",
@@ -345,10 +349,42 @@ local build(arch, testUI) = {
             }
         }
     ]
-};
+},
+ {
+     kind: "pipeline",
+     type: "docker",
+     name: "promote-" + arch,
+     platform: {
+         os: "linux",
+         arch: arch
+     },
+     steps: [
+     {
+             name: "promote",
+             image: "debian:buster-slim",
+             environment: {
+                 AWS_ACCESS_KEY_ID: {
+                     from_secret: "AWS_ACCESS_KEY_ID"
+                 },
+                 AWS_SECRET_ACCESS_KEY: {
+                     from_secret: "AWS_SECRET_ACCESS_KEY"
+                 }
+             },
+             commands: [
+               "apt update && apt install -y wget",
+               "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch + " -O release --progress=dot:giga",
+               "chmod +x release",
+               "./release promote -n " + name + " -a $(dpkg --print-architecture)"
+             ]
+       }
+      ],
+      trigger: {
+       event: [
+         "promote"
+       ]
+     }
+ }];
 
-[
-    build("arm", false),
-    build("arm64", false),
-    build("amd64", true)
-]
+build("arm", false) +
+build("arm64", false) +
+build("amd64", true)
