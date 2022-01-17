@@ -12,5 +12,4 @@ def test_sore(device):
     if channel == 'stable':
         channel = 'rc'
     device.activated()
-    device.run_ssh('/snap/platform/current/bin/upgrade-snapd.sh', throw=True)
     device.run_ssh('snap refresh platform --channel={0} --amend'.format(channel))
