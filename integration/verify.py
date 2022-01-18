@@ -308,7 +308,7 @@ def test_available_apps(device, domain, artifact_dir):
     with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) > 1
+    assert len(json.loads(response.text)['apps']) > 0
 
 
 def test_device_url(device, domain, artifact_dir, full_domain):
