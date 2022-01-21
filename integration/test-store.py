@@ -28,4 +28,6 @@ def test_sore(device):
     if channel == 'stable':
         channel = 'rc'
     device.activated()
-    device.run_ssh('timeout 10m snap refresh platform --channel={0} --amend'.format(channel))
+    device.run_ssh('snap remove platform')
+    device.run_ssh('/integration/install-snapd.sh')
+    device.run_ssh('timeout 10m snap install platform --channel={0}'.format(channel))
