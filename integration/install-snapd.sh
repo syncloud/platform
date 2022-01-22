@@ -1,7 +1,5 @@
 #!/bin/bash -xe
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
 ARCH=$(dpkg --print-architecture)
 VERSION=$(curl http://apps.syncloud.org/releases/stable/snapd.version)
 

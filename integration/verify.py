@@ -308,7 +308,7 @@ def test_available_apps(device, domain, artifact_dir):
     with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) > 1
+    assert len(json.loads(response.text)['apps']) > 0
 
 
 def test_device_url(device, domain, artifact_dir, full_domain):
@@ -386,7 +386,7 @@ def test_rest_installed_apps(device, domain, artifact_dir):
 
 
 def test_rest_not_installed_app(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=nextcloud'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.app.not.installed.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
@@ -488,7 +488,7 @@ def disk_create(loop, fs, device):
 
 
 def disk_activate(loop, device, domain):
-    response = device.login().get('http://{0}/rest/settings/disks'.format(domain))
+    response = device.login().get('https://{0}/rest/settings/disks'.format(domain))
     print(response.text)
     assert loop in response.text
     assert response.status_code == 200
