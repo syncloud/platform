@@ -1,3 +1,4 @@
+import re
 import json
 import time
 from os.path import dirname, join
@@ -574,6 +575,11 @@ def test_if_cron_is_empty_after_upgrade(device_host):
 
 def test_nginx_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/ping'.format(device_host), shell=True).decode())
+
+
+def test_cli_ipv4(device):
+    ipv4 = device.run_ssh('snap run platform.cli ipv4'.format(TMP_DIR), throw=False)
+    assert re.search(r"^\d*?\.\d*?\.\d*?\.\d*?$", ipv4) is not None
 
 
 def test_nginx_plus_flask_performance(device_host):
