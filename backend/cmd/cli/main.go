@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/cert"
@@ -8,19 +9,10 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/network"
-	"go.uber.org/zap"
-	"log"
 	"net"
 )
 
 func main() {
-
-	logger, err := zap.NewProduction()
-	if err != nil {
-		log.Fatalf("can't initialize zap logger: %v", err)
-	}
-	defer logger.Sync()
-
 	var rootCmd = &cobra.Command{Use: "cli"}
 	userConfig := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
 
@@ -33,9 +25,9 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.LocalIPv4()
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
-				log.Print(ip.String())
+				fmt.Print(ip.String())
 			})
 		},
 	}
@@ -48,9 +40,9 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.PublicIPv4()
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
-				log.Print(ip)
+				fmt.Print(ip)
 			})
 		},
 	}
@@ -65,9 +57,9 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
-				log.Print(ip.String())
+				fmt.Print(ip.String())
 			})
 		},
 	}
@@ -80,9 +72,9 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
-				log.Printf("%v/%v", ip.Mask(net.CIDRMask(prefixSize, 128)), prefixSize)
+				fmt.Printf("%v/%v", ip.Mask(net.CIDRMask(prefixSize, 128)), prefixSize)
 			})
 		},
 	}
@@ -106,7 +98,7 @@ func main() {
 				key := args[0]
 				value := args[1]
 				configuration.Upsert(key, value)
-				log.Printf("set config: %s, key: %s, value: %s\n", configFile, key, value)
+				fmt.Printf("set config: %s, key: %s, value: %s\n", configFile, key, value)
 			})
 		},
 	}
@@ -119,7 +111,7 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig)
 			ioc.Call(func(configuration *config.UserConfig) {
-				log.Println(configuration.Get(args[0], ""))
+				fmt.Println(configuration.Get(args[0], ""))
 			})
 		},
 	}
@@ -133,7 +125,7 @@ func main() {
 			Init(*userConfig)
 			ioc.Call(func(configuration *config.UserConfig) {
 				for key, value := range configuration.List() {
-					log.Printf("%s:%s\n", key, value)
+					fmt.Printf("%s:%s\n", key, value)
 				}
 			})
 		},
@@ -157,7 +149,7 @@ func main() {
 			ioc.Call(func(certGenerator *cert.CertificateGenerator) {
 				err := certGenerator.Generate()
 				if err != nil {
-					log.Fatal(err)
+					panic(err)
 				}
 			})
 		},
@@ -165,9 +157,9 @@ func main() {
 
 	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron, cmdCert)
 
-	err = rootCmd.Execute()
+	err := rootCmd.Execute()
 	if err != nil {
-		log.Fatalf("error: %v\n", err)
+		panic(err)
 	}
 
 }
