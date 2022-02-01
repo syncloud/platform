@@ -64,7 +64,7 @@ func (c *Fake) Generate() error {
 	now := c.dateProvider.Now()
 
 	template := x509.Certificate{
-		SerialNumber:          big.NewInt(1),
+		SerialNumber:          big.NewInt(time.Now().UnixNano() / int64(time.Millisecond)),
 		Subject:               subject,
 		NotBefore:             now,
 		NotAfter:              now.Add(c.duration),
@@ -105,3 +105,4 @@ func (c *Fake) Generate() error {
 
 	return nil
 }
+
