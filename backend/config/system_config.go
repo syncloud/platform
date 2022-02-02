@@ -1,11 +1,12 @@
 package config
 
 import (
+	"fmt"
 	"github.com/bigkevmcd/go-configparser"
 	"log"
+	"os"
 )
 
-const WebCertificatePort = 80
 const WebAccessPort = 443
 const WebProtocol = "https"
 
@@ -14,7 +15,15 @@ type SystemConfig struct {
 	parser *configparser.ConfigParser
 }
 
-const DefaultSystemConfig = "/snap/platform/current/config/platform.cfg"
+var DefaultSystemConfig string
+
+func init() {
+	snapDir := os.Getenv("SNAP")
+	if snapDir == "" {
+		snapDir = "/snap/platform/current"
+	}
+	DefaultSystemConfig = fmt.Sprintf("%s/config/platform.cfg", snapDir)
+}
 
 func NewSystemConfig(file string) *SystemConfig {
 	return &SystemConfig{

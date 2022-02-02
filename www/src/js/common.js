@@ -40,7 +40,7 @@ export function runAfterJobIsComplete (timeoutFunc, onComplete, onError, statusU
     })
     .catch(err => {
       // Auth error means job is finished
-      if (err.response.status === 401) {
+      if (err.response !== undefined && err.response.status === 401) {
         onError(err)
       } else {
         timeoutFunc(recheckFunc, recheckTimeout)
