@@ -10,6 +10,7 @@ import (
 	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/network"
 	"net"
+	"os"
 )
 
 func main() {
@@ -25,7 +26,8 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.LocalIPv4()
 				if err != nil {
-					panic(err)
+					fmt.Print(err)
+					os.Exit(1)
 				}
 				fmt.Print(ip.String())
 			})
@@ -40,7 +42,8 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.PublicIPv4()
 				if err != nil {
-					panic(err)
+					fmt.Print(err)
+					os.Exit(1)
 				}
 				fmt.Print(ip)
 			})
@@ -57,7 +60,8 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
-					panic(err)
+					fmt.Print(err)
+					os.Exit(1)
 				}
 				fmt.Print(ip.String())
 			})
@@ -72,7 +76,8 @@ func main() {
 			ioc.Call(func(iface *network.Interface) {
 				ip, err := iface.IPv6()
 				if err != nil {
-					panic(err)
+					fmt.Print(err)
+					os.Exit(1)
 				}
 				fmt.Printf("%v/%v", ip.Mask(net.CIDRMask(prefixSize, 128)), prefixSize)
 			})
@@ -149,7 +154,8 @@ func main() {
 			ioc.Call(func(certGenerator *cert.CertificateGenerator) {
 				err := certGenerator.Generate()
 				if err != nil {
-					panic(err)
+					fmt.Print(err)
+					os.Exit(1)
 				}
 			})
 		},
