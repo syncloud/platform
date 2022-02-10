@@ -55,6 +55,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('domain_input').send_keys(domain)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
+    wait_for_loading(driver)
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
@@ -63,6 +64,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
+    wait_for_loading(driver)
     selenium.find_by_xpath("//h1[text()='Log in']")
 
 
