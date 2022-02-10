@@ -19,16 +19,26 @@ func (g *GeneratorUserConfigStub) IsActivated() bool {
 }
 
 type GeneratorSystemConfigStub struct {
-	sslCertificateFile string
-	keyFile            string
+	certFile   string
+	keyFile    string
+	caSertFile string
+	caKeyFile  string
 }
 
 func (g GeneratorSystemConfigStub) SslCertificateFile() string {
-	return g.sslCertificateFile
+	return g.certFile
 }
 
 func (g GeneratorSystemConfigStub) SslKeyFile() string {
 	return g.keyFile
+}
+
+func (g GeneratorSystemConfigStub) SslCaCertificateFile() string {
+	return g.caSertFile
+}
+
+func (g GeneratorSystemConfigStub) SslCaKeyFile() string {
+	return g.caKeyFile
 }
 
 type ProviderStub struct {
@@ -79,7 +89,7 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 	file := generateCertificate(now, Month-1*Day, true)
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: file.Name(),
+		certFile: file.Name(),
 	}
 
 	userConfig := &GeneratorUserConfigStub{activated: true}
@@ -102,7 +112,7 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	file := generateCertificate(now, Month+1*Day, true)
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: file.Name(),
+		certFile: file.Name(),
 	}
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{}
@@ -122,7 +132,7 @@ func TestRegenerateFakeFallback(t *testing.T) {
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: "/unknown",
+		certFile: "/unknown",
 	}
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{fail: true}
@@ -146,7 +156,7 @@ func TestNotGenerateFakeIfValid(t *testing.T) {
 	provider := &ProviderStub{now: now}
 
 	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: generateCertificate(now, Month+1*Day, false).Name(),
+		certFile: generateCertificate(now, Month+1*Day, false).Name(),
 	}
 	userConfig := &GeneratorUserConfigStub{activated: true}
 	certbot := &CertbotStub{fail: true}
@@ -170,7 +180,7 @@ func TestRegenerateFake_IfDeviceIsNotActivated(t *testing.T) {
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: "/unknown",
+		certFile: "/unknown",
 	}
 	userConfig := &GeneratorUserConfigStub{activated: false}
 	certbot := &CertbotStub{fail: true}
@@ -193,7 +203,7 @@ func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
 	now := time.Now()
 	provider := &ProviderStub{now: now}
 	systemConfig := &GeneratorSystemConfigStub{
-		sslCertificateFile: generateCertificate(now, Month+1*Day, false).Name(),
+		certFile: generateCertificate(now, Month+1*Day, false).Name(),
 	}
 	userConfig := &GeneratorUserConfigStub{activated: false}
 	certbot := &CertbotStub{fail: true}
@@ -223,10 +233,20 @@ func generateCertificate(now time.Time, duration time.Duration, real bool) *os.F
 	if err != nil {
 		panic(err)
 	}
+	caCertFile, err := ioutil.TempFile("", "")
+	if err != nil {
+		panic(err)
+	}
+	caKeyFile, err := ioutil.TempFile("", "")
+	if err != nil {
+		panic(err)
+	}
 	fake := NewFake(
 		&GeneratorSystemConfigStub{
-			sslCertificateFile: certFile.Name(),
-			keyFile:            keyFile.Name(),
+			certFile:   certFile.Name(),
+			keyFile:    keyFile.Name(),
+			caSertFile: caCertFile.Name(),
+			caKeyFile:  caKeyFile.Name(),
 		},
 		&ProviderStub{now: now},
 		subjectOrganization,
