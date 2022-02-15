@@ -42,6 +42,14 @@ def test_deactivate(device, main_domain, domain):
     assert response.status_code == 200
 
 
+def test_fake_cert(selenium, device):
+    device.run_ssh('rm /var/snap/platform/current/syncloud.crt')
+    device.run_ssh('snap run platform.cli cert')
+    device.run_ssh('snap restart platform')
+    selenium.open_app()
+    selenium.screenshot('fake-cert')
+
+
 def test_activate(driver, selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
     driver.get("https://{0}".format(device_host))
