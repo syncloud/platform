@@ -37,26 +37,15 @@ class PlatformInstaller:
 
         check_output("/snap/platform/current/bin/update_certs.sh", shell=True)
 
-    def init_services(self):
-
-        injector = get_injector()
-
-        hardware = injector.hardware
-        hardware.init_disk()
-
-        check_output("/snap/platform/current/bin/cli cert", shell=True)
-
-        ldap_auth = injector.ldap_auth
-        ldap_auth.init()
-
-        nginx = injector.nginx
-        nginx.init_config()
-
     def install(self):
         self.init_configs()
         user_config = PlatformUserConfig()
         user_config.init_config()
-        self.init_services()
+        injector = get_injector()
+        injector.hardware.init_disk()
+        check_output("/snap/platform/current/bin/cli cert", shell=True)
+        injector.ldap_auth.init()
+        injector.nginx.init_config()
         self.clear_crontab()
 
     def pre_refresh(self):
@@ -74,7 +63,9 @@ class PlatformInstaller:
         self.init_configs()
         user_config = PlatformUserConfig()
         user_config.init_config()
-        self.init_services()
+        injector = get_injector()
+        injector.hardware.init_disk()
+        injector.nginx.init_config()
 
     def migrate_common_to_current(self):
         old_config_db = '/var/snap/platform/common/platform.db'
