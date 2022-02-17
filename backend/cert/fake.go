@@ -69,7 +69,7 @@ func (c *Fake) Generate() error {
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
-	caPrivKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	caPrivKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (c *Fake) Generate() error {
 		BasicConstraintsValid: true,
 	}
 
-	privateKey, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	privateKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
 		return err
 	}
