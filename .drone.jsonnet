@@ -1,5 +1,5 @@
 local name = "platform";
-local browser = "firefox";
+local browser = "chrome";
 local go = "1.17.3";
 
 local build(arch, testUI) = [{
@@ -318,7 +318,7 @@ local build(arch, testUI) = [{
         }
     ] + ( if testUI then [{
             name: "selenium",
-            image: "selenium/standalone-" + browser + ":4.0.0-beta-3-prerelease-20210402",
+            image: "selenium/standalone-" + browser + ":4.1.2-20220208",
             volumes: [{
                 name: "shm",
                 path: "/dev/shm"
