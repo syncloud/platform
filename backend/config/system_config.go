@@ -63,6 +63,14 @@ func (c *SystemConfig) SslKeyFile() string {
 	return c.get("ssl_key_file")
 }
 
+func (c *SystemConfig) SslCaCertificateFile() string {
+	return c.get("ssl_ca_certificate_file")
+}
+
+func (c *SystemConfig) SslCaKeyFile() string {
+	return c.get("ssl_ca_key_file")
+}
+
 func (c *SystemConfig) get(key string) string {
 	value, err := c.parser.GetInterpolated("platform", key)
 	if err != nil {

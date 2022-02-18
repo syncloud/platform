@@ -32,6 +32,8 @@ type CertificateGenerator struct {
 type GeneratorSystemConfig interface {
 	SslCertificateFile() string
 	SslKeyFile() string
+	SslCaCertificateFile() string
+	SslCaKeyFile() string
 }
 
 type GeneratorUserConfig interface {

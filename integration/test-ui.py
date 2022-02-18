@@ -42,6 +42,14 @@ def test_deactivate(device, main_domain, domain):
     assert response.status_code == 200
 
 
+def test_fake_cert(selenium, device, device_host):
+    device.run_ssh('rm /var/snap/platform/current/syncloud.crt')
+    device.run_ssh('snap run platform.cli cert')
+    device.run_ssh('snap restart platform')
+    selenium.driver.get("https://{0}".format(device_host))
+    selenium.screenshot('fake-cert')
+
+
 def test_activate(driver, selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
     driver.get("https://{0}".format(device_host))
@@ -55,6 +63,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('domain_input').send_keys(domain)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
+    wait_for_loading(driver)
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
@@ -63,6 +72,7 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
+    wait_for_loading(driver)
     selenium.find_by_xpath("//h1[text()='Log in']")
 
 
