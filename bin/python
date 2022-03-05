@@ -4,4 +4,4 @@ LIBS=$(echo ${DIR}/lib/*-linux-gnu*)
 LIBS=$LIBS:$(echo ${DIR}/lib/*-linux-gnu*)
 LIBS=$LIBS:$(echo ${DIR}/usr/lib/*-linux-gnu*)
 LIBS=$LIBS:$(echo ${DIR}/usr/local/lib)
-${DIR}/lib/*-linux*/ld-*.so --library-path $LIBS ${DIR}/usr/local/bin/python "$@"
+${DIR}/lib/*-linux*/ld-*.so --library-path $LIBS ${DIR}/usr/local/bin/python3 "$@"
