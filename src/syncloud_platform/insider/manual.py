@@ -19,7 +19,7 @@ class ManualPortMapper:
     def add_mapping(self, local_port, external_port, protocol):
         self.logger.warn('adding port mapping is not available in manual mode {0}, {1}'.format(
             self.manual_public_ip, self.manual_access_port))
-        elif local_port == 443:
+        if local_port == 443:
             return self.manual_access_port
         else:
             return external_port
