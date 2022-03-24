@@ -384,7 +384,6 @@ const mock = function (app, server, compiler) {
         portMappingsData.port_mappings[0].external_port = 81
         portMappingsData.port_mappings[1].external_port = 444
       } else {
-        portMappingsData.port_mappings[0].external_port = req.body.certificate_port
         portMappingsData.port_mappings[1].external_port = req.body.access_port
       }
       res.json({ success: true })

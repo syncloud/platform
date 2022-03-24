@@ -169,7 +169,6 @@ def set_access():
         request_json['upnp_enabled'],
         request_json['external_access'],
         public_ip,
-        int(request_json['certificate_port']),
         int(request_json['access_port'])
     )
     return jsonify(success=True), 200
