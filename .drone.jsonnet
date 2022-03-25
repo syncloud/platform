@@ -235,9 +235,9 @@ local build(arch, testUI) = [{
             commands: [
               "PACKAGE=$(cat package.name)",
               "apt update && apt install -y wget",
-              "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch,
-              "chmod +x syncloud-release-*",
-              "./syncloud-release-* publish -f $PACKAGE -b $DRONE_BRANCH"
+              "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch + " -O release --progress=dot:giga",
+              "chmod +x release",
+              "./release publish -f $PACKAGE -b $DRONE_BRANCH"
             ],
             when: {
                 branch: ["stable", "master"]

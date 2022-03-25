@@ -5,12 +5,12 @@ from os.path import join
 
 PLATFORM_CONFIG_NAME = 'platform.cfg'
 PLATFORM_APP_NAME = 'platform'
-WEB_CERTIFICATE_PORT = 80
 WEB_ACCESS_PORT = 443
 WEB_PROTOCOL = 'https'
 
 APPS_ROOT = '/snap'
 DATA_ROOT = '/var/snap'
+
 
 def env(key, default_value):
     if key in os.environ:
