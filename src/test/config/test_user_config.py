@@ -27,7 +27,6 @@ redirect_enabled = True
 user_domain = test
 domain_update_token = token1
 external_access = False
-manual_certificate_port = 80
 manual_access_port = 443
 activated = True
 

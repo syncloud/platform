@@ -291,10 +291,6 @@ func (c *UserConfig) DeletePublicIp() {
 	c.Delete("platform.public_ip")
 }
 
-func (c *UserConfig) SetManualCertificatePort(manualCertificatePort int) {
-	c.Upsert("platform.manual_certificate_port", strconv.Itoa(manualCertificatePort))
-}
-
 func (c *UserConfig) SetManualAccessPort(manualAccessPort int) {
 	c.Upsert("platform.manual_access_port", strconv.Itoa(manualAccessPort))
 }

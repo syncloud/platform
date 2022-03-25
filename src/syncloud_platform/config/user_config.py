@@ -102,12 +102,11 @@ class PlatformUserConfig:
         ])
 
     def update_device_access(self,
-                             upnp_enabled, external_access, public_ip, manual_certificate_port, manual_access_port):
+                             upnp_enabled, external_access, public_ip, manual_access_port):
         self._upsert([
             ('platform.external_access', from_bool(external_access)),
             ('platform.upnp', from_bool(upnp_enabled)),
             ('platform.public_ip', public_ip),
-            ('platform.manual_certificate_port', manual_certificate_port),
             ('platform.manual_access_port', manual_access_port)
         ])
 
@@ -125,9 +124,6 @@ class PlatformUserConfig:
         self._upsert([
             ('dkim_key', value)
         ])
-
-    def get_manual_certificate_port(self):
-        return self._get('platform.manual_certificate_port')
 
     def get_manual_access_port(self):
         return self._get('platform.manual_access_port')
