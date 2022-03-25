@@ -25,7 +25,6 @@ type DevicePlatformUserConfig interface {
 	SetWebSecretKey(key string)
 	SetExternalAccess(enabled bool)
 	SetUpnp(enabled bool)
-	SetManualCertificatePort(manualCertificatePort int)
 	SetManualAccessPort(manualAccessPort int)
 	DeletePublicIp()
 }
@@ -82,7 +81,6 @@ func (d *Device) resetAccess() error {
 	d.config.SetUpnp(false)
 	d.config.SetExternalAccess(false)
 	d.config.DeletePublicIp()
-	d.config.SetManualCertificatePort(0)
 	d.config.SetManualAccessPort(0)
 	return d.trigger.RunAccessChangeEvent()
 }
