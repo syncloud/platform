@@ -5,7 +5,6 @@
         <h1>Access</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2" id="wrapper" :style="{ visibility: visibility }">
-            <h3>Domain name</h3>
             <div class="setline">
               <div class="spandiv" id="external_mode">
                 <span class="span">External Access:</span>
@@ -65,9 +64,8 @@
               <div id="ports_block">
                 <div class="setline">
                   <div class="spandiv">
-                    <span class="span">External port</span>
                     <span style='white-space: nowrap;'>
-                          <label for="access_port" class="span" style="font-weight: 300">HTTPS port 443:</label>
+                          <label for="access_port" class="span" style="font-weight: 300">HTTPS/443 port:</label>
                           <input class="span" id="access_port" type="number"
                                  style="width: 100px; height: 30px; padding: 0 10px 0 10px"
                                  v-model.number="accessPort"
