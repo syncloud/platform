@@ -268,7 +268,7 @@ def test_set_access_mode_with_certbot(device, domain):
                                    json={'upnp_enabled': False,
                                          'external_access': False,
                                          'public_ip': 0,
-                                         'certificate_port': 0, 'access_port': 0})
+                                         'access_port': 0})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -327,8 +327,9 @@ def test_api_url_443(device, domain):
 
     response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
-                                         'external_access': False, 'public_ip': 0,
-                                         'certificate_port': 443, 'access_port': 443})
+                                         'external_access': False,
+                                         'public_ip': 0,
+                                         'access_port': 443})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -339,8 +340,9 @@ def test_api_url_443(device, domain):
 def test_api_url_10000(device, domain):
     response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
-                                         'external_access': False, 'public_ip': 0,
-                                         'certificate_port': 80, 'access_port': 10000})
+                                         'external_access': False,
+                                         'public_ip': 0,
+                                         'access_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
@@ -351,8 +353,9 @@ def test_api_url_10000(device, domain):
 def test_set_access_error(device, domain):
     response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
                                    json={'upnp_enabled': False,
-                                         'external_access': True, 'public_ip': 0,
-                                         'certificate_port': 0, 'access_port': 0})
+                                         'external_access': True,
+                                         'public_ip': 0,
+                                         'access_port': 0})
     assert '"success": false' in response.text
     assert 'Unable to verify open ports' in response.text
     assert response.status_code == 500, response.text

@@ -77,8 +77,8 @@ class Public:
 
         return result
 
-    def set_access(self, upnp_enabled, external_access, public_ip, certificate_port, access_port):
-        self.device.set_access(upnp_enabled, external_access, public_ip, certificate_port, access_port)
+    def set_access(self, upnp_enabled, external_access, public_ip, access_port):
+        self.device.set_access(upnp_enabled, external_access, public_ip, access_port)
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)

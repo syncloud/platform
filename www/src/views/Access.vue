@@ -5,7 +5,6 @@
         <h1>Access</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2" id="wrapper" :style="{ visibility: visibility }">
-            <h3>Domain name</h3>
             <div class="setline">
               <div class="spandiv" id="external_mode">
                 <span class="span">External Access:</span>
@@ -64,25 +63,9 @@
               </div>
               <div id="ports_block">
                 <div class="setline">
-                  <span class="span">External certificate</span>
-                  <span style='white-space: nowrap;'>
-                      <label for="certificate_port" class="span" style="font-weight: 300">HTTP port 80:</label>
-                      <input class="span" id="certificate_port" type="number"
-                             style="width: 100px; height: 30px; padding: 0 10px 0 10px"
-                             v-model.number="certificatePort"
-                      >
-                        <button id="certificate_port_warning" type=button @click="showCertificatePortWarning"
-                                class="control" style="background:transparent;">
-                          <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
-                        </button>
-                  </span>
-                </div>
-
-                <div class="setline">
                   <div class="spandiv">
-                    <span class="span">External access</span>
                     <span style='white-space: nowrap;'>
-                          <label for="access_port" class="span" style="font-weight: 300">HTTPS port 443:</label>
+                          <label for="access_port" class="span" style="font-weight: 300">HTTPS/443 port:</label>
                           <input class="span" id="access_port" type="number"
                                  style="width: 100px; height: 30px; padding: 0 10px 0 10px"
                                  v-model.number="accessPort"
@@ -113,14 +96,6 @@
     </div>
   </div>
 
-  <Dialog ref="certificate_port_warning">
-    <template v-slot:title>Certificate warning</template>
-    <template v-slot:text>
-      Certificate can only be obtained if external port is 80.
-      It is only used for certificate validation purposes.
-    </template>
-  </Dialog>
-
   <Dialog ref="access_port_warning">
     <template v-slot:title>Access port warning</template>
     <template v-slot:text>
@@ -142,11 +117,11 @@
       1. Allow syncloud.it device DNS to use public IP. By default it uses internal IP to allow DNS based app
       access inside local network.
       <br>
-      2. Maintain UPnP (auto) port mappings.
+      2. Maintain UPnP (auto) port mapping.
       <br><br>
-      External access will not change device itself ports, they are always 80 and 443.
+      External access will not change device itself port, it is always 443.
       <br><br>
-      Syncloud.it DNS service verifies open ports (internet accessibility) before enabling external access for
+      Syncloud.it DNS service verifies open port (internet accessibility) before enabling external access for
       convenience.
       <br><br>
       In case of custom domain name external access page should not be used.
@@ -198,7 +173,6 @@ export default {
       upnp: false,
       upnpAvailable: false,
       accessPort: 0,
-      certificatePort: 0,
       visibility: 'hidden'
     }
   },
@@ -222,13 +196,6 @@ export default {
         $('#upnp_warning').hide('slow')
       } else {
         $('#upnp_warning').show('slow')
-      }
-    },
-    certificatePort (val) {
-      if (val !== 80) {
-        $('#certificate_port_warning').show('slow')
-      } else {
-        $('#certificate_port_warning').hide('slow')
       }
     },
     accessPort (val) {
@@ -278,9 +245,6 @@ export default {
     showAccessPortWarning () {
       this.$refs.access_port_warning.show()
     },
-    showCertificatePortWarning () {
-      this.$refs.certificate_port_warning.show()
-    },
     showExternalAccessInfo () {
       this.$refs.external_access_info.show()
     },
@@ -315,12 +279,6 @@ export default {
     reloadPortMappings () {
       axios.get('/rest/access/port_mappings')
         .then(resp => {
-          const certificatePortMapping = resp.data.port_mappings.find(function (mapping) {
-            return mapping.local_port === 80
-          })
-          if (certificatePortMapping) {
-            this.certificatePort = certificatePortMapping.external_port
-          }
           const accessPortMapping = resp.data.port_mappings.find(function (mapping) {
             return mapping.local_port === 443
           })
@@ -342,18 +300,11 @@ export default {
       const requestData = {
         external_access: this.externalAccess,
         upnp_enabled: false,
-        certificate_port: 0,
         access_port: 0
       }
       if (this.externalAccess) {
         requestData.upnp_enabled = this.upnp
         if (!this.upnp) {
-          if (isValidPort(this.certificatePort)) {
-            this.$refs.error.showAxios(error('certificate port (' + this.certificatePort + ') has to be between 1 and 65535'))
-            this.progressHide()
-            return
-          }
-          requestData.certificate_port = this.certificatePort
           if (isValidPort(this.accessPort)) {
             this.$refs.error.showAxios(error('access port (' + this.accessPort + ') has to be between 1 and 65535'))
             this.progressHide()

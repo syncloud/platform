@@ -8,7 +8,6 @@ jest.setTimeout(30000)
 
 const defaultPortMappings = {
   port_mappings: [
-    { local_port: 80, external_port: 80 },
     { local_port: 443, external_port: 10001 }
   ],
   success: true
@@ -289,8 +288,7 @@ test('Ip auto detect', async () => {
   wrapper.unmount()
 })
 
-test('Set access and certificate ports', async () => {
-  let savedCertificatePort
+test('Set access port', async () => {
   let savedAccessPort
   const showError = jest.fn()
 
@@ -310,7 +308,6 @@ test('Set access and certificate ports', async () => {
   mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
   mock.onPost('/rest/access/set_access').reply(function (config) {
     const request = JSON.parse(config.data)
-    savedCertificatePort = request.certificate_port
     savedAccessPort = request.access_port
     return [200, { success: true }]
   })
@@ -338,12 +335,10 @@ test('Set access and certificate ports', async () => {
 
   await flushPromises()
   await wrapper.find('#tgl_external').trigger('toggle')
-  await wrapper.find('#certificate_port').setValue('1')
   await wrapper.find('#access_port').setValue(2)
   await wrapper.find('#btn_save').trigger('click')
 
   expect(showError).toHaveBeenCalledTimes(0)
-  expect(savedCertificatePort).toBe(1)
   expect(savedAccessPort).toBe(2)
   wrapper.unmount()
 })
@@ -510,64 +505,5 @@ test('Enable external wrong access port', async () => {
   await flushPromises()
 
   expect(error).toContain('access port')
-  wrapper.unmount()
-})
-
-test('Enable external wrong certificate port', async () => {
-
-  const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
-    {
-      data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: true,
-        public_ip: '111.111.111.111'
-      },
-      success: true
-    }
-  )
-
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
-    return [200, { success: true }]
-  })
-
-  let error = ''
-  const showError = (err) => {
-    error = err.response.data.message
-  }
-
-  const wrapper = mount(Access,
-    {
-      attachTo: document.body,
-      global: {
-        stubs: {
-          Error: {
-            template: '<span/>',
-            methods: {
-              showAxios: showError
-            }
-          },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
-          Dialog: true
-        }
-      }
-    }
-  )
-
-  await flushPromises()
-
-  await wrapper.find('#tgl_external').trigger('toggle')
-  await wrapper.find('#tgl_upnp').trigger('toggle')
-  await wrapper.find('#certificate_port').setValue(0)
-  await wrapper.find('#btn_save').trigger('click')
-
-  await flushPromises()
-
-  expect(error).toContain('certificate port')
   wrapper.unmount()
 })

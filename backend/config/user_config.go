@@ -26,8 +26,8 @@ var OldConfig string
 var DefaultConfigDb string
 
 func init() {
-	OldConfig = fmt.Sprintf("%s/user_platform.cfg", os.Getenv("SNAP_COMMON"))
-	DefaultConfigDb = fmt.Sprintf("%s/platform.db", os.Getenv("SNAP_DATA"))
+	OldConfig = fmt.Sprintf("/var/snap/platform/common/user_platform.cfg")
+	DefaultConfigDb = fmt.Sprintf("/var/snap/platform/current/platform.db")
 }
 
 func NewUserConfig(file string, oldConfigFile string) *UserConfig {
@@ -289,10 +289,6 @@ func (c *UserConfig) SetPublicIp(publicIp string) {
 
 func (c *UserConfig) DeletePublicIp() {
 	c.Delete("platform.public_ip")
-}
-
-func (c *UserConfig) SetManualCertificatePort(manualCertificatePort int) {
-	c.Upsert("platform.manual_certificate_port", strconv.Itoa(manualCertificatePort))
 }
 
 func (c *UserConfig) SetManualAccessPort(manualAccessPort int) {
