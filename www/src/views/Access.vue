@@ -7,14 +7,16 @@
           <div class="col2" id="wrapper" :style="{ visibility: visibility }">
             <div class="setline">
               <div class="spandiv" id="external_mode">
-                <span class="span">External Access:</span>
-                <Switch
-                  id="tgl_external"
-                  :checked="externalAccess"
-                  @toggle="toggleExternalAccess"
-                  on-label="ON"
-                  off-label="OFF"
-                />
+                <span class="span" style="min-width: 170px">External Access:</span>
+                <div style="display: inline-block;min-width: 110px">
+                  <Switch
+                    id="tgl_external"
+                    :checked="externalAccess"
+                    @toggle="toggleExternalAccess"
+                    on-label="ON"
+                    off-label="OFF"
+                  />
+                </div>
               </div>
               <button type=button @click="showExternalAccessInfo" class="control" style=" background:transparent;">
                 <i class='fa fa-question-circle fa-lg'></i>
@@ -22,15 +24,54 @@
             </div>
             <div id="external_block">
               <div class="setline">
+                <div class="spandiv" id="ipv4_enabled">
+                  <span class="span" style="min-width: 170px">IP v4:</span>
+                  <div style="display: inline-block;min-width: 110px">
+                    <Switch
+                      id="tgl_external"
+                      :checked="externalAccess"
+                      @toggle="toggleExternalAccess"
+                      on-label="ON"
+                      off-label="OFF"
+                    />
+                  </div>
+                </div>
+                <button type=button @click="showExternalAccessInfo" class="control" style=" background:transparent;">
+                  <i class='fa fa-question-circle fa-lg'></i>
+                </button>
+              </div>
+
+              <div class="setline">
+                <div class="spandiv" id="ipv6_enabled">
+                  <span class="span" style="min-width: 170px">IP v6:</span>
+                  <div style="display: inline-block;min-width: 110px">
+                    <Switch
+                      id="tgl_external"
+                      :checked="externalAccess"
+                      @toggle="toggleExternalAccess"
+                      on-label="ON"
+                      off-label="OFF"
+                    />
+                  </div>
+                </div>
+
+                <button type=button @click="showExternalAccessInfo" class="control" style=" background:transparent;">
+                  <i class='fa fa-question-circle fa-lg'></i>
+                </button>
+              </div>
+
+              <div class="setline">
                 <div class="spandiv">
-                  <span class="span">Auto detect IP:</span>
-                  <Switch
-                    id="tgl_ip_autodetect"
-                    :checked="ipAutoDetect"
-                    @toggle="toggleIpAutoDetect"
-                    on-label="ON"
-                    off-label="OFF"
-                  />
+                  <span class="span" style="min-width: 170px">Auto detect IP:</span>
+                  <div style="display: inline-block;min-width: 110px">
+                    <Switch
+                      id="tgl_ip_autodetect"
+                      :checked="ipAutoDetect"
+                      @toggle="toggleIpAutoDetect"
+                      on-label="ON"
+                      off-label="OFF"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -47,14 +88,16 @@
 
               <div class="setline">
                 <div class="spandiv">
-                  <span class="span">Auto (UPnP):</span>
-                  <Switch
-                    id="tgl_upnp"
-                    :checked="upnp"
-                    @toggle="toggleUpnp"
-                    on-label="ON"
-                    off-label="OFF"
-                  />
+                  <span class="span" style="min-width: 170px">Auto (UPnP):</span>
+                  <div style="display: inline-block;min-width: 110px">
+                    <Switch
+                      id="tgl_upnp"
+                      :checked="upnp"
+                      @toggle="toggleUpnp"
+                      on-label="ON"
+                      off-label="OFF"
+                    />
+                  </div>
                   <button id="upnp_warning" type=button @click="showUpnpDisabledWarning"
                           class="control" style="background:transparent;">
                     <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
@@ -65,7 +108,7 @@
                 <div class="setline">
                   <div class="spandiv">
                     <span style='white-space: nowrap;'>
-                          <label for="access_port" class="span" style="font-weight: 300">HTTPS/443 port:</label>
+                          <label for="access_port" class="span" style="font-weight: 300; min-width: 170px">HTTPS/443 port:</label>
                           <input class="span" id="access_port" type="number"
                                  style="width: 100px; height: 30px; padding: 0 10px 0 10px"
                                  v-model.number="accessPort"
