@@ -125,7 +125,7 @@ def test_settings_access(driver, ui_mode, screenshot_dir):
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
     screenshots(driver, screenshot_dir, 'settings_access-' + ui_mode)
     driver.find_element_by_xpath(btn).click()
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.ID, "tgl_ip_autodetect")))
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]')))
     screenshots(driver, screenshot_dir, 'settings_access_external_access-' + ui_mode)
 
 
