@@ -330,7 +330,6 @@ export default {
         this.initUpnp(this.upnp)
         that.upnpAvailable = accessData.upnp_available
         this.reloadPortMappings()
-        this.ipv4
       }
       axios.get('/rest/access/access')
         .then(resp => Common.checkForServiceError(resp.data.data, () => onComplete(resp.data.data), onError))
@@ -405,8 +404,7 @@ export default {
     },
     toggleIpv6 () {
       this.ipv6Enabled = !this.ipv6Enabled
-    },
-
+    }
   }
 }
 </script>
