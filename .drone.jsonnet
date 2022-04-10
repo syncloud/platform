@@ -133,7 +133,7 @@ local build(arch, testUI) = [{
         }
     ] + ( if testUI then [
         {
-            name: "test-ui-desktop-jessie",
+            name: "test-ui-" + mode + "-" + distro,
             image: "python:3.8-slim-buster",
             environment: {
                 REDIRECT_USER: {
@@ -147,79 +147,15 @@ local build(arch, testUI) = [{
               "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-jessie --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain=$(cat ../domain) --device-host=device-" + distro + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
                 path: "/dev/shm"
             }]
-        },
-        {
-            name: "test-ui-mobile-jessie",
-            image: "python:3.8-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
-            commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
-              "pip install -r dev_requirements.txt",
-              "cd integration",
-              "py.test -x -s test-ui.py --distro=jessie --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-jessie  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
-            ],
-            volumes: [{
-                name: "shm",
-                path: "/dev/shm"
-            }]
-        },
-        {
-            name: "test-ui-desktop-buster",
-            image: "python:3.8-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
-            commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
-              "pip install -r dev_requirements.txt",
-              "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=desktop --domain=$(cat ../domain) --device-host=device-buster --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
-            ],
-            volumes: [{
-                name: "shm",
-                path: "/dev/shm"
-            }]
-        },
-        {
-            name: "test-ui-mobile-buster",
-            image: "python:3.8-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
-            commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
-              "pip install -r dev_requirements.txt",
-              "cd integration",
-              "py.test -x -s test-ui.py --distro=buster --ui-mode=mobile --domain=$(cat ../domain) --device-host=device-buster  --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser,
-            ],
-            volumes: [{
-                name: "shm",
-                path: "/dev/shm"
-            }]
-        }
+        } 
+        for mode in ["desktop", "mobile"]
+        for distro in ["buster", "jessie"] 
     ] else []) + [
         {
             name: "upload",
