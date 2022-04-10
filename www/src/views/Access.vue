@@ -28,27 +28,40 @@
                   <span class="span" style="min-width: 170px">IP v4:</span>
                   <div style="display: inline-block;min-width: 110px">
                     <Switch
-                      id="tgl_external"
-                      :checked="externalAccess"
-                      @toggle="toggleExternalAccess"
+                      id="tgl_ipv4"
+                      :checked="ipv4enables"
+                      @toggle="toggleIpv4"
                       on-label="ON"
                       off-label="OFF"
                     />
                   </div>
                 </div>
-                <button type=button @click="showExternalAccessInfo" class="control" style=" background:transparent;">
-                  <i class='fa fa-question-circle fa-lg'></i>
-                </button>
-              </div>
+            </div>
+            <div id="ipv4_block">
+              <div class="setline">
+                <div class="spandiv" id="ipv4_public">
+                  <span class="span" style="min-width: 170px">IP v4 Mode:</span>
+                  <div style="display: inline-block;min-width: 110px">
+                    <Switch
+                      id="tgl_external"
+                      :checked="ipv4Public"
+                      @toggle="toggleIpv4Public"
+                      on-label="Public"
+                      off-label="Private"
+                    />
+                  </div>
+                </div>
+            </div>
+          </div>
 
               <div class="setline">
                 <div class="spandiv" id="ipv6_enabled">
                   <span class="span" style="min-width: 170px">IP v6:</span>
                   <div style="display: inline-block;min-width: 110px">
                     <Switch
-                      id="tgl_external"
-                      :checked="externalAccess"
-                      @toggle="toggleExternalAccess"
+                      id="tgl_ipv6"
+                      :checked="ipv6enabled"
+                      @toggle="toggleIpv6"
                       on-label="ON"
                       off-label="OFF"
                     />
@@ -216,7 +229,10 @@ export default {
       upnp: false,
       upnpAvailable: false,
       accessPort: 0,
-      visibility: 'hidden'
+      visibility: 'hidden',
+      ipv4Enabled: false,
+      ipv4Public: false,
+      ipv6Enabled: false
     }
   },
   components: {
@@ -314,6 +330,7 @@ export default {
         this.initUpnp(this.upnp)
         that.upnpAvailable = accessData.upnp_available
         this.reloadPortMappings()
+        this.ipv4
       }
       axios.get('/rest/access/access')
         .then(resp => Common.checkForServiceError(resp.data.data, () => onComplete(resp.data.data), onError))
@@ -343,7 +360,10 @@ export default {
       const requestData = {
         external_access: this.externalAccess,
         upnp_enabled: false,
-        access_port: 0
+        access_port: 0,
+        ipv4_enabled: this.ipv4Enabled,
+        ipv4_public: this.ipv4Public,
+        ipv6_enabled: this.ipv6Enabled
       }
       if (this.externalAccess) {
         requestData.upnp_enabled = this.upnp
@@ -376,7 +396,17 @@ export default {
     },
     toggleUpnp () {
       this.upnp = !this.upnp
-    }
+    },
+    toggleIpv4 () {
+      this.ipv4Enabled = !this.ipv4Enabled
+    },
+    toggleIpv4Public () {
+      this.ipv4Public = !this.ipv4Public
+    },
+    toggleIpv6 () {
+      this.ipv6Enabled = !this.ipv6Enabled
+    },
+
   }
 }
 </script>
