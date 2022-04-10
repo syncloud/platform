@@ -43,7 +43,7 @@
                   <span class="span" style="min-width: 170px">IP v4 Mode:</span>
                   <div style="display: inline-block;min-width: 110px">
                     <Switch
-                      id="tgl_external"
+                      id="tgl_ipv4_public"
                       :checked="ipv4Public"
                       @toggle="toggleIpv4Public"
                       on-label="Public"
