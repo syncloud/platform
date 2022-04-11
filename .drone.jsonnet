@@ -227,15 +227,16 @@ local build(arch, testUI) = [{
                 command_timeout: "2m",
                 target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + arch,
                 source: "artifact/*",
-		             strip_components: 1,
-            volumes: [
-               {
-                    name: "videos",
-                    path: "/drone/src/artifact/videos"
-                }
-            ]
-               },
-            when: {
+                privileged: true,
+		            strip_components: 1,
+                volumes: [
+                   {
+                        name: "videos",
+                        path: "/drone/src/artifact/videos"
+                    }
+               ]
+           },
+           when: {
               status: [ "failure", "success" ]
             }
         }
