@@ -11,16 +11,6 @@ def project_dir():
     return join(dirname(__file__), '..')
 
 
-def pytest_addoption(parser):
-    syncloudlib.integration.conftest.pytest_addoption(parser)
-    parser.addoption("--arch", action="store", default="unset-arch")
-
-
-@pytest.fixture(scope='session')
-def arch(request):
-    return request.config.getoption("--arch")
-
-
 @pytest.fixture(scope='session')
 def main_domain():
     return 'syncloud.info'
@@ -29,4 +19,3 @@ def main_domain():
 @pytest.fixture(scope='session')
 def full_domain(domain, main_domain):
     return '{}.{}'.format(domain, main_domain)
-
