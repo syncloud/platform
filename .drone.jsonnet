@@ -112,26 +112,7 @@ local build(arch, testUI) = [{
               "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }] else []) + [
-  {
-        name: "selenium-video",
-        image: "selenium/video:ffmpeg-4.3.1-20220208",
-        detach: true,
-        environment: {
-            "DISPLAY_CONTAINER_NAME": "selenium",
-             FILE_NAME: "video.mkv"
-        },
-        volumes: [
-            {
-                name: "shm",
-                path: "/dev/shm"
-            },
-           {
-                name: "videos",
-                path: "/videos"
-            }
-        ]
-    },
-          {
+        {
             name: "test-intergation-buster",
             image: "python:3.8-slim-buster",
             environment: {
@@ -151,6 +132,25 @@ local build(arch, testUI) = [{
             ]
         }
     ] + ( if testUI then [
+ {
+        name: "selenium-video",
+        image: "selenium/video:ffmpeg-4.3.1-20220208",
+        detach: true,
+        environment: {
+            "DISPLAY_CONTAINER_NAME": "selenium",
+             FILE_NAME: "video.mkv"
+        },
+        volumes: [
+            {
+                name: "shm",
+                path: "/dev/shm"
+            },
+           {
+                name: "videos",
+                path: "/videos"
+            }
+        ]
+    }] + [
         {
             name: "test-ui-" + mode + "-" + distro,
             image: "python:3.8-slim-buster",
@@ -166,7 +166,7 @@ local build(arch, testUI) = [{
               "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain=$(cat ../domain) --device-host=device-" + distro + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+".com --device-host=device-" + distro + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
@@ -175,7 +175,24 @@ local build(arch, testUI) = [{
         } 
         for mode in ["desktop", "mobile"]
         for distro in ["buster", "jessie"] 
-    ] else []) + [
+    ] else []) + 
+   [
+    {
+        name: "test-upgrade",
+        image: "python:3.8-slim-buster",
+        commands: [
+          "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
+          "cd integration",
+          "./deps.sh",
+          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster.com --app-archive-path=$APP_ARCHIVE_PATH --device-host=" + arch + "-buster.com --app=" + name 
+        ],
+        privileged: true,
+        volumes: [{
+            name: "videos",
+            path: "/videos"
+        }]
+    } 
+] + [
         {
             name: "upload",
             image: "debian:buster-slim",
@@ -193,20 +210,6 @@ local build(arch, testUI) = [{
               "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch + " -O release --progress=dot:giga",
               "chmod +x release",
               "./release publish -f $PACKAGE -b $DRONE_BRANCH"
-            ],
-            when: {
-                branch: ["stable", "master"]
-            }
-        },
-        {
-            name: "test-store",
-            image: "python:3.8-slim-buster",
-            
-            commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
-              "pip install -r dev_requirements.txt",
-              "cd integration",
-              "py.test -x -s test-store.py --distro=buster --domain=$(cat ../domain) --device-host=device-buster --app=" + name,
             ],
             when: {
                 branch: ["stable", "master"]
@@ -249,7 +252,7 @@ local build(arch, testUI) = [{
     },
     services: ( if arch != "arm64" then [ 
         {
-            name: "device-jessie",
+            name: arch + "-jessie.com",
             image: "syncloud/bootstrap-" + arch,
             privileged: true,
             volumes: [
@@ -264,7 +267,7 @@ local build(arch, testUI) = [{
             ]
         }] else []) + [
         {
-            name: "device-buster",
+            name: arch + "-buster.com",
             image: "syncloud/bootstrap-buster-" + arch,
             privileged: true,
             volumes: [
