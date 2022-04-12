@@ -86,7 +86,7 @@ local build(arch, testUI) = [{
               "apt update",
               "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3 libffi-dev",
               "pip install -r requirements.txt",
-              "pip install -r dev_requirements.txt",
+              "pip install -r integration/requirements.txt",
               "cd src",
               "py.test test"
             ]
@@ -104,11 +104,9 @@ local build(arch, testUI) = [{
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
-              "./integration/wait-ssh.sh device-jessie.com",
-              "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie.com --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie.com --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "./deps.sh",
+              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie.com --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }] else []) + [
         {
@@ -123,11 +121,9 @@ local build(arch, testUI) = [{
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
-              "./integration/wait-ssh.sh device-buster.com",
-              "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster.com --app-archive-path=$(realpath ../*.snap) --device-host=device-buster.com --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "./deps.sh",
+              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster.com --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
     ] + ( if testUI then [
@@ -162,10 +158,9 @@ local build(arch, testUI) = [{
                 }
             },
             commands: [
-              "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
-              "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+".com --device-host=device-" + distro + ".com --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
+              "./deps.sh",
+              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+".com --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
@@ -183,7 +178,7 @@ local build(arch, testUI) = [{
           "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
           "cd integration",
           "./deps.sh",
-          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster.com --app-archive-path=$APP_ARCHIVE_PATH --device-host=" + arch + "-buster.com --app=" + name 
+          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster.com --app-archive-path=$APP_ARCHIVE_PATH --app=" + name 
         ],
         privileged: true,
         volumes: [{
