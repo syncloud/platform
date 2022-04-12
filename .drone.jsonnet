@@ -105,7 +105,7 @@ local build(arch, testUI) = [{
             },
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
-              "./integration/wait-ssh.sh device-jessie",
+              "./integration/wait-ssh.sh device-jessie.com",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie.com --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie.com --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
@@ -124,7 +124,7 @@ local build(arch, testUI) = [{
             },
             commands: [
               "apt-get update && apt-get install -y sshpass openssh-client netcat rustc apache2-utils libffi-dev",
-              "./integration/wait-ssh.sh device-buster",
+              "./integration/wait-ssh.sh device-buster.com",
               "pip install -r dev_requirements.txt",
               "cd integration",
               "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster.com --app-archive-path=$(realpath ../*.snap) --device-host=device-buster.com --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
