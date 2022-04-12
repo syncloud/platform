@@ -16,7 +16,6 @@ local build(arch, testUI) = [{
             image: "debian:buster-slim",
             commands: [
                 "echo $DRONE_BUILD_NUMBER > version",
-                "echo " + arch + "-$DRONE_BRANCH > domain"
             ]
         },
         {
@@ -109,7 +108,7 @@ local build(arch, testUI) = [{
               "./integration/wait-ssh.sh device-jessie",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=jessie --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie.com --app-archive-path=$(realpath ../*.snap) --device-host=device-jessie.com --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }] else []) + [
         {
@@ -128,7 +127,7 @@ local build(arch, testUI) = [{
               "./integration/wait-ssh.sh device-buster",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s verify.py --distro=buster --domain=$(cat ../domain) --app-archive-path=$(realpath ../*.snap) --device-host=device-buster --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster.com --app-archive-path=$(realpath ../*.snap) --device-host=device-buster.com --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
     ] + ( if testUI then [
@@ -166,7 +165,7 @@ local build(arch, testUI) = [{
               "apt-get update && apt-get install -y sshpass openssh-client libffi-dev",
               "pip install -r dev_requirements.txt",
               "cd integration",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+".com --device-host=device-" + distro + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+".com --device-host=device-" + distro + ".com --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
