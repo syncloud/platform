@@ -106,7 +106,7 @@ local build(arch, testUI) = [{
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie.com --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }] else []) + [
         {
@@ -123,7 +123,7 @@ local build(arch, testUI) = [{
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster.com --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
             ]
         }
     ] + ( if testUI then [
@@ -160,7 +160,7 @@ local build(arch, testUI) = [{
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+".com --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
             volumes: [{
                 name: "shm",
@@ -178,7 +178,7 @@ local build(arch, testUI) = [{
           "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
           "cd integration",
           "./deps.sh",
-          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster.com --app-archive-path=$APP_ARCHIVE_PATH --app=" + name 
+          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster --app-archive-path=$APP_ARCHIVE_PATH --app=" + name 
         ],
         privileged: true,
         volumes: [{
@@ -246,7 +246,7 @@ local build(arch, testUI) = [{
     },
     services: ( if arch != "arm64" then [ 
         {
-            name: arch + "-jessie.com",
+            name: arch + "-jessie",
             image: "syncloud/bootstrap-" + arch,
             privileged: true,
             volumes: [
@@ -261,7 +261,7 @@ local build(arch, testUI) = [{
             ]
         }] else []) + [
         {
-            name: arch + "-buster.com",
+            name: arch + "-buster",
             image: "syncloud/bootstrap-buster-" + arch,
             privileged: true,
             volumes: [
