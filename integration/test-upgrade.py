@@ -1,5 +1,5 @@
 import pytest
-from subprocess import check_output
+from subprocess import run
 from syncloudlib.integration.hosts import add_host_alias
 from syncloudlib.integration.installer import local_install
 from syncloudlib.http import wait_for_rest
@@ -14,8 +14,8 @@ def module_setup(request, device, artifact_dir):
     def module_teardown():
         device.run_ssh('journalctl > {0}/refresh.journalctl.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), artifact_dir)
-        check_output('cp /videos/* {0}'.format(artifact_dir), shell=True, throw=False)
-        check_output('chmod -R a+r {0}'.format(artifact_dir), shell=True)
+        run('cp /videos/* {0}'.format(artifact_dir), shell=True)
+        run('chmod -R a+r {0}'.format(artifact_dir), shell=True)
 
     request.addfinalizer(module_teardown)
 
