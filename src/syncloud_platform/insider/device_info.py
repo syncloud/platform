@@ -1,4 +1,3 @@
-from syncloud_platform.insider.util import protocol_to_port, secure_to_protocol
 
 
 def construct_url(external_port, domain, app=None):
@@ -13,8 +12,7 @@ def construct_url(external_port, domain, app=None):
 
 
 class DeviceInfo:
-    def __init__(self, user_platform_config, port_config):
-        self.port_config = port_config
+    def __init__(self, user_platform_config):
         self.user_platform_config = user_platform_config
 
     def domain(self):
@@ -38,12 +36,7 @@ class DeviceInfo:
         return '{0}.{1}'.format(app_name, self.domain())
 
     def url(self, app=None):
-        port = 443
-        if self.user_platform_config.get_external_access():
-            mapping = self.port_config.get(port, 'TCP')
-            if mapping:
-                port = mapping.external_port
-
+        port = self.user_platform_config.get_external_access_port()
         domain_name = self.domain()
         if domain_name:
             return construct_url(port, domain_name, app)

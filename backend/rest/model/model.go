@@ -1,5 +1,13 @@
 package model
 
+type Access struct {
+	ExternalAccess bool  `json:"external_access"`
+	PublicIp       *bool `json:"public_ip,omitempty"`
+	Ipv4Enabled    bool  `json:"ipv4_enabled"`
+	Ipv4Mode       bool  `json:"ipv4_public"`
+	Ipv6Enabled    bool  `json:"ipv6_enabled"`
+}
+
 type RedirectInfoResponse struct {
 	Domain string `json:"domain"`
 }

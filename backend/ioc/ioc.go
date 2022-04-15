@@ -2,6 +2,7 @@ package ioc
 
 import (
 	"github.com/golobby/container/v3"
+	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
@@ -77,10 +78,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
 		return cron.NewCertificateJob(certGenerator)
 	})
-	Singleton(func(userConfig *config.UserConfig) *cron.PortsJob {
-		return cron.NewPortsJob(userConfig)
+	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
+		return cron.NewExternalAddressJob(job)
 	})
-	Singleton(func(job1 *cron.CertificateJob, job2 *cron.PortsJob, userConfig *config.UserConfig) *cron.Cron {
+	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, userConfig *config.UserConfig) *cron.Cron {
 		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *job.Master { return job.NewMaster() })
@@ -116,6 +117,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 
 	Singleton(func(certGenerator *cert.CertificateGenerator, certReader *cert.Reader) *rest.Certificate {
 		return rest.NewCertificate(certGenerator, certReader)
+	})
+
+	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger) *access.ExternalAddress {
+		return access.New(userConfig, redirectService, eventTrigger)
 	})
 
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,

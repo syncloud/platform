@@ -100,6 +100,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/certificate", Handle(b.certificate.Certificate)).Methods("GET")
 	r.HandleFunc("/certificate/log", Handle(b.certificate.CertificateLog)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
+	r.HandleFunc("/access/access", Handle(b.GetAccess)).Methods("GET")
+	r.HandleFunc("/access/access", Handle(b.SetAccess)).Methods("POST")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -244,6 +246,34 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 	fmt.Printf("redirect info\n")
 	response := &model.RedirectInfoResponse{
 		Domain: b.userConfig.GetRedirectDomain(),
+	}
+	return response, nil
+}
+
+func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
+	response := &model.Access{
+
+	}
+	return response, nil
+}
+
+func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
+	var request model.Access
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("access request is wrong")
+	}
+
+
+	public.set_access(
+		request_json['upnp_enabled'],
+		request_json['external_access'],
+		public_ip,
+		int(request_json['access_port'])
+	)
+	response := &model.Access{
+
 	}
 	return response, nil
 }

@@ -143,37 +143,6 @@ def available_apps():
     return jsonify(apps=convertible.to_dict(public.available_apps())), 200
 
 
-@app.route("/rest/access/port_mappings", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def port_mappings():
-    return jsonify(success=True, port_mappings=convertible.to_dict(public.port_mappings())), 200
-
-
-@app.route("/rest/access/access", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def access():
-    return jsonify(success=True, data=public.access()), 200
-
-
-@app.route("/rest/access/set_access", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def set_access():
-    public_ip = None
-    request_json = request.json
-    if 'public_ip' in request_json:
-        public_ip = request_json['public_ip']
-    public.set_access(
-        request_json['upnp_enabled'],
-        request_json['external_access'],
-        public_ip,
-        int(request_json['access_port'])
-    )
-    return jsonify(success=True), 200
-
-
 @app.route("/rest/access/network_interfaces", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -278,6 +247,7 @@ def app_image():
 @app.route("/rest/event/trigger", methods=["POST"])
 @app.route("/rest/certificate", methods=["GET"])
 @app.route("/rest/certificate/log", methods=["GET"])
+@app.route("/rest/access/access", methods=["GET", "POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

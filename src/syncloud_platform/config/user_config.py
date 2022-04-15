@@ -92,6 +92,9 @@ class PlatformUserConfig:
         result = self._get('platform.external_access')
         return to_bool(result)
 
+    def get_external_access_port(self):
+        return self._get('platform.external_access_port', 443)
+
     def is_redirect_enabled(self):
         result = self._get('platform.redirect_enabled')
         return to_bool(result)
@@ -101,11 +104,9 @@ class PlatformUserConfig:
             ('platform.redirect_enabled', from_bool(enabled))
         ])
 
-    def update_device_access(self,
-                             upnp_enabled, external_access, public_ip, manual_access_port):
+    def update_device_access(self, external_access, public_ip, manual_access_port):
         self._upsert([
             ('platform.external_access', from_bool(external_access)),
-            ('platform.upnp', from_bool(upnp_enabled)),
             ('platform.public_ip', public_ip),
             ('platform.manual_access_port', manual_access_port)
         ])
