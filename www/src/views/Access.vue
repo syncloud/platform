@@ -140,7 +140,7 @@ import Switch from '@/components/Switch'
 import 'gasparesganga-jquery-loading-overlay'
 
 function isValidPort (port) {
-  return Number.isNaN(port) || port < 1 || port > 65535
+  return !(Number.isNaN(port) || port < 1 || port > 65535)
 }
 
 function error (message) {
@@ -250,16 +250,14 @@ export default {
         } else {
           that.ipAutoDetect = true
         }
-        this.accessPort = accessData.access_port
+        if (accessData.access_port !== undefined)
+          this.accessPort = accessData.access_port
         this.ipv4Enabled = accessData.ipv4_enabled
         this.ipv4Public = accessData.ipv4_public
         this.ipv6Enabled = accessData.ipv6_enabled
-        // this.displayIpv4Mode(that.ipv4Enabled)
-        // this.displayIpv4Manual(that.ipv4Public)
-        // this.displayIpv4Autodetect(that.ipAutoDetect)
         this.progressHide()
       }
-      axios.get('/rest/access/access')
+      axios.get('/rest/access')
         .then(resp => Common.checkForServiceError(resp.data.data, () => onComplete(resp.data.data), onError))
         .catch(onError)
     },
@@ -274,8 +272,8 @@ export default {
         ipv4_public: this.ipv4Public,
         ipv6_enabled: this.ipv6Enabled
       }
-      if (this.ipv4Public) {
-        if (isValidPort(this.accessPort)) {
+      if (this.ipv4Enabled) {
+        if (!isValidPort(this.accessPort)) {
           this.$refs.error.showAxios(error('access port (' + this.accessPort + ') has to be between 1 and 65535'))
           this.progressHide()
           return
@@ -290,7 +288,7 @@ export default {
         that.$refs.error.showAxios(err)
         this.progressHide()
       }
-      axios.post('/rest/access/access', requestData)
+      axios.post('/rest/access', requestData)
         .then(response => Common.checkForServiceError(response.data, this.reload, onError))
         .catch(onError)
     },

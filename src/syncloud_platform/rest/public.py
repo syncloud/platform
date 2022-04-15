@@ -247,7 +247,7 @@ def app_image():
 @app.route("/rest/event/trigger", methods=["POST"])
 @app.route("/rest/certificate", methods=["GET"])
 @app.route("/rest/certificate/log", methods=["GET"])
-@app.route("/rest/access/access", methods=["GET", "POST"])
+@app.route("/rest/access", methods=["GET", "POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():
