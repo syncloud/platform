@@ -14,18 +14,18 @@ import (
 )
 
 type Service struct {
-	userConfig *config.UserConfig
-	identification     *identification.Parser
-	networkIface       *network.Interface
-	certbotLogger      *zap.Logger
+	userConfig     *config.UserConfig
+	identification *identification.Parser
+	networkIface   *network.Interface
+	certbotLogger  *zap.Logger
 }
 
 func New(userPlatformConfig *config.UserConfig, identification *identification.Parser, networkIface *network.Interface, certbotLogger *zap.Logger) *Service {
 	return &Service{
-		userConfig: userPlatformConfig,
-		identification:     identification,
-		networkIface:       networkIface,
-		certbotLogger:      certbotLogger,
+		userConfig:     userPlatformConfig,
+		identification: identification,
+		networkIface:   networkIface,
+		certbotLogger:  certbotLogger,
 	}
 }
 
@@ -102,10 +102,10 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 	if err != nil {
 		return err
 	}
- updateToken := r.userConfig.GetDomainUpdateToken()
- if updateToken == nil {
-   return fmt.Errorf("domain update token is not evailable")
- }
+	updateToken := r.userConfig.GetDomainUpdateToken()
+	if updateToken == nil {
+		return fmt.Errorf("domain update token is not evailable")
+	}
 
 	request := &FreeDomainUpdateRequest{
 		Token:           *updateToken,
@@ -138,7 +138,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 	if ipv6Enabled {
 		ipv6Addr, err := r.networkIface.IPv6()
 		if err == nil {
-   ipv6 := ipv6Addr.String()
+			ipv6 := ipv6Addr.String()
 			request.Ipv6 = &ipv6
 		}
 	}
