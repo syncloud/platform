@@ -55,12 +55,13 @@ func (c *UserConfig) ensureDb() error {
 
 	_, err = os.Stat(c.oldConfigFile)
 	if err == nil {
-		c.migrate()
+		c.migrateV1()
 	}
+	c.migrateV2()
 	return nil
 }
 
-func (c *UserConfig) migrate() {
+func (c *UserConfig) migrateV1() {
 
 	oldConfig, err := configparser.NewConfigParserFromFile(c.oldConfigFile)
 	if err != nil {
@@ -87,6 +88,18 @@ func (c *UserConfig) migrate() {
 	if err != nil {
 		log.Println("Cannot backup old config: ", c.oldConfigFile, err)
 	}
+}
+
+func (c *UserConfig) migrateV2() {
+	result := c.GetOrNil("platform.external_access")
+	if result == nil {
+		return
+	}
+
+	externalAccess := c.toBool(*result)
+	c.SetIpv4Enabled(externalAccess)
+	c.SetIpv4Public(externalAccess)
+	c.Delete("platform.external_access")
 }
 
 func (c *UserConfig) SetWebSecretKey(key string) {
@@ -141,9 +154,31 @@ func (c *UserConfig) GetRedirectApiUrl() string {
 	return fmt.Sprintf("https://api.%s", c.GetRedirectDomain())
 }
 
-func (c UserConfig) GetUpnp() bool {
-	result := c.Get("platform.upnp", DbTrue)
+func (c UserConfig) GetIpv4Enabled() bool {
+	result := c.Get("platform.ipv4_enabled", DbTrue)
 	return c.toBool(result)
+}
+
+func (c *UserConfig) SetIpv4Enabled(enabled bool) {
+	c.Upsert("platform.ipv4_enabled", c.fromBool(enabled))
+}
+
+func (c UserConfig) GetIpv4Public() bool {
+	result := c.Get("platform.ipv4_public", DbTrue)
+	return c.toBool(result)
+}
+
+func (c *UserConfig) SetIpv4Public(enabled bool) {
+	c.Upsert("platform.ipv4_public", c.fromBool(enabled))
+}
+
+func (c UserConfig) GetIpv6Enabled() bool {
+	result := c.Get("platform.ipv6_enabled", DbTrue)
+	return c.toBool(result)
+}
+
+func (c *UserConfig) SetIpv6Enabled(enabled bool) {
+	c.Upsert("platform.ipv6_enabled", c.fromBool(enabled))
 }
 
 func (c *UserConfig) IsRedirectEnabled() bool {
@@ -151,7 +186,7 @@ func (c *UserConfig) IsRedirectEnabled() bool {
 	return c.toBool(result)
 }
 
-func (c *UserConfig) GetExternalAccess() bool {
+func (c *UserConfig) GetDeprecatedExternalAccess() bool {
 	result := c.Get("platform.external_access", DbFalse)
 	return c.toBool(result)
 }
@@ -275,14 +310,6 @@ func (c *UserConfig) GetDomainUpdateToken() *string {
 	return c.GetOrNil("platform.domain_update_token")
 }
 
-func (c *UserConfig) SetExternalAccess(enabled bool) {
-	c.Upsert("platform.external_access", c.fromBool(enabled))
-}
-
-func (c *UserConfig) SetUpnp(enabled bool) {
-	c.Upsert("platform.upnp", c.fromBool(enabled))
-}
-
 func (c *UserConfig) SetPublicIp(publicIp string) {
 	c.Upsert("platform.public_ip", publicIp)
 }
@@ -293,6 +320,18 @@ func (c *UserConfig) DeletePublicIp() {
 
 func (c *UserConfig) SetManualAccessPort(manualAccessPort int) {
 	c.Upsert("platform.manual_access_port", strconv.Itoa(manualAccessPort))
+}
+
+func (c *UserConfig) GetManualAccessPort() *int {
+	value := c.GetOrNil("platform.manual_access_port")
+	if value == nil {
+		return nil
+	}
+	i, err := strconv.Atoi(*value)
+	if err != nil {
+		return nil
+	}
+	return &i
 }
 
 func (c *UserConfig) GetCustomDomain() *string {

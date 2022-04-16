@@ -30,12 +30,14 @@ func (a *ExternalAddress) Update(request model.Access) {
 	a.logger.Info(fmt.Sprintf("set dns, ipv4: %v, ipb4 public: %v, ipv6: %v", request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 	if a.userConfig.IsRedirectEnabled() {
 		a.redirect.Update(request.Ipv4, request.AccessPort, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled)
-
 	}
-	/*
-		self.user_platform_config.update_device_access(external_access, manual_public_ip, manual_access_port)
-		self.event_trigger.trigger_app_event_domain()
-	*/
+	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
+	a.userConfig.SetIpv4Public(request.Ipv4Public)
+	a.userConfig.SetPublicIp(request.Ipv4)
+	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
+	a.userConfig.SetManualAccessPort(request.AccessPort)
+	a.trigger.RunAccessChangeEvent()
+
 }
 
 func (a *ExternalAddress) Sync() {
