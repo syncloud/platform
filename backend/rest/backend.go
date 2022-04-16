@@ -19,6 +19,7 @@ import (
 
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/job"
+	"github.com/syncloud/platform/access"
 )
 
 type Backend struct {
@@ -33,6 +34,7 @@ type Backend struct {
 	activate       *Activate
 	userConfig     *config.UserConfig
 	certificate    *Certificate
+  externalAddresss *access.ExternalAddress
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -41,7 +43,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
-	certificate *Certificate,
+	certificate *Certificate, externalAddresss *access.ExternalAddress,
 ) *Backend {
 
 	return &Backend{
@@ -56,6 +58,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		activate:       activate,
 		userConfig:     userConfig,
 		certificate:    certificate,
+   externalAddresss: externalAddresss,
 	}
 }
 
@@ -265,17 +268,8 @@ func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 		return nil, errors.New("access request is wrong")
 	}
 
-
-	public.set_access(
-		request_json['upnp_enabled'],
-		request_json['external_access'],
-		public_ip,
-		int(request_json['access_port'])
-	)
-	response := &model.Access{
-
-	}
-	return response, nil
+ b.externalAddresss.Update(request)
+	return request, nil
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {

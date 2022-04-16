@@ -78,6 +78,15 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
 		return cron.NewCertificateJob(certGenerator)
 	})
+Singleton(func() snap.SnapdClient { return snap.NewClient() })
+	Singleton(func(snapClient snap.SnapdClient) *snap.Snapd { return snap.New(snapClient) })
+
+Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
+
+Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(userConfig, redirectService, eventTrigger, logger)
+	})
+
 	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
 		return cron.NewExternalAddressJob(job)
 	})
@@ -87,10 +96,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *job.Master { return job.NewMaster() })
 	Singleton(func(master *job.Master) *job.Worker { return job.NewWorker(master) })
 	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
-	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient) *snap.Snapd { return snap.New(snapClient) })
-	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
-	Singleton(func() *installer.Installer { return installer.New() })
+			Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir())
@@ -119,16 +125,14 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return rest.NewCertificate(certGenerator, certReader)
 	})
 
-	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger) *access.ExternalAddress {
-		return access.New(userConfig, redirectService, eventTrigger)
-	})
-
+	
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
+   externalAddress  *access.ExternalAddress,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress)
 	})
 
 }
