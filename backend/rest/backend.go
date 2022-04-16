@@ -17,24 +17,24 @@ import (
 	"net/http/httputil"
 	"net/url"
 
+	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/job"
-	"github.com/syncloud/platform/access"
 )
 
 type Backend struct {
-	Master         *job.Master
-	backup         *backup.Backup
-	eventTrigger   *event.Trigger
-	worker         *job.Worker
-	redirect       *redirect.Service
-	installer      installer.AppInstaller
-	storage        *storage.Storage
-	identification *identification.Parser
-	activate       *Activate
-	userConfig     *config.UserConfig
-	certificate    *Certificate
-  externalAddresss *access.ExternalAddress
+	Master           *job.Master
+	backup           *backup.Backup
+	eventTrigger     *event.Trigger
+	worker           *job.Worker
+	redirect         *redirect.Service
+	installer        installer.AppInstaller
+	storage          *storage.Storage
+	identification   *identification.Parser
+	activate         *Activate
+	userConfig       *config.UserConfig
+	certificate      *Certificate
+	externalAddresss *access.ExternalAddress
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -47,18 +47,18 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 ) *Backend {
 
 	return &Backend{
-		Master:         master,
-		backup:         backup,
-		eventTrigger:   eventTrigger,
-		worker:         worker,
-		redirect:       redirect,
-		installer:      installerService,
-		storage:        storageService,
-		identification: identification,
-		activate:       activate,
-		userConfig:     userConfig,
-		certificate:    certificate,
-   externalAddresss: externalAddresss,
+		Master:           master,
+		backup:           backup,
+		eventTrigger:     eventTrigger,
+		worker:           worker,
+		redirect:         redirect,
+		installer:        installerService,
+		storage:          storageService,
+		identification:   identification,
+		activate:         activate,
+		userConfig:       userConfig,
+		certificate:      certificate,
+		externalAddresss: externalAddresss,
 	}
 }
 
@@ -254,9 +254,7 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
-	response := &model.Access{
-
-	}
+	response := &model.Access{}
 	return response, nil
 }
 
@@ -268,7 +266,7 @@ func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 		return nil, errors.New("access request is wrong")
 	}
 
- b.externalAddresss.Update(request)
+	b.externalAddresss.Update(request)
 	return request, nil
 }
 

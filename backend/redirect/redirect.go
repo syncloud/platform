@@ -14,7 +14,7 @@ import (
 )
 
 type Service struct {
-	UserPlatformConfig *config.UserConfig
+	userConfig *config.UserConfig
 	identification     *identification.Parser
 	networkIface       *network.Interface
 	certbotLogger      *zap.Logger
@@ -22,7 +22,7 @@ type Service struct {
 
 func New(userPlatformConfig *config.UserConfig, identification *identification.Parser, networkIface *network.Interface, certbotLogger *zap.Logger) *Service {
 	return &Service{
-		UserPlatformConfig: userPlatformConfig,
+		userConfig: userPlatformConfig,
 		identification:     identification,
 		networkIface:       networkIface,
 		certbotLogger:      certbotLogger,
@@ -31,7 +31,7 @@ func New(userPlatformConfig *config.UserConfig, identification *identification.P
 
 func (r *Service) Authenticate(email string, password string) (*User, error) {
 	request := &UserCredentials{Email: email, Password: password}
-	url := fmt.Sprintf("%s/user", r.UserPlatformConfig.GetRedirectApiUrl())
+	url := fmt.Sprintf("%s/user", r.userConfig.GetRedirectApiUrl())
 	body, err := r.postAndCheck(url, request)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (r *Service) Authenticate(email string, password string) (*User, error) {
 
 func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
 	request := &CertbotPresentRequest{Token: token, Fqdn: fqdn, Values: value}
-	url := fmt.Sprintf("%s/certbot/present", r.UserPlatformConfig.GetRedirectApiUrl())
+	url := fmt.Sprintf("%s/certbot/present", r.userConfig.GetRedirectApiUrl())
 	r.certbotLogger.Info(fmt.Sprintf("dns present: %s", url))
 	_, err := r.postAndCheck(url, request)
 	return err
@@ -54,7 +54,7 @@ func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
 
 func (r *Service) CertbotCleanUp(token, fqdn string) error {
 	request := &CertbotCleanUpRequest{Token: token, Fqdn: fqdn}
-	url := fmt.Sprintf("%s/certbot/cleanup", r.UserPlatformConfig.GetRedirectApiUrl())
+	url := fmt.Sprintf("%s/certbot/cleanup", r.userConfig.GetRedirectApiUrl())
 	r.certbotLogger.Info(fmt.Sprintf("dns cleanup: %s", url))
 	_, err := r.postAndCheck(url, request)
 	return err
@@ -74,7 +74,7 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 		DeviceMacAddress: deviceId.MacAddress,
 		DeviceName:       deviceId.Name,
 		DeviceTitle:      deviceId.Title}
-	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "domain/acquire_v2")
+	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "domain/acquire_v2")
 
 	body, err := r.postAndCheck(url, request)
 	if err != nil {
@@ -92,56 +92,63 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 	return response.Data, nil
 }
 
-func (r *Service) Reset(updateToken string) error {
-	return r.Update(nil, nil, config.WebAccessPort, config.WebProtocol, updateToken, false)
+func (r *Service) Reset() error {
+	return r.Update(nil, nil, true, false, true)
 }
 
-func (r *Service) Update(externalIp *string, webPort *int, webLocalPort int, webProtocol string, updateToken string, externalAccess bool) error {
+func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
 
 	platformVersion, err := version.PlatformVersion()
 	if err != nil {
 		return err
 	}
-
-	localIp, err := r.networkIface.LocalIPv4()
-	if err != nil {
-		return err
-	}
+ updateToken := r.userConfig.GetDomainUpdateToken()
+ if updateToken == nil {
+   return fmt.Errorf("domain update token is not evailable")
+ }
 
 	request := &FreeDomainUpdateRequest{
-		Token:           updateToken,
+		Token:           *updateToken,
 		PlatformVersion: platformVersion,
-		LocalIp:         localIp.String(),
-		MapLocalAddress: !externalAccess,
-		WebProtocol:     webProtocol,
-		WebPort:         webPort,
-		WebLocalPort:    webLocalPort,
+		WebProtocol:     config.WebProtocol,
+		WebPort:         port,
+		WebLocalPort:    config.WebAccessPort,
 	}
 
-	if externalIp == nil {
-		externalIp, err := r.networkIface.PublicIPv4()
+	if ipv4Enabled {
+		localIp, err := r.networkIface.LocalIPv4()
 		if err != nil {
 			return err
 		}
-		log.Printf("getting external ip: %s", externalIp)
+		request.LocalIp = localIp.String()
+
+		if ipv4Public {
+			if ipv4 == nil {
+				ipv4, err := r.networkIface.PublicIPv4()
+				if err != nil {
+					return err
+				}
+				log.Printf("public ipv4: %s", ipv4)
+			}
+			request.Ip = ipv4
+		}
+		request.MapLocalAddress = !ipv4Public
 	}
 
-	if externalAccess {
-		request.Ip = externalIp
+	if ipv6Enabled {
+		ipv6Addr, err := r.networkIface.IPv6()
+		if err == nil {
+   ipv6 := ipv6Addr.String()
+			request.Ipv6 = &ipv6
+		}
 	}
 
-	ipv6Addr, err := r.networkIface.IPv6()
-	if err == nil {
-		ipv6 := ipv6Addr.String()
-		request.Ipv6 = &ipv6
-	}
-
-	dkimKey := r.UserPlatformConfig.GetDkimKey()
+	dkimKey := r.userConfig.GetDkimKey()
 	if dkimKey != nil {
 		request.DkimKey = dkimKey
 	}
 
-	url := fmt.Sprintf("%s/%s", r.UserPlatformConfig.GetRedirectApiUrl(), "domain/update")
+	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "domain/update")
 	_, err = r.postAndCheck(url, request)
 	return err
 }
