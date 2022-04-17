@@ -138,3 +138,23 @@ func TestMigratev2_ExternalTrue(t *testing.T) {
 	assert.True(t, config.IsIpv4Public())
 	assert.Nil(t, config.GetOrNil("platform.external_access"))
 }
+
+func TestPublicIp_Empty(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.SetPublicIp(nil)
+
+	assert.Nil(t, config.GetPublicIp())
+}
+
+func TestPublicIp_Valid(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	ip := "1.1.1.1"
+	config.SetPublicIp(&ip)
+	assert.Equal(t, "1.1.1.1", *config.GetPublicIp())
+}

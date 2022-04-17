@@ -311,8 +311,9 @@ func (c *UserConfig) GetDomainUpdateToken() *string {
 func (c *UserConfig) SetPublicIp(publicIp *string) {
 	if publicIp == nil {
 		c.Delete("platform.public_ip")
+	} else {
+		c.Upsert("platform.public_ip", *publicIp)
 	}
-	c.Upsert("platform.public_ip", *publicIp)
 }
 
 func (c *UserConfig) GetPublicIp() *string {
@@ -322,8 +323,9 @@ func (c *UserConfig) GetPublicIp() *string {
 func (c *UserConfig) SetPublicPort(port *int) {
 	if port == nil {
 		c.Delete("platform.manual_access_port")
+	} else {
+		c.Upsert("platform.manual_access_port", strconv.Itoa(*port))
 	}
-	c.Upsert("platform.manual_access_port", strconv.Itoa(*port))
 }
 
 func (c *UserConfig) GetPublicPort() *int {
