@@ -7,7 +7,7 @@ from syncloud_platform.control import power
 class Public:
 
     def __init__(self, platform_config, user_platform_config, device_info, snap, hardware, redirect_service,
-                 log_aggregator, port_mapper_factory, network):
+                 log_aggregator, network):
         self.hardware = hardware
         self.platform_config = platform_config
         self.log = logger.get_logger('rest.public')
@@ -17,7 +17,6 @@ class Public:
         self.www_dir = self.platform_config.www_root_public()
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
-        self.port_mapper_factory = port_mapper_factory
         self.network=network
         
     def domain(self):
