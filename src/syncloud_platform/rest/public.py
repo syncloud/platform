@@ -18,7 +18,7 @@ from syncloudlib.logger import get_logger
 
 injector = get_injector()
 public = injector.public
-device = injector.device
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = public.user_platform_config.get_web_secret_key()
