@@ -5,7 +5,6 @@ from configparser import ConfigParser
 from os.path import isfile, join
 from syncloudlib import logger
 
-USER_CONFIG_FILE_OLD = '/var/snap/platform/common/user_platform.cfg'
 USER_CONFIG_DB = '/var/snap/platform/current/platform.db'
 
 TRUE = 'true'
@@ -13,16 +12,13 @@ FALSE = 'false'
 
 
 class PlatformUserConfig:
-    def __init__(self, config_db=USER_CONFIG_DB, old_config_file=USER_CONFIG_FILE_OLD):
+    def __init__(self, config_db=USER_CONFIG_DB):
         self.config_db = config_db
-        self.old_config_file = old_config_file
         self.log = logger.get_logger('PlatformUserConfig')
 
     def init_config(self):
         if not isfile(self.config_db):
             self.init_user_config()
-            if isfile(self.old_config_file):
-                self.migrate_user_config()
 
     def update_redirect(self, domain):
         self._upsert([
@@ -139,19 +135,6 @@ class PlatformUserConfig:
         cursor = conn.cursor()
         cursor.execute("create table config (key varchar primary key, value varchar)")
         conn.close()
-
-    def migrate_user_config(self):
-        
-        old_config = ConfigParser()
-        old_config.read(self.old_config_file)
-        for section in old_config.sections():
-            for key, value in old_config.items(section):
-                db_value = from_bool(value == 'True') if value in ['True', 'False'] else value
-                self._upsert([
-                    ('{0}.{1}'.format(section, key), db_value)
-                ])
-        self.set_web_secret_key(uuid.uuid4().hex)
-        os.rename(self.old_config_file, self.old_config_file + '.bak')
 
     def _upsert(self, key_values):
         self.init_config()
