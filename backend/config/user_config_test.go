@@ -107,9 +107,9 @@ user_update_token = token2
 	config.SetRedirectDomain("syncloud.it")
 
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())
-	
+
 	assert.True(t, config.IsRedirectEnabled())
-	assert.False(t, config.GetIpv4Enabled())
+	assert.False(t, config.IsIpv4Public())
 
 	_, err = os.Stat(oldConfigFile.Name())
 	assert.False(t, os.IsExist(err))
@@ -120,12 +120,11 @@ func TestMigratev2_ExternalFalse(t *testing.T) {
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
 	config.Load()
- config.Upsert("platform.external_access", "false")
+	config.Upsert("platform.external_access", "false")
 	config.Load()
 
-	assert.True(t, config.GetIpv4Enabled())
- assert.True(t, config.GetIpv4Public())
- assert.Nil(t, config.GetOrNil("platform.external_access"))
+	assert.False(t, config.IsIpv4Public())
+	assert.Nil(t, config.GetOrNil("platform.external_access"))
 }
 
 func TestMigratev2_ExternalTrue(t *testing.T) {
@@ -133,11 +132,9 @@ func TestMigratev2_ExternalTrue(t *testing.T) {
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
 	config.Load()
- config.Upsert("platform.external_access", "true")
+	config.Upsert("platform.external_access", "true")
 	config.Load()
 
-	assert.False(t, config.GetIpv4Enabled())
- assert.False(t, config.GetIpv4Public())
- assert.Nil(t, config.GetOrNil("platform.external_access"))
+	assert.True(t, config.IsIpv4Public())
+	assert.Nil(t, config.GetOrNil("platform.external_access"))
 }
-

@@ -23,10 +23,9 @@ type DevicePlatformUserConfig interface {
 	GetRedirectDomain() string
 	SetActivated()
 	SetWebSecretKey(key string)
-	SetExternalAccess(enabled bool)
-	SetUpnp(enabled bool)
-	SetManualAccessPort(manualAccessPort int)
-	DeletePublicIp()
+	SetIpv4Public(enabled bool)
+	SetPublicPort(port *int)
+	SetPublicIp(publicIp *string)
 }
 
 type DeviceActivation interface {
@@ -78,10 +77,9 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 
 func (d *Device) resetAccess() error {
 	log.Println("reset access")
-	d.config.SetUpnp(false)
-	d.config.SetExternalAccess(false)
-	d.config.DeletePublicIp()
-	d.config.SetManualAccessPort(0)
+	d.config.SetIpv4Public(false)
+	d.config.SetPublicIp(nil)
+	d.config.SetPublicPort(nil)
 	return d.trigger.RunAccessChangeEvent()
 }
 

@@ -15,6 +15,5 @@ func NewExternalAddressJob(externalAddress *access.ExternalAddress) *ExternalAdd
 }
 
 func (j *ExternalAddressJob) Run() error {
-	j.externalAddress.Sync()
-	return nil
+	return j.externalAddress.Sync()
 }

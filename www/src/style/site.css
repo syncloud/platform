@@ -459,7 +459,7 @@ header .hlink {
 input[type="text"], input[type="password"] {
     width: 100%;
     padding: 0 50px 0 20px;
-    border-radius: 40px;
+    border-radius: 3px;
     border: 1px solid #dcdee0;
     margin-bottom: 10px;
     background-color: #fff!important;

@@ -346,12 +346,12 @@ const mock = function (app, server, compiler) {
     res.json(networkInterfaces)
   })
 
-  app.get('/rest/access/access', function (req, res) {
+  app.get('/rest/access', function (req, res) {
     res.json(accessData)
   })
 
 
-  app.post('/rest/access/set_access', function (req, res) {
+  app.post('/rest/access', function (req, res) {
     if (state.accessSuccess) {
       accessData.data.external_access = req.body.external_access
       if (req.body.public_ip === undefined) {

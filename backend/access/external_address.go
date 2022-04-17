@@ -25,33 +25,42 @@ func New(userConfig *config.UserConfig, redirect *redirect.Service, trigger *eve
 	}
 }
 
-func (a *ExternalAddress) Update(request model.Access) {
+func (a *ExternalAddress) Update(request model.Access) error {
 
 	a.logger.Info(fmt.Sprintf("set dns, ipv4: %v, ipb4 public: %v, ipv6: %v", request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 	if a.userConfig.IsRedirectEnabled() {
-		a.redirect.Update(request.Ipv4, request.AccessPort, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled)
+		err := a.redirect.Update(
+			request.Ipv4,
+			request.AccessPort,
+			request.Ipv4Enabled,
+			request.Ipv4Public,
+			request.Ipv6Enabled)
+		if err != nil {
+			return err
+		}
 	}
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
 	a.userConfig.SetIpv4Public(request.Ipv4Public)
 	a.userConfig.SetPublicIp(request.Ipv4)
 	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
-	a.userConfig.SetManualAccessPort(request.AccessPort)
-	a.trigger.RunAccessChangeEvent()
+	a.userConfig.SetPublicPort(request.AccessPort)
+
+	return a.trigger.RunAccessChangeEvent()
 
 }
 
-func (a *ExternalAddress) Sync() {
-	/*
-	   	update_token = self.user_platform_config.get_domain_update_token()
-	   	if update_token is
-	   None:
-	   	return
+func (a *ExternalAddress) Sync() error {
 
-	   	external_access = self.user_platform_config.get_external_access()
-	   	public_ip = self.user_platform_config.get_public_ip()
-	   	manual_access_port = self.user_platform_config.get_manual_access_port()
-
-	   	self.redirect_service.sync(public_ip, manual_access_port, WEB_ACCESS_PORT, WEB_PROTOCOL,
-	   		update_token, external_access)
-	*/
+	if a.userConfig.IsRedirectEnabled() {
+		err := a.redirect.Update(
+			a.userConfig.GetPublicIp(),
+			a.userConfig.GetPublicPort(),
+			a.userConfig.IsIpv4Enabled(),
+			a.userConfig.IsIpv4Public(),
+			a.userConfig.IsIpv6Enabled())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

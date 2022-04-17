@@ -96,9 +96,7 @@ func (c *UserConfig) migrateV2() {
 		return
 	}
 
-	externalAccess := c.toBool(*result)
-	c.SetIpv4Enabled(externalAccess)
-	c.SetIpv4Public(externalAccess)
+	c.SetIpv4Public(c.toBool(*result))
 	c.Delete("platform.external_access")
 }
 
@@ -154,7 +152,7 @@ func (c *UserConfig) GetRedirectApiUrl() string {
 	return fmt.Sprintf("https://api.%s", c.GetRedirectDomain())
 }
 
-func (c UserConfig) GetIpv4Enabled() bool {
+func (c UserConfig) IsIpv4Enabled() bool {
 	result := c.Get("platform.ipv4_enabled", DbTrue)
 	return c.toBool(result)
 }
@@ -163,7 +161,7 @@ func (c *UserConfig) SetIpv4Enabled(enabled bool) {
 	c.Upsert("platform.ipv4_enabled", c.fromBool(enabled))
 }
 
-func (c UserConfig) GetIpv4Public() bool {
+func (c UserConfig) IsIpv4Public() bool {
 	result := c.Get("platform.ipv4_public", DbTrue)
 	return c.toBool(result)
 }
@@ -172,7 +170,7 @@ func (c *UserConfig) SetIpv4Public(enabled bool) {
 	c.Upsert("platform.ipv4_public", c.fromBool(enabled))
 }
 
-func (c UserConfig) GetIpv6Enabled() bool {
+func (c UserConfig) IsIpv6Enabled() bool {
 	result := c.Get("platform.ipv6_enabled", DbTrue)
 	return c.toBool(result)
 }
@@ -310,19 +308,25 @@ func (c *UserConfig) GetDomainUpdateToken() *string {
 	return c.GetOrNil("platform.domain_update_token")
 }
 
-func (c *UserConfig) SetPublicIp(publicIp string) {
-	c.Upsert("platform.public_ip", publicIp)
+func (c *UserConfig) SetPublicIp(publicIp *string) {
+	if publicIp == nil {
+		c.Delete("platform.public_ip")
+	}
+	c.Upsert("platform.public_ip", *publicIp)
 }
 
-func (c *UserConfig) DeletePublicIp() {
-	c.Delete("platform.public_ip")
+func (c *UserConfig) GetPublicIp() *string {
+	return c.GetOrNil("platform.public_ip")
 }
 
-func (c *UserConfig) SetManualAccessPort(manualAccessPort int) {
-	c.Upsert("platform.manual_access_port", strconv.Itoa(manualAccessPort))
+func (c *UserConfig) SetPublicPort(port *int) {
+	if port == nil {
+		c.Delete("platform.manual_access_port")
+	}
+	c.Upsert("platform.manual_access_port", strconv.Itoa(*port))
 }
 
-func (c *UserConfig) GetManualAccessPort() *int {
+func (c *UserConfig) GetPublicPort() *int {
 	value := c.GetOrNil("platform.manual_access_port")
 	if value == nil {
 		return nil
