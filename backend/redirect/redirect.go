@@ -115,11 +115,12 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 	}
 
 	if ipv4Enabled {
-		localIp, err := r.networkIface.LocalIPv4()
+		localIpAddr, err := r.networkIface.LocalIPv4()
 		if err != nil {
 			return err
 		}
-		request.LocalIp = localIp.String()
+		localIp := localIpAddr.String()
+		request.LocalIp = &localIp
 
 		if ipv4Public {
 			if ipv4 == nil {

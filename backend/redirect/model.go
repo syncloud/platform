@@ -47,7 +47,7 @@ type CertbotCleanUpRequest struct {
 
 type FreeDomainUpdateRequest struct {
 	Ip              *string `json:"ip,omitempty"`
-	LocalIp         string  `json:"local_ip"`
+	LocalIp         *string `json:"local_ip",omitempty`
 	MapLocalAddress bool    `json:"map_local_address,omitempty"`
 	Token           string  `json:"token"`
 	Ipv6            *string `json:"ipv6,omitempty"`

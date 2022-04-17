@@ -27,7 +27,7 @@ func New(userConfig *config.UserConfig, redirect *redirect.Service, trigger *eve
 
 func (a *ExternalAddress) Update(request model.Access) error {
 
-	a.logger.Info(fmt.Sprintf("set dns, ipv4: %v, ipb4 public: %v, ipv6: %v", request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
+	a.logger.Info(fmt.Sprintf("update ipv4: %v, ipb4 public: %v, ipv6: %v", request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 	if a.userConfig.IsRedirectEnabled() {
 		err := a.redirect.Update(
 			request.Ipv4,
