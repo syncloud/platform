@@ -92,9 +92,6 @@ class PlatformUserConfig:
         result = self._get('platform.external_access')
         return to_bool(result)
 
-    def get_external_access_port(self):
-        return self._get('platform.external_access_port', 443)
-
     def is_redirect_enabled(self):
         result = self._get('platform.redirect_enabled')
         return to_bool(result)
@@ -103,21 +100,15 @@ class PlatformUserConfig:
         self._upsert([
             ('platform.redirect_enabled', from_bool(enabled))
         ])
-
-    def update_device_access(self, external_access, public_ip, manual_access_port):
-        self._upsert([
-            ('platform.external_access', from_bool(external_access)),
-            ('platform.public_ip', public_ip),
-            ('platform.manual_access_port', manual_access_port)
-        ])
-
-    def get_upnp(self):
-        result = self._get('platform.upnp')
-        return to_bool(result, True)
-
+  
     def get_public_ip(self):
         return self._get('platform.public_ip')
    
+    def set_public_ip(self, ip):
+        self._upsert([
+            ('platform.public_ip', ip),
+        ])
+
     def get_dkim_key(self):
         return self._get('dkim_key')
 
@@ -128,6 +119,11 @@ class PlatformUserConfig:
 
     def get_manual_access_port(self):
         return self._get('platform.manual_access_port')
+
+    def set_manual_access_port(self, port):
+        self._upsert([
+             ('platform.manual_access_port', port)
+        ])
 
     def get_web_secret_key(self):
         return self._get('platform.web_secret_key', 'default')

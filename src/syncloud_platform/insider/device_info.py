@@ -36,7 +36,7 @@ class DeviceInfo:
         return '{0}.{1}'.format(app_name, self.domain())
 
     def url(self, app=None):
-        port = self.user_platform_config.get_external_access_port()
+        port = self.user_platform_config.get_manual_access_port()
         domain_name = self.domain()
         if domain_name:
             return construct_url(port, domain_name, app)
