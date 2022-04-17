@@ -264,9 +264,9 @@ def test_python_ssl(device):
 
 
 def test_set_access_mode_with_certbot(device, domain):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': False,
+    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': False,
+                                         'ipv4_public': False,
                                          'public_ip': 0,
                                          'access_port': 0})
     assert '"success": true' in response.text
@@ -283,7 +283,7 @@ def test_testapp_access_change_hook(device_host):
 
 
 def test_get_access(device, domain):
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     print(response.text)
     assert '"success": true' in response.text
     assert '"upnp_enabled": false' in response.text
@@ -322,12 +322,12 @@ def test_device_url(device, domain, artifact_dir, full_domain):
 
 
 def test_api_url_443(device, domain):
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': False,
+    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': False,
+                                         'ipv4_public': False,
                                          'public_ip': 0,
                                          'access_port': 443})
     assert '"success": true' in response.text
@@ -338,22 +338,22 @@ def test_api_url_443(device, domain):
 
 
 def test_api_url_10000(device, domain):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': False,
+    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': False,
+                                         'ipv4_public': False,
                                          'public_ip': 0,
                                          'access_port': 10000})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
 
 
 def test_set_access_error(device, domain):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': True,
+    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': True,
+                                         'ipv4_public': True,
                                          'public_ip': 0,
                                          'access_port': 0})
     assert '"success": false' in response.text
