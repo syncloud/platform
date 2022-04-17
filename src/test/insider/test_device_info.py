@@ -8,7 +8,7 @@ def test_url_activated_free():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_domain('device', 'token')
     user_platform_config.update_redirect('syncloud.it')
-    user_platform_config.get_manual_access_port(10000)
+    user_platform_config.set_manual_access_port(10000)
     user_platform_config.set_redirect_enabled(True)
 
     device_info = DeviceInfo(user_platform_config, port_config)
@@ -21,7 +21,7 @@ def test_url_activated_custom():
     user_platform_config = get_user_platform_config()
     user_platform_config.set_custom_domain('example.com')
     user_platform_config.update_redirect('syncloud.it')
-    user_platform_config.get_manual_access_port(10000)
+    user_platform_config.set_manual_access_port(10000)
     user_platform_config.set_redirect_enabled(False)
 
     device_info = DeviceInfo(user_platform_config, port_config)
@@ -34,7 +34,7 @@ def test_url_non_activated():
     user_platform_config = get_user_platform_config()
     user_platform_config.update_domain('device', 'token')
     user_platform_config.update_redirect('syncloud.it')
-    user_platform_config.get_manual_access_port(10000)
+    user_platform_config.set_manual_access_port(10000)
     user_platform_config.set_redirect_enabled(False)
 
     device_info = DeviceInfo(user_platform_config, port_config)
