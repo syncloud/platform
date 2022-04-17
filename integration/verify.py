@@ -269,7 +269,7 @@ def test_set_access_mode_with_certbot(device, domain):
                                          'ipv4_public': False,
                                          'public_ip': 0,
                                          'access_port': 0})
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
@@ -285,22 +285,22 @@ def test_testapp_access_change_hook(device_host):
 def test_get_access(device, domain):
     response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     print(response.text)
-    assert '"success": true' in response.text
-    assert '"upnp_enabled": false' in response.text
+    assert json.loads(response.text)["success"]
+    assert not json.loads(response.text)["ipv4_enabled"]
     assert response.status_code == 200
 
 
 def test_network_interfaces(device, domain):
     response = device.login().get('https://{0}/rest/access/network_interfaces'.format(domain), verify=False)
     print(response.text)
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
 def test_send_logs(device, domain):
     response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(domain), verify=False)
     print(response.text)
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
@@ -316,7 +316,7 @@ def test_device_url(device, domain, artifact_dir, full_domain):
     response = device.login().get('https://{0}/rest/settings/device_url'.format(domain), verify=False)
     with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
     assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
@@ -330,7 +330,7 @@ def test_api_url_443(device, domain):
                                          'ipv4_public': False,
                                          'public_ip': 0,
                                          'access_port': 443})
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
@@ -343,7 +343,7 @@ def test_api_url_10000(device, domain):
                                          'ipv4_public': False,
                                          'public_ip': 0,
                                          'access_port': 10000})
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
     response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
@@ -356,7 +356,7 @@ def test_set_access_error(device, domain):
                                          'ipv4_public': True,
                                          'public_ip': 0,
                                          'access_port': 0})
-    assert '"success": false' in response.text
+    assert not json.loads(response.text)["success"]
     assert 'Unable to verify open ports' in response.text
     assert response.status_code == 500, response.text
 
