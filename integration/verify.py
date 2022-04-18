@@ -277,7 +277,7 @@ def test_get_access(device, domain):
     response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
-    assert json.loads(response.text)["ipv4_enabled"]
+    assert json.loads(response.text)["data"]["ipv4_enabled"]
     assert response.status_code == 200
 
 
