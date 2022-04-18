@@ -1,7 +1,7 @@
 
 
 def construct_url(external_port, domain, app=None):
-    if external_port in [80, 443]:
+    if external_port in [80, 443, None]:
         external_port = ''
     else:
         external_port = ':{0}'.format(external_port)
