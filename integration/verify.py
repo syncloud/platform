@@ -263,13 +263,6 @@ def test_python_ssl(device):
     device.run_ssh('/ssl.test.py')
 
 
-def test_set_access_mode_with_certbot(device, domain):
-    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
-                                   json={'ipv4_enabled': False,
-                                         'ipv4_public': False})
-    assert json.loads(response.text)["success"]
-    assert response.status_code == 200
-
 
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
@@ -284,7 +277,7 @@ def test_get_access(device, domain):
     response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
-    assert "ipv4_enabled" not in json.loads(response.text)
+    assert json.loads(response.text)["ipv4_enabled"]
     assert response.status_code == 200
 
 
@@ -346,24 +339,14 @@ def test_api_url_10000(device, domain):
     assert response.status_code == 200
 
 
-def test_set_access_error(device, domain):
-    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
-                                   json={'ipv4_enabled': True,
-                                         'ipv4_public': True})
-    assert not json.loads(response.text)["success"]
-    assert 'Unable to verify open ports' in response.text
-    assert response.status_code == 500, response.text
-
-
 def test_cron(device):
     device.run_ssh('snap run platform.cli cron')
 
 
-# adding new arch, no apps in the store yet
-# def test_install_app(device, domain):
-#     session = device.login()
-#     session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
-#     wait_for_installer(session, device_host)
+def test_install_app(device, domain):
+    session = device.login()
+    session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
+    wait_for_installer(session, device_host)
 
 
 def test_rest_installed_apps(device, domain, artifact_dir):
@@ -374,13 +357,12 @@ def test_rest_installed_apps(device, domain, artifact_dir):
     assert response.status_code == 200
     assert len(json.loads(response.text)['apps']) == 1
 
-# adding new arch, no apps in the store yet
-# def test_rest_installed_app(device, domain, artifact_dir):
-#     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
-#     assert response.status_code == 200
-#     with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
-#         the_file.write(response.text)
-#     assert response.status_code == 200
+def test_rest_installed_app(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
 
 
 def test_rest_not_installed_app(device, domain, artifact_dir):
