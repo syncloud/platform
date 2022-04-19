@@ -112,6 +112,8 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 		WebProtocol:     config.WebProtocol,
 		WebPort:         port,
 		WebLocalPort:    config.WebAccessPort,
+ Ipv4Enabled:      ipv4Enabled,
+	Ipv6Enabled: ipv6Enabled,
 	}
 
 	if ipv4Enabled {
@@ -174,3 +176,4 @@ func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error)
 	}
 	return &body, nil
 }
+

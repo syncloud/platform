@@ -27,6 +27,8 @@ type FreeDomainAcquireRequest struct {
 	DeviceMacAddress string `json:"device_mac_address,omitempty"`
 	DeviceName       string `json:"device_name,omitempty"`
 	DeviceTitle      string `json:"device_title,omitempty"`
+ Ipv4Enabled     bool   `json:"ipv4_enabled,omitempty"`
+	Ipv6Enabled     bool   `json:"ipv6_enabled,omitempty"`
 }
 
 type UserCredentials struct {
