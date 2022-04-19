@@ -537,7 +537,7 @@ input:disabled {
     color: #fff;
     background: Tomato;
     line-height: 30px;
-    border-radius: 10px;
+    border-radius: 3px;
     width: 100%;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
@@ -582,7 +582,7 @@ input:disabled {
     color: #fff;
     background: #404750;
     line-height: 30px;
-    border-radius: 10px;
+    border-radius: 3px;
     width: 100%;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
@@ -596,7 +596,7 @@ input:disabled {
     color: #292b30;
     background: #c6cbce;
     line-height: 30px;
-    border-radius: 10px;
+    border-radius: 3px;
     width: 100%;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
