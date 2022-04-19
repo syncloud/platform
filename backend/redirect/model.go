@@ -27,8 +27,6 @@ type FreeDomainAcquireRequest struct {
 	DeviceMacAddress string `json:"device_mac_address,omitempty"`
 	DeviceName       string `json:"device_name,omitempty"`
 	DeviceTitle      string `json:"device_title,omitempty"`
- Ipv4Enabled     bool   `json:"ipv4_enabled,omitempty"`
-	Ipv6Enabled     bool   `json:"ipv6_enabled,omitempty"`
 }
 
 type UserCredentials struct {
@@ -49,7 +47,7 @@ type CertbotCleanUpRequest struct {
 
 type FreeDomainUpdateRequest struct {
 	Ip              *string `json:"ip,omitempty"`
-	LocalIp         *string `json:"local_ip",omitempty`
+	LocalIp         *string `json:"local_ip,omitempty"`
 	MapLocalAddress bool    `json:"map_local_address,omitempty"`
 	Token           string  `json:"token"`
 	Ipv6            *string `json:"ipv6,omitempty"`
@@ -58,6 +56,8 @@ type FreeDomainUpdateRequest struct {
 	WebProtocol     string  `json:"web_protocol"`
 	WebLocalPort    int     `json:"web_local_port"`
 	WebPort         *int    `json:"web_port,omitempty"`
+	Ipv4Enabled     bool    `json:"ipv4_enabled,omitempty"`
+	Ipv6Enabled     bool    `json:"ipv6_enabled,omitempty"`
 }
 
 type FreeDomainAcquireResponse struct {
