@@ -9,6 +9,12 @@ import (
 type Interface struct {
 }
 
+type Info interface {
+	LocalIPv4() (net.IP, error)
+	IPv6() (net.IP, error)
+	PublicIPv4() (string, error)
+}
+
 func New() *Interface {
 	return &Interface{}
 }

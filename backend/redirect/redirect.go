@@ -3,7 +3,6 @@ package redirect
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-retryablehttp"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/network"
@@ -11,21 +10,36 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"log"
+	"net/http"
 )
 
-type Service struct {
-	userConfig     *config.UserConfig
-	identification *identification.Parser
-	networkIface   *network.Interface
-	certbotLogger  *zap.Logger
+type UserConfig interface {
+	GetRedirectApiUrl() string
+	GetDomainUpdateToken() *string
+	GetDkimKey() *string
 }
 
-func New(userPlatformConfig *config.UserConfig, identification *identification.Parser, networkIface *network.Interface, certbotLogger *zap.Logger) *Service {
+type HttpClient interface {
+	Post(url, bodyType string, body interface{}) (*http.Response, error)
+}
+
+type Service struct {
+	userConfig UserConfig
+	idParser   identification.IdParser
+	netInfo    network.Info
+	client     HttpClient
+	version    version.Version
+	logger     *zap.Logger
+}
+
+func New(userConfig UserConfig, idParser identification.IdParser, netInfo network.Info, client HttpClient, version version.Version, logger *zap.Logger) *Service {
 	return &Service{
-		userConfig:     userPlatformConfig,
-		identification: identification,
-		networkIface:   networkIface,
-		certbotLogger:  certbotLogger,
+		userConfig: userConfig,
+		idParser:   idParser,
+		netInfo:    netInfo,
+		client:     client,
+		version:    version,
+		logger:     logger,
 	}
 }
 
@@ -47,7 +61,7 @@ func (r *Service) Authenticate(email string, password string) (*User, error) {
 func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
 	request := &CertbotPresentRequest{Token: token, Fqdn: fqdn, Values: value}
 	url := fmt.Sprintf("%s/certbot/present", r.userConfig.GetRedirectApiUrl())
-	r.certbotLogger.Info(fmt.Sprintf("dns present: %s", url))
+	r.logger.Info(fmt.Sprintf("dns present: %s", url))
 	_, err := r.postAndCheck(url, request)
 	return err
 }
@@ -55,14 +69,14 @@ func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
 func (r *Service) CertbotCleanUp(token, fqdn string) error {
 	request := &CertbotCleanUpRequest{Token: token, Fqdn: fqdn}
 	url := fmt.Sprintf("%s/certbot/cleanup", r.userConfig.GetRedirectApiUrl())
-	r.certbotLogger.Info(fmt.Sprintf("dns cleanup: %s", url))
+	r.logger.Info(fmt.Sprintf("dns cleanup: %s", url))
 	_, err := r.postAndCheck(url, request)
 	return err
 }
 
 func (r *Service) Acquire(email string, password string, domain string) (*Domain, error) {
 
-	deviceId, err := r.identification.Id()
+	deviceId, err := r.idParser.Id()
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +111,7 @@ func (r *Service) Reset() error {
 
 func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
 
-	platformVersion, err := version.PlatformVersion()
+	platformVersion, err := r.version.Get()
 	if err != nil {
 		return err
 	}
@@ -117,7 +131,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 	}
 
 	if ipv4Enabled {
-		localIpAddr, err := r.networkIface.LocalIPv4()
+		localIpAddr, err := r.netInfo.LocalIPv4()
 		if err != nil {
 			return err
 		}
@@ -126,7 +140,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 
 		if ipv4Public {
 			if ipv4 == nil {
-				ipv4, err := r.networkIface.PublicIPv4()
+				ipv4, err := r.netInfo.PublicIPv4()
 				if err != nil {
 					return err
 				}
@@ -138,7 +152,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 	}
 
 	if ipv6Enabled {
-		ipv6Addr, err := r.networkIface.IPv6()
+		ipv6Addr, err := r.netInfo.IPv6()
 		if err == nil {
 			ipv6 := ipv6Addr.String()
 			request.Ipv6 = &ipv6
@@ -160,8 +174,7 @@ func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	client := retryablehttp.NewClient()
-	resp, err := client.Post(url, "application/json", requestJson)
+	resp, err := r.client.Post(url, "application/json", requestJson)
 	if err != nil {
 		return nil, err
 	}

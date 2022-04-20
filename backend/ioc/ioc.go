@@ -2,6 +2,7 @@ package ioc
 
 import (
 	"github.com/golobby/container/v3"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
@@ -23,6 +24,7 @@ import (
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
 	"time"
 )
@@ -49,15 +51,18 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return logger.With(zap.String(log.CategoryKey, log.CategoryValue))
 	})
 	Singleton(func() *network.Interface { return network.New() })
+	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
+	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
 	Singleton(func() *snap.Service { return snap.NewService() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
 		return nginx.New(systemd.New(), systemConfig, userConfig)
 	})
-	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface) *redirect.Service {
+	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface,
+		client *retryablehttp.Client, version *version.PlatformVersion) *redirect.Service {
 		var certLogger *zap.Logger
 		NamedResolve(&certLogger, CertificateLogger)
-		return redirect.New(userConfig, identification, iface, logger)
+		return redirect.New(userConfig, identification, iface, client, version, logger)
 	})
 	Singleton(func() *date.RealProvider { return date.New() })
 	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *cert.Certbot {

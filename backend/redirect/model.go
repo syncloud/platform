@@ -56,8 +56,8 @@ type FreeDomainUpdateRequest struct {
 	WebProtocol     string  `json:"web_protocol"`
 	WebLocalPort    int     `json:"web_local_port"`
 	WebPort         *int    `json:"web_port,omitempty"`
-	Ipv4Enabled     bool    `json:"ipv4_enabled,omitempty"`
-	Ipv6Enabled     bool    `json:"ipv6_enabled,omitempty"`
+	Ipv4Enabled     bool    `json:"ipv4_enabled"`
+	Ipv6Enabled     bool    `json:"ipv6_enabled"`
 }
 
 type FreeDomainAcquireResponse struct {
