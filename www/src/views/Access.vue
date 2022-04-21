@@ -193,7 +193,7 @@ export default {
       interfaces: undefined,
       ipAutoDetect: false,
       publicIp: 0,
-      accessPort: 0,
+      accessPort: 443,
       visibility: 'hidden',
       ipv4Enabled: true,
       ipv4Public: false,
@@ -210,7 +210,12 @@ export default {
       this.displayIpv4Mode(val)
     },
     ipv4Public (val) {
-      this.displayIpv4Autodetect(val)
+      if (val) {
+        $('#ipv4_public_block').show('slow')
+      } else {
+        $('#ipv4_public_block').hide('slow')
+        this.accessPort = 443
+      }
     },
     ipAutoDetect (val) {
       this.displayIpv4Manual(val)
@@ -247,13 +252,6 @@ export default {
         $('#ipv4_mode_block').show('slow')
       } else {
         $('#ipv4_mode_block').hide('slow')
-      }
-    },
-    displayIpv4Autodetect (val) {
-      if (val) {
-        $('#ipv4_public_block').show('slow')
-      } else {
-        $('#ipv4_public_block').hide('slow')
       }
     },
     showAccessPortWarning () {
@@ -302,7 +300,7 @@ export default {
       event.preventDefault()
       const that = this
       const requestData = {
-        access_port: 0,
+        access_port: this.accessPort,
         ipv4_enabled: this.ipv4Enabled,
         ipv4_public: this.ipv4Public,
         ipv6_enabled: this.ipv6Enabled
@@ -313,7 +311,6 @@ export default {
           this.progressHide()
           return
         }
-        requestData.access_port = this.accessPort
         if (!this.ipAutoDetect) {
           requestData.public_ip = this.publicIp
         }
