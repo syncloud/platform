@@ -7,6 +7,7 @@ import (
 	"github.com/syncloud/platform/http"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/network"
+	"github.com/syncloud/platform/util"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
 	"io"
@@ -102,10 +103,10 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 }
 
 func (r *Service) Reset() error {
-	return r.Update(nil, nil, true, false, true)
+	return r.Update(nil, r.netInfo.IPv6(), nil, true, false, true)
 }
 
-func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
+func (r *Service) Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
 
 	platformVersion, err := r.version.Get()
 	if err != nil {
@@ -148,11 +149,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 	}
 
 	if ipv6Enabled {
-		ipv6Addr, err := r.netInfo.IPv6()
-		if err == nil {
-			ipv6 := ipv6Addr.String()
-			request.Ipv6 = &ipv6
-		}
+		request.Ipv6 = ipv6
 	}
 
 	dkimKey := r.userConfig.GetDkimKey()
@@ -179,9 +176,30 @@ func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	err = http.CheckHttpError(resp.StatusCode, body)
+	err = CheckHttpError(resp.StatusCode, body)
 	if err != nil {
 		return nil, err
 	}
 	return &body, nil
+}
+
+func CheckHttpError(status int, body []byte) error {
+	if status == 200 {
+		return nil
+	}
+	var redirectResponse Response
+	err := json.Unmarshal(body, &redirectResponse)
+	bodyString := string(body)
+	if err != nil {
+		log.Printf("error parsing redirect response: %v\n", err)
+		return &util.PassThroughJsonError{
+			Message: "Unable to parse Redirect response",
+			Json:    bodyString,
+		}
+	}
+	log.Printf("http error: %s\n", bodyString)
+	return &util.PassThroughJsonError{
+		Message: redirectResponse.Message,
+		Json:    bodyString,
+	}
 }

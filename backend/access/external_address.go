@@ -4,44 +4,95 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/http"
-	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
 	"go.uber.org/zap"
 	"io"
 	"net"
 )
 
-type ExternalAddress struct {
-	userConfig *config.UserConfig
-	redirect   *redirect.Service
-	trigger    *event.Trigger
-	client     http.Client
-	logger     *zap.Logger
+type UserConfig interface {
+	GetRedirectApiUrl() string
+	GetDomainUpdateToken() *string
+	IsRedirectEnabled() bool
+	SetIpv4Enabled(enabled bool)
+	SetIpv4Public(enabled bool)
+	SetIpv6Enabled(enabled bool)
+	SetPublicIp(publicIp *string)
+	SetPublicPort(port *int)
+	GetPublicIp() *string
+	GetPublicPort() *int
+	IsIpv6Enabled() bool
+	IsIpv4Public() bool
+	IsIpv4Enabled() bool
+}
+
+type Redirect interface {
+	Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error
+}
+
+type Trigger interface {
+	RunAccessChangeEvent() error
+}
+
+type NetworkInfo interface {
+	IPv6() *string
 }
 
 type Response struct {
-	Message string `json:"message"`
-	Ip      string `json:"device_ip,omitempty"`
+	Success bool    `json:"success"`
+	Message *string `json:"message"`
+	Data    *string `json:"data"`
 }
 
-func New(userConfig *config.UserConfig, redirect *redirect.Service, trigger *event.Trigger, client http.Client, logger *zap.Logger) *ExternalAddress {
+type ExternalAddress struct {
+	userConfig UserConfig
+	redirect   Redirect
+	trigger    Trigger
+	client     http.Client
+	network    NetworkInfo
+	logger     *zap.Logger
+}
+
+func New(userConfig UserConfig, redirect Redirect, trigger Trigger, client http.Client, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
 		userConfig: userConfig,
 		redirect:   redirect,
 		trigger:    trigger,
 		client:     client,
+		network:    network,
 		logger:     logger,
 	}
 }
 
 func (a *ExternalAddress) Update(request model.Access) error {
 
-	a.logger.Info(fmt.Sprintf("update ipv4: %v, ipb4 public: %v, ipv6: %v", request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
+	a.logger.Info(fmt.Sprintf("update ipv4 enabled: %v, ipb4 public: %v, ipv4: %v, ipv6: %v",
+		request.Ipv4Enabled, request.Ipv4Public, request.Ipv4, request.Ipv6Enabled))
+
+	if request.Ipv4Enabled {
+		port := config.WebAccessPort
+		if request.AccessPort != nil {
+			port = *request.AccessPort
+		}
+		err := a.Probe(request.Ipv4, port)
+		if err != nil {
+			return err
+		}
+	}
+
+	ipv6 := a.network.IPv6()
+	if request.Ipv6Enabled {
+		err := a.Probe(ipv6, config.WebAccessPort)
+		if err != nil {
+			return err
+		}
+	}
+
 	if a.userConfig.IsRedirectEnabled() {
 		err := a.redirect.Update(
 			request.Ipv4,
+			ipv6,
 			request.AccessPort,
 			request.Ipv4Enabled,
 			request.Ipv4Public,
@@ -65,6 +116,7 @@ func (a *ExternalAddress) Sync() error {
 	if a.userConfig.IsRedirectEnabled() {
 		err := a.redirect.Update(
 			a.userConfig.GetPublicIp(),
+			a.network.IPv6(),
 			a.userConfig.GetPublicPort(),
 			a.userConfig.IsIpv4Enabled(),
 			a.userConfig.IsIpv4Public(),
@@ -76,7 +128,7 @@ func (a *ExternalAddress) Sync() error {
 	return nil
 }
 
-func (a *ExternalAddress) probe(ip *string, port int) error {
+func (a *ExternalAddress) Probe(ip *string, port int) error {
 	a.logger.Info(fmt.Sprintf("probing %v", port))
 
 	url := fmt.Sprintf("%s/%s", a.userConfig.GetRedirectApiUrl(), "probe/port_v3")
@@ -117,20 +169,13 @@ func (a *ExternalAddress) probe(ip *string, port int) error {
 		return err
 	}
 
-	if response.StatusCode == 200 && probeResponse.Message == "OK" {
-		return nil
-	} else {
-		resultAddr := net.ParseIP(probeResponse.Ip)
-		ipType := "4"
-		resultIp := ""
-		if resultAddr.To4() == nil {
-			ipType = "6"
-			resultIp = resultAddr.To16().String()
-		} else {
-			resultIp = resultAddr.To4().String()
+	if response.StatusCode != 200 || probeResponse.Data == nil && *probeResponse.Data != "OK" {
+		message := "unknown error"
+		if probeResponse.Message != nil {
+			message = *probeResponse.Message
 		}
-
-		return fmt.Errorf("using device public IP: '%v' which is IPv%v", resultIp, ipType)
+		return fmt.Errorf(message)
 	}
 
+	return nil
 }
