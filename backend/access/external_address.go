@@ -1,26 +1,37 @@
 package access
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/http"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
 	"go.uber.org/zap"
+	"io"
+	"net"
 )
 
 type ExternalAddress struct {
 	userConfig *config.UserConfig
 	redirect   *redirect.Service
 	trigger    *event.Trigger
+	client     http.Client
 	logger     *zap.Logger
 }
 
-func New(userConfig *config.UserConfig, redirect *redirect.Service, trigger *event.Trigger, logger *zap.Logger) *ExternalAddress {
+type Response struct {
+	Message string `json:"message"`
+	Ip      string `json:"device_ip,omitempty"`
+}
+
+func New(userConfig *config.UserConfig, redirect *redirect.Service, trigger *event.Trigger, client http.Client, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
 		userConfig: userConfig,
 		redirect:   redirect,
 		trigger:    trigger,
+		client:     client,
 		logger:     logger,
 	}
 }
@@ -63,4 +74,63 @@ func (a *ExternalAddress) Sync() error {
 		}
 	}
 	return nil
+}
+
+func (a *ExternalAddress) probe(ip *string, port int) error {
+	a.logger.Info(fmt.Sprintf("probing %v", port))
+
+	url := fmt.Sprintf("%s/%s", a.userConfig.GetRedirectApiUrl(), "probe/port_v3")
+	token := a.userConfig.GetDomainUpdateToken()
+	if token == nil {
+		return fmt.Errorf("token is not set")
+	}
+
+	request := &PortProbeRequest{Token: *token, Port: port}
+	if ip != nil {
+		addr := net.ParseIP(*ip)
+		if addr.IsPrivate() {
+			return fmt.Errorf("IP: %v is not public", ip)
+		}
+		request.Ip = ip
+	}
+	requestJson, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+
+	response, err := a.client.Post(url, "application/json", requestJson)
+	if err != nil {
+		return err
+	}
+	a.logger.Info(fmt.Sprintf("response status: %v", response.StatusCode))
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	a.logger.Info(fmt.Sprintf("response text: %v", string(body)))
+
+	var probeResponse Response
+	err = json.Unmarshal(body, &probeResponse)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode == 200 && probeResponse.Message == "OK" {
+		return nil
+	} else {
+		resultAddr := net.ParseIP(probeResponse.Ip)
+		ipType := "4"
+		resultIp := ""
+		if resultAddr.To4() == nil {
+			ipType = "6"
+			resultIp = resultAddr.To16().String()
+		} else {
+			resultIp = resultAddr.To4().String()
+		}
+
+		return fmt.Errorf("using device public IP: '%v' which is IPv%v", resultIp, ipType)
+	}
+
 }

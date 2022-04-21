@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
+	"github.com/syncloud/platform/http"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
 	"io"
 	"log"
-	"net/http"
 )
 
 type UserConfig interface {
@@ -19,20 +19,16 @@ type UserConfig interface {
 	GetDkimKey() *string
 }
 
-type HttpClient interface {
-	Post(url, bodyType string, body interface{}) (*http.Response, error)
-}
-
 type Service struct {
 	userConfig UserConfig
 	idParser   identification.IdParser
 	netInfo    network.Info
-	client     HttpClient
+	client     http.Client
 	version    version.Version
 	logger     *zap.Logger
 }
 
-func New(userConfig UserConfig, idParser identification.IdParser, netInfo network.Info, client HttpClient, version version.Version, logger *zap.Logger) *Service {
+func New(userConfig UserConfig, idParser identification.IdParser, netInfo network.Info, client http.Client, version version.Version, logger *zap.Logger) *Service {
 	return &Service{
 		userConfig: userConfig,
 		idParser:   idParser,
@@ -183,7 +179,7 @@ func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	err = CheckHttpError(resp.StatusCode, body)
+	err = http.CheckHttpError(resp.StatusCode, body)
 	if err != nil {
 		return nil, err
 	}

@@ -1,16 +1,22 @@
-package redirect
+package http
 
 import (
 	"encoding/json"
+	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/util"
 	"log"
+	"net/http"
 )
+
+type Client interface {
+	Post(url, bodyType string, body interface{}) (*http.Response, error)
+}
 
 func CheckHttpError(status int, body []byte) error {
 	if status == 200 {
 		return nil
 	}
-	var redirectResponse Response
+	var redirectResponse redirect.Response
 	err := json.Unmarshal(body, &redirectResponse)
 	bodyString := string(body)
 	if err != nil {
