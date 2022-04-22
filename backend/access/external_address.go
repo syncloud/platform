@@ -42,7 +42,6 @@ type NetworkInfo interface {
 type Response struct {
 	Success bool    `json:"success"`
 	Message *string `json:"message"`
-	Data    *string `json:"data"`
 }
 
 type ExternalAddress struct {
@@ -169,10 +168,10 @@ func (a *ExternalAddress) Probe(ip *string, port int) error {
 		return err
 	}
 
-	if response.StatusCode != 200 || probeResponse.Data == nil && *probeResponse.Data != "OK" {
-		message := "unknown error"
+	if !probeResponse.Success {
+		message := "Unable to verify open ports"
 		if probeResponse.Message != nil {
-			message = *probeResponse.Message
+			message = fmt.Sprintf("%v, %v", message, *probeResponse.Message)
 		}
 		return fmt.Errorf(message)
 	}

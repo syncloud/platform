@@ -2,6 +2,7 @@ package access
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
 	"io/ioutil"
@@ -60,7 +61,7 @@ func (u UserConfigStub) IsIpv4Enabled() bool {
 type RedirectStub struct {
 }
 
-func (r RedirectStub) Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
+func (r RedirectStub) Update(_ *string, _ *string, _ *int, _ bool, _ bool, _ bool) error {
 	return nil
 }
 
@@ -76,7 +77,11 @@ type ClientStub struct {
 	status   int
 }
 
-func (c *ClientStub) Post(_, _ string, body interface{}) (*http.Response, error) {
+func (c *ClientStub) Post(_, _ string, _ interface{}) (*http.Response, error) {
+	if c.status != 200 {
+		return nil, fmt.Errorf("error code: %v", c.status)
+	}
+
 	r := ioutil.NopCloser(bytes.NewReader([]byte(c.response)))
 	return &http.Response{
 		StatusCode: c.status,
@@ -101,10 +106,11 @@ func TestOk(t *testing.T) {
 }
 
 func TestFail(t *testing.T) {
-	client := &ClientStub{`{"success":false,"message":"error"}`, 500}
+	client := &ClientStub{`{"success":false,"message":"error"}`, 200}
 	address := New(&UserConfigStub{}, &RedirectStub{}, &TriggerStub{}, client, &NetworkInfoStub{}, log.Default())
 	ip := "1.1.1.1"
 	err := address.Probe(&ip, 1)
 	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "Unable to verify")
 
 }
