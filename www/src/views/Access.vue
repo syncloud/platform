@@ -61,7 +61,7 @@
                   <label class="span alignment" for="public_ip" style="font-weight: 300">Public IP:</label>
                   <input id="public_ip" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
-                         :disabled="ipAutoDetect" v-model="publicIp">
+                         :disabled="ipAutoDetect" v-model="ipv4">
                 </div>
 
                 <div class="setline" style='white-space: nowrap;'>
@@ -192,7 +192,7 @@ export default {
     return {
       interfaces: undefined,
       ipAutoDetect: false,
-      publicIp: 0,
+      ipv4: 0,
       accessPort: 443,
       visibility: 'hidden',
       ipv4Enabled: true,
@@ -276,9 +276,9 @@ export default {
       }
       const onComplete = (data) => {
         const accessData = data
-        if ('public_ip' in accessData) {
+        if ('ipv4' in accessData) {
           that.ipAutoDetect = false
-          that.publicIp = accessData.public_ip
+          that.ipv4 = accessData.ipv4
         } else {
           that.ipAutoDetect = true
         }
@@ -312,7 +312,7 @@ export default {
           return
         }
         if (!this.ipAutoDetect) {
-          requestData.public_ip = this.publicIp
+          requestData.ipv4 = this.ipv4
         }
       }
 
