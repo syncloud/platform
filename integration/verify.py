@@ -378,12 +378,14 @@ def test_installer_upgrade(device, domain):
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
+                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle',
+                      attempts=100)
 
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
+                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle',
+                      attempts=100)
 
 
 def test_backup_app(device, artifact_dir, domain):
