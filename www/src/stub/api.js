@@ -50,7 +50,7 @@ const appCenterDataError = {
 }
 
 const deviceUrl = {
-  device_url: 'http://test.syncloud.it',
+  device_url: 'https://test.syncloud.it',
   success: true
 }
 
@@ -186,7 +186,7 @@ const versionsData = {
         name: 'Platform',
         required: true,
         ui: false,
-        url: 'http://platform.odroid-c2.syncloud.it'
+        url: 'https://platform.odroid-c2.syncloud.it'
       },
       current_version: '880',
       installed_version: '876'
@@ -197,7 +197,7 @@ const versionsData = {
         name: 'Installer',
         required: true,
         ui: false,
-        url: 'http://installer.odroid-c2.syncloud.it'
+        url: 'https://installer.odroid-c2.syncloud.it'
       },
       current_version: '78',
       installed_version: '75'
@@ -207,7 +207,7 @@ const versionsData = {
 }
 
 function appCenterToInstalledApp (app) {
-  app.url = 'http://' + app.id + '.odroid-c2.syncloud.it'
+  app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
   return app
 }
 
@@ -220,7 +220,7 @@ function appToInfo (app, installed) {
 
   info.app.required = true
   info.app.ui = false
-  info.app.url = 'http://' + app.id + '.odroid-c2.syncloud.it'
+  info.app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
 
   return info
 }
@@ -299,7 +299,7 @@ const mock = function (app, server, compiler) {
   })
 
   app.get('/rest/available_apps', function (req, res) {
-    let response = {}
+    let response
     if (state.availableAppsSuccess) {
       response = store
     } else {

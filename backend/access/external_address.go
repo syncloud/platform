@@ -140,7 +140,7 @@ func (a *ExternalAddress) Probe(ip *string, port int) error {
 	if ip != nil {
 		addr := net.ParseIP(*ip)
 		if addr.IsPrivate() {
-			return fmt.Errorf("IP: %v is not public", ip)
+			return fmt.Errorf("IP: %v is not public", *ip)
 		}
 		request.Ip = ip
 	}

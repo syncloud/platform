@@ -97,7 +97,7 @@ func (n NetworkInfoStub) IPv6() *string {
 	return &ip
 }
 
-func TestOk(t *testing.T) {
+func TestOk_GoodResponse(t *testing.T) {
 	client := &ClientStub{`{"success":true,"data":"OK"}`, 200}
 	address := New(&UserConfigStub{}, &RedirectStub{}, &TriggerStub{}, client, &NetworkInfoStub{}, log.Default())
 	ip := "1.1.1.1"
@@ -105,12 +105,22 @@ func TestOk(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestFail(t *testing.T) {
+func TestFail_BadResponse(t *testing.T) {
 	client := &ClientStub{`{"success":false,"message":"error"}`, 200}
 	address := New(&UserConfigStub{}, &RedirectStub{}, &TriggerStub{}, client, &NetworkInfoStub{}, log.Default())
 	ip := "1.1.1.1"
 	err := address.Probe(&ip, 1)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "Unable to verify")
+
+}
+
+func TestFail_NotAPublicIp(t *testing.T) {
+	client := &ClientStub{`{"success":false,"message":"error"}`, 200}
+	address := New(&UserConfigStub{}, &RedirectStub{}, &TriggerStub{}, client, &NetworkInfoStub{}, log.Default())
+	ip := "192.168.1.1"
+	err := address.Probe(&ip, 1)
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "IP: 192.168.1.1 is not public")
 
 }

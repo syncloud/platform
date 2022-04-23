@@ -9,11 +9,11 @@
               <h3>IP v4</h3>
             </div>
             <div class="setline" style='white-space: nowrap;'>
-              <div class="spandiv" id="ipv4_enabled" >
+              <div class="spandiv" id="ipv4_enabled">
                 <span class="span alignment">Support:</span>
                 <div style="display: inline-block;min-width: 110px">
                   <Switch
-                    id="tgl_ipv4"
+                    id="tgl_ipv4_enabled"
                     :checked="ipv4Enabled"
                     @toggle="toggleIpv4"
                     on-label="ON"
@@ -29,7 +29,7 @@
             <div id="ipv4_mode_block">
               <div class="setline">
                 <div class="spandiv" id="ipv4_public" style='white-space: nowrap;'>
-                  <span class="span alignment" >Mode:</span>
+                  <span class="span alignment">Mode:</span>
                   <div style="display: inline-block;min-width: 110px">
                     <Switch
                       id="tgl_ipv4_public"
@@ -57,9 +57,9 @@
                   </div>
                 </div>
 
-                <div class="setline" id="public_ip_block" style='white-space: nowrap;'>
-                  <label class="span alignment" for="public_ip" style="font-weight: 300">Public IP:</label>
-                  <input id="public_ip" type="text"
+                <div class="setline" id="ipv4_block" style='white-space: nowrap;'>
+                  <label class="span alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
+                  <input id="ipv4" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
                          :disabled="ipAutoDetect" v-model="ipv4">
                 </div>
@@ -88,11 +88,11 @@
             </div>
 
             <div class="setline" style='white-space: nowrap;'>
-              <div class="spandiv" id="ipv6_enabled" >
+              <div class="spandiv" id="ipv6_enabled">
                 <span class="span alignment">Support:</span>
                 <div style="display: inline-block;min-width: 110px">
                   <Switch
-                    id="tgl_ipv6"
+                    id="tgl_ipv6_enabled"
                     :checked="ipv6Enabled"
                     @toggle="toggleIpv6"
                     on-label="ON"
@@ -124,7 +124,8 @@
   <Dialog ref="access_port_info">
     <template v-slot:title>Access port</template>
     <template v-slot:text>
-      If your Syncloud device is not visible directly from the Internet you will need to create a port mapping on your router.
+      If your Syncloud device is not visible directly from the Internet you will need to create a port mapping on your
+      router.
       Ideally port 443 on your router should be mapped to port 443 on your device.
     </template>
   </Dialog>
@@ -192,7 +193,7 @@ export default {
     return {
       interfaces: undefined,
       ipAutoDetect: false,
-      ipv4: 0,
+      ipv4: '',
       accessPort: 443,
       visibility: 'hidden',
       ipv4Enabled: true,
@@ -242,9 +243,9 @@ export default {
     },
     displayIpv4Manual (val) {
       if (val) {
-        $('#public_ip_block').hide('slow')
+        $('#ipv4_block').hide('slow')
       } else {
-        $('#public_ip_block').show('slow')
+        $('#ipv4_block').show('slow')
       }
     },
     displayIpv4Mode (val) {
@@ -276,7 +277,7 @@ export default {
       }
       const onComplete = (data) => {
         const accessData = data
-        if ('ipv4' in accessData) {
+        if (accessData.ipv4) {
           that.ipAutoDetect = false
           that.ipv4 = accessData.ipv4
         } else {
@@ -307,11 +308,16 @@ export default {
       }
       if (this.ipv4Enabled) {
         if (!isValidPort(this.accessPort)) {
-          this.$refs.error.showAxios(error('access port (' + this.accessPort + ') has to be between 1 and 65535'))
+          this.$refs.error.showAxios(error('Access port (' + this.accessPort + ') has to be between 1 and 65535'))
           this.progressHide()
           return
         }
         if (!this.ipAutoDetect) {
+          if (this.ipv4.trim() === '') {
+            this.$refs.error.showAxios(error('Empty IP'))
+            this.progressHide()
+            return
+          }
           requestData.ipv4 = this.ipv4
         }
       }
@@ -342,6 +348,7 @@ export default {
 <style>
 @import '../style/site.css';
 @import '../style/material-icons.css';
+
 .alignment {
   min-width: 130px;
 }

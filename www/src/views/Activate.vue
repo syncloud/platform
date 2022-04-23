@@ -35,9 +35,10 @@
               <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger"
                    style="text-align: center; max-width: 800px; margin: 0 auto">
                 <div class="columns">
-                  <ul class="price">
+                  <ul class="plan">
                     <li class="header">Premium</li>
                     <li class="description">Syncloud will manage DNS records for your domain (like example.com)</li>
+                    <li class="description">Personal support for your device</li>
                     <li>
                       <button id="btn_premium_domain" class="buttongreen"
                               @click="selectPremiumDomain">
@@ -47,7 +48,7 @@
                   </ul>
                 </div>
                 <div class="columns">
-                  <ul class="price">
+                  <ul class="plan">
                     <li class="header">Free</li>
                     <li class="description">Syncloud will manage DNS records for [name].{{ redirect_domain }} domain
                     </li>
@@ -60,7 +61,7 @@
                   </ul>
                 </div>
                 <div class="columns">
-                  <ul class="price">
+                  <ul class="plan">
                     <li class="header">Custom</li>
                     <li class="description">You will manage DNS records for your domain (like example.com)</li>
                     <li>
@@ -444,7 +445,7 @@ export default {
             password: this.redirectPassword,
             domain: this.fullDomain()
           })
-        .then(response => {
+        .then(_ => {
           this.stepper.next()
           this.progressHide()
         })
@@ -475,7 +476,7 @@ export default {
   padding: 8px;
 }
 
-.price {
+.plan {
   list-style-type: none;
   border: 1px solid #eee;
   margin: 0;
@@ -484,23 +485,24 @@ export default {
   transition: 0.3s;
 }
 
-.price:hover {
+.plan:hover {
   box-shadow: 0 8px 12px 0 rgba(0, 0, 0, 0.2)
 }
 
-.price li {
+.plan li {
   border-bottom: 1px solid #eee;
   padding: 20px;
   text-align: center;
 }
 
-.price .header {
+.plan .header {
   background-color: #00aeef;
   font-size: 20px;
 }
 
-.price .description {
+.plan .description {
   min-height: 125px;
+  padding: 10px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -508,8 +510,8 @@ export default {
     width: 100%;
   }
 
-  .price .description {
-    min-height: 0px;
+  .plan .description {
+    min-height: 0;
   }
 }
 </style>
