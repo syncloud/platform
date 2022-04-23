@@ -1,19 +1,14 @@
 package access
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/http"
 	"github.com/syncloud/platform/rest/model"
 	"go.uber.org/zap"
-	"io"
-	"net"
 )
 
 type UserConfig interface {
-	GetRedirectApiUrl() string
-	GetDomainUpdateToken() *string
 	IsRedirectEnabled() bool
 	SetIpv4Enabled(enabled bool)
 	SetIpv4Public(enabled bool)
@@ -45,6 +40,7 @@ type Response struct {
 }
 
 type ExternalAddress struct {
+	probe      *PortProbe
 	userConfig UserConfig
 	redirect   Redirect
 	trigger    Trigger
@@ -53,8 +49,9 @@ type ExternalAddress struct {
 	logger     *zap.Logger
 }
 
-func New(userConfig UserConfig, redirect Redirect, trigger Trigger, client http.Client, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
+func New(probe *PortProbe, userConfig UserConfig, redirect Redirect, trigger Trigger, client http.Client, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
+		probe:      probe,
 		userConfig: userConfig,
 		redirect:   redirect,
 		trigger:    trigger,
@@ -74,7 +71,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 		if request.AccessPort != nil {
 			port = *request.AccessPort
 		}
-		err := a.Probe(request.Ipv4, port)
+		err := a.probe.Probe(request.Ipv4, port)
 		if err != nil {
 			return err
 		}
@@ -82,7 +79,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 
 	ipv6 := a.network.IPv6()
 	if request.Ipv6Enabled {
-		err := a.Probe(ipv6, config.WebAccessPort)
+		err := a.probe.Probe(ipv6, config.WebAccessPort)
 		if err != nil {
 			return err
 		}
@@ -124,57 +121,5 @@ func (a *ExternalAddress) Sync() error {
 			return err
 		}
 	}
-	return nil
-}
-
-func (a *ExternalAddress) Probe(ip *string, port int) error {
-	a.logger.Info(fmt.Sprintf("probing %v", port))
-
-	url := fmt.Sprintf("%s/%s", a.userConfig.GetRedirectApiUrl(), "probe/port_v3")
-	token := a.userConfig.GetDomainUpdateToken()
-	if token == nil {
-		return fmt.Errorf("token is not set")
-	}
-
-	request := &PortProbeRequest{Token: *token, Port: port}
-	if ip != nil {
-		addr := net.ParseIP(*ip)
-		if addr.IsPrivate() {
-			return fmt.Errorf("IP: %v is not public", *ip)
-		}
-		request.Ip = ip
-	}
-	requestJson, err := json.Marshal(request)
-	if err != nil {
-		return err
-	}
-
-	response, err := a.client.Post(url, "application/json", requestJson)
-	if err != nil {
-		return err
-	}
-	a.logger.Info(fmt.Sprintf("response status: %v", response.StatusCode))
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-
-	a.logger.Info(fmt.Sprintf("response text: %v", string(body)))
-
-	var probeResponse Response
-	err = json.Unmarshal(body, &probeResponse)
-	if err != nil {
-		return err
-	}
-
-	if !probeResponse.Success {
-		message := "Unable to verify open ports"
-		if probeResponse.Message != nil {
-			message = fmt.Sprintf("%v, %v", message, *probeResponse.Message)
-		}
-		return fmt.Errorf(message)
-	}
-
 	return nil
 }

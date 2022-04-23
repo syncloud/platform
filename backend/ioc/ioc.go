@@ -88,8 +88,12 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 
 	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
 
-	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
-		return access.New(userConfig, redirectService, eventTrigger, client, netInfo, logger)
+	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.PortProbe {
+		return access.NewProbe(userConfig, client, logger)
+	})
+
+	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(probe, userConfig, redirectService, eventTrigger, client, netInfo, logger)
 	})
 
 	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
