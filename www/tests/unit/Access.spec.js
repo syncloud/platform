@@ -617,10 +617,7 @@ test('Manual Ipv4 default value', async () => {
     }
   )
 
-  let savedIpv4
-  mock.onPost('/rest/access').reply(function (config) {
-    const request = JSON.parse(config.data)
-    savedIpv4 = request.ipv4
+  mock.onPost('/rest/access').reply(function (_) {
     return [200, { success: true }]
   })
 
@@ -676,10 +673,7 @@ test('Manual Ipv4 empty value', async () => {
     }
   )
 
-  let savedIpv4
   mock.onPost('/rest/access').reply(function (config) {
-    const request = JSON.parse(config.data)
-    savedIpv4 = request.ipv4
     return [200, { success: true }]
   })
 
