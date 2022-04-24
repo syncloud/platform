@@ -47,7 +47,7 @@ type CertbotCleanUpRequest struct {
 
 type FreeDomainUpdateRequest struct {
 	Ip              *string `json:"ip,omitempty"`
-	LocalIp         string  `json:"local_ip"`
+	LocalIp         *string `json:"local_ip,omitempty"`
 	MapLocalAddress bool    `json:"map_local_address,omitempty"`
 	Token           string  `json:"token"`
 	Ipv6            *string `json:"ipv6,omitempty"`
@@ -56,6 +56,8 @@ type FreeDomainUpdateRequest struct {
 	WebProtocol     string  `json:"web_protocol"`
 	WebLocalPort    int     `json:"web_local_port"`
 	WebPort         *int    `json:"web_port,omitempty"`
+	Ipv4Enabled     bool    `json:"ipv4_enabled"`
+	Ipv6Enabled     bool    `json:"ipv6_enabled"`
 }
 
 type FreeDomainAcquireResponse struct {

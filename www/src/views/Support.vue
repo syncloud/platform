@@ -20,7 +20,6 @@
               <button
                 id="send"
                 class="buttonblue bwidth smbutton"
-                :progress="true"
                 @click="sendLogs"
                 data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs
               </button>

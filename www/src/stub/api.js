@@ -50,7 +50,7 @@ const appCenterDataError = {
 }
 
 const deviceUrl = {
-  device_url: 'http://test.syncloud.it',
+  device_url: 'https://test.syncloud.it',
   success: true
 }
 
@@ -111,27 +111,10 @@ const networkInterfaces = {
   success: true
 }
 
-const portMappingsData = {
-  port_mappings: [
-    {
-      local_port: 80,
-      external_port: 80
-    },
-    {
-      local_port: 443,
-      external_port: 10001
-    }
-
-  ],
-  success: true
-}
-
 const accessData = {
   data: {
     external_access: false,
-    upnp_available: false,
-    upnp_enabled: true,
-    upnp_message: 'not used'
+    access_port: 443
     // public_ip: '111.111.111.111'
   },
   success: true
@@ -203,7 +186,7 @@ const versionsData = {
         name: 'Platform',
         required: true,
         ui: false,
-        url: 'http://platform.odroid-c2.syncloud.it'
+        url: 'https://platform.odroid-c2.syncloud.it'
       },
       current_version: '880',
       installed_version: '876'
@@ -214,7 +197,7 @@ const versionsData = {
         name: 'Installer',
         required: true,
         ui: false,
-        url: 'http://installer.odroid-c2.syncloud.it'
+        url: 'https://installer.odroid-c2.syncloud.it'
       },
       current_version: '78',
       installed_version: '75'
@@ -224,7 +207,7 @@ const versionsData = {
 }
 
 function appCenterToInstalledApp (app) {
-  app.url = 'http://' + app.id + '.odroid-c2.syncloud.it'
+  app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
   return app
 }
 
@@ -237,7 +220,7 @@ function appToInfo (app, installed) {
 
   info.app.required = true
   info.app.ui = false
-  info.app.url = 'http://' + app.id + '.odroid-c2.syncloud.it'
+  info.app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
 
   return info
 }
@@ -316,7 +299,7 @@ const mock = function (app, server, compiler) {
   })
 
   app.get('/rest/available_apps', function (req, res) {
-    let response = {}
+    let response
     if (state.availableAppsSuccess) {
       response = store
     } else {
@@ -363,29 +346,20 @@ const mock = function (app, server, compiler) {
     res.json(networkInterfaces)
   })
 
-  app.get('/rest/access/access', function (req, res) {
+  app.get('/rest/access', function (req, res) {
     res.json(accessData)
   })
 
-  app.get('/rest/access/port_mappings', function (req, res) {
-    res.json(portMappingsData)
-  })
 
-  app.post('/rest/access/set_access', function (req, res) {
+  app.post('/rest/access', function (req, res) {
     if (state.accessSuccess) {
       accessData.data.external_access = req.body.external_access
-      accessData.data.upnp_enabled = req.body.upnp_enabled
       if (req.body.public_ip === undefined) {
         delete accessData.data.public_ip
       } else {
         accessData.data.public_ip = req.body.public_ip
       }
-      if (req.query.upnp_enabled) {
-        portMappingsData.port_mappings[0].external_port = 81
-        portMappingsData.port_mappings[1].external_port = 444
-      } else {
-        portMappingsData.port_mappings[1].external_port = req.body.access_port
-      }
+      accessData.access_port = req.body.access_port
       res.json({ success: true })
     } else {
       res.status(500).json({ success: false, message: 'error' })

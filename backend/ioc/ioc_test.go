@@ -4,11 +4,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 )
 
 func TestIoC(t *testing.T) {
 	configDb, err := ioutil.TempFile("", "")
+	_ = os.Remove(configDb.Name())
 	assert.Nil(t, err)
 	systemConfig, err := ioutil.TempFile("", "")
 	assert.Nil(t, err)

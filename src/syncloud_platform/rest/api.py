@@ -81,21 +81,12 @@ def storage_dir():
 
 @app.route("/port/add", methods=["POST"])
 def port_add():
-    port = request.form['port']
-    protocol = request.form['protocol']
-    mapping = get_injector().device.add_port(port, protocol)
-    if mapping:
-        return jsonify(success=True, message='', data=mapping.external_port), 200
-    else:
-        return jsonify(success=False, message='Not adding external port'), 200
+    return jsonify(success=True, message='Deprecated'), 200
 
 
 @app.route("/port/remove", methods=["POST"])
 def port_remove():
-    port = request.form['port']
-    protocol = request.form['protocol']
-    get_injector().device.remove_port(port, protocol)
-    return jsonify(success=True, message='', data='OK'), 200
+    return jsonify(success=True, message='Deprecated'), 200
 
 
 @app.route("/user/email", methods=["GET"])

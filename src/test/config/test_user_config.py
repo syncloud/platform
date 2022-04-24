@@ -18,35 +18,6 @@ def test_domain():
     assert 'syncloud.info' == config.get_redirect_domain()
     assert 'https://api.syncloud.info' == config.get_redirect_api_url()
 
-def test_migrate():
-    old_config_file = temp_file()
-    with open(old_config_file, 'w') as f:
-       f.write("""
-[platform]
-redirect_enabled = True
-user_domain = test
-domain_update_token = token1
-external_access = False
-manual_access_port = 443
-activated = True
-
-[redirect]
-domain = syncloud.it
-api_url = http://api.syncloud.it
-user_email = user@example.com
-user_update_token = token2
-       """)
-    config_db = join(dirname(__file__), 'db')
-    if isfile(config_db):
-        os.remove(config_db)
-    config = PlatformUserConfig(config_db, old_config_file)
-    assert config.get_redirect_domain() == 'syncloud.it'
-    assert config.get_upnp()
-    assert config.is_redirect_enabled()
-    assert not config.get_external_access()
-
-    assert not path.isfile(old_config_file)
-
 
 def test_none():
     config_db = join(dirname(__file__), 'db')

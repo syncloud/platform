@@ -17,22 +17,24 @@ import (
 	"net/http/httputil"
 	"net/url"
 
+	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/job"
 )
 
 type Backend struct {
-	Master         *job.Master
-	backup         *backup.Backup
-	eventTrigger   *event.Trigger
-	worker         *job.Worker
-	redirect       *redirect.Service
-	installer      installer.AppInstaller
-	storage        *storage.Storage
-	identification *identification.Parser
-	activate       *Activate
-	userConfig     *config.UserConfig
-	certificate    *Certificate
+	Master          *job.Master
+	backup          *backup.Backup
+	eventTrigger    *event.Trigger
+	worker          *job.Worker
+	redirect        *redirect.Service
+	installer       installer.AppInstaller
+	storage         *storage.Storage
+	identification  *identification.Parser
+	activate        *Activate
+	userConfig      *config.UserConfig
+	certificate     *Certificate
+	externalAddress *access.ExternalAddress
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -41,21 +43,22 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
-	certificate *Certificate,
+	certificate *Certificate, externalAddresss *access.ExternalAddress,
 ) *Backend {
 
 	return &Backend{
-		Master:         master,
-		backup:         backup,
-		eventTrigger:   eventTrigger,
-		worker:         worker,
-		redirect:       redirect,
-		installer:      installerService,
-		storage:        storageService,
-		identification: identification,
-		activate:       activate,
-		userConfig:     userConfig,
-		certificate:    certificate,
+		Master:          master,
+		backup:          backup,
+		eventTrigger:    eventTrigger,
+		worker:          worker,
+		redirect:        redirect,
+		installer:       installerService,
+		storage:         storageService,
+		identification:  identification,
+		activate:        activate,
+		userConfig:      userConfig,
+		certificate:     certificate,
+		externalAddress: externalAddresss,
 	}
 }
 
@@ -100,6 +103,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/certificate", Handle(b.certificate.Certificate)).Methods("GET")
 	r.HandleFunc("/certificate/log", Handle(b.certificate.CertificateLog)).Methods("GET")
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
+	r.HandleFunc("/access", Handle(b.GetAccess)).Methods("GET")
+	r.HandleFunc("/access", Handle(b.SetAccess)).Methods("POST")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -246,6 +251,28 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 		Domain: b.userConfig.GetRedirectDomain(),
 	}
 	return response, nil
+}
+
+func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
+	response := &model.Access{
+		Ipv4:        b.userConfig.GetPublicIp(),
+		Ipv4Enabled: b.userConfig.IsIpv4Enabled(),
+		Ipv4Public:  b.userConfig.IsIpv4Public(),
+		AccessPort:  b.userConfig.GetPublicPort(),
+		Ipv6Enabled: b.userConfig.IsIpv6Enabled(),
+	}
+	return response, nil
+}
+
+func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
+	var request model.Access
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("access request is wrong")
+	}
+
+	return request, b.externalAddress.Update(request)
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {

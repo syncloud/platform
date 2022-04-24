@@ -6,33 +6,23 @@ import Access from '@/views/Access'
 
 jest.setTimeout(30000)
 
-const defaultPortMappings = {
-  port_mappings: [
-    { local_port: 443, external_port: 10001 }
-  ],
-  success: true
-}
-
-test('Disable external access', async () => {
-  let savedExternalAccess
+test('Private ipv4 disable', async () => {
+  let savedIpv4Enabled
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: true,
-        upnp_available: false,
-        upnp_enabled: true,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: true,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
-    savedExternalAccess = JSON.parse(config.data).external_access
+  mock.onPost('/rest/access').reply(function (config) {
+    savedIpv4Enabled = JSON.parse(config.data).ipv4_enabled
     return [200, { success: true }]
   })
 
@@ -59,36 +49,33 @@ test('Disable external access', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_external').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
 
   expect(showError).toHaveBeenCalledTimes(0)
-  expect(savedExternalAccess).toBe(false)
+  expect(savedIpv4Enabled).toBe(false)
   wrapper.unmount()
 })
 
-test('Enable external access', async () => {
-  let savedExternalAccess
+test('Private ipv4 enable', async () => {
+  let savedIpv4Enabled
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: true,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: false,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
-    savedExternalAccess = JSON.parse(config.data).external_access
+  mock.onPost('/rest/access').reply(function (config) {
+    savedIpv4Enabled = JSON.parse(config.data).ipv4_enabled
     return [200, { success: true }]
   })
 
@@ -115,37 +102,35 @@ test('Enable external access', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_external').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
   expect(showError).toHaveBeenCalledTimes(0)
-  expect(savedExternalAccess).toBe(true)
+  expect(savedIpv4Enabled).toBe(true)
   wrapper.unmount()
 })
 
-test('Enable external access empty manual ports', async () => {
+test('Public ipv4 enable', async () => {
+  let savedIpv4Enabled
+  let savedIpv4Public
   const showError = jest.fn()
-  const setAccess = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: false,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: false,
+        ipv4_public: false,
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, {
-    port_mappings: [ ],
-    success: true
-  })
-  mock.onPost('/rest/access/set_access').reply(function (config) {
-    setAccess()
+  mock.onPost('/rest/access').reply(function (config) {
+    let request = JSON.parse(config.data)
+    savedIpv4Enabled = request.ipv4_enabled
+    savedIpv4Public = request.ipv4_public
     return [200, { success: true }]
   })
 
@@ -171,89 +156,35 @@ test('Enable external access empty manual ports', async () => {
   )
 
   await flushPromises()
-
-  await wrapper.find('#tgl_external').trigger('toggle')
-  await wrapper.find('#btn_save').trigger('click')
-
-  expect(showError).toHaveBeenCalledTimes(1)
-  expect(setAccess).toHaveBeenCalledTimes(0)
-  wrapper.unmount()
-})
-
-test('Enable auto port mapping (upnp)', async () => {
-  let savedUpnpEnabled
-  const showError = jest.fn()
-
-  const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
-    {
-      data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: false,
-        public_ip: '111.111.111.111'
-      },
-      success: true
-    }
-  )
-
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
-    savedUpnpEnabled = JSON.parse(config.data).upnp_enabled
-    return [200, { success: true }]
-  })
-
-  const wrapper = mount(Access,
-    {
-      attachTo: document.body,
-      global: {
-        stubs: {
-          Error: {
-            template: '<span/>',
-            methods: {
-              showAxios: showError
-            }
-          },
-          Switch: {
-            template: '<button :id="id" />',
-            props: { id: String }
-          },
-          Dialog: true
-        }
-      }
-    }
-  )
-
-  await flushPromises()
-  await wrapper.find('#tgl_external').trigger('toggle')
-  await wrapper.find('#tgl_upnp').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
   expect(showError).toHaveBeenCalledTimes(0)
-  expect(savedUpnpEnabled).toBe(true)
+  expect(savedIpv4Enabled).toBe(true)
+  expect(savedIpv4Public).toBe(true)
   wrapper.unmount()
 })
 
-test('Ip auto detect', async () => {
+test('Public ipv4 auto detect', async () => {
   let ipAutoDetectEnabled
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: false,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: false,
+        ipv4_public: false,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
-    ipAutoDetectEnabled = JSON.parse(config.data).public_ip === undefined
+  mock.onPost('/rest/access').reply(function (config) {
+    ipAutoDetectEnabled = JSON.parse(config.data).ipv4 === undefined
     return [200, { success: true }]
   })
 
@@ -279,8 +210,10 @@ test('Ip auto detect', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_external').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
   await wrapper.find('#tgl_ip_autodetect').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
   expect(showError).toHaveBeenCalledTimes(0)
@@ -288,25 +221,127 @@ test('Ip auto detect', async () => {
   wrapper.unmount()
 })
 
-test('Set access port', async () => {
-  let savedAccessPort
+test('Ipv6 enable', async () => {
+  let savedIpv6Enabled
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: false,
-        public_ip: '111.111.111.111'
+        ipv6_enabled: false,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
+  mock.onPost('/rest/access').reply(function (config) {
+    savedIpv6Enabled = JSON.parse(config.data).ipv6_enabled
+    return [200, { success: true }]
+  })
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv6_enabled').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
+  await wrapper.find('#btn_save').trigger('click')
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(savedIpv6Enabled).toBe(true)
+  wrapper.unmount()
+})
+
+test('Ipv6 disable', async () => {
+  let savedIpv6Enabled
+  const showError = jest.fn()
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv6_enabled: true,
+        ipv4: '111.111.111.111'
+      },
+      success: true
+    }
+  )
+
+  mock.onPost('/rest/access').reply(function (config) {
+    savedIpv6Enabled = JSON.parse(config.data).ipv6_enabled
+    return [200, { success: true }]
+  })
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv6_enabled').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
+  await wrapper.find('#btn_save').trigger('click')
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(savedIpv6Enabled).toBe(false)
+  wrapper.unmount()
+})
+
+test('Public access port set', async () => {
+  let savedAccessPort
+  const showError = jest.fn()
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: false,
+        ipv4_public: false,
+        ipv4: '111.111.111.111'
+      },
+      success: true
+    }
+  )
+
+  mock.onPost('/rest/access').reply(function (config) {
     const request = JSON.parse(config.data)
     savedAccessPort = request.access_port
     return [200, { success: true }]
@@ -334,33 +369,32 @@ test('Set access port', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_external').trigger('toggle')
-  await wrapper.find('#access_port').setValue(2)
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
   expect(showError).toHaveBeenCalledTimes(0)
-  expect(savedAccessPort).toBe(2)
+  expect(savedAccessPort).toBe(443)
   wrapper.unmount()
 })
 
-test('Enable external access http error', async () => {
+test('Save http error', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: true,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: false,
+        ipv4_public: false,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
+  mock.onPost('/rest/access').reply(function (_) {
     return [400, { }]
   })
 
@@ -387,7 +421,9 @@ test('Enable external access http error', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_external').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
@@ -396,24 +432,22 @@ test('Enable external access http error', async () => {
   wrapper.unmount()
 })
 
-test('Enable external access service error', async () => {
+test('Save service error', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: true,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: false,
+        ipv4_public: false,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
+  mock.onPost('/rest/access').reply(function (_) {
     return [200, { success: false }]
   })
 
@@ -440,7 +474,9 @@ test('Enable external access service error', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_external').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
@@ -449,23 +485,21 @@ test('Enable external access service error', async () => {
   wrapper.unmount()
 })
 
-test('Enable external wrong access port', async () => {
+test('Access port wrong', async () => {
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/access/access').reply(200,
+  mock.onGet('/rest/access').reply(200,
     {
       data: {
-        external_access: false,
-        upnp_available: false,
-        upnp_enabled: true,
-        public_ip: '111.111.111.111'
+        ipv4_enabled: false,
+        ipv4_public: false,
+        ipv4: '111.111.111.111'
       },
       success: true
     }
   )
 
-  mock.onGet('/rest/access/port_mappings').reply(200, defaultPortMappings)
-  mock.onPost('/rest/access/set_access').reply(function (config) {
+  mock.onPost('/rest/access').reply(function (_) {
     return [200, { success: true }]
   })
 
@@ -497,13 +531,188 @@ test('Enable external wrong access port', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_external').trigger('toggle')
-  await wrapper.find('#tgl_upnp').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
   await wrapper.find('#access_port').setValue(0)
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
 
-  expect(error).toContain('access port')
+  expect(error).toBe('Access port (0) has to be between 1 and 65535')
+  wrapper.unmount()
+})
+
+test('Access port is always 443 in ipv4 private', async () => {
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: false,
+        ipv4_public: false,
+        ipv4: '111.111.111.111'
+      },
+      success: true
+    }
+  )
+
+  let savedAccessPort
+  mock.onPost('/rest/access').reply(function (config) {
+    const request = JSON.parse(config.data)
+    savedAccessPort = request.access_port
+    return [200, { success: true }]
+  })
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#access_port').setValue(0)
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#btn_save').trigger('click')
+
+  await flushPromises()
+
+  expect(error).toBe('')
+  expect(savedAccessPort).toBe(443)
+  wrapper.unmount()
+})
+
+test('Manual Ipv4 default value', async () => {
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: false,
+        ipv4_public: false
+      },
+      success: true
+    }
+  )
+
+  mock.onPost('/rest/access').reply(function (_) {
+    return [200, { success: true }]
+  })
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ip_autodetect').trigger('toggle')
+  await wrapper.find('#btn_save').trigger('click')
+
+  await flushPromises()
+
+  expect(error).toBe('Empty IP')
+  wrapper.unmount()
+})
+
+test('Manual Ipv4 empty value', async () => {
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: false,
+        ipv4_public: false
+      },
+      success: true
+    }
+  )
+
+  mock.onPost('/rest/access').reply(function (config) {
+    return [200, { success: true }]
+  })
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ip_autodetect').trigger('toggle')
+  await wrapper.find('#ipv4').setValue(' ')
+  await wrapper.find('#btn_save').trigger('click')
+
+  await flushPromises()
+
+  expect(error).toBe('Empty IP')
   wrapper.unmount()
 })

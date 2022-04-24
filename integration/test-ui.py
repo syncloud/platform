@@ -1,12 +1,13 @@
-import time
-from subprocess import check_output
-import pytest
 from os.path import dirname, join
+from subprocess import check_output
+
+import pytest
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from syncloudlib.integration.screenshots import screenshots
 from syncloudlib.integration.hosts import add_host_alias
+from syncloudlib.integration.screenshots import screenshots
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
@@ -121,12 +122,26 @@ def test_settings_access(driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'access')
     header = "//h1[text()='Access']"
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    btn = 'external_mode'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, btn)))
+
+    btn = '//input[@id="tgl_ipv4_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
+    driver.find_element_by_xpath(btn).click()
+
+    btn = '//input[@id="tgl_ipv4_public"]/ancestor::div[@class="bootstrap-switch-container"]'
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
+    driver.find_element_by_xpath(btn).click()
+
+    btn = '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]'
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
+    driver.find_element_by_xpath(btn).click()
+
+    btn = '//input[@id="tgl_ipv6_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
+    driver.find_element_by_xpath(btn).click()
+
+    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located(
+        (By.XPATH, '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]')))
     screenshots(driver, screenshot_dir, 'settings_access-' + ui_mode)
-    driver.find_element_by_id(btn).click()
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, "tgl_ip_autodetect")))
-    screenshots(driver, screenshot_dir, 'settings_access_external_access-' + ui_mode)
 
 
 def test_settings_network(driver, ui_mode, screenshot_dir):

@@ -291,29 +291,7 @@ header .hlink {
 .show {
     display: block;
 }
-.button_blue {
-    line-height: 44px;
-    width: 100%;
-    border: 1px solid transparent;
-    background: #00aeef;
-    padding: 2px 0 0;
-    color: #fff;
-    text-align: center;
-    text-transform: uppercase;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -webkit-transition: all .5s ease-out;
-    -moz-transition: all .5s ease-out;
-    -o-transition: all .5s ease-out;
-    -ms-transition: all .5s ease-out;
-    display: inline-block;
-    border-radius: 34px;
-}
-.button_blue:hover {
-    background: #64bc46;
-    color: #fff;
-}
+
 .menubutton {
     position: absolute;
     border: none;
@@ -448,18 +426,10 @@ header .hlink {
     text-align: left;
 }
 
-.nameinput {
-    height: 50px;
-}
-
-.passinput {
-    height: 50px;
-}
-
 input[type="text"], input[type="password"] {
     width: 100%;
     padding: 0 50px 0 20px;
-    border-radius: 40px;
+    border-radius: 3px;
     border: 1px solid #dcdee0;
     margin-bottom: 10px;
     background-color: #fff!important;
@@ -503,11 +473,11 @@ input:disabled {
     font-size: 14px;
 }
 .nameinput {
-    height: 50px;
+    height: 40px;
     background: url(../assets/nameinput.svg) no-repeat 95% center;
 }
 .passinput {
-    height: 50px;
+    height: 40px;
     background: url(../assets/passinput.svg) no-repeat 95% center;
 }
 .emailinput {
@@ -517,9 +487,11 @@ input:disabled {
 .buttonblue {
     color: #fff;
     background: #03aff0;
-    line-height: 30px;
-    border-radius: 10px;
+    line-height: 40px;
+    border-radius: 3px;
     width: 100%;
+    height: 40px;
+    min-width: 100px;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
     -moz-transition: all .3s ease-out;
@@ -534,9 +506,10 @@ input:disabled {
 .buttonred {
     color: #fff;
     background: Tomato;
-    line-height: 30px;
-    border-radius: 10px;
+    line-height: 40px;
+    border-radius: 3px;
     width: 100%;
+    height: 40px;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
     -moz-transition: all .3s ease-out;
@@ -556,9 +529,10 @@ input:disabled {
 .buttongreen {
     color: #fff;
     background: #64bc46;
-    line-height: 30px;
-    border-radius: 10px;
+    line-height: 40px;
+    border-radius: 3px;
     width: 100%;
+    height: 40px;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
     -moz-transition: all .3s ease-out;
@@ -579,7 +553,7 @@ input:disabled {
     color: #fff;
     background: #404750;
     line-height: 30px;
-    border-radius: 10px;
+    border-radius: 3px;
     width: 100%;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
@@ -593,7 +567,7 @@ input:disabled {
     color: #292b30;
     background: #c6cbce;
     line-height: 30px;
-    border-radius: 10px;
+    border-radius: 3px;
     width: 100%;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
@@ -609,9 +583,10 @@ input:disabled {
 .buttonblack {
     color: #fff;
     background: #2d353f;
-    line-height: 30px;
-    border-radius: 10px;
+    line-height: 40px;
+    border-radius: 3px;
     width: 100%;
+    height: 40px;
     cursor: pointer;
     -webkit-transition: all .3s ease-out;
     -moz-transition: all .3s ease-out;
@@ -984,7 +959,6 @@ footer .links a:hover {
         font-size: 16px!important;
     }
     .settingsblock .col2 {
-        width: 70%;
         margin: 0 auto;
     }
     .buttonblock button {
@@ -1009,7 +983,6 @@ footer .links a:hover {
         margin: 20px 4px;
     }
     .settingsblock .col2 {
-        width: 70%;
         margin: 0 auto;
     }
 }
