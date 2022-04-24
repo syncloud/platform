@@ -2,6 +2,8 @@ package ioc
 
 import (
 	"github.com/golobby/container/v3"
+	"github.com/hashicorp/go-retryablehttp"
+	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
@@ -22,6 +24,7 @@ import (
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
 	"time"
 )
@@ -48,15 +51,18 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return logger.With(zap.String(log.CategoryKey, log.CategoryValue))
 	})
 	Singleton(func() *network.Interface { return network.New() })
+	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
+	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
 	Singleton(func() *snap.Service { return snap.NewService() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
 		return nginx.New(systemd.New(), systemConfig, userConfig)
 	})
-	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface) *redirect.Service {
+	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface,
+		client *retryablehttp.Client, version *version.PlatformVersion) *redirect.Service {
 		var certLogger *zap.Logger
 		NamedResolve(&certLogger, CertificateLogger)
-		return redirect.New(userConfig, identification, iface, logger)
+		return redirect.New(userConfig, identification, iface, client, version, logger)
 	})
 	Singleton(func() *date.RealProvider { return date.New() })
 	Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) *cert.Certbot {
@@ -77,18 +83,28 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
 		return cron.NewCertificateJob(certGenerator)
 	})
-	Singleton(func(userConfig *config.UserConfig) *cron.PortsJob {
-		return cron.NewPortsJob(userConfig)
+	Singleton(func() snap.SnapdClient { return snap.NewClient() })
+	Singleton(func(snapClient snap.SnapdClient) *snap.Snapd { return snap.New(snapClient) })
+
+	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
+
+	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.PortProbe {
+		return access.NewProbe(userConfig, client, logger)
 	})
-	Singleton(func(job1 *cron.CertificateJob, job2 *cron.PortsJob, userConfig *config.UserConfig) *cron.Cron {
+
+	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(probe, userConfig, redirectService, eventTrigger, client, netInfo, logger)
+	})
+
+	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
+		return cron.NewExternalAddressJob(job)
+	})
+	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, userConfig *config.UserConfig) *cron.Cron {
 		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *job.Master { return job.NewMaster() })
 	Singleton(func(master *job.Master) *job.Worker { return job.NewWorker(master) })
 	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
-	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient) *snap.Snapd { return snap.New(snapClient) })
-	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig) *auth.Service {
@@ -121,9 +137,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
+		externalAddress *access.ExternalAddress,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress)
 	})
 
 }

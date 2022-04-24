@@ -57,7 +57,7 @@ func (f *ManagedRedirectStub) Acquire(email string, password string, domain stri
 	}, nil
 }
 
-func (f *ManagedRedirectStub) Reset(updateToken string) error {
+func (f *ManagedRedirectStub) Reset() error {
 	return nil
 }
 

@@ -58,7 +58,7 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig)
 			ioc.Call(func(iface *network.Interface) {
-				ip, err := iface.IPv6()
+				ip, err := iface.IPv6Addr()
 				if err != nil {
 					fmt.Print(err)
 					os.Exit(1)
@@ -74,7 +74,7 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig)
 			ioc.Call(func(iface *network.Interface) {
-				ip, err := iface.IPv6()
+				ip, err := iface.IPv6Addr()
 				if err != nil {
 					fmt.Print(err)
 					os.Exit(1)

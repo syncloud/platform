@@ -263,15 +263,6 @@ def test_python_ssl(device):
     device.run_ssh('/ssl.test.py')
 
 
-def test_set_access_mode_with_certbot(device, domain):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': False,
-                                         'public_ip': 0,
-                                         'access_port': 0})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
 
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
@@ -283,24 +274,24 @@ def test_testapp_access_change_hook(device_host):
 
 
 def test_get_access(device, domain):
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     print(response.text)
-    assert '"success": true' in response.text
-    assert '"upnp_enabled": false' in response.text
+    assert json.loads(response.text)["success"]
+    assert json.loads(response.text)["data"]["ipv4_enabled"]
     assert response.status_code == 200
 
 
 def test_network_interfaces(device, domain):
     response = device.login().get('https://{0}/rest/access/network_interfaces'.format(domain), verify=False)
     print(response.text)
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
 def test_send_logs(device, domain):
     response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(domain), verify=False)
     print(response.text)
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
@@ -316,60 +307,46 @@ def test_device_url(device, domain, artifact_dir, full_domain):
     response = device.login().get('https://{0}/rest/settings/device_url'.format(domain), verify=False)
     with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
     assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
 
 
 def test_api_url_443(device, domain):
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': False,
-                                         'public_ip': 0,
+    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': False,
+                                         'ipv4_public': False,
                                          'access_port': 443})
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
 
 
 def test_api_url_10000(device, domain):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': False,
-                                         'public_ip': 0,
+    response = device.login().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': False,
+                                         'ipv4_public': False,
                                          'access_port': 10000})
-    assert '"success": true' in response.text
+    assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
-    response = device.login().get('https://{0}/rest/access/access'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
-
-
-def test_set_access_error(device, domain):
-    response = device.login().post('https://{0}/rest/access/set_access'.format(domain), verify=False,
-                                   json={'upnp_enabled': False,
-                                         'external_access': True,
-                                         'public_ip': 0,
-                                         'access_port': 0})
-    assert '"success": false' in response.text
-    assert 'Unable to verify open ports' in response.text
-    assert response.status_code == 500, response.text
 
 
 def test_cron(device):
     device.run_ssh('snap run platform.cli cron')
 
 
-# adding new arch, no apps in the store yet
-# def test_install_app(device, domain):
-#     session = device.login()
-#     session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
-#     wait_for_installer(session, device_host)
+def test_install_app(device, domain):
+    session = device.login()
+    session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
+    wait_for_installer(session, domain)
 
 
 def test_rest_installed_apps(device, domain, artifact_dir):
@@ -378,15 +355,14 @@ def test_rest_installed_apps(device, domain, artifact_dir):
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) == 1
+    assert len(json.loads(response.text)['apps']) == 2
 
-# adding new arch, no apps in the store yet
-# def test_rest_installed_app(device, domain, artifact_dir):
-#     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
-#     assert response.status_code == 200
-#     with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
-#         the_file.write(response.text)
-#     assert response.status_code == 200
+def test_rest_installed_app(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
 
 
 def test_rest_not_installed_app(device, domain, artifact_dir):
@@ -402,12 +378,14 @@ def test_installer_upgrade(device, domain):
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
+                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle',
+                      attempts=100)
 
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
+                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle',
+                      attempts=100)
 
 
 def test_backup_app(device, artifact_dir, domain):

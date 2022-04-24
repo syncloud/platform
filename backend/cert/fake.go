@@ -21,7 +21,7 @@ const (
 	SubjectLocality     = "Syncloud"
 	SubjectOrganization = "Syncloud"
 	SubjectCommonName   = "syncloud"
-  SubjectCommonNameCa   = "syncloud ca"
+	SubjectCommonNameCa = "syncloud ca"
 	DefaultDuration     = 2 * Month
 )
 
@@ -50,18 +50,17 @@ func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, sub
 func (c *Fake) Generate() error {
 	c.logger.Info("generating fake certificate")
 
-
 	now := c.dateProvider.Now()
 
 	ca := &x509.Certificate{
-		SerialNumber:          big.NewInt(time.Now().UnixNano() / int64(time.Millisecond)),
-		Subject:               pkix.Name{
-		Country:      []string{SubjectCountry},
-		Province:     []string{SubjectProvince},
-		Locality:     []string{SubjectLocality},
-		Organization: []string{c.subjectOrganization},
-		CommonName:   SubjectCommonNameCa,
-	},
+		SerialNumber: big.NewInt(time.Now().UnixNano() / int64(time.Millisecond)),
+		Subject: pkix.Name{
+			Country:      []string{SubjectCountry},
+			Province:     []string{SubjectProvince},
+			Locality:     []string{SubjectLocality},
+			Organization: []string{c.subjectOrganization},
+			CommonName:   SubjectCommonNameCa,
+		},
 		NotBefore:             now,
 		NotAfter:              now.Add(c.duration),
 		IsCA:                  true,
@@ -104,14 +103,14 @@ func (c *Fake) Generate() error {
 	}
 
 	cert := &x509.Certificate{
-		SerialNumber:          big.NewInt(time.Now().UnixNano()/int64(time.Millisecond) + 1),
-		Subject:               pkix.Name{
-		Country:      []string{SubjectCountry},
-		Province:     []string{SubjectProvince},
-		Locality:     []string{SubjectLocality},
-		Organization: []string{c.subjectOrganization},
-		CommonName:   SubjectCommonName,
-	},
+		SerialNumber: big.NewInt(time.Now().UnixNano()/int64(time.Millisecond) + 1),
+		Subject: pkix.Name{
+			Country:      []string{SubjectCountry},
+			Province:     []string{SubjectProvince},
+			Locality:     []string{SubjectLocality},
+			Organization: []string{c.subjectOrganization},
+			CommonName:   SubjectCommonName,
+		},
 		NotBefore:             now,
 		NotAfter:              now.Add(c.duration),
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,

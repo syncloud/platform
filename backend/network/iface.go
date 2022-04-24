@@ -9,6 +9,12 @@ import (
 type Interface struct {
 }
 
+type Info interface {
+	LocalIPv4() (net.IP, error)
+	IPv6() *string
+	PublicIPv4() (string, error)
+}
+
 func New() *Interface {
 	return &Interface{}
 }
@@ -23,7 +29,16 @@ func (i *Interface) LocalIPv4() (net.IP, error) {
 	return localAddr.IP, nil
 }
 
-func (i *Interface) IPv6() (net.IP, error) {
+func (i *Interface) IPv6() *string {
+	addr, err := i.IPv6Addr()
+	if err != nil {
+		return nil
+	}
+	ip := addr.String()
+	return &ip
+}
+
+func (i *Interface) IPv6Addr() (net.IP, error) {
 	conn, err := net.Dial("udp", "[2001:4860:4860::8888]:80")
 	if err != nil {
 		return nil, err

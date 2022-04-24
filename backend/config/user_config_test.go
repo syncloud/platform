@@ -107,10 +107,54 @@ user_update_token = token2
 	config.SetRedirectDomain("syncloud.it")
 
 	assert.Equal(t, "syncloud.it", config.GetRedirectDomain())
-	assert.True(t, config.GetUpnp())
+
 	assert.True(t, config.IsRedirectEnabled())
-	assert.False(t, config.GetExternalAccess())
+	assert.False(t, config.IsIpv4Public())
 
 	_, err = os.Stat(oldConfigFile.Name())
 	assert.False(t, os.IsExist(err))
+}
+
+func TestMigratev2_ExternalFalse(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.Upsert("platform.external_access", "false")
+	config.Load()
+
+	assert.False(t, config.IsIpv4Public())
+	assert.Nil(t, config.GetOrNil("platform.external_access"))
+}
+
+func TestMigratev2_ExternalTrue(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.Upsert("platform.external_access", "true")
+	config.Load()
+
+	assert.True(t, config.IsIpv4Public())
+	assert.Nil(t, config.GetOrNil("platform.external_access"))
+}
+
+func TestPublicIp_Empty(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.SetPublicIp(nil)
+
+	assert.Nil(t, config.GetPublicIp())
+}
+
+func TestPublicIp_Valid(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	ip := "1.1.1.1"
+	config.SetPublicIp(&ip)
+	assert.Equal(t, "1.1.1.1", *config.GetPublicIp())
 }

@@ -27,7 +27,7 @@ type ManagedPlatformUserConfig interface {
 type ManagedRedirect interface {
 	Authenticate(email string, password string) (*redirect.User, error)
 	Acquire(email string, password string, domain string) (*redirect.Domain, error)
-	Reset(updateToken string) error
+	Reset() error
 }
 
 type ManagedActivation interface {
@@ -76,7 +76,7 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, domain
 
 	f.config.SetDomain(domain.Name)
 	f.config.UpdateDomainToken(domain.UpdateToken)
-	err = f.redirect.Reset(domain.UpdateToken)
+	err = f.redirect.Reset()
 	if err != nil {
 		return err
 	}

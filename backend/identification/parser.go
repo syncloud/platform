@@ -18,6 +18,10 @@ type Parser struct {
 	filename string
 }
 
+type IdParser interface {
+	Id() (*Id, error)
+}
+
 func New() *Parser {
 	return &Parser{filename: DefaultIdFile}
 }

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
@@ -25,6 +25,9 @@ test('Certificate', async () => {
     {
       attachTo: document.body,
       global: {
+        components: {
+          RouterLink: RouterLinkStub
+        },
         stubs: {
           Error: {
             template: '<span/>',
@@ -34,9 +37,9 @@ test('Certificate', async () => {
           },
           Confirmation: true
         },
-          mocks: {
-              $router: mockRouter
-          }
+        mocks: {
+          $router: mockRouter
+        }
       }
     }
   )

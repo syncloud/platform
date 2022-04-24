@@ -7,13 +7,13 @@
 
           <div class="col2">
             <div class="setline">
-              <span class="span">Activated to: </span><a id="txt_device_domain" :href="url">{{ url }}</a>
+              <span class="span">Activated at: </span><a id="txt_device_domain" :href="url">{{ url }}</a>
             </div>
 
             <div class="setline">
               <span class="span">You can assign different<br>domain name to your device</span>
               <div class="spandiv">
-                <button class="buttonblue bwidth smbutton" id="btn_reactivate" @click="reactivate">Reactivate</button>
+                <button class="buttongreen bwidth smbutton" id="btn_reactivate" @click="reactivate">Reactivate</button>
               </div>
             </div>
 

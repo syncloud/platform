@@ -8,8 +8,6 @@
            data-label-width="8"
     />
   </label>
-  <i style="margin-left: 5px" class="fa fa-circle-o-notch fa-spin switchloading"
-     :class="{ 'opacity-visible': progress, 'opacity-invisible': !progress }"></i>
 </template>
 <script>
 import 'bootstrap'
@@ -22,7 +20,6 @@ export default {
   props: {
     id: String,
     checked: { type: Boolean, default: false },
-    progress: { type: Boolean, default: false },
     onLabel: String,
     offLabel: String
   },
