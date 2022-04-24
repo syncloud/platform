@@ -64,3 +64,12 @@ func TestProbe_Fail_NotAPublicIp(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "IP: 192.168.1.1 is not public")
 }
+
+func TestProbe_Fail_NotValidIp(t *testing.T) {
+	client := &ClientStub{`{"success":false,"message":"error"}`, 200}
+	probe := NewProbe(&UserConfigStub{}, client, log.Default())
+	ip := "1.1.1"
+	err := probe.Probe(&ip, 1)
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "IP: 1.1.1 is not valid")
+}

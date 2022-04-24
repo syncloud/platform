@@ -63,8 +63,8 @@ func New(probe *PortProbe, userConfig UserConfig, redirect Redirect, trigger Tri
 
 func (a *ExternalAddress) Update(request model.Access) error {
 
-	a.logger.Info(fmt.Sprintf("update ipv4 enabled: %v, ipb4 public: %v, ipv4: %v, ipv6: %v",
-		request.Ipv4Enabled, request.Ipv4Public, request.Ipv4, request.Ipv6Enabled))
+	a.logger.Info(fmt.Sprintf("update ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
+		request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 
 	if request.Ipv4Enabled {
 		port := config.WebAccessPort

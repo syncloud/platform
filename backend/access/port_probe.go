@@ -29,7 +29,7 @@ func NewProbe(userConfig ProbeUserConfig, client http.Client, logger *zap.Logger
 }
 
 func (p *PortProbe) Probe(ip *string, port int) error {
-	p.logger.Info(fmt.Sprintf("probing %v", port))
+	p.logger.Info(fmt.Sprintf("probing port %v", port))
 
 	url := fmt.Sprintf("%s/%s", p.userConfig.GetRedirectApiUrl(), "probe/port_v3")
 	token := p.userConfig.GetDomainUpdateToken()
@@ -39,7 +39,13 @@ func (p *PortProbe) Probe(ip *string, port int) error {
 
 	request := &PortProbeRequest{Token: *token, Port: port}
 	if ip != nil {
+		p.logger.Info(fmt.Sprintf("probing ip %v", port))
+
 		addr := net.ParseIP(*ip)
+		if addr.To4() == nil && addr.To16() == nil {
+			return fmt.Errorf("IP: %v is not valid", *ip)
+		}
+
 		if addr.IsPrivate() {
 			return fmt.Errorf("IP: %v is not public", *ip)
 		}
