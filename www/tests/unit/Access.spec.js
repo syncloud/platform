@@ -542,6 +542,109 @@ test('Access port wrong', async () => {
   wrapper.unmount()
 })
 
+test('Access port 443 no warning', async () => {
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: true,
+        ipv4_public: true,
+        ipv4: '111.111.111.111',
+        access_port: 443
+      },
+      success: true
+    }
+  )
+
+  mock.onPost('/rest/access').reply(function (_) {
+    return [200, { success: true }]
+  })
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+  await flushPromises()
+
+  expect(wrapper.find('#access_port_warning').isVisible()).toBe(false)
+
+  wrapper.unmount()
+})
+
+test('Access port non 443 shows warning', async () => {
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: true,
+        ipv4_public: true,
+        ipv4: '111.111.111.111',
+        access_port: 444
+      },
+      success: true
+    }
+  )
+
+  mock.onPost('/rest/access').reply(function (_) {
+    return [200, { success: true }]
+  })
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Switch: {
+            template: '<button :id="id" />',
+            props: ['id']
+          },
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#access_port_warning').isVisible()).toBe(true)
+
+  wrapper.unmount()
+})
+
 test('Access port is always 443 in ipv4 private', async () => {
 
   const mock = new MockAdapter(axios)
@@ -673,7 +776,7 @@ test('Manual Ipv4 empty value', async () => {
     }
   )
 
-  mock.onPost('/rest/access').reply(function (config) {
+  mock.onPost('/rest/access').reply(function (_) {
     return [200, { success: true }]
   })
 
