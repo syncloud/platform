@@ -13,8 +13,8 @@ test('Certificate logs', async () => {
   mock.onGet('/rest/certificate/log').reply(200,
     {
       data: [
-        "log 1",
-        "log 2"
+        'log 1',
+        'log 2'
       ],
       success: true
     }

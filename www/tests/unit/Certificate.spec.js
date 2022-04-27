@@ -14,9 +14,9 @@ test('Certificate', async () => {
   mock.onGet('/rest/certificate').reply(200,
     {
       data: {
-          is_valid: true,
-          is_real: false,
-          valid_for_days: 10
+        is_valid: true,
+        is_real: false,
+        valid_for_days: 10
       },
       success: true
     }

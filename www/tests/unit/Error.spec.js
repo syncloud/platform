@@ -10,7 +10,7 @@ jest.setTimeout(30000)
 test('Send', async () => {
   let sent = false
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/send_log').reply(function (config) {
+  mock.onPost('/rest/send_log').reply(function (_) {
     sent = true
     return [200, { success: true }]
   })
@@ -202,7 +202,7 @@ test('Parameters message clean', async () => {
 
   expect(wrapper.find('#test_parameter1').exists()).toBe(true)
 
-  let alerts = wrapper.findAll('#test_parameter1_alert')
+  const alerts = wrapper.findAll('#test_parameter1_alert')
   expect(alerts.length).toBe(1)
   expect(alerts[0].text()).toBe('3\n4')
 

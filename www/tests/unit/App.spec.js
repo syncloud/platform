@@ -13,7 +13,7 @@ test('Install', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -71,7 +71,7 @@ test('Upgrade', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -129,7 +129,7 @@ test('Remove', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -189,7 +189,7 @@ test('Action error', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -199,7 +199,7 @@ test('Action error', async () => {
     }]
   })
 
-  mock.onPost('/rest/remove').reply(function (config) {
+  mock.onPost('/rest/remove').reply(function (_) {
     return [500, { message: 'not ok' }]
   })
 
@@ -234,7 +234,6 @@ test('Action error', async () => {
   wrapper.unmount()
 })
 
-
 test('Show error', async () => {
   let error = ''
   const showError = (err) => {
@@ -244,7 +243,7 @@ test('Show error', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [500, {
       message: 'not ok'
     }]
@@ -283,7 +282,7 @@ test('Backup', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -341,7 +340,7 @@ test('Backup error', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -351,7 +350,7 @@ test('Backup error', async () => {
     }]
   })
 
-  mock.onPost('/rest/backup/create').reply(function (config) {
+  mock.onPost('/rest/backup/create').reply(function (_) {
     return [500, {
       message: 'not ok'
     }]
@@ -397,7 +396,7 @@ test('Backup service error', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/app').reply(function (config) {
+  mock.onGet('/rest/app').reply(function (_) {
     return [200, {
       info: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
@@ -407,7 +406,7 @@ test('Backup service error', async () => {
     }]
   })
 
-  mock.onPost('/rest/backup/create').reply(function (config) {
+  mock.onPost('/rest/backup/create').reply(function (_) {
     return [200, { success: false, message: 'not ok' }]
   })
 

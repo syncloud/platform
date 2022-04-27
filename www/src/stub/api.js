@@ -350,7 +350,6 @@ const mock = function (app, server, compiler) {
     res.json(accessData)
   })
 
-
   app.post('/rest/access', function (req, res) {
     if (state.accessSuccess) {
       accessData.data.external_access = req.body.external_access
@@ -446,7 +445,7 @@ const mock = function (app, server, compiler) {
     }
   })
   app.get('/rest/certificate', function (req, res) {
-    let info = {
+    const info = {
       is_valid: true,
       is_real: false,
       valid_for_days: 10
@@ -454,17 +453,17 @@ const mock = function (app, server, compiler) {
     res.json({ success: true, data: info })
   })
   app.get('/rest/certificate/log', function (req, res) {
-    let logs = [
-    "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: {\"category\": \"certificate\"}",
-    "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: ----- {\"category\": \"certificate\"}",
-    "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: writing new private key to '/var/snap/platform/current/syncloud.key' {\"category\": \"certificate\"}",
-    "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .............................+++++ {\"category\": \"certificate\"}",
-    "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .........................................................+++++ {\"category\": \"certificate\"}",
-    "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: Generating a RSA private key {\"category\": \"certificate\"}",
-    "Dec 15 08:42:35 syncloud platform.backend[26230]: cert/fake.go:35 generating self signed certificate {\"category\": \"certificate\"}",
-    "Dec 15 08:42:35 syncloud platform.backend[26230]: cert/generator.go:75 unable to generate certificate: acme: error: 429 :: POST :: https://acme-v02.api.letsencrypt.org/acme/new-acct :: urn:ietf:params:acme:error:rateLimited :: Error creating new account :: too many registrations for this IP: see https://letsencrypt.org/docs/rate-limits/ {\"category\": \"certificate\"}"
+    const logs = [
+      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: {"category": "certificate"}',
+      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: ----- {"category": "certificate"}',
+      "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: writing new private key to '/var/snap/platform/current/syncloud.key' {\"category\": \"certificate\"}",
+      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .............................+++++ {"category": "certificate"}',
+      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .........................................................+++++ {"category": "certificate"}',
+      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: Generating a RSA private key {"category": "certificate"}',
+      'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/fake.go:35 generating self signed certificate {"category": "certificate"}',
+      'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/generator.go:75 unable to generate certificate: acme: error: 429 :: POST :: https://acme-v02.api.letsencrypt.org/acme/new-acct :: urn:ietf:params:acme:error:rateLimited :: Error creating new account :: too many registrations for this IP: see https://letsencrypt.org/docs/rate-limits/ {"category": "certificate"}'
     ]
-    res.json({ success: true, data: logs})
+    res.json({ success: true, data: logs })
   })
 }
 

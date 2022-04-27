@@ -148,10 +148,10 @@ test('Activate free domain availability error', async () => {
   })
 
   mock.onPost('/rest/redirect/domain/availability').reply(400, {
-      success: false,
-      parameters_messages: [
-        { parameter: 'domain', messages: ['domain is already taken'] }
-      ]
+    success: false,
+    parameters_messages: [
+      { parameter: 'domain', messages: ['domain is already taken'] }
+    ]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
 
@@ -208,7 +208,7 @@ test('Activate custom domain', async () => {
   })
 
   let availabilityCalled = false
-  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+  mock.onPost('/rest/redirect/domain/availability').reply(function (_) {
     availabilityCalled = true
     return [200, { success: true }]
   })
@@ -330,4 +330,3 @@ test('Activate premium domain', async () => {
 
   wrapper.unmount()
 })
-
