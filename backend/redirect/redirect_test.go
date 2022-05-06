@@ -43,11 +43,12 @@ func (n *NetInfoStub) LocalIPv4() (net.IP, error) {
 	return net.IPv4zero, nil
 }
 
-func (n *NetInfoStub) IPv6() *string {
-	panic("implement me")
+func (n *NetInfoStub) IPv6() (*string, error) {
+	ip := "[::1]"
+	return &ip, nil
 }
 
-func (n *NetInfoStub) PublicIPv4() (string, error) {
+func (n *NetInfoStub) PublicIPv4() (*string, error) {
 	panic("implement me")
 }
 
@@ -80,9 +81,8 @@ func TestUpdate_Ipv4And6Enabled(t *testing.T) {
 	client := &ClientStub{}
 	service := New(&UserConfigStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
-	ipv6 := "[::1]"
 	port := 1
-	err := service.Update(&ipv4, &ipv6, &port, true, true, true)
+	err := service.Update(&ipv4, &port, true, true, true)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"ip":"1.1.1.1","local_ip":"0.0.0.0","token":"token","ipv6":"[::1]","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":true}`, client.request)
 }
@@ -91,9 +91,8 @@ func TestUpdate_Ipv4Disabled(t *testing.T) {
 	client := &ClientStub{}
 	service := New(&UserConfigStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
-	ipv6 := "[::1]"
 	port := 1
-	err := service.Update(&ipv4, &ipv6, &port, false, true, true)
+	err := service.Update(&ipv4, &port, false, true, true)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"token":"token","ipv6":"[::1]","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":false,"ipv6_enabled":true}`, client.request)
 }
@@ -102,9 +101,8 @@ func TestUpdate_Ipv6Disabled(t *testing.T) {
 	client := &ClientStub{}
 	service := New(&UserConfigStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
-	ipv6 := "[::1]"
 	port := 1
-	err := service.Update(&ipv4, &ipv6, &port, true, true, false)
+	err := service.Update(&ipv4, &port, true, true, false)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"ip":"1.1.1.1","local_ip":"0.0.0.0","token":"token","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":false}`, client.request)
 }

@@ -103,10 +103,10 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 }
 
 func (r *Service) Reset() error {
-	return r.Update(nil, r.netInfo.IPv6(), nil, true, false, true)
+	return r.Update(nil, nil, true, false, true)
 }
 
-func (r *Service) Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
+func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
 
 	platformVersion, err := r.version.Get()
 	if err != nil {
@@ -141,7 +141,7 @@ func (r *Service) Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool
 				if err != nil {
 					return err
 				}
-				log.Printf("public ipv4: %s", ipv4)
+				log.Printf("public ipv4: %s", *ipv4)
 			}
 			request.Ip = ipv4
 		}
@@ -149,6 +149,7 @@ func (r *Service) Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool
 	}
 
 	if ipv6Enabled {
+		ipv6, _ := r.netInfo.IPv6()
 		request.Ipv6 = ipv6
 	}
 
