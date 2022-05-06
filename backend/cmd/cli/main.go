@@ -45,7 +45,7 @@ func main() {
 					fmt.Print(err)
 					os.Exit(1)
 				}
-				fmt.Print(ip)
+				fmt.Print(*ip)
 			})
 		},
 	}
