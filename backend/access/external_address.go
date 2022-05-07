@@ -110,7 +110,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	}
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
 	a.userConfig.SetIpv4Public(request.Ipv4Public)
-	a.userConfig.SetPublicIp(ipv4)
+	a.userConfig.SetPublicIp(request.Ipv4)
 	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
 	a.userConfig.SetPublicPort(request.AccessPort)
 
@@ -121,10 +121,8 @@ func (a *ExternalAddress) Update(request model.Access) error {
 func (a *ExternalAddress) Sync() error {
 
 	if a.userConfig.IsRedirectEnabled() {
-
 		err := a.redirect.Update(
 			a.userConfig.GetPublicIp(),
-
 			a.userConfig.GetPublicPort(),
 			a.userConfig.IsIpv4Enabled(),
 			a.userConfig.IsIpv4Public(),
