@@ -346,7 +346,7 @@ def test_cron(device):
 def test_install_app(device, domain):
     session = device.login()
     session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
-    wait_for_installer(session, domain)
+    wait_for_installer(session, domain, attempts=200)
 
 
 def test_rest_installed_apps(device, domain, artifact_dir):

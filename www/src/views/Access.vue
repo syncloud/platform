@@ -75,7 +75,7 @@
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
                     <button id="access_port_warning" type=button @click="showAccessPortWarning"
-                            class="control" style="background:transparent;">
+                            class="control" style="background:transparent;" v-show="false">
                       <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                     </button>
                   </div>
@@ -284,11 +284,11 @@ export default {
           that.ipAutoDetect = true
         }
         if (accessData.access_port !== undefined) {
-          this.accessPort = accessData.access_port
+          that.accessPort = accessData.access_port
         }
-        this.ipv4Enabled = accessData.ipv4_enabled
-        this.ipv4Public = accessData.ipv4_public
-        this.ipv6Enabled = accessData.ipv6_enabled
+        that.ipv4Enabled = accessData.ipv4_enabled
+        that.ipv4Public = accessData.ipv4_public
+        that.ipv6Enabled = accessData.ipv6_enabled
         this.progressHide()
       }
       axios.get('/rest/access')

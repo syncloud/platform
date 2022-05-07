@@ -1,13 +1,12 @@
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import AppCenter from "@/views/AppCenter"
-import { RouterLinkStub } from '@vue/test-utils'
+import AppCenter from '@/views/AppCenter'
+
 jest.setTimeout(30000)
 
 test('Show apps', async () => {
-
   const mock = new MockAdapter(axios)
   mock.onGet('rest/available_apps').reply(200,
     {
@@ -57,7 +56,6 @@ test('Show apps', async () => {
 })
 
 test('Show error', async () => {
-
   const mock = new MockAdapter(axios)
   mock.onGet('rest/available_apps').reply(500,
     {

@@ -81,7 +81,7 @@ test('Format error', async () => {
   )
   mock.onPost('/rest/storage/disk_format').reply(function (config) {
     deviceToFormat = JSON.parse(config.data).device
-    return [500, { message: "not ok" }]
+    return [500, { message: 'not ok' }]
   })
 
   const wrapper = mount(Storage,
