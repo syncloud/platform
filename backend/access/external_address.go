@@ -23,7 +23,7 @@ type UserConfig interface {
 }
 
 type Redirect interface {
-	Update(ipv4 *string, ipv6 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error
+	Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error
 }
 
 type Trigger interface {
@@ -31,7 +31,8 @@ type Trigger interface {
 }
 
 type NetworkInfo interface {
-	IPv6() *string
+	IPv6() (*string, error)
+	PublicIPv4() (*string, error)
 }
 
 type Response struct {
@@ -66,20 +67,31 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	a.logger.Info(fmt.Sprintf("update ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
 		request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 
+	ipv4 := request.Ipv4
 	if request.Ipv4Enabled {
 		port := config.WebAccessPort
 		if request.AccessPort != nil {
 			port = *request.AccessPort
 		}
-		err := a.probe.Probe(request.Ipv4, port)
+		if ipv4 == nil {
+			publicIp, err := a.network.PublicIPv4()
+			if err != nil {
+				return err
+			}
+			ipv4 = publicIp
+		}
+		err := a.probe.Probe(*ipv4, port)
 		if err != nil {
 			return err
 		}
 	}
 
-	ipv6 := a.network.IPv6()
 	if request.Ipv6Enabled {
-		err := a.probe.Probe(ipv6, config.WebAccessPort)
+		ipv6, err := a.network.IPv6()
+		if err != nil {
+			return err
+		}
+		err = a.probe.Probe(*ipv6, config.WebAccessPort)
 		if err != nil {
 			return err
 		}
@@ -87,8 +99,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 
 	if a.userConfig.IsRedirectEnabled() {
 		err := a.redirect.Update(
-			request.Ipv4,
-			ipv6,
+			ipv4,
 			request.AccessPort,
 			request.Ipv4Enabled,
 			request.Ipv4Public,
@@ -99,7 +110,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	}
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
 	a.userConfig.SetIpv4Public(request.Ipv4Public)
-	a.userConfig.SetPublicIp(request.Ipv4)
+	a.userConfig.SetPublicIp(ipv4)
 	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
 	a.userConfig.SetPublicPort(request.AccessPort)
 
@@ -110,9 +121,10 @@ func (a *ExternalAddress) Update(request model.Access) error {
 func (a *ExternalAddress) Sync() error {
 
 	if a.userConfig.IsRedirectEnabled() {
+
 		err := a.redirect.Update(
 			a.userConfig.GetPublicIp(),
-			a.network.IPv6(),
+
 			a.userConfig.GetPublicPort(),
 			a.userConfig.IsIpv4Enabled(),
 			a.userConfig.IsIpv4Public(),

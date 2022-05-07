@@ -28,7 +28,7 @@ func NewProbe(userConfig ProbeUserConfig, client http.Client, logger *zap.Logger
 	}
 }
 
-func (p *PortProbe) Probe(ip *string, port int) error {
+func (p *PortProbe) Probe(ip string, port int) error {
 	p.logger.Info(fmt.Sprintf("probing port %v", port))
 
 	url := fmt.Sprintf("%s/%s", p.userConfig.GetRedirectApiUrl(), "probe/port_v3")
@@ -37,20 +37,19 @@ func (p *PortProbe) Probe(ip *string, port int) error {
 		return fmt.Errorf("token is not set")
 	}
 
-	request := &PortProbeRequest{Token: *token, Port: port}
-	if ip != nil {
-		p.logger.Info(fmt.Sprintf("probing ip %v", port))
+	request := &PortProbeRequest{Token: *token, Ip: &ip, Port: port}
 
-		addr := net.ParseIP(*ip)
-		if addr.To4() == nil && addr.To16() == nil {
-			return fmt.Errorf("IP: %v is not valid", *ip)
-		}
+	p.logger.Info(fmt.Sprintf("probing ip %v", ip))
 
-		if addr.IsPrivate() {
-			return fmt.Errorf("IP: %v is not public", *ip)
-		}
-		request.Ip = ip
+	addr := net.ParseIP(ip)
+	if addr.To4() == nil && addr.To16() == nil {
+		return fmt.Errorf("IP: %v is not valid", ip)
 	}
+
+	if addr.IsPrivate() {
+		return fmt.Errorf("IP: %v is not public", ip)
+	}
+
 	requestJson, err := json.Marshal(request)
 	if err != nil {
 		return err
