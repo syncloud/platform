@@ -19,7 +19,6 @@ from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.network.network import Network
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.snap.snap import Snap
-from syncloud_platform.versions import Versions
 from syncloudlib import logger
 
 default_injector = None
@@ -48,8 +47,7 @@ class Injector:
 
         self.platform_app_paths = AppPaths(PLATFORM_APP_NAME, self.platform_config)
         self.platform_app_paths.get_data_dir()
-        self.versions = Versions(self.platform_config)
-        self.redirect_service = RedirectService(self.user_platform_config, self.versions)
+        self.redirect_service = RedirectService(self.user_platform_config)
 
         self.device_info = DeviceInfo(self.user_platform_config)
         self.snap = Snap(self.platform_config, self.device_info)

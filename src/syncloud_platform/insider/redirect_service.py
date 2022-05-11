@@ -11,18 +11,10 @@ from syncloud_platform.gaplib import linux
 
 class RedirectService:
 
-    def __init__(self, user_platform_config, versions):
-        self.versions = versions
+    def __init__(self, user_platform_config):
         self.user_platform_config = user_platform_config
 
         self.logger = logger.get_logger('RedirectService')
-
-    def get_user(self, email, password):
-        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/user/get")
-        response = requests.get(url, params={'email': email, 'password': password})
-        util.check_http_error(response)
-        user = convertible.from_json(response.text).data
-        return user
 
     def send_log(self, user_update_token, logs, include_support):
 
@@ -37,52 +29,3 @@ class RedirectService:
 
         return user
 
-    def sync(self, external_ip, web_port, web_local_port, web_protocol, update_token, external_access):
-        
-        map_local_address = not external_access
-        
-        version = self.versions.platform_version()
-        local_ip = linux.local_ip()
-        
-        data = {
-            'token': update_token,
-            'platform_version': version,
-            'local_ip': local_ip,
-            'map_local_address': map_local_address,
-            'web_protocol': web_protocol,
-            'web_port': web_port,
-            'web_local_port': web_local_port
-        }
-
-        if not external_ip:
-            external_ip = linux.public_ip_v4()
-            self.logger.warn("getting external ip: {0}".format(external_ip))
-
-        if external_ip:
-            iptype=linux.ip_type(external_ip)
-            if iptype != 'PUBLIC':
-                external_ip = None
-                self.logger.warn("External ip is not public: {0}".format(iptype))
-
-        if not map_local_address:
-            if external_ip:
-                data['ip'] = external_ip
-            else:
-                self.logger.warn("Will try server side client ip detection")
-   
-        local_ip_v6 = linux.local_ip_v6()
-        if local_ip_v6:
-            data['ipv6'] = local_ip_v6
-
-        dkim_key = self.user_platform_config.get_dkim_key()
-        if dkim_key:
-            data['dkim_key'] = dkim_key
-
-        url = urljoin(self.user_platform_config.get_redirect_api_url(), "/domain/update")
-
-        self.logger.info('url: ' + url)
-        json = convertible.to_json(data)
-        self.logger.info('request: ' + json)
-        response = requests.post(url, json)
-
-        util.check_http_error(response)

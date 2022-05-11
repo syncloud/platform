@@ -98,13 +98,13 @@ class Systemctl:
         try:
             log.info('starting {0}'.format(service))
             check_output('systemctl start {0} 2>&1'.format(service), shell=True)
-        except CalledProcessError as e:
-            log.error(e.output.decode())
+        except CalledProcessError as error:
+            log.error(error.output.decode())
             try:
                 log.error(check_output('journalctl -u {0} 2>&1'.format(service), shell=True).decode())
             except CalledProcessError as e:
                 log.error(e.output.decode())
-            raise e
+            raise error
 
     def stop_service(self, service):
         service = self.service_name(service)
