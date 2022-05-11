@@ -3,7 +3,6 @@ import tempfile
 import os
 from syncloud_platform.config.config import PLATFORM_CONFIG_NAME, PlatformConfig
 from syncloud_platform.config.user_config import PlatformUserConfig
-from syncloud_platform.insider.port_config import PortConfig, PORT_CONFIG_NAME
 
 
 def temp_file(text='', filename=None):
@@ -17,12 +16,6 @@ def temp_file(text='', filename=None):
         f.write(text)
         f.close()
     return filename
-
-
-def get_port_config(mappings):
-    config = PortConfig(dirname(temp_file(filename=PORT_CONFIG_NAME)))
-    config.save(mappings)
-    return config
 
 
 test_conf_dir = join(dirname(__file__), 'conf')
