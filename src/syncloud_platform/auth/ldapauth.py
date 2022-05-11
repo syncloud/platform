@@ -34,28 +34,6 @@ class LdapAuth:
             '{0}/sbin/slapadd.sh -F {1} -b "cn=config" -l {2}'.format(
                 self.ldap_root, self.user_conf_dir, init_script), shell=True)
 
-    def _init_db(self, filename):
-        success = False
-        for i in range(0, 3):
-            try:
-                self.ldapadd(filename, DOMAIN)
-                success = True
-                break
-            except Exception as e:
-                self.log.warn(str(e))
-                self.log.warn("probably ldap is still starting, will retry {0}".format(i))
-                time.sleep(1)
-
-        if not success:
-            raise Exception("Unable to initialize ldap db")
-
-    def ldapadd(self, filename, bind_dn=None):
-        bind_dn_option = ''
-        if bind_dn:
-            bind_dn_option = '-D "{0}"'.format(bind_dn)
-        check_output('{0}/bin/ldapadd.sh -x -w syncloud {1} -f {2}'.format(
-            self.ldap_root, bind_dn_option, filename), shell=True)
-
     def authenticate(self, name, password):
         conn = ldap.initialize('ldap://localhost:389')
         try:
@@ -70,6 +48,3 @@ class LdapAuth:
             conn.unbind()
             raise Exception(str(e))
 
-
-def make_secret(password):
-    return hash.ldap_salted_sha1.hash(password)
