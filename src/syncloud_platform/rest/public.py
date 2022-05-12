@@ -258,7 +258,6 @@ def backend_proxy_not_activated():
 
 
 @app.route("/rest/activation/status", methods=["GET"])
-@fail_if_activated
 def backend_proxy():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
