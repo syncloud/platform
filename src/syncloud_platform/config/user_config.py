@@ -39,11 +39,6 @@ class PlatformUserConfig:
     def get_user_update_token(self):
         return self._get('redirect.user_update_token')
 
-    def set_user_email(self, user_email):
-        self._upsert([
-            ('redirect.user_email', user_email)
-        ])
-
     def get_user_email(self):
         return self._get('redirect.user_email')
 
