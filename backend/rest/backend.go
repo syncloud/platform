@@ -105,6 +105,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.HandleFunc("/access", Handle(b.GetAccess)).Methods("GET")
 	r.HandleFunc("/access", Handle(b.SetAccess)).Methods("POST")
+	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -262,6 +263,10 @@ func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
 		Ipv6Enabled: b.userConfig.IsIpv6Enabled(),
 	}
 	return response, nil
+}
+
+func (b *Backend) IsActivated(_ *http.Request) (interface{}, error) {
+	return b.userConfig.IsActivated(), nil
 }
 
 func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {

@@ -33,14 +33,6 @@ def _callback():
     return 'Unauthorised', 401
 
 
-@app.route("/rest/activation_status", methods=["GET"])
-def activation_status():
-    try:
-        return jsonify(activated=get_injector().user_platform_config.is_activated()), 200
-    except Exception as e:
-        return jsonify(activated=False), 200
-
-
 @login_manager.user_loader
 def load_user(user_id):
     log.info('loading user {0}'.format(user_id))
@@ -261,6 +253,13 @@ def backend_proxy_activated():
 @app.route("/rest/activate/custom", methods=["POST"])
 @fail_if_activated
 def backend_proxy_not_activated():
+    response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
+    return response.text, response.status_code
+
+
+@app.route("/rest/activation/status", methods=["GET"])
+@fail_if_activated
+def backend_proxy():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
     return response.text, response.status_code
 

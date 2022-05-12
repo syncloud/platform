@@ -94,10 +94,10 @@ def test_non_activated_device_login_redirect_to_activation(device_host):
 
 
 def test_activation_status_false(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host),
+    response = requests.get('https://{0}/rest/activation/status'.format(device_host),
                             allow_redirects=False, verify=False)
     assert response.status_code == 200
-    assert not json.loads(response.text)["activated"], response.text
+    assert not json.loads(response.text)["data"], response.text
 
 
 def test_id_redirect_backward_compatibility(device_host):
@@ -203,10 +203,10 @@ def test_deactivate(device, domain):
 
 
 def test_activation_status_false_after_deactivate(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False,
+    response = requests.get('https://{0}/rest/activation/status'.format(device_host), allow_redirects=False,
                             verify=False)
     assert response.status_code == 200
-    assert not json.loads(response.text)["activated"], response.text
+    assert not json.loads(response.text)["data"], response.text
 
 
 def test_redirect_info(device_host, main_domain):
@@ -231,10 +231,10 @@ def test_reactivate_after_deactivate(device_host, full_domain, device_user, devi
 
 
 def test_activation_status_true(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False,
+    response = requests.get('https://{0}/rest/activation/status'.format(device_host), allow_redirects=False,
                             verify=False)
     assert response.status_code == 200
-    assert json.loads(response.text)["activated"], response.text
+    assert json.loads(response.text)["data"], response.text
 
 
 def test_unauthorized(device_host):
