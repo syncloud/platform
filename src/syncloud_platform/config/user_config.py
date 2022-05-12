@@ -31,11 +31,6 @@ class PlatformUserConfig:
     def get_redirect_api_url(self):
         return "https://api.{}".format(self.get_redirect_domain())
 
-    def set_user_update_token(self, user_update_token):
-        self._upsert([
-            ('redirect.user_update_token', user_update_token)
-        ])
-
     def get_user_update_token(self):
         return self._get('redirect.user_update_token')
 
@@ -45,11 +40,6 @@ class PlatformUserConfig:
     def set_custom_domain(self, custom_domain):
         self._upsert([
             ('platform.custom_domain', custom_domain)
-        ])
-
-    def set_activated(self):
-        self._upsert([
-            ('platform.activated', TRUE)
         ])
 
     def set_deactivated(self):
@@ -70,18 +60,11 @@ class PlatformUserConfig:
     def get_user_domain(self):
         return self._get('platform.user_domain')
 
-    def get_domain_update_token(self):
-        return self._get('platform.domain_update_token')
-
     def update_domain(self, user_domain, domain_update_token):
         self._upsert([
             ('platform.user_domain', user_domain),
             ('platform.domain_update_token', domain_update_token)
         ])
-
-    def get_external_access(self):
-        result = self._get('platform.external_access')
-        return to_bool(result)
 
     def is_redirect_enabled(self):
         result = self._get('platform.redirect_enabled')
@@ -92,14 +75,6 @@ class PlatformUserConfig:
             ('platform.redirect_enabled', from_bool(enabled))
         ])
   
-    def get_public_ip(self):
-        return self._get('platform.public_ip')
-   
-    def set_public_ip(self, ip):
-        self._upsert([
-            ('platform.public_ip', ip),
-        ])
-
     def get_dkim_key(self):
         return self._get('dkim_key')
 

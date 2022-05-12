@@ -54,7 +54,7 @@ class Injector:
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.snap)
-        self.nginx = Nginx(self.platform_config, self.systemctl, self.device_info)
+        self.nginx = Nginx(self.platform_config, self.device_info)
 
         self.path_checker = PathChecker(self.platform_config)
         self.lsblk = Lsblk(self.platform_config, self.path_checker)

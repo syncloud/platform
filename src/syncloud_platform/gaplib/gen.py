@@ -27,13 +27,3 @@ def generate_file_jinja(from_path, to_path, variables, variable_tags=('{{', '}}'
     with open(to_path, 'wb+') as fh:
         fh.write(output.encode("UTF-8"))
 
-
-def generate_files(from_dir, to_dir, variables, variable_tags=('{{', '}}')):
-    if isdir(to_dir):
-        shutil.rmtree(to_dir)
-    for dir_name, subdirs, files in os.walk(from_dir):
-        for filename in files:
-            from_path = join(dir_name, filename)
-            from_rel_path = relpath(from_path, from_dir)
-            to_path = join(to_dir, from_rel_path)
-            generate_file_jinja(from_path, to_path, variables, variable_tags)
