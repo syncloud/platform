@@ -13,7 +13,7 @@ const state = {
 }
 
 const store = {
-  apps: [
+  data: [
     {
       id: 'wordpress',
       name: 'WordPress',
@@ -259,14 +259,14 @@ const mock = function (app, server, compiler) {
   })
   app.get('/rest/installed_apps', function (req, res) {
     if (state.activated) {
-      const apps = store.apps.filter(app => installedApps.has(app.id)).map(appCenterToInstalledApp)
+      const apps = store.data.filter(app => installedApps.has(app.id)).map(appCenterToInstalledApp)
       res.json({ apps: apps })
     } else {
       res.status(501).json({ message: 'Not activated' })
     }
   })
   app.get('/rest/app', function (req, res) {
-    const app = store.apps.find(app => app.id === req.query.app_id)
+    const app = store.data.find(app => app.id === req.query.app_id)
     res.json({ info: appToInfo(app, installedApps.has(app.id)) })
   })
   app.post('/rest/upgrade', function (req, res) {
@@ -298,7 +298,7 @@ const mock = function (app, server, compiler) {
     state.jobStatusRunning = !state.jobStatusRunning
   })
 
-  app.get('/rest/available_apps', function (req, res) {
+  app.get('/rest/apps/available', function (req, res) {
     let response
     if (state.availableAppsSuccess) {
       response = store

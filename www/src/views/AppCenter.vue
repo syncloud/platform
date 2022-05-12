@@ -47,13 +47,13 @@ export default {
       error.showAxios(err)
       that.progressHide()
     }
-    axios.get('/rest/available_apps')
+    axios.get('/rest/apps/available')
       .then(
         (resp) => {
           Common.checkForServiceError(
             resp.data,
             () => {
-              that.apps = resp.data.apps
+              that.apps = resp.data.data
               that.progressHide()
             },
             onError)

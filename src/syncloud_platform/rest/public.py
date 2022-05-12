@@ -136,13 +136,6 @@ def upgrade():
     return jsonify(success=True), 200
 
 
-@app.route("/rest/available_apps", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def available_apps():
-    return jsonify(apps=convertible.to_dict(public.available_apps())), 200
-
-
 @app.route("/rest/access/network_interfaces", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -248,6 +241,7 @@ def app_image():
 @app.route("/rest/certificate", methods=["GET"])
 @app.route("/rest/certificate/log", methods=["GET"])
 @app.route("/rest/access", methods=["GET", "POST"])
+@app.route("/rest/apps/available", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

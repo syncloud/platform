@@ -7,6 +7,7 @@ type Snap struct {
 	Summary string `json:"summary"`
 	Channel string `json:"channel"`
 	Version string `json:"version"`
+	Type    string `json:"type"`
 	Apps    []App  `json:"apps"`
 }
 
@@ -15,8 +16,20 @@ type App struct {
 	Snap string `json:"snap"`
 }
 
-func (snap *Snap) FindApp(app string) (bool, *App) {
-	for _, snapApp := range snap.Apps {
+func (s *Snap) ToSyncloudApp(url string) SyncloudAppVersions {
+	return SyncloudAppVersions{
+		CurrentVersion: &s.Version,
+		App: SyncloudApp{
+			Id:   s.Name,
+			Name: s.Summary,
+			Url:  url,
+			Icon: fmt.Sprintf("/rest/app_image?channel=%s&app=%s", s.Channel, s.Name),
+		},
+	}
+}
+
+func (s *Snap) FindApp(app string) (bool, *App) {
+	for _, snapApp := range s.Apps {
 		if snapApp.Name == app {
 			return true, &snapApp
 		}

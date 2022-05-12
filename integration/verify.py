@@ -296,11 +296,11 @@ def test_send_logs(device, domain):
 
 
 def test_available_apps(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/available_apps'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/apps/available'.format(domain), verify=False)
     with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) > 0
+    assert len(json.loads(response.text)['data']) > 0
 
 
 def test_device_url(device, domain, artifact_dir, full_domain):
