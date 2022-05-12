@@ -5,7 +5,6 @@ import requests
 from syncloudlib import logger
 
 from syncloud_platform.insider import util
-from syncloud_platform.board import id
 from syncloud_platform.gaplib import linux
 
 
