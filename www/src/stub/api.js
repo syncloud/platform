@@ -253,8 +253,8 @@ const mock = function (app, server, compiler) {
     state.loggedIn = false
     res.json({ message: 'OK' })
   })
-  app.get('/rest/activation_status', function (req, res) {
-    res.json({ activated: state.activated })
+  app.get('/rest/activation/status', function (req, res) {
+    res.json({ data: state.activated })
     // res.status(500).json({ message: "unknown activation status" })
   })
   app.get('/rest/installed_apps', function (req, res) {

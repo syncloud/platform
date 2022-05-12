@@ -10,8 +10,8 @@ test('activated and logged in', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/activation_status').reply(200,
-    { activated: true }
+  mock.onGet('/rest/activation/status').reply(200,
+    { data: true }
   )
   mock.onGet('/rest/user').reply(200,
     { message: 'OK' }
@@ -40,8 +40,8 @@ test('activated and not logged in', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/activation_status').reply(200,
-    { activated: true }
+  mock.onGet('/rest/activation/status').reply(200,
+    { data: true }
   )
   mock.onGet('/rest/user').reply(500,
     { message: 'not OK' }
@@ -71,8 +71,8 @@ test('not activated and not logged in', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/activation_status').reply(200,
-    { activated: false }
+  mock.onGet('/rest/activation/status').reply(200,
+    { data: false }
   )
   mock.onGet('/rest/user').reply(500,
     { message: 'not OK' }
