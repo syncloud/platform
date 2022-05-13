@@ -3,6 +3,7 @@ package snap
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
@@ -28,8 +29,8 @@ type Snapd struct {
 }
 
 type Response struct {
-	Result []Snap `json:"result"`
-	Status string `json:"status"`
+	Result []model.Snap `json:"result"`
+	Status string       `json:"status"`
 }
 
 func New(client SnapdClient, deviceInfo DeviceInfo, logger *zap.Logger) *Snapd {
@@ -40,7 +41,37 @@ func New(client SnapdClient, deviceInfo DeviceInfo, logger *zap.Logger) *Snapd {
 	}
 }
 
-func (s *Snapd) InstalledApps() ([]Snap, error) {
+func (s *Snapd) InstalledUserApps() ([]model.SyncloudApp, error) {
+	snaps, err := s.InstalledSnaps()
+	if err != nil {
+		return nil, err
+	}
+	var apps []model.SyncloudApp
+	for _, snap := range snaps {
+		if snap.IsApp() {
+			app := snap.ToInstalledApp(s.deviceInfo.Url(snap.Name))
+			apps = append(apps, app.App)
+		}
+	}
+	return apps, nil
+}
+
+func (s *Snapd) StoreUserApps() ([]model.SyncloudApp, error) {
+	snaps, err := s.StoreSnaps()
+	if err != nil {
+		return nil, err
+	}
+	var apps []model.SyncloudApp
+	for _, snap := range snaps {
+		if snap.IsApp() {
+			app := snap.ToStoreApp(s.deviceInfo.Url(snap.Name))
+			apps = append(apps, app.App)
+		}
+	}
+	return apps, nil
+}
+
+func (s *Snapd) InstalledSnaps() ([]model.Snap, error) {
 	resp, err := s.client.Get("http://unix/v2/snaps")
 	if err != nil {
 		s.logger.Error("cannot connect", zap.Error(err))
@@ -67,27 +98,11 @@ func (s *Snapd) InstalledApps() ([]Snap, error) {
 	return response.Result, nil
 
 }
-
-func (s *Snapd) AllStoreApps() ([]SyncloudApp, error) {
-	snaps, err := s.AllStoreSnaps()
-	if err != nil {
-		return nil, err
-	}
-
-	var apps []SyncloudApp
-	for _, snap := range snaps {
-		if snap.Type == "app" {
-			app := snap.ToSyncloudApp(s.deviceInfo.Url(snap.Name))
-			apps = append(apps, app.App)
-		}
-	}
-	return apps, err
-}
-func (s *Snapd) AllStoreSnaps() ([]Snap, error) {
+func (s *Snapd) StoreSnaps() ([]model.Snap, error) {
 	return s.Find("*")
 }
 
-func (s *Snapd) Find(query string) ([]Snap, error) {
+func (s *Snapd) Find(query string) ([]model.Snap, error) {
 
 	s.logger.Info("available snaps", zap.String("query", query))
 	resp, err := s.client.Get(fmt.Sprintf("http://unix/v2/find?name=%s", query))
@@ -113,7 +128,7 @@ func (s *Snapd) Find(query string) ([]Snap, error) {
 	}
 
 	if query != "*" && response.Status != "OK" {
-		return make([]Snap, 0), nil
+		return make([]model.Snap, 0), nil
 	}
 
 	sort.SliceStable(response.Result, func(i, j int) bool {

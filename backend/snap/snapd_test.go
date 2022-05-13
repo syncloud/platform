@@ -14,7 +14,7 @@ type ClientStub struct {
 	error bool
 }
 
-func (c *ClientStub) Get(url string) (resp *http.Response, err error) {
+func (c *ClientStub) Get(_ string) (resp *http.Response, err error) {
 	if c.error {
 		return nil, fmt.Errorf("error")
 	}
@@ -46,7 +46,7 @@ func (c *ClientStub) Get(url string) (resp *http.Response, err error) {
 type DeviceInfoStub struct {
 }
 
-func (d DeviceInfoStub) Url(app string) string {
+func (d DeviceInfoStub) Url(_ string) string {
 	//TODO implement me
 	panic("implement me")
 }
@@ -54,7 +54,7 @@ func (d DeviceInfoStub) Url(app string) string {
 func TestAppsOK(t *testing.T) {
 
 	snapd := New(&ClientStub{error: false}, &DeviceInfoStub{}, log.Default())
-	apps, err := snapd.InstalledApps()
+	apps, err := snapd.InstalledSnaps()
 
 	assert.Nil(t, err)
 	assert.Equal(t, len(apps), 1)
@@ -64,7 +64,7 @@ func TestAppsOK(t *testing.T) {
 func TestAppsError(t *testing.T) {
 
 	snapd := New(&ClientStub{error: true}, &DeviceInfoStub{}, log.Default())
-	apps, err := snapd.InstalledApps()
+	apps, err := snapd.InstalledSnaps()
 
 	assert.Nil(t, apps)
 	assert.NotNil(t, err)

@@ -43,9 +43,9 @@ export default {
   },
   mounted () {
     this.progressShow()
-    axios.get('/rest/installed_apps')
+    axios.get('/rest/apps/installed')
       .then(resp => {
-        this.apps = resp.data.apps
+        this.apps = resp.data.data
         this.progressHide()
       })
       .catch(err => {

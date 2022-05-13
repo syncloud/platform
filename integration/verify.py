@@ -350,12 +350,12 @@ def test_install_app(device, domain):
 
 
 def test_rest_installed_apps(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/installed_apps'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/apps/installed'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) == 2
+    assert len(json.loads(response.text)['data']) == 2
 
 def test_rest_installed_app(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)

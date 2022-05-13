@@ -75,13 +75,6 @@ def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
-@app.route("/rest/installed_apps", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def installed_apps():
-    return jsonify(apps=convertible.to_dict(public.installed_apps())), 200
-
-
 @app.route("/rest/app", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -234,6 +227,7 @@ def app_image():
 @app.route("/rest/certificate/log", methods=["GET"])
 @app.route("/rest/access", methods=["GET", "POST"])
 @app.route("/rest/apps/available", methods=["GET"])
+@app.route("/rest/apps/installed", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

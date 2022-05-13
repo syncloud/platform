@@ -89,9 +89,6 @@ class Snap:
         apps = snapd_response['result']
         return sorted(apps, key=lambda app: app['name'])
 
-    def installed_user_apps(self):
-        return [self._installed_app(app) for app in self._installed_snaps() if app['type'] == 'app']
-
     def installed_all_apps(self):
         return [self._installed_app(app) for app in self._installed_snaps()]
 

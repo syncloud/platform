@@ -1,4 +1,4 @@
-package snap
+package model
 
 type SyncloudApp struct {
 	Id          string `json:"id"`
@@ -8,14 +8,4 @@ type SyncloudApp struct {
 	Url         string `json:"url"`
 	Icon        string `json:"icon"`
 	Description string `json:"description"`
-}
-
-type Apps struct {
-	Apps []SyncloudApp `json:"apps"`
-}
-
-type SyncloudAppVersions struct {
-	App              SyncloudApp `json:"app"`
-	CurrentVersion   *string     `json:"current_version"`
-	InstalledVersion *string     `json:"installed_version"`
 }

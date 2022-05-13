@@ -12,9 +12,9 @@ test('Show apps', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/installed_apps').reply(function (config) {
+  mock.onGet('/rest/apps/installed').reply(function (_) {
     return [200, {
-      apps: [
+      data: [
         {
           id: 'wordpress',
           name: 'WordPress',
@@ -70,7 +70,7 @@ test('Show error', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/installed_apps').reply(function (config) {
+  mock.onGet('/rest/apps/installed').reply(function (_) {
     return [500, {
       message: 'not ok'
     }]
