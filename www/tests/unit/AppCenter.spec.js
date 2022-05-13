@@ -8,9 +8,9 @@ jest.setTimeout(30000)
 
 test('Show apps', async () => {
   const mock = new MockAdapter(axios)
-  mock.onGet('rest/available_apps').reply(200,
+  mock.onGet('rest/apps/available').reply(200,
     {
-      apps: [
+      data: [
         { id: 'app1', name: 'App1', icon: '/images/1.png' },
         { id: 'app2', name: 'App2', icon: '/images/2.png' }
       ]
@@ -57,7 +57,7 @@ test('Show apps', async () => {
 
 test('Show error', async () => {
   const mock = new MockAdapter(axios)
-  mock.onGet('rest/available_apps').reply(500,
+  mock.onGet('rest/apps/available').reply(500,
     {
       message: 'not ok'
     }

@@ -23,7 +23,6 @@ body {
     font-family: 'Roboto', Sans-serif;
 }
 .button_label {
-    padding-bottom: 15px;
     vertical-align: middle;
 }
 .nav-pills > .active > a,

@@ -14,6 +14,7 @@ import (
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
+	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/log"
@@ -58,6 +59,9 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
 		return nginx.New(systemd.New(), systemConfig, userConfig)
 	})
+	Singleton(func(userConfig *config.UserConfig) *info.Device {
+		return info.New(userConfig)
+	})
 	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface,
 		client *retryablehttp.Client, version *version.PlatformVersion) *redirect.Service {
 		var certLogger *zap.Logger
@@ -84,7 +88,9 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return cron.NewCertificateJob(certGenerator)
 	})
 	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient) *snap.Snapd { return snap.New(snapClient) })
+	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device) *snap.Snapd {
+		return snap.New(snapClient, deviceInfo, logger)
+	})
 
 	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
 
@@ -137,10 +143,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress,
+		externalAddress *access.ExternalAddress, snapd *snap.Snapd,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd)
 	})
 
 }

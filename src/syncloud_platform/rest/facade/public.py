@@ -50,8 +50,6 @@ class Public:
     def upgrade(self, app_id):
         self.snap.upgrade(app_id)
 
-    def available_apps(self):
-        return [app_from_snap_app(a) for a in self.snap.user_apps() if a.app.enabled]
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)

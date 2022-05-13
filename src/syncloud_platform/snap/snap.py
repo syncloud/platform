@@ -77,8 +77,6 @@ class Snap:
 
         return found_apps[0]
 
-    def user_apps(self):
-        return [self._available_app(app) for app in self._available_snaps() if app['type'] == 'app']
 
     def _available_snaps(self, query='*'):
         self.logger.info('available snaps, query: {0}'.format(query))

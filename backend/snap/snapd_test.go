@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -42,10 +43,18 @@ func (c *ClientStub) Get(url string) (resp *http.Response, err error) {
 	}, nil
 }
 
+type DeviceInfoStub struct {
+}
+
+func (d DeviceInfoStub) Url(app string) string {
+	//TODO implement me
+	panic("implement me")
+}
+
 func TestAppsOK(t *testing.T) {
 
-	snapd := New(&ClientStub{error: false})
-	apps, err := snapd.ListAllApps()
+	snapd := New(&ClientStub{error: false}, &DeviceInfoStub{}, log.Default())
+	apps, err := snapd.InstalledApps()
 
 	assert.Nil(t, err)
 	assert.Equal(t, len(apps), 1)
@@ -54,8 +63,8 @@ func TestAppsOK(t *testing.T) {
 
 func TestAppsError(t *testing.T) {
 
-	snapd := New(&ClientStub{error: true})
-	apps, err := snapd.ListAllApps()
+	snapd := New(&ClientStub{error: true}, &DeviceInfoStub{}, log.Default())
+	apps, err := snapd.InstalledApps()
 
 	assert.Nil(t, apps)
 	assert.NotNil(t, err)

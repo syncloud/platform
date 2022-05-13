@@ -22,7 +22,7 @@ func (t *Trigger) RunAccessChangeEvent() error {
 
 func (t *Trigger) RunEventOnAllApps(event string) error {
 
-	snaps, err := t.snapd.ListAllApps()
+	snaps, err := t.snapd.InstalledApps()
 	if err != nil {
 		log.Printf("snap info failed: %v", err)
 		return err

@@ -11,6 +11,7 @@ import (
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
+	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"net"
 	"net/http"
@@ -35,6 +36,7 @@ type Backend struct {
 	userConfig      *config.UserConfig
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
+	snapd           *snap.Snapd
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -44,6 +46,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddresss *access.ExternalAddress,
+	snapd *snap.Snapd,
 ) *Backend {
 
 	return &Backend{
@@ -59,6 +62,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		userConfig:      userConfig,
 		certificate:     certificate,
 		externalAddress: externalAddresss,
+		snapd:           snapd,
 	}
 }
 
@@ -106,6 +110,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/access", Handle(b.GetAccess)).Methods("GET")
 	r.HandleFunc("/access", Handle(b.SetAccess)).Methods("POST")
 	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
+	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -278,6 +283,10 @@ func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 	}
 
 	return request, b.externalAddress.Update(request)
+}
+
+func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
+	return b.snapd.AllStoreApps()
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {
