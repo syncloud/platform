@@ -15,15 +15,15 @@
           </div>
           <div class="menuoff" v-if="loggedIn">
             <a href="#" id="btn_logout_large" class="hlink" @click="logout">
-              <i class="material-icons">exit_to_app</i>
+              <i class="material-icons" style="vertical-align: middle">exit_to_app</i>
               <span class="button_label">Logout</span>
             </a>
             <a href="#" id="btn_restart_large" class="hlink" @click="restart">
-              <i class="material-icons">loop</i>
+              <i class="material-icons" style="vertical-align: middle">loop</i>
               <span class="button_label">Restart</span>
             </a>
             <a href="#" id="btn_shutdown_large" class="hlink" @click="shutdown">
-              <i class="material-icons">power_settings_new</i>
+              <i class="material-icons" style="vertical-align: middle">power_settings_new</i>
               <span class="button_label">Shutdown</span>
             </a>
           </div>
