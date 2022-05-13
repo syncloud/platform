@@ -2,22 +2,26 @@ package info
 
 import (
 	"fmt"
-	"github.com/syncloud/platform/config"
 )
 
 func ConstructUrl(port *int, domain string, app string) string {
 	externalPort := ""
 	if port != nil && *port != 80 && *port != 443 {
-		externalPort = fmt.Sprintf(":%d", port)
+		externalPort = fmt.Sprintf(":%d", *port)
 	}
-	return fmt.Sprintf("https://%s.%s%s}", app, domain, externalPort)
+	return fmt.Sprintf("https://%s.%s%s", app, domain, externalPort)
+}
+
+type DeviceUserConfig interface {
+	GetPublicPort() *int
+	GetDeviceDomain() string
 }
 
 type Device struct {
-	userConfig *config.UserConfig
+	userConfig DeviceUserConfig
 }
 
-func New(userConfig *config.UserConfig) *Device {
+func New(userConfig DeviceUserConfig) *Device {
 	return &Device{
 		userConfig: userConfig,
 	}
