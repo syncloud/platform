@@ -257,10 +257,10 @@ const mock = function (app, server, compiler) {
     res.json({ data: state.activated })
     // res.status(500).json({ message: "unknown activation status" })
   })
-  app.get('/rest/installed_apps', function (req, res) {
+  app.get('/rest/apps/installed', function (req, res) {
     if (state.activated) {
       const apps = store.data.filter(app => installedApps.has(app.id)).map(appCenterToInstalledApp)
-      res.json({ apps: apps })
+      res.json({ data: apps })
     } else {
       res.status(501).json({ message: 'Not activated' })
     }

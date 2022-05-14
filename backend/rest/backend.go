@@ -111,6 +111,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/access", Handle(b.SetAccess)).Methods("POST")
 	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
 	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
+	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -286,7 +287,11 @@ func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
-	return b.snapd.AllStoreApps()
+	return b.snapd.StoreUserApps()
+}
+
+func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
+	return b.snapd.InstalledUserApps()
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {

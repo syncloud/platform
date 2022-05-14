@@ -1,6 +1,8 @@
-package snap
+package model
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Snap struct {
 	Name    string `json:"name"`
@@ -11,14 +13,20 @@ type Snap struct {
 	Apps    []App  `json:"apps"`
 }
 
-type App struct {
-	Name string `json:"name"`
-	Snap string `json:"snap"`
+func (s *Snap) ToStoreApp(url string) SyncloudAppVersions {
+	app := s.toSyncloudApp(url)
+	app.CurrentVersion = &s.Version
+	return app
 }
 
-func (s *Snap) ToSyncloudApp(url string) SyncloudAppVersions {
+func (s *Snap) ToInstalledApp(url string) SyncloudAppVersions {
+	app := s.toSyncloudApp(url)
+	app.InstalledVersion = &s.Version
+	return app
+}
+
+func (s *Snap) toSyncloudApp(url string) SyncloudAppVersions {
 	return SyncloudAppVersions{
-		CurrentVersion: &s.Version,
 		App: SyncloudApp{
 			Id:   s.Name,
 			Name: s.Summary,
@@ -28,6 +36,10 @@ func (s *Snap) ToSyncloudApp(url string) SyncloudAppVersions {
 	}
 }
 
+func (s *Snap) IsApp() bool {
+	return s.Type == "app"
+}
+
 func (s *Snap) FindApp(app string) (bool, *App) {
 	for _, snapApp := range s.Apps {
 		if snapApp.Name == app {
@@ -35,8 +47,4 @@ func (s *Snap) FindApp(app string) (bool, *App) {
 		}
 	}
 	return false, nil
-}
-
-func (app *App) RunCommand() string {
-	return fmt.Sprintf("%v.%v", app.Snap, app.Name)
 }

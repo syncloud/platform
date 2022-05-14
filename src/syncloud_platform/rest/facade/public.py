@@ -31,10 +31,6 @@ class Public:
     def shutdown(self):
         power.shutdown()
 
-    def installed_apps(self):
-        apps = [app_from_snap_app(a) for a in self.snap.installed_user_apps()]
-        return apps
-
     def get_app(self, app_id):
         return self.snap.get_app(app_id)
 
