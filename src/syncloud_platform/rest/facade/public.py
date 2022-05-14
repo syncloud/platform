@@ -34,9 +34,6 @@ class Public:
     def get_app(self, app_id):
         return self.snap.get_app(app_id)
 
-    def list_apps(self):
-        return self.snap.list()
-
     def install(self, app_id):
         self.snap.install(app_id)
 
@@ -45,7 +42,6 @@ class Public:
 
     def upgrade(self, app_id):
         self.snap.upgrade(app_id)
-
 
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)

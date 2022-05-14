@@ -88,8 +88,8 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return cron.NewCertificateJob(certGenerator)
 	})
 	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device) *snap.Snapd {
-		return snap.New(snapClient, deviceInfo, logger)
+	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Snapd {
+		return snap.New(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 
 	Singleton(func(snapd *snap.Snapd) *event.Trigger { return event.New(snapd) })
@@ -98,8 +98,8 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return access.NewProbe(userConfig, client, logger)
 	})
 
-	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
-		return access.New(probe, userConfig, redirectService, eventTrigger, client, netInfo, logger)
+	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(probe, userConfig, redirectService, eventTrigger, netInfo, logger)
 	})
 
 	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {

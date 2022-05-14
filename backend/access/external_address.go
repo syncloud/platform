@@ -3,7 +3,6 @@ package access
 import (
 	"fmt"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/http"
 	"github.com/syncloud/platform/rest/model"
 	"go.uber.org/zap"
 )
@@ -45,18 +44,16 @@ type ExternalAddress struct {
 	userConfig UserConfig
 	redirect   Redirect
 	trigger    Trigger
-	client     http.Client
 	network    NetworkInfo
 	logger     *zap.Logger
 }
 
-func New(probe *PortProbe, userConfig UserConfig, redirect Redirect, trigger Trigger, client http.Client, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
+func New(probe *PortProbe, userConfig UserConfig, redirect Redirect, trigger Trigger, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
 		probe:      probe,
 		userConfig: userConfig,
 		redirect:   redirect,
 		trigger:    trigger,
-		client:     client,
 		network:    network,
 		logger:     logger,
 	}

@@ -172,13 +172,6 @@ def disk_activate():
     return jsonify(success=True, disks=public.disk_activate(request.json['device'])), 200
 
 
-@app.route("/rest/settings/versions", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def versions():
-    return jsonify(success=True, data=convertible.to_dict(public.list_apps())), 200
-
-
 @app.route("/rest/settings/installer_status", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -219,6 +212,7 @@ def app_image():
 @app.route("/rest/backup/restore", methods=["POST"])
 @app.route("/rest/backup/remove", methods=["POST"])
 @app.route("/rest/installer/upgrade", methods=["POST"])
+@app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])

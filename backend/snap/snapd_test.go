@@ -51,9 +51,38 @@ func (d DeviceInfoStub) Url(_ string) string {
 	panic("implement me")
 }
 
+type HttpClientStub struct {
+	response string
+	status   int
+}
+
+func (h HttpClientStub) Post(url, bodyType string, body interface{}) (*http.Response, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (h HttpClientStub) Get(url string) (*http.Response, error) {
+	if h.status != 200 {
+		return nil, fmt.Errorf("error code: %v", h.status)
+	}
+
+	r := ioutil.NopCloser(bytes.NewReader([]byte(h.response)))
+	return &http.Response{
+		StatusCode: h.status,
+		Body:       r,
+	}, nil
+}
+
+type ConfigStub struct {
+}
+
+func (c ConfigStub) Channel() string {
+	return "stable"
+}
+
 func TestAppsOK(t *testing.T) {
 
-	snapd := New(&ClientStub{error: false}, &DeviceInfoStub{}, log.Default())
+	snapd := New(&ClientStub{error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledSnaps()
 
 	assert.Nil(t, err)
@@ -63,7 +92,7 @@ func TestAppsOK(t *testing.T) {
 
 func TestAppsError(t *testing.T) {
 
-	snapd := New(&ClientStub{error: true}, &DeviceInfoStub{}, log.Default())
+	snapd := New(&ClientStub{error: true}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledSnaps()
 
 	assert.Nil(t, apps)
