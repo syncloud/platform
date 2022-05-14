@@ -120,7 +120,7 @@ func (s *Snapd) request(url string) ([]byte, error) {
 }
 
 func (s *Snapd) StoreSnaps() ([]model.Snap, error) {
-	return s.Find("*")
+	return s.find("*")
 }
 
 func (s *Snapd) Installer() (*model.InstallerInfo, error) {
@@ -148,12 +148,12 @@ func (s *Snapd) Installer() (*model.InstallerInfo, error) {
 	}
 
 	return &model.InstallerInfo{
-		StoreVersion:     systemInfo.Result.Version,
-		InstalledVersion: string(body),
+		StoreVersion:     string(body),
+		InstalledVersion: systemInfo.Result.Version,
 	}, nil
 }
 
-func (s *Snapd) Find(query string) ([]model.Snap, error) {
+func (s *Snapd) find(query string) ([]model.Snap, error) {
 	s.logger.Info("available snaps", zap.String("query", query))
 	bodyBytes, err := s.request(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
