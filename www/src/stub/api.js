@@ -421,10 +421,6 @@ const mock = function (app, server, compiler) {
   app.get('/rest/settings/disk_format_status', function (req, res) {
     res.json({ success: true, is_running: false })
   })
-
-  app.get('/rest/settings/versions', function (req, res) {
-    res.json(versionsData)
-  })
   app.post('/rest/send_log', function (req, res) {
     res.json({ success: true })
   })
