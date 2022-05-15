@@ -56,6 +56,10 @@ type ClientStub struct {
 	request string
 }
 
+func (c *ClientStub) Get(_ string) (*http.Response, error) {
+	panic("implement me")
+}
+
 func (c *ClientStub) Post(_, _ string, body interface{}) (*http.Response, error) {
 	c.request = string(body.([]byte))
 	r := ioutil.NopCloser(bytes.NewReader([]byte(`

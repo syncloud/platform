@@ -98,6 +98,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/backup/restore", Handle(b.BackupRestore)).Methods("POST")
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
 	r.HandleFunc("/installer/upgrade", Handle(b.InstallerUpgrade)).Methods("POST")
+	r.HandleFunc("/installer/version", Handle(b.InstallerVersion)).Methods("GET")
 	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
@@ -292,6 +293,10 @@ func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
 	return b.snapd.InstalledUserApps()
+}
+
+func (b *Backend) InstallerVersion(_ *http.Request) (interface{}, error) {
+	return b.snapd.Installer()
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {

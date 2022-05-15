@@ -15,33 +15,98 @@ const state = {
 const store = {
   data: [
     {
-      id: 'wordpress',
-      name: 'WordPress',
-      icon: '/images/wordpress-128.png'
+      app: {
+        id: 'wordpress',
+        name: 'WordPress',
+        icon: '/images/wordpress-128.png',
+        required: true,
+        ui: false,
+        url: 'https://wordpress.odroid-c2.syncloud.it'
+      },
+      current_version: '2',
+      installed_version: '1'
     },
     {
-      id: 'diaspora',
-      name: 'Diaspora',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'diaspora',
+        name: 'Diaspora',
+        icon: '/images/diaspora-128.png',
+        required: false,
+        ui: true,
+        url: 'https://diaspora.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
     },
     {
-      id: 'mail',
-      name: 'Mail',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'mail',
+        name: 'Mail',
+        icon: '/images/mail-128.png',
+        required: false,
+        ui: true,
+        url: 'https://mail.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
     },
     {
-      id: 'talk',
-      name: 'Talk',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'talk',
+        name: 'Talk',
+        icon: '/images/talk-128.png',
+        required: false,
+        ui: true,
+        url: 'https://talk.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
     },
     {
-      id: 'files',
-      name: 'Files Browser',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'files',
+        name: 'Files Browser',
+        icon: '/images/files-128.png',
+        required: false,
+        ui: true,
+        url: 'https://files.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
+    },
+    {
+      app: {
+        id: 'platform',
+        name: 'Platform',
+        icon: '/images/platform-128.png',
+        required: true,
+        ui: false,
+        url: 'https://platform.odroid-c2.syncloud.it'
+      },
+      current_version: '880',
+      installed_version: '876'
+    },
+    {
+      app: {
+        id: 'installer',
+        name: 'Installer',
+        icon: '/images/installer-128.png',
+        required: true,
+        ui: false,
+        url: 'https://installer.odroid-c2.syncloud.it'
+      },
+      current_version: '78',
+      installed_version: '75'
     }
   ]
 }
 
+const installer = {
+  data: {
+    installed_version: 1,
+    store_version: 2
+  }
+}
 const installedApps = new Set(['wordpress'])
 
 const appCenterDataError = {
@@ -178,53 +243,6 @@ const bootDiskData = {
   success: true
 }
 
-const versionsData = {
-  data: [
-    {
-      app: {
-        id: 'platform',
-        name: 'Platform',
-        required: true,
-        ui: false,
-        url: 'https://platform.odroid-c2.syncloud.it'
-      },
-      current_version: '880',
-      installed_version: '876'
-    },
-    {
-      app: {
-        id: 'installer',
-        name: 'Installer',
-        required: true,
-        ui: false,
-        url: 'https://installer.odroid-c2.syncloud.it'
-      },
-      current_version: '78',
-      installed_version: '75'
-    }
-  ],
-  success: true
-}
-
-function appCenterToInstalledApp (app) {
-  app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
-  return app
-}
-
-function appToInfo (app, installed) {
-  const info = {
-    app: app,
-    current_version: '2',
-    installed_version: installed ? '1' : null
-  }
-
-  info.app.required = true
-  info.app.ui = false
-  info.app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
-
-  return info
-}
-
 const express = require('express')
 const bodyparser = require('body-parser')
 const mock = function (app, server, compiler) {
@@ -259,15 +277,18 @@ const mock = function (app, server, compiler) {
   })
   app.get('/rest/apps/installed', function (req, res) {
     if (state.activated) {
-      const apps = store.data.filter(app => installedApps.has(app.id)).map(appCenterToInstalledApp)
+      const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
       res.json({ data: apps })
     } else {
       res.status(501).json({ message: 'Not activated' })
     }
   })
   app.get('/rest/app', function (req, res) {
-    const app = store.data.find(app => app.id === req.query.app_id)
-    res.json({ info: appToInfo(app, installedApps.has(app.id)) })
+    const info = store.data.find(info => info.app.id === req.query.app_id)
+    res.json({ info: info })
+  })
+  app.get('/rest/installer/version', function (req, res) {
+    res.json(installer)
   })
   app.post('/rest/upgrade', function (req, res) {
     res.json({ success: true })
@@ -399,10 +420,6 @@ const mock = function (app, server, compiler) {
 
   app.get('/rest/settings/disk_format_status', function (req, res) {
     res.json({ success: true, is_running: false })
-  })
-
-  app.get('/rest/settings/versions', function (req, res) {
-    res.json(versionsData)
   })
   app.post('/rest/send_log', function (req, res) {
     res.json({ success: true })
