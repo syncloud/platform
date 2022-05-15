@@ -373,6 +373,14 @@ def test_rest_not_installed_app(device, domain, artifact_dir):
     assert response.status_code == 200
 
 
+def test_rest_platform_version(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=platform'.format(domain), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.platform.version.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
+
+
 def test_installer_upgrade(device, domain):
     session = device.login()
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
@@ -501,10 +509,10 @@ def cron_is_empty_after_install(device_host):
     assert 'no crontab for root' in crontab, crontab
 
 
-def test_settings_versions(domain, device, artifact_dir):
-    response = device.login().get('https://{0}/rest/settings/versions'.format(domain), allow_redirects=False,
+def test_installer_version(domain, device, artifact_dir):
+    response = device.login().get('https://{0}/rest/installer/version'.format(domain), allow_redirects=False,
                                   verify=False)
-    with open('{0}/rest.settings.versions.json'.format(artifact_dir), 'w') as the_file:
+    with open('{0}/rest.installer.version.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
 
     assert response.status_code == 200, response.text
