@@ -1,27 +1,30 @@
 package snap
 
 import (
+	"github.com/syncloud/platform/executor"
 	"log"
-	"os/exec"
 )
 
 type Service struct {
+	executor executor.Executor
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewService(executor executor.Executor) *Service {
+	return &Service{
+		executor: executor,
+	}
 }
 
 func (s *Service) Start(name string) error {
-	return run("start", name)
+	return s.run("start", name)
 }
 
 func (s *Service) Stop(name string) error {
-	return run("stop", name)
+	return s.run("stop", name)
 }
 
-func run(command string, name string) error {
-	_, err := exec.Command("snap", command, name).CombinedOutput()
+func (s *Service) run(command string, name string) error {
+	_, err := s.executor.CommandOutput("snap", command, name)
 	if err != nil {
 		log.Printf("snap %s failed: %s", command, err)
 		return err

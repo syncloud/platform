@@ -5,12 +5,10 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
-	"github.com/syncloud/platform/snap"
-	"io"
+	"github.com/syncloud/platform/executor"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 	"time"
@@ -21,44 +19,53 @@ const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
 
 type Service struct {
-	snapService *snap.Service
-	userConfDir string
-	userDataDir string
-	ldapRoot    string
-	configDir   string
+	snapService     SnapService
+	userConfDir     string
+	userDataDir     string
+	ldapRoot        string
+	configDir       string
+	executor        executor.Executor
+	passwordChanger PasswordChanger
 }
 
-func New(snapService *snap.Service, runtimeConfigDir string, appDir string, configDir string) *Service {
+type SnapService interface {
+	Stop(name string) error
+	Start(name string) error
+}
+
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor executor.Executor, passwordChanger PasswordChanger) *Service {
 
 	return &Service{
-		snapService: snapService,
-		userConfDir: path.Join(runtimeConfigDir, ldapUserConfDir),
-		userDataDir: path.Join(runtimeConfigDir, ldapUserDataDir),
-		ldapRoot:    path.Join(appDir, "openldap"),
-		configDir:   configDir,
+		snapService:     snapService,
+		userConfDir:     path.Join(runtimeConfigDir, ldapUserConfDir),
+		userDataDir:     path.Join(runtimeConfigDir, ldapUserDataDir),
+		ldapRoot:        path.Join(appDir, "openldap"),
+		configDir:       configDir,
+		executor:        executor,
+		passwordChanger: passwordChanger,
 	}
 }
 
-func (l *Service) Installed() bool {
-	_, err := os.Stat(l.userConfDir)
+func (s *Service) Installed() bool {
+	_, err := os.Stat(s.userConfDir)
 	return err == nil
 }
 
-func (l *Service) Init() error {
-	if l.Installed() {
+func (s *Service) Init() error {
+	if s.Installed() {
 		log.Println("ldap config already initialized")
 		return nil
 	}
 	log.Println("initializing ldap config")
-	err := os.MkdirAll(l.userConfDir, 755)
+	err := os.MkdirAll(s.userConfDir, 755)
 	if err != nil {
 		return err
 	}
 
-	initScript := path.Join(l.configDir, "ldap", "slapd.ldif")
+	initScript := path.Join(s.configDir, "ldap", "slapd.ldif")
 
-	cmd := path.Join(l.ldapRoot, "sbin", "slapadd.sh")
-	output, err := exec.Command(cmd, "-F", l.userConfDir, "-b", "cn=config", "-l", initScript).CombinedOutput()
+	cmd := path.Join(s.ldapRoot, "sbin", "slapadd.sh")
+	output, err := s.executor.CommandOutput(cmd, "-F", s.userConfDir, "-b", "cn=config", "-l", initScript)
 	if err != nil {
 		return err
 	}
@@ -66,32 +73,32 @@ func (l *Service) Init() error {
 	return nil
 }
 
-func (l *Service) Reset(name string, user string, password string, email string) error {
+func (s *Service) Reset(name string, user string, password string, email string) error {
 	log.Println("resetting ldap")
 
-	err := l.snapService.Stop("platform.openldap")
+	err := s.snapService.Stop("platform.openldap")
 	if err != nil {
 		return err
 	}
-	err = os.RemoveAll(l.userConfDir)
-	if err != nil {
-		return err
-	}
-
-	err = os.RemoveAll(l.userDataDir)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(l.userDataDir, 755)
+	err = os.RemoveAll(s.userConfDir)
 	if err != nil {
 		return err
 	}
 
-	err = l.Init()
+	err = os.RemoveAll(s.userDataDir)
 	if err != nil {
 		return err
 	}
-	err = l.snapService.Start("platform.openldap")
+	err = os.MkdirAll(s.userDataDir, 755)
+	if err != nil {
+		return err
+	}
+
+	err = s.Init()
+	if err != nil {
+		return err
+	}
+	err = s.snapService.Start("platform.openldap")
 	if err != nil {
 		return err
 	}
@@ -103,7 +110,7 @@ func (l *Service) Reset(name string, user string, password string, email string)
 		return err
 	}
 	defer func() { _ = os.Remove(tmpFile.Name()) }()
-	file, err := ioutil.ReadFile(path.Join(l.configDir, "ldap", "init.ldif"))
+	file, err := ioutil.ReadFile(path.Join(s.configDir, "ldap", "init.ldif"))
 	if err != nil {
 		return err
 	}
@@ -117,19 +124,19 @@ func (l *Service) Reset(name string, user string, password string, email string)
 		return err
 	}
 
-	err = l.initDb(tmpFile.Name())
+	err = s.initDb(tmpFile.Name())
 	if err != nil {
 		return err
 	}
 
-	err = ChangeSystemPassword(password)
+	err = s.passwordChanger.Change(password)
 	return err
 }
 
-func (l *Service) initDb(filename string) error {
+func (s *Service) initDb(filename string) error {
 	var err error
 	for i := 0; i < 10; i++ {
-		err = l.ldapAdd(filename, Domain)
+		err = s.ldapAdd(filename, Domain)
 		if err == nil {
 			break
 		}
@@ -140,25 +147,10 @@ func (l *Service) initDb(filename string) error {
 	return err
 }
 
-func (l *Service) ldapAdd(filename string, bindDn string) error {
-	cmd := path.Join(l.ldapRoot, "bin", "ldapadd.sh")
-	output, err := exec.Command(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename).CombinedOutput()
+func (s *Service) ldapAdd(filename string, bindDn string) error {
+	cmd := path.Join(s.ldapRoot, "bin", "ldapadd.sh")
+	output, err := s.executor.CommandOutput(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename)
 	log.Printf("ldapadd output: %s", output)
-	return err
-}
-
-func ChangeSystemPassword(password string) error {
-	cmd := exec.Command("chpasswd")
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
-	go func() {
-		defer func() { _ = stdin.Close() }()
-		io.WriteString(stdin, fmt.Sprintf("root:%s\n", password))
-	}()
-	out, err := cmd.CombinedOutput()
-	log.Printf("chpasswd output: %s", out)
 	return err
 }
 

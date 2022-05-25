@@ -29,9 +29,8 @@ func (c *ClientStub) Get(_ string) (resp *http.Response, err error) {
 type DeviceInfoStub struct {
 }
 
-func (d DeviceInfoStub) Url(_ string) string {
-	//TODO implement me
-	panic("implement me")
+func (d DeviceInfoStub) Url(app string) string {
+	return fmt.Sprintf("%s.domain.tld", app)
 }
 
 type HttpClientStub struct {
@@ -39,12 +38,12 @@ type HttpClientStub struct {
 	status   int
 }
 
-func (h HttpClientStub) Post(url, bodyType string, body interface{}) (*http.Response, error) {
+func (h HttpClientStub) Post(_, _ string, _ interface{}) (*http.Response, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h HttpClientStub) Get(url string) (*http.Response, error) {
+func (h HttpClientStub) Get(_ string) (*http.Response, error) {
 	if h.status != 200 {
 		return nil, fmt.Errorf("error code: %v", h.status)
 	}
@@ -144,4 +143,88 @@ func TestInstaller_OK(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, installer.InstalledVersion, "1")
 	assert.Equal(t, installer.StoreVersion, "2")
+}
+
+func TestInstalledUserApps_OK(t *testing.T) {
+	json := `
+{ 
+	"result": [ 
+		{ 
+			"name": "app",
+			"summary": "app",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app",
+					"snap": "app"
+				}
+			]
+		}, 
+		{ 
+			"name": "platform",
+			"summary": "platform",
+			"channel": "stable",
+			"version": "1",
+			"type": "system",
+			"apps": [ 
+				{
+					"name": "platform",
+					"snap": "platform"
+				}
+			]
+		} 
+	]
+}
+`
+
+	snapd := New(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	apps, err := snapd.InstalledUserApps()
+
+	assert.Nil(t, err)
+	assert.Equal(t, len(apps), 1)
+	assert.Equal(t, apps[0].Name, "app")
+}
+
+func TestStoreUserApps_OK(t *testing.T) {
+	json := `
+{ 
+	"result": [ 
+		{ 
+			"name": "app",
+			"summary": "app",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app",
+					"snap": "app"
+				}
+			]
+		}, 
+		{ 
+			"name": "platform",
+			"summary": "platform",
+			"channel": "stable",
+			"version": "1",
+			"type": "system",
+			"apps": [ 
+				{
+					"name": "platform",
+					"snap": "platform"
+				}
+			]
+		}  
+	]
+}
+`
+
+	snapd := New(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	apps, err := snapd.StoreUserApps()
+
+	assert.Nil(t, err)
+	assert.Equal(t, len(apps), 1)
+	assert.Equal(t, apps[0].Name, "app")
 }
