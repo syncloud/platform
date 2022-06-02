@@ -1,5 +1,16 @@
 package model
 
+import (
+	"fmt"
+	"golang.org/x/exp/slices"
+)
+
+var NoPartitionFsTypes []string
+
+func init() {
+	NoPartitionFsTypes = []string{"vfat", "exfat"}
+}
+
 type Partition struct {
 	Size       int64
 	Device     string
@@ -23,19 +34,13 @@ func NewPartition(size int64, device string, mountPoint string, active bool, fsT
 }
 
 func (p *Partition) PermissionsSupport() bool {
-	if p.FsType == "vfat" {
-		return false
-	}
-	if p.FsType == "exfat" {
-		return false
-	}
-	return true
+	return !slices.Contains(NoPartitionFsTypes, p.FsType)
 }
 
 func (p *Partition) isRootFs() bool {
 	return p.MountPoint == "/"
 }
 
-func (p *Partition) ToString() bool {
-	return '{0}, {1}, {2}, {3}'.format(self.device, self.size, self.mount_point, self.active)
+func (p *Partition) ToString() string {
+	return fmt.Sprintf("%s, %d, %s, %t", p.Device, p.Size, p.MountPoint, p.Active)
 }

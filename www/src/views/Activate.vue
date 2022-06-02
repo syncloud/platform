@@ -37,8 +37,12 @@
                 <div class="columns">
                   <ul class="plan">
                     <li class="header">Premium</li>
-                    <li class="description">Syncloud will manage DNS records for your domain (like example.com)</li>
-                    <li class="description">Personal support for your device</li>
+                    <li class="description">
+                      Syncloud will manage DNS records for your domain (like example.com)
+                      <br><br>
+                      Personal support for your device
+                    </li>
+<!--                    <li class="description">Personal support for your device</li>-->
                     <li>
                       <button id="btn_premium_domain" class="buttongreen"
                               @click="selectPremiumDomain">
@@ -317,16 +321,14 @@ export default {
   },
   mounted () {
     this.stepper = new Stepper(document.querySelector('.bs-stepper'))
-    if (!this.activated) {
-      axios
-        .get('/rest/redirect_info')
-        .then(response => {
-          this.redirect_domain = response.data.data.domain
-        })
-        .catch(err => {
-          this.$refs.error.showAxios(err)
-        })
-    }
+    axios
+      .get('/rest/redirect_info')
+      .then(response => {
+        this.redirect_domain = response.data.data.domain
+      })
+      .catch(err => {
+        this.$refs.error.showAxios(err)
+      })
   },
   methods: {
     progressShow () {

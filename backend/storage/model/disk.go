@@ -6,7 +6,7 @@ import (
 )
 
 type Disk struct {
-	Name   string
+	Name       string
 	Device     string
 	Size       int64
 	Partitions []Partition
@@ -18,11 +18,11 @@ func NewDisk(name string, device string, size int64, partitions []Partition) *Di
 		name = "Disk"
 	}
 	return &Disk{
-		Name: name,
-		Device: device,
-		Size: size,
+		Name:       name,
+		Device:     device,
+		Size:       size,
 		Partitions: partitions,
-		Active: false,
+		Active:     false,
 	}
 }
 
@@ -30,25 +30,24 @@ func (d *Disk) isInternal() bool {
 	return strings.HasPrefix(d.Device, "/dev/mmcblk")
 }
 
-func (d *Disk)  hasRootPartition() bool {
-	return find_root_partition()
-	is
-	not
-	None
+func (d *Disk) hasRootPartition() bool {
+	return d.findRootPartition() != nil
 }
 
-func (d *Disk) AddPartition(partition) {
-	if partition.active:
-	self.active = True
-	self.partitions.append(partition)
+func (d *Disk) AddPartition(partition Partition) {
+	if partition.Active {
+		d.Active = true
+	}
+	d.Partitions = append(d.Partitions, partition)
 }
 
 func (d *Disk) findRootPartition() *Partition {
-	return next((p
-	for p
-	in
-	self.partitions
-	if p.is_root_fs()), None)
+	for _, v := range d.Partitions {
+		if v.isRootFs() {
+			return &v
+		}
+	}
+	return nil
 }
 
 func (d *Disk) String() string {
