@@ -52,9 +52,6 @@ class Public:
     def disk_deactivate(self):
         return self.hardware.deactivate_disk()
 
-    def disks(self):
-        return self.hardware.available_disks()
-
     def boot_disk(self):
         return self.hardware.root_partition()
 

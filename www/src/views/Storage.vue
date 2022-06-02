@@ -180,7 +180,7 @@ export default {
         .catch(onError)
     },
     uiCheckDisks () {
-      axios.get('/rest/settings/disks')
+      axios.get('/rest/storage/disks')
         .then(resp => {
           this.disks = resp.data.disks
           this.progressHide()

@@ -478,7 +478,7 @@ def disk_create(loop, fs, device):
 
 
 def disk_activate(loop, device, domain):
-    response = device.login().get('https://{0}/rest/settings/disks'.format(domain))
+    response = device.login().get('https://{0}/rest/storage/disks'.format(domain))
     print(response.text)
     assert loop in response.text
     assert response.status_code == 200

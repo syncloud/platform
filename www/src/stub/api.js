@@ -386,7 +386,7 @@ const mock = function (app, server, compiler) {
     }
     state.accessSuccess = !state.accessSuccess
   })
-  app.get('/rest/settings/disks', function (req, res) {
+  app.get('/rest/storage/disks', function (req, res) {
     res.json(disksData)
   })
   app.get('/rest/settings/boot_disk', function (req, res) {

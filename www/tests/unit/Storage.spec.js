@@ -11,7 +11,7 @@ test('Format', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
       disks: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
@@ -70,7 +70,7 @@ test('Format error', async () => {
   }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
       disks: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
@@ -129,7 +129,7 @@ test('Format service error', async () => {
   }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
       disks: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
@@ -185,7 +185,7 @@ test('Activate', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
       disks: [
         {
@@ -259,7 +259,7 @@ test('Activate error', async () => {
     error = err.response.data.message
   }
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
       disks: [
         {
