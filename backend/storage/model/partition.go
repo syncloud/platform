@@ -12,25 +12,13 @@ func init() {
 }
 
 type Partition struct {
-	Size       int64
+	Size       string
 	Device     string
 	MountPoint string
 	Active     bool
 	FsType     string
 	Mountable  bool
 	Extendable bool
-}
-
-func NewPartition(size int64, device string, mountPoint string, active bool, fsType string, mountable bool) *Partition {
-	return &Partition{
-		Size:       size,
-		Device:     device,
-		MountPoint: mountPoint,
-		Active:     active,
-		FsType:     fsType,
-		Mountable:  mountable,
-		Extendable: false,
-	}
 }
 
 func (p *Partition) PermissionsSupport() bool {

@@ -8,12 +8,12 @@ import (
 type Disk struct {
 	Name       string
 	Device     string
-	Size       int64
+	Size       string
 	Partitions []Partition
 	Active     bool
 }
 
-func NewDisk(name string, device string, size int64, partitions []Partition) *Disk {
+func NewDisk(name string, device string, size string, partitions []Partition) *Disk {
 	if name == "" {
 		name = "Disk"
 	}
@@ -26,11 +26,11 @@ func NewDisk(name string, device string, size int64, partitions []Partition) *Di
 	}
 }
 
-func (d *Disk) isInternal() bool {
+func (d *Disk) IsInternal() bool {
 	return strings.HasPrefix(d.Device, "/dev/mmcblk")
 }
 
-func (d *Disk) hasRootPartition() bool {
+func (d *Disk) HasRootPartition() bool {
 	return d.findRootPartition() != nil
 }
 

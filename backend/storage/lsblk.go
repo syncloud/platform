@@ -1,35 +1,53 @@
 package storage
 
 import (
-	"github.com/syncloud/platform/config"
+	"errors"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"regexp"
 	"strings"
 )
 
+var ErrNotFound = errors.New("partition not found")
+
 type Lsblk struct {
-	systemConfig config.SystemConfig
-	pathChecker Checker
-	executor cli.CommandExecutor
-	logger *zap.Logger
+	systemConfig Config
+	pathChecker  Checker
+	executor     cli.CommandExecutor
+	logger       *zap.Logger
 }
 
-func NewLsblk(systemConfig config.SystemConfig, pathChecker Checker, executor cli.CommandExecutor, logger *zap.Logger) *Lsblk {
+type Config interface {
+	ExternalDiskDir() string
+}
+
+func NewLsblk(config Config, pathChecker Checker, executor cli.CommandExecutor, logger *zap.Logger) *Lsblk {
 	return &Lsblk{
-		systemConfig: systemConfig,
-		pathChecker: pathChecker,
-		executor: executor,
-		logger: logger,
+		systemConfig: config,
+		pathChecker:  pathChecker,
+		executor:     executor,
+		logger:       logger,
 	}
 }
 
-func (l *Lsblk) availableDisks() {
-	return [d for d in self.all_disks() if not d.is_internal() and not d.has_root_partition()]
+func (l *Lsblk) AvailableDisks() (*[]*model.Disk, error) {
+	var disks []*model.Disk
+
+	allDisks, err := l.AllDisks()
+	if err != nil {
+		return nil, err
+	}
+	for _, disk := range *allDisks {
+		if !disk.IsInternal() && !disk.HasRootPartition() {
+			disks = append(disks, disk)
+		}
+	}
+	return &disks, nil
 }
 
-func (l *Lsblk) allDisks() (*[]model.Disk, error) {
+func (l *Lsblk) AllDisks() (*[]*model.Disk, error) {
 	lsblkOutputBytes, err := l.executor.CommandOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
 	if err != nil {
 		return nil, err
@@ -37,7 +55,7 @@ func (l *Lsblk) allDisks() (*[]model.Disk, error) {
 	lsblkOutput := string(lsblkOutputBytes)
 	l.logger.Info(lsblkOutput)
 
-	var disks map[string]model.Disk
+	disks := make(map[string]*model.Disk)
 
 	lsblkLines := strings.Split(lsblkOutput, "\n")
 
@@ -52,107 +70,83 @@ func (l *Lsblk) allDisks() (*[]model.Disk, error) {
 		match := r.FindStringSubmatch(line)
 
 		lsblkEntry := model.LsblkEntry{
-			match[1],
-			match[2],
-			match[3],
-			match[4],
-			match[5],
-			match[6],
-			strings.TrimSpace(match[7]),
-
+			Name:       match[1],
+			Size:       match[2],
+			DeviceType: match[3],
+			MountPoint: match[4],
+			PartType:   match[5],
+			FsType:     match[6],
+			Model:      strings.TrimSpace(match[7]),
 		}
 
-		if lsblk_entry.is_supported_type() and
-		lsblk_entry.is_supported_fs_type():
-		device = lsblk_entry.name
-		disk_name = lsblk_entry.model
-		self.log.info('adding disk: {0}'.format(disk_name))
-		disk = Disk(disk_name, device, lsblk_entry.size,[])
-		if lsblk_entry.is_single_partition_disk():
-		self.log.info('adding single partition disk: {0}'.format(device))
+		if lsblkEntry.IsSupportedType() && lsblkEntry.IsSupportedFsType() {
+			device := lsblkEntry.Name
+			diskName := lsblkEntry.Model
+			l.logger.Info("adding", zap.String("disk", diskName))
+			disk := model.NewDisk(diskName, device, lsblkEntry.Size, []model.Partition{})
+			if lsblkEntry.IsSinglePartitionDisk() {
+				l.logger.Info("adding single partition", zap.String("disk", device))
+				disk.Name = lsblkEntry.DeviceType
+				partition := l.createPartition(lsblkEntry)
+				disk.AddPartition(partition)
+			}
 
-		disk.name = lsblk_entry.
-		type partition = self.create_partition
-		(lsblk_entry)
-		disk.add_partition(partition)
+			disks[device] = disk
 
-		disks[device] = disk
+		} else if lsblkEntry.DeviceType == "part" {
+			l.logger.Info("adding", zap.String("regular partition", lsblkEntry.Name))
+			partition := l.createPartition(lsblkEntry)
+			parentDevice := lsblkEntry.ParentDevice()
 
-		elif
-		lsblk_entry.
-		type == 'part':
-		self.log.info('adding regular partition: {0}'.format(lsblk_entry.name))
-		partition = self.create_partition(lsblk_entry)
-		parent_device = lsblk_entry.parent_device()
-		if parent_device in
-	disks:
-		disk = disks[parent_device]
-		disk.add_partition(partition)
+			if _, ok := disks[parentDevice]; ok {
+				disk := disks[parentDevice]
+				disk.AddPartition(partition)
+			}
+		}
 	}
 
-	return disks.values()
+	values := maps.Values(disks)
+	return &values, nil
 }
 
-func (l *Lsblk) create_partition(self, lsblk_entry) {
-	mountable = False
-	mount_point = lsblk_entry.mount_point
-	if not lsblk_entry.is_extended_partition():
-	if not mount_point
-	or
-	mount_point == self.platform_config.get_external_disk_dir():
-	mountable = True
+func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
+	mountable := false
+	mountPoint := lsblkEntry.MountPoint
+	if !lsblkEntry.IsExtendedPartition() {
+		if mountPoint == "" || mountPoint == l.systemConfig.ExternalDiskDir() {
+			mountable = true
+		}
+	}
 
-	if lsblk_entry.is_boot_disk():
-	mountable = False
-	active = False
-	if mount_point == self.platform_config.get_external_disk_dir() \
-	and
-	self.path_checker.external_disk_link_exists():
-	active = True
+	if lsblkEntry.IsBootDisk() {
+		mountable = false
+	}
+	active := false
+	if mountPoint == l.systemConfig.ExternalDiskDir() && l.pathChecker.ExternalDiskLinkExists() {
+		active = true
+	}
 
-	return Partition(lsblk_entry.size, lsblk_entry.name, mount_point, active, lsblk_entry.get_fs_type(), mountable)
+	return model.Partition{
+		Size:       lsblkEntry.Size,
+		Device:     lsblkEntry.Name,
+		MountPoint: mountPoint,
+		Active:     active,
+		FsType:     lsblkEntry.GetFsType(),
+		Mountable:  mountable}
 }
 
-func (l *Lsblk) is_external_disk_attached(self, lsblk_output=None, disk_dir=None) {
-	if not disk_dir:
-	disk_dir = self.platform_config.get_external_disk_dir()
-	for disk
-	in
-	self.all_disks(lsblk_output):
-	for partition
-	in
-	disk.partitions:
-	if partition.mount_point == disk_dir:
-	self.log.info('external disk is attached')
-	return True
-	self.log.info('external disk is detached')
-	return False
-}
-
-func (l *Lsblk) find_partition_by_device(self, device, lsblk_output=None) {
-	for disk
-	in
-	self.all_disks(lsblk_output):
-	for partition
-	in
-	disk.partitions:
-	if partition.device == device:
-	self.log.info('partition found')
-	return partition
-	self.log.info('partition not found')
-	return None
-}
-
-func (l *Lsblk) find_partition_by_dir(self, mount_dir, lsblk_output=None) {
-	for disk
-	in
-	self.all_disks(lsblk_output):
-	for partition
-	in
-	disk.partitions:
-	if partition.mount_point == mount_dir:
-	self.log.info('partition found')
-	return partition
-	self.log.info('partition not found')
-	return None
+func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {
+	disks, err := l.AllDisks()
+	if err != nil {
+		return nil, err
+	}
+	for _, disk := range *disks {
+		for _, partition := range disk.Partitions {
+			if partition.Device == device {
+				l.logger.Info("partition found")
+				return &partition, nil
+			}
+		}
+	}
+	return nil, ErrNotFound
 }
