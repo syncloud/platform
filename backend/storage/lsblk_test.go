@@ -58,7 +58,7 @@ NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PA
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
 	assert.Equal(t, 5, len(*disks))
-	var disk *model.Disk
+	var disk model.Disk
 	for _, d := range *disks {
 		if d.Device == "/dev/sda" {
 			disk = d
@@ -171,7 +171,7 @@ NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PA
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output: output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	var disk *model.Disk
+	var disk model.Disk
 	for _, d := range *disks {
 		if d.Device == "/dev/sdb" {
 			disk = d
@@ -205,7 +205,7 @@ NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PA
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/detached"}, &PathCheckerStub{exists: true}, &ExecutorStub{output: output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	var disk *model.Disk
+	var disk model.Disk
 	for _, d := range *disks {
 		if d.Device == "/dev/sdb" {
 			disk = d

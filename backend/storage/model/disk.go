@@ -31,7 +31,7 @@ func (d *Disk) IsInternal() bool {
 }
 
 func (d *Disk) HasRootPartition() bool {
-	return d.findRootPartition() != nil
+	return d.FindRootPartition() != nil
 }
 
 func (d *Disk) AddPartition(partition Partition) {
@@ -41,7 +41,7 @@ func (d *Disk) AddPartition(partition Partition) {
 	d.Partitions = append(d.Partitions, partition)
 }
 
-func (d *Disk) findRootPartition() *Partition {
+func (d *Disk) FindRootPartition() *Partition {
 	for _, v := range d.Partitions {
 		if v.isRootFs() {
 			return &v

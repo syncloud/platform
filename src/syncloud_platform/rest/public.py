@@ -151,13 +151,6 @@ def device_url():
     return jsonify(success=True, device_url=public.device_url()), 200
 
 
-@app.route("/rest/settings/boot_disk", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def boot_disk():
-    return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
-
-
 @app.route("/rest/settings/disk_activate", methods=["POST"])
 @fail_if_not_activated
 @login_required
@@ -209,6 +202,7 @@ def app_image():
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
+@app.route("/rest/storage/boot/disk", methods=["GET"])
 @app.route("/rest/storage/disks", methods=["GET"])
 @app.route("/rest/event/trigger", methods=["POST"])
 @app.route("/rest/certificate", methods=["GET"])

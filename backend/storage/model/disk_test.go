@@ -11,7 +11,7 @@ func TestFindRootPartitionSome(t *testing.T) {
 		{"10", "/dev/sda2", "", true, "ext4", true, false},
 	}, true}
 
-	assert.Equal(t, disk.findRootPartition().Device, "/dev/sda1")
+	assert.Equal(t, disk.FindRootPartition().Device, "/dev/sda1")
 }
 
 func TestFindRootPartition_Nil(t *testing.T) {
@@ -19,5 +19,5 @@ func TestFindRootPartition_Nil(t *testing.T) {
 		{"10", "/dev/sda1", "/my", true, "ext4", false, false},
 		{"10", "/dev/sda2", "", true, "ext4", true, false},
 	}, true}
-	assert.Nil(t, disk.findRootPartition())
+	assert.Nil(t, disk.FindRootPartition())
 }

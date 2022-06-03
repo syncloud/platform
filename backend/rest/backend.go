@@ -37,7 +37,7 @@ type Backend struct {
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
 	snapd           *snap.Snapd
-	lsblk           *storage.Lsblk
+	disks           *storage.Disks
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -47,7 +47,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Snapd, lsblk *storage.Lsblk,
+	snapd *snap.Snapd, disks *storage.Disks,
 ) *Backend {
 
 	return &Backend{
@@ -64,7 +64,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		certificate:     certificate,
 		externalAddress: externalAddress,
 		snapd:           snapd,
-		lsblk:           lsblk,
+		disks:           disks,
 	}
 }
 
@@ -103,6 +103,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/installer/version", Handle(b.InstallerVersion)).Methods("GET")
 	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
+	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
 	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
@@ -315,6 +316,11 @@ func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
 	_ = b.JobMaster.Offer(func() { b.storage.BootExtend() })
 	return "submitted", nil
 }
+
 func (b *Backend) StorageDisks(_ *http.Request) (interface{}, error) {
-	return b.lsblk.AvailableDisks()
+	return b.disks.AvailableDisks()
+}
+
+func (b *Backend) StorageBootDisk(_ *http.Request) (interface{}, error) {
+	return b.disks.RootPartition()
 }

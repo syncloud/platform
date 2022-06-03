@@ -5,7 +5,6 @@ import (
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
-	"golang.org/x/exp/maps"
 	"regexp"
 	"strings"
 )
@@ -32,8 +31,8 @@ func NewLsblk(config Config, pathChecker Checker, executor cli.CommandExecutor, 
 	}
 }
 
-func (l *Lsblk) AvailableDisks() (*[]*model.Disk, error) {
-	var disks []*model.Disk
+func (l *Lsblk) AvailableDisks() (*[]model.Disk, error) {
+	var disks []model.Disk
 
 	allDisks, err := l.AllDisks()
 	if err != nil {
@@ -47,7 +46,7 @@ func (l *Lsblk) AvailableDisks() (*[]*model.Disk, error) {
 	return &disks, nil
 }
 
-func (l *Lsblk) AllDisks() (*[]*model.Disk, error) {
+func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
 	lsblkOutputBytes, err := l.executor.CommandOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
 	if err != nil {
 		return nil, err
@@ -105,8 +104,11 @@ func (l *Lsblk) AllDisks() (*[]*model.Disk, error) {
 		}
 	}
 
-	values := maps.Values(disks)
-	return &values, nil
+	var results []model.Disk
+	for _, disk := range disks {
+		results = append(results, *disk)
+	}
+	return &results, nil
 }
 
 func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
