@@ -8,12 +8,12 @@ import (
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/cert"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/event"
-	"github.com/syncloud/platform/executor"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
@@ -56,10 +56,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
 	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
-	Singleton(func() *executor.CliExecutor { return &executor.CliExecutor{} })
+	Singleton(func() *cli.Executor { return &cli.Executor{} })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
-	Singleton(func(executor *executor.CliExecutor) *snap.Service { return snap.NewService(executor) })
+	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
 		return nginx.New(systemd.New(), systemConfig, userConfig)
 	})
@@ -96,7 +96,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return snap.New(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 
-	Singleton(func(snapd *snap.Snapd, executor *executor.CliExecutor) *event.Trigger {
+	Singleton(func(snapd *snap.Snapd, executor *cli.Executor) *event.Trigger {
 		return event.New(snapd, executor)
 	})
 
@@ -119,7 +119,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *executor.CliExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
+	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
 	})
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {

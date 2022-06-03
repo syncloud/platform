@@ -1,15 +1,15 @@
 package snap
 
 import (
-	"github.com/syncloud/platform/executor"
+	"github.com/syncloud/platform/cli"
 	"log"
 )
 
 type Service struct {
-	executor executor.Executor
+	executor cli.CommandExecutor
 }
 
-func NewService(executor executor.Executor) *Service {
+func NewService(executor cli.CommandExecutor) *Service {
 	return &Service{
 		executor: executor,
 	}

@@ -69,6 +69,14 @@ func (c *SystemConfig) Channel() string {
 	return c.get("channel")
 }
 
+func (c *SystemConfig) DiskLink() string {
+	return c.get("disk_link")
+}
+
+func (c *SystemConfig) ExternalDiskDir() string {
+	return c.get("external_disk_dir")
+}
+
 func (c *SystemConfig) get(key string) string {
 	value, err := c.parser.GetInterpolated("platform", key)
 	if err != nil {

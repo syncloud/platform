@@ -1,105 +1,158 @@
 package storage
 
-import "github.com/syncloud/platform/config"
+import (
+	"github.com/syncloud/platform/config"
+	"github.com/syncloud/platform/cli"
+	"github.com/syncloud/platform/storage/model"
+	"go.uber.org/zap"
+	"regexp"
+	"strings"
+)
 
 type Lsblk struct {
-
+	systemConfig config.SystemConfig
+	pathChecker Checker
+	executor cli.CommandExecutor
+	logger *zap.Logger
 }
 
-func NewLsblk(systemConfig config.SystemConfig, path_checker) {
-	self.platform_config = platform_config
-	self.path_checker = path_checker
-	self.log = logger.get_logger('lsblk')
+func NewLsblk(systemConfig config.SystemConfig, pathChecker Checker, executor cli.CommandExecutor, logger *zap.Logger) *Lsblk {
+	return &Lsblk{
+		systemConfig: systemConfig,
+		pathChecker: pathChecker,
+		executor: executor,
+		logger: logger,
+	}
 }
 
-def available_disks(self, lsblk_output=None):
-return [d for d in self.all_disks(lsblk_output) if not d.is_internal() and not d.has_root_partition()]
+func (l *Lsblk) availableDisks() {
+	return [d for d in self.all_disks() if not d.is_internal() and not d.has_root_partition()]
+}
 
-def all_disks(self, lsblk_output=None):
-if not lsblk_output:
-lsblk_output = check_output('lsblk -Pp -o NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL', shell=True).decode()
-self.log.info(lsblk_output)
+func (l *Lsblk) allDisks() (*[]model.Disk, error) {
+	lsblkOutputBytes, err := l.executor.CommandOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
+	if err != nil {
+		return nil, err
+	}
+	lsblkOutput := string(lsblkOutputBytes)
+	l.logger.Info(lsblkOutput)
 
-disks = {}
-for line in lsblk_output.splitlines():
-if not line.strip():
-continue
+	var disks map[string]model.Disk
 
-self.log.info('parsing line: {0}'.format(line))
-match = re.match(
-r'NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)"',
-line.strip())
+	lsblkLines := strings.Split(lsblkOutput, "\n")
 
-lsblk_entry = LsblkEntry(match.group(1), match.group(2), match.group(3),
-match.group(4), match.group(5), match.group(6), match.group(7).strip())
+	for _, rawLine := range lsblkLines {
+		line := strings.TrimSpace(rawLine)
+		if line == "" {
+			continue
+		}
 
-if lsblk_entry.is_supported_type() and lsblk_entry.is_supported_fs_type():
-device = lsblk_entry.name
-disk_name = lsblk_entry.model
-self.log.info('adding disk: {0}'.format(disk_name))
-disk = Disk(disk_name, device, lsblk_entry.size, [])
-if lsblk_entry.is_single_partition_disk():
-self.log.info('adding single partition disk: {0}'.format(device))
+		l.logger.Info("parsing", zap.String("line", line))
+		r := *regexp.MustCompile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)"`)
+		match := r.FindStringSubmatch(line)
 
-disk.name = lsblk_entry.type
-	partition = self.create_partition(lsblk_entry)
-disk.add_partition(partition)
+		lsblkEntry := model.LsblkEntry{
+			match[1],
+			match[2],
+			match[3],
+			match[4],
+			match[5],
+			match[6],
+			strings.TrimSpace(match[7]),
 
-disks[device] = disk
+		}
 
-elif lsblk_entry.type == 'part':
-self.log.info('adding regular partition: {0}'.format(lsblk_entry.name))
-partition = self.create_partition(lsblk_entry)
-parent_device = lsblk_entry.parent_device()
-if parent_device in disks:
-disk = disks[parent_device]
-disk.add_partition(partition)
+		if lsblk_entry.is_supported_type() and
+		lsblk_entry.is_supported_fs_type():
+		device = lsblk_entry.name
+		disk_name = lsblk_entry.model
+		self.log.info('adding disk: {0}'.format(disk_name))
+		disk = Disk(disk_name, device, lsblk_entry.size,[])
+		if lsblk_entry.is_single_partition_disk():
+		self.log.info('adding single partition disk: {0}'.format(device))
 
-return disks.values()
+		disk.name = lsblk_entry.
+		type partition = self.create_partition
+		(lsblk_entry)
+		disk.add_partition(partition)
 
-def create_partition(self, lsblk_entry):
-mountable = False
-mount_point = lsblk_entry.mount_point
-if not lsblk_entry.is_extended_partition():
-if not mount_point or mount_point == self.platform_config.get_external_disk_dir():
-mountable = True
+		disks[device] = disk
 
-if lsblk_entry.is_boot_disk():
-mountable = False
-active = False
-if mount_point == self.platform_config.get_external_disk_dir() \
-and self.path_checker.external_disk_link_exists():
-active = True
+		elif
+		lsblk_entry.
+		type == 'part':
+		self.log.info('adding regular partition: {0}'.format(lsblk_entry.name))
+		partition = self.create_partition(lsblk_entry)
+		parent_device = lsblk_entry.parent_device()
+		if parent_device in
+	disks:
+		disk = disks[parent_device]
+		disk.add_partition(partition)
+	}
 
-return Partition(lsblk_entry.size, lsblk_entry.name, mount_point, active, lsblk_entry.get_fs_type(), mountable)
+	return disks.values()
+}
 
-def is_external_disk_attached(self, lsblk_output=None, disk_dir=None):
-if not disk_dir:
-disk_dir = self.platform_config.get_external_disk_dir()
-for disk in self.all_disks(lsblk_output):
-for partition in disk.partitions:
-if partition.mount_point == disk_dir:
-self.log.info('external disk is attached')
-return True
-self.log.info('external disk is detached')
-return False
+func (l *Lsblk) create_partition(self, lsblk_entry) {
+	mountable = False
+	mount_point = lsblk_entry.mount_point
+	if not lsblk_entry.is_extended_partition():
+	if not mount_point
+	or
+	mount_point == self.platform_config.get_external_disk_dir():
+	mountable = True
 
-def find_partition_by_device(self, device, lsblk_output=None):
-for disk in self.all_disks(lsblk_output):
-for partition in disk.partitions:
-if partition.device == device:
-self.log.info('partition found')
-return partition
-self.log.info('partition not found')
-return None
+	if lsblk_entry.is_boot_disk():
+	mountable = False
+	active = False
+	if mount_point == self.platform_config.get_external_disk_dir() \
+	and
+	self.path_checker.external_disk_link_exists():
+	active = True
 
-def find_partition_by_dir(self, mount_dir, lsblk_output=None):
-for disk in self.all_disks(lsblk_output):
-for partition in disk.partitions:
-if partition.mount_point == mount_dir:
-self.log.info('partition found')
-return partition
-self.log.info('partition not found')
-return None
+	return Partition(lsblk_entry.size, lsblk_entry.name, mount_point, active, lsblk_entry.get_fs_type(), mountable)
+}
 
+func (l *Lsblk) is_external_disk_attached(self, lsblk_output=None, disk_dir=None) {
+	if not disk_dir:
+	disk_dir = self.platform_config.get_external_disk_dir()
+	for disk
+	in
+	self.all_disks(lsblk_output):
+	for partition
+	in
+	disk.partitions:
+	if partition.mount_point == disk_dir:
+	self.log.info('external disk is attached')
+	return True
+	self.log.info('external disk is detached')
+	return False
+}
 
+func (l *Lsblk) find_partition_by_device(self, device, lsblk_output=None) {
+	for disk
+	in
+	self.all_disks(lsblk_output):
+	for partition
+	in
+	disk.partitions:
+	if partition.device == device:
+	self.log.info('partition found')
+	return partition
+	self.log.info('partition not found')
+	return None
+}
+
+func (l *Lsblk) find_partition_by_dir(self, mount_dir, lsblk_output=None) {
+	for disk
+	in
+	self.all_disks(lsblk_output):
+	for partition
+	in
+	disk.partitions:
+	if partition.mount_point == mount_dir:
+	self.log.info('partition found')
+	return partition
+	self.log.info('partition not found')
+	return None
+}

@@ -8,27 +8,31 @@ import (
 
 const ParttypeExtended = "0x5"
 
-type LsblkEntry struct {
-	Name                 string
-	Size                 int64
-	DeviceType           string
-	MountPoint           string
-	PartType             string
-	FsType               string
-	Model                string
-	SupportedDeviceTypes []string
+var SupportedDeviceTypes []string
+
+func init() {
+	SupportedDeviceTypes = []string{"disk", "loop"}
 }
 
-func NewLsblkEntry(name string, size int64, deviceType string, mountPoint string, partType string, fsType string, model string) LsblkEntry {
+type LsblkEntry struct {
+	Name       string
+	Size       string
+	DeviceType string
+	MountPoint string
+	PartType   string
+	FsType     string
+	Model      string
+}
+
+func NewLsblkEntry(name string, size string, deviceType string, mountPoint string, partType string, fsType string, model string) LsblkEntry {
 	return LsblkEntry{
-		Name:                 name,
-		Size:                 size,
-		DeviceType:           deviceType,
-		MountPoint:           mountPoint,
-		PartType:             partType,
-		FsType:               fsType,
-		Model:                model,
-		SupportedDeviceTypes: []string{"disk", "loop"},
+		Name:       name,
+		Size:       size,
+		DeviceType: deviceType,
+		MountPoint: mountPoint,
+		PartType:   partType,
+		FsType:     fsType,
+		Model:      model,
 	}
 }
 
@@ -41,7 +45,7 @@ func (e *LsblkEntry) IsBootDisk() bool {
 }
 
 func (e *LsblkEntry) IsSupportedType() bool {
-	if slices.Contains(e.SupportedDeviceTypes, e.DeviceType) {
+	if slices.Contains(SupportedDeviceTypes, e.DeviceType) {
 		return true
 	}
 	if strings.HasPrefix(e.DeviceType, "raid") {
