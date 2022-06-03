@@ -146,13 +146,18 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return rest.NewCertificate(certGenerator, certReader)
 	})
 
+	Singleton(func(config *config.SystemConfig) *storage.PathChecker { return storage.NewPathChecker(config, logger) })
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, checker *storage.PathChecker) *storage.Lsblk {
+		return storage.NewLsblk(systemConfig, checker, executor, logger)
+	})
+
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Snapd,
+		externalAddress *access.ExternalAddress, snapd *snap.Snapd, lsblk *storage.Lsblk,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, lsblk)
 	})
 
 }

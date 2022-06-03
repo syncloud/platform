@@ -30,5 +30,5 @@ func (p *Partition) isRootFs() bool {
 }
 
 func (p *Partition) ToString() string {
-	return fmt.Sprintf("%s, %d, %s, %t", p.Device, p.Size, p.MountPoint, p.Active)
+	return fmt.Sprintf("%s, %s, %s, %t", p.Device, p.Size, p.MountPoint, p.Active)
 }
