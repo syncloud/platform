@@ -1,6 +1,7 @@
 local name = "platform";
 local browser = "chrome";
-local go = "1.17.3";
+local go = "1.18.2";
+local node = "16.1.0";
 
 local build(arch, testUI) = [{
     kind: "pipeline",
@@ -20,7 +21,7 @@ local build(arch, testUI) = [{
         },
         {
             name: "build web",
-            image: "node:16.1.0-alpine3.12",
+            image: "node:" + node + "-alpine3.12",
             commands: [
                 "apk add --update --no-cache python2 alpine-sdk ",
                 "mkdir -p build/platform",
