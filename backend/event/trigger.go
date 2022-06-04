@@ -26,6 +26,10 @@ func (t *Trigger) RunAccessChangeEvent() error {
 	return t.RunEventOnAllApps("access-change")
 }
 
+func (t *Trigger) RunDiskChangeEvent() error {
+	return t.RunEventOnAllApps("storage-change")
+}
+
 func (t *Trigger) RunEventOnAllApps(event string) error {
 
 	snaps, err := t.snapd.InstalledSnaps()

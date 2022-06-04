@@ -60,8 +60,11 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
 	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
-		return nginx.New(systemd.New(), systemConfig, userConfig)
+	Singleton(func(executor *cli.Executor, systemConfig *config.SystemConfig) *systemd.Control {
+		return systemd.New(executor, systemConfig, logger)
+	})
+	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
+		return nginx.New(control, systemConfig, userConfig)
 	})
 	Singleton(func(userConfig *config.UserConfig) *info.Device {
 		return info.New(userConfig)
@@ -150,14 +153,17 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, checker *storage.PathChecker) *storage.Lsblk {
 		return storage.NewLsblk(systemConfig, checker, executor, logger)
 	})
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, control *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk) *storage.Disks {
+		return storage.NewDisks(systemConfig, eventTrigger, lsblk, control, executor, logger)
+	})
 
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Snapd, lsblk *storage.Lsblk,
+		externalAddress *access.ExternalAddress, snapd *snap.Snapd, disks *storage.Disks,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, lsblk)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks)
 	})
 
 }

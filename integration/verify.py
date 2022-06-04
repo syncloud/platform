@@ -490,7 +490,7 @@ def disk_activate(loop, device, domain):
 
 
 def disk_deactivate(loop, device, domain):
-    response = device.login().post('https://{0}/rest/settings/disk_deactivate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/disk/deactivate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)

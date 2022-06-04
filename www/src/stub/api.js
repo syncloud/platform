@@ -399,7 +399,7 @@ const mock = function (app, server, compiler) {
       res.json(disksDataError)
     }
   })
-  app.post('/rest/settings/disk_deactivate', function (req, res) {
+  app.post('/rest/storage/disk/deactivate', function (req, res) {
     if (state.diskActionSuccess) {
       res.json(disksData)
     } else {

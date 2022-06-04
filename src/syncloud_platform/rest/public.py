@@ -165,13 +165,6 @@ def installer_status():
     return jsonify(is_running=public.installer_status()), 200
 
 
-@app.route("/rest/settings/disk_deactivate", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def disk_deactivate():
-    return jsonify(success=True, disks=public.disk_deactivate()), 200
-
-
 @app.route("/rest/settings/deactivate", methods=["POST"])
 @fail_if_not_activated
 @login_required
@@ -201,6 +194,7 @@ def app_image():
 @app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/disk_format", methods=["POST"])
+@app.route("/rest/storage/disk/deactivate", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/storage/boot/disk", methods=["GET"])
 @app.route("/rest/storage/disks", methods=["GET"])

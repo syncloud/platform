@@ -2,11 +2,9 @@ package storage
 
 import (
 	"github.com/syncloud/platform/cli"
-	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/storage/model"
-	"github.com/syncloud/platform/systemd"
 	"go.uber.org/zap"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -20,34 +18,47 @@ const ExtendableFreePercent = 10
 //}
 
 type Disks struct {
-	config  config.SystemConfig
-	trigger event.Trigger
-	lsblk   LsblkDisks
+	config  DisksConfig
+	trigger DisksEventTrigger
+	lsblk   DisksLsblk
 	//pathChecker PathChecker
-	systemd  systemd.Control
+	systemd  DisksSystemd
 	executor cli.CommandExecutor
 	logger   *zap.Logger
 }
 
-type LsblkDisks interface {
+type DisksLsblk interface {
 	AvailableDisks() (*[]model.Disk, error)
 	AllDisks() (*[]model.Disk, error)
 }
 
+type DisksConfig interface {
+	DiskLink() string
+	InternalDiskDir() string
+}
+
+type DisksEventTrigger interface {
+	RunDiskChangeEvent() error
+}
+
+type DisksSystemd interface {
+	RemoveMount() error
+}
+
 func NewDisks(
-	//config config.SystemConfig,
-	//trigger event.Trigger,
-	lsblk LsblkDisks,
+	config DisksConfig,
+	trigger DisksEventTrigger,
+	lsblk DisksLsblk,
 	//pathChecker PathChecker,
-	//systemd systemd.Control,
+	systemd DisksSystemd,
 	executor cli.CommandExecutor,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
-		//config:      config,
-		//systemd:     systemd,
-		//trigger:     trigger,
-		lsblk: lsblk,
+		config:  config,
+		systemd: systemd,
+		trigger: trigger,
+		lsblk:   lsblk,
 		//pathChecker: pathChecker,
 		executor: executor,
 		logger:   logger,
@@ -129,16 +140,26 @@ supported_fs:
 		self.platform_config.get_external_disk_dir())
 	self.event_trigger.trigger_app_event_disk()
 }
+*/
 
-func (d *Disks) deactivate_disk() {
-	self.log.info('deactivate disk')
-	relink_disk(
-		self.platform_config.get_disk_link(),
-		self.platform_config.get_internal_disk_dir())
-	self.event_trigger.trigger_app_event_disk()
-	self.systemctl.remove_mount()
+func (d *Disks) DeactivateDisk() error {
+	d.logger.Info("deactivate disk")
+	err := d.RelinkDisk(d.config.DiskLink(), d.config.InternalDiskDir())
+	if err != nil {
+		return err
+	}
+	err = d.trigger.RunDiskChangeEvent()
+	if err != nil {
+		return err
+	}
+	err = d.systemd.RemoveMount()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
+/*
 func (d *Disks) get_app_storage_dir(app_id) {
 	app_storage_dir = join(self.platform_config.get_disk_link(), app_id)
 	return app_storage_dir
@@ -154,7 +175,6 @@ func (d *Disks) init_app_storage(app_id, owner = None) {
 	self.log.info('not fixing permissions')
 	return app_storage_dir
 }
-
 func (d *Disks) init_disk() {
 
 	if not isdir(self.platform_config.get_disk_root()):
@@ -166,13 +186,25 @@ func (d *Disks) init_disk() {
 	if not self.path_checker.external_disk_link_exists():
 	relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
 }
-
-func (d *Disks) relink_disk(target) {
-
-	os.chmod(target, 0o755)
-
-	if islink(link):
-	unlink(link)
-	os.symlink(target, link)
-}
 */
+
+func (d *Disks) RelinkDisk(link string, target string) error {
+
+	err := os.Chmod(target, 0o755)
+	if err != nil {
+		return err
+	}
+
+	fi, err := os.Lstat(link)
+	if err != nil {
+		return err
+	}
+	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+		err = os.Remove(link)
+		if err != nil {
+			return err
+		}
+	}
+	err = os.Symlink(target, link)
+	return err
+}

@@ -49,9 +49,6 @@ class Public:
     def installer_status(self):
         return self.snap.status()
 
-    def disk_deactivate(self):
-        return self.hardware.deactivate_disk()
-
     def send_logs(self, include_support):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()
