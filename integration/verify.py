@@ -414,7 +414,7 @@ def test_backup_app(device, artifact_dir, domain):
 
     response = session.post(
         'https://{0}/rest/backup/restore'.format(domain),
-        json={'app': 'testapp', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
+        json={'app': 'testapp', 'file': '{0}'.format(backup['file'])},
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
@@ -586,4 +586,5 @@ def retry(method, retries=10):
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
             time.sleep(5)
         attempt += 1
+    raise exception
     raise exception
