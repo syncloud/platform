@@ -69,8 +69,10 @@ func TestDisks_RootPartition_High_Extendable(t *testing.T) {
 1:0.00%:1.67%:1.67%:::;
 2:1.67%:100%:98.3%:ext4::;
 1:100%:100%:12.34%:free;`
-
-	disks := NewDisks(&LsblkDisksStub{}, &DisksExecutorStub{output: parted}, log.Default())
+	allDisks := []model.Disk{
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+	}
+	disks := NewDisks(&LsblkDisksStub{disks: allDisks}, &DisksExecutorStub{output: parted}, log.Default())
 	partition, err := disks.RootPartition()
 	assert.Nil(t, err)
 	assert.True(t, partition.Extendable)
@@ -83,8 +85,10 @@ func TestDisks_RootPartition_No_NotExtendable(t *testing.T) {
 1:0.00%:0.00%:0.00%:free;
 1:0.00%:1.67%:1.67%:::;
 2:1.67%:100%:98.3%:ext4::;`
-
-	disks := NewDisks(&LsblkDisksStub{}, &DisksExecutorStub{output: parted}, log.Default())
+	allDisks := []model.Disk{
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+	}
+	disks := NewDisks(&LsblkDisksStub{disks: allDisks}, &DisksExecutorStub{output: parted}, log.Default())
 	partition, err := disks.RootPartition()
 	assert.Nil(t, err)
 	assert.False(t, partition.Extendable)

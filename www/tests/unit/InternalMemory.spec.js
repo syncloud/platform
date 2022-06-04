@@ -13,7 +13,7 @@ test('Extend', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onGet('/rest/settings/boot_disk').reply(function (config) {
+  mock.onGet('/rest/storage/boot/disk').reply(function (_) {
     return [200, {
       data: {
         device: '/dev/mmcblk0p2',
@@ -24,7 +24,7 @@ test('Extend', async () => {
     }]
   })
 
-  mock.onPost('/rest/storage/boot_extend').reply(function (config) {
+  mock.onPost('/rest/storage/boot_extend').reply(function (_) {
     extended = true
     return [200, { success: true }]
   })
