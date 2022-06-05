@@ -153,8 +153,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, checker *storage.PathChecker) *storage.Lsblk {
 		return storage.NewLsblk(systemConfig, checker, executor, logger)
 	})
-	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, control *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk) *storage.Disks {
-		return storage.NewDisks(systemConfig, eventTrigger, lsblk, control, executor, logger)
+	Singleton(func(executor *cli.Executor) *storage.FreeSpaceChecker { return storage.NewFreeSpaceChecker(executor) })
+	Singleton(func() *storage.Linker { return storage.NewLinker() })
+	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker, control *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk, linker *storage.Linker) *storage.Disks {
+		return storage.NewDisks(systemConfig, eventTrigger, lsblk, control, freeSpaceChecker, linker, logger)
 	})
 
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,

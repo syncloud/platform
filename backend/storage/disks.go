@@ -1,12 +1,8 @@
 package storage
 
 import (
-	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
-	"os"
-	"strconv"
-	"strings"
 )
 
 const ExtendableFreePercent = 10
@@ -22,9 +18,11 @@ type Disks struct {
 	trigger DisksEventTrigger
 	lsblk   DisksLsblk
 	//pathChecker PathChecker
-	systemd  DisksSystemd
-	executor cli.CommandExecutor
-	logger   *zap.Logger
+	systemd DisksSystemd
+	//executor cli.CommandExecutor
+	freeSpaceChecker DisksFreeSpaceChecker
+	linker           DisksLinker
+	logger           *zap.Logger
 }
 
 type DisksLsblk interface {
@@ -45,13 +43,23 @@ type DisksSystemd interface {
 	RemoveMount() error
 }
 
+type DisksLinker interface {
+	RelinkDisk(link string, target string) error
+}
+
+type DisksFreeSpaceChecker interface {
+	HasFreeSpace(device string) (bool, error)
+}
+
 func NewDisks(
 	config DisksConfig,
 	trigger DisksEventTrigger,
 	lsblk DisksLsblk,
 	//pathChecker PathChecker,
 	systemd DisksSystemd,
-	executor cli.CommandExecutor,
+	//executor cli.CommandExecutor,
+	freeSpaceChecker DisksFreeSpaceChecker,
+	linker DisksLinker,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
@@ -60,8 +68,10 @@ func NewDisks(
 		trigger: trigger,
 		lsblk:   lsblk,
 		//pathChecker: pathChecker,
-		executor: executor,
-		logger:   logger,
+		//executor: executor,
+		freeSpaceChecker: freeSpaceChecker,
+		linker:           linker,
+		logger:           logger,
 	}
 }
 
@@ -74,7 +84,7 @@ func (d *Disks) RootPartition() (*model.Partition, error) {
 	for _, disk := range *disks {
 		partition := disk.FindRootPartition()
 		if partition != nil {
-			extendable, err := d.hasUnallocatedSpaceAtTheEnd(disk.Device)
+			extendable, err := d.freeSpaceChecker.HasFreeSpace(disk.Device)
 			if err != nil {
 				return nil, err
 			}
@@ -84,27 +94,6 @@ func (d *Disks) RootPartition() (*model.Partition, error) {
 	}
 	return &model.Partition{Size: "0", Device: "unknown", MountPoint: "/", Active: true, FsType: "unknown"}, nil
 
-}
-
-func (d *Disks) hasUnallocatedSpaceAtTheEnd(device string) (bool, error) {
-	output, err := d.executor.CommandOutput("parted", device, "unit", "%", "print", "free", "--script", "--machine")
-	if err != nil {
-		return false, err
-	}
-
-	lines := strings.Split(string(output), "\n")
-	last := lines[len(lines)-1]
-	if !strings.Contains(last, "free") {
-		return false, nil
-	}
-	freeString := strings.Split(last, ":")[3]
-	freeString = strings.TrimSuffix(freeString, "%")
-	free, err := strconv.ParseFloat(freeString, 64)
-	if err != nil {
-		return false, err
-	}
-
-	return free > ExtendableFreePercent, nil
 }
 
 func (d *Disks) AvailableDisks() (*[]model.Disk, error) {
@@ -144,17 +133,17 @@ supported_fs:
 
 func (d *Disks) DeactivateDisk() error {
 	d.logger.Info("deactivate disk")
-	err := d.RelinkDisk(d.config.DiskLink(), d.config.InternalDiskDir())
-	if err != nil {
-		return err
-	}
-	err = d.trigger.RunDiskChangeEvent()
+	err := d.linker.RelinkDisk(d.config.DiskLink(), d.config.InternalDiskDir())
 	if err != nil {
 		return err
 	}
 	err = d.systemd.RemoveMount()
 	if err != nil {
 		return err
+	}
+	err = d.trigger.RunDiskChangeEvent()
+	if err != nil {
+		d.logger.Error("some disk events produced errors", zap.Error(err))
 	}
 	return nil
 }
@@ -187,24 +176,3 @@ func (d *Disks) init_disk() {
 	relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
 }
 */
-
-func (d *Disks) RelinkDisk(link string, target string) error {
-
-	err := os.Chmod(target, 0o755)
-	if err != nil {
-		return err
-	}
-
-	fi, err := os.Lstat(link)
-	if err != nil {
-		return err
-	}
-	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-		err = os.Remove(link)
-		if err != nil {
-			return err
-		}
-	}
-	err = os.Symlink(target, link)
-	return err
-}
