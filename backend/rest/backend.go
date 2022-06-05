@@ -104,7 +104,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
-	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("GET")
+	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
 	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
