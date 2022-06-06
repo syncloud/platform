@@ -122,11 +122,11 @@ func (c *Control) systemdFile(filename string) string {
 func (c *Control) stop(service string) (*string, error) {
 
 	c.logger.Info("checking", zap.String("service", service))
-	//TODO: exit code 3 when inactive
 	isAliveOutput, err := c.executor.CommandOutput("systemctl", "is-active", service)
-	if err != nil {
-		return nil, err
-	}
+	//TODO: exit code 3 when inactive
+	//if err != nil {
+	//	return nil, err
+	//}
 	result := strings.TrimSpace(string(isAliveOutput))
 	c.logger.Info("stopping", zap.String("service", service))
 	stopOutput, err := c.executor.CommandOutput("systemctl", "stop", service)
