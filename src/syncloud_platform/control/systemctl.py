@@ -59,24 +59,6 @@ class Systemctl:
         if start:
             self.__start('{0}.service'.format(service))
 
-    def add_mount(self, device):
-
-        log = logger.get_logger('systemctl')
-
-        mount_template_file = join(self.platform_config.config_dir(), 'mount', 'mount.template')
-        mount_definition = Template(open(mount_template_file, 'r').read()).substitute({
-            'what': device,
-            'where': self.platform_config.get_external_disk_dir()
-         })
-
-        mount_filename = dir_to_systemd_mount_filename(self.platform_config.get_external_disk_dir())
-        with open(self.__systemd_file(mount_filename), 'w') as f:
-            f.write(mount_definition)
-
-        log.info('enabling {0}'.format(mount_filename))
-        check_output('systemctl enable {0} 2>&1'.format(mount_filename), shell=True)
-        self.__start(mount_filename)
-
     def remove_mount(self):
         self.__remove(dir_to_systemd_mount_filename(self.platform_config.get_external_disk_dir()))
 

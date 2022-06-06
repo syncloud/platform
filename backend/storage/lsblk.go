@@ -1,15 +1,13 @@
 package storage
 
 import (
-	"errors"
+	"fmt"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"regexp"
 	"strings"
 )
-
-var ErrNotFound = errors.New("partition not found")
 
 type Lsblk struct {
 	systemConfig Config
@@ -150,5 +148,5 @@ func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {
 			}
 		}
 	}
-	return nil, ErrNotFound
+	return nil, fmt.Errorf("unable to find device: %s", device)
 }

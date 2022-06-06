@@ -1,4 +1,4 @@
-<template>
+tivate<template>
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
@@ -202,8 +202,8 @@ export default {
       this.progressShow()
       const error = this.$refs.error
       const that = this
-      const mode = this.partitionAction ? 'disk_activate' : 'disk_deactivate'
-      axios.post('/rest/settings/' + mode, { device: this.partitionActionDevice })
+      const mode = this.partitionAction ? 'activate' : 'deactivate'
+      axios.post('/rest/storage/disk/' + mode, { device: this.partitionActionDevice })
         .then(resp => {
           Common.checkForServiceError(
             resp.data,

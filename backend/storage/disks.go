@@ -1,17 +1,20 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
+	"strings"
 )
 
 const ExtendableFreePercent = 10
 
-//var supportedFilesystems []string
+var supportedFilesystems []string
 
-//func init() {
-//	supportedFilesystems = []string{"ext2", "ext3", "ext4", "raid"}
-//}
+func init() {
+	supportedFilesystems = []string{"ext2", "ext3", "ext4", "raid"}
+}
 
 type Disks struct {
 	config  DisksConfig
@@ -28,11 +31,13 @@ type Disks struct {
 type DisksLsblk interface {
 	AvailableDisks() (*[]model.Disk, error)
 	AllDisks() (*[]model.Disk, error)
+	FindPartitionByDevice(device string) (*model.Partition, error)
 }
 
 type DisksConfig interface {
 	DiskLink() string
 	InternalDiskDir() string
+	ExternalDiskDir() string
 }
 
 type DisksEventTrigger interface {
@@ -41,6 +46,7 @@ type DisksEventTrigger interface {
 
 type DisksSystemd interface {
 	RemoveMount() error
+	AddMount(device string) error
 }
 
 type DisksLinker interface {
@@ -100,36 +106,34 @@ func (d *Disks) AvailableDisks() (*[]model.Disk, error) {
 	return d.lsblk.AvailableDisks()
 }
 
-/*
-func (d *Disks) activate_disk(device) {
-	self.log.info('activate disk: {0}'.format(device))
-	self.deactivate_disk()
+func (d *Disks) ActivateDisk(device string) error {
+	d.logger.Info("activate", zap.String("disk", device))
+	err := d.DeactivateDisk()
+	if err != nil {
+		return err
+	}
 
-	partition = self.lsblk.find_partition_by_device(device)
-	if not partition:
-	error_message = 'unable to find device: {0}'.format(device)
-	self.log.error(error_message)
-	raise
-	Exception(error_message)
+	partition, err := d.lsblk.FindPartitionByDevice(device)
+	if err != nil {
+		return err
+	}
+	fsType := partition.FsType
+	if slices.Contains(supportedFilesystems, fsType) {
+		return fmt.Errorf("filesystem type is not supported: %s, use one of the following: %s", fsType, strings.Join(supportedFilesystems, ","))
+	}
 
-	fs_type = partition.fs_type
-	if fs_type not
-	in
-supported_fs:
-	error_message = 'Filesystem type is not supported: {0}' \
-	', use one of the following: {1}'.format(fs_type, supported_fs)
-	self.log.error(error_message)
-	raise
-	ServiceException(error_message)
+	err = d.systemd.AddMount(device)
+	if err != nil {
+		return err
+	}
 
-	self.systemctl.add_mount(device)
+	err = d.linker.RelinkDisk(d.config.DiskLink(), d.config.ExternalDiskDir())
+	if err != nil {
+		return err
+	}
 
-	relink_disk(
-		self.platform_config.get_disk_link(),
-		self.platform_config.get_external_disk_dir())
-	self.event_trigger.trigger_app_event_disk()
+	return d.trigger.RunDiskChangeEvent()
 }
-*/
 
 func (d *Disks) DeactivateDisk() error {
 	d.logger.Info("deactivate disk")

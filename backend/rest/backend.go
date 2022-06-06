@@ -105,6 +105,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
 	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate", Handle(b.StorageDiskActivate)).Methods("POST")
 	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
@@ -328,4 +329,15 @@ func (b *Backend) StorageBootDisk(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) StorageDiskDeactivate(_ *http.Request) (interface{}, error) {
 	return "OK", b.disks.DeactivateDisk()
+}
+
+func (b *Backend) StorageDiskActivate(req *http.Request) (interface{}, error) {
+	var request model.StorageDiskActivateRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("invalid disk activate request")
+	}
+
+	return "OK", b.disks.ActivateDisk(request.Device)
 }

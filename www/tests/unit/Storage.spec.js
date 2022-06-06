@@ -210,7 +210,7 @@ test('Activate', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/settings/disk_activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [200, { success: true }]
   })
@@ -284,7 +284,7 @@ test('Activate error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/settings/disk_activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [500, { message: 'not ok' }]
   })

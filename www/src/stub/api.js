@@ -392,7 +392,7 @@ const mock = function (app, server, compiler) {
   app.get('/rest/storage/boot/disk', function (req, res) {
     res.json(bootDiskData)
   })
-  app.post('/rest/settings/disk_activate', function (req, res) {
+  app.post('/rest/storage/disk/activate', function (req, res) {
     if (state.diskActionSuccess) {
       res.json(disksData)
     } else {

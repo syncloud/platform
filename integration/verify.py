@@ -483,7 +483,7 @@ def disk_activate(loop, device, domain):
     assert loop in response.text
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/settings/disk_activate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/disk/activate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)

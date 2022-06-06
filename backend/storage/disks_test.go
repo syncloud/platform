@@ -47,6 +47,10 @@ type LsblkDisksStub struct {
 	disks []model.Disk
 }
 
+func (l LsblkDisksStub) FindPartitionByDevice(_ string) (*model.Partition, error) {
+	return &model.Partition{}, nil
+}
+
 func (l LsblkDisksStub) AvailableDisks() (*[]model.Disk, error) {
 	return &l.disks, nil
 }
@@ -64,6 +68,10 @@ func (l LsblkDisksStub) AllDisks() (*[]model.Disk, error) {
 //}
 
 type SystemdStub struct {
+}
+
+func (s SystemdStub) AddMount(_ string) error {
+	return nil
 }
 
 func (s SystemdStub) RemoveMount() error {

@@ -293,5 +293,4 @@ func TestLsblk_FindPartitionByDevice_NotFound(t *testing.T) {
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	_, err := lsblk.FindPartitionByDevice("/dev/sdc1")
 	assert.NotNil(t, err)
-	assert.Equal(t, err, ErrNotFound)
 }

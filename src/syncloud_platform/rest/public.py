@@ -151,13 +151,6 @@ def device_url():
     return jsonify(success=True, device_url=public.device_url()), 200
 
 
-@app.route("/rest/settings/disk_activate", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def disk_activate():
-    return jsonify(success=True, disks=public.disk_activate(request.json['device'])), 200
-
-
 @app.route("/rest/settings/installer_status", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -195,6 +188,7 @@ def app_image():
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/disk/deactivate", methods=["POST"])
+@app.route("/rest/storage/disk/activate", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/storage/boot/disk", methods=["GET"])
 @app.route("/rest/storage/disks", methods=["GET"])

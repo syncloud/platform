@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	"text/template"
 )
 
 const Dir = "/lib/systemd/system"
@@ -22,6 +23,7 @@ type Control struct {
 
 type ControlConfig interface {
 	ExternalDiskDir() string
+	ConfigDir() string
 }
 
 func New(executor cli.CommandExecutor, config ControlConfig, logger *zap.Logger) *Control {
@@ -38,6 +40,50 @@ func (c *Control) ReloadService(service string) error {
 
 func (c *Control) RemoveMount() error {
 	return c.remove(c.DirToSystemdMountFilename(c.config.ExternalDiskDir()))
+}
+
+func (c *Control) AddMount(device string) error {
+
+	mountTemplateFile := path.Join(c.config.ConfigDir(), "mount", "mount.template")
+	mountDefinition, err := template.ParseFiles(mountTemplateFile)
+	if err != nil {
+		return err
+	}
+	mountFilename := c.DirToSystemdMountFilename(c.config.ExternalDiskDir())
+	systemdFilename := c.systemdFile(mountFilename)
+	f, err := os.Create(systemdFilename)
+	if err != nil {
+		return err
+	}
+	err = mountDefinition.Execute(f, &Mount{What: device, Where: c.config.ExternalDiskDir()})
+	if err != nil {
+		return err
+	}
+	err = f.Close()
+	if err != nil {
+		return err
+	}
+
+	c.logger.Info("enabling", zap.String("file", mountFilename))
+	_, err = c.executor.CommandOutput("systemctl", "enable", mountFilename)
+	if err != nil {
+		return err
+	}
+	return c.start(mountFilename)
+}
+
+func (c *Control) start(service string) error {
+	c.logger.Info("starting", zap.String("service", service))
+	output, err := c.executor.CommandOutput("systemctl", "start", service)
+	if err != nil {
+		c.logger.Error("unable to start a service", zap.String("output", string(output)))
+		logOutput, logErr := c.executor.CommandOutput("journalctl", "-u", service)
+		if logErr != nil {
+			c.logger.Error("unable to get service log", zap.String("log output", string(logOutput)))
+		}
+		return err
+	}
+	return nil
 }
 
 func (c *Control) DirToSystemdMountFilename(directory string) string {

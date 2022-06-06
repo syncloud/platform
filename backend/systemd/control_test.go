@@ -10,6 +10,10 @@ type ConfigStub struct {
 	diskDir string
 }
 
+func (c *ConfigStub) ConfigDir() string {
+	return "/config"
+}
+
 func (c *ConfigStub) ExternalDiskDir() string {
 	return c.diskDir
 }
