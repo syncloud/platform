@@ -1,12 +1,9 @@
-from os import unlink
 import os
-from os.path import islink, join, isdir
 from os import path
-from syncloudlib import logger, fs
-from syncloud_platform.disks.lsblk import Partition
-from syncloud_platform.gaplib.linux import parted
+from os import unlink
+from os.path import islink, join, isdir
 
-from syncloud_platform.rest.service_exception import ServiceException
+from syncloudlib import logger, fs
 
 supported_fs = {
     'ext2',

@@ -41,27 +41,6 @@ class Systemctl:
         if os.path.isfile(systemd_file):
             os.remove(systemd_file)
 
-    def add_service(self, app_id, service, include_socket=False, start=True):
-
-        service = self.service_name(service)
-
-        configs_root = join(self.platform_config.configs_root(), app_id)
-
-        log = logger.get_logger('systemctl')
-
-        shutil.copyfile(self.__app_service_file(configs_root, service), self.__systemd_service_file(service))
-
-        if include_socket:
-            shutil.copyfile(self.__app_socket_file(configs_root, service), self.__systemd_socket_file(service))
-
-        log.info('enabling {0}'.format(service))
-        check_output('systemctl enable {0} 2>&1'.format(service), shell=True)
-        if start:
-            self.__start('{0}.service'.format(service))
-
-    def remove_mount(self):
-        self.__remove(dir_to_systemd_mount_filename(self.platform_config.get_external_disk_dir()))
-
     def restart_service(self, service):
 
         self.stop_service(service)
@@ -70,9 +49,6 @@ class Systemctl:
     def start_service(self, service):
         service = self.service_name(service)
         self.__start('{0}.service'.format(service))
-
-    def start_mount(self, mount):
-        self.__start('{0}.mount'.format(mount))
 
     def __start(self, service):
         log = logger.get_logger('systemctl')
@@ -91,9 +67,6 @@ class Systemctl:
     def stop_service(self, service):
         service = self.service_name(service)
         return self.__stop('{0}.service'.format(service))
-
-    def stop_mount(self, service):
-        return self.__stop('{0}.mount'.format(service))
 
     def __stop(self, service):
         log = logger.get_logger('systemctl')

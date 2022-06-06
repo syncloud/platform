@@ -118,7 +118,7 @@ func (d *Disks) ActivateDisk(device string) error {
 		return err
 	}
 	fsType := partition.FsType
-	if slices.Contains(supportedFilesystems, fsType) {
+	if !slices.Contains(supportedFilesystems, fsType) {
 		return fmt.Errorf("filesystem type is not supported: %s, use one of the following: %s", fsType, strings.Join(supportedFilesystems, ","))
 	}
 
