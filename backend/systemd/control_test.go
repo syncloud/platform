@@ -21,21 +21,22 @@ func (c *ConfigStub) ExternalDiskDir() string {
 }
 
 type ExecutorStub struct {
-	f func(arg string) ([]byte, error)
+	f func(arg string) (string, error)
 }
 
 func (e *ExecutorStub) CommandOutput(_ string, args ...string) ([]byte, error) {
-	return e.f(args[0])
+	f, err := e.f(args[0])
+	return []byte(f), err
 }
 
-func ExecutorFunc(f func(arg string) ([]byte, error)) cli.CommandExecutor {
+func ExecutorFunc(f func(arg string) (string, error)) cli.CommandExecutor {
 	return &ExecutorStub{f}
 }
 
 func TestControl_DirToSystemdMountFilename(t *testing.T) {
 	executorFunc := ExecutorFunc(
-		func(arg string) ([]byte, error) {
-			return []byte("ok"), nil
+		func(arg string) (string, error) {
+			return "ok", nil
 		})
 	control := New(executorFunc, &ConfigStub{diskDir: "/opt/disk/external"}, log.Default())
 	assert.Equal(t, "dir1-dir2.mount", control.DirToSystemdMountFilename("/dir1/dir2"))
@@ -43,16 +44,16 @@ func TestControl_DirToSystemdMountFilename(t *testing.T) {
 
 func TestControl_RemoveMount_Inactive(t *testing.T) {
 	executorFunc := ExecutorFunc(
-		func(arg string) ([]byte, error) {
+		func(arg string) (string, error) {
 			switch arg {
 			case "is-active":
-				return []byte("inactive"), fmt.Errorf("error")
+				return "inactive", fmt.Errorf("error")
 			case "stop":
-				return []byte("unable to stop inactive mount"), fmt.Errorf("error")
+				return "unable to stop inactive mount", fmt.Errorf("error")
 			case "disable":
-				return []byte("unable to disable inactive mount"), fmt.Errorf("error")
+				return "unable to disable inactive mount", fmt.Errorf("error")
 			}
-			return nil, fmt.Errorf("unknown command")
+			return "", fmt.Errorf("unknown command")
 		})
 
 	control := New(executorFunc, &ConfigStub{diskDir: "/opt/disk/external"}, log.Default())
@@ -61,16 +62,16 @@ func TestControl_RemoveMount_Inactive(t *testing.T) {
 
 func TestControl_RemoveMount_Active(t *testing.T) {
 	executorFunc := ExecutorFunc(
-		func(arg string) ([]byte, error) {
+		func(arg string) (string, error) {
 			switch arg {
 			case "is-active":
-				return []byte("active"), nil
+				return "active", nil
 			case "stop":
-				return []byte("ok"), nil
+				return "ok", nil
 			case "disable":
-				return []byte("ok"), nil
+				return "ok", nil
 			}
-			return nil, fmt.Errorf("unknown command")
+			return "", fmt.Errorf("unknown command")
 		})
 
 	control := New(executorFunc, &ConfigStub{diskDir: "/opt/disk/external"}, log.Default())

@@ -5,23 +5,6 @@ from os.path import islink, join, isdir
 
 from syncloudlib import logger, fs
 
-supported_fs = {
-    'ext2',
-    'ext3',
-    'ext4',
-    'raid'
-}
-
-EXTENDABLE_FREE_PERCENT = 10
-
-
-def has_unallocated_space_at_the_end(parted_output):
-    last_line = parted_output.splitlines()[-1]
-    if 'free' not in last_line:
-        return False
-    free = float(last_line.split(':')[3][:-1])
-    return free > EXTENDABLE_FREE_PERCENT
-
 
 class Hardware:
 
