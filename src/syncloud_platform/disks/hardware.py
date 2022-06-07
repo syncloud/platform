@@ -25,11 +25,10 @@ def has_unallocated_space_at_the_end(parted_output):
 
 class Hardware:
 
-    def __init__(self, platform_config, event_trigger, lsblk, path_checker, systemctl):
+    def __init__(self, platform_config, event_trigger, path_checker, systemctl):
         self.platform_config = platform_config
         self.systemctl = systemctl
         self.event_trigger = event_trigger
-        self.lsblk = lsblk
         self.path_checker = path_checker
         self.log = logger.get_logger('hardware')
 
