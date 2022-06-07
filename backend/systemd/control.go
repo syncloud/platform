@@ -93,11 +93,8 @@ func (c *Control) DirToSystemdMountFilename(directory string) string {
 
 func (c *Control) remove(filename string) error {
 
-	status, err := c.stop(filename)
-	if err != nil {
-		return err
-	}
-	if slices.Contains([]string{"unknown", "inactive"}, *status) {
+	status := c.stop(filename)
+	if slices.Contains([]string{"unknown", "inactive"}, status) {
 		return nil
 	}
 	output, err := c.executor.CommandOutput("systemctl", "disable", filename)
@@ -119,21 +116,21 @@ func (c *Control) systemdFile(filename string) string {
 	return path.Join(Dir, filename)
 }
 
-func (c *Control) stop(service string) (*string, error) {
+func (c *Control) stop(service string) string {
 
 	c.logger.Info("checking", zap.String("service", service))
 	isAliveOutput, err := c.executor.CommandOutput("systemctl", "is-active", service)
-	//TODO: exit code 3 when inactive
-	//if err != nil {
-	//	return nil, err
-	//}
-	result := strings.TrimSpace(string(isAliveOutput))
+	isAliveResult := strings.TrimSpace(string(isAliveOutput))
+	if err != nil {
+		return isAliveResult
+	}
 	c.logger.Info("stopping", zap.String("service", service))
 	stopOutput, err := c.executor.CommandOutput("systemctl", "stop", service)
 	if err != nil {
-		result = strings.TrimSpace(string(stopOutput))
+		resultResult := strings.TrimSpace(string(stopOutput))
+		return resultResult
 	}
 
-	c.logger.Info("result", zap.String(service, result))
-	return &result, nil
+	c.logger.Info("result", zap.String(service, isAliveResult))
+	return isAliveResult
 }
