@@ -6,11 +6,11 @@ import (
 )
 
 type Disk struct {
-	Name       string
-	Device     string
-	Size       string
-	Partitions []Partition
-	Active     bool
+	Name       string `json:"name"`
+	Device     string `json:"device"`
+	Size       string `json:"size"`
+	Partitions []Partition `json:"partitions"`
+	Active     bool `json:"active"`
 }
 
 func NewDisk(name string, device string, size string, partitions []Partition) *Disk {
