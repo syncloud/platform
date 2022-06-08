@@ -72,7 +72,7 @@ test('Format error', async () => {
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/disks').reply(200,
     {
-      diata: [
+      data: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
         { name: 'Name2', device: '/dev/sdc', active: false, size: '2G', partitions: [] }
       ],
@@ -327,3 +327,4 @@ test('Activate error', async () => {
   expect(deviceAction).toBe('/dev/sdc1')
   wrapper.unmount()
 })
+
