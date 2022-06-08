@@ -182,7 +182,7 @@ export default {
     uiCheckDisks () {
       axios.get('/rest/storage/disks')
         .then(resp => {
-          this.disks = resp.data.disks
+          this.disks = resp.data.data
           this.progressHide()
         })
         .catch(err => {
@@ -222,3 +222,4 @@ export default {
 @import '../style/site.css';
 @import '../style/material-icons.css';
 </style>
+

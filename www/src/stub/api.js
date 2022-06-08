@@ -186,7 +186,7 @@ const accessData = {
 }
 
 const disksData = {
-  disks: [
+  data: [
     {
       name: 'My Passport 0837',
       device: '/dev/sdb',
@@ -485,3 +485,4 @@ const mock = function (app, server, compiler) {
 }
 
 exports.mock = mock
+
