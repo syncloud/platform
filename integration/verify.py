@@ -477,7 +477,7 @@ def disk_create(loop, fs, device):
     device.run_ssh('umount {0}'.format(loop))
 
 
-def disk_activate(loop, device, domain):
+def disk_activate(loop, device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/storage/disks'.format(domain))
     print(response.text)
     with open('{0}/rest.storage.disks.json'.format(artifact_dir), 'w') as the_file:
