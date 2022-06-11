@@ -414,7 +414,7 @@ def test_backup_app(device, artifact_dir, domain):
 
     response = session.post(
         'https://{0}/rest/backup/restore'.format(domain),
-        json={'app': 'testapp', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
+        json={'app': 'testapp', 'file': '{0}'.format(backup['file'])},
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
@@ -455,9 +455,9 @@ def disk_writable(domain):
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
-def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain):
+def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, artifact_dir):
     disk_create(loop_device, fs_type, device)
-    assert disk_activate(loop_device, device, domain) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device, device, domain, artifact_dir) == '/opt/disk/external/platform'
     disk_writable(domain)
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
 
@@ -477,20 +477,23 @@ def disk_create(loop, fs, device):
     device.run_ssh('umount {0}'.format(loop))
 
 
-def disk_activate(loop, device, domain):
-    response = device.login().get('https://{0}/rest/settings/disks'.format(domain))
+def disk_activate(loop, device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/storage/disks'.format(domain))
     print(response.text)
+    with open('{0}/rest.storage.disks.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+
     assert loop in response.text
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/settings/disk_activate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/disk/activate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
 
 
 def disk_deactivate(loop, device, domain):
-    response = device.login().post('https://{0}/rest/settings/disk_deactivate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/disk/deactivate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
@@ -586,4 +589,5 @@ def retry(method, retries=10):
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
             time.sleep(5)
         attempt += 1
+    raise exception
     raise exception

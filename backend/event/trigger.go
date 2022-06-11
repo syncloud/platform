@@ -1,21 +1,21 @@
 package event
 
 import (
-	"github.com/syncloud/platform/executor"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/snap/model"
 	"log"
 )
 
 type Trigger struct {
 	snapd    Snapd
-	executor executor.Executor
+	executor cli.CommandExecutor
 }
 
 type Snapd interface {
 	InstalledSnaps() ([]model.Snap, error)
 }
 
-func New(snapd Snapd, executor executor.Executor) *Trigger {
+func New(snapd Snapd, executor cli.CommandExecutor) *Trigger {
 	return &Trigger{
 		snapd:    snapd,
 		executor: executor,
@@ -24,6 +24,10 @@ func New(snapd Snapd, executor executor.Executor) *Trigger {
 
 func (t *Trigger) RunAccessChangeEvent() error {
 	return t.RunEventOnAllApps("access-change")
+}
+
+func (t *Trigger) RunDiskChangeEvent() error {
+	return t.RunEventOnAllApps("storage-change")
 }
 
 func (t *Trigger) RunEventOnAllApps(event string) error {

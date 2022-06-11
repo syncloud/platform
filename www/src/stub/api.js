@@ -186,7 +186,7 @@ const accessData = {
 }
 
 const disksData = {
-  disks: [
+  data: [
     {
       name: 'My Passport 0837',
       device: '/dev/sdb',
@@ -386,20 +386,20 @@ const mock = function (app, server, compiler) {
     }
     state.accessSuccess = !state.accessSuccess
   })
-  app.get('/rest/settings/disks', function (req, res) {
+  app.get('/rest/storage/disks', function (req, res) {
     res.json(disksData)
   })
-  app.get('/rest/settings/boot_disk', function (req, res) {
+  app.get('/rest/storage/boot/disk', function (req, res) {
     res.json(bootDiskData)
   })
-  app.post('/rest/settings/disk_activate', function (req, res) {
+  app.post('/rest/storage/disk/activate', function (req, res) {
     if (state.diskActionSuccess) {
       res.json(disksData)
     } else {
       res.json(disksDataError)
     }
   })
-  app.post('/rest/settings/disk_deactivate', function (req, res) {
+  app.post('/rest/storage/disk/deactivate', function (req, res) {
     if (state.diskActionSuccess) {
       res.json(disksData)
     } else {
@@ -485,3 +485,4 @@ const mock = function (app, server, compiler) {
 }
 
 exports.mock = mock
+

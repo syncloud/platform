@@ -5,6 +5,11 @@ import (
 	"os/exec"
 )
 
+type DiskStorage interface {
+	Format(device string)
+	BootExtend()
+}
+
 type Storage struct {
 }
 

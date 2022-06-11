@@ -5,7 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
-	"github.com/syncloud/platform/executor"
+	"github.com/syncloud/platform/cli"
 	"io/ioutil"
 	"log"
 	"os"
@@ -24,7 +24,7 @@ type Service struct {
 	userDataDir     string
 	ldapRoot        string
 	configDir       string
-	executor        executor.Executor
+	executor        cli.CommandExecutor
 	passwordChanger PasswordChanger
 }
 
@@ -33,7 +33,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor executor.Executor, passwordChanger PasswordChanger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.CommandExecutor, passwordChanger PasswordChanger) *Service {
 
 	return &Service{
 		snapService:     snapService,

@@ -90,7 +90,7 @@ export default {
         .catch(onError)
     },
     reload () {
-      axios.get('/rest/settings/boot_disk')
+      axios.get('/rest/storage/boot/disk')
         .then(resp => {
           this.boot = resp.data.data
           this.progressHide()

@@ -151,39 +151,11 @@ def device_url():
     return jsonify(success=True, device_url=public.device_url()), 200
 
 
-@app.route("/rest/settings/disks", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def disks():
-    return jsonify(success=True, disks=convertible.to_dict(public.disks())), 200
-
-
-@app.route("/rest/settings/boot_disk", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def boot_disk():
-    return jsonify(success=True, data=convertible.to_dict(public.boot_disk())), 200
-
-
-@app.route("/rest/settings/disk_activate", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def disk_activate():
-    return jsonify(success=True, disks=public.disk_activate(request.json['device'])), 200
-
-
 @app.route("/rest/settings/installer_status", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def installer_status():
     return jsonify(is_running=public.installer_status()), 200
-
-
-@app.route("/rest/settings/disk_deactivate", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def disk_deactivate():
-    return jsonify(success=True, disks=public.disk_deactivate()), 200
 
 
 @app.route("/rest/settings/deactivate", methods=["POST"])
@@ -215,7 +187,11 @@ def app_image():
 @app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/disk_format", methods=["POST"])
+@app.route("/rest/storage/disk/deactivate", methods=["POST"])
+@app.route("/rest/storage/disk/activate", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
+@app.route("/rest/storage/boot/disk", methods=["GET"])
+@app.route("/rest/storage/disks", methods=["GET"])
 @app.route("/rest/event/trigger", methods=["POST"])
 @app.route("/rest/certificate", methods=["GET"])
 @app.route("/rest/certificate/log", methods=["GET"])

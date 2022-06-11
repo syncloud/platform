@@ -30,23 +30,5 @@ class AppSetup:
     def app_url(self):
         return self.device_info.url(self.app_name)
 
-    def add_service(self, service_name):
-        self.systemctl.add_service(self.app_name, service_name)
-
-    def remove_service(self, service_name):
-        self.systemctl.remove_service(service_name)
-
     def restart_service(self, service_name):
         self.systemctl.restart_service(service_name)
-
-    def reload_service(self, service_name):
-        self.systemctl.reload_service(service_name)
-
-    def start_service(self, service_name):
-        self.systemctl.start_service(service_name)
-
-    def stop_service(self, service_name):
-        self.systemctl.stop_service(service_name)
-
-    def redirect_email(self):
-        return self.user_platform_config.get_user_email()

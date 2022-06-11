@@ -3,8 +3,8 @@ Description=External disk
 Before=local-fs.target
 
 [Mount]
-What=${what}
-Where=${where}
+What={{.What}}
+Where={{.Where}}
 
 [Install]
 WantedBy=local-fs.target

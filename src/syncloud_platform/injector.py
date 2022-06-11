@@ -10,7 +10,6 @@ from syncloud_platform.config.user_config import PlatformUserConfig
 from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.control.systemctl import Systemctl
 from syncloud_platform.disks.hardware import Hardware
-from syncloud_platform.disks.lsblk import Lsblk
 from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.events import EventTrigger
 from syncloud_platform.insider.device_info import DeviceInfo
@@ -57,9 +56,8 @@ class Injector:
         self.nginx = Nginx(self.platform_config, self.device_info)
 
         self.path_checker = PathChecker(self.platform_config)
-        self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger,
-                                 self.lsblk, self.path_checker, self.systemctl)
+                                 self.path_checker, self.systemctl)
         self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device_info, self.snap,
                              self.hardware, self.redirect_service, self.log_aggregator,

@@ -8,12 +8,12 @@ import (
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/cert"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/event"
-	"github.com/syncloud/platform/executor"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
@@ -56,12 +56,15 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
 	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
-	Singleton(func() *executor.CliExecutor { return &executor.CliExecutor{} })
+	Singleton(func() *cli.Executor { return &cli.Executor{} })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
-	Singleton(func(executor *executor.CliExecutor) *snap.Service { return snap.NewService(executor) })
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig) *nginx.Nginx {
-		return nginx.New(systemd.New(), systemConfig, userConfig)
+	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
+	Singleton(func(executor *cli.Executor, systemConfig *config.SystemConfig) *systemd.Control {
+		return systemd.New(executor, systemConfig, logger)
+	})
+	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
+		return nginx.New(control, systemConfig, userConfig)
 	})
 	Singleton(func(userConfig *config.UserConfig) *info.Device {
 		return info.New(userConfig)
@@ -96,7 +99,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return snap.New(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 
-	Singleton(func(snapd *snap.Snapd, executor *executor.CliExecutor) *event.Trigger {
+	Singleton(func(snapd *snap.Snapd, executor *cli.Executor) *event.Trigger {
 		return event.New(snapd, executor)
 	})
 
@@ -119,7 +122,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *executor.CliExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
+	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
 	})
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
@@ -146,13 +149,23 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return rest.NewCertificate(certGenerator, certReader)
 	})
 
+	Singleton(func(config *config.SystemConfig) *storage.PathChecker { return storage.NewPathChecker(config, logger) })
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, checker *storage.PathChecker) *storage.Lsblk {
+		return storage.NewLsblk(systemConfig, checker, executor, logger)
+	})
+	Singleton(func(executor *cli.Executor) *storage.FreeSpaceChecker { return storage.NewFreeSpaceChecker(executor) })
+	Singleton(func() *storage.Linker { return storage.NewLinker() })
+	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker, control *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk, linker *storage.Linker) *storage.Disks {
+		return storage.NewDisks(systemConfig, eventTrigger, lsblk, control, freeSpaceChecker, linker, logger)
+	})
+
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Snapd,
+		externalAddress *access.ExternalAddress, snapd *snap.Snapd, disks *storage.Disks,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks)
 	})
 
 }

@@ -11,9 +11,9 @@ test('Format', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
-      disks: [
+      data: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
         { name: 'Name2', device: '/dev/sdc', active: false, size: '2G', partitions: [] }
       ],
@@ -70,9 +70,9 @@ test('Format error', async () => {
   }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
-      disks: [
+      data: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
         { name: 'Name2', device: '/dev/sdc', active: false, size: '2G', partitions: [] }
       ],
@@ -129,9 +129,9 @@ test('Format service error', async () => {
   }
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
-      disks: [
+      data: [
         { name: 'Name1', device: '/dev/sdb', active: false, size: '2G', partitions: [] },
         { name: 'Name2', device: '/dev/sdc', active: false, size: '2G', partitions: [] }
       ],
@@ -185,9 +185,9 @@ test('Activate', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
-      disks: [
+      data: [
         {
           name: 'Name1',
           device: '/dev/sdb',
@@ -210,7 +210,7 @@ test('Activate', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/settings/disk_activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [200, { success: true }]
   })
@@ -259,9 +259,9 @@ test('Activate error', async () => {
     error = err.response.data.message
   }
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/disks').reply(200,
+  mock.onGet('/rest/storage/disks').reply(200,
     {
-      disks: [
+      data: [
         {
           name: 'Name1',
           device: '/dev/sdb',
@@ -284,7 +284,7 @@ test('Activate error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/settings/disk_activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [500, { message: 'not ok' }]
   })
@@ -327,3 +327,4 @@ test('Activate error', async () => {
   expect(deviceAction).toBe('/dev/sdc1')
   wrapper.unmount()
 })
+

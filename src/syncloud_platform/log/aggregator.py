@@ -22,6 +22,7 @@ class Aggregator:
         results.append(run('ping google.com -c 5'))
         results.append(run('df'))
         results.append(run('lsblk -o +UUID'))
+        results.append(run('lsblk -Pp -o NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL'))
         results.append(run('ls -la /data'))
         results.append(run('uptime'))
         logs = '\n----------------------\n'.join(results)
