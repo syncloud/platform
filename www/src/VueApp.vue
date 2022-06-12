@@ -48,10 +48,10 @@ export default {
           }
         })
         .catch(_ => {
-          axios.get('/rest/activation_status')
+          axios.get('/rest/activation/status')
             .then(response => {
               this.loggedIn = false
-              if (!response.data.activated) {
+              if (!response.data.data) {
                 this.activated = false
                 this.$router.push('/activate')
               } else {

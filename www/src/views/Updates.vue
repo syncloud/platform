@@ -132,27 +132,20 @@ export default {
         })
         .catch(onError)
     },
-    findApp (appsData, appId) {
-      for (const data of appsData) {
-        if (data.app.id === appId) {
-          return data
-        }
-      }
-      return null
-    },
     check () {
       this.progressShow()
       this.versions()
     },
     versions () {
-      axios.get('/rest/settings/versions')
-        .then((resp) => {
-          const platformData = this.findApp(resp.data.data, 'platform')
-          this.platformVersion = platformData.installed_version
-          this.platformVersionAvailable = platformData.current_version
-          const installerData = this.findApp(resp.data.data, 'installer')
-          this.installerVersion = installerData.installed_version
-          this.installerVersionAvailable = installerData.current_version
+      Promise.all([
+        axios.get('/rest/app', { params: { app_id: 'platform' } }),
+        axios.get('/rest/installer/version')]
+      )
+        .then((results) => {
+          this.platformVersion = results[0].data.info.installed_version
+          this.platformVersionAvailable = results[0].data.info.current_version
+          this.installerVersion = results[1].data.data.installed_version
+          this.installerVersionAvailable = results[1].data.data.store_version
           this.progressHide()
         })
         .catch(err => {

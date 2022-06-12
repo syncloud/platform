@@ -11,20 +11,29 @@ test('Update platform', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/versions').reply(200,
-    {
-      data: [
-        {
-          app: { id: 'platform', name: 'Platform' },
-          current_version: '1',
-          installed_version: '2'
+
+  mock.onGet('/rest/app').reply(function (_) {
+    return [200, {
+      info: {
+        app: {
+          id: 'platform',
+          name: 'Platform',
+          required: true,
+          ui: false,
+          url: 'http://platform.odroid-c2.syncloud.it'
         },
-        {
-          app: { id: 'installer', name: 'Installer' },
-          current_version: '3',
-          installed_version: '3'
-        }
-      ],
+        current_version: '1',
+        installed_version: '2'
+      }
+    }]
+  })
+
+  mock.onGet('/rest/installer/version').reply(200,
+    {
+      data: {
+        store_version: '3',
+        installed_version: '3'
+      },
       success: true
     }
   )
@@ -68,20 +77,29 @@ test('Update installer', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/versions').reply(200,
-    {
-      data: [
-        {
-          app: { id: 'platform', name: 'Platform' },
-          current_version: '1',
-          installed_version: '1'
+
+  mock.onGet('/rest/app').reply(function (_) {
+    return [200, {
+      info: {
+        app: {
+          id: 'platform',
+          name: 'Platform',
+          required: true,
+          ui: false,
+          url: 'http://platform.odroid-c2.syncloud.it'
         },
-        {
-          app: { id: 'installer', name: 'Installer' },
-          current_version: '2',
-          installed_version: '3'
-        }
-      ],
+        current_version: '1',
+        installed_version: '1'
+      }
+    }]
+  })
+
+  mock.onGet('/rest/installer/version').reply(200,
+    {
+      data: {
+        store_version: '2',
+        installed_version: '3'
+      },
       success: true
     }
   )
@@ -123,20 +141,29 @@ test('Update installer error', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/settings/versions').reply(200,
-    {
-      data: [
-        {
-          app: { id: 'platform', name: 'Platform' },
-          current_version: '1',
-          installed_version: '1'
+
+  mock.onGet('/rest/app').reply(function (_) {
+    return [200, {
+      info: {
+        app: {
+          id: 'platform',
+          name: 'Platform',
+          required: true,
+          ui: false,
+          url: 'http://platform.odroid-c2.syncloud.it'
         },
-        {
-          app: { id: 'installer', name: 'Installer' },
-          current_version: '2',
-          installed_version: '3'
-        }
-      ],
+        current_version: '1',
+        installed_version: '1'
+      }
+    }]
+  })
+
+  mock.onGet('/rest/installer/version').reply(200,
+    {
+      data: {
+        store_version: '2',
+        installed_version: '3'
+      },
       success: true
     }
   )

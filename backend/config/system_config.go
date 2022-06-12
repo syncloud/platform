@@ -1,10 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"github.com/bigkevmcd/go-configparser"
 	"log"
-	"os"
 )
 
 const WebAccessPort = 443
@@ -18,11 +16,7 @@ type SystemConfig struct {
 var DefaultSystemConfig string
 
 func init() {
-	snapDir := os.Getenv("SNAP")
-	if snapDir == "" {
-		snapDir = "/snap/platform/current"
-	}
-	DefaultSystemConfig = fmt.Sprintf("%s/config/platform.cfg", snapDir)
+	DefaultSystemConfig = "/snap/platform/current/config/platform.cfg"
 }
 
 func NewSystemConfig(file string) *SystemConfig {
@@ -69,6 +63,22 @@ func (c *SystemConfig) SslCaCertificateFile() string {
 
 func (c *SystemConfig) SslCaKeyFile() string {
 	return c.get("ssl_ca_key_file")
+}
+
+func (c *SystemConfig) Channel() string {
+	return c.get("channel")
+}
+
+func (c *SystemConfig) DiskLink() string {
+	return c.get("disk_link")
+}
+
+func (c *SystemConfig) ExternalDiskDir() string {
+	return c.get("external_disk_dir")
+}
+
+func (c *SystemConfig) InternalDiskDir() string {
+	return c.get("internal_disk_dir")
 }
 
 func (c *SystemConfig) get(key string) string {

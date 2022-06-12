@@ -5,7 +5,7 @@
         <h1 class="bigh1">Applications</h1>
           <div class="row-no-gutters appcenterlist" id="block_apps">
             <div v-if="apps.length === 0">
-              <h2 class="bh2">You don't have any installed apps yet. You can install one from App Center</h2>
+              <h2 class="bh2">You don't have any apps installed yet. You can install one from App Center</h2>
               <router-link to="/appcenter" class="appcenterh">App Center</router-link>
             </div>
             <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
@@ -43,9 +43,9 @@ export default {
   },
   mounted () {
     this.progressShow()
-    axios.get('/rest/installed_apps')
+    axios.get('/rest/apps/installed')
       .then(resp => {
-        this.apps = resp.data.apps
+        this.apps = resp.data.data
         this.progressHide()
       })
       .catch(err => {

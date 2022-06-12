@@ -1,4 +1,4 @@
-<template>
+tivate<template>
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
@@ -164,6 +164,7 @@ export default {
       const onError = (err) => {
         this.progressHide()
         error.showAxios(err)
+        this.uiCheckDisks()
       }
 
       axios.post('/rest/storage/disk_format', { device: this.deviceToFormat })
@@ -180,9 +181,9 @@ export default {
         .catch(onError)
     },
     uiCheckDisks () {
-      axios.get('/rest/settings/disks')
+      axios.get('/rest/storage/disks')
         .then(resp => {
-          this.disks = resp.data.disks
+          this.disks = resp.data.data
           this.progressHide()
         })
         .catch(err => {
@@ -202,18 +203,20 @@ export default {
       this.progressShow()
       const error = this.$refs.error
       const that = this
-      const mode = this.partitionAction ? 'disk_activate' : 'disk_deactivate'
-      axios.post('/rest/settings/' + mode, { device: this.partitionActionDevice })
+      const onError = (err) => {
+        this.progressHide()
+        error.showAxios(err)
+        this.uiCheckDisks()
+      }
+      const mode = this.partitionAction ? 'activate' : 'deactivate'
+      axios.post('/rest/storage/disk/' + mode, { device: this.partitionActionDevice })
         .then(resp => {
           Common.checkForServiceError(
             resp.data,
             that.uiCheckDisks,
-            (err) => error.showAxios(err))
+            onError)
         })
-        .catch((err) => {
-          this.progressHide()
-          error.showAxios(err)
-        })
+        .catch(onError)
     }
   }
 }

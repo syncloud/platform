@@ -27,6 +27,10 @@ type ClientStub struct {
 	status   int
 }
 
+func (c *ClientStub) Get(_ string) (*http.Response, error) {
+	panic("implement me")
+}
+
 func (c *ClientStub) Post(_, _ string, _ interface{}) (*http.Response, error) {
 	if c.status != 200 {
 		return nil, fmt.Errorf("error code: %v", c.status)

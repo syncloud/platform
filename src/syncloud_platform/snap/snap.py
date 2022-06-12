@@ -53,13 +53,6 @@ class Snap:
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={'action': 'remove'})
 
-    def list(self):
-        installed_apps = self.installed_all_apps()
-        store_apps = self.store_all_apps()
-        apps = join_apps(installed_apps, store_apps)
-        apps.append(self._installer())
-        return apps
-
     def store_all_apps(self):
         self.logger.info('snap list')
         return [self._available_app(app) for app in self._available_snaps()]
@@ -77,9 +70,6 @@ class Snap:
 
         return found_apps[0]
 
-    def user_apps(self):
-        return [self._available_app(app) for app in self._available_snaps() if app['type'] == 'app']
-
     def _available_snaps(self, query='*'):
         self.logger.info('available snaps, query: {0}'.format(query))
         session = requests_unixsocket.Session()
@@ -90,9 +80,6 @@ class Snap:
             return []
         apps = snapd_response['result']
         return sorted(apps, key=lambda app: app['name'])
-
-    def installed_user_apps(self):
-        return [self._installed_app(app) for app in self._installed_snaps() if app['type'] == 'app']
 
     def installed_all_apps(self):
         return [self._installed_app(app) for app in self._installed_snaps()]
@@ -106,25 +93,6 @@ class Snap:
 
         apps = snap_response['result']
         return sorted(apps, key=lambda app: app['name'])
-
-
-    def _installer(self):
-        channel = self.platform_config.get_channel()
-        self.logger.info('system info')
-        session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/system-info'.format(SOCKET))
-        self.logger.debug("system info response: {0}".format(response.text))
-        snap_response = json.loads(response.text)
-
-        version_response = requests.get('http://apps.syncloud.org/releases/{0}/snapd.version'.format(channel))
-
-        return self.to_app(
-            'installer',
-            'Installer',
-            channel,
-            snap_response['result']['version'],
-            version_response.text
-        )
 
     def _installed_app(self, installed_app):
         return self.to_app(

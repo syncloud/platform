@@ -31,15 +31,8 @@ class Public:
     def shutdown(self):
         power.shutdown()
 
-    def installed_apps(self):
-        apps = [app_from_snap_app(a) for a in self.snap.installed_user_apps()]
-        return apps
-
     def get_app(self, app_id):
         return self.snap.get_app(app_id)
-
-    def list_apps(self):
-        return self.snap.list()
 
     def install(self, app_id):
         self.snap.install(app_id)
@@ -50,23 +43,11 @@ class Public:
     def upgrade(self, app_id):
         self.snap.upgrade(app_id)
 
-    def available_apps(self):
-        return [app_from_snap_app(a) for a in self.snap.user_apps() if a.app.enabled]
-
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
 
     def installer_status(self):
         return self.snap.status()
-
-    def disk_deactivate(self):
-        return self.hardware.deactivate_disk()
-
-    def disks(self):
-        return self.hardware.available_disks()
-
-    def boot_disk(self):
-        return self.hardware.root_partition()
 
     def send_logs(self, include_support):
         user_token = self.user_platform_config.get_user_update_token()

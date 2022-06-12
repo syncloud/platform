@@ -11,6 +11,7 @@ import (
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
+	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"net"
 	"net/http"
@@ -23,7 +24,7 @@ import (
 )
 
 type Backend struct {
-	Master          *job.Master
+	JobMaster       *job.Master
 	backup          *backup.Backup
 	eventTrigger    *event.Trigger
 	worker          *job.Worker
@@ -35,6 +36,8 @@ type Backend struct {
 	userConfig      *config.UserConfig
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
+	snapd           *snap.Snapd
+	disks           *storage.Disks
 }
 
 func NewBackend(master *job.Master, backup *backup.Backup,
@@ -43,11 +46,12 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
-	certificate *Certificate, externalAddresss *access.ExternalAddress,
+	certificate *Certificate, externalAddress *access.ExternalAddress,
+	snapd *snap.Snapd, disks *storage.Disks,
 ) *Backend {
 
 	return &Backend{
-		Master:          master,
+		JobMaster:       master,
 		backup:          backup,
 		eventTrigger:    eventTrigger,
 		worker:          worker,
@@ -58,7 +62,9 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		activate:        activate,
 		userConfig:      userConfig,
 		certificate:     certificate,
-		externalAddress: externalAddresss,
+		externalAddress: externalAddress,
+		snapd:           snapd,
+		disks:           disks,
 	}
 }
 
@@ -94,8 +100,13 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/backup/restore", Handle(b.BackupRestore)).Methods("POST")
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
 	r.HandleFunc("/installer/upgrade", Handle(b.InstallerUpgrade)).Methods("POST")
+	r.HandleFunc("/installer/version", Handle(b.InstallerVersion)).Methods("GET")
 	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
+	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
+	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate", Handle(b.StorageDiskActivate)).Methods("POST")
+	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
@@ -105,6 +116,9 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.HandleFunc("/access", Handle(b.GetAccess)).Methods("GET")
 	r.HandleFunc("/access", Handle(b.SetAccess)).Methods("POST")
+	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
+	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
+	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -200,7 +214,7 @@ func (b *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("app is missing")
 	}
-	_ = b.Master.Offer(func() { b.backup.Create(request.App) })
+	_ = b.JobMaster.Offer(func() { b.backup.Create(request.App) })
 	return "submitted", nil
 }
 
@@ -211,17 +225,17 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	_ = b.Master.Offer(func() { b.backup.Restore(request.File) })
+	_ = b.JobMaster.Offer(func() { b.backup.Restore(request.File) })
 	return "submitted", nil
 }
 
 func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	_ = b.Master.Offer(func() { b.installer.Upgrade() })
+	_ = b.JobMaster.Offer(func() { b.installer.Upgrade() })
 	return "submitted", nil
 }
 
 func (b *Backend) JobStatus(_ *http.Request) (interface{}, error) {
-	return b.Master.Status().String(), nil
+	return b.JobMaster.Status().String(), nil
 }
 
 func (b *Backend) StorageFormat(req *http.Request) (interface{}, error) {
@@ -231,7 +245,7 @@ func (b *Backend) StorageFormat(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("device is missing")
 	}
-	_ = b.Master.Offer(func() { b.storage.Format(request.Device) })
+	_ = b.JobMaster.Offer(func() { b.storage.Format(request.Device) })
 	return "submitted", nil
 }
 
@@ -264,6 +278,10 @@ func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
 	return response, nil
 }
 
+func (b *Backend) IsActivated(_ *http.Request) (interface{}, error) {
+	return b.userConfig.IsActivated(), nil
+}
+
 func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 	var request model.Access
 	err := json.NewDecoder(req.Body).Decode(&request)
@@ -273,6 +291,18 @@ func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 	}
 
 	return request, b.externalAddress.Update(request)
+}
+
+func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
+	return b.snapd.StoreUserApps()
+}
+
+func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
+	return b.snapd.InstalledUserApps()
+}
+
+func (b *Backend) InstallerVersion(_ *http.Request) (interface{}, error) {
+	return b.snapd.Installer()
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {
@@ -285,6 +315,29 @@ func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
-	_ = b.Master.Offer(func() { b.storage.BootExtend() })
+	_ = b.JobMaster.Offer(func() { b.storage.BootExtend() })
 	return "submitted", nil
+}
+
+func (b *Backend) StorageDisks(_ *http.Request) (interface{}, error) {
+	return b.disks.AvailableDisks()
+}
+
+func (b *Backend) StorageBootDisk(_ *http.Request) (interface{}, error) {
+	return b.disks.RootPartition()
+}
+
+func (b *Backend) StorageDiskDeactivate(_ *http.Request) (interface{}, error) {
+	return "OK", b.disks.DeactivateDisk()
+}
+
+func (b *Backend) StorageDiskActivate(req *http.Request) (interface{}, error) {
+	var request model.StorageDiskActivateRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("invalid disk activate request")
+	}
+
+	return "OK", b.disks.ActivateDisk(request.Device)
 }

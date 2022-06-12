@@ -39,7 +39,7 @@ func (p *PortProbe) Probe(ip string, port int) error {
 
 	request := &PortProbeRequest{Token: *token, Ip: &ip, Port: port}
 
-	p.logger.Info(fmt.Sprintf("probing ip %v", ip))
+	p.logger.Info(fmt.Sprintf("probing ip %v, token: %s", ip, *token))
 
 	addr := net.ParseIP(ip)
 	if addr.To4() == nil && addr.To16() == nil {

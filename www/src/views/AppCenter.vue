@@ -3,7 +3,7 @@
     <div class="content">
       <div class="block1 wd12" id="block1">
         <h1 class="bigh1">App Center</h1>
-        <div class="row-no-gutters appcenterlist" id="block_apps">
+        <div class="row-no-gutters appcenterlist" id="block_apps" style="min-height: 200px">
           <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
             <img :src="app.icon" class="appimg" alt="">
             <div class="appname"><span class="withline">{{ app.name }}</span></div>
@@ -47,13 +47,13 @@ export default {
       error.showAxios(err)
       that.progressHide()
     }
-    axios.get('/rest/available_apps')
+    axios.get('/rest/apps/available')
       .then(
         (resp) => {
           Common.checkForServiceError(
             resp.data,
             () => {
-              that.apps = resp.data.apps
+              that.apps = resp.data.data
               that.progressHide()
             },
             onError)

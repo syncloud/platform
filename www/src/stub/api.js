@@ -9,39 +9,104 @@ const state = {
   availableAppsSuccess: true,
   activated: true,
   accessSuccess: true,
-  diskActionSuccess: true
+  diskActionSuccess: false
 }
 
 const store = {
-  apps: [
+  data: [
     {
-      id: 'wordpress',
-      name: 'WordPress',
-      icon: '/images/wordpress-128.png'
+      app: {
+        id: 'wordpress',
+        name: 'WordPress',
+        icon: '/images/wordpress-128.png',
+        required: true,
+        ui: false,
+        url: 'https://wordpress.odroid-c2.syncloud.it'
+      },
+      current_version: '2',
+      installed_version: '1'
     },
     {
-      id: 'diaspora',
-      name: 'Diaspora',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'diaspora',
+        name: 'Diaspora',
+        icon: '/images/diaspora-128.png',
+        required: false,
+        ui: true,
+        url: 'https://diaspora.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
     },
     {
-      id: 'mail',
-      name: 'Mail',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'mail',
+        name: 'Mail',
+        icon: '/images/mail-128.png',
+        required: false,
+        ui: true,
+        url: 'https://mail.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
     },
     {
-      id: 'talk',
-      name: 'Talk',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'talk',
+        name: 'Talk',
+        icon: '/images/talk-128.png',
+        required: false,
+        ui: true,
+        url: 'https://talk.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
     },
     {
-      id: 'files',
-      name: 'Files Browser',
-      icon: '/images/penguin.png'
+      app: {
+        id: 'files',
+        name: 'Files Browser',
+        icon: '/images/files-128.png',
+        required: false,
+        ui: true,
+        url: 'https://files.odroid-c2.syncloud.it'
+      },
+      current_version: '1',
+      installed_version: '2'
+    },
+    {
+      app: {
+        id: 'platform',
+        name: 'Platform',
+        icon: '/images/platform-128.png',
+        required: true,
+        ui: false,
+        url: 'https://platform.odroid-c2.syncloud.it'
+      },
+      current_version: '880',
+      installed_version: '876'
+    },
+    {
+      app: {
+        id: 'installer',
+        name: 'Installer',
+        icon: '/images/installer-128.png',
+        required: true,
+        ui: false,
+        url: 'https://installer.odroid-c2.syncloud.it'
+      },
+      current_version: '78',
+      installed_version: '75'
     }
   ]
 }
 
+const installer = {
+  data: {
+    installed_version: 1,
+    store_version: 2
+  }
+}
 const installedApps = new Set(['wordpress'])
 
 const appCenterDataError = {
@@ -121,7 +186,7 @@ const accessData = {
 }
 
 const disksData = {
-  disks: [
+  data: [
     {
       name: 'My Passport 0837',
       device: '/dev/sdb',
@@ -178,53 +243,6 @@ const bootDiskData = {
   success: true
 }
 
-const versionsData = {
-  data: [
-    {
-      app: {
-        id: 'platform',
-        name: 'Platform',
-        required: true,
-        ui: false,
-        url: 'https://platform.odroid-c2.syncloud.it'
-      },
-      current_version: '880',
-      installed_version: '876'
-    },
-    {
-      app: {
-        id: 'installer',
-        name: 'Installer',
-        required: true,
-        ui: false,
-        url: 'https://installer.odroid-c2.syncloud.it'
-      },
-      current_version: '78',
-      installed_version: '75'
-    }
-  ],
-  success: true
-}
-
-function appCenterToInstalledApp (app) {
-  app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
-  return app
-}
-
-function appToInfo (app, installed) {
-  const info = {
-    app: app,
-    current_version: '2',
-    installed_version: installed ? '1' : null
-  }
-
-  info.app.required = true
-  info.app.ui = false
-  info.app.url = 'https://' + app.id + '.odroid-c2.syncloud.it'
-
-  return info
-}
-
 const express = require('express')
 const bodyparser = require('body-parser')
 const mock = function (app, server, compiler) {
@@ -253,21 +271,24 @@ const mock = function (app, server, compiler) {
     state.loggedIn = false
     res.json({ message: 'OK' })
   })
-  app.get('/rest/activation_status', function (req, res) {
-    res.json({ activated: state.activated })
+  app.get('/rest/activation/status', function (req, res) {
+    res.json({ data: state.activated })
     // res.status(500).json({ message: "unknown activation status" })
   })
-  app.get('/rest/installed_apps', function (req, res) {
+  app.get('/rest/apps/installed', function (req, res) {
     if (state.activated) {
-      const apps = store.apps.filter(app => installedApps.has(app.id)).map(appCenterToInstalledApp)
-      res.json({ apps: apps })
+      const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
+      res.json({ data: apps })
     } else {
       res.status(501).json({ message: 'Not activated' })
     }
   })
   app.get('/rest/app', function (req, res) {
-    const app = store.apps.find(app => app.id === req.query.app_id)
-    res.json({ info: appToInfo(app, installedApps.has(app.id)) })
+    const info = store.data.find(info => info.app.id === req.query.app_id)
+    res.json({ info: info })
+  })
+  app.get('/rest/installer/version', function (req, res) {
+    res.json(installer)
   })
   app.post('/rest/upgrade', function (req, res) {
     res.json({ success: true })
@@ -298,7 +319,7 @@ const mock = function (app, server, compiler) {
     state.jobStatusRunning = !state.jobStatusRunning
   })
 
-  app.get('/rest/available_apps', function (req, res) {
+  app.get('/rest/apps/available', function (req, res) {
     let response
     if (state.availableAppsSuccess) {
       response = store
@@ -365,20 +386,20 @@ const mock = function (app, server, compiler) {
     }
     state.accessSuccess = !state.accessSuccess
   })
-  app.get('/rest/settings/disks', function (req, res) {
+  app.get('/rest/storage/disks', function (req, res) {
     res.json(disksData)
   })
-  app.get('/rest/settings/boot_disk', function (req, res) {
+  app.get('/rest/storage/boot/disk', function (req, res) {
     res.json(bootDiskData)
   })
-  app.post('/rest/settings/disk_activate', function (req, res) {
+  app.post('/rest/storage/disk/activate', function (req, res) {
     if (state.diskActionSuccess) {
       res.json(disksData)
     } else {
       res.json(disksDataError)
     }
   })
-  app.post('/rest/settings/disk_deactivate', function (req, res) {
+  app.post('/rest/storage/disk/deactivate', function (req, res) {
     if (state.diskActionSuccess) {
       res.json(disksData)
     } else {
@@ -390,7 +411,11 @@ const mock = function (app, server, compiler) {
   })
 
   app.post('/rest/storage/disk_format', function (req, res) {
-    res.json({ success: true })
+    if (state.diskActionSuccess) {
+      res.json({ success: true })
+    } else {
+      res.json({ success: false, message: "error" })
+    }
   })
 
   app.get('/rest/settings/boot_extend_status', function (req, res) {
@@ -399,10 +424,6 @@ const mock = function (app, server, compiler) {
 
   app.get('/rest/settings/disk_format_status', function (req, res) {
     res.json({ success: true, is_running: false })
-  })
-
-  app.get('/rest/settings/versions', function (req, res) {
-    res.json(versionsData)
   })
   app.post('/rest/send_log', function (req, res) {
     res.json({ success: true })

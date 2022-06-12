@@ -28,6 +28,10 @@ type StorageFormatRequest struct {
 	Device string `json:"device"`
 }
 
+type StorageDiskActivateRequest struct {
+	Device string `json:"device"`
+}
+
 type EventTriggerRequest struct {
 	Event string `json:"event"`
 }

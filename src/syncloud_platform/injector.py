@@ -10,7 +10,6 @@ from syncloud_platform.config.user_config import PlatformUserConfig
 from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.control.systemctl import Systemctl
 from syncloud_platform.disks.hardware import Hardware
-from syncloud_platform.disks.lsblk import Lsblk
 from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.events import EventTrigger
 from syncloud_platform.insider.device_info import DeviceInfo
@@ -19,7 +18,6 @@ from syncloud_platform.log.aggregator import Aggregator
 from syncloud_platform.network.network import Network
 from syncloud_platform.rest.facade.public import Public
 from syncloud_platform.snap.snap import Snap
-from syncloud_platform.versions import Versions
 from syncloudlib import logger
 
 default_injector = None
@@ -48,20 +46,18 @@ class Injector:
 
         self.platform_app_paths = AppPaths(PLATFORM_APP_NAME, self.platform_config)
         self.platform_app_paths.get_data_dir()
-        self.versions = Versions(self.platform_config)
-        self.redirect_service = RedirectService(self.user_platform_config, self.versions)
+        self.redirect_service = RedirectService(self.user_platform_config)
 
         self.device_info = DeviceInfo(self.user_platform_config)
         self.snap = Snap(self.platform_config, self.device_info)
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.snap)
-        self.nginx = Nginx(self.platform_config, self.systemctl, self.device_info)
+        self.nginx = Nginx(self.platform_config, self.device_info)
 
         self.path_checker = PathChecker(self.platform_config)
-        self.lsblk = Lsblk(self.platform_config, self.path_checker)
         self.hardware = Hardware(self.platform_config, self.event_trigger,
-                                 self.lsblk, self.path_checker, self.systemctl)
+                                 self.path_checker, self.systemctl)
         self.network = Network()
         self.public = Public(self.platform_config, self.user_platform_config, self.device_info, self.snap,
                              self.hardware, self.redirect_service, self.log_aggregator,

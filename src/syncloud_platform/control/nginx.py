@@ -5,14 +5,10 @@ from syncloudlib import logger
 
 
 class Nginx:
-    def __init__(self, platform_config, systemctl, device_info):
-        self.systemctl = systemctl
+    def __init__(self, platform_config, device_info):
         self.config = platform_config
         self.device_info = device_info
         self.log = logger.get_logger('nginx')
-
-    def reload_public(self):
-        self.systemctl.reload_service('platform.nginx-public')
 
     def init_config(self):
         domain = self.device_info.domain()

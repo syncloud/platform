@@ -94,10 +94,10 @@ def test_non_activated_device_login_redirect_to_activation(device_host):
 
 
 def test_activation_status_false(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host),
+    response = requests.get('https://{0}/rest/activation/status'.format(device_host),
                             allow_redirects=False, verify=False)
     assert response.status_code == 200
-    assert not json.loads(response.text)["activated"], response.text
+    assert not json.loads(response.text)["data"], response.text
 
 
 def test_id_redirect_backward_compatibility(device_host):
@@ -203,10 +203,10 @@ def test_deactivate(device, domain):
 
 
 def test_activation_status_false_after_deactivate(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False,
+    response = requests.get('https://{0}/rest/activation/status'.format(device_host), allow_redirects=False,
                             verify=False)
     assert response.status_code == 200
-    assert not json.loads(response.text)["activated"], response.text
+    assert not json.loads(response.text)["data"], response.text
 
 
 def test_redirect_info(device_host, main_domain):
@@ -231,10 +231,10 @@ def test_reactivate_after_deactivate(device_host, full_domain, device_user, devi
 
 
 def test_activation_status_true(device_host):
-    response = requests.get('https://{0}/rest/activation_status'.format(device_host), allow_redirects=False,
+    response = requests.get('https://{0}/rest/activation/status'.format(device_host), allow_redirects=False,
                             verify=False)
     assert response.status_code == 200
-    assert json.loads(response.text)["activated"], response.text
+    assert json.loads(response.text)["data"], response.text
 
 
 def test_unauthorized(device_host):
@@ -296,11 +296,11 @@ def test_send_logs(device, domain):
 
 
 def test_available_apps(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/available_apps'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/apps/available'.format(domain), verify=False)
     with open('{0}/rest.available_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) > 0
+    assert len(json.loads(response.text)['data']) > 0
 
 
 def test_device_url(device, domain, artifact_dir, full_domain):
@@ -350,12 +350,12 @@ def test_install_app(device, domain):
 
 
 def test_rest_installed_apps(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/installed_apps'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/apps/installed'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['apps']) == 2
+    assert len(json.loads(response.text)['data']) == 2
 
 def test_rest_installed_app(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
@@ -369,6 +369,14 @@ def test_rest_not_installed_app(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.app.not.installed.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
+
+
+def test_rest_platform_version(device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=platform'.format(domain), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.platform.version.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
 
@@ -406,7 +414,7 @@ def test_backup_app(device, artifact_dir, domain):
 
     response = session.post(
         'https://{0}/rest/backup/restore'.format(domain),
-        json={'app': 'testapp', 'file': '{0}/{1}'.format(backup['path'], backup['file'])},
+        json={'app': 'testapp', 'file': '{0}'.format(backup['file'])},
         verify=False)
     assert response.status_code == 200
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
@@ -447,9 +455,9 @@ def disk_writable(domain):
 
 
 @pytest.mark.parametrize("fs_type", ['ext4'])
-def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain):
+def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, artifact_dir):
     disk_create(loop_device, fs_type, device)
-    assert disk_activate(loop_device, device, domain) == '/opt/disk/external/platform'
+    assert disk_activate(loop_device, device, domain, artifact_dir) == '/opt/disk/external/platform'
     disk_writable(domain)
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
 
@@ -469,20 +477,23 @@ def disk_create(loop, fs, device):
     device.run_ssh('umount {0}'.format(loop))
 
 
-def disk_activate(loop, device, domain):
-    response = device.login().get('https://{0}/rest/settings/disks'.format(domain))
+def disk_activate(loop, device, domain, artifact_dir):
+    response = device.login().get('https://{0}/rest/storage/disks'.format(domain))
     print(response.text)
+    with open('{0}/rest.storage.disks.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+
     assert loop in response.text
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/settings/disk_activate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/disk/activate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
 
 
 def disk_deactivate(loop, device, domain):
-    response = device.login().post('https://{0}/rest/settings/disk_deactivate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/disk/deactivate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
@@ -501,10 +512,10 @@ def cron_is_empty_after_install(device_host):
     assert 'no crontab for root' in crontab, crontab
 
 
-def test_settings_versions(domain, device, artifact_dir):
-    response = device.login().get('https://{0}/rest/settings/versions'.format(domain), allow_redirects=False,
+def test_installer_version(domain, device, artifact_dir):
+    response = device.login().get('https://{0}/rest/installer/version'.format(domain), allow_redirects=False,
                                   verify=False)
-    with open('{0}/rest.settings.versions.json'.format(artifact_dir), 'w') as the_file:
+    with open('{0}/rest.installer.version.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
 
     assert response.status_code == 200, response.text
@@ -578,4 +589,5 @@ def retry(method, retries=10):
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
             time.sleep(5)
         attempt += 1
+    raise exception
     raise exception

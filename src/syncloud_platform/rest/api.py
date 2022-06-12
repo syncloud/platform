@@ -79,16 +79,6 @@ def storage_dir():
     return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
-@app.route("/port/add", methods=["POST"])
-def port_add():
-    return jsonify(success=True, message='Deprecated'), 200
-
-
-@app.route("/port/remove", methods=["POST"])
-def port_remove():
-    return jsonify(success=True, message='Deprecated'), 200
-
-
 @app.route("/user/email", methods=["GET"])
 def user_email():
     email = get_injector().user_platform_config.get_user_email()
