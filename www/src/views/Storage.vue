@@ -164,6 +164,7 @@ export default {
       const onError = (err) => {
         this.progressHide()
         error.showAxios(err)
+        this.uiCheckDisks()
       }
 
       axios.post('/rest/storage/disk_format', { device: this.deviceToFormat })
@@ -202,18 +203,20 @@ export default {
       this.progressShow()
       const error = this.$refs.error
       const that = this
+      const onError = (err) => {
+        this.progressHide()
+        error.showAxios(err)
+        this.uiCheckDisks()
+      }
       const mode = this.partitionAction ? 'activate' : 'deactivate'
       axios.post('/rest/storage/disk/' + mode, { device: this.partitionActionDevice })
         .then(resp => {
           Common.checkForServiceError(
             resp.data,
             that.uiCheckDisks,
-            (err) => error.showAxios(err))
+            onError)
         })
-        .catch((err) => {
-          this.progressHide()
-          error.showAxios(err)
-        })
+        .catch(onError)
     }
   }
 }
@@ -222,4 +225,3 @@ export default {
 @import '../style/site.css';
 @import '../style/material-icons.css';
 </style>
-

@@ -9,7 +9,7 @@ const state = {
   availableAppsSuccess: true,
   activated: true,
   accessSuccess: true,
-  diskActionSuccess: true
+  diskActionSuccess: false
 }
 
 const store = {
@@ -411,7 +411,11 @@ const mock = function (app, server, compiler) {
   })
 
   app.post('/rest/storage/disk_format', function (req, res) {
-    res.json({ success: true })
+    if (state.diskActionSuccess) {
+      res.json({ success: true })
+    } else {
+      res.json({ success: false, message: "error" })
+    }
   })
 
   app.get('/rest/settings/boot_extend_status', function (req, res) {
@@ -485,4 +489,3 @@ const mock = function (app, server, compiler) {
 }
 
 exports.mock = mock
-
