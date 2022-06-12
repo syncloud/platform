@@ -94,7 +94,7 @@ func (c *Control) DirToSystemdMountFilename(directory string) string {
 func (c *Control) remove(filename string) error {
 
 	status := c.stop(filename)
-	if slices.Contains([]string{"unknown", "inactive"}, status) {
+	if slices.Contains([]string{"unknown", "inactive", "failed"}, status) {
 		return nil
 	}
 	output, err := c.executor.CommandOutput("systemctl", "disable", filename)
