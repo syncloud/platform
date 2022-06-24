@@ -183,6 +183,16 @@ func TestDisks_ActivateDisk_SupportedFs(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDisks_ActivateDisk_Btrfs(t *testing.T) {
+
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false, false}}, false},
+	}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
+	err := disks.ActivateDisk("/dev/sda1")
+	assert.Nil(t, err)
+}
+
 func TestDisks_ActivateDisk_NotSupportedFs(t *testing.T) {
 
 	allDisks := []model.Disk{

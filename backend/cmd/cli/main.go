@@ -9,6 +9,7 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/network"
+	"github.com/syncloud/platform/storage/btrfs"
 	"net"
 	"os"
 )
@@ -162,7 +163,23 @@ func main() {
 		},
 	}
 
-	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron, cmdCert)
+	var cmdBtrfs = &cobra.Command{
+		Use:   "btrfs",
+		Short: "Show btrfs",
+		Run: func(cmd *cobra.Command, args []string) {
+			Init(*userConfig, *systemConfig)
+			ioc.Call(func(btrfs *btrfs.Stats) {
+				stats, err := btrfs.Stats()
+				if err != nil {
+					fmt.Print(err)
+					os.Exit(1)
+				}
+				fmt.Print(stats)
+			})
+		},
+	}
+
+	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron, cmdCert, cmdBtrfs)
 
 	err := rootCmd.Execute()
 	if err != nil {

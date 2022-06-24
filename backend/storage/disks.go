@@ -13,7 +13,7 @@ const ExtendableFreePercent = 10
 var supportedFilesystems []string
 
 func init() {
-	supportedFilesystems = []string{"ext2", "ext3", "ext4", "raid"}
+	supportedFilesystems = []string{"ext2", "ext3", "ext4", "raid", "btrfs"}
 }
 
 type Disks struct {

@@ -25,6 +25,7 @@ import (
 	"github.com/syncloud/platform/rest"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
+	"github.com/syncloud/platform/storage/btrfs"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
@@ -157,6 +158,9 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *storage.Linker { return storage.NewLinker() })
 	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker, control *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk, linker *storage.Linker) *storage.Disks {
 		return storage.NewDisks(systemConfig, eventTrigger, lsblk, control, freeSpaceChecker, linker, logger)
+	})
+	Singleton(func() *btrfs.Stats {
+		return btrfs.New()
 	})
 
 	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,

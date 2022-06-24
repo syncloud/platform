@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const ParttypeExtended = "0x5"
+const PartTypeExtended = "0x5"
 
 var SupportedDeviceTypes []string
 
@@ -24,20 +24,8 @@ type LsblkEntry struct {
 	Model      string
 }
 
-func NewLsblkEntry(name string, size string, deviceType string, mountPoint string, partType string, fsType string, model string) LsblkEntry {
-	return LsblkEntry{
-		Name:       name,
-		Size:       size,
-		DeviceType: deviceType,
-		MountPoint: mountPoint,
-		PartType:   partType,
-		FsType:     fsType,
-		Model:      model,
-	}
-}
-
 func (e *LsblkEntry) IsExtendedPartition() bool {
-	return e.PartType == ParttypeExtended
+	return e.PartType == PartTypeExtended
 }
 
 func (e *LsblkEntry) IsBootDisk() bool {

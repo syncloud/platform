@@ -294,3 +294,15 @@ func TestLsblk_FindPartitionByDevice_NotFound(t *testing.T) {
 	_, err := lsblk.FindPartitionByDevice("/dev/sdc1")
 	assert.NotNil(t, err)
 }
+
+func TestLsblk_AvailableDisks_BtrfsSupport(t *testing.T) {
+
+	output := `
+NAME="/dev/sda" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrfs" MODEL="CT2000BX500SSD1"
+NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrfs" MODEL="KINGSTON_SA400S37120G"
+`
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+	disks, err := lsblk.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(*disks))
+}
