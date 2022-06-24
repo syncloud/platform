@@ -34,6 +34,8 @@
 </template>
 <script>
 import $ from 'jquery'
+import 'bootstrap'
+
 import toastr from 'toastr'
 import axios from 'axios'
 

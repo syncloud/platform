@@ -385,14 +385,16 @@ def test_installer_upgrade(device, domain):
     session = device.login()
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle',
-                      attempts=100)
+    wait_for_jobs(domain, session)
 
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
+    wait_for_jobs(domain, session)
+
+
+def wait_for_jobs(domain, session):
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle',
+                      lambda r: json.loads(r.text)['data']['status'] == 'Idle',
                       attempts=100)
 
 
@@ -402,8 +404,7 @@ def test_backup_app(device, artifact_dir, domain):
     assert response.status_code == 200
     assert json.loads(response.text)['success']
 
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
+    wait_for_jobs(domain, session)
 
     response = device.http_get('/rest/backup/list')
     assert response.status_code == 200
@@ -417,8 +418,8 @@ def test_backup_app(device, artifact_dir, domain):
         json={'app': 'testapp', 'file': '{0}'.format(backup['file'])},
         verify=False)
     assert response.status_code == 200
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data'] == 'JobStatusIdle')
+
+    wait_for_jobs(domain, session)
 
 
 def test_rest_backup_list(device, domain, artifact_dir):
@@ -435,7 +436,7 @@ def loop_device(device_host):
     loop_device_cleanup(device_host, dev_file, password=LOGS_SSH_PASSWORD)
 
     print('adding loop device')
-    run_ssh(device_host, 'dd if=/dev/zero bs=1M count=10 of={0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'dd if=/dev/zero bs=20M count=10 of={0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'sync', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'ls -la {0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
     loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
@@ -453,8 +454,11 @@ def disk_writable(domain):
     run_ssh(domain, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
     run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
-
-@pytest.mark.parametrize("fs_type", ['ext4'])
+mkfs = {
+  'btrfs': '/snap/platform/current/btrfs/bin/mkfs.sh',
+  'ext4': 'mkfs.ext4'
+}
+@pytest.mark.parametrize("fs_type", ['ext4', 'btrfs'])
 def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, artifact_dir):
     disk_create(loop_device, fs_type, device)
     assert disk_activate(loop_device, device, domain, artifact_dir) == '/opt/disk/external/platform'
@@ -464,7 +468,7 @@ def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, a
 
 def disk_create(loop, fs, device):
     tmp_disk = '/tmp/test'
-    device.run_ssh('mkfs.{0} {1}'.format(fs, loop), retries=3)
+    device.run_ssh('{0} {1}'.format(mkfs[fs], loop), retries=3)
 
     device.run_ssh('rm -rf {0}'.format(tmp_disk))
     device.run_ssh('mkdir {0}'.format(tmp_disk))
@@ -478,7 +482,8 @@ def disk_create(loop, fs, device):
 
 
 def disk_activate(loop, device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/storage/disks'.format(domain))
+    session = device.login()
+    response = session.get('https://{0}/rest/storage/disks'.format(domain))
     print(response.text)
     with open('{0}/rest.storage.disks.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
@@ -486,9 +491,11 @@ def disk_activate(loop, device, domain, artifact_dir):
     assert loop in response.text
     assert response.status_code == 200
 
-    response = device.login().post('https://{0}/rest/storage/disk/activate'.format(domain), verify=False,
-                                   json={'device': loop})
-    assert response.status_code == 200
+    response = session.post('https://{0}/rest/storage/disk/activate/disk'.format(domain), verify=False,
+                            json={'devices': [loop], 'format': True})
+    assert response.status_code == 200, response.text
+    wait_for_jobs(domain, session)
+
     return current_disk_link(device)
 
 
@@ -528,33 +535,31 @@ def test_local_upgrade(app_archive_path, device_host):
 def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
-#TODO: restore me
-# def test_remove(device):
-#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.new.log'.format(TMP_DIR))
-#     device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
-#     device.run_ssh('snap remove platform')
+
+def test_remove(device):
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.new.log'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
+    device.run_ssh('snap remove platform')
 
 
-#TODO: restore me
-# def test_install_stable_from_store(device, device_host):
-#     device.run_ssh('snap install platform')
-#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
+def test_install_stable_from_store(device, device_host):
+    device.run_ssh('snap install platform')
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
 
 
-#TODO: restore me
-# def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
-#     response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
-#                              json={'domain': 'example.com',
-#                                    'device_username': device_user,
-#                                    'device_password': device_password}, verify=False)
-#     assert response.status_code == 200, response.text
+def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
+    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+                             json={'domain': 'example.com',
+                                   'device_username': device_user,
+                                   'device_password': device_password}, verify=False)
+    assert response.status_code == 200, response.text
 
-#TODO: restore me
-# def test_upgrade(app_archive_path, device_host, device, main_domain):
-#     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
-#     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
-#     device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
+
+def test_upgrade(app_archive_path, device_host, device, main_domain):
+    local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
 def test_login_after_upgrade(device):
@@ -589,5 +594,4 @@ def retry(method, retries=10):
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
             time.sleep(5)
         attempt += 1
-    raise exception
     raise exception

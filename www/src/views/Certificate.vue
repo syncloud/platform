@@ -43,10 +43,9 @@
 
 <script>
 import axios from 'axios'
-import $ from 'jquery'
 import 'bootstrap'
-import Error from '@/components/Error'
-import 'gasparesganga-jquery-loading-overlay'
+import Error from '../components/Error.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Certificate',
@@ -61,18 +60,19 @@ export default {
     return {
       valid: false,
       real: false,
-      validDays: 0
+      validDays: 0,
+      loading: undefined
     }
   },
   mounted () {
     this.progressShow()
-
     axios.get('/rest/certificate')
       .then((resp) => {
         const data = resp.data.data
         this.valid = data.is_valid
         this.real = data.is_real
         this.validDays = data.valid_for_days
+        this.progressHide()
       })
       .catch(err => {
         this.$refs.error.showAxios(err)
@@ -81,17 +81,19 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_updates').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_updates').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     }
   }
 }
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 .icon-good {
   font-size: 20px;
   vertical-align: -15%;

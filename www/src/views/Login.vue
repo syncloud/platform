@@ -48,7 +48,7 @@
 
 <script>
 import $ from 'jquery'
-import Error from '@/components/Error'
+import Error from '../components/Error.vue'
 import axios from 'axios'
 import 'bootstrap'
 
@@ -94,7 +94,7 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 
 input:required {
   box-shadow: none;

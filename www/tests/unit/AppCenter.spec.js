@@ -2,7 +2,7 @@ import { mount, RouterLinkStub } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import AppCenter from '@/views/AppCenter'
+import AppCenter from '../../src/views/AppCenter.vue'
 
 jest.setTimeout(30000)
 

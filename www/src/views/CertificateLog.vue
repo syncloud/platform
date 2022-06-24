@@ -6,8 +6,8 @@
         <h1>Certificate Log</h1>
         <div class="row-no-gutters">
           <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
-            <div class="setline" id="logs">
-              <p v-for="(log, index) in logs" :key="index" style="margin: 0px">
+            <div id="logs">
+              <p v-for="(log, index) in logs" :key="index" style="margin: 0">
                 {{ log }}
               </p>
             </div>
@@ -23,10 +23,9 @@
 
 <script>
 import axios from 'axios'
-import $ from 'jquery'
 import 'bootstrap'
-import Error from '@/components/Error'
-import 'gasparesganga-jquery-loading-overlay'
+import Error from '../components/Error.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'CertificateLog',
@@ -39,7 +38,8 @@ export default {
   },
   data () {
     return {
-      logs: Array
+      logs: Array,
+      loading: undefined
     }
   },
   mounted () {
@@ -48,6 +48,7 @@ export default {
     axios.get('/rest/certificate/log')
       .then((resp) => {
         this.logs = resp.data.data
+        this.progressHide()
       })
       .catch(err => {
         this.$refs.error.showAxios(err)
@@ -56,15 +57,17 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_updates').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_updates').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     }
   }
 }
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 </style>

@@ -68,6 +68,13 @@
             </router-link>
           </div>
 
+          <div class="colapp app">
+            <router-link to="/logs" id="logs" class="app-link">
+              <i class="material-icons-outlined settings-icon">feed</i>
+              <div class="setting-name"><span class="withline">Logs</span></div>
+            </router-link>
+          </div>
+
         </div>
       </div>
     </div>
@@ -86,5 +93,11 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
+.settings-icon {
+  font-size: 72px !important;
+  padding-top: 20px !important;
+  padding-bottom: 10px !important;
+}
+
 </style>

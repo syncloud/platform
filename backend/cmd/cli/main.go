@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
@@ -9,6 +10,7 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/network"
+	"github.com/syncloud/platform/storage/btrfs"
 	"net"
 	"os"
 )
@@ -162,7 +164,29 @@ func main() {
 		},
 	}
 
-	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron, cmdCert)
+	var cmdBtrfs = &cobra.Command{
+		Use:   "btrfs",
+		Short: "Show btrfs",
+		Run: func(cmd *cobra.Command, args []string) {
+			Init(*userConfig, *systemConfig)
+			ioc.Call(func(btrfs *btrfs.Stats) {
+				info, err := btrfs.Info()
+				if err != nil {
+					fmt.Print(err)
+					os.Exit(1)
+				}
+				s, err := json.MarshalIndent(info, "", "\t")
+				if err != nil {
+					fmt.Print(err)
+					os.Exit(1)
+				}
+				fmt.Printf("btrfs info\n")
+				fmt.Printf("%s\n", s)
+			})
+		},
+	}
+
+	rootCmd.AddCommand(cmdIpv4, cmdIpv6, cmdConfig, cmdCron, cmdCert, cmdBtrfs)
 
 	err := rootCmd.Execute()
 	if err != nil {

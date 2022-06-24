@@ -1,7 +1,7 @@
 local name = "platform";
 local browser = "chrome";
 local go = "1.18.2";
-local node = "16.1.0";
+local node = "16.10.0";
 
 local build(arch, testUI) = [{
     kind: "pipeline",
@@ -22,10 +22,14 @@ local build(arch, testUI) = [{
         {
             name: "build web",
             image: "node:" + node + "-alpine3.12",
+	    environment: {
+	        "NODE_OPTIONS": "--max_old_space_size=2048",
+	    },
             commands: [
-                "apk add --update --no-cache python2 alpine-sdk ",
                 "mkdir -p build/platform",
                 "cd www",
+		"npm config set fetch-retry-mintimeout 20000",
+                "npm config set fetch-retry-maxtimeout 120000",
                 "npm install",
                 "npm run test",
                 "npm run lint",
@@ -163,9 +167,10 @@ local build(arch, testUI) = [{
               "./deps.sh",
               "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
+            privileged: true,
             volumes: [{
-                name: "shm",
-                path: "/dev/shm"
+                name: "videos",
+                path: "/videos"
             }]
         } 
         for mode in ["desktop", "mobile"]

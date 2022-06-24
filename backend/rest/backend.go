@@ -13,6 +13,7 @@ import (
 	"github.com/syncloud/platform/rest/model"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
+	"github.com/syncloud/platform/systemd"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -24,7 +25,7 @@ import (
 )
 
 type Backend struct {
-	JobMaster       *job.Master
+	JobMaster       *job.SingleJobMaster
 	backup          *backup.Backup
 	eventTrigger    *event.Trigger
 	worker          *job.Worker
@@ -38,16 +39,17 @@ type Backend struct {
 	externalAddress *access.ExternalAddress
 	snapd           *snap.Snapd
 	disks           *storage.Disks
+	journalCtl      *systemd.JournalCtl
 }
 
-func NewBackend(master *job.Master, backup *backup.Backup,
+func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 	eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Service, installerService *installer.Installer,
 	storageService *storage.Storage,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Snapd, disks *storage.Disks,
+	snapd *snap.Snapd, disks *storage.Disks, journalCtl *systemd.JournalCtl,
 ) *Backend {
 
 	return &Backend{
@@ -65,6 +67,7 @@ func NewBackend(master *job.Master, backup *backup.Backup,
 		externalAddress: externalAddress,
 		snapd:           snapd,
 		disks:           disks,
+		journalCtl:      journalCtl,
 	}
 }
 
@@ -101,11 +104,13 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
 	r.HandleFunc("/installer/upgrade", Handle(b.InstallerUpgrade)).Methods("POST")
 	r.HandleFunc("/installer/version", Handle(b.InstallerVersion)).Methods("GET")
-	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
 	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
-	r.HandleFunc("/storage/disk/activate", Handle(b.StorageDiskActivate)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate/partition", Handle(b.StorageActivatePartition)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate/disk", Handle(b.StorageActivateDisks)).Methods("POST")
+	r.HandleFunc("/storage/disk/error/last", Handle(b.StorageLastError)).Methods("GET")
+	r.HandleFunc("/storage/disk/error/clear", Handle(b.StorageClearError)).Methods("POST")
 	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
@@ -119,6 +124,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
 	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
 	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
+	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -214,7 +220,7 @@ func (b *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("app is missing")
 	}
-	_ = b.JobMaster.Offer(func() { b.backup.Create(request.App) })
+	_ = b.JobMaster.Offer("backup.create", func() { b.backup.Create(request.App) })
 	return "submitted", nil
 }
 
@@ -225,28 +231,17 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	_ = b.JobMaster.Offer(func() { b.backup.Restore(request.File) })
+	_ = b.JobMaster.Offer("backup.restore", func() { b.backup.Restore(request.File) })
 	return "submitted", nil
 }
 
 func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	_ = b.JobMaster.Offer(func() { b.installer.Upgrade() })
+	_ = b.JobMaster.Offer("installer.upgrade", func() { b.installer.Upgrade() })
 	return "submitted", nil
 }
 
 func (b *Backend) JobStatus(_ *http.Request) (interface{}, error) {
-	return b.JobMaster.Status().String(), nil
-}
-
-func (b *Backend) StorageFormat(req *http.Request) (interface{}, error) {
-	var request model.StorageFormatRequest
-	err := json.NewDecoder(req.Body).Decode(&request)
-	if err != nil {
-		fmt.Printf("parse error: %v\n", err.Error())
-		return nil, errors.New("device is missing")
-	}
-	_ = b.JobMaster.Offer(func() { b.storage.Format(request.Device) })
-	return "submitted", nil
+	return b.JobMaster.Status(), nil
 }
 
 func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
@@ -315,7 +310,7 @@ func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
-	_ = b.JobMaster.Offer(func() { b.storage.BootExtend() })
+	_ = b.JobMaster.Offer("storage.boot.extend", func() { b.storage.BootExtend() })
 	return "submitted", nil
 }
 
@@ -328,16 +323,50 @@ func (b *Backend) StorageBootDisk(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) StorageDiskDeactivate(_ *http.Request) (interface{}, error) {
-	return "OK", b.disks.DeactivateDisk()
+	return "OK", b.disks.Deactivate()
 }
 
-func (b *Backend) StorageDiskActivate(req *http.Request) (interface{}, error) {
-	var request model.StorageDiskActivateRequest
+func (b *Backend) StorageActivatePartition(req *http.Request) (interface{}, error) {
+	var request model.StorageActivatePartitionRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err.Error())
-		return nil, errors.New("invalid disk activate request")
+		return nil, err
+	}
+	if request.Format {
+		err = b.storage.Format(request.Device)
+		if err != nil {
+			fmt.Printf("format error: %v\n", err.Error())
+			return nil, err
+		}
 	}
 
-	return "OK", b.disks.ActivateDisk(request.Device)
+	return "OK", b.JobMaster.Offer("storage.activate.partition", func() { _ = b.disks.ActivatePartition(request.Device) })
+
+}
+
+func (b *Backend) StorageActivateDisks(req *http.Request) (interface{}, error) {
+	var request model.StorageActivateDisksRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, err
+	}
+
+	return "OK", b.JobMaster.Offer("storage.activate.disks", func() { b.disks.ActivateDisks(request.Devices, request.Format) })
+}
+
+func (b *Backend) StorageLastError(_ *http.Request) (interface{}, error) {
+	return "OK", b.disks.GetLastError()
+}
+
+func (b *Backend) StorageClearError(_ *http.Request) (interface{}, error) {
+	b.disks.ClearLastError()
+	return "OK", nil
+}
+
+func (b *Backend) Logs(_ *http.Request) (interface{}, error) {
+	return b.journalCtl.ReadAll(func(line string) bool {
+		return true
+	}), nil
 }

@@ -24,6 +24,7 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
         device.run_ssh('cp /var/log/syslog {0}/syslog.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), ui_logs)
         device.scp_from_device('{0}/log/*'.format(data_dir), ui_logs)
+        check_output('cp /videos/* {0}'.format(artifact_dir), shell=True)
         check_output('chmod -R a+r {0}'.format(ui_logs), shell=True)
 
     request.addfinalizer(module_teardown)
@@ -118,30 +119,14 @@ def test_settings_activation(driver, ui_mode, screenshot_dir):
     screenshots(driver, screenshot_dir, 'settings_activation-' + ui_mode)
 
 
-def test_settings_access(driver, ui_mode, screenshot_dir):
+def test_settings_access(selenium, driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'access')
-    header = "//h1[text()='Access']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-
-    btn = '//input[@id="tgl_ipv4_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
-
-    btn = '//input[@id="tgl_ipv4_public"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
-
-    btn = '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
-
-    btn = '//input[@id="tgl_ipv6_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
-
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located(
-        (By.XPATH, '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]')))
-    screenshots(driver, screenshot_dir, 'settings_access-' + ui_mode)
+    selenium.find_by_xpath("//h1[text()='Access']")
+    # selenium.find_by_xpath('//input[@id="tgl_ipv4_enabled"]/../span').click()
+    selenium.find_by_xpath('//input[@id="tgl_ipv4_public"]/../span').click()
+    # selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]/../span').click()
+    # selenium.find_by_xpath('//input[@id="tgl_ipv6_enabled"]/../span').click()
+    selenium.screenshot('settings_access')
 
 
 def test_settings_network(driver, ui_mode, screenshot_dir):
@@ -155,7 +140,7 @@ def test_settings_storage(driver, ui_mode, screenshot_dir, selenium):
     settings(driver, screenshot_dir, ui_mode, 'storage')
     header = "//h1[text()='Storage']"
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    selenium.find_by_id('disk_name_0')
+    selenium.find_by_id('btn_save')
     screenshots(driver, screenshot_dir, 'settings_storage-' + ui_mode)
 
 
@@ -237,14 +222,13 @@ def test_installed_app(driver, ui_mode, screenshot_dir):
 #     screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
 
 
-def test_not_installed_app(driver, ui_mode, screenshot_dir):
+def test_not_installed_app(driver, ui_mode, screenshot_dir, selenium):
     menu(driver, ui_mode, screenshot_dir, 'appcenter')
     nextcloud = "//span[text()='Nextcloud file sharing']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, nextcloud)))
-    driver.find_element_by_xpath(nextcloud).click()
+    selenium.find_by_xpath(nextcloud).click()
     header = "//h1[text()='Nextcloud file sharing']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'app_not_installed-' + ui_mode)
+    selenium.find_by_xpath(header)
+    selenium.screenshot('app_not_installed')
 
 
 def wait_or_screenshot(driver, ui_mode, screenshot_dir, method):
