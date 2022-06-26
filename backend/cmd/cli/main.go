@@ -12,6 +12,7 @@ import (
 	"github.com/syncloud/platform/storage/btrfs"
 	"net"
 	"os"
+	//"encoding/json"
 )
 
 func main() {
@@ -174,7 +175,13 @@ func main() {
 					fmt.Print(err)
 					os.Exit(1)
 				}
-				fmt.Print(stats)
+   //s, err := json.MarshalIndent(stats, "", "\t")
+   //if err != nil {
+				//	fmt.Print(err)
+				//	os.Exit(1)
+				//}
+   fmt.Printf("btrfs stats\n")
+				fmt.Printf("%+v\n", stats) 
 			})
 		},
 	}

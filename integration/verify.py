@@ -454,7 +454,7 @@ def disk_writable(domain):
     run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
 
-@pytest.mark.parametrize("fs_type", ['ext4', 'btrfs])
+@pytest.mark.parametrize("fs_type", ['ext4', 'btrfs'])
 def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, artifact_dir):
     disk_create(loop_device, fs_type, device)
     assert disk_activate(loop_device, device, domain, artifact_dir) == '/opt/disk/external/platform'
