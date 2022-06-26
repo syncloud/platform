@@ -454,7 +454,7 @@ def disk_writable(domain):
     run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
 
-@pytest.mark.parametrize("fs_type", ['ext4'])
+@pytest.mark.parametrize("fs_type", ['ext4', 'btrfs])
 def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, artifact_dir):
     disk_create(loop_device, fs_type, device)
     assert disk_activate(loop_device, device, domain, artifact_dir) == '/opt/disk/external/platform'
@@ -528,33 +528,31 @@ def test_local_upgrade(app_archive_path, device_host):
 def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
-#TODO: restore me
-# def test_remove(device):
-#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.new.log'.format(TMP_DIR))
-#     device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
-#     device.run_ssh('snap remove platform')
+
+def test_remove(device):
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.new.log'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
+    device.run_ssh('snap remove platform')
 
 
-#TODO: restore me
-# def test_install_stable_from_store(device, device_host):
-#     device.run_ssh('snap install platform')
-#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
+def test_install_stable_from_store(device, device_host):
+    device.run_ssh('snap install platform')
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
 
 
-#TODO: restore me
-# def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
-#     response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
-#                              json={'domain': 'example.com',
-#                                    'device_username': device_user,
-#                                    'device_password': device_password}, verify=False)
-#     assert response.status_code == 200, response.text
+def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
+    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+                             json={'domain': 'example.com',
+                                   'device_username': device_user,
+                                   'device_password': device_password}, verify=False)
+    assert response.status_code == 200, response.text
 
-#TODO: restore me
-# def test_upgrade(app_archive_path, device_host, device, main_domain):
-#     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
-#     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
-#     device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
+
+def test_upgrade(app_archive_path, device_host, device, main_domain):
+    local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
+    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
 
 
 def test_login_after_upgrade(device):
@@ -589,5 +587,4 @@ def retry(method, retries=10):
             print('error (attempt {0}/{1}): {2}'.format(attempt + 1, retries, str(e)))
             time.sleep(5)
         attempt += 1
-    raise exception
     raise exception
