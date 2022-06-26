@@ -37,6 +37,9 @@ mv gptfdisk ${BUILD_DIR}
 wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
+wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz
+tar xf btrfs-${ARCH}.tar.gz
+mv btrfs ${BUILD_DIR}
 
 cd ${DIR}/src
 rm -f version

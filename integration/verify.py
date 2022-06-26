@@ -453,7 +453,10 @@ def disk_writable(domain):
     run_ssh(domain, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
     run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
 
-
+mkfs = {
+  'btrfs': '/snap/platform/current/btrfs/bin/mkfs.sh',
+  'ext4': 'mkfs.ext4'
+}
 @pytest.mark.parametrize("fs_type", ['ext4', 'btrfs'])
 def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, artifact_dir):
     disk_create(loop_device, fs_type, device)
@@ -464,7 +467,7 @@ def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, a
 
 def disk_create(loop, fs, device):
     tmp_disk = '/tmp/test'
-    device.run_ssh('mkfs.{0} {1}'.format(fs, loop), retries=3)
+    device.run_ssh('{0} {1}'.format(mkfs[fs], loop), retries=3)
 
     device.run_ssh('rm -rf {0}'.format(tmp_disk))
     device.run_ssh('mkdir {0}'.format(tmp_disk))
