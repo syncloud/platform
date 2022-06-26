@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
@@ -12,7 +13,6 @@ import (
 	"github.com/syncloud/platform/storage/btrfs"
 	"net"
 	"os"
-	//"encoding/json"
 )
 
 func main() {
@@ -175,13 +175,13 @@ func main() {
 					fmt.Print(err)
 					os.Exit(1)
 				}
-   //s, err := json.MarshalIndent(stats, "", "\t")
-   //if err != nil {
-				//	fmt.Print(err)
-				//	os.Exit(1)
-				//}
-   fmt.Printf("btrfs stats\n")
-				fmt.Printf("%+v\n", stats) 
+				s, err := json.MarshalIndent(stats, "", "\t")
+				if err != nil {
+					fmt.Print(err)
+					os.Exit(1)
+			}
+				fmt.Printf("btrfs stats\n")
+				fmt.Printf("%s\n", s)
 			})
 		},
 	}
