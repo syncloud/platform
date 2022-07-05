@@ -8,6 +8,15 @@ import (
 	"testing"
 )
 
+type CallOrder struct {
+	order int
+}
+
+func (c *CallOrder) inc() int {
+	c.order++
+	return c.order
+}
+
 type DisksConfigStub struct {
 	diskDir string
 }
@@ -25,10 +34,15 @@ func (c *DisksConfigStub) ExternalDiskDir() string {
 }
 
 type TriggerStub struct {
-	error bool
+	error           bool
+	callOrderShared *CallOrder
+	callOrder       int
 }
 
-func (t TriggerStub) RunDiskChangeEvent() error {
+func (t *TriggerStub) RunDiskChangeEvent() error {
+	if t.callOrderShared != nil {
+		t.callOrder = t.callOrderShared.inc()
+	}
 	if t.error {
 		return fmt.Errorf("error")
 	}
@@ -68,13 +82,18 @@ func (l *LsblkDisksStub) AllDisks() (*[]model.Disk, error) {
 //}
 
 type SystemdStub struct {
+	callOrderShared *CallOrder
+	callOrder       int
 }
 
-func (s SystemdStub) AddMount(_ string) error {
+func (s *SystemdStub) AddMount(_ string) error {
 	return nil
 }
 
-func (s SystemdStub) RemoveMount() error {
+func (s *SystemdStub) RemoveMount() error {
+	if s.callOrderShared != nil {
+		s.callOrder = s.callOrderShared.inc()
+	}
 	return nil
 }
 
@@ -137,6 +156,21 @@ func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
 	err := disks.DeactivateDisk()
 	assert.Nil(t, err)
+}
+
+func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
+
+	allDisks := []model.Disk{
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+	}
+	callOrder := &CallOrder{order: 0}
+	trigger := &TriggerStub{error: false, callOrderShared: callOrder}
+	systemd := &SystemdStub{callOrderShared: callOrder}
+	disks := NewDisks(&DisksConfigStub{}, trigger, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
+	err := disks.DeactivateDisk()
+	assert.Nil(t, err)
+	assert.Less(t, trigger.callOrder, systemd.callOrder)
+
 }
 
 func TestDisks_ActivateDisk_SupportedFs(t *testing.T) {

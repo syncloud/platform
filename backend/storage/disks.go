@@ -141,13 +141,13 @@ func (d *Disks) DeactivateDisk() error {
 	if err != nil {
 		return err
 	}
-	err = d.systemd.RemoveMount()
-	if err != nil {
-		return err
-	}
 	err = d.trigger.RunDiskChangeEvent()
 	if err != nil {
 		d.logger.Error("some disk events produced errors", zap.Error(err))
+	}
+	err = d.systemd.RemoveMount()
+	if err != nil {
+		return err
 	}
 	return nil
 }
