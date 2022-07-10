@@ -137,7 +137,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 
 		if ipv4Public {
 			if ipv4 == nil {
-				ipv4, err := r.netInfo.PublicIPv4()
+				ipv4, err = r.netInfo.PublicIPv4()
 				if err != nil {
 					return err
 				}
