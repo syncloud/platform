@@ -44,6 +44,7 @@ func (n *NetworkInfoStub) PublicIPv4() (*string, error) {
 }
 
 type ExternalAddressUserConfigStub struct {
+  publicIp *string
 }
 
 func (u ExternalAddressUserConfigStub) IsRedirectEnabled() bool {
@@ -59,7 +60,8 @@ func (u ExternalAddressUserConfigStub) SetIpv4Public(enabled bool) {
 func (u ExternalAddressUserConfigStub) SetIpv6Enabled(enabled bool) {
 }
 
-func (u ExternalAddressUserConfigStub) SetPublicIp(publicIp *string) {
+func (u *ExternalAddressUserConfigStub) SetPublicIp(publicIp *string) {
+  u.publicIp = publicIp
 }
 
 func (u ExternalAddressUserConfigStub) SetPublicPort(port *int) {
@@ -92,7 +94,8 @@ func (u ExternalAddressUserConfigStub) IsIpv4Enabled() bool {
 
 func TestExternalAddress_UpdateWithIpv4(t *testing.T) {
 	network := &NetworkInfoStub{}
-	access := New(&PoptProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &TriggerStub{}, network, log.Default())
+ config := &ExternalAddressUserConfigStub{}
+	access := New(&PoptProbeStub{}, config, &RedirectStub{}, &TriggerStub{}, network, log.Default())
 	ip := "1.1.1.1"
 	port := 443
 	request := model.Access{
@@ -105,12 +108,13 @@ func TestExternalAddress_UpdateWithIpv4(t *testing.T) {
 	err := access.Update(request)
 	assert.Nil(t, err)
 	assert.False(t, network.ipv4called)
-
+ assert.Equal(t, *config.publicIp, ip)
 }
 
 func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	network := &NetworkInfoStub{}
-	access := New(&PoptProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &TriggerStub{}, network, log.Default())
+ config := &ExternalAddressUserConfigStub{}
+	access := New(&PoptProbeStub{}, config, &RedirectStub{}, &TriggerStub{}, network, log.Default())
 	ip := ""
 	port := 443
 	request := model.Access{
@@ -123,6 +127,6 @@ func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	err := access.Update(request)
 	assert.Nil(t, err)
 	assert.True(t, network.ipv4called)
-
+ assert.Nil(t, config.publicIp)
 }
 

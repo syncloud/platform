@@ -70,6 +70,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 		request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 
 	ipv4 := request.Ipv4
+ ipv4ToSave := ipv4
 	if request.Ipv4Enabled {
 
 		port := config.WebAccessPort
@@ -80,6 +81,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			addr := net.ParseIP(*ipv4)
 			if addr.To4() == nil {
 				ipv4 = nil
+   ipv4ToSave = nil
 			}
 		}
 
@@ -120,7 +122,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	}
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
 	a.userConfig.SetIpv4Public(request.Ipv4Public)
-	a.userConfig.SetPublicIp(request.Ipv4)
+	a.userConfig.SetPublicIp(ipv4ToSave)
 	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
 	a.userConfig.SetPublicPort(request.AccessPort)
 
