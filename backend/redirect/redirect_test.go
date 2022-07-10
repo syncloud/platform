@@ -37,6 +37,7 @@ func (i *IpParserStub) Id() (*identification.Id, error) {
 }
 
 type NetInfoStub struct {
+	publicIp string
 }
 
 func (n *NetInfoStub) LocalIPv4() (net.IP, error) {
@@ -49,7 +50,7 @@ func (n *NetInfoStub) IPv6() (*string, error) {
 }
 
 func (n *NetInfoStub) PublicIPv4() (*string, error) {
-	panic("implement me")
+	return &n.publicIp, nil
 }
 
 type ClientStub struct {
@@ -109,4 +110,14 @@ func TestUpdate_Ipv6Disabled(t *testing.T) {
 	err := service.Update(&ipv4, &port, true, true, false)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"ip":"1.1.1.1","local_ip":"0.0.0.0","token":"token","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":false}`, client.request)
+}
+
+func TestUpdate_Ipv4AutoDetect(t *testing.T) {
+	client := &ClientStub{}
+	netInfo := &NetInfoStub{publicIp: "2.2.2.2"}
+	service := New(&UserConfigStub{}, &IpParserStub{}, netInfo, client, &VersionStub{}, log.Default())
+	port := 1
+	err := service.Update(nil, &port, true, true, false)
+	assert.Nil(t, err)
+	assert.Equal(t, `{"ip":"2.2.2.2","local_ip":"0.0.0.0","token":"token","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":false}`, client.request)
 }
