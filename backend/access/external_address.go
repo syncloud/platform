@@ -5,6 +5,7 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/rest/model"
 	"go.uber.org/zap"
+	"net"
 )
 
 type UserConfig interface {
@@ -39,8 +40,12 @@ type Response struct {
 	Message *string `json:"message"`
 }
 
+type Probe interface {
+	Probe(ip string, port int) error
+}
+
 type ExternalAddress struct {
-	probe      *PortProbe
+	probe      Probe
 	userConfig UserConfig
 	redirect   Redirect
 	trigger    Trigger
@@ -48,7 +53,7 @@ type ExternalAddress struct {
 	logger     *zap.Logger
 }
 
-func New(probe *PortProbe, userConfig UserConfig, redirect Redirect, trigger Trigger, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
+func New(probe Probe, userConfig UserConfig, redirect Redirect, trigger Trigger, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
 		probe:      probe,
 		userConfig: userConfig,
@@ -66,10 +71,18 @@ func (a *ExternalAddress) Update(request model.Access) error {
 
 	ipv4 := request.Ipv4
 	if request.Ipv4Enabled {
+
 		port := config.WebAccessPort
 		if request.AccessPort != nil {
 			port = *request.AccessPort
 		}
+		if ipv4 != nil {
+			addr := net.ParseIP(*ipv4)
+			if addr.To4() == nil {
+				ipv4 = nil
+			}
+		}
+
 		if ipv4 == nil {
 			publicIp, err := a.network.PublicIPv4()
 			if err != nil {
