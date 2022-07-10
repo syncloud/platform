@@ -90,6 +90,24 @@ func (u ExternalAddressUserConfigStub) IsIpv4Enabled() bool {
 	panic("implement me")
 }
 
+func TestExternalAddress_UpdateWithIpv4(t *testing.T) {
+	network := &NetworkInfoStub{}
+	access := New(&PoptProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &TriggerStub{}, network, log.Default())
+	ip := "1.1.1.1"
+	port := 443
+	request := model.Access{
+		Ipv4:        &ip,
+		Ipv4Enabled: true,
+		Ipv4Public:  true,
+		AccessPort:  &port,
+		Ipv6Enabled: false,
+	}
+	err := access.Update(request)
+	assert.Nil(t, err)
+	assert.False(t, network.ipv4called)
+
+}
+
 func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	network := &NetworkInfoStub{}
 	access := New(&PoptProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &TriggerStub{}, network, log.Default())
@@ -107,3 +125,4 @@ func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	assert.True(t, network.ipv4called)
 
 }
+
