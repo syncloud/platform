@@ -84,7 +84,11 @@ class PlatformUserConfig:
         ])
 
     def get_manual_access_port(self):
-        return self._get('platform.manual_access_port')
+        port = self._get('platform.manual_access_port')
+        try:
+            return int(port)
+        except Exception as e:
+            return None
 
     def set_manual_access_port(self, port):
         self._upsert([
