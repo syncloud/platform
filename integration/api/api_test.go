@@ -40,6 +40,6 @@ func TestDataPath(t *testing.T) {
 func TestUrl(t *testing.T) {
 	url, err := GetAppUrl("platform")
 	assert.Nil(t, err)
-	assert.Equal(t, *url, "https://platform.syncloud.info")
-}
+        assert.Contains(t, *url, ".syncloud.info")
+        assert.Contains(t, *url, "https://platform.")
 
