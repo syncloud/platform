@@ -121,27 +121,22 @@ def test_settings_activation(driver, ui_mode, screenshot_dir):
 def test_settings_access(driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'access')
     header = "//h1[text()='Access']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
+    selenium.find_by_xpath(header)
 
     btn = '//input[@id="tgl_ipv4_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
+    selenium.find_by_xpath(btn).click()
 
     btn = '//input[@id="tgl_ipv4_public"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
+    selenium.find_by_xpath(btn).click()
 
     btn = '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
+    selenium.find_by_xpath(btn).click()
 
     btn = '//input[@id="tgl_ipv6_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located((By.XPATH, btn)))
-    driver.find_element_by_xpath(btn).click()
+    selenium.find_by_xpath(btn).click()
 
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.visibility_of_element_located(
-        (By.XPATH, '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]')))
-    screenshots(driver, screenshot_dir, 'settings_access-' + ui_mode)
+    selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]')
+    selenium.screenshot('settings_access')
 
 
 def test_settings_network(driver, ui_mode, screenshot_dir):
