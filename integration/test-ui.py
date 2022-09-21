@@ -118,7 +118,7 @@ def test_settings_activation(driver, ui_mode, screenshot_dir):
     screenshots(driver, screenshot_dir, 'settings_activation-' + ui_mode)
 
 
-def test_settings_access(driver, ui_mode, screenshot_dir):
+def test_settings_access(selenium, driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'access')
     header = "//h1[text()='Access']"
     selenium.find_by_xpath(header)
