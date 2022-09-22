@@ -45,7 +45,11 @@ export default {
     this.progressShow()
     axios.get('/rest/apps/installed')
       .then(resp => {
-        this.apps = resp.data.data
+        if (resp.data.data == null) {
+            this.apps = []
+        } else {
+            this.apps = resp.data.data
+        }
         this.progressHide()
       })
       .catch(err => {
