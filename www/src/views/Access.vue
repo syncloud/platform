@@ -159,7 +159,7 @@
 
 <script>
 import $ from 'jquery'
-import Error from '@/components/Error'
+import Error from '@/components/Error.vue'
 import Dialog from '@/components/Dialog'
 import 'bootstrap'
 import 'bootstrap-switch'

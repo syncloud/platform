@@ -52,7 +52,9 @@ export default {
   },
   methods: {
     show () {
+      console.debug('show')
       this.active = true
+      console.debug(this.active)
       $(this.$refs.confirmation).modal('show')
     },
     yes () {
@@ -64,7 +66,9 @@ export default {
       this.$emit('cancel')
     },
     outside () {
+      console.debug('outside')
       if (this.active) {
+        console.debug(this.active)
         this.active = false
         this.$emit('cancel')
       }

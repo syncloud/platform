@@ -1,4 +1,5 @@
-tivate<template>
+tivate
+<template>
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
@@ -15,10 +16,26 @@ tivate<template>
                         class="control" style=" background:transparent;">
                   <i class='fa fa-question-circle fa-lg'></i>
                 </button>
+                <div class="spandiv">
+                  <Switch style="margin-left: 20px"
+                          :checked="multiMode"
+                          @toggle="multiMode = !multiMode"
+                          on-label="Multi"
+                          off-label="Single"
+                  />
+                </div>
               </div>
 
-              <div id="block_disks">
-                <span class="span" v-if="disks === undefined || disks.length === 0">No external disks found</span>
+              <div>
+                <span class="span" v-if="disks.length === 0">No external disks found</span>
+
+                <div class="setline" v-if="disks.length !== 0">
+                  <input type="radio" name="disk" v-model="activeSingleDisk"
+                         v-bind:value="{ name: 'None', partition: {device: 'none', active: false} }"
+                         :checked="activeSingleDisk.name === 'None'" style="margin-right: 10px;">
+                  <span class="span">None</span>
+                </div>
+
                 <div v-for="(disk, index) in disks" :key="index">
                   <div class="setline" style="margin-top: 20px;">
                     <span class="span" style="font-weight: bold;" :id="'disk_name_' + index">
@@ -35,17 +52,27 @@ tivate<template>
                   </div>
                   <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
                     <div class="setline" v-if="partition.mountable || partition.active">
+
+                      <input v-if="multiMode" type="checkbox" v-model="partition.active" style="margin-right: 10px;">
+                      <input v-if="!multiMode" type="radio" name="disk" v-model="activeSingleDisk"
+                             v-bind:value="{ name: disk.name, partition: partition }"
+                             :checked="partition.active" style="margin-right: 10px;">
+
                       <span class="span" :id="'partition_name_' + index + '_' + pindex">
                         Partition - {{ partition.size }}
                       </span>
-                      <div class="spandiv">
-                        <Switch :checked="partition.active"
-                                @toggle="diskActionConfirm(disk.name, partition)"
-                                on-label="Active"
-                                off-label="Not active"
-                        />
-                      </div>
                     </div>
+                  </div>
+                </div>
+
+                <div class="setline">
+                  <span>{{ activeSingleDisk }}</span>
+                  <br>
+                  <div class="spandiv">
+                    <button class="submit buttongreen control" id="btn_save" type="submit"
+                            data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."
+                            style="width: 150px" @click="diskActionConfirm">Save
+                    </button>
                   </div>
                 </div>
               </div>
@@ -58,18 +85,35 @@ tivate<template>
   </div>
   <Error ref="error"/>
 
+  <el-dialog
+    v-model="partitionConfirmationVisible"
+    title="Tips"
+    width="30%"
+  >
+    <span>This is a message</span>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="uiCheckDisks">Cancel</el-button>
+        <el-button type="primary" @click="diskAction">Confirm</el-button>
+      </span>
+    </template>
+  </el-dialog>
+
   <Confirmation ref="partition_confirmation" id="partition_confirmation" @confirm="diskAction" @cancel="uiCheckDisks">
-    <template v-slot:title>Partition action</template>
+    <template v-slot:title>
+      <span v-if="activeSingleDisk.partition.active">Activate disk</span>
+      <span v-if="!activeSingleDisk.partition.active">Deactivate disk</span>
+    </template>
     <template v-slot:text>
       Your existing data will not be touched or moved<br>
-      <span style="font-weight: bold;">{{ partitionActionDiskName }}</span><br>
-      <span>{{ partitionActionName }}</span>
+      <span style="font-weight: bold;">{{ activeSingleDisk.name }}</span>
       <br>
       Are you sure?
     </template>
   </Confirmation>
 
-  <Confirmation ref="disk_format_confirmation" id="disk_format_confirmation" @confirm="diskFormat" @cancel="uiCheckDisks">
+  <Confirmation ref="disk_format_confirmation" id="disk_format_confirmation" @confirm="diskFormat"
+                @cancel="uiCheckDisks">
     <template v-slot:title>Disk format</template>
     <template v-slot:text>
       This will destroy all the data on this disk!<br>
@@ -131,17 +175,21 @@ export default {
   },
   data () {
     return {
-      disks: undefined,
+      disks: [],
       deviceToFormat: undefined,
       deviceToFormatIndex: undefined,
       deviceToFormatName: undefined,
       partitionActionDiskName: undefined,
-      partitionActionName: undefined,
       partitionActionDevice: undefined,
-      partitionAction: undefined
+      partitionAction: undefined,
+      multiMode: false,
+      activeSingleDisk: { name: 'None', partition: { device: 'none', active: false } },
+      activeMultiDisks: [],
+      partitionConfirmationVisible: false
     }
   },
   mounted () {
+    console.debug('mounted')
     this.uiCheckDisks()
   },
   methods: {
@@ -181,9 +229,21 @@ export default {
         .catch(onError)
     },
     uiCheckDisks () {
+      console.debug('uiCheckDisks')
       axios.get('/rest/storage/disks')
         .then(resp => {
           this.disks = resp.data.data
+          const activeDisk = this.disks.find(d => d.active)
+          const activePartition = {
+            name: activeDisk.name,
+            partition: activeDisk.partitions.find(p => p.active)
+          }
+          if (activePartition) {
+            console.debug(activePartition.partition.device)
+          } else {
+            console.debug('None')
+          }
+          this.activeSingleDisk = activePartition
           this.progressHide()
         })
         .catch(err => {
@@ -191,15 +251,16 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    diskActionConfirm (diskName, partition) {
-      this.partitionActionName = partition.name
-      this.partitionActionDiskName = diskName
-      this.partitionActionDevice = partition.device
-      partition.active = !partition.active
-      this.partitionAction = partition.active
-      this.$refs.partition_confirmation.show()
+    diskActionConfirm () {
+      this.partitionActionDiskName = this.activeSingleDisk.name
+      this.partitionActionDevice = this.activeSingleDisk.partition.device
+      this.activeSingleDisk.partition.active = !this.activeSingleDisk.partition.active
+      this.partitionAction = this.activeSingleDisk.partition.active
+      // this.$refs.partition_confirmation.show()
+      this.partitionConfirmationVisible = true
     },
     diskAction () {
+      this.partitionConfirmationVisible = false
       this.progressShow()
       const error = this.$refs.error
       const that = this
@@ -209,7 +270,7 @@ export default {
         this.uiCheckDisks()
       }
       const mode = this.partitionAction ? 'activate' : 'deactivate'
-      axios.post('/rest/storage/disk/' + mode, { device: this.partitionActionDevice })
+      axios.post('/rest/storage/disk/' + mode, { device: this.activeSingleDisk.partition.device })
         .then(resp => {
           Common.checkForServiceError(
             resp.data,

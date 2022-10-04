@@ -93,16 +93,6 @@ img {
     border: none;
 }
 
-input,select,textarea,button {
-    box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    -webkit-appearance:none;
-    appearance:none;
-    -moz-appearance:none;
-    border:inherit
-}
-
 .control {
     border: inherit;
 }

@@ -3,6 +3,8 @@ import VueApp from './VueApp.vue'
 import router from './router'
 import 'bootstrap'
 import 'bootstrap-switch'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
 createApp(VueApp)
   .use(router)
@@ -28,4 +30,5 @@ createApp(VueApp)
       document.removeEventListener('click', el.__vueClickEventHandler__)
     }
   })
+  .use(ElementPlus)
   .mount('#app')
