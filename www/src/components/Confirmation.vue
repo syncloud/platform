@@ -3,7 +3,7 @@
        role="dialog"
        aria-labelledby="mySmallModalLabel">
     <div class="modal-dialog" role="document">
-      <div class="modal-content" v-click-outside="outside">
+      <div class="modal-content" >
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
@@ -64,14 +64,6 @@ export default {
     close () {
       this.active = false
       this.$emit('cancel')
-    },
-    outside () {
-      console.debug('outside')
-      if (this.active) {
-        console.debug(this.active)
-        this.active = false
-        this.$emit('cancel')
-      }
     }
   }
 }

@@ -38,8 +38,8 @@
 import axios from 'axios'
 import $ from 'jquery'
 import 'bootstrap'
-import Error from '@/components/Error'
-import Switch from '@/components/Switch'
+import Error from '@/components/Error.vue'
+import Switch from '@/components/Switch.vue'
 
 export default {
   name: 'Support',

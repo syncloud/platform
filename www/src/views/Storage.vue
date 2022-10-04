@@ -156,10 +156,10 @@ import $ from 'jquery'
 import axios from 'axios'
 import 'bootstrap'
 import 'bootstrap-switch'
-import Error from '@/components/Error'
-import Switch from '@/components/Switch'
+import Error from '@/components/Error.vue'
+import Switch from '@/components/Switch.vue'
 import * as Common from '../js/common.js'
-import Confirmation from '@/components/Confirmation'
+import Confirmation from '@/components/Confirmation.vue'
 import 'gasparesganga-jquery-loading-overlay'
 
 export default {

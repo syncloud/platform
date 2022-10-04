@@ -5,13 +5,8 @@
 </template>
 <script>
 import axios from 'axios'
-import Menu from '@/components/Menu'
-import Error from '@/components/Error'
-
-// TODO: migrate to any Material Design UI frameworks for Vue v3 when they become available.
-global.jQuery = require('jquery')
-var $ = global.jQuery
-window.jQuery = window.$ = $
+import Menu from '@/components/Menu.vue'
+import Error from '@/components/Error.vue'
 
 const publicRoutes = [
   '/error',
@@ -74,8 +69,8 @@ export default {
 }
 </script>
 <style>
-@import '~bootstrap/dist/css/bootstrap.css';
-@import '~bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
-@import '~font-awesome/css/font-awesome.css';
-@import '~roboto-fontface/css/roboto/roboto-fontface.css';
+@import 'bootstrap/dist/css/bootstrap.css';
+@import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
+@import 'font-awesome/css/font-awesome.css';
+@import 'roboto-fontface/css/roboto/roboto-fontface.css';
 </style>

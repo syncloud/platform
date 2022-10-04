@@ -292,9 +292,9 @@ import $ from 'jquery'
 import 'bootstrap'
 import 'bootstrap-switch'
 import Stepper from 'bs-stepper'
-import Error from '@/components/Error'
+import Error from '@/components/Error.vue'
 import 'gasparesganga-jquery-loading-overlay'
-import Dialog from '@/components/Dialog'
+import Dialog from '@/components/Dialog.vue'
 
 export default {
   name: 'Activate',

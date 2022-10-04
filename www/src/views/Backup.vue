@@ -56,7 +56,7 @@
 import $ from 'jquery'
 import 'bootstrap'
 import 'bootstrap-switch'
-import Error from '@/components/Error'
+import Error from '@/components/Error.vue'
 import toastr from 'toastr'
 import { Grid } from 'ag-grid-community'
 import axios from 'axios'

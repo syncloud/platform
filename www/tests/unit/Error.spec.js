@@ -2,8 +2,7 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Error from '@/components/Error'
-import 'bootstrap'
+import Error from '@/components/Error.vue'
 
 jest.setTimeout(30000)
 
