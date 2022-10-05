@@ -19,7 +19,6 @@
 <script>
 import axios from 'axios'
 import 'bootstrap'
-import 'bootstrap-switch'
 import * as Common from '../js/common.js'
 import Error from '@/components/Error.vue'
 import 'gasparesganga-jquery-loading-overlay'

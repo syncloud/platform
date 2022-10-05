@@ -3,7 +3,6 @@ import VueApp from './VueApp.vue'
 import router from './router'
 import 'jquery'
 import 'bootstrap'
-import 'bootstrap-switch'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import { mock } from "./stub/api"

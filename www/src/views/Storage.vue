@@ -16,13 +16,8 @@ tivate
                         class="control" style=" background:transparent;">
                   <i class='fa fa-question-circle fa-lg'></i>
                 </button>
-                <div class="spandiv">
-                  <Switch style="margin-left: 20px"
-                          :checked="multiMode"
-                          @toggle="multiMode = !multiMode"
-                          on-label="Multi"
-                          off-label="Single"
-                  />
+                <div class="spandiv" style="margin-left: 10px;">
+                  Multi disk <el-switch v-model="multiMode" style="--el-switch-on-color: #36ad40;" />
                 </div>
               </div>
 
@@ -152,22 +147,18 @@ tivate
 </template>
 
 <script>
-import $ from 'jquery'
 import axios from 'axios'
 import 'bootstrap'
-import 'bootstrap-switch'
-import Error from '@/components/Error.vue'
-import Switch from '@/components/Switch.vue'
+import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
-import Confirmation from '@/components/Confirmation.vue'
-import 'gasparesganga-jquery-loading-overlay'
+import Confirmation from '../components/Confirmation.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Storage',
   components: {
     Confirmation,
-    Error,
-    Switch
+    Error
   },
   props: {
     checkUserSession: Function,
@@ -185,7 +176,8 @@ export default {
       multiMode: false,
       activeSingleDisk: { name: 'None', partition: { device: 'none', active: false } },
       activeMultiDisks: [],
-      partitionConfirmationVisible: false
+      partitionConfirmationVisible: false,
+      loading: undefined
     }
   },
   mounted () {
@@ -194,10 +186,12 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_storage').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_storage').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     },
     diskFormatConfirm (index, device, name) {
       this.deviceToFormatIndex = index

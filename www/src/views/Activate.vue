@@ -290,7 +290,6 @@
 import axios from 'axios'
 import $ from 'jquery'
 import 'bootstrap'
-import 'bootstrap-switch'
 import Stepper from 'bs-stepper'
 import Error from '@/components/Error.vue'
 import 'gasparesganga-jquery-loading-overlay'
@@ -462,7 +461,7 @@ export default {
 <style>
 @import '../style/site.css';
 @import '../style/material-icons.css';
-@import '~bs-stepper/dist/css/bs-stepper.css';
+@import 'bs-stepper/dist/css/bs-stepper.css';
 
 .active .bs-stepper-circle {
   background-color: #02a0dc;

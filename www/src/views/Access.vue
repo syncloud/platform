@@ -4,7 +4,7 @@
       <div class="block1 wd12">
         <h1>Access</h1>
         <div class="row-no-gutters settingsblock">
-          <div class="col2" id="wrapper" :style="{ visibility: visibility }">
+          <div class="col2" :style="{ visibility: visibility }">
             <div class="setline">
               <h3>IP v4</h3>
             </div>
@@ -159,14 +159,12 @@
 
 <script>
 import $ from 'jquery'
-import Error from '@/components/Error.vue'
-import Dialog from '@/components/Dialog.vue'
-import 'bootstrap'
-import 'bootstrap-switch'
+import Error from '../components/Error.vue'
+import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import Switch from '@/components/Switch.vue'
-import 'gasparesganga-jquery-loading-overlay'
+import Switch from '../components/Switch.vue'
+import { ElLoading } from 'element-plus'
 
 function isValidPort (port) {
   return !(Number.isNaN(port) || port < 1 || port > 65535)
@@ -198,7 +196,8 @@ export default {
       visibility: 'hidden',
       ipv4Enabled: true,
       ipv4Public: false,
-      ipv6Enabled: true
+      ipv6Enabled: true,
+      loading: undefined
     }
   },
   components: {
@@ -235,11 +234,11 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#wrapper').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       this.visibility = 'visible'
-      $('#wrapper').LoadingOverlay('hide')
+      this.loading.close()
     },
     displayIpv4Manual (val) {
       if (val) {

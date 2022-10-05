@@ -32,7 +32,6 @@
 import axios from 'axios'
 import Error from '@/components/Error.vue'
 import 'bootstrap'
-import 'bootstrap-switch'
 
 export default {
   name: 'Activation',

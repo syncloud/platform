@@ -35,7 +35,6 @@
 <script>
 import $ from 'jquery'
 import 'bootstrap'
-import 'bootstrap-switch'
 import Error from '@/components/Error.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'

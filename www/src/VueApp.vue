@@ -70,7 +70,6 @@ export default {
 </script>
 <style>
 @import 'bootstrap/dist/css/bootstrap.css';
-@import 'bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css';
 @import 'font-awesome/css/font-awesome.css';
 @import 'roboto-fontface/css/roboto/roboto-fontface.css';
 </style>

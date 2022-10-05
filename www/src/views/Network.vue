@@ -37,7 +37,6 @@
 <script>
 import axios from 'axios'
 import 'bootstrap'
-import 'bootstrap-switch'
 
 export default {
   name: 'Network',

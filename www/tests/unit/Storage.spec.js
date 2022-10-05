@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Storage from '@/views/Storage'
+import Storage from '../../src/views/Storage'
 
 jest.setTimeout(30000)
 
