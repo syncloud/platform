@@ -37,7 +37,7 @@ test('Private ipv4 disable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: { id: String }
           },
@@ -90,7 +90,7 @@ test('Private ipv4 enable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: { id: String }
           },
@@ -145,7 +145,7 @@ test('Public ipv4 enable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: { id: String }
           },
@@ -199,7 +199,7 @@ test('Public ipv4 auto detect', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -252,7 +252,7 @@ test('Ipv6 enable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -304,7 +304,7 @@ test('Ipv6 disable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -358,7 +358,7 @@ test('Public access port set', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -409,7 +409,7 @@ test('Save http error', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -462,7 +462,7 @@ test('Save service error', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -518,7 +518,7 @@ test('Access port wrong', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -575,7 +575,7 @@ test('Access port 443 no warning', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -626,7 +626,7 @@ test('Access port non 443 shows warning', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -680,7 +680,7 @@ test('Access port is always 443 in ipv4 private', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -737,7 +737,7 @@ test('Manual Ipv4 default value', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },
@@ -792,7 +792,7 @@ test('Manual Ipv4 empty value', async () => {
               showAxios: showError
             }
           },
-          Switch: {
+          'el-switch': {
             template: '<button :id="id" />',
             props: ['id']
           },

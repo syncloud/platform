@@ -10,9 +10,6 @@
   </label>
 </template>
 <script>
-import 'bootstrap'
-import 'bootstrap-switch'
-import $ from 'jquery'
 
 export default {
   name: 'Switch',

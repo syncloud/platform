@@ -12,13 +12,7 @@
               <div class="spandiv" id="ipv4_enabled">
                 <span class="span alignment">Support:</span>
                 <div style="display: inline-block;min-width: 110px">
-                  <Switch
-                    id="tgl_ipv4_enabled"
-                    :checked="ipv4Enabled"
-                    @toggle="toggleIpv4"
-                    on-label="ON"
-                    off-label="OFF"
-                  />
+                  <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #36ad40;" />
                 </div>
               </div>
               <button type=button @click="showIpv4Info" class="control" style=" background:transparent;">
@@ -29,15 +23,9 @@
             <div id="ipv4_mode_block">
               <div class="setline">
                 <div class="spandiv" id="ipv4_public" style='white-space: nowrap;'>
-                  <span class="span alignment">Mode:</span>
+                  <span class="span alignment">Public:</span>
                   <div style="display: inline-block;min-width: 110px">
-                    <Switch
-                      id="tgl_ipv4_public"
-                      :checked="ipv4Public"
-                      @toggle="toggleIpv4Public"
-                      on-label="Public"
-                      off-label="Private"
-                    />
+                    <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40;" />
                   </div>
                 </div>
               </div>
@@ -46,13 +34,7 @@
                   <div class="spandiv">
                     <span class="span alignment">Detect IP:</span>
                     <div style="display: inline-block;min-width: 110px">
-                      <Switch
-                        id="tgl_ip_autodetect"
-                        :checked="ipAutoDetect"
-                        @toggle="toggleIpAutoDetect"
-                        on-label="Auto"
-                        off-label="Manual"
-                      />
+                      <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #36ad40;" />
                     </div>
                   </div>
                 </div>
@@ -91,13 +73,7 @@
               <div class="spandiv" id="ipv6_enabled">
                 <span class="span alignment">Support:</span>
                 <div style="display: inline-block;min-width: 110px">
-                  <Switch
-                    id="tgl_ipv6_enabled"
-                    :checked="ipv6Enabled"
-                    @toggle="toggleIpv6"
-                    on-label="ON"
-                    off-label="OFF"
-                  />
+                  <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #36ad40;" />
                 </div>
                 <button type=button @click="showIpv6Info" class="control" style=" background:transparent;">
                   <i class='fa fa-question-circle fa-lg'></i>
@@ -163,7 +139,6 @@ import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import Switch from '../components/Switch.vue'
 import { ElLoading } from 'element-plus'
 
 function isValidPort (port) {
@@ -202,8 +177,7 @@ export default {
   },
   components: {
     Error,
-    Dialog,
-    Switch
+    Dialog
   },
   watch: {
     ipv4Enabled (val) {

@@ -17,7 +17,7 @@ tivate
                   <i class='fa fa-question-circle fa-lg'></i>
                 </button>
                 <div class="spandiv" style="margin-left: 10px;">
-                  Multi disk <el-switch v-model="multiMode" style="--el-switch-on-color: #36ad40;" />
+                  Multi disk <el-switch size="large" v-model="multiMode" style="--el-switch-on-color: #36ad40;" />
                 </div>
               </div>
 
