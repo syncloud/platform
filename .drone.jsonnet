@@ -1,7 +1,7 @@
 local name = "platform";
 local browser = "chrome";
 local go = "1.18.2";
-local node = "16.1.0";
+local node = "16.10.0";
 
 local build(arch, testUI) = [{
     kind: "pipeline",
