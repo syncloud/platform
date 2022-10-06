@@ -8,59 +8,52 @@
             <div class="setline">
               <h3>IP v4</h3>
             </div>
-            <div class="setline" style='white-space: nowrap;'>
-              <div class="spandiv" id="ipv4_enabled">
-                <span class="span alignment">Support:</span>
-                <div style="display: inline-block;min-width: 110px">
-                  <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #36ad40;" />
-                </div>
+            <div class="setline" style='display: flex'>
+              <span class="span name-alignment">Support:</span>
+              <div class="value-alignment">
+                <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #36ad40; float: right" />
               </div>
-              <button type=button @click="showIpv4Info" class="control" style=" background:transparent;">
+              <button type=button @click="showIpv4Info" class="control" style="order: 3; background:transparent;">
                 <i class='fa fa-question-circle fa-lg'></i>
               </button>
             </div>
 
             <div id="ipv4_mode_block">
-              <div class="setline">
-                <div class="spandiv" id="ipv4_public" style='white-space: nowrap;'>
-                  <span class="span alignment">Public:</span>
-                  <div style="display: inline-block;min-width: 110px">
-                    <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40;" />
+              <div class="setline" style='display: flex'>
+                  <span class="span name-alignment">Public:</span>
+                  <div class="value-alignment">
+                    <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40; float: right" />
                   </div>
-                </div>
               </div>
               <div id="ipv4_public_block">
-                <div class="setline" style='white-space: nowrap;'>
-                  <div class="spandiv">
-                    <span class="span alignment">Detect IP:</span>
-                    <div style="display: inline-block;min-width: 110px">
-                      <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #36ad40;" />
+                <div class="setline" style='display: flex'>
+                    <span class="span name-alignment">Detect IP:</span>
+                    <div class="value-alignment">
+                      <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #36ad40; float: right" />
                     </div>
-                  </div>
                 </div>
 
-                <div class="setline" id="ipv4_block" style='white-space: nowrap;'>
-                  <label class="span alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
-                  <input id="ipv4" type="text"
+                <div class="setline" id="ipv4_block" style='display: flex'>
+                  <label class="span name-alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
+                  <input class="value-alignment" id="ipv4" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
                          :disabled="ipAutoDetect" v-model="ipv4">
                 </div>
 
-                <div class="setline" style='white-space: nowrap;'>
-                  <div class="spandiv">
-                    <label for="access_port" class="span alignment" style="font-weight: 300">Public port:</label>
-                    <input class="span" id="access_port" type="number"
+                <div class="setline" style='display: flex'>
+                    <label for="access_port" class="span name-alignment" style="font-weight: 300">Public port:</label>
+                    <input class="value-alignment" id="access_port" type="number"
                            style="width: 100px; height: 30px; padding: 0 10px 0 10px"
                            v-model.number="accessPort"
                     />
-                    <button type=button @click="showPortInfo" class="control" style=" background:transparent;">
+                    <button type=button @click="showPortInfo" class="control" style="order: 3; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
                     <button id="access_port_warning" type=button @click="showAccessPortWarning"
-                            class="control" style="background:transparent;" v-show="false">
+                            class="control" style="order: 4; background:transparent;" v-show="false">
                       <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                     </button>
-                  </div>
+
                 </div>
               </div>
             </div>
@@ -69,16 +62,14 @@
               <h3>IP v6</h3>
             </div>
 
-            <div class="setline" style='white-space: nowrap;'>
-              <div class="spandiv" id="ipv6_enabled">
-                <span class="span alignment">Support:</span>
-                <div style="display: inline-block;min-width: 110px">
-                  <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #36ad40;" />
-                </div>
-                <button type=button @click="showIpv6Info" class="control" style=" background:transparent;">
-                  <i class='fa fa-question-circle fa-lg'></i>
-                </button>
+            <div class="setline" style='display: flex'>
+              <span class="span name-alignment">Support:</span>
+              <div class="value-alignment">
+                <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #36ad40; float: right" />
               </div>
+              <button type=button @click="showIpv6Info" class="control" style="order: 3; background:transparent;">
+                <i class='fa fa-question-circle fa-lg'></i>
+              </button>
             </div>
 
             <div class="setline">
@@ -322,7 +313,16 @@ export default {
 @import '../style/site.css';
 @import '../style/material-icons.css';
 
-.alignment {
+.name-alignment {
+  min-width: 100px;
+  display: inline-flex;
+  align-items: center;
+  order: 1;
+}
+
+.value-alignment {
+  order: 2;
   min-width: 130px;
+  margin-right: 5px;
 }
 </style>
