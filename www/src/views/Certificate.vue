@@ -43,10 +43,9 @@
 
 <script>
 import axios from 'axios'
-import $ from 'jquery'
 import 'bootstrap'
 import Error from '../components/Error.vue'
-import 'gasparesganga-jquery-loading-overlay'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Certificate',
@@ -61,7 +60,8 @@ export default {
     return {
       valid: false,
       real: false,
-      validDays: 0
+      validDays: 0,
+      loading: undefined
     }
   },
   mounted () {
@@ -81,10 +81,12 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_updates').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_updates').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     }
   }
 }

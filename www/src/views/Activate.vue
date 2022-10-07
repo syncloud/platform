@@ -288,8 +288,8 @@ import $ from 'jquery'
 import 'bootstrap'
 import Stepper from 'bs-stepper'
 import Error from '../components/Error.vue'
-import 'gasparesganga-jquery-loading-overlay'
 import Dialog from '../components/Dialog.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Activate',
@@ -304,7 +304,7 @@ export default {
   data () {
     return {
       domainType: 'free',
-      loading: false,
+      loading: undefined,
       redirectEmail: '',
       redirectPassword: '',
       domain: '',
@@ -327,10 +327,12 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_activate').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_activate').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     },
     activate (event) {
       event.preventDefault()

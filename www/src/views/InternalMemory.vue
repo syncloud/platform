@@ -33,12 +33,11 @@
 </template>
 
 <script>
-import $ from 'jquery'
 import 'bootstrap'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import 'gasparesganga-jquery-loading-overlay'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'InternalMemory',
@@ -51,7 +50,8 @@ export default {
   },
   data () {
     return {
-      boot: undefined
+      boot: undefined,
+      loading: undefined
     }
   },
   mounted () {
@@ -60,10 +60,12 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#wrapper').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#wrapper').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     },
     extend () {
       this.progressShow()

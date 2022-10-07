@@ -9,7 +9,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: false,
   availableAppsSuccess: true,
-  activated: true,
+  activated: false,
   accessSuccess: true,
   diskActionSuccess: false
 }
