@@ -123,19 +123,19 @@ def test_settings_access(selenium, driver, ui_mode, screenshot_dir):
     header = "//h1[text()='Access']"
     selenium.find_by_xpath(header)
 
-    btn = '//input[@id="tgl_ipv4_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
+    btn = '//input[@id="tgl_ipv4_enabled"]'
     selenium.find_by_xpath(btn).click()
 
-    btn = '//input[@id="tgl_ipv4_public"]/ancestor::div[@class="bootstrap-switch-container"]'
+    btn = '//input[@id="tgl_ipv4_public"]'
     selenium.find_by_xpath(btn).click()
 
-    btn = '//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]'
+    btn = '//input[@id="tgl_ip_autodetect"]'
     selenium.find_by_xpath(btn).click()
 
-    btn = '//input[@id="tgl_ipv6_enabled"]/ancestor::div[@class="bootstrap-switch-container"]'
+    btn = '//input[@id="tgl_ipv6_enabled"]'
     selenium.find_by_xpath(btn).click()
 
-    selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]/ancestor::div[@class="bootstrap-switch-container"]')
+    selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]')
     selenium.screenshot('settings_access')
 
 
