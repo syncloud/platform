@@ -8,7 +8,7 @@
           <div class="col2">
             <div class="setline">
               <span class="span">Send a copy to support</span>
-              <el-switch size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;" active-text="Yes" inactive-text="No" inline-prompt />
+              <el-switch id="switch" size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;" active-text="Yes" inactive-text="No" inline-prompt />
             </div>
             <div class="setline">
               <span class="span">Report Issue:</span>
