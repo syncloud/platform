@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" width="30%" :before-close="close">
+  <el-dialog :modelValue="visible" width="30%" :before-close="close">
     <template #header>
       <h4 class="modal-title">
         <slot name="title"></slot>

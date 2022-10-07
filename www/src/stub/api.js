@@ -1,4 +1,4 @@
-import { createServer, Model, Response } from "miragejs"
+import { createServer, Model, Response } from 'miragejs'
 
 const state = {
   loggedIn: true,
@@ -245,14 +245,13 @@ const bootDiskData = {
   success: true
 }
 
-export function mock() {
+export function mock () {
   createServer({
     models: {
-      author: Model,
+      author: Model
     },
-    routes() {
-  
-      this.post('/rest/login', function (schema, request) {
+    routes () {
+      this.post('/rest/login', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         if (state.credentials.username === attrs.username && state.credentials.password === attrs.password) {
           state.loggedIn = true
@@ -261,7 +260,7 @@ export function mock() {
           return new Response(400, {}, { message: 'Authentication failed' })
         }
       })
-      this.get('/rest/user', function (schema, request) {
+      this.get('/rest/user', function (_schema, _request) {
         if (!state.activated) {
           return new Response(501, {}, { message: 'Not activated' })
         } else {
@@ -272,15 +271,15 @@ export function mock() {
           }
         }
       })
-      this.post('/rest/logout', function (schema, request) {
+      this.post('/rest/logout', function (_schema, _request) {
         state.loggedIn = false
         return new Response(200, {}, { message: 'OK' })
       })
-      this.get('/rest/activation/status', function (schema, request) {
+      this.get('/rest/activation/status', function (_schema, _request) {
         return new Response(200, {}, { data: state.activated })
         // return new Response(500, {}, { message: "unknown activation status" })
       })
-      this.get('/rest/apps/installed', function (schema, request) {
+      this.get('/rest/apps/installed', function (_schema, _request) {
         if (state.activated) {
           const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
           return new Response(200, {}, { data: apps })
@@ -288,45 +287,45 @@ export function mock() {
           return new Response(501, {}, { message: 'Not activated' })
         }
       })
-      this.get('/rest/app', function (schema, request) {
+      this.get('/rest/app', function (_schema, request) {
         const info = store.data.find(info => info.app.id === request.queryParams.app_id)
         return new Response(200, {}, { info: info })
       })
-      this.get('/rest/installer/version', function (schema, request) {
+      this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
       })
-      this.post('/rest/upgrade', function (schema, request) {
+      this.post('/rest/upgrade', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/install', function (schema, request) {
+      this.post('/rest/install', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         installedApps.add(attrs.app_id)
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/remove', function (schema, request) {
+      this.post('/rest/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/restart', function (schema, request) {
+      this.post('/rest/restart', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/shutdown', function (schema, request) {
+      this.post('/rest/shutdown', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.get('/rest/settings/installer_status', function (schema, request) {
+      this.get('/rest/settings/installer_status', function (_schema, _request) {
         state.installerIsRunning = !state.installerIsRunning
         return new Response(200, {}, { success: true, is_running: state.installerIsRunning })
       })
-      this.post('/rest/backup/create', function (schema, request) {
+      this.post('/rest/backup/create', function (_schema, _request) {
         return new Response(200, {}, {})
       })
-      this.get('/rest/job/status', function (schema, request) {
+      this.get('/rest/job/status', function (_schema, _request) {
         state.jobStatusRunning = !state.jobStatusRunning
         return new Response(200, {}, { success: true, data: state.jobStatusRunning ? 'JobStatusBusy' : 'JobStatusIdle' })
       })
-  
-      this.get('/rest/apps/available', function (schema, request) {
+
+      this.get('/rest/apps/available', function (_schema, _request) {
         if (state.availableAppsSuccess) {
           const apps = store.data.map(info => info.app)
           return new Response(200, {}, { data: apps })
@@ -334,51 +333,51 @@ export function mock() {
           return new Response(200, {}, appCenterDataError)
         }
       })
-  
-      this.get('/rest/settings/device_url', function (schema, request) {
+
+      this.get('/rest/settings/device_url', function (_schema, _request) {
         // return new Response(500, {}, deviceUrl)
         return new Response(200, {}, deviceUrl)
       })
-  
-      this.post('/rest/settings/deactivate', function (schema, request) {
+
+      this.post('/rest/settings/deactivate', function (_schema, _request) {
         state.activated = false
         return new Response(200, {}, {})
       })
-  
-      this.get('/rest/backup/list', function (schema, request) {
+
+      this.get('/rest/backup/list', function (_schema, _request) {
         return new Response(200, {}, {
           success: true,
           data: backups
         })
       })
-  
-      this.post('/rest/backup/remove', function (schema, request) {
+
+      this.post('/rest/backup/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         backups = backups.filter(v => v.file !== attrs.file)
         return new Response(200, {}, {})
       })
-  
-      this.post('/rest/backup/restore', function (schema, request) {
+
+      this.post('/rest/backup/restore', function (_schema, _request) {
         return new Response(200, {}, {})
       })
-  
-      this.post('/rest/backup/create', function (schema, request) {
+
+      this.post('/rest/backup/create', function (_schema, _request) {
         return new Response(200, {}, {})
       })
-  
-      this.post('/rest/installer/upgrade', function (schema, request) {
+
+      this.post('/rest/installer/upgrade', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-  
-      this.get('/rest/access/network_interfaces', function (schema, request) {
+
+      this.get('/rest/access/network_interfaces', function (_schema, _request) {
         return new Response(200, {}, networkInterfaces)
       })
-  
-      this.get('/rest/access', function (schema, request) {
+
+      this.get('/rest/access', function (_schema, _request) {
         return new Response(200, {}, accessData)
       })
-  
-      this.post('/rest/access', function (schema, request) {
+
+      this.post('/rest/access', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         state.accessSuccess = !state.accessSuccess
         if (state.accessSuccess) {
@@ -394,50 +393,50 @@ export function mock() {
           return new Response(500, {}, { success: false, message: 'error' })
         }
       })
-      this.get('/rest/storage/disks', function (schema, request) {
+      this.get('/rest/storage/disks', function (_schema, _request) {
         return new Response(200, {}, disksData)
       })
-      this.get('/rest/storage/boot/disk', function (schema, request) {
+      this.get('/rest/storage/boot/disk', function (_schema, _request) {
         return new Response(200, {}, bootDiskData)
       })
-      this.post('/rest/storage/disk/activate', function (schema, request) {
+      this.post('/rest/storage/disk/activate', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, disksData)
         } else {
           return new Response(200, {}, disksDataError)
         }
       })
-      this.post('/rest/storage/disk/deactivate', function (schema, request) {
+      this.post('/rest/storage/disk/deactivate', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, disksData)
         } else {
           return new Response(200, {}, disksDataError)
         }
       })
-      this.post('/rest/storage/boot_extend', function (schema, request) {
+      this.post('/rest/storage/boot_extend', function (_schema, _request) {
         bootDiskData.data.extendable = !bootDiskData.data.extendable
         return new Response(200, {}, { success: true })
       })
-  
-      this.post('/rest/storage/disk_format', function (schema, request) {
+
+      this.post('/rest/storage/disk_format', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, { success: true })
         } else {
-          return new Response(200, {}, { success: false, message: "error" })
+          return new Response(200, {}, { success: false, message: 'error' })
         }
       })
-  
-      this.get('/rest/settings/boot_extend_status', function (schema, request) {
+
+      this.get('/rest/settings/boot_extend_status', function (_schema, _request) {
         return new Response(200, {}, { success: true, is_running: false })
       })
-  
-      this.get('/rest/settings/disk_format_status', function (schema, request) {
+
+      this.get('/rest/settings/disk_format_status', function (_schema, _request) {
         return new Response(200, {}, { success: true, is_running: false })
       })
-      this.post('/rest/send_log', function (schema, request) {
+      this.post('/rest/send_log', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/activate/managed', function (schema, request) {
+      this.post('/rest/activate/managed', function (_schema, _request) {
         state.activated = true
         return new Response(200, {}, { success: true })
         // return new Response(500, {}, {
@@ -448,11 +447,11 @@ export function mock() {
         //   ]
         // })
       })
-      this.post('/rest/activate/custom', function (schema, request) {
+      this.post('/rest/activate/custom', function (_schema, _request) {
         state.activated = true
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/redirect/domain/availability', function (schema, request) {
+      this.post('/rest/redirect/domain/availability', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         if (attrs.domain === '1') {
           return new Response(400, {}, {
@@ -468,14 +467,14 @@ export function mock() {
           })
         }
       })
-      this.get('/rest/redirect_info', function (schema, request) {
+      this.get('/rest/redirect_info', function (_schema, _request) {
         if (state.activated) {
           return new Response(502, {}, { message: 'Device is activated' })
         } else {
           return new Response(200, {}, { success: true, data: { domain: 'test.com' } })
         }
       })
-      this.get('/rest/certificate', function (schema, request) {
+      this.get('/rest/certificate', function (_schema, _request) {
         const info = {
           is_valid: true,
           is_real: false,
@@ -483,7 +482,7 @@ export function mock() {
         }
         return new Response(200, {}, { success: true, data: info })
       })
-      this.get('/rest/certificate/log', function (schema, request) {
+      this.get('/rest/certificate/log', function (_schema, _request) {
         const logs = [
           'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: {"category": "certificate"}',
           'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: ----- {"category": "certificate"}',
@@ -496,6 +495,6 @@ export function mock() {
         ]
         return new Response(200, {}, { success: true, data: logs })
       })
-    },
+    }
   })
 }
