@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import InternalMemory from '@/views/InternalMemory'
+import InternalMemory from '../../src/views/InternalMemory.vue'
 
 jest.setTimeout(30000)
 

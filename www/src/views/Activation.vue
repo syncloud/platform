@@ -30,7 +30,7 @@
 
 <script>
 import axios from 'axios'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import 'bootstrap'
 
 export default {

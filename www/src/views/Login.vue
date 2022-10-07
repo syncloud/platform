@@ -48,7 +48,7 @@
 
 <script>
 import $ from 'jquery'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import axios from 'axios'
 import 'bootstrap'
 

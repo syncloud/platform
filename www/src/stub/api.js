@@ -285,11 +285,11 @@ export function mock() {
           const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
           return new Response(200, {}, { data: apps })
         } else {
-          res.status(501).json({ message: 'Not activated' })
+          return new Response(501, {}, { message: 'Not activated' })
         }
       })
       this.get('/rest/app', function (schema, request) {
-        const info = store.data.find(info => info.app.id === request.params.app_id)
+        const info = store.data.find(info => info.app.id === request.queryParams.app_id)
         return new Response(200, {}, { info: info })
       })
       this.get('/rest/installer/version', function (schema, request) {
@@ -315,15 +315,15 @@ export function mock() {
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/settings/installer_status', function (schema, request) {
-        return new Response(200, {}, { success: true, is_running: state.installerIsRunning })
         state.installerIsRunning = !state.installerIsRunning
+        return new Response(200, {}, { success: true, is_running: state.installerIsRunning })
       })
       this.post('/rest/backup/create', function (schema, request) {
         return new Response(200, {}, {})
       })
       this.get('/rest/job/status', function (schema, request) {
-        return new Response(200, {}, { success: true, data: state.jobStatusRunning ? 'JobStatusBusy' : 'JobStatusIdle' })
         state.jobStatusRunning = !state.jobStatusRunning
+        return new Response(200, {}, { success: true, data: state.jobStatusRunning ? 'JobStatusBusy' : 'JobStatusIdle' })
       })
   
       this.get('/rest/apps/available', function (schema, request) {
@@ -353,7 +353,8 @@ export function mock() {
       })
   
       this.post('/rest/backup/remove', function (schema, request) {
-        backups = backups.filter(v => v.file !== request.params.file)
+        const attrs = JSON.parse(request.requestBody)
+        backups = backups.filter(v => v.file !== attrs.file)
         return new Response(200, {}, {})
       })
   
@@ -379,6 +380,7 @@ export function mock() {
   
       this.post('/rest/access', function (schema, request) {
         const attrs = JSON.parse(request.requestBody)
+        state.accessSuccess = !state.accessSuccess
         if (state.accessSuccess) {
           accessData.data.external_access = attrs.external_access
           if (attrs.public_ip === undefined) {
@@ -391,7 +393,6 @@ export function mock() {
         } else {
           return new Response(500, {}, { success: false, message: 'error' })
         }
-        state.accessSuccess = !state.accessSuccess
       })
       this.get('/rest/storage/disks', function (schema, request) {
         return new Response(200, {}, disksData)
@@ -414,6 +415,7 @@ export function mock() {
         }
       })
       this.post('/rest/storage/boot_extend', function (schema, request) {
+        bootDiskData.data.extendable = !bootDiskData.data.extendable
         return new Response(200, {}, { success: true })
       })
   

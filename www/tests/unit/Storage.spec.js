@@ -2,7 +2,8 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Storage from '../../src/views/Storage'
+import Storage from '../../src/views/Storage.vue'
+import { ElSwitch } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -36,7 +37,7 @@ test('Format', async () => {
               showAxios: showError
             }
           },
-          Switch: true,
+          'el-switch': ElSwitch,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -44,7 +45,7 @@ test('Format', async () => {
               show () {
               }
             }
-          }
+          },
         }
       }
     }
@@ -95,7 +96,7 @@ test('Format error', async () => {
               showAxios: showError
             }
           },
-          Switch: true,
+          'el-switch': ElSwitch,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -154,7 +155,7 @@ test('Format service error', async () => {
               showAxios: showError
             }
           },
-          Switch: true,
+          'el-switch': ElSwitch,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -226,9 +227,7 @@ test('Activate', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button id="switch" />'
-          },
+          'el-switch': ElSwitch,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -244,7 +243,8 @@ test('Activate', async () => {
 
   await flushPromises()
 
-  await wrapper.findAll('#switch')[1].trigger('toggle')
+  await wrapper.find('#disk_1_0').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#partition_confirmation').trigger('confirm')
 
   expect(showError).toHaveBeenCalledTimes(0)
@@ -300,9 +300,7 @@ test('Activate error', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button id="switch" />'
-          },
+         'el-switch': ElSwitch,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -317,10 +315,11 @@ test('Activate error', async () => {
   )
 
   await flushPromises()
-
-  await wrapper.findAll('#switch')[1].trigger('toggle')
+  
+  await wrapper.find('#disk_1_0').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#partition_confirmation').trigger('confirm')
-
+  
   await flushPromises()
 
   expect(error).toBe('not ok')
@@ -376,9 +375,7 @@ test('Activate service error', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button id="switch" />'
-          },
+         'el-switch': ElSwitch,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -393,15 +390,15 @@ test('Activate service error', async () => {
   )
 
   await flushPromises()
-
-  await wrapper.findAll('#switch')[1].trigger('toggle')
+  
+  await wrapper.find('#disk_1_0').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#partition_confirmation').trigger('confirm')
-
+  
   await flushPromises()
 
   expect(error).toBe('not ok')
   expect(deviceAction).toBe('/dev/sdc1')
-  //expect(wrapper.find('.loadingoverlay').hasStyle('display', 'none')).toBe(true)
   wrapper.unmount()
 })
 

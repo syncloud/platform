@@ -120,7 +120,7 @@
 <script>
 import axios from 'axios'
 import $ from 'jquery'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import 'bootstrap'
 import * as Common from '../js/common.js'
 import 'gasparesganga-jquery-loading-overlay'

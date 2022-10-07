@@ -58,7 +58,7 @@ import $ from 'jquery'
 import axios from 'axios'
 import 'bootstrap'
 import * as Common from '../js/common.js'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import 'gasparesganga-jquery-loading-overlay'
 
 export default {

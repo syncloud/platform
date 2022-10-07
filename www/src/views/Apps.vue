@@ -23,7 +23,7 @@
 
 <script>
 import axios from 'axios'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import 'gasparesganga-jquery-loading-overlay'
 import $ from 'jquery'
 

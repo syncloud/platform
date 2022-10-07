@@ -295,9 +295,6 @@ header .hlink {
     -moz-transition: .5s ease-out-in-out;
     -o-transition: .5s ease-out-in-out;
     transition: .5s ease-out-in-out;
-    -webkit-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
     transform: rotate(0deg);
 }
 .menubutton span {
@@ -309,9 +306,6 @@ header .hlink {
     border-radius: 34px;
     opacity: 1;
     left: 0;
-    -webkit-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
     transform: rotate(0deg);
     -webkit-transition: .25s ease-out-in-out;
     -moz-transition: .25s ease-out-in-out;
@@ -332,15 +326,9 @@ header .hlink {
     width: 0;
     left: 50%}
 .menubutton.menuopen span:nth-child(2) {
-    -webkit-transform: rotate(45deg);
-    -moz-transform: rotate(45deg);
-    -o-transform: rotate(45deg);
     transform: rotate(45deg);
 }
 .menubutton.menuopen span:nth-child(3) {
-    -webkit-transform: rotate(-45deg);
-    -moz-transform: rotate(-45deg);
-    -o-transform: rotate(-45deg);
     transform: rotate(-45deg);
 }
 .menubutton.menuopen span:nth-child(4) {
@@ -462,11 +450,11 @@ input:disabled {
     font-size: 14px;
 }
 .nameinput {
-    height: 40px;
+    height: 50px;
     background: url(../assets/nameinput.svg) no-repeat 95% center;
 }
 .passinput {
-    height: 40px;
+    height: 50px;
     background: url(../assets/passinput.svg) no-repeat 95% center;
 }
 .emailinput {
@@ -486,7 +474,6 @@ input:disabled {
     -moz-transition: all .3s ease-out;
     -o-transition: all .3s ease-out;
     -ms-transition: all .3s ease-out;
-    display: inline-block;
     font-size: 16px;
 }
 .buttonblue:hover {
@@ -527,7 +514,6 @@ input:disabled {
     -moz-transition: all .3s ease-out;
     -o-transition: all .3s ease-out;
     -ms-transition: all .3s ease-out;
-    display: inline-block;
     font-size: 16px;
 }
 .buttongreen:hover {

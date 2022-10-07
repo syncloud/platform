@@ -55,7 +55,7 @@
 <script>
 import $ from 'jquery'
 import 'bootstrap'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import toastr from 'toastr'
 import { Grid } from 'ag-grid-community'
 import axios from 'axios'

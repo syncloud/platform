@@ -5,8 +5,8 @@
 </template>
 <script>
 import axios from 'axios'
-import Menu from '@/components/Menu.vue'
-import Error from '@/components/Error.vue'
+import Menu from './components/Menu.vue'
+import Error from './components/Error.vue'
 
 const publicRoutes = [
   '/error',

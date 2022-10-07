@@ -35,7 +35,7 @@
 <script>
 import $ from 'jquery'
 import 'bootstrap'
-import Error from '@/components/Error.vue'
+import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
 import 'gasparesganga-jquery-loading-overlay'
