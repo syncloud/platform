@@ -98,6 +98,7 @@ test('Private ipv4 enable', async () => {
   await flushPromises()
 
   await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -250,6 +251,7 @@ test('Ipv6 enable', async () => {
 
   await flushPromises()
   await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#tgl_ipv6_enabled').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
@@ -299,6 +301,7 @@ test('Ipv6 disable', async () => {
 
   await flushPromises()
   await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#tgl_ipv6_enabled').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
@@ -769,5 +772,133 @@ test('Manual Ipv4 empty value', async () => {
   await flushPromises()
 
   expect(error).toBe('Empty IP')
+  wrapper.unmount()
+})
+
+test('show ipv4 disabled', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: false
+      },
+      success: true
+    }
+  )
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#tgl_ipv4_public').exists()).toBe(false)
+  
+  wrapper.unmount()
+})
+
+test('show ipv4 enabled private', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: true,
+        ipv4_public: false,
+      },
+      success: true
+    }
+  )
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#tgl_ipv4_public').exists()).toBe(true)
+  expect(wrapper.find('#tgl_ip_autodetect').exists()).toBe(false)
+  
+  wrapper.unmount()
+})
+
+test('show ipv4 enabled public auto detect', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: true,
+        ipv4_public: true,
+      },
+      success: true
+    }
+  )
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#tgl_ipv4_public').exists()).toBe(true)
+  expect(wrapper.find('#tgl_ip_autodetect').exists()).toBe(true)
+  expect(wrapper.find('#ipv4').exists()).toBe(false)
+  
   wrapper.unmount()
 })

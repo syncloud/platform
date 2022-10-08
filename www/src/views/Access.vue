@@ -18,14 +18,15 @@
               </button>
             </div>
 
-            <div id="ipv4_mode_block">
+            <Transition>
+            <div id="ipv4_mode_block" v-if="ipv4Enabled">
               <div class="setline" style='display: flex'>
                   <span class="span name-alignment">Public:</span>
                   <div class="value-alignment">
                     <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40; float: right" />
                   </div>
               </div>
-              <div id="ipv4_public_block">
+              <div id="ipv4_public_block" v-if="ipv4Public">
                 <div class="setline" style='display: flex'>
                     <span class="span name-alignment">Detect IP:</span>
                     <div class="value-alignment">
@@ -33,7 +34,7 @@
                     </div>
                 </div>
 
-                <div class="setline" id="ipv4_block" style='display: flex'>
+                <div class="setline" id="ipv4_block" style='display: flex' v-if="!ipAutoDetect">
                   <label class="span name-alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
                   <input class="value-alignment" id="ipv4" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
@@ -50,13 +51,14 @@
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
                     <button id="access_port_warning" type=button @click="showAccessPortWarning"
-                            class="control" style="order: 4; background:transparent;" v-show="false">
+                            class="control" style="order: 4; background:transparent;" v-show="accessPort!==443">
                       <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                     </button>
 
                 </div>
               </div>
             </div>
+            </Transition>
 
             <div class="setline">
               <h3>IP v6</h3>
@@ -125,7 +127,6 @@
 </template>
 
 <script>
-import $ from 'jquery'
 import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
@@ -156,13 +157,13 @@ export default {
   data () {
     return {
       interfaces: undefined,
-      ipAutoDetect: false,
+      ipAutoDetect: undefined,
       ipv4: '',
       accessPort: 443,
       visibility: 'hidden',
-      ipv4Enabled: true,
-      ipv4Public: false,
-      ipv6Enabled: true,
+      ipv4Enabled: undefined,
+      ipv4Public: undefined,
+      ipv6Enabled: undefined,
       loading: undefined
     }
   },
@@ -171,27 +172,11 @@ export default {
     Dialog
   },
   watch: {
-    ipv4Enabled (val) {
-      this.displayIpv4Mode(val)
-    },
     ipv4Public (val) {
-      if (val) {
-        $('#ipv4_public_block').show('slow')
-      } else {
-        $('#ipv4_public_block').hide('slow')
+      if (!val) {
         this.accessPort = 443
       }
     },
-    ipAutoDetect (val) {
-      this.displayIpv4Manual(val)
-    },
-    accessPort (val) {
-      if (val !== 443) {
-        $('#access_port_warning').show('slow')
-      } else {
-        $('#access_port_warning').hide('slow')
-      }
-    }
   },
   mounted () {
     this.progressShow()
@@ -204,20 +189,6 @@ export default {
     progressHide () {
       this.visibility = 'visible'
       this.loading.close()
-    },
-    displayIpv4Manual (val) {
-      if (val) {
-        $('#ipv4_block').hide('slow')
-      } else {
-        $('#ipv4_block').show('slow')
-      }
-    },
-    displayIpv4Mode (val) {
-      if (val) {
-        $('#ipv4_mode_block').show('slow')
-      } else {
-        $('#ipv4_mode_block').hide('slow')
-      }
     },
     showAccessPortWarning () {
       this.$refs.access_port_warning.show()
@@ -294,18 +265,6 @@ export default {
         .then(response => Common.checkForServiceError(response.data, this.reload, onError))
         .catch(onError)
     },
-    toggleIpAutoDetect () {
-      this.ipAutoDetect = !this.ipAutoDetect
-    },
-    toggleIpv4 () {
-      this.ipv4Enabled = !this.ipv4Enabled
-    },
-    toggleIpv4Public () {
-      this.ipv4Public = !this.ipv4Public
-    },
-    toggleIpv6 () {
-      this.ipv6Enabled = !this.ipv6Enabled
-    }
   }
 }
 </script>
@@ -324,5 +283,15 @@ export default {
   order: 2;
   min-width: 130px;
   margin-right: 5px;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

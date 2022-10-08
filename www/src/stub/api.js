@@ -9,7 +9,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: false,
   availableAppsSuccess: true,
-  activated: false,
+  activated: true,
   accessSuccess: true,
   diskActionSuccess: false
 }
@@ -180,8 +180,9 @@ const networkInterfaces = {
 
 const accessData = {
   data: {
-    external_access: false,
-    access_port: 443
+    ipv4_enabled: true,
+    ipv4_public: true,
+    // access_port: 443
     // public_ip: '111.111.111.111'
   },
   success: true

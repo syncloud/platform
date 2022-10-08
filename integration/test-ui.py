@@ -120,22 +120,11 @@ def test_settings_activation(driver, ui_mode, screenshot_dir):
 
 def test_settings_access(selenium, driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'access')
-    header = "//h1[text()='Access']"
-    selenium.find_by_xpath(header)
-
-    btn = '//input[@id="tgl_ipv4_enabled"]'
-    selenium.find_by_xpath(btn).click()
-
-    btn = '//input[@id="tgl_ipv4_public"]'
-    selenium.find_by_xpath(btn).click()
-
-    btn = '//input[@id="tgl_ip_autodetect"]'
-    selenium.find_by_xpath(btn).click()
-
-    btn = '//input[@id="tgl_ipv6_enabled"]'
-    selenium.find_by_xpath(btn).click()
-
-    selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]')
+    selenium.find_by_xpath("//h1[text()='Access']")
+    # selenium.find_by_xpath('//input[@id="tgl_ipv4_enabled"]/../span').click()
+    selenium.find_by_xpath('//input[@id="tgl_ipv4_public"]/../span').click()
+    # selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]/../span').click()
+    # selenium.find_by_xpath('//input[@id="tgl_ipv6_enabled"]/../span').click()
     selenium.screenshot('settings_access')
 
 

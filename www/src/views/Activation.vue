@@ -32,6 +32,7 @@
 import axios from 'axios'
 import Error from '../components/Error.vue'
 import 'bootstrap'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Activation',
@@ -48,12 +49,15 @@ export default {
     Error
   },
   mounted () {
+    this.progressShow()
     axios
       .get('/rest/settings/device_url')
       .then(resp => {
         this.url = resp.data.device_url
+        this.progressHide()
       })
       .catch(err => {
+        this.progressHide()
         this.$refs.error.showAxios(err)
       })
   },
@@ -67,7 +71,15 @@ export default {
         .catch(err => {
           this.$refs.error.showAxios(err)
         })
-    }
+    },
+    progressShow () {
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+    },
+    progressHide () {
+      if (this.loading) {
+        this.loading.close()
+      }
+    },
   }
 }
 </script>

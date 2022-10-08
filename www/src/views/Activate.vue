@@ -42,9 +42,11 @@
                       <br><br>
                       Personal support for your device
                     </li>
-<!--                    <li class="description">Personal support for your device</li>-->
+                    <!--                    <li class="description">Personal support for your device</li>-->
                     <li>
-                      <el-button id="btn_premium_domain" class="buttongreen" type="success" @click="selectPremiumDomain">Select</el-button>
+                      <el-button id="btn_premium_domain" class="buttongreen" type="success"
+                                 @click="selectPremiumDomain">Select
+                      </el-button>
                     </li>
                   </ul>
                 </div>
@@ -66,7 +68,7 @@
                     <li class="description">You will manage DNS records for your domain (like example.com)</li>
                     <li>
                       <el-button id="btn_custom_domain" class="buttongreen" type="success"
-                              @click="selectCustomDomain">
+                                 @click="selectCustomDomain">
                         Select
                       </el-button>
                     </li>
@@ -196,7 +198,7 @@
                 </div>
                 <div style="padding: 10px; float: right;">
                   <el-button id="btn_activate" class="buttonblue" type="primary" @click="activate"
-                          data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
+                             data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
                     Finish
                   </el-button>
                 </div>
@@ -315,14 +317,19 @@ export default {
     }
   },
   mounted () {
+    this.progressShow()
     this.stepper = new Stepper(document.querySelector('.bs-stepper'))
     axios
       .get('/rest/redirect_info')
       .then(response => {
         this.redirect_domain = response.data.data.domain
+        this.progressHide()
       })
       .catch(err => {
-        this.$refs.error.showAxios(err)
+        this.progressHide()
+        if (err.response.status !== 502) {
+          this.$refs.error.showAxios(err)
+        }
       })
   },
   methods: {
