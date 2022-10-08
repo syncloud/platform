@@ -22,6 +22,9 @@ local build(arch, testUI) = [{
         {
             name: "build web",
             image: "node:" + node + "-alpine3.12",
+	    environment: {
+	        "NODE_OPTIONS": "--max_old_space_size=2048",
+	    },
             commands: [
                 //"apk add --update --no-cache python2 alpine-sdk ",
                 "mkdir -p build/platform",
