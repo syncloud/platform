@@ -166,9 +166,10 @@ local build(arch, testUI) = [{
               "./deps.sh",
               "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
             ],
+            privileged: true,
             volumes: [{
-                name: "shm",
-                path: "/dev/shm"
+                name: "videos",
+                path: "/videos"
             }]
         } 
         for mode in ["desktop", "mobile"]

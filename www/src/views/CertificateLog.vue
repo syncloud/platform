@@ -48,6 +48,7 @@ export default {
     axios.get('/rest/certificate/log')
       .then((resp) => {
         this.logs = resp.data.data
+        this.progressHide()
       })
       .catch(err => {
         this.$refs.error.showAxios(err)

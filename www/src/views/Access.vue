@@ -26,6 +26,8 @@
                     <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40; float: right" />
                   </div>
               </div>
+
+              <Transition>
               <div id="ipv4_public_block" v-if="ipv4Public">
                 <div class="setline" style='display: flex'>
                     <span class="span name-alignment">Detect IP:</span>
@@ -34,12 +36,14 @@
                     </div>
                 </div>
 
+                <Transition>
                 <div class="setline" id="ipv4_block" style='display: flex' v-if="!ipAutoDetect">
                   <label class="span name-alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
                   <input class="value-alignment" id="ipv4" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
                          :disabled="ipAutoDetect" v-model="ipv4">
                 </div>
+                </Transition>
 
                 <div class="setline" style='display: flex'>
                     <label for="access_port" class="span name-alignment" style="font-weight: 300">Public port:</label>
@@ -57,6 +61,8 @@
 
                 </div>
               </div>
+              </Transition>
+
             </div>
             </Transition>
 

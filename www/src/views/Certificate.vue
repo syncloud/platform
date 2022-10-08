@@ -66,13 +66,13 @@ export default {
   },
   mounted () {
     this.progressShow()
-
     axios.get('/rest/certificate')
       .then((resp) => {
         const data = resp.data.data
         this.valid = data.is_valid
         this.real = data.is_real
         this.validDays = data.valid_for_days
+        this.progressHide()
       })
       .catch(err => {
         this.$refs.error.showAxios(err)

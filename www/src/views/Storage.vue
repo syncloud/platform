@@ -166,11 +166,12 @@ export default {
     }
   },
   mounted () {
+    this.progressShow()
     this.uiCheckDisks()
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 1)' })
     },
     progressHide () {
       if (this.loading) {
