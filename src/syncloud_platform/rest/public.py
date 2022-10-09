@@ -186,7 +186,6 @@ def app_image():
 @app.route("/rest/installer/upgrade", methods=["POST"])
 @app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
-@app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/disk/deactivate", methods=["POST"])
 @app.route("/rest/storage/disk/activate", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])

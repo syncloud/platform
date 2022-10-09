@@ -22,15 +22,11 @@ func New() *Storage {
 	return &Storage{}
 }
 
-func (storage *Storage) Format(device string) {
+func (storage *Storage) Format(device string) error {
 	log.Println("Running storage format: ", FormatCmd, device)
 	out, err := exec.Command(FormatCmd, device).CombinedOutput()
 	log.Printf("Storage format output %s", out)
-	if err != nil {
-		log.Printf("Storage format failed: %v", err)
-	} else {
-		log.Printf("Storage format completed")
-	}
+	return err
 }
 
 func (storage *Storage) BootExtend() {

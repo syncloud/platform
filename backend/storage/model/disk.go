@@ -6,11 +6,18 @@ import (
 )
 
 type Disk struct {
-	Name       string `json:"name"`
-	Device     string `json:"device"`
-	Size       string `json:"size"`
+	Name       string      `json:"name"`
+	Device     string      `json:"device"`
+	Size       string      `json:"size"`
 	Partitions []Partition `json:"partitions"`
-	Active     bool `json:"active"`
+	Active     bool        `json:"active"`
+}
+
+type UiDeviceEntry struct {
+	Name   string `json:"name"`
+	Device string `json:"device"`
+	Size   string `json:"size"`
+	Active bool   `json:"active"`
 }
 
 func NewDisk(name string, device string, size string, partitions []Partition) *Disk {
@@ -35,9 +42,6 @@ func (d *Disk) HasRootPartition() bool {
 }
 
 func (d *Disk) AddPartition(partition Partition) {
-	if partition.Active {
-		d.Active = true
-	}
 	d.Partitions = append(d.Partitions, partition)
 }
 

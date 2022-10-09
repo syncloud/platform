@@ -1,18 +1,16 @@
 <template>
   <div class="wrapper">
     <div class="content">
-      <div class="block1 wd12" id="block1">
+      <div class="block1" id="block1">
         <h1>Storage</h1>
-
-        <div class="row-no-gutters settingsblock" id="block_storage">
-
+        <div>
           <div class="col2">
             <div class="setline">
 
               <div class="setline" style="margin-top: 20px;">
-                <span class="span" style="font-weight: bold; margin-right: 10px">External disks</span>
-                <div class="spandiv" style="margin-right: 10px;">
-                  Multi disk <el-switch size="large" v-model="multiMode" style="--el-switch-on-color: #36ad40;" />
+                <div class="spandiv" style="font-weight: bold; margin-right: 10px;">
+                  Multi disk
+                  <el-switch size="large" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
                 </div>
                 <button data-toggle="modal" data-target="#help_external_disk" type=button
                         class="control" style="background:transparent;">
@@ -23,51 +21,45 @@
               <div>
                 <span class="span" v-if="disks.length === 0">No external disks found</span>
 
-                <div class="setline" v-if="disks.length !== 0">
-                  <input type="radio" id="disk_none" v-model="activeSingleDisk"
-                         v-bind:value="{ name: 'None', partition: {device: 'none', active: false} }"
-                         :checked="activeSingleDisk.name === 'None'" style="margin-right: 10px;">
-                  <span class="span">None</span>
+                <!--Single disk-->
+                <div v-if="!multiMode">
+                  <el-radio-group v-model="activeSinglePartition" style="display: table;">
+                    <div v-for="(disk, index) in disks" :key="index">
+                      <el-radio v-for="(partition, pindex) in disk.partitions" :key="pindex" :label="partition.device" size="large" border style="min-width: 300px">
+                        <span class="span">
+                          {{ disk.name }}  - {{ partition.size }}
+                        </span>
+                      </el-radio>
+                    </div>
+                    <el-radio label="none" size="large" border style="min-width: 300px" v-if="disks.length !== 0">
+                      <span class="span">None</span>
+                    </el-radio>
+                  </el-radio-group>
                 </div>
 
-                <div v-for="(disk, index) in disks" :key="index">
-                  <div class="setline" style="margin-top: 20px;">
-                    <span class="span" style="font-weight: bold;" :id="'disk_name_' + index">
-                      {{ disk.name }} - {{ disk.size }}
-                    </span>
-                    <div class="spandiv" v-if="!disk.active">
-                      <button class="buttonred bwidth smbutton btn-lg"
-                              :id="'format_' + index"
-                              data-type="format"
-                              data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> "
-                              @click.stop="diskFormatConfirm(index, disk.device, disk.name)">Format
-                      </button>
+                <!--Multi disk-->
+                <div v-if="multiMode">
+                  <el-checkbox-group v-model="activeMultiDisks" size="large">
+                    <div v-for="(disk, index) in disks" :key="index">
+                      <el-checkbox style="min-width: 300px" size="large" border :label="disk.device">
+                        <span class="span">
+                          {{ disk.name }} - {{ disk.size }}
+                        </span>
+                      </el-checkbox>
                     </div>
-                  </div>
-                  <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
-                    <div class="setline" v-if="partition.mountable || partition.active">
-
-                      <input v-if="multiMode" type="checkbox" v-model="partition.active" style="margin-right: 10px;">
-                      <input v-if="!multiMode" type="radio" :id="'disk_' + index + '_' + pindex" v-model="activeSingleDisk"
-                             v-bind:value="{ name: disk.name, partition: partition }"
-                             :checked="partition.active" style="margin-right: 10px;">
-
-                      <span class="span" :id="'partition_name_' + index + '_' + pindex">
-                        Partition - {{ partition.size }}
-                      </span>
-                    </div>
-                  </div>
+                  </el-checkbox-group>
                 </div>
 
+                <!--Save-->
                 <div class="setline">
-                  <br>
                   <div class="spandiv">
                     <button class="submit buttongreen control" id="btn_save" type="submit"
                             data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."
-                            style="width: 150px" @click="diskActionConfirm">Save
+                            style="width: 150px" @click="partitionConfirmationVisible = true">Save
                     </button>
                   </div>
                 </div>
+
               </div>
             </div>
 
@@ -78,26 +70,38 @@
   </div>
   <Error ref="error"/>
 
-  <Confirmation :visible="partitionConfirmationVisible" id="partition_confirmation" @confirm="diskAction" @cancel="partitionConfirmationVisible=false">
+  <Confirmation :visible="partitionConfirmationVisible" id="partition_confirmation" @confirm="diskAction"
+                @cancel="diskActionCancel">
     <template v-slot:title>
-      <span v-if="activeSingleDisk.partition.active">Activate disk</span>
-      <span v-if="!activeSingleDisk.partition.active">Deactivate disk</span>
+      <div v-if="multiMode">
+        <span v-if="activeMultiDisks.length !== 0">Activate multiple disks</span>
+        <span v-if="activeMultiDisks.length === 0">Deactivate disk</span>
+      </div>
+      <div v-if="!multiMode">
+        <span v-if="activeSinglePartition !== 'none'">Activate disk</span>
+        <span v-if="activeSinglePartition === 'none'">Deactivate disk</span>
+      </div>
     </template>
     <template v-slot:text>
-      Your existing data will not be touched or moved<br>
-      <span v-if="activeSingleDisk.partition.active" style="font-weight: bold;">{{ activeSingleDisk.name }}</span>
-      <br>
-      Are you sure?
-    </template>
-  </Confirmation>
-
-  <Confirmation :visible="diskFormatConfirmationVisible" id="disk_format_confirmation" @confirm="diskFormat"
-                @cancel="diskFormatConfirmationVisible = false">
-    <template v-slot:title>Disk format</template>
-    <template v-slot:text>
-      This will destroy all the data on this disk!<br>
-      <span id="disk_name" style="font-weight: bold;">{{ deviceToFormatName }}</span><br>
-      Are you sure?
+      <div style="display: grid" v-if="multiMode">
+        <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
+          {{ descriptionByDisk(device) }}
+        </span>
+        <span v-if="activeMultiDisks.length !== 0" style="color: Tomato;">
+          It will remove all data on them!
+        </span>
+        <span>Are you sure?</span>
+      </div>
+      <div style="display: grid" v-if="!multiMode">
+        <span v-if="activeSinglePartition !== 'none'" style="font-weight: bold;">
+          {{ descriptionByPartition(activeSinglePartition) }}
+        </span>
+        <span v-if="activeSinglePartition !== 'none'">
+          Initialize disk by removing all data on it?
+          <el-switch size="large" v-model="format" style="--el-switch-on-color: Tomato;"/>
+        </span>
+        <span>Are you sure?</span>
+      </div>
     </template>
   </Confirmation>
 
@@ -115,8 +119,7 @@
             <div class="btext">
               Every app is configured to use storage provided by the system (which is available at /data).
               This setting screen allows you to choose which attached disk to use for that storage.<br>
-              Currently you can activate only one storage at a time.
-              When activating a disk partition existing data will not be copied to the selected disk.<br><br>
+              When activating a disk existing data is not copied to the selected disk.<br><br>
               You can initialize a disk by formatting it to clear all the data or to make it compatible with the system.
             </div>
 
@@ -151,18 +154,12 @@ export default {
   data () {
     return {
       disks: [],
-      deviceToFormat: undefined,
-      deviceToFormatIndex: undefined,
-      deviceToFormatName: undefined,
-      partitionActionDiskName: undefined,
-      partitionActionDevice: undefined,
-      partitionAction: undefined,
       multiMode: false,
-      activeSingleDisk: { name: 'None', partition: { device: 'none', active: false } },
-      activeMultiDisks: [],
       partitionConfirmationVisible: false,
-      diskFormatConfirmationVisible: false,
-      loading: undefined
+      loading: undefined,
+      format: false,
+      activeSinglePartition: undefined,
+      activeMultiDisks: []
     }
   },
   mounted () {
@@ -178,61 +175,37 @@ export default {
         this.loading.close()
       }
     },
-    diskFormatConfirm (index, device, name) {
-      this.deviceToFormatIndex = index
-      this.deviceToFormat = device
-      this.deviceToFormatName = name
-      this.diskFormatConfirmationVisible = true
-    },
-    diskFormat () {
-      this.diskFormatConfirmationVisible = false
-      this.progressShow()
-      const error = this.$refs.error
-      const that = this
-      const onError = (err) => {
-        this.progressHide()
-        error.showAxios(err)
-        this.uiCheckDisks()
-      }
-
-      axios.post('/rest/storage/disk_format', { device: this.deviceToFormat })
-        .then(function (resp) {
-          Common.checkForServiceError(resp.data, function () {
-            Common.runAfterJobIsComplete(
-              setTimeout,
-              that.uiCheckDisks,
-              onError,
-              Common.JOB_STATUS_URL,
-              Common.JOB_STATUS_PREDICATE)
-          }, onError)
-        })
-        .catch(onError)
-    },
     uiCheckDisks () {
       axios.get('/rest/storage/disks')
         .then(resp => {
+          this.format = false;
           this.disks = resp.data.data
-          const activeDisk = this.disks.find(d => d.active)
-          if (activeDisk) {
-            this.activeSingleDisk = {
-              name: activeDisk.name,
-              partition: activeDisk.partitions.find(p => p.active)
-            }
+          const activeDisks = this.disks.filter(d => d.active).map(d => d.device)
+          if (activeDisks.length > 0) {
+            this.activeMultiDisks = activeDisks
+            this.multiMode = true
+          } {
+            this.activeSinglePartition = this.disks.flatMap(d => d.partitions).find(p => p.active).device
+            this.multiMode = false
           }
           this.progressHide()
         })
         .catch(err => {
-          console.debug(err)
-
           this.progressHide()
           this.$refs.error.showAxios(err)
         })
     },
-    diskActionConfirm () {
-      this.partitionActionDiskName = this.activeSingleDisk.name
-      this.partitionActionDevice = this.activeSingleDisk.partition.device
-      this.partitionAction = !this.activeSingleDisk.partition.active
-      this.partitionConfirmationVisible = true
+    descriptionByDisk(device) {
+      let disk = this.disks.find(d => d.device === device)
+      return disk.name + " - " + disk.size
+    },
+    descriptionByPartition(device) {
+      let disk = this.disks.find(d => d.partitions.some(p => p.device === device))
+      return disk.name + " - " + disk.partitions.find(p => p.device === device).size
+    },
+    diskActionCancel () {
+      this.partitionConfirmationVisible=false
+      this.format = false;
     },
     diskAction () {
       this.partitionConfirmationVisible = false
@@ -244,13 +217,28 @@ export default {
         error.showAxios(err)
         this.uiCheckDisks()
       }
-      const mode = this.partitionAction ? 'activate' : 'deactivate'
-      axios.post('/rest/storage/disk/' + mode, { device: this.activeSingleDisk.partition.device })
+      let request = {}
+      let mode = 'deactivate'
+      if (this.multiMode) {
+        if (this.activeMultiDisks.length !== 0) {
+          mode = 'activate_multi'
+          request = {
+            devices: this.activeMultiDisks
+          }
+        }
+      } else {
+        if (this.activeSinglePartition !== 'none') {
+          mode = 'activate'
+          request = {
+            device: this.activeSinglePartition,
+            format: this.format
+          }
+        }
+      }
+      axios
+        .post('/rest/storage/disk/' + mode, request)
         .then(resp => {
-          Common.checkForServiceError(
-            resp.data,
-            that.uiCheckDisks,
-            onError)
+          Common.checkForServiceError(resp.data, that.uiCheckDisks, onError)
         })
         .catch(onError)
     }

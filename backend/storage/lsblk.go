@@ -110,17 +110,7 @@ func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
 }
 
 func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
-	mountable := false
 	mountPoint := lsblkEntry.MountPoint
-	if !lsblkEntry.IsExtendedPartition() {
-		if mountPoint == "" || mountPoint == l.systemConfig.ExternalDiskDir() {
-			mountable = true
-		}
-	}
-
-	if lsblkEntry.IsBootDisk() {
-		mountable = false
-	}
 	active := false
 	if mountPoint == l.systemConfig.ExternalDiskDir() && l.pathChecker.ExternalDiskLinkExists() {
 		active = true
@@ -131,8 +121,7 @@ func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
 		Device:     lsblkEntry.Name,
 		MountPoint: mountPoint,
 		Active:     active,
-		FsType:     lsblkEntry.GetFsType(),
-		Mountable:  mountable}
+		FsType:     lsblkEntry.GetFsType()}
 }
 
 func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {

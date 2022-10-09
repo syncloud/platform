@@ -17,12 +17,10 @@ func init() {
 }
 
 type Disks struct {
-	config  DisksConfig
-	trigger DisksEventTrigger
-	lsblk   DisksLsblk
-	//pathChecker PathChecker
-	systemd DisksSystemd
-	//executor cli.CommandExecutor
+	config           DisksConfig
+	trigger          DisksEventTrigger
+	lsblk            DisksLsblk
+	systemd          DisksSystemd
 	freeSpaceChecker DisksFreeSpaceChecker
 	linker           DisksLinker
 	logger           *zap.Logger
@@ -61,20 +59,16 @@ func NewDisks(
 	config DisksConfig,
 	trigger DisksEventTrigger,
 	lsblk DisksLsblk,
-	//pathChecker PathChecker,
 	systemd DisksSystemd,
-	//executor cli.CommandExecutor,
 	freeSpaceChecker DisksFreeSpaceChecker,
 	linker DisksLinker,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
-		config:  config,
-		systemd: systemd,
-		trigger: trigger,
-		lsblk:   lsblk,
-		//pathChecker: pathChecker,
-		//executor: executor,
+		config:           config,
+		systemd:          systemd,
+		trigger:          trigger,
+		lsblk:            lsblk,
 		freeSpaceChecker: freeSpaceChecker,
 		linker:           linker,
 		logger:           logger,
@@ -104,6 +98,10 @@ func (d *Disks) RootPartition() (*model.Partition, error) {
 
 func (d *Disks) AvailableDisks() (*[]model.Disk, error) {
 	return d.lsblk.AvailableDisks()
+}
+
+func (d *Disks) ActivateMultiDisk(_ []string) error {
+	return fmt.Errorf("not implemented yet")
 }
 
 func (d *Disks) ActivateDisk(device string) error {

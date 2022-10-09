@@ -177,7 +177,15 @@ NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PA
 			disk = d
 		}
 	}
-	assert.True(t, disk.Active)
+	assert.False(t, disk.Active)
+
+	var partition model.Partition
+	for _, p := range disk.Partitions {
+		if p.Device == "/dev/sdb3" {
+			partition = p
+		}
+	}
+	assert.True(t, partition.Active)
 }
 
 func TestLsblk_AvailableDisks_IsExternalDiskDetached(t *testing.T) {

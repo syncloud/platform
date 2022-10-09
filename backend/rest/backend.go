@@ -101,11 +101,11 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
 	r.HandleFunc("/installer/upgrade", Handle(b.InstallerUpgrade)).Methods("POST")
 	r.HandleFunc("/installer/version", Handle(b.InstallerVersion)).Methods("GET")
-	r.HandleFunc("/storage/disk_format", Handle(b.StorageFormat)).Methods("POST")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
 	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
 	r.HandleFunc("/storage/disk/activate", Handle(b.StorageDiskActivate)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate_multi", Handle(b.StorageMultiDiskActivate)).Methods("POST")
 	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
@@ -238,17 +238,6 @@ func (b *Backend) JobStatus(_ *http.Request) (interface{}, error) {
 	return b.JobMaster.Status().String(), nil
 }
 
-func (b *Backend) StorageFormat(req *http.Request) (interface{}, error) {
-	var request model.StorageFormatRequest
-	err := json.NewDecoder(req.Body).Decode(&request)
-	if err != nil {
-		fmt.Printf("parse error: %v\n", err.Error())
-		return nil, errors.New("device is missing")
-	}
-	_ = b.JobMaster.Offer(func() { b.storage.Format(request.Device) })
-	return "submitted", nil
-}
-
 func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 	var request model.EventTriggerRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
@@ -336,8 +325,25 @@ func (b *Backend) StorageDiskActivate(req *http.Request) (interface{}, error) {
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err.Error())
-		return nil, errors.New("invalid disk activate request")
+		return nil, err
+	}
+	if request.Format {
+		err = b.storage.Format(request.Device)
+		if err != nil {
+			fmt.Printf("format error: %v\n", err.Error())
+			return nil, err
+		}
 	}
 
 	return "OK", b.disks.ActivateDisk(request.Device)
+}
+
+func (b *Backend) StorageMultiDiskActivate(req *http.Request) (interface{}, error) {
+	var request model.StorageMultiDiskActivateRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, err
+	}
+	return "OK", b.disks.ActivateMultiDisk(request.Devices)
 }

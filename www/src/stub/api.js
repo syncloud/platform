@@ -193,15 +193,12 @@ const disksData = {
     {
       name: 'My Passport 0837',
       device: '/dev/sdb',
-      active: true,
+      active: false,
       size: '931.5G',
       partitions: [
         {
           active: true,
           device: '/dev/sdb1',
-          fs_type: 'ntfs',
-          mount_point: '/opt/disk/external',
-          mountable: true,
           size: '931.5G'
         }
       ]
@@ -215,16 +212,13 @@ const disksData = {
         {
           active: false,
           device: '/dev/sdc1',
-          fs_type: 'ntfs',
-          mount_point: '',
-          mountable: true,
           size: '931.5G'
         }
       ]
     },
     {
       name: 'Blank Disk',
-      device: '/dev/sdb',
+      device: '/dev/sdd',
       size: '100 TB',
       partitions: []
     }
@@ -417,14 +411,6 @@ export function mock () {
       this.post('/rest/storage/boot_extend', function (_schema, _request) {
         bootDiskData.data.extendable = !bootDiskData.data.extendable
         return new Response(200, {}, { success: true })
-      })
-
-      this.post('/rest/storage/disk_format', function (_schema, _request) {
-        if (state.diskActionSuccess) {
-          return new Response(200, {}, { success: true })
-        } else {
-          return new Response(200, {}, { success: false, message: 'error' })
-        }
       })
 
       this.get('/rest/settings/boot_extend_status', function (_schema, _request) {
