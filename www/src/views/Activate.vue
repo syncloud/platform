@@ -80,7 +80,7 @@
                 <div v-if="domainType === 'free'">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Domain Account</h2>
-                    <button @click="showFreeAccountHelp" type=button
+                    <button @click="showFreeAccountHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -102,7 +102,7 @@
                   </div>
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showManagedDomainHelp" type=button
+                    <button @click="showManagedDomainHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -119,7 +119,7 @@
                 <div v-if=" domainType === 'custom' ">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showCustomDomainHelp" type=button
+                    <button @click="showCustomDomainHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
