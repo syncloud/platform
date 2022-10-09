@@ -25,7 +25,7 @@
                 <div v-if="!multiMode">
                   <el-radio-group v-model="activeSinglePartition" style="display: table;">
                     <div v-for="(disk, index) in disks" :key="index">
-                      <el-radio v-for="(partition, pindex) in disk.partitions" :key="pindex" :label="partition.device" size="large" border style="min-width: 300px">
+                      <el-radio v-for="(partition, pindex) in disk.partitions" :key="pindex" :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large" border style="min-width: 300px">
                         <span class="span">
                           {{ disk.name }}  - {{ partition.size }}
                         </span>
@@ -181,11 +181,14 @@ export default {
           this.format = false;
           this.disks = resp.data.data
           const activeDisks = this.disks.filter(d => d.active).map(d => d.device)
-          if (activeDisks.length > 0) {
+          if (activeDisks && activeDisks.length > 0) {
             this.activeMultiDisks = activeDisks
             this.multiMode = true
           } {
-            this.activeSinglePartition = this.disks.flatMap(d => d.partitions).find(p => p.active).device
+            let activePartition = this.disks.flatMap(d => d.partitions).find(p => p.active)
+            if (activePartition) {
+              this.activeSinglePartition = activePartition.device
+            }
             this.multiMode = false
           }
           this.progressHide()

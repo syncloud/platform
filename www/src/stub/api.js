@@ -197,7 +197,7 @@ const disksData = {
       size: '931.5G',
       partitions: [
         {
-          active: true,
+          active: false,
           device: '/dev/sdb1',
           size: '931.5G'
         }

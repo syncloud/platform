@@ -3,11 +3,11 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Storage from '../../src/views/Storage.vue'
-import { ElSwitch } from 'element-plus'
+import { ElSwitch, ElRadio, ElRadioGroup, ElCheckbox, ElCheckboxGroup } from 'element-plus'
 
 jest.setTimeout(30000)
 
-test('Activate', async () => {
+test('Activate single partition', async () => {
   let deviceAction = ''
   const showError = jest.fn()
 
@@ -18,10 +18,10 @@ test('Activate', async () => {
         {
           name: 'Name1',
           device: '/dev/sdb',
-          active: true,
+          active: false,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdb1', fs_type: 'ext4', mount_point: '', mountable: true, size: '931.5G' }
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
           ]
         },
         {
@@ -30,7 +30,7 @@ test('Activate', async () => {
           active: false,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdc1', fs_type: 'ext4', mount_point: '', mountable: true, size: '931.5G' }
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
           ]
         }
       ],
@@ -54,6 +54,10 @@ test('Activate', async () => {
             }
           },
           'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -69,7 +73,7 @@ test('Activate', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#disk_1_0').trigger('click')
+  await wrapper.find('#partition_1_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#partition_confirmation').trigger('confirm')
 
@@ -78,7 +82,7 @@ test('Activate', async () => {
   wrapper.unmount()
 })
 
-test('Activate error', async () => {
+test('Activate single partition error', async () => {
   let deviceAction = ''
   let error = ''
   const showError = (err) => {
@@ -94,7 +98,7 @@ test('Activate error', async () => {
           active: true,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdb1', fs_type: 'ext4', mount_point: '', mountable: true, size: '931.5G' }
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
           ]
         },
         {
@@ -103,7 +107,7 @@ test('Activate error', async () => {
           active: false,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdc1', fs_type: 'ext4', mount_point: '', mountable: true, size: '931.5G' }
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
           ]
         }
       ],
@@ -126,7 +130,11 @@ test('Activate error', async () => {
               showAxios: showError
             }
           },
-         'el-switch': ElSwitch,
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -142,7 +150,7 @@ test('Activate error', async () => {
 
   await flushPromises()
   
-  await wrapper.find('#disk_1_0').trigger('click')
+  await wrapper.find('#partition_1_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#partition_confirmation').trigger('confirm')
   
@@ -153,7 +161,7 @@ test('Activate error', async () => {
   wrapper.unmount()
 })
 
-test('Activate service error', async () => {
+test('Activate single partition service error', async () => {
   let deviceAction = ''
   let error = ''
   const showError = (err) => {
@@ -169,7 +177,7 @@ test('Activate service error', async () => {
           active: true,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdb1', fs_type: 'ext4', mount_point: '', mountable: true, size: '931.5G' }
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
           ]
         },
         {
@@ -178,7 +186,7 @@ test('Activate service error', async () => {
           active: false,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdc1', fs_type: 'ext4', mount_point: '', mountable: true, size: '931.5G' }
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
           ]
         }
       ],
@@ -201,7 +209,11 @@ test('Activate service error', async () => {
               showAxios: showError
             }
           },
-         'el-switch': ElSwitch,
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -217,7 +229,7 @@ test('Activate service error', async () => {
 
   await flushPromises()
   
-  await wrapper.find('#disk_1_0').trigger('click')
+  await wrapper.find('#partition_1_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#partition_confirmation').trigger('confirm')
   
