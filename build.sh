@@ -28,16 +28,16 @@ wget http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates
 dpkg -x ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb .
 mv usr/share/ca-certificates/mozilla ${BUILD_DIR}/certs
 
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/nginx/nginx-${ARCH}.tar.gz
+wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/nginx/nginx-${ARCH}.tar.gz
 tar xf nginx-${ARCH}.tar.gz
 mv nginx ${BUILD_DIR}
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/gptfdisk/gptfdisk-${ARCH}.tar.gz
+wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/gptfdisk/gptfdisk-${ARCH}.tar.gz
 tar xf gptfdisk-${ARCH}.tar.gz
 mv gptfdisk ${BUILD_DIR}
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz
+wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
-wget -c --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz
+wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz
 tar xf btrfs-${ARCH}.tar.gz
 mv btrfs ${BUILD_DIR}
 
