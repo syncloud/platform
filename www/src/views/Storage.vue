@@ -25,11 +25,13 @@
                 <div v-if="!multiMode">
                   <el-radio-group v-model="activeSinglePartition" style="display: table;">
                     <div v-for="(disk, index) in disks" :key="index">
-                      <el-radio v-for="(partition, pindex) in disk.partitions" :key="pindex" :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large" border style="min-width: 300px">
+                      <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
+                        <el-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large" border style="min-width: 300px">
                         <span class="span">
                           {{ disk.name }}  - {{ partition.size }}
                         </span>
-                      </el-radio>
+                        </el-radio>
+                      </div>
                     </div>
                     <el-radio label="none" size="large" border style="min-width: 300px" v-if="disks.length !== 0">
                       <span class="span">None</span>

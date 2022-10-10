@@ -200,6 +200,11 @@ const disksData = {
           active: false,
           device: '/dev/sdb1',
           size: '931.5G'
+        },
+        {
+          active: false,
+          device: '/dev/sdb2',
+          size: '931.5G'
         }
       ]
     },
