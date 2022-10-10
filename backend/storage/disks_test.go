@@ -119,7 +119,7 @@ func (d DisksLinkerStub) RelinkDisk(_ string, _ string) error {
 func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: true}, &DisksLinkerStub{}, log.Default())
 	partition, err := disks.RootPartition()
@@ -130,7 +130,7 @@ func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: false}, &DisksLinkerStub{}, log.Default())
 	partition, err := disks.RootPartition()
@@ -141,7 +141,7 @@ func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
 	err := disks.DeactivateDisk()
@@ -151,7 +151,7 @@ func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
 	err := disks.DeactivateDisk()
@@ -161,7 +161,7 @@ func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false},
 	}
 	callOrder := &CallOrder{order: 0}
 	trigger := &TriggerStub{error: false, callOrderShared: callOrder}
@@ -176,7 +176,7 @@ func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 func TestDisks_ActivateDisk_SupportedFs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false, false}}, false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
 	err := disks.ActivateDisk("/dev/sda1")
@@ -186,7 +186,7 @@ func TestDisks_ActivateDisk_SupportedFs(t *testing.T) {
 func TestDisks_ActivateDisk_Btrfs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false, false}}, false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
 	err := disks.ActivateDisk("/dev/sda1")
@@ -196,7 +196,7 @@ func TestDisks_ActivateDisk_Btrfs(t *testing.T) {
 func TestDisks_ActivateDisk_NotSupportedFs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false, false}}, false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
 	err := disks.ActivateDisk("/dev/sda1")
