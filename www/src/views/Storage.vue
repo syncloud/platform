@@ -4,7 +4,7 @@
       <div class="block1" id="block1">
         <h1>Storage</h1>
         <div>
-          <div class="col2">
+          <div class="col2" style="padding-left: 5%">
             <div class="setline">
 
               <div class="setline" style="margin-top: 20px;">
@@ -26,15 +26,15 @@
                   <el-radio-group v-model="activeSinglePartition" style="display: table;">
                     <div v-for="(disk, index) in disks" :key="index">
                       <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
-                        <el-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large" border style="min-width: 300px">
-                        <span class="span">
+                        <el-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large" border style="min-width:300px; max-width: 300px">
+                        <span style="white-space: normal;">
                           {{ disk.name }}  - {{ partition.size }}
                         </span>
                         </el-radio>
                       </div>
                     </div>
                     <el-radio label="none" size="large" border style="min-width: 300px" v-if="disks.length !== 0">
-                      <span class="span">None</span>
+                      <span>None</span>
                     </el-radio>
                   </el-radio-group>
                 </div>
@@ -43,8 +43,8 @@
                 <div v-if="multiMode">
                   <el-checkbox-group v-model="activeMultiDisks" size="large">
                     <div v-for="(disk, index) in disks" :key="index">
-                      <el-checkbox style="min-width: 300px" size="large" border :label="disk.device">
-                        <span class="span">
+                      <el-checkbox style="min-width:300px; max-width: 300px" size="large" border :label="disk.device">
+                        <span  style="white-space: normal;">
                           {{ disk.name }} - {{ disk.size }}
                         </span>
                       </el-checkbox>

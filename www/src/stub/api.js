@@ -209,7 +209,7 @@ const disksData = {
       ]
     },
     {
-      name: 'My Passport 0990',
+      name: 'My Passport 0990 Toooo Looooong Naaaame',
       device: '/dev/sdc',
       active: false,
       size: '931.5G',
