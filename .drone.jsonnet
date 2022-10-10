@@ -26,9 +26,10 @@ local build(arch, testUI) = [{
 	        "NODE_OPTIONS": "--max_old_space_size=2048",
 	    },
             commands: [
-                //"apk add --update --no-cache python2 alpine-sdk ",
                 "mkdir -p build/platform",
                 "cd www",
+		"npm config set fetch-retry-mintimeout 20000",
+                "npm config set fetch-retry-maxtimeout 120000",
                 "npm install",
                 "npm run test",
                 "npm run lint",
