@@ -95,10 +95,10 @@ test('Activate single partition error', async () => {
         {
           name: 'Name1',
           device: '/dev/sdb',
-          active: true,
+          active: false,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdb1', size: '931.5G' }
+            { active: true, device: '/dev/sdb1', size: '931.5G' }
           ]
         },
         {
@@ -174,10 +174,10 @@ test('Activate single partition service error', async () => {
         {
           name: 'Name1',
           device: '/dev/sdb',
-          active: true,
+          active: false,
           size: '2G',
           partitions: [
-            { active: false, device: '/dev/sdb1', size: '931.5G' }
+            { active: true, device: '/dev/sdb1', size: '931.5G' }
           ]
         },
         {
@@ -240,3 +240,288 @@ test('Activate single partition service error', async () => {
   wrapper.unmount()
 })
 
+
+test('Activate multiple disks', async () => {
+  let devices = ''
+  let error = ''
+  const showError = (err) => {
+    error = err
+  }
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: [
+        {
+          name: 'Name1',
+          device: '/dev/sdb',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
+          ]
+        },
+        {
+          name: 'Name2',
+          device: '/dev/sdc',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
+          ]
+        }
+      ],
+      success: true
+    }
+  )
+  mock.onPost('/rest/storage/disk/activate_multi').reply(function (config) {
+    devices = JSON.parse(config.data).devices
+    return [200, { success: true }]
+  })
+  
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          Confirmation: {
+            template: '<button :id="id" />',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+  
+  await flushPromises()
+  
+  await wrapper.find('#multi').trigger('click')
+  await wrapper.find('#disk_0').trigger('click')
+  await wrapper.find('#disk_1').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
+  await wrapper.find('#partition_confirmation').trigger('confirm')
+  
+  await flushPromises()
+  
+  expect(error).toBe('')
+  expect(devices).toEqual(['/dev/sdb', '/dev/sdc'])
+  wrapper.unmount()
+})
+
+
+test('Show single partition', async () => {
+  const showError = jest.fn()
+  
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: [
+        {
+          name: 'Name1',
+          device: '/dev/sdb',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: true, device: '/dev/sdb1', size: '931.5G' }
+          ]
+        },
+        {
+          name: 'Name2',
+          device: '/dev/sdc',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
+          ]
+        }
+      ],
+      success: true
+    }
+  )
+
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          Confirmation: {
+            template: '<button :id="id" />',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+  
+  await flushPromises()
+  
+  await expect(wrapper.find('#partition_0_0').classes()).toContain('is-checked')
+  
+  expect(showError).toHaveBeenCalledTimes(0)
+  wrapper.unmount()
+})
+
+test('Show single partition none', async () => {
+  const showError = jest.fn()
+  
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: [
+        {
+          name: 'Name1',
+          device: '/dev/sdb',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
+          ]
+        },
+        {
+          name: 'Name2',
+          device: '/dev/sdc',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
+          ]
+        }
+      ],
+      success: true
+    }
+  )
+
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          Confirmation: {
+            template: '<button :id="id" />',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+  
+  await flushPromises()
+  
+  await expect(wrapper.find('#none').classes()).toContain('is-checked')
+  
+  expect(showError).toHaveBeenCalledTimes(0)
+  wrapper.unmount()
+})
+
+test('Show multi disk', async () => {
+  const showError = jest.fn()
+  
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: [
+        {
+          name: 'Name1',
+          device: '/dev/sdb',
+          active: true,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
+          ]
+        },
+        {
+          name: 'Name2',
+          device: '/dev/sdc',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdc1', size: '931.5G' }
+          ]
+        }
+      ],
+      success: true
+    }
+  )
+
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          Confirmation: {
+            template: '<button :id="id" />',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+  
+  await flushPromises()
+  
+  await expect(wrapper.find('#multi').attributes('aria-checked')).toBe("true")
+  await expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).toContain('is-checked')
+  await expect(wrapper.find('#disk_1').element.parentElement.getAttribute('class')).not.toContain('is-checked')
+  
+  expect(showError).toHaveBeenCalledTimes(0)
+  wrapper.unmount()
+})

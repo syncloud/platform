@@ -193,7 +193,7 @@ const disksData = {
     {
       name: 'My Passport 0837',
       device: '/dev/sdb',
-      active: false,
+      active: true,
       size: '931.5G',
       partitions: [
         {
@@ -211,7 +211,7 @@ const disksData = {
     {
       name: 'My Passport 0990 Toooo Looooong Naaaame',
       device: '/dev/sdc',
-      active: false,
+      active: true,
       size: '931.5G',
       partitions: [
         {

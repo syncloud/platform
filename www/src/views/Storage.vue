@@ -10,7 +10,7 @@
               <div class="setline" style="margin-top: 20px;">
                 <div class="spandiv" style="font-weight: bold; margin-right: 10px;">
                   Multi disk
-                  <el-switch size="large" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
+                  <el-switch size="large" id="multi" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
                 </div>
                 <button data-toggle="modal" data-target="#help_external_disk" type=button
                         class="control" style="background:transparent;">
@@ -26,14 +26,15 @@
                   <el-radio-group v-model="activeSinglePartition" style="display: table;">
                     <div v-for="(disk, index) in disks" :key="index">
                       <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
-                        <el-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large" border style="min-width:300px; max-width: 300px">
+                        <el-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large"
+                                  border class="disk">
                         <span style="white-space: normal;">
                           {{ disk.name }}  - {{ partition.size }}
                         </span>
                         </el-radio>
                       </div>
                     </div>
-                    <el-radio label="none" size="large" border style="min-width: 300px" v-if="disks.length !== 0">
+                    <el-radio id="none" label="none" size="large" border class="disk" v-if="disks.length !== 0">
                       <span>None</span>
                     </el-radio>
                   </el-radio-group>
@@ -43,8 +44,8 @@
                 <div v-if="multiMode">
                   <el-checkbox-group v-model="activeMultiDisks" size="large">
                     <div v-for="(disk, index) in disks" :key="index">
-                      <el-checkbox style="min-width:300px; max-width: 300px" size="large" border :label="disk.device">
-                        <span  style="white-space: normal;">
+                      <el-checkbox :id="'disk_' + index" class="disk" size="large" border :label="disk.device">
+                        <span style="white-space: normal;">
                           {{ disk.name }} - {{ disk.size }}
                         </span>
                       </el-checkbox>
@@ -160,7 +161,7 @@ export default {
       partitionConfirmationVisible: false,
       loading: undefined,
       format: false,
-      activeSinglePartition: undefined,
+      activeSinglePartition: 'none',
       activeMultiDisks: []
     }
   },
@@ -180,13 +181,13 @@ export default {
     uiCheckDisks () {
       axios.get('/rest/storage/disks')
         .then(resp => {
-          this.format = false;
+          this.format = false
           this.disks = resp.data.data
           const activeDisks = this.disks.filter(d => d.active).map(d => d.device)
           if (activeDisks && activeDisks.length > 0) {
             this.activeMultiDisks = activeDisks
             this.multiMode = true
-          } {
+          } else {
             let activePartition = this.disks.flatMap(d => d.partitions).find(p => p.active)
             if (activePartition) {
               this.activeSinglePartition = activePartition.device
@@ -200,17 +201,17 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    descriptionByDisk(device) {
+    descriptionByDisk (device) {
       let disk = this.disks.find(d => d.device === device)
-      return disk.name + " - " + disk.size
+      return disk.name + ' - ' + disk.size
     },
-    descriptionByPartition(device) {
+    descriptionByPartition (device) {
       let disk = this.disks.find(d => d.partitions.some(p => p.device === device))
-      return disk.name + " - " + disk.partitions.find(p => p.device === device).size
+      return disk.name + ' - ' + disk.partitions.find(p => p.device === device).size
     },
     diskActionCancel () {
-      this.partitionConfirmationVisible=false
-      this.format = false;
+      this.partitionConfirmationVisible = false
+      this.format = false
     },
     diskAction () {
       this.partitionConfirmationVisible = false
@@ -253,4 +254,9 @@ export default {
 <style>
 @import '../style/site.css';
 @import '../style/material-icons.css';
+
+.disk {
+  min-width: 300px;
+  max-width: 300px
+}
 </style>
