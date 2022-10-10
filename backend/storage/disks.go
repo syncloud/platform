@@ -2,6 +2,8 @@ package storage
 
 import (
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
@@ -23,6 +25,7 @@ type Disks struct {
 	systemd          DisksSystemd
 	freeSpaceChecker DisksFreeSpaceChecker
 	linker           DisksLinker
+	executor         cli.CommandExecutor
 	logger           *zap.Logger
 }
 
@@ -62,6 +65,7 @@ func NewDisks(
 	systemd DisksSystemd,
 	freeSpaceChecker DisksFreeSpaceChecker,
 	linker DisksLinker,
+	executor cli.CommandExecutor,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
@@ -71,6 +75,7 @@ func NewDisks(
 		lsblk:            lsblk,
 		freeSpaceChecker: freeSpaceChecker,
 		linker:           linker,
+		executor:         executor,
 		logger:           logger,
 	}
 }
@@ -100,8 +105,35 @@ func (d *Disks) AvailableDisks() (*[]model.Disk, error) {
 	return d.lsblk.AvailableDisks()
 }
 
-func (d *Disks) ActivateMultiDisk(_ []string) error {
-	return fmt.Errorf("not implemented yet")
+func (d *Disks) ActivateMultiDisk(devices []string) error {
+	d.logger.Info("activate multi", zap.Strings("disks", devices))
+	err := d.DeactivateDisk()
+	if err != nil {
+		return err
+	}
+	if len(devices) == 0 {
+		return fmt.Errorf("provide at least 1 device")
+	}
+
+	mode := "single"
+	if len(devices) > 1 {
+		mode = "raid1"
+	}
+
+	diskUuid := uuid.New().String()
+	args := []string{"-U", diskUuid, "-f", "-m", mode, "-d", mode}
+	for _, device := range devices {
+		args = append(args, device)
+	}
+
+	output, err := d.executor.CommandOutput("/snap/platform/current/btrfs/bin/mkfs.btrfs", args...)
+	if err != nil {
+		return err
+	}
+	d.logger.Info("mkfs.btrfs", zap.String("output", string(output)))
+
+	return d.activateCommon(fmt.Sprintf("/dev/disk/by-uuid/%s", diskUuid), err)
+
 }
 
 func (d *Disks) ActivateDisk(device string) error {
@@ -120,6 +152,10 @@ func (d *Disks) ActivateDisk(device string) error {
 		return fmt.Errorf("filesystem type is not supported: %s, use one of the following: %s", fsType, strings.Join(supportedFilesystems, ","))
 	}
 
+	return d.activateCommon(device, err)
+}
+
+func (d *Disks) activateCommon(device string, err error) error {
 	err = d.systemd.AddMount(device)
 	if err != nil {
 		return err
