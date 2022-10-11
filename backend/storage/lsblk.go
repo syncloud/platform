@@ -44,56 +44,83 @@ func (l *Lsblk) AvailableDisks() (*[]model.Disk, error) {
 	return &disks, nil
 }
 
-func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
-	lsblkOutputBytes, err := l.executor.CommandOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
+func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
+	var entries []model.LsblkEntry
+
+	lsblkOutputBytes, err := l.executor.CommandOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID")
 	if err != nil {
 		return nil, err
 	}
 	lsblkOutput := string(lsblkOutputBytes)
 	l.logger.Info(lsblkOutput)
-
-	disks := make(map[string]*model.Disk)
-
 	lsblkLines := strings.Split(lsblkOutput, "\n")
-
 	for _, rawLine := range lsblkLines {
 		line := strings.TrimSpace(rawLine)
 		if line == "" {
 			continue
 		}
-
 		l.logger.Info("parsing", zap.String("line", line))
-		r := *regexp.MustCompile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)"`)
+		r := *regexp.MustCompile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)" UUID="(.*)"`)
 		match := r.FindStringSubmatch(line)
+		mountPoint := match[4]
 
-		lsblkEntry := model.LsblkEntry{
+		entries = append(entries, model.LsblkEntry{
 			Name:       match[1],
 			Size:       match[2],
 			DeviceType: match[3],
-			MountPoint: match[4],
+			MountPoint: mountPoint,
 			PartType:   match[5],
 			FsType:     match[6],
 			Model:      strings.TrimSpace(match[7]),
-		}
+			Active:     l.isActive(mountPoint),
+			Uuid:       match[8],
+		})
 
-		if lsblkEntry.IsSupportedType() && lsblkEntry.IsSupportedFsType() {
-			device := lsblkEntry.Name
-			diskName := lsblkEntry.Model
+	}
+
+	return entries, nil
+}
+
+func (l *Lsblk) extractActiveUuid(entries []model.LsblkEntry) map[string]bool {
+	uuids := make(map[string]bool)
+	for _, entry := range entries {
+		if entry.Active && entry.Uuid != "" {
+			uuids[entry.Uuid] = true
+		}
+	}
+	return uuids
+}
+
+func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
+	disks := make(map[string]*model.Disk)
+	entries, err := l.parseLsblkOutput()
+	activeUuids := l.extractActiveUuid(entries)
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range entries {
+		if entry.IsSupportedType() && entry.IsSupportedFsType() {
+			device := entry.Name
+			diskName := entry.Model
 			l.logger.Info("adding", zap.String("disk", diskName))
-			disk := model.NewDisk(diskName, device, lsblkEntry.Size, []model.Partition{})
-			if lsblkEntry.IsSinglePartitionDisk() {
+			active := entry.Active
+			if !active {
+				active = activeUuids[entry.Uuid]
+			}
+			disk := model.NewDisk(diskName, device, entry.Size, active, []model.Partition{})
+			if entry.IsSinglePartitionDisk() {
 				l.logger.Info("adding single partition", zap.String("disk", device))
-				disk.Name = lsblkEntry.DeviceType
-				partition := l.createPartition(lsblkEntry)
+				disk.Name = entry.DeviceType
+				partition := l.createPartition(entry)
 				disk.AddPartition(partition)
 			}
 
 			disks[device] = disk
 
-		} else if lsblkEntry.DeviceType == "part" {
-			l.logger.Info("adding", zap.String("regular partition", lsblkEntry.Name))
-			partition := l.createPartition(lsblkEntry)
-			parentDevice := lsblkEntry.ParentDevice()
+		} else if entry.DeviceType == "part" {
+			l.logger.Info("adding", zap.String("regular partition", entry.Name))
+			partition := l.createPartition(entry)
+			parentDevice := entry.ParentDevice()
 
 			if _, ok := disks[parentDevice]; ok {
 				disk := disks[parentDevice]
@@ -110,18 +137,20 @@ func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
 }
 
 func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
-	mountPoint := lsblkEntry.MountPoint
+	return model.Partition{
+		Size:       lsblkEntry.Size,
+		Device:     lsblkEntry.Name,
+		MountPoint: lsblkEntry.MountPoint,
+		Active:     lsblkEntry.Active,
+		FsType:     lsblkEntry.GetFsType()}
+}
+
+func (l *Lsblk) isActive(mountPoint string) bool {
 	active := false
 	if mountPoint == l.systemConfig.ExternalDiskDir() && l.pathChecker.ExternalDiskLinkExists() {
 		active = true
 	}
-
-	return model.Partition{
-		Size:       lsblkEntry.Size,
-		Device:     lsblkEntry.Name,
-		MountPoint: mountPoint,
-		Active:     active,
-		FsType:     lsblkEntry.GetFsType()}
+	return active
 }
 
 func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {

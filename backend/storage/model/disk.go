@@ -20,7 +20,7 @@ type UiDeviceEntry struct {
 	Active bool   `json:"active"`
 }
 
-func NewDisk(name string, device string, size string, partitions []Partition) *Disk {
+func NewDisk(name string, device string, size string, active bool, partitions []Partition) *Disk {
 	if name == "" {
 		name = "Disk"
 	}
@@ -29,7 +29,7 @@ func NewDisk(name string, device string, size string, partitions []Partition) *D
 		Device:     device,
 		Size:       size,
 		Partitions: partitions,
-		Active:     false,
+		Active:     active,
 	}
 }
 

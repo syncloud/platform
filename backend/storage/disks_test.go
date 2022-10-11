@@ -49,14 +49,6 @@ func (t *TriggerStub) RunDiskChangeEvent() error {
 	return nil
 }
 
-//type PathCheckerStub struct {
-//	exists bool
-//}
-
-//func (p *PathCheckerStub) ExternalDiskLinkExists() bool {
-//	return p.exists
-//}
-
 type LsblkDisksStub struct {
 	disks []model.Disk
 }
@@ -72,14 +64,6 @@ func (l *LsblkDisksStub) AvailableDisks() (*[]model.Disk, error) {
 func (l *LsblkDisksStub) AllDisks() (*[]model.Disk, error) {
 	return &l.disks, nil
 }
-
-//type DisksExecutorStub struct {
-//	output string
-//}
-
-//func (e *DisksExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
-//	return []byte(e.output), nil
-//}
 
 type SystemdStub struct {
 	callOrderShared *CallOrder

@@ -22,6 +22,8 @@ type LsblkEntry struct {
 	PartType   string
 	FsType     string
 	Model      string
+	Active     bool
+	Uuid       string
 }
 
 func (e *LsblkEntry) IsExtendedPartition() bool {
@@ -53,9 +55,6 @@ func (e *LsblkEntry) IsSupportedFsType() bool {
 }
 
 func (e *LsblkEntry) IsSinglePartitionDisk() bool {
-	if e.DeviceType == "loop" {
-		return true
-	}
 	if strings.HasPrefix(e.DeviceType, "raid") {
 		return true
 	}
