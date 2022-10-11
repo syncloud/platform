@@ -188,6 +188,7 @@ def app_image():
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/disk/deactivate", methods=["POST"])
 @app.route("/rest/storage/disk/activate", methods=["POST"])
+@app.route("/rest/storage/disk/activate_multi", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/storage/boot/disk", methods=["GET"])
 @app.route("/rest/storage/disks", methods=["GET"])
