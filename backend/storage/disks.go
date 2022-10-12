@@ -126,7 +126,7 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 		args = append(args, device)
 	}
 
-	output, err := d.executor.CommandOutput("/snap/platform/current/btrfs/bin/mkfs.btrfs", args...)
+	output, err := d.executor.CommandOutput("/snap/platform/current/btrfs/bin/mkfs.sh", args...)
 	if err != nil {
 		d.logger.Error(string(output))
 		return err
