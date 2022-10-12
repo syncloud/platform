@@ -351,3 +351,20 @@ NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrf
 	assert.True(t, (*disks)[0].Active)
 	assert.True(t, (*disks)[1].Active)
 }
+
+func TestLsblk_AvailableDisks_Sorted(t *testing.T) {
+
+	output := `
+NAME="/dev/sdc" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrfs" MODEL="KINGSTON_SA400S37120G" UUID="1"
+NAME="/dev/sda" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrfs" MODEL="CT2000BX500SSD1" UUID="1"
+NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrfs" MODEL="KINGSTON_SA400S37120G" UUID="1"
+`
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+	disks, err := lsblk.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(*disks))
+	assert.Equal(t, "/dev/sda", (*disks)[0].Device)
+	assert.Equal(t, "/dev/sdb", (*disks)[1].Device)
+	assert.Equal(t, "/dev/sdc", (*disks)[2].Device)
+
+}

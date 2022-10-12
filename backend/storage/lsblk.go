@@ -6,6 +6,7 @@ import (
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -19,6 +20,12 @@ type Lsblk struct {
 type Config interface {
 	ExternalDiskDir() string
 }
+
+type ByDevice []model.Disk
+
+func (a ByDevice) Len() int           { return len(a) }
+func (a ByDevice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByDevice) Less(i, j int) bool { return a[i].Device < a[j].Device }
 
 func NewLsblk(config Config, pathChecker Checker, executor cli.CommandExecutor, logger *zap.Logger) *Lsblk {
 	return &Lsblk{
@@ -133,6 +140,7 @@ func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
 	for _, disk := range disks {
 		results = append(results, *disk)
 	}
+	sort.Sort(ByDevice(results))
 	return &results, nil
 }
 
