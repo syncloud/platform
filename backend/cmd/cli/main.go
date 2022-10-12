@@ -179,7 +179,7 @@ func main() {
 				if err != nil {
 					fmt.Print(err)
 					os.Exit(1)
-			}
+				}
 				fmt.Printf("btrfs stats\n")
 				fmt.Printf("%s\n", s)
 			})

@@ -57,7 +57,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
 	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
-	Singleton(func() *cli.Executor { return &cli.Executor{} })
+	Singleton(func(logger *zap.Logger) *cli.Executor { return cli.NewExecutor(logger) })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
 	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
