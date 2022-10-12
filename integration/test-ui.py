@@ -140,7 +140,7 @@ def test_settings_storage(driver, ui_mode, screenshot_dir, selenium):
     settings(driver, screenshot_dir, ui_mode, 'storage')
     header = "//h1[text()='Storage']"
     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    selenium.find_by_id('partition_0_0')
+    selenium.find_by_id('none')
     screenshots(driver, screenshot_dir, 'settings_storage-' + ui_mode)
 
 
