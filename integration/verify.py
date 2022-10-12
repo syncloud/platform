@@ -491,7 +491,7 @@ def disk_activate(loop, device, domain, artifact_dir):
 
     response = device.login().post('https://{0}/rest/storage/disk/activate'.format(domain), verify=False,
                                    json={'device': loop})
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
     return current_disk_link(device)
 
 
