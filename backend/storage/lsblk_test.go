@@ -46,22 +46,15 @@ NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE=
 
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 5, len(*disks))
+	assert.Equal(t, 3, len(*disks))
 	var disk model.Disk
-	for _, d := range *disks {
-		if d.Device == "/dev/sda" {
-			disk = d
-		}
-	}
-	assert.Equal(t, 4, len(disk.Partitions))
-
 	for _, d := range *disks {
 		if d.Device == "/dev/sdb" {
 			disk = d
 		}
 	}
-	assert.Equal(t, "/opt/disk/external", disk.Partitions[2].MountPoint)
-	assert.Equal(t, 3, len(disk.Partitions))
+	assert.Equal(t, "/opt/disk/external", disk.Partitions[1].MountPoint)
+	assert.Equal(t, 2, len(disk.Partitions))
 
 }
 
