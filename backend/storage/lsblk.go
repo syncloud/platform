@@ -115,8 +115,8 @@ func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
 				active = activeUuids[entry.Uuid]
 			}
 			disk := model.NewDisk(diskName, device, entry.Size, active, []model.Partition{})
-			if entry.IsSinglePartitionDisk() {
-				l.logger.Info("adding single partition", zap.String("disk", device))
+			if entry.IsRaid() {
+				l.logger.Info("adding raid partition", zap.String("disk", device))
 				disk.Name = entry.DeviceType
 				partition := l.createPartition(entry)
 				disk.AddPartition(partition)

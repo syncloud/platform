@@ -35,22 +35,11 @@ func TestLsblk_AvailableDisks_FindRootPartitionSome(t *testing.T) {
 	output := `
 NAME="/dev/sda" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
 NAME="/dev/sda1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/abc" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sda2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda3" SIZE="5.0G" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda5" SIZE="7.4G" TYPE="part" MOUNTPOINT="[SWAP]" PARTTYPE="0x83" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
 NAME="/dev/sdb1" SIZE="100M" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sdb2" SIZE="48.7G" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sdb3" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID=""
+NAME="/dev/sdb2" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID=""
 NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
 NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sdc2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sr0" SIZE="3.4G" TYPE="rom" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="CDDVDW SN-208AB " UUID=""
-NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/test" PARTTYPE="0x83" FSTYPE="vfat" MODEL=" " UUID=""
-NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sdd" SIZE="3.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="BLANK DISK" UUID=""
-NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PARTTYPE="" FSTYPE="squashfs" MODEL="" UUID=""
 `
 
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output: output}, log.Default())
@@ -84,6 +73,7 @@ func TestLsblk_AvailableDisks_LoopSupport(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(*disks))
 	assert.Equal(t, 0, len((*disks)[0].Partitions))
+	assert.Equal(t, "Disk loop0", (*disks)[0].Name)
 }
 
 func TestLsblk_AvailableDisks_BlankDiskSupport_NotActive(t *testing.T) {
@@ -166,16 +156,11 @@ NAME="/dev/sdb2" SIZE="41.8M" TYPE="part" MOUNTPOINT="" PARTTYPE="0xc" FSTYPE="v
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, "Disk", (*disks)[0].Name)
+	assert.Equal(t, "Disk sdb", (*disks)[0].Name)
 }
 
 func TestLsblk_AvailableDisks_IsExternalDiskAttached(t *testing.T) {
 	output := `
-NAME="/dev/sda" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sda1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/abc" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sda2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda3" SIZE="5.0G" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda5" SIZE="7.4G" TYPE="part" MOUNTPOINT="[SWAP]" PARTTYPE="0x83" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
 NAME="/dev/sdb1" SIZE="100M" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb2" SIZE="48.7G" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
@@ -183,12 +168,6 @@ NAME="/dev/sdb3" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTT
 NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
 NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
 NAME="/dev/sdc2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sr0" SIZE="3.4G" TYPE="rom" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="CDDVDW SN-208AB " UUID=""
-NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="vfat" MODEL=" " UUID=""
-NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sdd" SIZE="3.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="BLANK DISK" UUID=""
-NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PARTTYPE="" FSTYPE="squashfs" MODEL="" UUID=""
 `
 
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output: output}, log.Default())
@@ -213,24 +192,10 @@ NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PA
 
 func TestLsblk_AvailableDisks_IsExternalDiskDetached(t *testing.T) {
 	output := `
-NAME="/dev/sda" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sda1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/abc" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sda2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda3" SIZE="5.0G" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda5" SIZE="7.4G" TYPE="part" MOUNTPOINT="[SWAP]" PARTTYPE="0x83" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
 NAME="/dev/sdb1" SIZE="100M" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb2" SIZE="48.7G" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb3" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID=""
-NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sdc2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sr0" SIZE="3.4G" TYPE="rom" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="CDDVDW SN-208AB " UUID=""
-NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/test" PARTTYPE="0x83" FSTYPE="vfat" MODEL=" " UUID=""
-NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sdd" SIZE="3.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="BLANK DISK" UUID=""
-NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PARTTYPE="" FSTYPE="squashfs" MODEL="" UUID=""
 `
 
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/detached"}, &PathCheckerStub{exists: true}, &ExecutorStub{output: output}, log.Default())
@@ -246,14 +211,16 @@ NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PA
 }
 
 func TestLsblk_AvailableDisks_Raid(t *testing.T) {
-	output := `NAME="/dev/sda" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E" UUID=""
+	output := `
+NAME="/dev/sda" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E" UUID=""
 NAME="/dev/sdb" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E" UUID=""
 NAME="/dev/sdc" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E" UUID=""
 NAME="/dev/sdd" SIZE="1.8T" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="linux_raid_member" MODEL="WDC WD20EFRX-68E" UUID=""
 NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL="" UUID=""
 NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL="" UUID=""
 NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL="" UUID=""
-NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL="" UUID=""`
+NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTYPE="ext4" MODEL="" UUID=""
+`
 
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/detached"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
@@ -291,24 +258,13 @@ NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MOD
 
 func TestLsblk_FindPartitionByDevice_Found(t *testing.T) {
 	output := `
-NAME="/dev/sda" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sda1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/abc" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sda2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda3" SIZE="5.0G" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sda5" SIZE="7.4G" TYPE="part" MOUNTPOINT="[SWAP]" PARTTYPE="0x83" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
 NAME="/dev/sdb1" SIZE="100M" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb2" SIZE="48.7G" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb3" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID=""
 NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
-NAME="/dev/sdc2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sr0" SIZE="3.4G" TYPE="rom" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="CDDVDW SN-208AB " UUID=""
-NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
 NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/test" PARTTYPE="0x83" FSTYPE="vfat" MODEL=" " UUID=""
-NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
-NAME="/dev/sdd" SIZE="3.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="BLANK DISK" UUID=""
-NAME="/dev/loop1" SIZE="41.1M" TYPE="loop" MOUNTPOINT="/snap/platform/180821" PARTTYPE="" FSTYPE="squashfs" MODEL="" UUID=""`
+`
 
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	partition, err := lsblk.FindPartitionByDevice("/dev/sdc1")

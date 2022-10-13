@@ -22,7 +22,7 @@ type UiDeviceEntry struct {
 
 func NewDisk(name string, device string, size string, active bool, partitions []Partition) *Disk {
 	if name == "" {
-		name = "Disk"
+		name = fmt.Sprintf("Disk %s", strings.TrimPrefix(device, "/dev/"))
 	}
 	return &Disk{
 		Name:       name,

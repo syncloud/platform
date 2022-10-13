@@ -54,7 +54,7 @@ func (e *LsblkEntry) IsSupportedFsType() bool {
 	return true
 }
 
-func (e *LsblkEntry) IsSinglePartitionDisk() bool {
+func (e *LsblkEntry) IsRaid() bool {
 	if strings.HasPrefix(e.DeviceType, "raid") {
 		return true
 	}
@@ -68,7 +68,7 @@ func (e *LsblkEntry) ParentDevice() string {
 }
 
 func (e *LsblkEntry) GetFsType() string {
-	if strings.HasPrefix(e.DeviceType, "raid") {
+	if e.IsRaid() {
 		return "raid"
 	}
 	return e.FsType
