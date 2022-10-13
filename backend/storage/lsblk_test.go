@@ -31,10 +31,8 @@ func (e *ExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
 	return []byte(e.output), nil
 }
 
-func TestLsblk_AvailableDisks_FindRootPartitionSome(t *testing.T) {
+func TestLsblk_AvailableDisks_HideDiskWithRootPartition(t *testing.T) {
 	output := `
-NAME="/dev/sda" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
-NAME="/dev/sda1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/abc" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
 NAME="/dev/sdb1" SIZE="100M" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb2" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID=""
@@ -46,15 +44,10 @@ NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE=
 
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 3, len(*disks))
-	var disk model.Disk
-	for _, d := range *disks {
-		if d.Device == "/dev/sdb" {
-			disk = d
-		}
-	}
-	assert.Equal(t, "/opt/disk/external", disk.Partitions[1].MountPoint)
-	assert.Equal(t, 2, len(disk.Partitions))
+	assert.Equal(t, 1, len(*disks))
+ assert.Equal(t, "/dev/sdb", (*disks)[0].Device)
+	assert.Equal(t, "/opt/disk/external", (*disks)[0].Partitions[1].MountPoint)
+	assert.Equal(t, 2, len((*disks)[0].Partitions))
 
 }
 
