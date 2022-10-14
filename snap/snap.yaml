@@ -55,6 +55,10 @@ apps:
     command: bin/cli
   python:
     command: python/bin/python
+  btrfs:
+    command: btrfs/bin/btrfs.sh
+  mkfs.btrfs:
+    command: btrfs/bin/mkfs.sh
 
 confinement: strict
 description: Syncloud Platform

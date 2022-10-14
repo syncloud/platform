@@ -44,10 +44,10 @@ NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE=
 
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
- assert.Equal(t, "/dev/sdb", (*disks)[0].Device)
-	assert.Equal(t, "/opt/disk/external", (*disks)[0].Partitions[1].MountPoint)
-	assert.Equal(t, 2, len((*disks)[0].Partitions))
+	assert.Equal(t, 1, len(disks))
+	assert.Equal(t, "/dev/sdb", disks[0].Device)
+	assert.Equal(t, "/opt/disk/external", disks[0].Partitions[1].MountPoint)
+	assert.Equal(t, 2, len(disks[0].Partitions))
 
 }
 
@@ -57,9 +57,9 @@ func TestLsblk_AvailableDisks_LoopSupport(t *testing.T) {
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
-	assert.Equal(t, 0, len((*disks)[0].Partitions))
-	assert.Equal(t, "Disk loop0", (*disks)[0].Name)
+	assert.Equal(t, 1, len(disks))
+	assert.Equal(t, 0, len(disks[0].Partitions))
+	assert.Equal(t, "Disk loop0", disks[0].Name)
 }
 
 func TestLsblk_AvailableDisks_BlankDiskSupport_NotActive(t *testing.T) {
@@ -68,9 +68,9 @@ func TestLsblk_AvailableDisks_BlankDiskSupport_NotActive(t *testing.T) {
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
-	assert.Equal(t, 0, len((*disks)[0].Partitions))
-	assert.False(t, (*disks)[0].Active)
+	assert.Equal(t, 1, len(disks))
+	assert.Equal(t, 0, len(disks[0].Partitions))
+	assert.False(t, disks[0].Active)
 }
 
 func TestLsblk_AvailableDisks_BlankDiskSupport_Active(t *testing.T) {
@@ -79,9 +79,9 @@ func TestLsblk_AvailableDisks_BlankDiskSupport_Active(t *testing.T) {
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
-	assert.Equal(t, 0, len((*disks)[0].Partitions))
-	assert.True(t, (*disks)[0].Active)
+	assert.Equal(t, 1, len(disks))
+	assert.Equal(t, 0, len(disks[0].Partitions))
+	assert.True(t, disks[0].Active)
 }
 
 func TestLsblk_AvailableDisks_EmptyDisk(t *testing.T) {
@@ -91,8 +91,8 @@ func TestLsblk_AvailableDisks_EmptyDisk(t *testing.T) {
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
-	assert.Equal(t, 0, len((*disks)[0].Partitions))
+	assert.Equal(t, 1, len(disks))
+	assert.Equal(t, 0, len(disks[0].Partitions))
 
 }
 
@@ -103,7 +103,7 @@ func TestLsblk_AvailableDisks_DoNotShowSquashfs(t *testing.T) {
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(*disks))
+	assert.Equal(t, 0, len(disks))
 }
 
 func TestLsblk_AvailableDisks_DoNotShowInternalDisks(t *testing.T) {
@@ -116,7 +116,7 @@ NAME="/dev/mmcblk0p1" SIZE="41.8M" TYPE="part" MOUNTPOINT="" PARTTYPE="0xc" FSTY
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(*disks))
+	assert.Equal(t, 0, len(disks))
 }
 
 func TestLsblk_AvailableDisks_DoNotShowDisksWithRootPartition(t *testing.T) {
@@ -129,7 +129,7 @@ NAME="/dev/sdb2" SIZE="41.8M" TYPE="part" MOUNTPOINT="" PARTTYPE="0xc" FSTYPE="v
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(*disks))
+	assert.Equal(t, 0, len(disks))
 }
 
 func TestLsblk_AvailableDisks_DefaultEmptyDiskName(t *testing.T) {
@@ -142,7 +142,7 @@ NAME="/dev/sdb2" SIZE="41.8M" TYPE="part" MOUNTPOINT="" PARTTYPE="0xc" FSTYPE="v
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, "Disk sdb", (*disks)[0].Name)
+	assert.Equal(t, "Disk sdb", disks[0].Name)
 }
 
 func TestLsblk_AvailableDisks_IsExternalDiskAttached(t *testing.T) {
@@ -160,7 +160,7 @@ NAME="/dev/sdc2" SIZE="1K" TYPE="part" MOUNTPOINT="" PARTTYPE="0x5" FSTYPE="" MO
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
 	var disk model.Disk
-	for _, d := range *disks {
+	for _, d := range disks {
 		if d.Device == "/dev/sdb" {
 			disk = d
 		}
@@ -188,7 +188,7 @@ NAME="/dev/sdb3" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTT
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
 	var disk model.Disk
-	for _, d := range *disks {
+	for _, d := range disks {
 		if d.Device == "/dev/sdb" {
 			disk = d
 		}
@@ -211,9 +211,9 @@ NAME="/dev/md0" SIZE="3.7T" TYPE="raid10" MOUNTPOINT="/mnt/md0" PARTTYPE="" FSTY
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/detached"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
-	assert.Equal(t, 1, len((*disks)[0].Partitions))
-	assert.Equal(t, "/mnt/md0", (*disks)[0].Partitions[0].MountPoint)
+	assert.Equal(t, 1, len(disks))
+	assert.Equal(t, 1, len(disks[0].Partitions))
+	assert.Equal(t, "/mnt/md0", disks[0].Partitions[0].MountPoint)
 }
 
 func TestLsblk_AvailableDisks_UnsupportedDevicesWithPartitions(t *testing.T) {
@@ -226,7 +226,7 @@ NAME="/dev/loop16p2" SIZE="3G" TYPE="part" MOUNTPOINT="" PARTTYPE="" FSTYPE="squ
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/detached"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(*disks))
+	assert.Equal(t, 0, len(disks))
 }
 
 func TestLsblk_AvailableDisks_SkipEmptyLines(t *testing.T) {
@@ -239,7 +239,7 @@ NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MOD
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(*disks))
+	assert.Equal(t, 1, len(disks))
 }
 
 func TestLsblk_FindPartitionByDevice_Found(t *testing.T) {
@@ -277,7 +277,7 @@ NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrf
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 2, len(*disks))
+	assert.Equal(t, 2, len(disks))
 }
 
 func TestLsblk_AvailableDisks_BtrfsMultiDiskSupport(t *testing.T) {
@@ -289,9 +289,9 @@ NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrf
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 2, len(*disks))
-	assert.True(t, (*disks)[0].Active)
-	assert.True(t, (*disks)[1].Active)
+	assert.Equal(t, 2, len(disks))
+	assert.True(t, disks[0].Active)
+	assert.True(t, disks[1].Active)
 }
 
 func TestLsblk_AvailableDisks_Sorted(t *testing.T) {
@@ -304,9 +304,9 @@ NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrf
 	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
 	disks, err := lsblk.AvailableDisks()
 	assert.Nil(t, err)
-	assert.Equal(t, 3, len(*disks))
-	assert.Equal(t, "/dev/sda", (*disks)[0].Device)
-	assert.Equal(t, "/dev/sdb", (*disks)[1].Device)
-	assert.Equal(t, "/dev/sdc", (*disks)[2].Device)
+	assert.Equal(t, 3, len(disks))
+	assert.Equal(t, "/dev/sda", disks[0].Device)
+	assert.Equal(t, "/dev/sdb", disks[1].Device)
+	assert.Equal(t, "/dev/sdc", disks[2].Device)
 
 }

@@ -57,8 +57,8 @@ func (l *LsblkDisksStub) FindPartitionByDevice(_ string) (*model.Partition, erro
 	return &l.disks[0].Partitions[0], nil
 }
 
-func (l *LsblkDisksStub) AvailableDisks() (*[]model.Disk, error) {
-	return &l.disks, nil
+func (l *LsblkDisksStub) AvailableDisks() ([]model.Disk, error) {
+	return l.disks, nil
 }
 
 func (l *LsblkDisksStub) AllDisks() (*[]model.Disk, error) {

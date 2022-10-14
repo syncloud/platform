@@ -36,19 +36,19 @@ func NewLsblk(config Config, pathChecker Checker, executor cli.CommandExecutor, 
 	}
 }
 
-func (l *Lsblk) AvailableDisks() (*[]model.Disk, error) {
+func (l *Lsblk) AvailableDisks() ([]model.Disk, error) {
 	var disks []model.Disk
 
 	allDisks, err := l.AllDisks()
 	if err != nil {
 		return nil, err
 	}
-	for _, disk := range *allDisks {
+	for _, disk := range allDisks {
 		if !disk.IsInternal() && !disk.HasRootPartition() {
 			disks = append(disks, disk)
 		}
 	}
-	return &disks, nil
+	return disks, nil
 }
 
 func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
@@ -98,7 +98,7 @@ func (l *Lsblk) extractActiveUuid(entries []model.LsblkEntry) map[string]bool {
 	return uuids
 }
 
-func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
+func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 	disks := make(map[string]*model.Disk)
 	entries, err := l.parseLsblkOutput()
 	activeUuids := l.extractActiveUuid(entries)
@@ -141,7 +141,7 @@ func (l *Lsblk) AllDisks() (*[]model.Disk, error) {
 		results = append(results, *disk)
 	}
 	sort.Sort(ByDevice(results))
-	return &results, nil
+	return results, nil
 }
 
 func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
@@ -166,7 +166,7 @@ func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, disk := range *disks {
+	for _, disk := range disks {
 		for _, partition := range disk.Partitions {
 			if partition.Device == device {
 				l.logger.Info("partition found")
