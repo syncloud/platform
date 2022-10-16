@@ -242,6 +242,7 @@ NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MOD
 	assert.Equal(t, 1, len(disks))
 }
 
+/*
 func TestLsblk_FindPartitionByDevice_Found(t *testing.T) {
 	output := `
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
@@ -267,7 +268,7 @@ func TestLsblk_FindPartitionByDevice_NotFound(t *testing.T) {
 	_, err := lsblk.FindPartitionByDevice("/dev/sdc1")
 	assert.NotNil(t, err)
 }
-
+*/
 func TestLsblk_AvailableDisks_BtrfsSupport(t *testing.T) {
 
 	output := `

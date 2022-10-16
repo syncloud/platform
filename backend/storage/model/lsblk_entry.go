@@ -38,7 +38,7 @@ func (e *LsblkEntry) IsSupportedType() bool {
 	if slices.Contains(SupportedDeviceTypes, e.DeviceType) {
 		return true
 	}
-	if strings.HasPrefix(e.DeviceType, "raid") {
+	if e.IsRaid() {
 		return true
 	}
 	return false

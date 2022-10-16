@@ -115,10 +115,20 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 		return err
 	}
 
-	if len(devices) == 0 {
-		return fmt.Errorf("provide at least 1 device")
+	if len(devices) < 1 || len(devices) > 2 {
+		return fmt.Errorf("only two devices supported at the moment")
 	}
-	uuid, err := d.btrfs.Update(devices)
+	disks, err := d.lsblk.AllDisks()
+	if err != nil {
+		return err
+	}
+	uuid := ""
+	for _, disk := range *disks {
+		if disk.Active {
+			uuid = disk.Uuid
+		}
+	}
+	uuid, err = d.btrfs.Update(devices, uuid)
 	return d.activateCommon(fmt.Sprintf("/dev/disk/by-uuid/%s", uuid), err)
 
 }

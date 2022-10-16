@@ -11,6 +11,7 @@ type Disk struct {
 	Size       string      `json:"size"`
 	Partitions []Partition `json:"partitions"`
 	Active     bool        `json:"active"`
+	Uuid       string      `json:"uuid"`
 }
 
 type UiDeviceEntry struct {
@@ -20,7 +21,7 @@ type UiDeviceEntry struct {
 	Active bool   `json:"active"`
 }
 
-func NewDisk(name string, device string, size string, active bool, partitions []Partition) *Disk {
+func NewDisk(name string, device string, size string, active bool, uuid string, partitions []Partition) *Disk {
 	if name == "" {
 		name = fmt.Sprintf("Disk %s", strings.TrimPrefix(device, "/dev/"))
 	}
@@ -30,6 +31,7 @@ func NewDisk(name string, device string, size string, active bool, partitions []
 		Size:       size,
 		Partitions: partitions,
 		Active:     active,
+		Uuid:       uuid,
 	}
 }
 
@@ -39,6 +41,21 @@ func (d *Disk) IsInternal() bool {
 
 func (d *Disk) HasRootPartition() bool {
 	return d.FindRootPartition() != nil
+}
+
+func (d *Disk) IsAvailable() bool {
+	available := false
+	for _, v := range d.Partitions {
+		if v.Active {
+			available = true
+		} else if v.MountPoint == "" {
+			available = true
+		}
+	}
+	if d.IsInternal() {
+		available = false
+	}
+	return available
 }
 
 func (d *Disk) AddPartition(partition Partition) {
