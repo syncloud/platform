@@ -3,7 +3,6 @@ package storage
 import (
 	"fmt"
 	"github.com/syncloud/platform/cli"
-	"github.com/syncloud/platform/storage/btrfs"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
@@ -26,13 +25,13 @@ type Disks struct {
 	freeSpaceChecker DisksFreeSpaceChecker
 	linker           DisksLinker
 	executor         cli.CommandExecutor
-	btrfs            btrfs.Disks
+	btrfs            BtrfsDisks
 	logger           *zap.Logger
 }
 
 type DisksLsblk interface {
 	AvailableDisks() ([]model.Disk, error)
-	AllDisks() (*[]model.Disk, error)
+	AllDisks() ([]model.Disk, error)
 	FindPartitionByDevice(device string) (*model.Partition, error)
 }
 
@@ -59,6 +58,10 @@ type DisksFreeSpaceChecker interface {
 	HasFreeSpace(device string) (bool, error)
 }
 
+type BtrfsDisks interface {
+	Update(devices []string, uuid string) (string, error)
+}
+
 func NewDisks(
 	config DisksConfig,
 	trigger DisksEventTrigger,
@@ -67,7 +70,7 @@ func NewDisks(
 	freeSpaceChecker DisksFreeSpaceChecker,
 	linker DisksLinker,
 	executor cli.CommandExecutor,
-	btrfs btrfs.Disks,
+	btrfs BtrfsDisks,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
@@ -89,7 +92,7 @@ func (d *Disks) RootPartition() (*model.Partition, error) {
 		return nil, err
 	}
 
-	for _, disk := range *disks {
+	for _, disk := range disks {
 		partition := disk.FindRootPartition()
 		if partition != nil {
 			extendable, err := d.freeSpaceChecker.HasFreeSpace(disk.Device)
@@ -123,7 +126,7 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 		return err
 	}
 	uuid := ""
-	for _, disk := range *disks {
+	for _, disk := range disks {
 		if disk.Active {
 			uuid = disk.Uuid
 		}

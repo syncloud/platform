@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
@@ -113,7 +114,7 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 			if !active {
 				active = activeUuids[entry.Uuid]
 			}
-			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, []model.Partition{})
+			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, entry.MountPoint, []model.Partition{})
 			if entry.IsRaid() {
 				l.logger.Info("adding raid partition", zap.String("disk", device))
 				disk.Name = entry.DeviceType
@@ -160,7 +161,7 @@ func (l *Lsblk) isActive(mountPoint string) bool {
 	return active
 }
 
-/*func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {
+func (l *Lsblk) FindPartitionByDevice(device string) (*model.Partition, error) {
 	disks, err := l.AllDisks()
 	if err != nil {
 		return nil, err
@@ -175,4 +176,3 @@ func (l *Lsblk) isActive(mountPoint string) bool {
 	}
 	return nil, fmt.Errorf("unable to find device: %s", device)
 }
-*/

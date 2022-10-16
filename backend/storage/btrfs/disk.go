@@ -42,8 +42,8 @@ func NewDisks(
 }
 
 type Change struct {
-	Device string
-	Change string
+	Cmd  string
+	Args []string
 }
 
 func (d *Disks) Update(devices []string, uuid string) (string, error) {
@@ -57,45 +57,48 @@ func (d *Disks) Update(devices []string, uuid string) (string, error) {
 	}
 
 	for _, change := range changes {
-		d.logger.Info(change)
+		d.logger.Info(change.Cmd)
 	}
 
 	return "", nil
 }
 
-func DetectChange(before []string, after []string) ([]string, error) {
+func DetectChange(before []string, after []string) ([]Change, error) {
 	removed := Diff(before, after)
 	added := Diff(after, before)
-	var changes []string
+	var changes []Change
 
 	if len(removed) == len(added) {
 		for i, _ := range removed {
-			changes = append(changes, fmt.Sprintf("replace %s with %s", removed[i], added[i]))
+			changes = append(changes, Change{
+				Cmd:  "replace",
+				Args: []string{removed[i], added[i]},
+			})
 		}
 		return changes, nil
 	}
 
 	if len(before) == 0 {
-		create := "create"
+		change := Change{Cmd: "create"}
 		for _, v := range added {
-			create = fmt.Sprintf("%s %s", create, v)
+			change.Args = append(change.Args, v)
 		}
-		changes = append(changes, create)
+		changes = append(changes, change)
 	} else {
 		for _, v := range added {
-			changes = append(changes, fmt.Sprintf("add %s", v))
+			changes = append(changes, Change{Cmd: "add", Args: []string{v}})
 		}
 	}
 
 	if len(after) == 0 {
-		disable := "disable"
+		change := Change{Cmd: "disable"}
 		for _, v := range removed {
-			disable = fmt.Sprintf("%s %s", disable, v)
+			change.Args = append(change.Args, v)
 		}
-		changes = append(changes, disable)
+		changes = append(changes, change)
 	} else {
 		for _, v := range removed {
-			changes = append(changes, fmt.Sprintf("remove %s", v))
+			changes = append(changes, Change{Cmd: "remove", Args: []string{v}})
 		}
 	}
 	return changes, nil
