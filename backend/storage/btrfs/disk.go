@@ -2,6 +2,7 @@ package btrfs
 
 import (
 	"github.com/google/uuid"
+	"github.com/prometheus/procfs/btrfs"
 	"github.com/syncloud/platform/cli"
 	"go.uber.org/zap"
 )
@@ -13,25 +14,44 @@ type Config interface {
 	ExternalDiskDir() string
 }
 
+type DiskStats interface {
+	Stats() ([]*btrfs.Stats, error)
+}
+
 type Disks struct {
 	config   Config
 	executor cli.CommandExecutor
+	stats    DiskStats
 	logger   *zap.Logger
 }
 
 func NewDisks(
 	config Config,
 	executor cli.CommandExecutor,
+	stats DiskStats,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
 		config:   config,
 		executor: executor,
+		stats:    stats,
 		logger:   logger,
 	}
 }
 
-func (d *Disks) Create(devices []string) (string, error) {
+func (d *Disks) Update(devices []string) (string, error) {
+	stats, err := d.stats.Stats()
+	if err != nil {
+		return "", err
+	}
+
+	for _, stat := range stats {
+		stat.Devices
+	}
+
+}
+
+func (d *Disks) create(devices []string) (string, error) {
 	mode := "single"
 	if len(devices) > 1 {
 		mode = "raid1"

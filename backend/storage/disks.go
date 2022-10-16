@@ -118,7 +118,7 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 	if len(devices) == 0 {
 		return fmt.Errorf("provide at least 1 device")
 	}
-	uuid, err := d.btrfs.Create(devices)
+	uuid, err := d.btrfs.Update(devices)
 	return d.activateCommon(fmt.Sprintf("/dev/disk/by-uuid/%s", uuid), err)
 
 }
