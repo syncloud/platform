@@ -54,9 +54,11 @@ func (d *Disk) IsAvailable() bool {
 			available = true
 		}
 	}
-	if d.MountPoint == "" {
-		available = true
-	}
+ if len(d.Partitions) == 0 {
+	  if d.MountPoint == "" || d.Active {
+  		available = true
+  	}
+ }
 	return available
 }
 

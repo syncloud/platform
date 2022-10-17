@@ -6,11 +6,11 @@ import (
 )
 
 func Test_DetectChange_Replaced(t *testing.T) {
-	change, err := DetectChange([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1", "/dev/loop3"})
+	changes, err := DetectChange([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1", "/dev/loop3"})
 
 	assert.Nil(t, err)
-	assert.Len(t, change, 1)
-	assert.Equal(t, []string{"replace /dev/loop2 with /dev/loop3"}, change)
+	assert.Len(t, changes, 1)
+	assert.Equal(t, []{Change{Cmd: "replace", Args: []string{ "/dev/loop2", "/dev/loop3"}, changes)
 }
 
 func Test_DetectChange_Add_One(t *testing.T) {
