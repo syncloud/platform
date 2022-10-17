@@ -10,7 +10,7 @@ func Test_DetectChange_Replaced(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Len(t, changes, 1)
-	assert.Equal(t, []{Change{Cmd: "replace", Args: []string{ "/dev/loop2", "/dev/loop3"}, changes)
+	assert.Equal(t, []Change{ Change{Cmd: "replace", Args: []string{ "/dev/loop2", "/dev/loop3"}}}, changes)
 }
 
 func Test_DetectChange_Add_One(t *testing.T) {
@@ -18,7 +18,7 @@ func Test_DetectChange_Add_One(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Len(t, change, 1)
-	assert.Equal(t, []string{"add /dev/loop2"}, change)
+	assert.Equal(t, []Change{Change{Cli: "add /dev/loop2"}, change)
 }
 
 func Test_DetectChange_Create_One(t *testing.T) {

@@ -46,20 +46,13 @@ func (d *Disk) HasRootPartition() bool {
 }
 
 func (d *Disk) IsAvailable() bool {
-	available := false
-	for _, v := range d.Partitions {
-		if v.Active {
-			available = true
-		} else if v.MountPoint == "" && !d.IsInternal() {
-			available = true
-		}
-	}
- if len(d.Partitions) == 0 {
-	  if d.MountPoint == "" || d.Active {
-  		available = true
-  	}
+ if d.HasRootPartition() {
+   return false
  }
-	return available
+ if d.IsInternal() {
+   return false
+ }
+	return true
 }
 
 func (d *Disk) AddPartition(partition Partition) {
