@@ -43,7 +43,7 @@ func (c *Control) RemoveMount() error {
 }
 
 func (c *Control) AddMount(device string) error {
-
+	c.logger.Info("adding mount", zap.String("device", device))
 	mountTemplateFile := path.Join(c.config.ConfigDir(), "mount", "mount.template")
 	mountDefinition, err := template.ParseFiles(mountTemplateFile)
 	if err != nil {
