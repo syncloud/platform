@@ -41,64 +41,74 @@ func NewDisks(
 	}
 }
 
-type Change struct {
-	Cmd  string
-	Args []string
-}
-
-func (d *Disks) Update(devices []string, uuid string) (string, error) {
-	existingDevices, err := d.ExistingDevices(uuid)
+func (d *Disks) Update(devices []string, existingUuid string) (string, error) {
+	existingDevices, err := d.ExistingDevices(existingUuid)
 	if err != nil {
 		return "", err
 	}
-	changes, err := DetectChange(existingDevices, devices)
+	newUuid := uuid.New().String()
+	changes, err := d.Apply(existingDevices, devices, newUuid)
 	if err != nil {
 		return "", err
 	}
 
 	for _, change := range changes {
-		d.logger.Info(change.Cmd)
+		output, err := d.executor.CommandOutput(change.Cmd, change.Args...)
+		if err != nil {
+			d.logger.Error(string(output))
+			return "", err
+		}
+		d.logger.Info("btrfs", zap.String("output", string(output)))
 	}
 
-	return "", nil
+	return newUuid, nil
 }
 
-func DetectChange(before []string, after []string) ([]Change, error) {
+func (d *Disks) Apply(before []string, after []string, newUuid string) ([]Change, error) {
 	removed := Diff(before, after)
 	added := Diff(after, before)
 	var changes []Change
 
-	if len(removed) == len(added) {
-		for i, _ := range removed {
-			changes = append(changes, Change{
-				Cmd:  "replace",
-				Args: []string{removed[i], added[i]},
-			})
-		}
-		return changes, nil
+	//if len(removed) == len(added) {
+	//	for i, _ := range removed {
+	//		changes = append(changes, NewChange("replace", removed[i], added[i]))
+	//	}
+	//	return changes, nil
+	//}
+
+	mode := "single"
+	if len(after) == 2 {
+		mode = "raid1"
+	}
+	if len(after) > 2 {
+		mode = "raid10"
 	}
 
 	if len(before) == 0 {
-		change := Change{Cmd: "create"}
-		for _, v := range added {
-			change.Args = append(change.Args, v)
-		}
+		change := NewChange(MKFS, "-U", newUuid, "-f", "-m", mode, "-d", mode)
+		change.Append(added...)
 		changes = append(changes, change)
 	} else {
-		for _, v := range added {
-			changes = append(changes, Change{Cmd: "add", Args: []string{v}})
+		if len(added) > 0 {
+			change := NewChange(BTRFS, "device", "add")
+			change.Append(added...)
+			change.Append(d.config.ExternalDiskDir())
+			changes = append(changes, change)
+			change = NewChange(BTRFS, "balance", "start", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir())
+			changes = append(changes, change)
+		}
+		if len(after) == 1 {
+			change := NewChange(BTRFS, "balance", "start", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir())
+			changes = append(changes, change)
 		}
 	}
 
-	if len(after) == 0 {
-		change := Change{Cmd: "disable"}
-		for _, v := range removed {
-			change.Args = append(change.Args, v)
-		}
-		changes = append(changes, change)
-	} else {
-		for _, v := range removed {
-			changes = append(changes, Change{Cmd: "remove", Args: []string{v}})
+	if len(after) > 0 {
+		if len(removed) > 0 {
+			change := NewChange(BTRFS, "device", "delete")
+			change.Append(removed...)
+			change.Append(d.config.ExternalDiskDir())
+			changes = append(changes, change)
 		}
 	}
 	return changes, nil
@@ -129,67 +139,4 @@ func (d *Disks) ExistingDevices(uuid string) ([]string, error) {
 		}
 	}
 	return existing, nil
-}
-
-func (d *Disks) create(devices []string) (string, error) {
-	mode := "single"
-	if len(devices) > 1 {
-		mode = "raid1"
-	}
-
-	diskUuid := uuid.New().String()
-	args := []string{"-U", diskUuid, "-f", "-m", mode, "-d", mode}
-	for _, device := range devices {
-		args = append(args, device)
-	}
-
-	output, err := d.executor.CommandOutput(MKFS, args...)
-	if err != nil {
-		d.logger.Error(string(output))
-		return "", err
-	}
-	d.logger.Info("mkfs", zap.String("output", string(output)))
-
-	return diskUuid, nil
-}
-
-func (d *Disks) Add(devices []string) error {
-
-	for _, device := range devices {
-		output, err := d.executor.CommandOutput(BTRFS, "device", "add", device, d.config.ExternalDiskDir())
-		if err != nil {
-			d.logger.Error(string(output))
-			return err
-		}
-		d.logger.Info("btrfs", zap.String("output", string(output)))
-	}
-
-	output, err := d.executor.CommandOutput(BTRFS, "balance", "start", "-dconvert=raid1", "-mconvert=raid1", d.config.ExternalDiskDir())
-	if err != nil {
-		d.logger.Error(string(output))
-		return err
-	}
-	d.logger.Info("btrfs", zap.String("output", string(output)))
-
-	return nil
-}
-
-func (d *Disks) Remove(devices []string) error {
-	output, err := d.executor.CommandOutput(BTRFS, "balance", "start", "-sconvert=single", "-dconvert=single", "-mconvert=single", d.config.ExternalDiskDir())
-	if err != nil {
-		d.logger.Error(string(output))
-		return err
-	}
-	d.logger.Info("btrfs", zap.String("output", string(output)))
-
-	for _, device := range devices {
-		output, err := d.executor.CommandOutput(BTRFS, "device", "delete", device, d.config.ExternalDiskDir())
-		if err != nil {
-			d.logger.Error(string(output))
-			return err
-		}
-		d.logger.Info("btrfs", zap.String("output", string(output)))
-	}
-
-	return nil
 }

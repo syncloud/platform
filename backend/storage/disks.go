@@ -118,8 +118,8 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 		return err
 	}
 
-	if len(devices) < 1 || len(devices) > 2 {
-		return fmt.Errorf("only two devices supported at the moment")
+	if len(devices) < 1 {
+		return fmt.Errorf("cannot activate 0 disks")
 	}
 	disks, err := d.lsblk.AllDisks()
 	if err != nil {
