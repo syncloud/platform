@@ -4,7 +4,7 @@
       <div class="block1" id="block1">
         <h1>Storage</h1>
         <div>
-          <div class="col2" style="padding-left: 5%">
+          <div class="col2">
             <div class="setline">
 
               <div class="setline" style="margin-top: 20px;">
@@ -93,6 +93,10 @@
         <span v-if="activeMultiDisks.length !== 0" style="color: Tomato;">
           It will remove all data on them!
         </span>
+        <span>
+          Initialize disk by removing all data on it?
+          <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
+        </span>
         <span>Are you sure?</span>
       </div>
       <div style="display: grid" v-if="!multiMode">
@@ -101,7 +105,7 @@
         </span>
         <span v-if="activeSinglePartition !== 'none'">
           Initialize disk by removing all data on it?
-          <el-switch size="large" v-model="format" style="--el-switch-on-color: Tomato;"/>
+          <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
         </span>
         <span>Are you sure?</span>
       </div>
@@ -227,14 +231,15 @@ export default {
       let mode = 'deactivate'
       if (this.multiMode) {
         if (this.activeMultiDisks.length !== 0) {
-          mode = 'activate_multi'
+          mode = 'activate/disk'
           request = {
-            devices: this.activeMultiDisks
+            devices: this.activeMultiDisks,
+            format: this.format
           }
         }
       } else {
         if (this.activeSinglePartition !== 'none') {
-          mode = 'activate'
+          mode = 'activate/partition'
           request = {
             device: this.activeSinglePartition,
             format: this.format

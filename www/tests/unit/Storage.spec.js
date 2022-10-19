@@ -3,6 +3,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Storage from '../../src/views/Storage.vue'
+import Confirmation from '../../src/components/Confirmation.vue'
 import { ElSwitch, ElRadio, ElRadioGroup, ElCheckbox, ElCheckboxGroup } from 'element-plus'
 
 jest.setTimeout(30000)
@@ -37,7 +38,7 @@ test('Activate single partition', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate/partition').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [200, { success: true }]
   })
@@ -59,7 +60,7 @@ test('Activate single partition', async () => {
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
           Confirmation: {
-            template: '<button :id="id" />',
+            template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
               show () {
@@ -75,6 +76,7 @@ test('Activate single partition', async () => {
 
   await wrapper.find('#partition_1_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
+  await expect(wrapper.find('#format').isVisible()).toBe(true)
   await wrapper.find('#partition_confirmation').trigger('confirm')
 
   expect(showError).toHaveBeenCalledTimes(0)
@@ -114,7 +116,7 @@ test('Activate single partition error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate/partition').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [500, { message: 'not ok' }]
   })
@@ -193,7 +195,7 @@ test('Activate single partition service error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate/partition').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [200, { success: false, message: 'not ok' }]
   })
@@ -273,7 +275,7 @@ test('Activate multiple disks', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate_multi').reply(function (config) {
+  mock.onPost('/rest/storage/disk/activate/disk').reply(function (config) {
     devices = JSON.parse(config.data).devices
     return [200, { success: true }]
   })
@@ -295,7 +297,7 @@ test('Activate multiple disks', async () => {
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
           Confirmation: {
-            template: '<button :id="id" />',
+            template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
               show () {
@@ -313,6 +315,8 @@ test('Activate multiple disks', async () => {
   await wrapper.find('#disk_0').trigger('click')
   await wrapper.find('#disk_1').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
+  await flushPromises()
+  await expect(wrapper.find('#format').isVisible()).toBe(true)
   await wrapper.find('#partition_confirmation').trigger('confirm')
   
   await flushPromises()

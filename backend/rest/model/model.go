@@ -24,13 +24,14 @@ type BackupRemoveRequest struct {
 	File string `json:"file"`
 }
 
-type StorageDiskActivateRequest struct {
+type StorageActivatePartitionRequest struct {
 	Device string `json:"device"`
 	Format bool   `json:"format"`
 }
 
-type StorageMultiDiskActivateRequest struct {
+type StorageActivateDisksRequest struct {
 	Devices []string `json:"devices"`
+	Format  bool     `json:"format"`
 }
 
 type EventTriggerRequest struct {

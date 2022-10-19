@@ -66,15 +66,19 @@ func (l *LsblkDisksStub) AllDisks() ([]model.Disk, error) {
 }
 
 type SystemdStub struct {
-	callOrderShared *CallOrder
-	callOrder       int
+	callOrderShared   *CallOrder
+	callOrder         int
+	addMountCalled    bool
+	removeMountCalled bool
 }
 
 func (s *SystemdStub) AddMount(_ string) error {
+	s.addMountCalled = true
 	return nil
 }
 
 func (s *SystemdStub) RemoveMount() error {
+	s.removeMountCalled = true
 	if s.callOrderShared != nil {
 		s.callOrder = s.callOrderShared.inc()
 	}
@@ -116,7 +120,7 @@ type BtrfsDisksStub struct {
 	uuid    string
 }
 
-func (b *BtrfsDisksStub) Update(devices []string, uuid string) (string, error) {
+func (b *BtrfsDisksStub) Update(devices []string, uuid string, format bool) (string, error) {
 	b.updated = devices
 	b.uuid = uuid
 	return uuid, nil
@@ -150,7 +154,7 @@ func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", ""},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, log.Default())
-	err := disks.DeactivateDisk()
+	err := disks.Deactivate()
 	assert.Nil(t, err)
 }
 
@@ -160,7 +164,7 @@ func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", ""},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, log.Default())
-	err := disks.DeactivateDisk()
+	err := disks.Deactivate()
 	assert.Nil(t, err)
 }
 
@@ -173,7 +177,7 @@ func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 	trigger := &TriggerStub{error: false, callOrderShared: callOrder}
 	systemd := &SystemdStub{callOrderShared: callOrder}
 	disks := NewDisks(&DisksConfigStub{}, trigger, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, log.Default())
-	err := disks.DeactivateDisk()
+	err := disks.Deactivate()
 	assert.Nil(t, err)
 	assert.Less(t, trigger.callOrder, systemd.callOrder)
 
@@ -185,7 +189,7 @@ func TestDisks_ActivateDisk_SupportedFs(t *testing.T) {
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false}}, false, "", ""},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, log.Default())
-	err := disks.ActivateDisk("/dev/sda1")
+	err := disks.ActivatePartition("/dev/sda1")
 	assert.Nil(t, err)
 }
 
@@ -195,7 +199,7 @@ func TestDisks_ActivateDisk_Btrfs(t *testing.T) {
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false}}, false, "", ""},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, log.Default())
-	err := disks.ActivateDisk("/dev/sda1")
+	err := disks.ActivatePartition("/dev/sda1")
 	assert.Nil(t, err)
 }
 
@@ -205,7 +209,7 @@ func TestDisks_ActivateDisk_NotSupportedFs(t *testing.T) {
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", ""},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, log.Default())
-	err := disks.ActivateDisk("/dev/sda1")
+	err := disks.ActivatePartition("/dev/sda1")
 	assert.NotNil(t, err)
 }
 
@@ -216,21 +220,22 @@ func TestDisks_ActivateMultiDisk_None(t *testing.T) {
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", ""},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, executor, &BtrfsDisksStub{}, log.Default())
-	err := disks.ActivateMultiDisk([]string{})
+	err := disks.ActivateDisks([]string{}, false)
 	assert.NotNil(t, err)
 
 }
 
-func TestDisks_ActivateMultiDisk_ReuseUuid(t *testing.T) {
+func TestDisks_ActivateMultiDisk_UseUuid(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{}, true, "uuid", ""},
+		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", ""},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", ""},
 	}
 	btrfs := &BtrfsDisksStub{}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, log.Default())
-	err := disks.ActivateMultiDisk([]string{"/dev/sda"})
+	err := disks.ActivateDisks([]string{"/dev/sdb"}, true)
 	assert.Nil(t, err)
-	assert.Equal(t, "uuid", btrfs.uuid)
-	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
+	assert.Equal(t, "uuid2", btrfs.uuid)
+	assert.Equal(t, []string{"/dev/sdb"}, btrfs.updated)
 
 }
 
@@ -239,27 +244,29 @@ func TestDisks_ActivateMultiDisk_PartitionToDisk_Deactivate(t *testing.T) {
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", ""},
 	}
 	btrfs := &BtrfsDisksStub{}
-	systemd := &SystemdStub{callOrderShared: &CallOrder{order: 0}}
+	systemd := &SystemdStub{}
 
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, log.Default())
-	err := disks.ActivateMultiDisk([]string{"/dev/sda"})
+	err := disks.ActivateDisks([]string{"/dev/sda"}, true)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, systemd.callOrder)
+	assert.True(t, systemd.removeMountCalled)
+	//assert.True(t, systemd.addMountCalled)
 	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
 
 }
 
+/*
 func TestDisks_ActivateMultiDisk_DiskToDisk_NotDeactivate(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "/dev/sda", "", []model.Partition{}, true, "", ""},
 	}
 	btrfs := &BtrfsDisksStub{}
-	systemd := &SystemdStub{callOrderShared: &CallOrder{order: 0}}
+	systemd := &SystemdStub{}
 
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, log.Default())
-	err := disks.ActivateMultiDisk([]string{"/dev/sda"})
+	err := disks.ActivateDisks([]string{"/dev/sda"}, true)
 	assert.Nil(t, err)
-	assert.Equal(t, 0, systemd.callOrder)
+	assert.True(t, systemd.removeMountCalled)
+	assert.True(t, systemd.addMountCalled)
 	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
-
-}
+}*/

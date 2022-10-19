@@ -59,14 +59,12 @@ func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
 		return nil, err
 	}
 	lsblkOutput := string(lsblkOutputBytes)
-	l.logger.Info(lsblkOutput)
 	lsblkLines := strings.Split(lsblkOutput, "\n")
 	for _, rawLine := range lsblkLines {
 		line := strings.TrimSpace(rawLine)
 		if line == "" {
 			continue
 		}
-		l.logger.Info("parsing", zap.String("line", line))
 		r := *regexp.MustCompile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)" UUID="(.*)"`)
 		match := r.FindStringSubmatch(line)
 		mountPoint := match[4]
@@ -109,14 +107,12 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 		if entry.IsSupportedType() && entry.IsSupportedFsType() {
 			device := entry.Name
 			diskName := entry.Model
-			l.logger.Info("adding", zap.String("disk", diskName))
 			active := entry.Active
 			if !active {
 				active = activeUuids[entry.Uuid]
 			}
 			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, entry.MountPoint, []model.Partition{})
 			if entry.IsRaid() {
-				l.logger.Info("adding raid partition", zap.String("disk", device))
 				disk.Name = entry.DeviceType
 				partition := l.createPartition(entry)
 				disk.AddPartition(partition)
@@ -125,7 +121,6 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 			disks[device] = disk
 
 		} else if entry.DeviceType == "part" {
-			l.logger.Info("adding", zap.String("regular partition", entry.Name))
 			partition := l.createPartition(entry)
 			parentDevice := entry.ParentDevice()
 

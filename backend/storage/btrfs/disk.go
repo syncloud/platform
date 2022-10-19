@@ -20,10 +20,15 @@ type DiskStats interface {
 	Stats() ([]*btrfs.Stats, error)
 }
 
+type Systemd interface {
+	AddMount(device string) error
+}
+
 type Disks struct {
 	config   Config
 	executor cli.CommandExecutor
 	stats    DiskStats
+	systemd  Systemd
 	logger   *zap.Logger
 }
 
@@ -31,43 +36,34 @@ func NewDisks(
 	config Config,
 	executor cli.CommandExecutor,
 	stats DiskStats,
+	systemd Systemd,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
 		config:   config,
 		executor: executor,
 		stats:    stats,
+		systemd:  systemd,
 		logger:   logger,
 	}
 }
 
-func (d *Disks) Update(devices []string, existingUuid string) (string, error) {
+func (d *Disks) Update(devices []string, existingUuid string, format bool) (string, error) {
 	existingDevices, err := d.ExistingDevices(existingUuid)
 	if err != nil {
 		return "", err
 	}
 	newUuid := uuid.New().String()
-	changes, err := d.Apply(existingDevices, devices, newUuid)
+	err = d.Apply(existingDevices, devices, newUuid, format)
 	if err != nil {
 		return "", err
 	}
-
-	for _, change := range changes {
-		output, err := d.executor.CommandOutput(change.Cmd, change.Args...)
-		if err != nil {
-			d.logger.Error(string(output))
-			return "", err
-		}
-		d.logger.Info("btrfs", zap.String("output", string(output)))
-	}
-
 	return newUuid, nil
 }
 
-func (d *Disks) Apply(before []string, after []string, newUuid string) ([]Change, error) {
+func (d *Disks) Apply(before []string, after []string, newUuid string, format bool) error {
 	removed := Diff(before, after)
 	added := Diff(after, before)
-	var changes []Change
 
 	//if len(removed) == len(added) {
 	//	for i, _ := range removed {
@@ -85,33 +81,55 @@ func (d *Disks) Apply(before []string, after []string, newUuid string) ([]Change
 	}
 
 	if len(before) == 0 {
-		change := NewChange(MKFS, "-U", newUuid, "-f", "-m", mode, "-d", mode)
-		change.Append(added...)
-		changes = append(changes, change)
+		if format {
+			args := []string{"-U", newUuid, "-f", "-m", mode, "-d", mode}
+			args = append(args, added...)
+			_, err := d.executor.CommandOutput(MKFS, args...)
+			if err != nil {
+				return err
+			}
+		}
+		err := d.systemd.AddMount(fmt.Sprintf("/dev/disk/by-uuid/%s", newUuid))
+		if err != nil {
+			return err
+		}
 	} else {
 		if len(added) > 0 {
-			change := NewChange(BTRFS, "device", "add")
-			change.Append(added...)
-			change.Append(d.config.ExternalDiskDir())
-			changes = append(changes, change)
-			change = NewChange(BTRFS, "balance", "start", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir())
-			changes = append(changes, change)
+			args := []string{"device", "add"}
+			args = append(args, added...)
+			args = append(args, d.config.ExternalDiskDir())
+			_, err := d.executor.CommandOutput(BTRFS, args...)
+			if err != nil {
+				return err
+			}
+
+			args = []string{"balance", "start", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir()}
+			_, err = d.executor.CommandOutput(BTRFS, args...)
+			if err != nil {
+				return err
+			}
 		}
 		if len(after) == 1 {
-			change := NewChange(BTRFS, "balance", "start", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir())
-			changes = append(changes, change)
+			args := []string{"balance", "start", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir()}
+			_, err := d.executor.CommandOutput(BTRFS, args...)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	if len(after) > 0 {
 		if len(removed) > 0 {
-			change := NewChange(BTRFS, "device", "delete")
-			change.Append(removed...)
-			change.Append(d.config.ExternalDiskDir())
-			changes = append(changes, change)
+			args := []string{"device", "delete"}
+			args = append(args, removed...)
+			args = append(args, d.config.ExternalDiskDir())
+			_, err := d.executor.CommandOutput(BTRFS, args...)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	return changes, nil
+	return nil
 }
 
 func Diff(from []string, to []string) []string {

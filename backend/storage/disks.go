@@ -59,7 +59,7 @@ type DisksFreeSpaceChecker interface {
 }
 
 type BtrfsDisks interface {
-	Update(devices []string, uuid string) (string, error)
+	Update(devices []string, uuid string, format bool) (string, error)
 }
 
 func NewDisks(
@@ -111,8 +111,8 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 	return d.lsblk.AvailableDisks()
 }
 
-func (d *Disks) ActivateMultiDisk(devices []string) error {
-	d.logger.Info("activate multi", zap.Strings("disks", devices))
+func (d *Disks) ActivateDisks(devices []string, format bool) error {
+	d.logger.Info("activate disks", zap.Strings("disks", devices))
 	if len(devices) < 1 {
 		return fmt.Errorf("cannot activate 0 disks")
 	}
@@ -120,25 +120,23 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 	if err != nil {
 		return err
 	}
-	if !d.IsMultiDisk(disks) {
-		err := d.DeactivateDisk()
-		if err != nil {
-			return err
-		}
+	err = d.Deactivate()
+	if err != nil {
+		return err
 	}
 
 	uuid := ""
 	for _, disk := range disks {
-		if disk.Active {
+		if slices.Contains(devices, disk.Device) {
 			uuid = disk.Uuid
 		}
 	}
-	uuid, err = d.btrfs.Update(devices, uuid)
-	return d.activateCommon(fmt.Sprintf("/dev/disk/by-uuid/%s", uuid), err)
+	uuid, err = d.btrfs.Update(devices, uuid, format)
+	return d.activateCommon()
 
 }
 
-func (d *Disks) IsMultiDisk(disks []model.Disk) bool {
+func (d *Disks) IsDiskMode(disks []model.Disk) bool {
 
 	for _, disk := range disks {
 		if disk.Active {
@@ -148,9 +146,9 @@ func (d *Disks) IsMultiDisk(disks []model.Disk) bool {
 	return false
 }
 
-func (d *Disks) ActivateDisk(device string) error {
-	d.logger.Info("activate", zap.String("disk", device))
-	err := d.DeactivateDisk()
+func (d *Disks) ActivatePartition(device string) error {
+	d.logger.Info("activate partition", zap.String("disk", device))
+	err := d.Deactivate()
 	if err != nil {
 		return err
 	}
@@ -163,17 +161,17 @@ func (d *Disks) ActivateDisk(device string) error {
 	if !slices.Contains(supportedFilesystems, fsType) {
 		return fmt.Errorf("filesystem type is not supported: %s, use one of the following: %s", fsType, strings.Join(supportedFilesystems, ","))
 	}
-
-	return d.activateCommon(device, err)
-}
-
-func (d *Disks) activateCommon(device string, err error) error {
 	err = d.systemd.AddMount(device)
 	if err != nil {
 		return err
 	}
 
-	err = d.linker.RelinkDisk(d.config.DiskLink(), d.config.ExternalDiskDir())
+	return d.activateCommon()
+}
+
+func (d *Disks) activateCommon() error {
+
+	err := d.linker.RelinkDisk(d.config.DiskLink(), d.config.ExternalDiskDir())
 	if err != nil {
 		return err
 	}
@@ -181,7 +179,7 @@ func (d *Disks) activateCommon(device string, err error) error {
 	return d.trigger.RunDiskChangeEvent()
 }
 
-func (d *Disks) DeactivateDisk() error {
+func (d *Disks) Deactivate() error {
 	d.logger.Info("deactivate disk")
 	err := d.linker.RelinkDisk(d.config.DiskLink(), d.config.InternalDiskDir())
 	if err != nil {

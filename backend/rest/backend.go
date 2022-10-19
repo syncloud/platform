@@ -104,8 +104,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
 	r.HandleFunc("/storage/disk/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
-	r.HandleFunc("/storage/disk/activate", Handle(b.StorageDiskActivate)).Methods("POST")
-	r.HandleFunc("/storage/disk/activate_multi", Handle(b.StorageMultiDiskActivate)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate/partition", Handle(b.StorageActivatePartition)).Methods("POST")
+	r.HandleFunc("/storage/disk/activate/disk", Handle(b.StorageActivateDisks)).Methods("POST")
 	r.HandleFunc("/storage/disks", Handle(b.StorageDisks)).Methods("GET")
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
@@ -317,11 +317,11 @@ func (b *Backend) StorageBootDisk(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) StorageDiskDeactivate(_ *http.Request) (interface{}, error) {
-	return "OK", b.disks.DeactivateDisk()
+	return "OK", b.disks.Deactivate()
 }
 
-func (b *Backend) StorageDiskActivate(req *http.Request) (interface{}, error) {
-	var request model.StorageDiskActivateRequest
+func (b *Backend) StorageActivatePartition(req *http.Request) (interface{}, error) {
+	var request model.StorageActivatePartitionRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err.Error())
@@ -335,15 +335,15 @@ func (b *Backend) StorageDiskActivate(req *http.Request) (interface{}, error) {
 		}
 	}
 
-	return "OK", b.disks.ActivateDisk(request.Device)
+	return "OK", b.disks.ActivatePartition(request.Device)
 }
 
-func (b *Backend) StorageMultiDiskActivate(req *http.Request) (interface{}, error) {
-	var request model.StorageMultiDiskActivateRequest
+func (b *Backend) StorageActivateDisks(req *http.Request) (interface{}, error) {
+	var request model.StorageActivateDisksRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, err
 	}
-	return "OK", b.disks.ActivateMultiDisk(request.Devices)
+	return "OK", b.disks.ActivateDisks(request.Devices, request.Format)
 }

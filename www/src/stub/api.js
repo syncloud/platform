@@ -399,7 +399,14 @@ export function mock () {
       this.get('/rest/storage/boot/disk', function (_schema, _request) {
         return new Response(200, {}, bootDiskData)
       })
-      this.post('/rest/storage/disk/activate', function (_schema, _request) {
+      this.post('/rest/storage/disk/activate/partition', function (_schema, _request) {
+        if (state.diskActionSuccess) {
+          return new Response(200, {}, disksData)
+        } else {
+          return new Response(200, {}, disksDataError)
+        }
+      })
+      this.post('/rest/storage/disk/activate/disk', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, disksData)
         } else {
