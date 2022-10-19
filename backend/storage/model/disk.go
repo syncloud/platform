@@ -46,12 +46,12 @@ func (d *Disk) HasRootPartition() bool {
 }
 
 func (d *Disk) IsAvailable() bool {
- if d.HasRootPartition() {
-   return false
- }
- if d.IsInternal() {
-   return false
- }
+	if d.HasRootPartition() {
+		return false
+	}
+	if d.IsInternal() {
+		return false
+	}
 	return true
 }
 

@@ -221,15 +221,45 @@ func TestDisks_ActivateMultiDisk_None(t *testing.T) {
 
 }
 
-func TestDisks_ActivateMultiDisk_Single(t *testing.T) {
+func TestDisks_ActivateMultiDisk_ReuseUuid(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", false, "fat32", false}}, true, "uuid", ""},
+		{"", "/dev/sda", "", []model.Partition{}, true, "uuid", ""},
 	}
 	btrfs := &BtrfsDisksStub{}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, log.Default())
 	err := disks.ActivateMultiDisk([]string{"/dev/sda"})
 	assert.Nil(t, err)
 	assert.Equal(t, "uuid", btrfs.uuid)
+	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
+
+}
+
+func TestDisks_ActivateMultiDisk_PartitionToDisk_Deactivate(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", ""},
+	}
+	btrfs := &BtrfsDisksStub{}
+	systemd := &SystemdStub{callOrderShared: &CallOrder{order: 0}}
+
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, log.Default())
+	err := disks.ActivateMultiDisk([]string{"/dev/sda"})
+	assert.Nil(t, err)
+	assert.Equal(t, 1, systemd.callOrder)
+	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
+
+}
+
+func TestDisks_ActivateMultiDisk_DiskToDisk_NotDeactivate(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{}, true, "", ""},
+	}
+	btrfs := &BtrfsDisksStub{}
+	systemd := &SystemdStub{callOrderShared: &CallOrder{order: 0}}
+
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, log.Default())
+	err := disks.ActivateMultiDisk([]string{"/dev/sda"})
+	assert.Nil(t, err)
+	assert.Equal(t, 0, systemd.callOrder)
 	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
 
 }

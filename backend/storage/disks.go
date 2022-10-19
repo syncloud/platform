@@ -113,11 +113,6 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 
 func (d *Disks) ActivateMultiDisk(devices []string) error {
 	d.logger.Info("activate multi", zap.Strings("disks", devices))
-	err := d.DeactivateDisk()
-	if err != nil {
-		return err
-	}
-
 	if len(devices) < 1 {
 		return fmt.Errorf("cannot activate 0 disks")
 	}
@@ -125,6 +120,13 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 	if err != nil {
 		return err
 	}
+	if !d.IsMultiDisk(disks) {
+		err := d.DeactivateDisk()
+		if err != nil {
+			return err
+		}
+	}
+
 	uuid := ""
 	for _, disk := range disks {
 		if disk.Active {
@@ -134,6 +136,16 @@ func (d *Disks) ActivateMultiDisk(devices []string) error {
 	uuid, err = d.btrfs.Update(devices, uuid)
 	return d.activateCommon(fmt.Sprintf("/dev/disk/by-uuid/%s", uuid), err)
 
+}
+
+func (d *Disks) IsMultiDisk(disks []model.Disk) bool {
+
+	for _, disk := range disks {
+		if disk.Active {
+			return true
+		}
+	}
+	return false
 }
 
 func (d *Disks) ActivateDisk(device string) error {

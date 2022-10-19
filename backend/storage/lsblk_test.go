@@ -243,8 +243,9 @@ NAME="/dev/loop0" SIZE="10M" TYPE="loop" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MOD
 }
 
 /*
-func TestLsblk_FindPartitionByDevice_Found(t *testing.T) {
-	output := `
+	func TestLsblk_FindPartitionByDevice_Found(t *testing.T) {
+		output := `
+
 NAME="/dev/sdb" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
 NAME="/dev/sdb1" SIZE="100M" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
 NAME="/dev/sdb2" SIZE="48.7G" TYPE="part" MOUNTPOINT="" PARTTYPE="0x7" FSTYPE="" MODEL="" UUID=""
@@ -253,21 +254,21 @@ NAME="/dev/sdc" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MOD
 NAME="/dev/sdc1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/test" PARTTYPE="0x83" FSTYPE="vfat" MODEL=" " UUID=""
 `
 
-	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
-	partition, err := lsblk.FindPartitionByDevice("/dev/sdc1")
-	assert.Nil(t, err)
-	assert.NotNil(t, partition)
-	assert.Equal(t, "/dev/sdc1", partition.Device)
-	assert.Equal(t, "/test", partition.MountPoint)
-}
+		lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+		partition, err := lsblk.FindPartitionByDevice("/dev/sdc1")
+		assert.Nil(t, err)
+		assert.NotNil(t, partition)
+		assert.Equal(t, "/dev/sdc1", partition.Device)
+		assert.Equal(t, "/test", partition.MountPoint)
+	}
 
-func TestLsblk_FindPartitionByDevice_NotFound(t *testing.T) {
-	output := ""
+	func TestLsblk_FindPartitionByDevice_NotFound(t *testing.T) {
+		output := ""
 
-	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
-	_, err := lsblk.FindPartitionByDevice("/dev/sdc1")
-	assert.NotNil(t, err)
-}
+		lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+		_, err := lsblk.FindPartitionByDevice("/dev/sdc1")
+		assert.NotNil(t, err)
+	}
 */
 func TestLsblk_AvailableDisks_BtrfsSupport(t *testing.T) {
 
