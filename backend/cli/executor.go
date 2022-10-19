@@ -22,7 +22,7 @@ func (e *Executor) CommandOutput(name string, arg ...string) ([]byte, error) {
 	output, err := exec.Command(name, arg...).CombinedOutput()
 	if err != nil {
 		e.logger.Error(string(output))
-		return nil, err
+		return output, err
 	}
 	return output, err
 }

@@ -136,16 +136,6 @@ func (d *Disks) ActivateDisks(devices []string, format bool) error {
 
 }
 
-func (d *Disks) IsDiskMode(disks []model.Disk) bool {
-
-	for _, disk := range disks {
-		if disk.Active {
-			return true
-		}
-	}
-	return false
-}
-
 func (d *Disks) ActivatePartition(device string) error {
 	d.logger.Info("activate partition", zap.String("disk", device))
 	err := d.Deactivate()
