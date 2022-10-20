@@ -90,7 +90,7 @@
         <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
           {{ descriptionByDisk(device) }}
         </span>
-        <span>
+        <span v-show="activeMultiDisks.length !== 0">
           Initialize disk by removing all data on it?
           <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
         </span>
@@ -100,7 +100,7 @@
         <span v-if="activeSinglePartition !== 'none'" style="font-weight: bold;">
           {{ descriptionByPartition(activeSinglePartition) }}
         </span>
-        <span v-if="activeSinglePartition !== 'none'">
+        <span v-show="activeSinglePartition !== 'none'">
           Initialize disk by removing all data on it?
           <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
         </span>

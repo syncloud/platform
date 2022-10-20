@@ -3,12 +3,11 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Storage from '../../src/views/Storage.vue'
-import Confirmation from '../../src/components/Confirmation.vue'
 import { ElSwitch, ElRadio, ElRadioGroup, ElCheckbox, ElCheckboxGroup } from 'element-plus'
 
 jest.setTimeout(30000)
 
-test('Activate single partition', async () => {
+test('Activate partition', async () => {
   let deviceAction = ''
   const showError = jest.fn()
 
@@ -84,7 +83,74 @@ test('Activate single partition', async () => {
   wrapper.unmount()
 })
 
-test('Activate single partition error', async () => {
+test('Deactivate partition', async () => {
+  let deactivated = false
+  const showError = jest.fn()
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: [
+        {
+          name: 'Name1',
+          device: '/dev/sdb',
+          active: false,
+          size: '2G',
+          partitions: [
+            { active: true, device: '/dev/sdb1', size: '931.5G' }
+          ]
+        }
+      ],
+      success: true
+    }
+  )
+  mock.onPost('/rest/storage/disk/deactivate').reply(function (_) {
+    deactivated = true
+    return [200, { success: true }]
+  })
+
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#none').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
+  await expect(wrapper.find('#format').isVisible()).toBe(false)
+  await wrapper.find('#partition_confirmation').trigger('confirm')
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(deactivated).toBe(true)
+  wrapper.unmount()
+})
+
+test('Activate partition error', async () => {
   let deviceAction = ''
   let error = ''
   const showError = (err) => {
@@ -163,7 +229,7 @@ test('Activate single partition error', async () => {
   wrapper.unmount()
 })
 
-test('Activate single partition service error', async () => {
+test('Activate partition service error', async () => {
   let deviceAction = ''
   let error = ''
   const showError = (err) => {
@@ -243,8 +309,8 @@ test('Activate single partition service error', async () => {
 })
 
 
-test('Activate multiple disks', async () => {
-  let devices = ''
+test('Activate disks', async () => {
+  let devices = []
   let error = ''
   const showError = (err) => {
     error = err
@@ -323,6 +389,78 @@ test('Activate multiple disks', async () => {
   
   expect(error).toBe('')
   expect(devices).toEqual(['/dev/sdb', '/dev/sdc'])
+  wrapper.unmount()
+})
+
+test('Deactivate disks', async () => {
+  let deactivated = false
+  let error = ''
+  const showError = (err) => {
+    error = err
+  }
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: [
+        {
+          name: 'Name1',
+          device: '/dev/sdb',
+          active: true,
+          size: '2G',
+          partitions: [
+            { active: false, device: '/dev/sdb1', size: '931.5G' }
+          ]
+        }
+      ],
+      success: true
+    }
+  )
+  mock.onPost('/rest/storage/disk/deactivate').reply(function (_) {
+    deactivated = true
+    return [200, { success: true }]
+  })
+  
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+  
+  await flushPromises()
+  
+  await wrapper.find('#disk_0').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
+  await flushPromises()
+  await expect(wrapper.find('#format').isVisible()).toBe(false)
+  await wrapper.find('#partition_confirmation').trigger('confirm')
+  
+  await flushPromises()
+  
+  expect(error).toBe('')
+  expect(deactivated).toBe(true)
   wrapper.unmount()
 })
 
