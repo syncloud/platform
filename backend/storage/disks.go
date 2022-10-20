@@ -112,7 +112,7 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 }
 
 func (d *Disks) ActivateDisks(devices []string, format bool) error {
-	d.logger.Info("activate disks", zap.Strings("disks", devices))
+	d.logger.Info("activate disks", zap.Strings("disks", devices), zap.Bool("format", format))
 	if len(devices) < 1 {
 		return fmt.Errorf("cannot activate 0 disks")
 	}
