@@ -20,6 +20,6 @@ func NewExecutor(logger *zap.Logger) *Executor {
 }
 
 func (e *Executor) CommandOutput(name string, arg ...string) ([]byte, error) {
-	e.logger.Info("execute", zap.String("cmd", fmt.Sprintf("%s %s", name, strings.Join(arg, " "))))
+	e.logger.Error("execute", zap.String("cmd", fmt.Sprintf("%s %s", name, strings.Join(arg, " "))))
 	return exec.Command(name, arg...).CombinedOutput()
 }

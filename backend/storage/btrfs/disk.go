@@ -3,7 +3,6 @@ package btrfs
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/prometheus/procfs/btrfs"
 	"github.com/syncloud/platform/cli"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
@@ -17,7 +16,7 @@ type Config interface {
 }
 
 type DiskStats interface {
-	Stats() ([]*btrfs.Stats, error)
+	ExistingDevices(uuid string) ([]string, error)
 }
 
 type Systemd interface {
@@ -49,19 +48,22 @@ func NewDisks(
 }
 
 func (d *Disks) Update(devices []string, existingUuid string, format bool) (string, error) {
-	existingDevices, err := d.ExistingDevices(existingUuid)
+	existingDevices, err := d.stats.ExistingDevices(existingUuid)
 	if err != nil {
 		return "", err
 	}
-	newUuid := uuid.New().String()
-	err = d.Apply(existingDevices, devices, newUuid, format)
+	newUuid := existingUuid
+	if format {
+		newUuid = uuid.New().String()
+	}
+	err = d.apply(existingDevices, devices, newUuid, format)
 	if err != nil {
 		return "", err
 	}
 	return newUuid, nil
 }
 
-func (d *Disks) Apply(before []string, after []string, newUuid string, format bool) error {
+func (d *Disks) apply(before []string, after []string, newUuid string, format bool) error {
 	removed := Diff(before, after)
 	added := Diff(after, before)
 
@@ -140,21 +142,4 @@ func Diff(from []string, to []string) []string {
 		}
 	}
 	return diff
-}
-
-func (d *Disks) ExistingDevices(uuid string) ([]string, error) {
-	stats, err := d.stats.Stats()
-	if err != nil {
-		return []string{}, err
-	}
-
-	var existing []string
-	for _, fs := range stats {
-		if fs.UUID == uuid {
-			for device, _ := range fs.Devices {
-				existing = append(existing, fmt.Sprintf("/dev/%s", device))
-			}
-		}
-	}
-	return existing, nil
 }

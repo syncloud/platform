@@ -120,6 +120,7 @@ func (d *Disks) ActivateDisks(devices []string, format bool) error {
 	if err != nil {
 		return err
 	}
+
 	err = d.Deactivate()
 	if err != nil {
 		return err
