@@ -9,7 +9,7 @@
 
               <div class="setline" style="margin-top: 20px;">
                 <div class="spandiv" style="font-weight: bold; margin-right: 10px;">
-                  Multi disk
+                  Disks
                   <el-switch size="large" id="multi" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
                 </div>
                 <button data-toggle="modal" data-target="#help_external_disk" type=button
@@ -77,11 +77,11 @@
                 @cancel="diskActionCancel">
     <template v-slot:title>
       <div v-if="multiMode">
-        <span v-if="activeMultiDisks.length !== 0">Activate multiple disks</span>
+        <span v-if="activeMultiDisks.length !== 0">Activate disks</span>
         <span v-if="activeMultiDisks.length === 0">Deactivate disk</span>
       </div>
       <div v-if="!multiMode">
-        <span v-if="activeSinglePartition !== 'none'">Activate disk</span>
+        <span v-if="activeSinglePartition !== 'none'">Activate partition</span>
         <span v-if="activeSinglePartition === 'none'">Deactivate disk</span>
       </div>
     </template>
@@ -89,9 +89,6 @@
       <div style="display: grid" v-if="multiMode">
         <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
           {{ descriptionByDisk(device) }}
-        </span>
-        <span v-if="activeMultiDisks.length !== 0" style="color: Tomato;">
-          It will remove all data on them!
         </span>
         <span>
           Initialize disk by removing all data on it?

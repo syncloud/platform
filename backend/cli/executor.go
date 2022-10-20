@@ -19,10 +19,5 @@ func NewExecutor(logger *zap.Logger) *Executor {
 
 func (e *Executor) CommandOutput(name string, arg ...string) ([]byte, error) {
 	e.logger.Info("execute", zap.Strings(name, arg))
-	output, err := exec.Command(name, arg...).CombinedOutput()
-	if err != nil {
-		e.logger.Error(string(output))
-		return output, err
-	}
-	return output, err
+	return exec.Command(name, arg...).CombinedOutput()
 }
