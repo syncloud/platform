@@ -116,13 +116,17 @@ func (e *StorageExecutorStub) CommandOutput(command string, args ...string) ([]b
 }
 
 type BtrfsDisksStub struct {
-	updated []string
-	uuid    string
+	existingDevices []string
+	newDevices      []string
+	uuid            string
+	format          bool
 }
 
-func (b *BtrfsDisksStub) Update(devices []string, uuid string, format bool) (string, error) {
-	b.updated = devices
+func (b *BtrfsDisksStub) Update(existingDevices []string, newDevices []string, uuid string, format bool) (string, error) {
+	b.existingDevices = existingDevices
+	b.newDevices = newDevices
 	b.uuid = uuid
+	b.format = format
 	return uuid, nil
 }
 
@@ -235,7 +239,7 @@ func TestDisks_ActivateMultiDisk_UseUuid(t *testing.T) {
 	err := disks.ActivateDisks([]string{"/dev/sdb"}, true)
 	assert.Nil(t, err)
 	assert.Equal(t, "uuid2", btrfs.uuid)
-	assert.Equal(t, []string{"/dev/sdb"}, btrfs.updated)
+	assert.Equal(t, []string{"/dev/sdb"}, btrfs.newDevices)
 
 }
 
@@ -251,7 +255,7 @@ func TestDisks_ActivateMultiDisk_PartitionToDisk_Deactivate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, systemd.removeMountCalled)
 	//assert.True(t, systemd.addMountCalled)
-	assert.Equal(t, []string{"/dev/sda"}, btrfs.updated)
+	assert.Equal(t, []string{"/dev/sda"}, btrfs.newDevices)
 
 }
 

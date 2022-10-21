@@ -16,7 +16,7 @@ type Config interface {
 }
 
 type DiskStats interface {
-	ExistingDevices(uuid string) ([]string, error)
+	ExistingMountedDevices(uuid string) ([]string, error)
 }
 
 type Systemd interface {
@@ -26,7 +26,6 @@ type Systemd interface {
 type Disks struct {
 	config   Config
 	executor cli.CommandExecutor
-	stats    DiskStats
 	systemd  Systemd
 	logger   *zap.Logger
 }
@@ -34,29 +33,23 @@ type Disks struct {
 func NewDisks(
 	config Config,
 	executor cli.CommandExecutor,
-	stats DiskStats,
 	systemd Systemd,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
 		config:   config,
 		executor: executor,
-		stats:    stats,
 		systemd:  systemd,
 		logger:   logger,
 	}
 }
 
-func (d *Disks) Update(devices []string, existingUuid string, format bool) (string, error) {
-	existingDevices, err := d.stats.ExistingDevices(existingUuid)
-	if err != nil {
-		return "", err
-	}
+func (d *Disks) Update(existingDevices []string, newDevices []string, existingUuid string, format bool) (string, error) {
 	newUuid := existingUuid
 	if format {
 		newUuid = uuid.New().String()
 	}
-	err = d.apply(existingDevices, devices, newUuid, format)
+	err := d.apply(existingDevices, newDevices, newUuid, format)
 	if err != nil {
 		return "", err
 	}

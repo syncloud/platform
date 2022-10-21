@@ -24,14 +24,6 @@ func (e *ExecutorStub) CommandOutput(command string, args ...string) ([]byte, er
 	return []byte(""), nil
 }
 
-type StatsStub struct {
-	devices []string
-}
-
-func (s *StatsStub) ExistingDevices(_ string) ([]string, error) {
-	return s.devices, nil
-}
-
 type SystemdStub struct {
 	addMountCalled bool
 }
@@ -43,8 +35,8 @@ func (s *SystemdStub) AddMount(_ string) error {
 
 func Test_DetectChange_1_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{"/dev/loop1", "/dev/loop2"}}, &SystemdStub{}, log.Default()}
-	uuid, err := disks.Update([]string{"/dev/loop1", "/dev/loop3"}, "uuid", false)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	uuid, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1", "/dev/loop3"}, "uuid", false)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "uuid", uuid)
@@ -56,8 +48,8 @@ func Test_DetectChange_1_To_1(t *testing.T) {
 
 func Test_DetectChange_1_To_2(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{"/dev/loop1"}}, &SystemdStub{}, log.Default()}
-	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, "", false)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	_, err := disks.Update([]string{"/dev/loop1"}, []string{"/dev/loop1", "/dev/loop2"}, "", false)
 
 	assert.Nil(t, err)
 	assert.Len(t, executor.commands, 2)
@@ -68,8 +60,8 @@ func Test_DetectChange_1_To_2(t *testing.T) {
 func Test_DetectChange_0_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{}}, systemd, log.Default()}
-	uuid, err := disks.Update([]string{"/dev/loop1"}, "uuid", false)
+	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	uuid, err := disks.Update([]string{}, []string{"/dev/loop1"}, "uuid", false)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "uuid", uuid)
@@ -80,8 +72,8 @@ func Test_DetectChange_0_To_1(t *testing.T) {
 func Test_DetectChange_0_To_1_Format(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{}}, systemd, log.Default()}
-	uuid, err := disks.Update([]string{"/dev/loop1"}, "uuid", true)
+	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	uuid, err := disks.Update([]string{}, []string{"/dev/loop1"}, "uuid", true)
 
 	assert.Nil(t, err)
 	assert.NotEqual(t, "uuid", uuid)
@@ -92,8 +84,8 @@ func Test_DetectChange_0_To_1_Format(t *testing.T) {
 
 func Test_DetectChange_0_To_2_Format(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{}}, &SystemdStub{}, log.Default()}
-	uuid, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, "uuid", true)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	uuid, err := disks.Update([]string{}, []string{"/dev/loop1", "/dev/loop2"}, "uuid", true)
 
 	assert.Nil(t, err)
 	assert.NotEqual(t, "uuid", uuid)
@@ -103,8 +95,8 @@ func Test_DetectChange_0_To_2_Format(t *testing.T) {
 
 func Test_DetectChange_2_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{"/dev/loop1", "/dev/loop2"}}, &SystemdStub{}, log.Default()}
-	_, err := disks.Update([]string{"/dev/loop1"}, "", false)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1"}, "", false)
 
 	assert.Nil(t, err)
 	assert.Len(t, executor.commands, 2)
@@ -115,8 +107,8 @@ func Test_DetectChange_2_To_1(t *testing.T) {
 
 func Test_DetectChange_1_To_0(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{"/dev/loop1"}}, &SystemdStub{}, log.Default()}
-	_, err := disks.Update([]string{}, "", false)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	_, err := disks.Update([]string{"/dev/loop1"}, []string{}, "", false)
 
 	assert.Nil(t, err)
 	assert.Len(t, executor.commands, 0)
@@ -124,8 +116,8 @@ func Test_DetectChange_1_To_0(t *testing.T) {
 
 func Test_DetectChange_2_To_0(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{"/dev/loop1", "/dev/loop2"}}, &SystemdStub{}, log.Default()}
-	_, err := disks.Update([]string{}, "", false)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{}, "", false)
 
 	assert.Nil(t, err)
 	assert.Len(t, executor.commands, 0)
@@ -133,8 +125,8 @@ func Test_DetectChange_2_To_0(t *testing.T) {
 
 func Test_DetectChange_0_To_3(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{}}, &SystemdStub{}, log.Default()}
-	uuid, err := disks.Update([]string{"/dev/loop1", "/dev/loop2", "/dev/loop3"}, "uuid", true)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	uuid, err := disks.Update([]string{}, []string{"/dev/loop1", "/dev/loop2", "/dev/loop3"}, "uuid", true)
 
 	assert.Nil(t, err)
 	assert.Len(t, executor.commands, 1)
@@ -143,8 +135,8 @@ func Test_DetectChange_0_To_3(t *testing.T) {
 
 func Test_DetectChange_1_To_3(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &StatsStub{[]string{"/dev/loop1"}}, &SystemdStub{}, log.Default()}
-	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2", "/dev/loop3"}, "uuid", false)
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	_, err := disks.Update([]string{"/dev/loop1"}, []string{"/dev/loop1", "/dev/loop2", "/dev/loop3"}, "uuid", false)
 
 	assert.Nil(t, err)
 	assert.Len(t, executor.commands, 2)

@@ -158,7 +158,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *storage.Linker { return storage.NewLinker() })
 	Singleton(func() *btrfs.Stats { return btrfs.New() })
 	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, stats *btrfs.Stats, systemd *systemd.Control) *btrfs.Disks {
-		return btrfs.NewDisks(systemConfig, executor, stats, systemd, logger)
+		return btrfs.NewDisks(systemConfig, executor, systemd, logger)
 	})
 	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker,
 		systemd *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk,

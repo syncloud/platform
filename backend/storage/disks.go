@@ -59,7 +59,7 @@ type DisksFreeSpaceChecker interface {
 }
 
 type BtrfsDisks interface {
-	Update(devices []string, uuid string, format bool) (string, error)
+	Update(existingDevices []string, newDevices []string, uuid string, format bool) (string, error)
 }
 
 func NewDisks(
@@ -111,9 +111,9 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 	return d.lsblk.AvailableDisks()
 }
 
-func (d *Disks) ActivateDisks(devices []string, format bool) error {
-	d.logger.Info("activate disks", zap.Strings("disks", devices), zap.Bool("format", format))
-	if len(devices) < 1 {
+func (d *Disks) ActivateDisks(newDevices []string, format bool) error {
+	d.logger.Info("activate disks", zap.Strings("disks", newDevices), zap.Bool("format", format))
+	if len(newDevices) < 1 {
 		return fmt.Errorf("cannot activate 0 disks")
 	}
 	disks, err := d.lsblk.AllDisks()
@@ -128,11 +128,18 @@ func (d *Disks) ActivateDisks(devices []string, format bool) error {
 
 	uuid := ""
 	for _, disk := range disks {
-		if slices.Contains(devices, disk.Device) {
+		if slices.Contains(newDevices, disk.Device) {
 			uuid = disk.Uuid
 		}
 	}
-	uuid, err = d.btrfs.Update(devices, uuid, format)
+
+	var existingDevices []string
+	for _, disk := range disks {
+		if disk.Active {
+			existingDevices = append(existingDevices, disk.Device)
+		}
+	}
+	uuid, err = d.btrfs.Update(existingDevices, newDevices, uuid, format)
 	return d.activateCommon()
 
 }

@@ -20,7 +20,7 @@ func (s *Stats) Stats() ([]*btrfs.Stats, error) {
 	return fs.Stats()
 }
 
-func (s *Stats) ExistingDevices(uuid string) ([]string, error) {
+func (s *Stats) ExistingMountedDevices(uuid string) ([]string, error) {
 	stats, err := s.Stats()
 	if err != nil {
 		return []string{}, err
