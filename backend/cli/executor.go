@@ -1,14 +1,29 @@
 package cli
 
-import "os/exec"
+import (
+	"fmt"
+	"go.uber.org/zap"
+	"os/exec"
+	"strings"
+)
 
 type Executor struct {
+	logger *zap.Logger
 }
 
 type CommandExecutor interface {
 	CommandOutput(name string, arg ...string) ([]byte, error)
 }
 
+func NewExecutor(logger *zap.Logger) *Executor {
+	return &Executor{logger: logger}
+}
+
 func (e *Executor) CommandOutput(name string, arg ...string) ([]byte, error) {
-	return exec.Command(name, arg...).CombinedOutput()
+	e.logger.Info("execute", zap.String("cmd", fmt.Sprintf("%s %s", name, strings.Join(arg, " "))))
+	output, err := exec.Command(name, arg...).CombinedOutput()
+	if err != nil {
+		return output, fmt.Errorf(string(output))
+	}
+	return output, err
 }

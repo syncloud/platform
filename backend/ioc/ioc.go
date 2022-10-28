@@ -25,6 +25,7 @@ import (
 	"github.com/syncloud/platform/rest"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
+	"github.com/syncloud/platform/storage/btrfs"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
@@ -50,13 +51,13 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	})
 	Singleton(func() *zap.Logger { return logger })
 	NamedSingleton(CertificateLogger, func() *zap.Logger {
-		return logger.With(zap.String(log.CategoryKey, log.CategoryValue))
+		return logger.With(zap.String(log.CategoryKey, log.CategoryCertificate))
 	})
 	Singleton(func() *network.Interface { return network.New() })
 	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
 	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
-	Singleton(func() *cli.Executor { return &cli.Executor{} })
+	Singleton(func(logger *zap.Logger) *cli.Executor { return cli.NewExecutor(logger) })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
 	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
@@ -117,8 +118,8 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, userConfig *config.UserConfig) *cron.Cron {
 		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
 	})
-	Singleton(func() *job.Master { return job.NewMaster() })
-	Singleton(func(master *job.Master) *job.Worker { return job.NewWorker(master) })
+	Singleton(func() *job.SingleJobMaster { return job.NewMaster() })
+	Singleton(func(master *job.SingleJobMaster) *job.Worker { return job.NewWorker(master) })
 	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
@@ -142,11 +143,10 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)
 	})
-	Singleton(func() cert.JournalCtl { return cert.NewJournalCtl() })
-	Singleton(func(journal cert.JournalCtl) *cert.Reader { return cert.NewReader(journal) })
+	Singleton(func(executor *cli.Executor) *systemd.JournalCtl { return systemd.NewJournalCtl(executor) })
 
-	Singleton(func(certGenerator *cert.CertificateGenerator, certReader *cert.Reader) *rest.Certificate {
-		return rest.NewCertificate(certGenerator, certReader)
+	Singleton(func(certGenerator *cert.CertificateGenerator, journalCtl *systemd.JournalCtl) *rest.Certificate {
+		return rest.NewCertificate(certGenerator, journalCtl)
 	})
 
 	Singleton(func(config *config.SystemConfig) *storage.PathChecker { return storage.NewPathChecker(config, logger) })
@@ -155,17 +155,25 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	})
 	Singleton(func(executor *cli.Executor) *storage.FreeSpaceChecker { return storage.NewFreeSpaceChecker(executor) })
 	Singleton(func() *storage.Linker { return storage.NewLinker() })
-	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker, control *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk, linker *storage.Linker) *storage.Disks {
-		return storage.NewDisks(systemConfig, eventTrigger, lsblk, control, freeSpaceChecker, linker, logger)
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor) *btrfs.Stats {
+		return btrfs.NewStats(systemConfig, executor)
+	})
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, stats *btrfs.Stats, systemd *systemd.Control) *btrfs.Disks {
+		return btrfs.NewDisks(systemConfig, executor, systemd, logger)
+	})
+	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker,
+		systemd *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk,
+		executor *cli.Executor, linker *storage.Linker, btrfs *btrfs.Disks, stats *btrfs.Stats) *storage.Disks {
+		return storage.NewDisks(systemConfig, eventTrigger, lsblk, systemd, freeSpaceChecker, linker, executor, btrfs, stats, logger)
 	})
 
-	Singleton(func(master *job.Master, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
+	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Snapd, disks *storage.Disks,
+		externalAddress *access.ExternalAddress, snapd *snap.Snapd, disks *storage.Disks, journalCtl *systemd.JournalCtl,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks, journalCtl)
 	})
 
 }

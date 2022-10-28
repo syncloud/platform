@@ -2,7 +2,8 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Support from '@/views/Support'
+import Support from '../../src/views/Support.vue'
+import { ElSwitch } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -28,9 +29,7 @@ test('Send logs to the owner', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button id="switch" />'
-          }
+          'el-switch': ElSwitch,
         }
       }
     }
@@ -68,9 +67,7 @@ test('Send logs to support', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button id="switch" />'
-          }
+          'el-switch': ElSwitch,
         }
       }
     }
@@ -78,7 +75,7 @@ test('Send logs to support', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#switch').trigger('toggle')
+  await wrapper.find('#switch').trigger('click')
   await wrapper.find('#send').trigger('click')
 
   expect(showError).toHaveBeenCalledTimes(0)

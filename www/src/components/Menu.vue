@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="content">
       <div class="headblock">
-        <header class="wd12" v-click-outside="close">
+        <header class="wd12">
           <div class="logo" :class="{ onelogo: !loggedIn }">Syncloud</div>
           <div class="menulinks" v-if="loggedIn">
             <router-link to="/" id="apps" class="apps hlink" :class="{ active: activeTab === '/' }">Apps</router-link>
@@ -54,7 +54,7 @@
 
 <script>
 import axios from 'axios'
-import Error from '@/components/Error'
+import Error from '../components/Error.vue'
 
 export default {
   props: {

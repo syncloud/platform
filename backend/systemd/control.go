@@ -43,7 +43,7 @@ func (c *Control) RemoveMount() error {
 }
 
 func (c *Control) AddMount(device string) error {
-
+	c.logger.Info("adding mount", zap.String("device", device))
 	mountTemplateFile := path.Join(c.config.ConfigDir(), "mount", "mount.template")
 	mountDefinition, err := template.ParseFiles(mountTemplateFile)
 	if err != nil {
@@ -122,6 +122,7 @@ func (c *Control) stop(service string) string {
 	isAliveOutput, err := c.executor.CommandOutput("systemctl", "is-active", service)
 	isAliveResult := strings.TrimSpace(string(isAliveOutput))
 	if err != nil {
+		c.logger.Info("is-active", zap.String("output", string(isAliveOutput)))
 		return isAliveResult
 	}
 	c.logger.Info("stopping", zap.String("service", service))

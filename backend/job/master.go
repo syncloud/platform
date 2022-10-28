@@ -5,60 +5,60 @@ import (
 	"sync"
 )
 
-type Master struct {
+type SingleJobMaster struct {
 	mutex  *sync.Mutex
-	status JobStatus
+	status int
 	job    func()
+	name   string
 }
 
-func NewMaster() *Master {
-
-	master := &Master{
+func NewMaster() *SingleJobMaster {
+	return &SingleJobMaster{
 		mutex:  &sync.Mutex{},
-		status: JobStatusIdle,
+		status: Idle,
 	}
-	return master
 }
 
-func (master *Master) Status() JobStatus {
-	master.mutex.Lock()
-	defer master.mutex.Unlock()
-	return master.status
+func (m *SingleJobMaster) Status() Status {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	return NewStatus(m.name, m.status)
 }
 
-func (master *Master) Offer(job func()) error {
-	master.mutex.Lock()
-	defer master.mutex.Unlock()
-	if master.status == JobStatusIdle {
-		master.status = JobStatusWaiting
-		master.job = job
+func (m *SingleJobMaster) Offer(name string, job func()) error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	if m.status == Idle {
+		m.status = Waiting
+		m.job = job
+		m.name = name
 		return nil
 	} else {
 		return fmt.Errorf("busy")
 	}
 }
 
-func (master *Master) Take() (func(), error) {
+func (m *SingleJobMaster) Take() (func(), error) {
 
-	master.mutex.Lock()
-	defer master.mutex.Unlock()
-	if master.status == JobStatusWaiting {
-		master.status = JobStatusBusy
-		return master.job, nil
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	if m.status == Waiting {
+		m.status = Busy
+		return m.job, nil
 	} else {
 		return nil, fmt.Errorf("no tasks")
 	}
 }
 
-func (master *Master) Complete() error {
-	master.mutex.Lock()
-	defer master.mutex.Unlock()
-	if master.status == JobStatusBusy {
-		master.status = JobStatusIdle
-		master.job = nil
+func (m *SingleJobMaster) Complete() error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	if m.status == Busy {
+		m.status = Idle
+		m.job = nil
+		m.name = ""
 		return nil
 	} else {
 		return fmt.Errorf("nothing to complete")
 	}
-
 }

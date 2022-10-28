@@ -55,8 +55,7 @@
 <script>
 import $ from 'jquery'
 import 'bootstrap'
-import 'bootstrap-switch'
-import Error from '@/components/Error'
+import Error from '../components/Error.vue'
 import toastr from 'toastr'
 import { Grid } from 'ag-grid-community'
 import axios from 'axios'
@@ -183,8 +182,8 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
-@import '~toastr/build/toastr.css';
-@import "~ag-grid-community/dist/styles/ag-grid.css";
-@import "~ag-grid-community/dist/styles/ag-theme-balham.css";
+@import 'material-icons/iconfont/material-icons.css';
+@import 'toastr/build/toastr.css';
+@import "ag-grid-community/dist/styles/ag-grid.css";
+@import "ag-grid-community/dist/styles/ag-theme-balham.css";
 </style>

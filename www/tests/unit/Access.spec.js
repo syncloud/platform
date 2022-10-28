@@ -2,7 +2,8 @@ import { mount } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Access from '@/views/Access'
+import Access from '../../src/views/Access.vue'
+import { ElSwitch } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -37,10 +38,7 @@ test('Private ipv4 disable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: { id: String }
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -49,7 +47,7 @@ test('Private ipv4 disable', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
@@ -90,10 +88,7 @@ test('Private ipv4 enable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: { id: String }
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -102,7 +97,8 @@ test('Private ipv4 enable', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -145,10 +141,7 @@ test('Public ipv4 enable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: { id: String }
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -156,8 +149,8 @@ test('Public ipv4 enable', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -199,10 +192,7 @@ test('Public ipv4 auto detect', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -210,9 +200,9 @@ test('Public ipv4 auto detect', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
-  await wrapper.find('#tgl_ip_autodetect').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
+  await wrapper.find('#tgl_ip_autodetect').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -252,10 +242,7 @@ test('Ipv6 enable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -263,8 +250,9 @@ test('Ipv6 enable', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv6_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
+  await wrapper.find('#tgl_ipv6_enabled').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -304,10 +292,7 @@ test('Ipv6 disable', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -315,8 +300,9 @@ test('Ipv6 disable', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv6_enabled').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
+  await wrapper.find('#tgl_ipv6_enabled').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -358,10 +344,7 @@ test('Public access port set', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -369,8 +352,8 @@ test('Public access port set', async () => {
   )
 
   await flushPromises()
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -409,10 +392,7 @@ test('Save http error', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -421,8 +401,8 @@ test('Save http error', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -462,10 +442,7 @@ test('Save service error', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -474,8 +451,8 @@ test('Save service error', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(443)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -518,10 +495,7 @@ test('Access port wrong', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -530,8 +504,8 @@ test('Access port wrong', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(0)
   await wrapper.find('#btn_save').trigger('click')
 
@@ -575,10 +549,7 @@ test('Access port 443 no warning', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -626,10 +597,7 @@ test('Access port non 443 shows warning', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -680,10 +648,7 @@ test('Access port is always 443 in ipv4 private', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -692,10 +657,10 @@ test('Access port is always 443 in ipv4 private', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#access_port').setValue(0)
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
@@ -737,10 +702,7 @@ test('Manual Ipv4 default value', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -749,9 +711,9 @@ test('Manual Ipv4 default value', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
-  await wrapper.find('#tgl_ip_autodetect').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
+  await wrapper.find('#tgl_ip_autodetect').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
@@ -792,10 +754,7 @@ test('Manual Ipv4 empty value', async () => {
               showAxios: showError
             }
           },
-          Switch: {
-            template: '<button :id="id" />',
-            props: ['id']
-          },
+          'el-switch': ElSwitch,
           Dialog: true
         }
       }
@@ -804,14 +763,142 @@ test('Manual Ipv4 empty value', async () => {
 
   await flushPromises()
 
-  await wrapper.find('#tgl_ipv4_enabled').trigger('toggle')
-  await wrapper.find('#tgl_ipv4_public').trigger('toggle')
-  await wrapper.find('#tgl_ip_autodetect').trigger('toggle')
+  await wrapper.find('#tgl_ipv4_enabled').trigger('click')
+  await wrapper.find('#tgl_ipv4_public').trigger('click')
+  await wrapper.find('#tgl_ip_autodetect').trigger('click')
   await wrapper.find('#ipv4').setValue(' ')
   await wrapper.find('#btn_save').trigger('click')
 
   await flushPromises()
 
   expect(error).toBe('Empty IP')
+  wrapper.unmount()
+})
+
+test('show ipv4 disabled', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: false
+      },
+      success: true
+    }
+  )
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#tgl_ipv4_public').exists()).toBe(false)
+  
+  wrapper.unmount()
+})
+
+test('show ipv4 enabled private', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: true,
+        ipv4_public: false,
+      },
+      success: true
+    }
+  )
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#tgl_ipv4_public').exists()).toBe(true)
+  expect(wrapper.find('#tgl_ip_autodetect').exists()).toBe(false)
+  
+  wrapper.unmount()
+})
+
+test('show ipv4 enabled public auto detect', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/access').reply(200,
+    {
+      data: {
+        ipv4_enabled: true,
+        ipv4_public: true,
+      },
+      success: true
+    }
+  )
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  const wrapper = mount(Access,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          Dialog: true
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(wrapper.find('#tgl_ipv4_public').exists()).toBe(true)
+  expect(wrapper.find('#tgl_ip_autodetect').exists()).toBe(true)
+  expect(wrapper.find('#ipv4').exists()).toBe(false)
+  
   wrapper.unmount()
 })

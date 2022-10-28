@@ -42,12 +42,11 @@
                       <br><br>
                       Personal support for your device
                     </li>
-<!--                    <li class="description">Personal support for your device</li>-->
+                    <!--                    <li class="description">Personal support for your device</li>-->
                     <li>
-                      <button id="btn_premium_domain" class="buttongreen"
-                              @click="selectPremiumDomain">
-                        Select
-                      </button>
+                      <el-button id="btn_premium_domain" class="buttongreen" type="success"
+                                 @click="selectPremiumDomain">Select
+                      </el-button>
                     </li>
                   </ul>
                 </div>
@@ -57,10 +56,9 @@
                     <li class="description">Syncloud will manage DNS records for [name].{{ redirect_domain }} domain
                     </li>
                     <li>
-                      <button id="btn_free_domain" class="buttongreen"
-                              @click="selectFreeDomain">
+                      <el-button id="btn_free_domain" class="buttongreen" type="success" @click="selectFreeDomain">
                         Select
-                      </button>
+                      </el-button>
                     </li>
                   </ul>
                 </div>
@@ -69,10 +67,10 @@
                     <li class="header">Custom</li>
                     <li class="description">You will manage DNS records for your domain (like example.com)</li>
                     <li>
-                      <button id="btn_custom_domain" class="buttongreen"
-                              @click="selectCustomDomain">
+                      <el-button id="btn_custom_domain" class="buttongreen" type="success"
+                                 @click="selectCustomDomain">
                         Select
-                      </button>
+                      </el-button>
                     </li>
                   </ul>
                 </div>
@@ -82,7 +80,7 @@
                 <div v-if="domainType === 'free'">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Domain Account</h2>
-                    <button @click="showFreeAccountHelp" type=button
+                    <button @click="showFreeAccountHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -104,7 +102,7 @@
                   </div>
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showManagedDomainHelp" type=button
+                    <button @click="showManagedDomainHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -121,7 +119,7 @@
                 <div v-if=" domainType === 'custom' ">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showCustomDomainHelp" type=button
+                    <button @click="showCustomDomainHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -135,7 +133,7 @@
                 <div v-if=" domainType === 'premium' ">
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Syncloud Account</h2>
-                    <button @click="showPremiumAccountHelp" type=button
+                    <button @click="showPremiumAccountHelp" type="button" class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -151,7 +149,7 @@
 
                   <div style="text-align: center">
                     <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showManagedDomainHelp" type=button
+                    <button @click="showManagedDomainHelp" type=button class="control"
                             style="vertical-align: super; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
@@ -166,14 +164,14 @@
                 </div>
 
                 <div style="padding: 10px; float: left;">
-                  <button class="buttonblue" @click="stepper.previous()">
+                  <el-button class="buttonblue" type="primary" @click="stepper.previous()">
                     Previous
-                  </button>
+                  </el-button>
                 </div>
                 <div style="padding: 10px; float: right;">
-                  <button id="btn_next" class="buttonblue" @click="selectDeviceName">
+                  <el-button id="btn_next" type="primary" class="buttonblue" @click="selectDeviceName">
                     Next
-                  </button>
+                  </el-button>
                 </div>
               </div>
               <div id="device-credentials-part" class="content formblock" role="tabpanel"
@@ -181,7 +179,7 @@
 
                 <div style="text-align: center">
                   <h2 style="display: inline-block">Device Credentials</h2>
-                  <button @click="showDeviceCredentialHelp" type=button
+                  <button @click="showDeviceCredentialHelp" type=button class="control"
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
                   </button>
@@ -194,15 +192,15 @@
                 <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
 
                 <div style="padding: 10px; float: left;">
-                  <button class="buttonblue" @click="stepper.previous()">
+                  <el-button class="buttonblue" type="primary" @click="stepper.previous()">
                     Previous
-                  </button>
+                  </el-button>
                 </div>
                 <div style="padding: 10px; float: right;">
-                  <button id="btn_activate" class="buttonblue" @click="activate"
-                          data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
+                  <el-button id="btn_activate" class="buttonblue" type="primary" @click="activate"
+                             data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
                     Finish
-                  </button>
+                  </el-button>
                 </div>
               </div>
 
@@ -290,11 +288,10 @@
 import axios from 'axios'
 import $ from 'jquery'
 import 'bootstrap'
-import 'bootstrap-switch'
 import Stepper from 'bs-stepper'
-import Error from '@/components/Error'
-import 'gasparesganga-jquery-loading-overlay'
-import Dialog from '@/components/Dialog'
+import Error from '../components/Error.vue'
+import Dialog from '../components/Dialog.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Activate',
@@ -309,7 +306,7 @@ export default {
   data () {
     return {
       domainType: 'free',
-      loading: false,
+      loading: undefined,
       redirectEmail: '',
       redirectPassword: '',
       domain: '',
@@ -320,22 +317,29 @@ export default {
     }
   },
   mounted () {
+    this.progressShow()
     this.stepper = new Stepper(document.querySelector('.bs-stepper'))
     axios
       .get('/rest/redirect_info')
       .then(response => {
         this.redirect_domain = response.data.data.domain
+        this.progressHide()
       })
       .catch(err => {
-        this.$refs.error.showAxios(err)
+        this.progressHide()
+        if (err.response.status !== 502) {
+          this.$refs.error.showAxios(err)
+        }
       })
   },
   methods: {
     progressShow () {
-      $('#block_activate').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_activate').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     },
     activate (event) {
       event.preventDefault()
@@ -461,8 +465,9 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
-@import '~bs-stepper/dist/css/bs-stepper.css';
+@import 'material-icons/iconfont/material-icons.css';
+@import 'bs-stepper/dist/css/bs-stepper.css';
+@import 'font-awesome/css/font-awesome.css';
 
 .active .bs-stepper-circle {
   background-color: #02a0dc;

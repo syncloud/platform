@@ -1,23 +1,27 @@
 package rest
 
 import (
+	"fmt"
 	"github.com/syncloud/platform/cert"
+	"github.com/syncloud/platform/log"
+	"github.com/syncloud/platform/systemd"
 	"net/http"
+	"strings"
 )
 
 type Certificate struct {
 	infoReader CertificateInfoReader
-	logReader  *cert.Reader
+	journalCtl systemd.JournalCtlReader
 }
 
 type CertificateInfoReader interface {
 	ReadCertificateInfo() *cert.Info
 }
 
-func NewCertificate(infoReader CertificateInfoReader, certLogReader *cert.Reader) *Certificate {
+func NewCertificate(infoReader CertificateInfoReader, journalCtl systemd.JournalCtlReader) *Certificate {
 	return &Certificate{
 		infoReader: infoReader,
-		logReader:  certLogReader,
+		journalCtl: journalCtl,
 	}
 }
 
@@ -26,5 +30,7 @@ func (c *Certificate) Certificate(_ *http.Request) (interface{}, error) {
 }
 
 func (c *Certificate) CertificateLog(_ *http.Request) (interface{}, error) {
-	return c.logReader.Read(), nil
+	return c.journalCtl.ReadBackend(func(line string) bool {
+		return strings.Contains(line, fmt.Sprintf(`"%s": "%s"`, log.CategoryKey, log.CategoryCertificate))
+	}), nil
 }

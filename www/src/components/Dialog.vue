@@ -25,7 +25,6 @@
   </div>
 </template>
 <script>
-import 'bootstrap'
 import $ from 'jquery'
 
 export default {
