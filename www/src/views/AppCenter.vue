@@ -19,11 +19,9 @@
 <script>
 import axios from 'axios'
 import 'bootstrap'
-import 'bootstrap-switch'
 import * as Common from '../js/common.js'
-import Error from '@/components/Error'
-import 'gasparesganga-jquery-loading-overlay'
-import $ from 'jquery'
+import Error from '../components/Error.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'AppCenter',
@@ -33,7 +31,8 @@ export default {
   },
   data () {
     return {
-      apps: undefined
+      apps: undefined,
+      loading: undefined
     }
   },
   components: {
@@ -62,15 +61,17 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_apps').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_apps').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     }
   }
 }
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 </style>

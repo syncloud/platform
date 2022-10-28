@@ -17,11 +17,12 @@ const routes = [
   { path: '/support', name: 'Support', component: () => import('../views/Support.vue') },
   { path: '/certificate', name: 'Certificate', component: () => import('../views/Certificate.vue') },
   { path: '/certificate/log', name: 'Certificate Log', component: () => import('../views/CertificateLog.vue') },
+  { path: '/logs', name: 'Logs', component: () => import('../views/Logs.vue') },
   { path: '/:catchAll(.*)', redirect: '/' }
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
 

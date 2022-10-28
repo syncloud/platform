@@ -37,7 +37,6 @@
 <script>
 import axios from 'axios'
 import 'bootstrap'
-import 'bootstrap-switch'
 
 export default {
   name: 'Network',
@@ -61,5 +60,5 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 </style>

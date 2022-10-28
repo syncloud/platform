@@ -1,7 +1,19 @@
 module.exports = {
-  preset: '@vue/cli-plugin-unit-jest',
+  preset: 'ts-jest',
+  moduleFileExtensions: [
+    'js',
+    'ts',
+    'json',
+    'vue'
+  ],
   transform: {
-    '^.+\\.vue$': 'vue-jest'
+    '^.+\\.ts$': 'ts-jest',
+    "^.+\\.js$": "babel-jest",
+    '^.+\\.vue$': '@vue/vue3-jest'
   },
-  setupFiles: ['./tests/setup.js']
+  testEnvironment: 'jsdom',
+  setupFiles: ['./tests/setup.js'],
+  testEnvironmentOptions: {
+    customExportConditions: ["node", "node-addons"],
+  },
 }

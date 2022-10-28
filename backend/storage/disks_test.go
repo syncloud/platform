@@ -49,14 +49,6 @@ func (t *TriggerStub) RunDiskChangeEvent() error {
 	return nil
 }
 
-//type PathCheckerStub struct {
-//	exists bool
-//}
-
-//func (p *PathCheckerStub) ExternalDiskLinkExists() bool {
-//	return p.exists
-//}
-
 type LsblkDisksStub struct {
 	disks []model.Disk
 }
@@ -65,32 +57,28 @@ func (l *LsblkDisksStub) FindPartitionByDevice(_ string) (*model.Partition, erro
 	return &l.disks[0].Partitions[0], nil
 }
 
-func (l *LsblkDisksStub) AvailableDisks() (*[]model.Disk, error) {
-	return &l.disks, nil
+func (l *LsblkDisksStub) AvailableDisks() ([]model.Disk, error) {
+	return l.disks, nil
 }
 
-func (l *LsblkDisksStub) AllDisks() (*[]model.Disk, error) {
-	return &l.disks, nil
+func (l *LsblkDisksStub) AllDisks() ([]model.Disk, error) {
+	return l.disks, nil
 }
-
-//type DisksExecutorStub struct {
-//	output string
-//}
-
-//func (e *DisksExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
-//	return []byte(e.output), nil
-//}
 
 type SystemdStub struct {
-	callOrderShared *CallOrder
-	callOrder       int
+	callOrderShared   *CallOrder
+	callOrder         int
+	addMountCalled    bool
+	removeMountCalled bool
 }
 
 func (s *SystemdStub) AddMount(_ string) error {
+	s.addMountCalled = true
 	return nil
 }
 
 func (s *SystemdStub) RemoveMount() error {
+	s.removeMountCalled = true
 	if s.callOrderShared != nil {
 		s.callOrder = s.callOrderShared.inc()
 	}
@@ -116,12 +104,56 @@ func (d DisksLinkerStub) RelinkDisk(_ string, _ string) error {
 	return nil
 }
 
+type StorageExecutorStub struct {
+	command string
+	args    []string
+}
+
+func (e *StorageExecutorStub) CommandOutput(command string, args ...string) ([]byte, error) {
+	e.command = command
+	e.args = args
+	return []byte(""), nil
+}
+
+type BtrfsDisksStub struct {
+	existingDevices []string
+	newDevices      []string
+	uuid            string
+	format          bool
+	error           bool
+}
+
+func (b *BtrfsDisksStub) Update(existingDevices []string, newDevices []string, uuid string, format bool) (string, error) {
+	if !b.error {
+		b.existingDevices = existingDevices
+		b.newDevices = newDevices
+		b.uuid = uuid
+		b.format = format
+		return uuid, nil
+	} else {
+		return "", fmt.Errorf("expected error")
+	}
+}
+
+type BtrfsDiskStatsStub struct {
+	raid   map[string]string
+	errors map[string]bool
+}
+
+func (b *BtrfsDiskStatsStub) RaidMode(uuid string) (string, error) {
+	return b.raid[uuid], nil
+}
+
+func (b *BtrfsDiskStatsStub) HasErrors(device string) (bool, error) {
+	return b.errors[device], nil
+}
+
 func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: true}, &DisksLinkerStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: true}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	partition, err := disks.RootPartition()
 	assert.Nil(t, err)
 	assert.True(t, partition.Extendable)
@@ -130,9 +162,9 @@ func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: false}, &DisksLinkerStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: false}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	partition, err := disks.RootPartition()
 	assert.Nil(t, err)
 	assert.False(t, partition.Extendable)
@@ -141,54 +173,189 @@ func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
-	err := disks.DeactivateDisk()
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	err := disks.Deactivate()
 	assert.Nil(t, err)
 }
 
 func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
-	err := disks.DeactivateDisk()
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	err := disks.Deactivate()
 	assert.Nil(t, err)
 }
 
 func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false, false}}, false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
 	callOrder := &CallOrder{order: 0}
 	trigger := &TriggerStub{error: false, callOrderShared: callOrder}
 	systemd := &SystemdStub{callOrderShared: callOrder}
-	disks := NewDisks(&DisksConfigStub{}, trigger, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
-	err := disks.DeactivateDisk()
+	disks := NewDisks(&DisksConfigStub{}, trigger, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	err := disks.Deactivate()
 	assert.Nil(t, err)
 	assert.Less(t, trigger.callOrder, systemd.callOrder)
 
 }
 
-func TestDisks_ActivateDisk_SupportedFs(t *testing.T) {
+func TestDisks_ActivatePartition_SupportedFs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false, false}}, false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
-	err := disks.ActivateDisk("/dev/sda1")
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	err := disks.ActivatePartition("/dev/sda1")
 	assert.Nil(t, err)
 }
 
-func TestDisks_ActivateDisk_NotSupportedFs(t *testing.T) {
+func TestDisks_ActivatePartition_Btrfs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false, false}}, false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, log.Default())
-	err := disks.ActivateDisk("/dev/sda1")
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	err := disks.ActivatePartition("/dev/sda1")
+	assert.Nil(t, err)
+}
+
+func TestDisks_ActivatePartition_NotSupportedFs(t *testing.T) {
+
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
+	}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	err := disks.ActivatePartition("/dev/sda1")
 	assert.NotNil(t, err)
+}
+
+func TestDisks_ActivateDisks_None(t *testing.T) {
+	executor := &StorageExecutorStub{}
+
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
+	}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, executor, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks.ActivateDisks([]string{}, false)
+	assert.NotNil(t, disks.GetLastError())
+
+}
+
+func TestDisks_ActivateDisks_UseUuid(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", "", "", false},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false},
+	}
+	btrfs := &BtrfsDisksStub{}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks.ActivateDisks([]string{"/dev/sdb"}, true)
+	assert.Nil(t, disks.GetLastError())
+	assert.Equal(t, "uuid2", btrfs.uuid)
+	assert.Equal(t, []string{"/dev/sdb"}, btrfs.newDevices)
+
+}
+
+func TestDisks_ActivateDisks_UseUuidExpand(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", "", "", false},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false},
+	}
+	btrfs := &BtrfsDisksStub{}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks.ActivateDisks([]string{"/dev/sda", "/dev/sdb"}, true)
+	assert.Nil(t, disks.GetLastError())
+	assert.Equal(t, "uuid1", btrfs.uuid)
+	assert.Equal(t, []string{"/dev/sda", "/dev/sdb"}, btrfs.newDevices)
+
+}
+
+func TestDisks_ActivateDisks_0_To_2_UseFirstUuid(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{}, false, "uuid1", "", "", false},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "", "", "", false},
+	}
+	btrfs := &BtrfsDisksStub{}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks.ActivateDisks([]string{"/dev/sda", "/dev/sdb"}, true)
+	assert.Nil(t, disks.GetLastError())
+	assert.Equal(t, "uuid1", btrfs.uuid)
+	assert.Equal(t, []string{"/dev/sda", "/dev/sdb"}, btrfs.newDevices)
+
+}
+
+func TestDisks_ActivateDisks_PartitionToDisk_Deactivate(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
+	}
+	btrfs := &BtrfsDisksStub{}
+	systemd := &SystemdStub{}
+
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks.ActivateDisks([]string{"/dev/sda"}, true)
+	assert.Nil(t, disks.GetLastError())
+	assert.True(t, systemd.removeMountCalled)
+	//assert.True(t, systemd.addMountCalled)
+	assert.Equal(t, []string{"/dev/sda"}, btrfs.newDevices)
+
+}
+
+func TestDisks_ActivateDisks_BterfsError(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/sda", "", []model.Partition{}, false, "", "", "", false},
+	}
+	btrfs := &BtrfsDisksStub{error: true}
+	systemd := &SystemdStub{}
+
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks.ActivateDisks([]string{"/dev/sda"}, true)
+	assert.NotNil(t, disks.GetLastError())
+	//assert.True(t, systemd.removeMountCalled)
+
+}
+
+func TestDisks_ClearLastError(t *testing.T) {
+	var allDisks []model.Disk
+	btrfs := &BtrfsDisksStub{error: true}
+	systemd := &SystemdStub{}
+
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	assert.Nil(t, disks.GetLastError())
+	disks.ActivateDisks([]string{"/dev/sda"}, true)
+	assert.NotNil(t, disks.GetLastError())
+	disks.ClearLastError()
+	assert.Nil(t, disks.GetLastError())
+}
+
+func TestDisks_AvailableDisks(t *testing.T) {
+	allDisks := []model.Disk{
+		{"", "/dev/loop0", "", []model.Partition{}, false, "uuid1", "", "", false},
+		{"", "/dev/loop1", "", []model.Partition{}, false, "uuid2", "", "", false},
+	}
+	btrfs := &BtrfsDisksStub{error: true}
+	systemd := &SystemdStub{}
+
+	stats := &BtrfsDiskStatsStub{
+		raid: map[string]string{
+			"uuid1": "raid1",
+			"uuid2": "raid2",
+		},
+		errors: map[string]bool{
+			"/dev/loop0": true,
+			"/dev/loop1": false,
+		},
+	}
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, stats, log.Default())
+	available, err := disks.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Len(t, available, 2)
+	assert.Equal(t, "raid1", available[0].Raid)
+	assert.True(t, available[0].HasErrors)
+	assert.Equal(t, "raid2", available[1].Raid)
+	assert.False(t, available[1].HasErrors)
 }

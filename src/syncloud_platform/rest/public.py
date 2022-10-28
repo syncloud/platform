@@ -186,18 +186,21 @@ def app_image():
 @app.route("/rest/installer/upgrade", methods=["POST"])
 @app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
-@app.route("/rest/storage/disk_format", methods=["POST"])
 @app.route("/rest/storage/disk/deactivate", methods=["POST"])
-@app.route("/rest/storage/disk/activate", methods=["POST"])
+@app.route("/rest/storage/disk/activate/partition", methods=["POST"])
+@app.route("/rest/storage/disk/activate/disk", methods=["POST"])
 @app.route("/rest/storage/boot_extend", methods=["POST"])
 @app.route("/rest/storage/boot/disk", methods=["GET"])
 @app.route("/rest/storage/disks", methods=["GET"])
+@app.route("/rest/storage/disk/error/last", methods=["GET"])
+@app.route("/rest/storage/disk/error/clear", methods=["POST"])
 @app.route("/rest/event/trigger", methods=["POST"])
 @app.route("/rest/certificate", methods=["GET"])
 @app.route("/rest/certificate/log", methods=["GET"])
 @app.route("/rest/access", methods=["GET", "POST"])
 @app.route("/rest/apps/available", methods=["GET"])
 @app.route("/rest/apps/installed", methods=["GET"])
+@app.route("/rest/logs", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

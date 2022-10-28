@@ -120,11 +120,10 @@
 <script>
 import axios from 'axios'
 import $ from 'jquery'
-import Error from '@/components/Error'
+import Error from '../components/Error.vue'
 import 'bootstrap'
-import 'bootstrap-switch'
 import * as Common from '../js/common.js'
-import 'gasparesganga-jquery-loading-overlay'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'App',
@@ -136,7 +135,8 @@ export default {
     return {
       info: undefined,
       appId: undefined,
-      action: ''
+      action: '',
+      loading: undefined
     }
   },
   components: {
@@ -149,10 +149,12 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#block_app').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
-      $('#block_app').LoadingOverlay('hide')
+      if (this.loading) {
+        this.loading.close()
+      }
     },
     loadApp () {
       axios
@@ -166,20 +168,20 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    open (event) {
+    open (_) {
       window.location.href = this.info.app.url
     },
-    install (event) {
+    install (_) {
       this.action = 'Install'
       this.actionUrl = '/rest/install'
       $('#app_action_confirmation').modal('show')
     },
-    upgrade (event) {
+    upgrade (_) {
       this.action = 'Upgrade'
       this.actionUrl = '/rest/upgrade'
       $('#app_action_confirmation').modal('show')
     },
-    remove (event) {
+    remove (_) {
       this.action = 'Remove'
       this.actionUrl = '/rest/remove'
       $('#app_action_confirmation').modal('show')
@@ -234,5 +236,5 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 </style>

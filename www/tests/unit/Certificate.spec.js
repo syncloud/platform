@@ -2,7 +2,7 @@ import { mount, RouterLinkStub } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Certificate from '@/views/Certificate'
+import Certificate from '../../src/views/Certificate.vue'
 
 jest.setTimeout(30000)
 

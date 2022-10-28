@@ -5,11 +5,16 @@ import (
 	"time"
 )
 
-type Worker struct {
-	master JobMaster
+type Master interface {
+	Take() (func(), error)
+	Complete() error
 }
 
-func NewWorker(master JobMaster) *Worker {
+type Worker struct {
+	master Master
+}
+
+func NewWorker(master Master) *Worker {
 	return &Worker{master}
 }
 

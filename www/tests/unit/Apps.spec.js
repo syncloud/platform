@@ -2,7 +2,7 @@ import { mount, RouterLinkStub } from '@vue/test-utils'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import Apps from '@/views/Apps'
+import Apps from '../../src/views/Apps.vue'
 
 jest.setTimeout(30000)
 
@@ -60,6 +60,50 @@ test('Show apps', async () => {
 
   wrapper.unmount()
 })
+
+test('Show empty apps', async () => {
+  const showError = jest.fn()
+  const mockRouter = { push: jest.fn() }
+
+  const mock = new MockAdapter(axios)
+
+  mock.onGet('/rest/apps/installed').reply(function (_) {
+    return [200, {
+      data: null,
+    }]
+  })
+
+  const wrapper = mount(Apps,
+    {
+      attachTo: document.body,
+      global: {
+        components: {
+          RouterLink: RouterLinkStub
+        },
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          }
+        },
+        mocks: {
+          $route: { path: '/apps' },
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(wrapper.text()).toContain('You can install one')
+
+  wrapper.unmount()
+})
+
 
 test('Show error', async () => {
   let error = ''

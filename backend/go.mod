@@ -11,6 +11,7 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.10.0
+	github.com/prometheus/procfs v0.7.3
 )
 
 require (

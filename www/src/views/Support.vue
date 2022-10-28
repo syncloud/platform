@@ -8,12 +8,7 @@
           <div class="col2">
             <div class="setline">
               <span class="span">Send a copy to support</span>
-              <Switch
-                :checked="includeSupport"
-                @toggle="includeSupport = !includeSupport"
-                on-label="Yes"
-                off-label="No"
-              />
+              <el-switch id="switch" size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;" active-text="Yes" inactive-text="No" inline-prompt />
             </div>
             <div class="setline">
               <span class="span">Report Issue:</span>
@@ -38,14 +33,12 @@
 import axios from 'axios'
 import $ from 'jquery'
 import 'bootstrap'
-import Error from '@/components/Error'
-import Switch from '@/components/Switch'
+import Error from '../components/Error.vue'
 
 export default {
   name: 'Support',
   components: {
-    Error,
-    Switch
+    Error
   },
   props: {
     checkUserSession: Function,
@@ -74,5 +67,5 @@ export default {
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 </style>

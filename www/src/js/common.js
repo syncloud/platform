@@ -21,7 +21,7 @@ export const DEFAULT_STATUS_PREDICATE = (response) => {
 
 export const JOB_STATUS_URL = '/rest/job/status'
 export const JOB_STATUS_PREDICATE = (response) => {
-  return response.data.data !== 'JobStatusIdle'
+  return response.data.data.status !== 'Idle'
 }
 
 export function runAfterJobIsComplete (timeoutFunc, onComplete, onError, statusUrl, statusPredicate) {

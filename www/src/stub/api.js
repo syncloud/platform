@@ -1,3 +1,5 @@
+import { createServer, Model, Response } from 'miragejs'
+
 const state = {
   loggedIn: true,
   credentials: {
@@ -9,7 +11,8 @@ const state = {
   availableAppsSuccess: true,
   activated: true,
   accessSuccess: true,
-  diskActionSuccess: false
+  diskActionSuccess: true,
+  diskLastError: true
 }
 
 const store = {
@@ -30,7 +33,7 @@ const store = {
       app: {
         id: 'diaspora',
         name: 'Diaspora',
-        icon: '/images/diaspora-128.png',
+        icon: '/images/penguin.png',
         required: false,
         ui: true,
         url: 'https://diaspora.odroid-c2.syncloud.it'
@@ -42,7 +45,7 @@ const store = {
       app: {
         id: 'mail',
         name: 'Mail',
-        icon: '/images/mail-128.png',
+        icon: '/images/penguin.png',
         required: false,
         ui: true,
         url: 'https://mail.odroid-c2.syncloud.it'
@@ -54,7 +57,7 @@ const store = {
       app: {
         id: 'talk',
         name: 'Talk',
-        icon: '/images/talk-128.png',
+        icon: '/images/penguin.png',
         required: false,
         ui: true,
         url: 'https://talk.odroid-c2.syncloud.it'
@@ -66,7 +69,7 @@ const store = {
       app: {
         id: 'files',
         name: 'Files Browser',
-        icon: '/images/files-128.png',
+        icon: '/images/penguin.png',
         required: false,
         ui: true,
         url: 'https://files.odroid-c2.syncloud.it'
@@ -78,7 +81,7 @@ const store = {
       app: {
         id: 'platform',
         name: 'Platform',
-        icon: '/images/platform-128.png',
+        icon: '/images/penguin.png',
         required: true,
         ui: false,
         url: 'https://platform.odroid-c2.syncloud.it'
@@ -90,7 +93,7 @@ const store = {
       app: {
         id: 'installer',
         name: 'Installer',
-        icon: '/images/installer-128.png',
+        icon: '/images/penguin.png',
         required: true,
         ui: false,
         url: 'https://installer.odroid-c2.syncloud.it'
@@ -178,8 +181,9 @@ const networkInterfaces = {
 
 const accessData = {
   data: {
-    external_access: false,
-    access_port: 443
+    ipv4_enabled: true,
+    ipv4_public: true,
+    // access_port: 443
     // public_ip: '111.111.111.111'
   },
   success: true
@@ -192,36 +196,37 @@ const disksData = {
       device: '/dev/sdb',
       active: true,
       size: '931.5G',
+      has_errors: true,
       partitions: [
         {
-          active: true,
+          active: false,
           device: '/dev/sdb1',
-          fs_type: 'ntfs',
-          mount_point: '/opt/disk/external',
-          mountable: true,
+          size: '931.5G'
+        },
+        {
+          active: false,
+          device: '/dev/sdb2',
           size: '931.5G'
         }
       ]
     },
     {
-      name: 'My Passport 0990',
+      name: 'My Passport 0990 Toooo Looooong Naaaame',
       device: '/dev/sdc',
-      active: false,
+      active: true,
       size: '931.5G',
+      raid: "raid1",
       partitions: [
         {
           active: false,
           device: '/dev/sdc1',
-          fs_type: 'ntfs',
-          mount_point: '',
-          mountable: true,
           size: '931.5G'
         }
       ]
     },
     {
       name: 'Blank Disk',
-      device: '/dev/sdb',
+      device: '/dev/sdd',
       size: '100 TB',
       partitions: []
     }
@@ -243,249 +248,280 @@ const bootDiskData = {
   success: true
 }
 
-const express = require('express')
-const bodyparser = require('body-parser')
-const mock = function (app, server, compiler) {
-  app.use(express.urlencoded())
-  app.use(bodyparser.json())
-  app.post('/rest/login', function (req, res) {
-    if (state.credentials.username === req.body.username && state.credentials.password === req.body.password) {
-      state.loggedIn = true
-      res.json({ message: 'OK' })
-    } else {
-      res.status(400).json({ message: 'Authentication failed' })
-    }
-  })
-  app.get('/rest/user', function (req, res) {
-    if (!state.activated) {
-      res.status(501).json({ message: 'Not activated' })
-    } else {
-      if (state.loggedIn) {
-        res.json({ message: 'OK' })
-      } else {
-        res.status(401).json({ message: 'Authentication failed' })
-      }
-    }
-  })
-  app.post('/rest/logout', function (req, res) {
-    state.loggedIn = false
-    res.json({ message: 'OK' })
-  })
-  app.get('/rest/activation/status', function (req, res) {
-    res.json({ data: state.activated })
-    // res.status(500).json({ message: "unknown activation status" })
-  })
-  app.get('/rest/apps/installed', function (req, res) {
-    if (state.activated) {
-      const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
-      res.json({ data: apps })
-    } else {
-      res.status(501).json({ message: 'Not activated' })
-    }
-  })
-  app.get('/rest/app', function (req, res) {
-    const info = store.data.find(info => info.app.id === req.query.app_id)
-    res.json({ info: info })
-  })
-  app.get('/rest/installer/version', function (req, res) {
-    res.json(installer)
-  })
-  app.post('/rest/upgrade', function (req, res) {
-    res.json({ success: true })
-  })
-  app.post('/rest/install', function (req, res) {
-    installedApps.add(req.body.app_id)
-    res.json({ success: true })
-  })
-  app.post('/rest/remove', function (req, res) {
-    installedApps.delete(req.body.app_id)
-    res.json({ success: true })
-  })
-  app.post('/rest/restart', function (req, res) {
-    res.json({ success: true })
-  })
-  app.post('/rest/shutdown', function (req, res) {
-    res.json({ success: true })
-  })
-  app.get('/rest/settings/installer_status', function (req, res) {
-    res.json({ success: true, is_running: state.installerIsRunning })
-    state.installerIsRunning = !state.installerIsRunning
-  })
-  app.post('/rest/backup/create', function (req, res) {
-    res.json({})
-  })
-  app.get('/rest/job/status', function (req, res) {
-    res.json({ success: true, data: state.jobStatusRunning ? 'JobStatusBusy' : 'JobStatusIdle' })
-    state.jobStatusRunning = !state.jobStatusRunning
-  })
+export function mock () {
+  createServer({
+    models: {
+      author: Model
+    },
+    routes () {
+      this.post('/rest/login', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (state.credentials.username === attrs.username && state.credentials.password === attrs.password) {
+          state.loggedIn = true
+          return new Response(200, {}, { message: 'OK' })
+        } else {
+          return new Response(400, {}, { message: 'Authentication failed' })
+        }
+      })
+      this.get('/rest/user', function (_schema, _request) {
+        if (!state.activated) {
+          return new Response(501, {}, { message: 'Not activated' })
+        } else {
+          if (state.loggedIn) {
+            return new Response(200, {}, { message: 'OK' })
+          } else {
+            return new Response(401, {}, { message: 'Authentication failed' })
+          }
+        }
+      })
+      this.post('/rest/logout', function (_schema, _request) {
+        state.loggedIn = false
+        return new Response(200, {}, { message: 'OK' })
+      })
+      this.get('/rest/activation/status', function (_schema, _request) {
+        return new Response(200, {}, { data: state.activated })
+        // return new Response(500, {}, { message: "unknown activation status" })
+      })
+      this.get('/rest/apps/installed', function (_schema, _request) {
+        if (state.activated) {
+          const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
+          return new Response(200, {}, { data: apps })
+        } else {
+          return new Response(501, {}, { message: 'Not activated' })
+        }
+      })
+      this.get('/rest/app', function (_schema, request) {
+        const info = store.data.find(info => info.app.id === request.queryParams.app_id)
+        return new Response(200, {}, { info: info })
+      })
+      this.get('/rest/installer/version', function (_schema, _request) {
+        return new Response(200, {}, installer)
+      })
+      this.post('/rest/upgrade', function (_schema, _request) {
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/install', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        installedApps.add(attrs.app_id)
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        installedApps.delete(attrs.app_id)
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/restart', function (_schema, _request) {
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/shutdown', function (_schema, _request) {
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/settings/installer_status', function (_schema, _request) {
+        state.installerIsRunning = !state.installerIsRunning
+        return new Response(200, {}, { success: true, is_running: state.installerIsRunning })
+      })
+      this.post('/rest/backup/create', function (_schema, _request) {
+        return new Response(200, {}, {})
+      })
+      this.get('/rest/job/status', function (_schema, _request) {
+        state.jobStatusRunning = !state.jobStatusRunning
+        return new Response(200, {}, { success: true, data: { status: state.jobStatusRunning ? 'Busy' : 'Idle', name: "storage.activate.disks" }})
+      })
 
-  app.get('/rest/apps/available', function (req, res) {
-    let response
-    if (state.availableAppsSuccess) {
-      response = store
-    } else {
-      response = appCenterDataError
-    }
-    res.json(response)
-  })
+      this.get('/rest/apps/available', function (_schema, _request) {
+        if (state.availableAppsSuccess) {
+          const apps = store.data.map(info => info.app)
+          return new Response(200, {}, { data: apps })
+        } else {
+          return new Response(200, {}, appCenterDataError)
+        }
+      })
 
-  app.get('/rest/settings/device_url', function (req, res) {
-    // res.status(500).json(deviceUrl)
-    res.json(deviceUrl)
-  })
+      this.get('/rest/settings/device_url', function (_schema, _request) {
+        // return new Response(500, {}, deviceUrl)
+        return new Response(200, {}, deviceUrl)
+      })
 
-  app.post('/rest/settings/deactivate', function (req, res) {
-    state.activated = false
-    res.json({})
-  })
+      this.post('/rest/settings/deactivate', function (_schema, _request) {
+        state.activated = false
+        return new Response(200, {}, {})
+      })
 
-  app.get('/rest/backup/list', function (req, res) {
-    res.json({
-      success: true,
-      data: backups
-    })
-  })
+      this.get('/rest/backup/list', function (_schema, _request) {
+        return new Response(200, {}, {
+          success: true,
+          data: backups
+        })
+      })
 
-  app.post('/rest/backup/remove', function (req, res) {
-    backups = backups.filter(v => v.file !== req.query.file)
-    res.json({})
-  })
+      this.post('/rest/backup/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        backups = backups.filter(v => v.file !== attrs.file)
+        return new Response(200, {}, {})
+      })
 
-  app.post('/rest/backup/restore', function (req, res) {
-    res.json({})
-  })
+      this.post('/rest/backup/restore', function (_schema, _request) {
+        return new Response(200, {}, {})
+      })
 
-  app.post('/rest/backup/create', function (req, res) {
-    res.json({})
-  })
+      this.post('/rest/backup/create', function (_schema, _request) {
+        return new Response(200, {}, {})
+      })
 
-  app.post('/rest/installer/upgrade', function (req, res) {
-    res.json({ success: true })
-  })
+      this.post('/rest/installer/upgrade', function (_schema, _request) {
+        return new Response(200, {}, { success: true })
+      })
 
-  app.get('/rest/access/network_interfaces', function (req, res) {
-    res.json(networkInterfaces)
-  })
+      this.get('/rest/access/network_interfaces', function (_schema, _request) {
+        return new Response(200, {}, networkInterfaces)
+      })
 
-  app.get('/rest/access', function (req, res) {
-    res.json(accessData)
-  })
+      this.get('/rest/access', function (_schema, _request) {
+        return new Response(200, {}, accessData)
+      })
 
-  app.post('/rest/access', function (req, res) {
-    if (state.accessSuccess) {
-      accessData.data.external_access = req.body.external_access
-      if (req.body.public_ip === undefined) {
-        delete accessData.data.public_ip
-      } else {
-        accessData.data.public_ip = req.body.public_ip
-      }
-      accessData.access_port = req.body.access_port
-      res.json({ success: true })
-    } else {
-      res.status(500).json({ success: false, message: 'error' })
-    }
-    state.accessSuccess = !state.accessSuccess
-  })
-  app.get('/rest/storage/disks', function (req, res) {
-    res.json(disksData)
-  })
-  app.get('/rest/storage/boot/disk', function (req, res) {
-    res.json(bootDiskData)
-  })
-  app.post('/rest/storage/disk/activate', function (req, res) {
-    if (state.diskActionSuccess) {
-      res.json(disksData)
-    } else {
-      res.json(disksDataError)
-    }
-  })
-  app.post('/rest/storage/disk/deactivate', function (req, res) {
-    if (state.diskActionSuccess) {
-      res.json(disksData)
-    } else {
-      res.json(disksDataError)
-    }
-  })
-  app.post('/rest/storage/boot_extend', function (req, res) {
-    res.json({ success: true })
-  })
+      this.post('/rest/access', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        state.accessSuccess = !state.accessSuccess
+        if (state.accessSuccess) {
+          accessData.data.external_access = attrs.external_access
+          if (attrs.public_ip === undefined) {
+            delete accessData.data.public_ip
+          } else {
+            accessData.data.public_ip = attrs.public_ip
+          }
+          accessData.access_port = attrs.access_port
+          return new Response(200, {}, { success: true })
+        } else {
+          return new Response(500, {}, { success: false, message: 'error' })
+        }
+      })
+      this.get('/rest/storage/disks', function (_schema, _request) {
+        return new Response(200, {}, disksData)
+      })
+      this.get('/rest/storage/boot/disk', function (_schema, _request) {
+        return new Response(200, {}, bootDiskData)
+      })
+      this.post('/rest/storage/disk/activate/partition', function (_schema, _request) {
+        if (state.diskActionSuccess) {
+          return new Response(200, {}, disksData)
+        } else {
+          return new Response(200, {}, disksDataError)
+        }
+      })
+      this.post('/rest/storage/disk/activate/disk', function (_schema, _request) {
+        if (state.diskActionSuccess) {
+          return new Response(200, {}, disksData)
+        } else {
+          return new Response(200, {}, disksDataError)
+        }
+      })
+      this.post('/rest/storage/disk/deactivate', function (_schema, _request) {
+        if (state.diskActionSuccess) {
+          return new Response(200, {}, disksData)
+        } else {
+          return new Response(200, {}, disksDataError)
+        }
+      })
+      this.post('/rest/storage/boot_extend', function (_schema, _request) {
+        bootDiskData.data.extendable = !bootDiskData.data.extendable
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/storage/disk/error/last', function (_schema, _request) {
+        if (state.diskLastError) {
+          return new Response(500, {}, { success: false, message: "Disk format error" })
+        } else {
+          return new Response(200, {}, { success: true, data: "OK" })
+        }
+      })
+      this.post('/rest/storage/disk/error/clear', function (_schema, _request) {
+        state.diskLastError = false
+        return new Response(200, {}, { success: true })
+      })
 
-  app.post('/rest/storage/disk_format', function (req, res) {
-    if (state.diskActionSuccess) {
-      res.json({ success: true })
-    } else {
-      res.json({ success: false, message: "error" })
-    }
-  })
+      this.get('/rest/settings/boot_extend_status', function (_schema, _request) {
+        return new Response(200, {}, { success: true, is_running: false })
+      })
 
-  app.get('/rest/settings/boot_extend_status', function (req, res) {
-    res.json({ success: true, is_running: false })
-  })
-
-  app.get('/rest/settings/disk_format_status', function (req, res) {
-    res.json({ success: true, is_running: false })
-  })
-  app.post('/rest/send_log', function (req, res) {
-    res.json({ success: true })
-  })
-  app.post('/rest/activate/managed', function (req, res) {
-    state.activated = true
-    res.json({ success: true })
-    // res.status(500).json({
-    //   success: false,
-    //   parameters_messages: [
-    //     { parameter: 'device_username', messages: ['login is empty'] },
-    //     { parameter: 'device_password', messages: ['is too short', 'has no special symbol'] }
-    //   ]
-    // })
-  })
-  app.post('/rest/activate/custom', function (req, res) {
-    state.activated = true
-    res.json({ success: true })
-  })
-  app.post('/rest/redirect/domain/availability', function (req, res) {
-    if (req.body.domain === '1') {
-      res.status(400).json({
-        success: false,
-        parameters_messages: [
-          { parameter: 'redirect_password', messages: ['wrong password'] },
-          { parameter: 'domain', messages: ['domain is already taken'] }
+      this.get('/rest/settings/disk_format_status', function (_schema, _request) {
+        return new Response(200, {}, { success: true, is_running: false })
+      })
+      this.post('/rest/send_log', function (_schema, _request) {
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/activate/managed', function (_schema, _request) {
+        state.activated = true
+        return new Response(200, {}, { success: true })
+        // return new Response(500, {}, {
+        //   success: false,
+        //   parameters_messages: [
+        //     { parameter: 'device_username', messages: ['login is empty'] },
+        //     { parameter: 'device_password', messages: ['is too short', 'has no special symbol'] }
+        //   ]
+        // })
+      })
+      this.post('/rest/activate/custom', function (_schema, _request) {
+        state.activated = true
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/redirect/domain/availability', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (attrs.domain === '1') {
+          return new Response(400, {}, {
+            success: false,
+            parameters_messages: [
+              { parameter: 'redirect_password', messages: ['wrong password'] },
+              { parameter: 'domain', messages: ['domain is already taken'] }
+            ]
+          })
+        } else {
+          return new Response(200, {}, {
+            success: true
+          })
+        }
+      })
+      this.get('/rest/redirect_info', function (_schema, _request) {
+        if (state.activated) {
+          return new Response(502, {}, { message: 'Device is activated' })
+        } else {
+          return new Response(200, {}, { success: true, data: { domain: 'test.com' } })
+        }
+      })
+      this.get('/rest/certificate', function (_schema, _request) {
+        const info = {
+          is_valid: true,
+          is_real: false,
+          valid_for_days: 10
+        }
+        return new Response(200, {}, { success: true, data: info })
+      })
+      this.get('/rest/certificate/log', function (_schema, _request) {
+        const logs = [
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: {"category": "certificate"}',
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: ----- {"category": "certificate"}',
+          "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: writing new private key to '/var/snap/platform/current/syncloud.key' {\"category\": \"certificate\"}",
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .............................+++++ {"category": "certificate"}',
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .........................................................+++++ {"category": "certificate"}',
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: Generating a RSA private key {"category": "certificate"}',
+          'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/fake.go:35 generating self signed certificate {"category": "certificate"}',
+          'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/generator.go:75 unable to generate certificate: acme: error: 429 :: POST :: https://acme-v02.api.letsencrypt.org/acme/new-acct :: urn:ietf:params:acme:error:rateLimited :: Error creating new account :: too many registrations for this IP: see https://letsencrypt.org/docs/rate-limits/ {"category": "certificate"}'
         ]
+        return new Response(200, {}, { success: true, data: logs })
       })
-    } else {
-      res.json({
-        success: true
+      this.get('/rest/logs', function (_schema, _request) {
+        const logs = [
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: {"category": "certificate"}',
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: ----- {"category": "certificate"}',
+          "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: writing new private key to '/var/snap/platform/current/syncloud.key' {\"category\": \"certificate\"}",
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .............................+++++ {"category": "certificate"}',
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .........................................................+++++ {"category": "certificate"}',
+          'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: Generating a RSA private key {"category": "certificate"}',
+          'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/fake.go:35 generating self signed certificate {"category": "certificate"}',
+          'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/generator.go:75 unable to generate certificate: acme: error: 429 :: POST :: https://acme-v02.api.letsencrypt.org/acme/new-acct :: urn:ietf:params:acme:error:rateLimited :: Error creating new account :: too many registrations for this IP: see https://letsencrypt.org/docs/rate-limits/ {"category": "certificate"}'
+        ]
+        return new Response(200, {}, { success: true, data: logs })
       })
     }
-  })
-  app.get('/rest/redirect_info', function (req, res) {
-    if (state.activated) {
-      res.status(502).json({ message: 'Device is activated' })
-    } else {
-      res.json({ success: true, data: { domain: 'test.com' } })
-    }
-  })
-  app.get('/rest/certificate', function (req, res) {
-    const info = {
-      is_valid: true,
-      is_real: false,
-      valid_for_days: 10
-    }
-    res.json({ success: true, data: info })
-  })
-  app.get('/rest/certificate/log', function (req, res) {
-    const logs = [
-      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: {"category": "certificate"}',
-      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: ----- {"category": "certificate"}',
-      "Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: writing new private key to '/var/snap/platform/current/syncloud.key' {\"category\": \"certificate\"}",
-      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .............................+++++ {"category": "certificate"}',
-      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: .........................................................+++++ {"category": "certificate"}',
-      'Dec 15 08:42:36 syncloud platform.backend[26230]: cert/fake.go:51 output: Generating a RSA private key {"category": "certificate"}',
-      'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/fake.go:35 generating self signed certificate {"category": "certificate"}',
-      'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/generator.go:75 unable to generate certificate: acme: error: 429 :: POST :: https://acme-v02.api.letsencrypt.org/acme/new-acct :: urn:ietf:params:acme:error:rateLimited :: Error creating new account :: too many registrations for this IP: see https://letsencrypt.org/docs/rate-limits/ {"category": "certificate"}'
-    ]
-    res.json({ success: true, data: logs })
   })
 }
 
-exports.mock = mock

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const ParttypeExtended = "0x5"
+const PartTypeExtended = "0x5"
 
 var SupportedDeviceTypes []string
 
@@ -22,22 +22,12 @@ type LsblkEntry struct {
 	PartType   string
 	FsType     string
 	Model      string
-}
-
-func NewLsblkEntry(name string, size string, deviceType string, mountPoint string, partType string, fsType string, model string) LsblkEntry {
-	return LsblkEntry{
-		Name:       name,
-		Size:       size,
-		DeviceType: deviceType,
-		MountPoint: mountPoint,
-		PartType:   partType,
-		FsType:     fsType,
-		Model:      model,
-	}
+	Active     bool
+	Uuid       string
 }
 
 func (e *LsblkEntry) IsExtendedPartition() bool {
-	return e.PartType == ParttypeExtended
+	return e.PartType == PartTypeExtended
 }
 
 func (e *LsblkEntry) IsBootDisk() bool {
@@ -48,7 +38,7 @@ func (e *LsblkEntry) IsSupportedType() bool {
 	if slices.Contains(SupportedDeviceTypes, e.DeviceType) {
 		return true
 	}
-	if strings.HasPrefix(e.DeviceType, "raid") {
+	if e.IsRaid() {
 		return true
 	}
 	return false
@@ -64,10 +54,7 @@ func (e *LsblkEntry) IsSupportedFsType() bool {
 	return true
 }
 
-func (e *LsblkEntry) IsSinglePartitionDisk() bool {
-	if e.DeviceType == "loop" {
-		return true
-	}
+func (e *LsblkEntry) IsRaid() bool {
 	if strings.HasPrefix(e.DeviceType, "raid") {
 		return true
 	}
@@ -81,7 +68,7 @@ func (e *LsblkEntry) ParentDevice() string {
 }
 
 func (e *LsblkEntry) GetFsType() string {
-	if strings.HasPrefix(e.DeviceType, "raid") {
+	if e.IsRaid() {
 		return "raid"
 	}
 	return e.FsType

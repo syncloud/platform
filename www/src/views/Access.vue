@@ -4,105 +4,80 @@
       <div class="block1 wd12">
         <h1>Access</h1>
         <div class="row-no-gutters settingsblock">
-          <div class="col2" id="wrapper" :style="{ visibility: visibility }">
+          <div class="col2" :style="{ visibility: visibility }">
             <div class="setline">
               <h3>IP v4</h3>
             </div>
-            <div class="setline" style='white-space: nowrap;'>
-              <div class="spandiv" id="ipv4_enabled">
-                <span class="span alignment">Support:</span>
-                <div style="display: inline-block;min-width: 110px">
-                  <Switch
-                    id="tgl_ipv4_enabled"
-                    :checked="ipv4Enabled"
-                    @toggle="toggleIpv4"
-                    on-label="ON"
-                    off-label="OFF"
-                  />
-                </div>
+            <div class="setline" style='display: flex'>
+              <span class="span name-alignment">Support:</span>
+              <div class="value-alignment">
+                <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #36ad40; float: right" />
               </div>
-              <button type=button @click="showIpv4Info" class="control" style=" background:transparent;">
+              <button type=button @click="showIpv4Info" class="control" style="order: 3; background:transparent;">
                 <i class='fa fa-question-circle fa-lg'></i>
               </button>
             </div>
 
-            <div id="ipv4_mode_block">
-              <div class="setline">
-                <div class="spandiv" id="ipv4_public" style='white-space: nowrap;'>
-                  <span class="span alignment">Mode:</span>
-                  <div style="display: inline-block;min-width: 110px">
-                    <Switch
-                      id="tgl_ipv4_public"
-                      :checked="ipv4Public"
-                      @toggle="toggleIpv4Public"
-                      on-label="Public"
-                      off-label="Private"
-                    />
+            <Transition>
+            <div id="ipv4_mode_block" v-if="ipv4Enabled">
+              <div class="setline" style='display: flex'>
+                  <span class="span name-alignment">Public:</span>
+                  <div class="value-alignment">
+                    <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40; float: right" />
                   </div>
-                </div>
               </div>
-              <div id="ipv4_public_block">
-                <div class="setline" style='white-space: nowrap;'>
-                  <div class="spandiv">
-                    <span class="span alignment">Detect IP:</span>
-                    <div style="display: inline-block;min-width: 110px">
-                      <Switch
-                        id="tgl_ip_autodetect"
-                        :checked="ipAutoDetect"
-                        @toggle="toggleIpAutoDetect"
-                        on-label="Auto"
-                        off-label="Manual"
-                      />
+
+              <Transition>
+              <div id="ipv4_public_block" v-if="ipv4Public">
+                <div class="setline" style='display: flex'>
+                    <span class="span name-alignment">Detect IP:</span>
+                    <div class="value-alignment">
+                      <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #36ad40; float: right" />
                     </div>
-                  </div>
                 </div>
 
-                <div class="setline" id="ipv4_block" style='white-space: nowrap;'>
-                  <label class="span alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
-                  <input id="ipv4" type="text"
+                <Transition>
+                <div class="setline" id="ipv4_block" style='display: flex' v-if="!ipAutoDetect">
+                  <label class="span name-alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
+                  <input class="value-alignment" id="ipv4" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
                          :disabled="ipAutoDetect" v-model="ipv4">
                 </div>
+                </Transition>
 
-                <div class="setline" style='white-space: nowrap;'>
-                  <div class="spandiv">
-                    <label for="access_port" class="span alignment" style="font-weight: 300">Public port:</label>
-                    <input class="span" id="access_port" type="number"
+                <div class="setline" style='display: flex'>
+                    <label for="access_port" class="span name-alignment" style="font-weight: 300">Public port:</label>
+                    <input class="value-alignment" id="access_port" type="number"
                            style="width: 100px; height: 30px; padding: 0 10px 0 10px"
                            v-model.number="accessPort"
                     />
-                    <button type=button @click="showPortInfo" class="control" style=" background:transparent;">
+                    <button type=button @click="showPortInfo" class="control" style="order: 3; background:transparent;">
                       <i class='fa fa-question-circle fa-lg'></i>
                     </button>
                     <button id="access_port_warning" type=button @click="showAccessPortWarning"
-                            class="control" style="background:transparent;" v-show="false">
+                            class="control" style="order: 4; background:transparent;" v-show="accessPort!==443">
                       <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
                     </button>
-                  </div>
+
                 </div>
               </div>
+              </Transition>
+
             </div>
+            </Transition>
 
             <div class="setline">
               <h3>IP v6</h3>
             </div>
 
-            <div class="setline" style='white-space: nowrap;'>
-              <div class="spandiv" id="ipv6_enabled">
-                <span class="span alignment">Support:</span>
-                <div style="display: inline-block;min-width: 110px">
-                  <Switch
-                    id="tgl_ipv6_enabled"
-                    :checked="ipv6Enabled"
-                    @toggle="toggleIpv6"
-                    on-label="ON"
-                    off-label="OFF"
-                  />
-                </div>
-                <button type=button @click="showIpv6Info" class="control" style=" background:transparent;">
-                  <i class='fa fa-question-circle fa-lg'></i>
-                </button>
+            <div class="setline" style='display: flex'>
+              <span class="span name-alignment">Support:</span>
+              <div class="value-alignment">
+                <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #36ad40; float: right" />
               </div>
+              <button type=button @click="showIpv6Info" class="control" style="order: 3; background:transparent;">
+                <i class='fa fa-question-circle fa-lg'></i>
+              </button>
             </div>
 
             <div class="setline">
@@ -158,15 +133,11 @@
 </template>
 
 <script>
-import $ from 'jquery'
-import Error from '@/components/Error'
-import Dialog from '@/components/Dialog'
-import 'bootstrap'
-import 'bootstrap-switch'
+import Error from '../components/Error.vue'
+import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import Switch from '@/components/Switch'
-import 'gasparesganga-jquery-loading-overlay'
+import { ElLoading } from 'element-plus'
 
 function isValidPort (port) {
   return !(Number.isNaN(port) || port < 1 || port > 65535)
@@ -192,42 +163,26 @@ export default {
   data () {
     return {
       interfaces: undefined,
-      ipAutoDetect: false,
+      ipAutoDetect: undefined,
       ipv4: '',
       accessPort: 443,
       visibility: 'hidden',
-      ipv4Enabled: true,
-      ipv4Public: false,
-      ipv6Enabled: true
+      ipv4Enabled: undefined,
+      ipv4Public: undefined,
+      ipv6Enabled: undefined,
+      loading: undefined
     }
   },
   components: {
     Error,
-    Dialog,
-    Switch
+    Dialog
   },
   watch: {
-    ipv4Enabled (val) {
-      this.displayIpv4Mode(val)
-    },
     ipv4Public (val) {
-      if (val) {
-        $('#ipv4_public_block').show('slow')
-      } else {
-        $('#ipv4_public_block').hide('slow')
+      if (!val) {
         this.accessPort = 443
       }
     },
-    ipAutoDetect (val) {
-      this.displayIpv4Manual(val)
-    },
-    accessPort (val) {
-      if (val !== 443) {
-        $('#access_port_warning').show('slow')
-      } else {
-        $('#access_port_warning').hide('slow')
-      }
-    }
   },
   mounted () {
     this.progressShow()
@@ -235,25 +190,11 @@ export default {
   },
   methods: {
     progressShow () {
-      $('#wrapper').LoadingOverlay('show', { background: 'rgb(0,0,0,0)' })
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       this.visibility = 'visible'
-      $('#wrapper').LoadingOverlay('hide')
-    },
-    displayIpv4Manual (val) {
-      if (val) {
-        $('#ipv4_block').hide('slow')
-      } else {
-        $('#ipv4_block').show('slow')
-      }
-    },
-    displayIpv4Mode (val) {
-      if (val) {
-        $('#ipv4_mode_block').show('slow')
-      } else {
-        $('#ipv4_mode_block').hide('slow')
-      }
+      this.loading.close()
     },
     showAccessPortWarning () {
       this.$refs.access_port_warning.show()
@@ -330,26 +271,33 @@ export default {
         .then(response => Common.checkForServiceError(response.data, this.reload, onError))
         .catch(onError)
     },
-    toggleIpAutoDetect () {
-      this.ipAutoDetect = !this.ipAutoDetect
-    },
-    toggleIpv4 () {
-      this.ipv4Enabled = !this.ipv4Enabled
-    },
-    toggleIpv4Public () {
-      this.ipv4Public = !this.ipv4Public
-    },
-    toggleIpv6 () {
-      this.ipv6Enabled = !this.ipv6Enabled
-    }
   }
 }
 </script>
 <style>
 @import '../style/site.css';
-@import '../style/material-icons.css';
+@import 'material-icons/iconfont/material-icons.css';
 
-.alignment {
+.name-alignment {
+  min-width: 100px;
+  display: inline-flex;
+  align-items: center;
+  order: 1;
+}
+
+.value-alignment {
+  order: 2;
   min-width: 130px;
+  margin-right: 5px;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
