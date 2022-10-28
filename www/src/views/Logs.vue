@@ -7,7 +7,7 @@
         <div class="row-no-gutters">
           <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
             <div id="logs">
-              <p v-for="(log, index) in logs" :key="index" style="margin: 0">
+              <p v-for="(log, index) in logs" :key="index" style="margin: 0; overflow-wrap: break-word">
                 {{ log }}
               </p>
             </div>
