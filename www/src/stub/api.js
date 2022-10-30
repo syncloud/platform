@@ -192,44 +192,38 @@ const accessData = {
 const disksData = {
   data: [
     {
-      name: 'My Passport 0837',
+      name: 'Disk 1',
+      device: '/dev/sda',
+      active: true,
+      size: '100G',
+      has_errors: false,
+      raid: "raid10",
+      partitions: []
+    },
+    {
+      name: 'Disk 2',
       device: '/dev/sdb',
       active: true,
-      size: '931.5G',
-      has_errors: true,
-      partitions: [
-        {
-          active: false,
-          device: '/dev/sdb1',
-          size: '931.5G'
-        },
-        {
-          active: false,
-          device: '/dev/sdb2',
-          size: '931.5G'
-        }
-      ]
+      size: '100G',
+      raid: "raid10",
+      partitions: []
     },
     {
-      name: 'My Passport 0990 Toooo Looooong Naaaame',
+      name: 'Disk 3',
       device: '/dev/sdc',
       active: true,
-      size: '931.5G',
-      raid: "raid1",
-      partitions: [
-        {
-          active: false,
-          device: '/dev/sdc1',
-          size: '931.5G'
-        }
-      ]
+      size: '100G',
+      raid: "raid10",
+      partitions: []
     },
     {
-      name: 'Blank Disk',
+      name: 'Disk 4',
       device: '/dev/sdd',
-      size: '100 TB',
+      active: true,
+      size: '100G',
+      raid: "raid10",
       partitions: []
-    }
+    },
   ],
   success: true
 }

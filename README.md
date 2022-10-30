@@ -30,8 +30,8 @@ Install [Node.js](https://nodejs.org/en/download)
 
 ````
 cd www
-npm install
-npm run serve
+npm i
+npm run dev
 ````
 
 ### Building a package locally
