@@ -138,8 +138,10 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 	return disks, err
 }
 
-func (d *Disks) ActivateDisks(newDevices []string, format bool) {
-	d.lastError = d.activateDisks(newDevices, format)
+func (d *Disks) ActivateDisks(newDevices []string, format bool) error {
+	err := d.activateDisks(newDevices, format)
+	d.lastError = err
+	return err
 }
 
 func (d *Disks) activateDisks(newDevices []string, format bool) error {

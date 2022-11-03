@@ -12,15 +12,15 @@ func TestStatusIdle(t *testing.T) {
 
 func TestOfferIdle(t *testing.T) {
 	master := NewMaster()
-	err := master.Offer("test", func() {})
+	err := master.Offer("test", func() error { return nil })
 	assert.Nil(t, err)
 	assert.Equal(t, Waiting, master.status)
 }
 
 func TestOfferBusy(t *testing.T) {
 	master := NewMaster()
-	_ = master.Offer("test", func() {})
-	err := master.Offer("test", func() {})
+	_ = master.Offer("test", func() error { return nil })
+	err := master.Offer("test", func() error { return nil })
 	assert.NotNil(t, err)
 	assert.Equal(t, Waiting, master.status)
 }
@@ -34,7 +34,7 @@ func TestTakeIdle(t *testing.T) {
 
 func TestTakeWaiting(t *testing.T) {
 	master := NewMaster()
-	err := master.Offer("test", func() {})
+	err := master.Offer("test", func() error { return nil })
 	_, err = master.Take()
 	assert.Nil(t, err)
 	//assert.Equal(t, "job", job())
@@ -43,7 +43,7 @@ func TestTakeWaiting(t *testing.T) {
 
 func TestTakeBusy(t *testing.T) {
 	master := NewMaster()
-	_ = master.Offer("test", func() {})
+	_ = master.Offer("test", func() error { return nil })
 	_, _ = master.Take()
 	_, err := master.Take()
 	assert.NotNil(t, err)
@@ -59,7 +59,7 @@ func TestCompleteIdle(t *testing.T) {
 
 func TestCompleteWaiting(t *testing.T) {
 	master := NewMaster()
-	_ = master.Offer("test", func() {})
+	_ = master.Offer("test", func() error { return nil })
 	err := master.Complete()
 	assert.NotNil(t, err)
 	assert.Equal(t, Waiting, master.status)
@@ -67,7 +67,7 @@ func TestCompleteWaiting(t *testing.T) {
 
 func TestCompleteBusy(t *testing.T) {
 	master := NewMaster()
-	err := master.Offer("test", func() {})
+	err := master.Offer("test", func() error { return nil })
 	assert.Nil(t, err)
 	assert.Equal(t, "test", master.Status().Name)
 

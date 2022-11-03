@@ -8,7 +8,7 @@ import (
 type SingleJobMaster struct {
 	mutex  *sync.Mutex
 	status int
-	job    func()
+	job    func() error
 	name   string
 }
 
@@ -25,7 +25,7 @@ func (m *SingleJobMaster) Status() Status {
 	return NewStatus(m.name, m.status)
 }
 
-func (m *SingleJobMaster) Offer(name string, job func()) error {
+func (m *SingleJobMaster) Offer(name string, job func() error) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if m.status == Idle {
@@ -38,7 +38,7 @@ func (m *SingleJobMaster) Offer(name string, job func()) error {
 	}
 }
 
-func (m *SingleJobMaster) Take() (func(), error) {
+func (m *SingleJobMaster) Take() (func() error, error) {
 
 	m.mutex.Lock()
 	defer m.mutex.Unlock()

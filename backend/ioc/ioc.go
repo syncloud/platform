@@ -119,7 +119,9 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *job.SingleJobMaster { return job.NewMaster() })
-	Singleton(func(master *job.SingleJobMaster) *job.Worker { return job.NewWorker(master) })
+	Singleton(func(master *job.SingleJobMaster, logger *zap.Logger) *job.Worker {
+		return job.NewWorker(master, logger)
+	})
 	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })

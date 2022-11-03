@@ -1,40 +1,45 @@
 package job
 
 import (
-	"log"
+	"go.uber.org/zap"
 	"time"
 )
 
 type Master interface {
-	Take() (func(), error)
+	Take() (func() error, error)
 	Complete() error
 }
 
 type Worker struct {
 	master Master
+	logger *zap.Logger
 }
 
-func NewWorker(master Master) *Worker {
-	return &Worker{master}
+func NewWorker(master Master, logger *zap.Logger) *Worker {
+	return &Worker{master, logger}
 }
 
-func (worker *Worker) Start() {
+func (w *Worker) Start() {
 	for {
-		if !worker.Do() {
+		if !w.Do() {
 			time.Sleep(1 * time.Second)
 		}
 	}
 }
 
-func (worker *Worker) Do() bool {
-	job, err := worker.master.Take()
+func (w *Worker) Do() bool {
+	job, err := w.master.Take()
 	if err != nil {
+		w.logger.Error("cannot take task", zap.Error(err))
 		return false
 	}
-	job()
-	err = worker.master.Complete()
+	err = job()
 	if err != nil {
-		log.Println("error: ", err)
+		w.logger.Error("error in the task", zap.Error(err))
+	}
+	err = w.master.Complete()
+	if err != nil {
+		w.logger.Error("cannot complete task", zap.Error(err))
 	}
 	return true
 }

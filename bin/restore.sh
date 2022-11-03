@@ -1,7 +1,5 @@
 #!/bin/bash -ex
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
-
 if [[ -z "$2" ]]; then
     echo "usage $0 app file"
     exit 1
@@ -21,7 +19,7 @@ echo "temp space left: ${TEMP_SPACE_LEFT}"
 echo "temp space needed: ${TEMP_SPACE_NEEDED}"
 
 if [[ ${TEMP_SPACE_NEEDED} -gt ${TEMP_SPACE_LEFT} ]]; then
-    echo "not enaugh temp space for the restore"
+    echo "not enough temp space for the restore"
     exit 1
 fi
 
