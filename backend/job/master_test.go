@@ -27,26 +27,29 @@ func TestOfferBusy(t *testing.T) {
 
 func TestTakeIdle(t *testing.T) {
 	master := NewMaster()
-	_, err := master.Take()
-	assert.NotNil(t, err)
+	job := master.Take()
+	assert.Nil(t, job)
 	assert.Equal(t, Idle, master.status)
 }
 
 func TestTakeWaiting(t *testing.T) {
 	master := NewMaster()
 	err := master.Offer("test", func() error { return nil })
-	_, err = master.Take()
 	assert.Nil(t, err)
+	job := master.Take()
+	assert.NotNil(t, job)
 	//assert.Equal(t, "job", job())
 	assert.Equal(t, Busy, master.status)
 }
 
 func TestTakeBusy(t *testing.T) {
 	master := NewMaster()
-	_ = master.Offer("test", func() error { return nil })
-	_, _ = master.Take()
-	_, err := master.Take()
-	assert.NotNil(t, err)
+	err := master.Offer("test", func() error { return nil })
+	assert.Nil(t, err)
+	job := master.Take()
+	assert.NotNil(t, job)
+	job = master.Take()
+	assert.Nil(t, job)
 	assert.Equal(t, Busy, master.status)
 }
 
@@ -71,8 +74,8 @@ func TestCompleteBusy(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "test", master.Status().Name)
 
-	_, err = master.Take()
-	assert.Nil(t, err)
+	job := master.Take()
+	assert.NotNil(t, job)
 	assert.Equal(t, "test", master.Status().Name)
 
 	err = master.Complete()

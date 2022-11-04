@@ -36,7 +36,7 @@ const (
 	CertificateLogger = "CertificateLogger"
 )
 
-func Init(userConfig string, systemConfig string, backupDir string) {
+func Init(userConfig string, systemConfig string, backupDir string, varDir string) {
 	logger := log.Default()
 
 	Singleton(func() *config.UserConfig {
@@ -122,7 +122,7 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(master *job.SingleJobMaster, logger *zap.Logger) *job.Worker {
 		return job.NewWorker(master, logger)
 	})
-	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
+	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, varDir, logger) })
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {

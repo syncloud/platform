@@ -14,17 +14,20 @@ import (
 
 type Backup struct {
 	backupDir string
+	varDir    string
 	logger    *zap.Logger
 }
 
 const (
 	Dir        = "/data/platform/backup"
 	RestoreCmd = "/snap/platform/current/bin/restore.sh"
+	VarDir     = "/var/snap"
 )
 
-func New(dir string, logger *zap.Logger) *Backup {
+func New(dir string, varDir string, logger *zap.Logger) *Backup {
 	return &Backup{
 		backupDir: dir,
+		varDir:    varDir,
 		logger:    logger,
 	}
 }
@@ -57,17 +60,17 @@ func (b *Backup) Create(app string) error {
 	file := fmt.Sprintf("%s/%s-%s.tar.gz", b.backupDir, app, now)
 	b.logger.Info("Running backup create", zap.String("app", app), zap.String("file", file))
 
-	tempDir, err := ioutil.TempDir("", "test")
+	tempDir, err := os.MkdirTemp("", "test")
 	if err != nil {
 		panic(err)
 	}
-	appBaseDir := fmt.Sprintf("/var/snap/%s", app)
+	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, app)
 	AppCurrentDir := fmt.Sprintf("%s/current", appBaseDir)
 	AppCommonDir := fmt.Sprintf("%s/common", appBaseDir)
-	appCurrentSize := du.NewDiskUsage(AppCurrentDir).Size()
-	appCommonSize := du.NewDiskUsage(AppCommonDir).Size()
+	appCurrentSize := du.NewDiskUsage(AppCurrentDir).Used() / 1024 / 1024
+	appCommonSize := du.NewDiskUsage(AppCommonDir).Used() / 1024 / 1024
 
-	tempSpaceLeft := du.NewDiskUsage(tempDir).Available()
+	tempSpaceLeft := du.NewDiskUsage(tempDir).Available() / 1024 / 1024
 	TempSpaceNeeded := appCurrentSize + appCommonSize*2
 
 	b.logger.Info(fmt.Sprintf("temp space left: %d", tempSpaceLeft))

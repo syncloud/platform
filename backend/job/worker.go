@@ -6,7 +6,7 @@ import (
 )
 
 type Master interface {
-	Take() (func() error, error)
+	Take() Job
 	Complete() error
 }
 
@@ -28,12 +28,11 @@ func (w *Worker) Start() {
 }
 
 func (w *Worker) Do() bool {
-	job, err := w.master.Take()
-	if err != nil {
-		w.logger.Error("cannot take task", zap.Error(err))
+	job := w.master.Take()
+	if job == nil {
 		return false
 	}
-	err = job()
+	err := job()
 	if err != nil {
 		w.logger.Error("error in the task", zap.Error(err))
 	}

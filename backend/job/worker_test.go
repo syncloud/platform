@@ -7,14 +7,14 @@ import (
 )
 
 type MasterStub struct {
-	job       func() error
+	job       Job
 	taken     int
 	completed int
 }
 
-func (m *MasterStub) Take() (func() error, error) {
+func (m *MasterStub) Take() Job {
 	m.taken++
-	return m.job, nil
+	return m.job
 }
 
 func (m *MasterStub) Complete() error {
@@ -36,4 +36,14 @@ func TestJob(t *testing.T) {
 	assert.True(t, ran)
 	assert.Equal(t, 1, master.completed)
 
+}
+
+func TestNoJob(t *testing.T) {
+	master := &MasterStub{}
+	worker := NewWorker(master, log.Default())
+
+	master.job = nil
+	worker.Do()
+
+	assert.Equal(t, 0, master.completed)
 }
