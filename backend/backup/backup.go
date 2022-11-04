@@ -2,6 +2,8 @@ package backup
 
 import (
 	"fmt"
+	cp "github.com/otiai10/copy"
+	"github.com/ricochet2200/go-disk-usage/du"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -17,7 +19,6 @@ type Backup struct {
 
 const (
 	Dir        = "/data/platform/backup"
-	CreateCmd  = "/snap/platform/current/bin/backup.sh"
 	RestoreCmd = "/snap/platform/current/bin/restore.sh"
 )
 
@@ -55,47 +56,66 @@ func (b *Backup) Create(app string) error {
 	now := time.Now().Format("2006-0102-150405")
 	file := fmt.Sprintf("%s/%s-%s.tar.gz", b.backupDir, app, now)
 	b.logger.Info("Running backup create", zap.String("app", app), zap.String("file", file))
-	/*
-		tempDir, err := ioutil.TempDir("", "test")
-		if err != nil {
-			panic(err)
-		}
-		appBaseDir := fmt.Sprintf("/var/snap/%s", app)
-		APP_CURRENT_DIR=${APP_BASE_DIR}/current
-		APP_COMMON_DIR=${APP_BASE_DIR}/common
 
+	tempDir, err := ioutil.TempDir("", "test")
+	if err != nil {
+		panic(err)
+	}
+	appBaseDir := fmt.Sprintf("/var/snap/%s", app)
+	AppCurrentDir := fmt.Sprintf("%s/current", appBaseDir)
+	AppCommonDir := fmt.Sprintf("%s/common", appBaseDir)
+	appCurrentSize := du.NewDiskUsage(AppCurrentDir).Size()
+	appCommonSize := du.NewDiskUsage(AppCommonDir).Size()
 
+	tempSpaceLeft := du.NewDiskUsage(tempDir).Available()
+	TempSpaceNeeded := appCurrentSize + appCommonSize*2
 
-			APP_CURRENT_SIZE=$(du -s ${APP_CURRENT_DIR} | cut -f1)
-			APP_COMMON_SIZE=$(du -s ${APP_COMMON_DIR} | cut -f1)
+	b.logger.Info(fmt.Sprintf("temp space left: %d", tempSpaceLeft))
+	b.logger.Info(fmt.Sprintf("temp space needed: %d", TempSpaceNeeded))
 
-			TEMP_SPACE_LEFT=$(df --output=avail ${TEMP_DIR} | tail -1)
-			TEMP_SPACE_NEEDED=$(( (${APP_CURRENT_SIZE} + ${APP_COMMON_SIZE}) * 2 ))
+	if tempSpaceLeft < TempSpaceNeeded {
+		return fmt.Errorf("not enough temp space for the backup")
+	}
 
-			echo "temp space left: ${TEMP_SPACE_LEFT}"
-			echo "temp space needed: ${TEMP_SPACE_NEEDED}"
+	//snap run $APP.backup-create-pre-stop
+	out, err := exec.Command("snap", "stop", app).CombinedOutput()
+	b.logger.Info(fmt.Sprintf("stop output: %s", string(out)))
+	if err != nil {
+		return err
+	}
+	//snap run $APP.backup-create-post-stop
 
-			if [[ ${TEMP_SPACE_NEEDED} -gt ${TEMP_SPACE_LEFT} ]]; then
-			    echo "not enaugh temp space for the backup"
-			    exit 1
-			fi
+	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
+	err = os.Mkdir(tempCurrentDir, 0755)
+	if err != nil {
+		return err
+	}
+	err = cp.Copy(AppCurrentDir, tempCurrentDir)
+	if err != nil {
+		return err
+	}
 
-			snap run $APP.backup-create-pre-stop
-			snap stop $APP
-			snap run $APP.backup-create-post-stop
+	tempCommonDir := fmt.Sprintf("%s/common", tempDir)
+	err = os.Mkdir(tempCommonDir, 0755)
+	if err != nil {
+		return err
+	}
+	err = cp.Copy(AppCommonDir, tempCommonDir)
+	if err != nil {
+		return err
+	}
 
-			mkdir ${TEMP_DIR}/current
-			cp -R --preserve ${APP_CURRENT_DIR}/. ${TEMP_DIR}/current
-
-			mkdir ${TEMP_DIR}/common
-			cp -R --preserve ${APP_COMMON_DIR}/. ${TEMP_DIR}/common
-
-			snap start $APP
-			tar czf ${BACKUP_FILE} -C ${TEMP_DIR} .
-			rm -rf ${TEMP_DIR}
-	*/
-	out, err := exec.Command(CreateCmd, app, file).CombinedOutput()
-	b.logger.Info("Backup create output", zap.String("out", string(out)))
+	out, err = exec.Command("snap", "start", app).CombinedOutput()
+	b.logger.Info(fmt.Sprintf("start output: %s", string(out)))
+	if err != nil {
+		return err
+	}
+	out, err = exec.Command("tar", "czf", file, "-C", tempDir).CombinedOutput()
+	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
+	if err != nil {
+		return err
+	}
+	err = os.RemoveAll(tempDir)
 	if err != nil {
 		return err
 	}

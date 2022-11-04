@@ -8,10 +8,13 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/mattn/go-sqlite3 v1.14.7
+	github.com/prometheus/procfs v0.7.3
+	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.10.0
-	github.com/prometheus/procfs v0.7.3
+	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
+	github.com/otiai10/copy v1.7.0
 )
 
 require (
@@ -25,7 +28,6 @@ require (
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
-	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
 	golang.org/x/text v0.3.6 // indirect
