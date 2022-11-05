@@ -31,7 +31,7 @@ type Config interface {
 	Channel() string
 }
 
-type Snapd struct {
+type Server struct {
 	client     SnapdClient
 	deviceInfo DeviceInfo
 	config     Config
@@ -39,13 +39,18 @@ type Snapd struct {
 	logger     *zap.Logger
 }
 
-type Response struct {
+type SnapsResponse struct {
 	Result []model.Snap `json:"result"`
 	Status string       `json:"status"`
 }
 
-func New(client SnapdClient, deviceInfo DeviceInfo, config Config, httpClient HttpClient, logger *zap.Logger) *Snapd {
-	return &Snapd{
+type SnapResponse struct {
+	Result model.Snap `json:"result"`
+	Status string     `json:"status"`
+}
+
+func NewServer(client SnapdClient, deviceInfo DeviceInfo, config Config, httpClient HttpClient, logger *zap.Logger) *Server {
+	return &Server{
 		client:     client,
 		deviceInfo: deviceInfo,
 		config:     config,
@@ -54,8 +59,8 @@ func New(client SnapdClient, deviceInfo DeviceInfo, config Config, httpClient Ht
 	}
 }
 
-func (s *Snapd) InstalledUserApps() ([]model.SyncloudApp, error) {
-	snaps, err := s.InstalledSnaps()
+func (s *Server) InstalledUserApps() ([]model.SyncloudApp, error) {
+	snaps, err := s.Snaps()
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +74,7 @@ func (s *Snapd) InstalledUserApps() ([]model.SyncloudApp, error) {
 	return apps, nil
 }
 
-func (s *Snapd) StoreUserApps() ([]model.SyncloudApp, error) {
+func (s *Server) StoreUserApps() ([]model.SyncloudApp, error) {
 	snaps, err := s.StoreSnaps()
 	if err != nil {
 		return nil, err
@@ -84,12 +89,12 @@ func (s *Snapd) StoreUserApps() ([]model.SyncloudApp, error) {
 	return apps, nil
 }
 
-func (s *Snapd) InstalledSnaps() ([]model.Snap, error) {
+func (s *Server) Snaps() ([]model.Snap, error) {
 	bodyBytes, err := s.request("http://unix/v2/snaps")
 	if err != nil {
 		return nil, err
 	}
-	var response Response
+	var response SnapsResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
@@ -99,7 +104,22 @@ func (s *Snapd) InstalledSnaps() ([]model.Snap, error) {
 
 }
 
-func (s *Snapd) request(url string) ([]byte, error) {
+func (s *Server) Snap(name string) (model.Snap, error) {
+	bodyBytes, err := s.request(fmt.Sprintf("http://unix/v2/snaps/%s", name))
+	if err != nil {
+		return model.Snap{}, err
+	}
+	var response SnapResponse
+	err = json.Unmarshal(bodyBytes, &response)
+	if err != nil {
+		s.logger.Error("cannot unmarshal", zap.Error(err))
+		return model.Snap{}, err
+	}
+	return response.Result, nil
+
+}
+
+func (s *Server) request(url string) ([]byte, error) {
 	resp, err := s.client.Get(url)
 	if err != nil {
 		s.logger.Error("cannot connect", zap.Error(err))
@@ -119,11 +139,11 @@ func (s *Snapd) request(url string) ([]byte, error) {
 
 }
 
-func (s *Snapd) StoreSnaps() ([]model.Snap, error) {
+func (s *Server) StoreSnaps() ([]model.Snap, error) {
 	return s.find("*")
 }
 
-func (s *Snapd) Installer() (*model.InstallerInfo, error) {
+func (s *Server) Installer() (*model.InstallerInfo, error) {
 	s.logger.Info("installer")
 	channel := s.config.Channel()
 	systemInfoBytes, err := s.request(fmt.Sprintf("http://unix/v2/system-info"))
@@ -153,13 +173,13 @@ func (s *Snapd) Installer() (*model.InstallerInfo, error) {
 	}, nil
 }
 
-func (s *Snapd) find(query string) ([]model.Snap, error) {
+func (s *Server) find(query string) ([]model.Snap, error) {
 	s.logger.Info("available snaps", zap.String("query", query))
 	bodyBytes, err := s.request(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
 		return nil, err
 	}
-	var response Response
+	var response SnapsResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))

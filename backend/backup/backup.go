@@ -6,6 +6,7 @@ import (
 	df "github.com/ricochet2200/go-disk-usage/du"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/du"
+	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -14,12 +15,24 @@ import (
 	"time"
 )
 
+type SnapService interface {
+	Stop(name string) error
+	Start(name string) error
+	Run(name string) error
+}
+
+type SnapInfo interface {
+	Snap(name string) (model.Snap, error)
+}
+
 type Backup struct {
-	backupDir string
-	varDir    string
-	executor  cli.CommandExecutor
-	diskusage du.DiskUsage
-	logger    *zap.Logger
+	backupDir  string
+	varDir     string
+	executor   cli.CommandExecutor
+	snapCli    SnapService
+	snapServer SnapInfo
+	diskusage  du.DiskUsage
+	logger     *zap.Logger
 }
 
 const (
@@ -28,13 +41,15 @@ const (
 	VarDir     = "/var/snap"
 )
 
-func New(dir string, varDir string, executor cli.CommandExecutor, diskusage du.DiskUsage, logger *zap.Logger) *Backup {
+func New(dir string, varDir string, executor cli.CommandExecutor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, logger *zap.Logger) *Backup {
 	return &Backup{
-		backupDir: dir,
-		varDir:    varDir,
-		executor:  executor,
-		diskusage: diskusage,
-		logger:    logger,
+		backupDir:  dir,
+		varDir:     varDir,
+		executor:   executor,
+		diskusage:  diskusage,
+		snapCli:    snapCli,
+		snapServer: snapServer,
+		logger:     logger,
 	}
 }
 
@@ -92,13 +107,30 @@ func (b *Backup) Create(app string) error {
 		return fmt.Errorf("not enough temp space for the backup")
 	}
 
-	//snap run $APP.backup-create-pre-stop
-	out, err := b.executor.CommandOutput("snap", "stop", app)
-	b.logger.Info(fmt.Sprintf("stop output: %s", string(out)))
+	snap, err := b.snapServer.Snap(app)
 	if err != nil {
 		return err
 	}
-	//snap run $APP.backup-create-post-stop
+
+	cmd := snap.FindCommand("backup-pre-stop")
+	if cmd != nil {
+		err = b.snapCli.Run(cmd.FullName())
+		if err != nil {
+			return err
+		}
+	}
+
+	err = b.snapCli.Stop(app)
+	if err != nil {
+		return err
+	}
+	cmd = snap.FindCommand("backup-post-stop")
+	if cmd != nil {
+		err = b.snapCli.Run(cmd.FullName())
+		if err != nil {
+			return err
+		}
+	}
 
 	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
 	err = os.Mkdir(tempCurrentDir, 0755)
@@ -120,12 +152,12 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	out, err = b.executor.CommandOutput("snap", "start", app)
-	b.logger.Info(fmt.Sprintf("start output: %s", string(out)))
+	err = b.snapCli.Start(app)
 	if err != nil {
 		return err
 	}
-	out, err = b.executor.CommandOutput("tar", "czf", file, "-C", tempDir)
+
+	out, err := b.executor.CommandOutput("tar", "czf", file, "-C", tempDir)
 	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
 	if err != nil {
 		return err

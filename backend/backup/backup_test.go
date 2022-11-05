@@ -2,6 +2,7 @@ package backup
 
 import (
 	"github.com/syncloud/platform/log"
+	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -27,6 +28,28 @@ func (e *DiskUsageStub) Used(_ string) (uint64, error) {
 	return e.used, nil
 }
 
+type SnapServiceStub struct {
+}
+
+func (s *SnapServiceStub) Stop(_ string) error {
+	return nil
+}
+
+func (s *SnapServiceStub) Start(_ string) error {
+	return nil
+}
+
+func (s *SnapServiceStub) Run(_ string) error {
+	return nil
+}
+
+type SnapInfoStub struct {
+}
+
+func (s *SnapInfoStub) Snap(_ string) (model.Snap, error) {
+	return model.Snap{}, nil
+}
+
 func TestList(t *testing.T) {
 	logger, err := zap.NewProduction()
 	assert.Nil(t, err)
@@ -39,9 +62,9 @@ func TestList(t *testing.T) {
 	if err := ioutil.WriteFile(tmpfn, []byte(""), 0666); err != nil {
 		panic(err)
 	}
-	list, err := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger).List()
+	list, err := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, &SnapServiceStub{}, &SnapInfoStub{}, logger).List()
 	assert.Nil(t, err)
-	assert.Equal(t, list, []File{File{backupDir, "tmpfile"}})
+	assert.Equal(t, list, []File{{backupDir, "tmpfile"}})
 }
 
 func TestRemove(t *testing.T) {
@@ -55,7 +78,7 @@ func TestRemove(t *testing.T) {
 	if err := ioutil.WriteFile(tmpfn, []byte(""), 0666); err != nil {
 		panic(err)
 	}
-	backup := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
+	backup := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, &SnapServiceStub{}, &SnapInfoStub{}, logger)
 	err := backup.Remove("tmpfile")
 	assert.Nil(t, err)
 	list, err := backup.List()
@@ -72,18 +95,19 @@ func TestCreate(t *testing.T) {
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 	appDir := filepath.Join(varDir, "test-app")
-	os.Mkdir(appDir, 0750)
+	_ = os.Mkdir(appDir, 0750)
 	currentDir := filepath.Join(appDir, "current")
-	os.Mkdir(currentDir, 0750)
+	_ = os.Mkdir(currentDir, 0750)
 	commonDir := filepath.Join(appDir, "common")
-	os.Mkdir(commonDir, 0750)
+	_ = os.Mkdir(commonDir, 0750)
 	tmpfn := filepath.Join(currentDir, "tmpfile")
 	if err := ioutil.WriteFile(tmpfn, []byte("*****************"), 0666); err != nil {
 		panic(err)
 	}
 
-	backup := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
-	backup.Create("test-app")
+	backup := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, &SnapServiceStub{}, &SnapInfoStub{}, logger)
+	err = backup.Create("test-app")
+	assert.Nil(t, err)
 	list, err := backup.List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(list), 0)
@@ -98,7 +122,7 @@ func TestStart(t *testing.T) {
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 
-	backup := New(backupDir+"/new", varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
+	backup := New(backupDir+"/new", varDir, &ExecutorStub{}, &DiskUsageStub{100}, &SnapServiceStub{}, &SnapInfoStub{}, logger)
 	backup.Start()
 	list, err := backup.List()
 	assert.Nil(t, err)

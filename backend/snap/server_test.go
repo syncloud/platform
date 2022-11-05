@@ -82,8 +82,8 @@ func TestInstalledSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := New(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
-	apps, err := snapd.InstalledSnaps()
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	apps, err := snapd.Snaps()
 
 	assert.Nil(t, err)
 	assert.Equal(t, len(apps), 1)
@@ -92,8 +92,8 @@ func TestInstalledSnaps_OK(t *testing.T) {
 
 func TestInstalledSnaps_Error(t *testing.T) {
 
-	snapd := New(&ClientStub{error: true}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
-	apps, err := snapd.InstalledSnaps()
+	snapd := NewServer(&ClientStub{error: true}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	apps, err := snapd.Snaps()
 
 	assert.Nil(t, apps)
 	assert.NotNil(t, err)
@@ -119,7 +119,7 @@ func TestStoreSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := New(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreSnaps()
 
 	assert.Nil(t, err)
@@ -137,7 +137,7 @@ func TestInstaller_OK(t *testing.T) {
 `
 	store := "2"
 
-	snapd := New(&ClientStub{json: installed, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
+	snapd := NewServer(&ClientStub{json: installed, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
 	installer, err := snapd.Installer()
 
 	assert.Nil(t, err)
@@ -179,7 +179,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := New(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledUserApps()
 
 	assert.Nil(t, err)
@@ -221,7 +221,7 @@ func TestStoreUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := New(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreUserApps()
 
 	assert.Nil(t, err)

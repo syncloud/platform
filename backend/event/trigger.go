@@ -1,24 +1,29 @@
 package event
 
 import (
-	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/snap/model"
-	"log"
+	"go.uber.org/zap"
 )
 
 type Trigger struct {
-	snapd    Snapd
-	executor cli.CommandExecutor
+	snapServer SnapServer
+	snapCli    SnapRunner
+	logger     *zap.Logger
 }
 
-type Snapd interface {
-	InstalledSnaps() ([]model.Snap, error)
+type SnapServer interface {
+	Snaps() ([]model.Snap, error)
 }
 
-func New(snapd Snapd, executor cli.CommandExecutor) *Trigger {
+type SnapRunner interface {
+	Run(name string) error
+}
+
+func New(snapServer SnapServer, snapCli SnapRunner, logger *zap.Logger) *Trigger {
 	return &Trigger{
-		snapd:    snapd,
-		executor: executor,
+		snapServer: snapServer,
+		snapCli:    snapCli,
+		logger:     logger,
 	}
 }
 
@@ -30,21 +35,17 @@ func (t *Trigger) RunDiskChangeEvent() error {
 	return t.RunEventOnAllApps("storage-change")
 }
 
-func (t *Trigger) RunEventOnAllApps(event string) error {
+func (t *Trigger) RunEventOnAllApps(command string) error {
 
-	snaps, err := t.snapd.InstalledSnaps()
+	snaps, err := t.snapServer.Snaps()
 	if err != nil {
-		log.Printf("snap info failed: %v", err)
 		return err
 	}
-	for _, info := range snaps {
-		found, app := info.FindApp(event)
-		if found {
-			var cmd = app.RunCommand()
-			log.Println("Running: ", cmd)
-			_, err := t.executor.CommandOutput("snap", "run", cmd)
+	for _, app := range snaps {
+		cmd := app.FindCommand(command)
+		if cmd != nil {
+			err = t.snapCli.Run(cmd.FullName())
 			if err != nil {
-				log.Printf("snap run failed: %v", err)
 				return err
 			}
 		}

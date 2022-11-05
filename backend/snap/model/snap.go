@@ -40,11 +40,11 @@ func (s *Snap) IsApp() bool {
 	return s.Type == "app"
 }
 
-func (s *Snap) FindApp(app string) (bool, *App) {
+func (s *Snap) FindCommand(name string) *App {
 	for _, snapApp := range s.Apps {
-		if snapApp.Name == app {
-			return true, &snapApp
+		if snapApp.Name == name {
+			return &snapApp
 		}
 	}
-	return false, nil
+	return nil
 }

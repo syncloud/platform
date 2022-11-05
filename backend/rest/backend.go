@@ -37,7 +37,7 @@ type Backend struct {
 	userConfig      *config.UserConfig
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
-	snapd           *snap.Snapd
+	snapd           *snap.Server
 	disks           *storage.Disks
 	journalCtl      *systemd.JournalCtl
 }
@@ -49,7 +49,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Snapd, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
 ) *Backend {
 
 	return &Backend{

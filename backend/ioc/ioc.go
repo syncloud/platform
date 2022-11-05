@@ -61,11 +61,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(logger *zap.Logger) *cli.Executor { return cli.NewExecutor(logger) })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
-	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
+	Singleton(func(executor *cli.Executor) *snap.Cli { return snap.NewCli(executor) })
 	Singleton(func(executor *cli.Executor, systemConfig *config.SystemConfig) *systemd.Control {
 		return systemd.New(executor, systemConfig, logger)
 	})
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
+	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
 		return nginx.New(control, systemConfig, userConfig)
 	})
 	Singleton(func(userConfig *config.UserConfig) *info.Device {
@@ -97,12 +97,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return cron.NewCertificateJob(certGenerator)
 	})
 	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Snapd {
-		return snap.New(snapClient, deviceInfo, systemConfig, client, logger)
+	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
+		return snap.NewServer(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 
-	Singleton(func(snapd *snap.Snapd, executor *cli.Executor) *event.Trigger {
-		return event.New(snapd, executor)
+	Singleton(func(snapServer *snap.Server, snapCli *snap.Cli, logger *zap.Logger) *event.Trigger {
+		return event.New(snapServer, snapCli, logger)
 	})
 
 	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.PortProbe {
@@ -126,12 +126,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(executor *cli.Executor) *du.ShellDiskUsage {
 		return du.New(executor)
 	})
-	Singleton(func(executor *cli.Executor, diskusage *du.ShellDiskUsage, logger *zap.Logger) *backup.Backup {
-		return backup.New(backupDir, varDir, executor, diskusage, logger)
+	Singleton(func(executor *cli.Executor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger) *backup.Backup {
+		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, logger)
 	})
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
+	Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
 	})
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
@@ -178,7 +178,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Snapd, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks, journalCtl)
