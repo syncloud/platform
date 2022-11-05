@@ -13,6 +13,7 @@ import (
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/date"
+	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
@@ -122,7 +123,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(master *job.SingleJobMaster, logger *zap.Logger) *job.Worker {
 		return job.NewWorker(master, logger)
 	})
-	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, varDir, logger) })
+	Singleton(func(executor *cli.Executor) *du.ShellDiskUsage {
+		return du.New(executor)
+	})
+	Singleton(func(executor *cli.Executor, diskusage *du.ShellDiskUsage, logger *zap.Logger) *backup.Backup {
+		return backup.New(backupDir, varDir, executor, diskusage, logger)
+	})
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
 	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {

@@ -11,6 +11,22 @@ import (
 	"testing"
 )
 
+type ExecutorStub struct {
+	output string
+}
+
+func (e *ExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
+	return []byte(e.output), nil
+}
+
+type DiskUsageStub struct {
+	used uint64
+}
+
+func (e *DiskUsageStub) Used(_ string) (uint64, error) {
+	return e.used, nil
+}
+
 func TestList(t *testing.T) {
 	logger, err := zap.NewProduction()
 	assert.Nil(t, err)
@@ -23,7 +39,7 @@ func TestList(t *testing.T) {
 	if err := ioutil.WriteFile(tmpfn, []byte(""), 0666); err != nil {
 		panic(err)
 	}
-	list, err := New(backupDir, varDir, logger).List()
+	list, err := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger).List()
 	assert.Nil(t, err)
 	assert.Equal(t, list, []File{File{backupDir, "tmpfile"}})
 }
@@ -39,7 +55,7 @@ func TestRemove(t *testing.T) {
 	if err := ioutil.WriteFile(tmpfn, []byte(""), 0666); err != nil {
 		panic(err)
 	}
-	backup := New(backupDir, varDir, logger)
+	backup := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
 	err := backup.Remove("tmpfile")
 	assert.Nil(t, err)
 	list, err := backup.List()
@@ -66,7 +82,7 @@ func TestCreate(t *testing.T) {
 		panic(err)
 	}
 
-	backup := New(backupDir+"/new", varDir, logger)
+	backup := New(backupDir+"/new", varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
 	backup.Create("test-app")
 	list, err := backup.List()
 	assert.Nil(t, err)
@@ -82,7 +98,7 @@ func TestStart(t *testing.T) {
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 
-	backup := New(backupDir+"/new", varDir, logger)
+	backup := New(backupDir+"/new", varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
 	backup.Start()
 	list, err := backup.List()
 	assert.Nil(t, err)

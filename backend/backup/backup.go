@@ -3,8 +3,9 @@ package backup
 import (
 	"fmt"
 	cp "github.com/otiai10/copy"
-	"github.com/ricochet2200/go-disk-usage/du"
+	df "github.com/ricochet2200/go-disk-usage/du"
 	"github.com/syncloud/platform/cli"
+	"github.com/syncloud/platform/du"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -17,6 +18,7 @@ type Backup struct {
 	backupDir string
 	varDir    string
 	executor  cli.CommandExecutor
+	diskusage du.DiskUsage
 	logger    *zap.Logger
 }
 
@@ -26,11 +28,12 @@ const (
 	VarDir     = "/var/snap"
 )
 
-func New(dir string, varDir string, executor cli.CommandExecutor, logger *zap.Logger) *Backup {
+func New(dir string, varDir string, executor cli.CommandExecutor, diskusage du.DiskUsage, logger *zap.Logger) *Backup {
 	return &Backup{
 		backupDir: dir,
 		varDir:    varDir,
 		executor:  executor,
+		diskusage: diskusage,
 		logger:    logger,
 	}
 }
@@ -65,16 +68,22 @@ func (b *Backup) Create(app string) error {
 
 	tempDir, err := os.MkdirTemp("", "test")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, app)
 	AppCurrentDir := fmt.Sprintf("%s/current", appBaseDir)
 	AppCommonDir := fmt.Sprintf("%s/common", appBaseDir)
-	appCurrentSize := du.NewDiskUsage(AppCurrentDir).Used() / 1024 / 1024
-	appCommonSize := du.NewDiskUsage(AppCommonDir).Used() / 1024 / 1024
+	appCurrentSize, err := b.diskusage.Used(AppCurrentDir)
+	if err != nil {
+		return err
+	}
+	appCommonSize, err := b.diskusage.Used(AppCommonDir)
+	if err != nil {
+		return err
+	}
 
-	tempSpaceLeft := du.NewDiskUsage(tempDir).Available() / 1024 / 1024
-	TempSpaceNeeded := appCurrentSize + appCommonSize*2
+	tempSpaceLeft := df.NewDiskUsage(tempDir).Available()
+	TempSpaceNeeded := (appCurrentSize + appCommonSize) * 2
 
 	b.logger.Info(fmt.Sprintf("temp space left: %d", tempSpaceLeft))
 	b.logger.Info(fmt.Sprintf("temp space needed: %d", TempSpaceNeeded))
@@ -84,7 +93,7 @@ func (b *Backup) Create(app string) error {
 	}
 
 	//snap run $APP.backup-create-pre-stop
-	out, err := exec.Command("snap", "stop", app).CombinedOutput()
+	out, err := b.executor.CommandOutput("snap", "stop", app)
 	b.logger.Info(fmt.Sprintf("stop output: %s", string(out)))
 	if err != nil {
 		return err
@@ -111,12 +120,12 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	out, err = exec.Command("snap", "start", app).CombinedOutput()
+	out, err = b.executor.CommandOutput("snap", "start", app)
 	b.logger.Info(fmt.Sprintf("start output: %s", string(out)))
 	if err != nil {
 		return err
 	}
-	out, err = exec.Command("tar", "czf", file, "-C", tempDir).CombinedOutput()
+	out, err = b.executor.CommandOutput("tar", "czf", file, "-C", tempDir)
 	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
 	if err != nil {
 		return err
