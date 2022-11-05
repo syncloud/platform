@@ -166,7 +166,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	out, err := b.executor.CommandOutput("tar", "czf", file, "-C", tempDir)
+	out, err := b.executor.CommandOutput("tar", "czf", file, "-C", tempDir, ".")
 	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
 	if err != nil {
 		return err

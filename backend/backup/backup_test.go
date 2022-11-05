@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"fmt"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
@@ -16,7 +17,17 @@ type ExecutorStub struct {
 	output string
 }
 
-func (e *ExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
+func (e *ExecutorStub) CommandOutput(name string, args ...string) ([]byte, error) {
+	if name == "tar" {
+		dir := args[3]
+		readDir, err := ioutil.ReadDir(dir)
+		if err != nil {
+			return nil, err
+		}
+		if len(readDir) < 1 {
+			return nil, fmt.Errorf("empty dir")
+		}
+	}
 	return []byte(e.output), nil
 }
 
@@ -54,8 +65,8 @@ func TestList(t *testing.T) {
 	logger, err := zap.NewProduction()
 	assert.Nil(t, err)
 
-	backupDir := createTempDir()
-	varDir := createTempDir()
+	backupDir := createTempDir("backup")
+	varDir := createTempDir("var")
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 	tmpfn := filepath.Join(backupDir, "tmpfile")
@@ -70,8 +81,8 @@ func TestList(t *testing.T) {
 func TestRemove(t *testing.T) {
 	logger := log.Default()
 
-	backupDir := createTempDir()
-	varDir := createTempDir()
+	backupDir := createTempDir("backup")
+	varDir := createTempDir("var")
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 	tmpfn := filepath.Join(backupDir, "tmpfile")
@@ -90,8 +101,8 @@ func TestCreate(t *testing.T) {
 	logger, err := zap.NewProduction()
 	assert.Nil(t, err)
 
-	backupDir := createTempDir()
-	varDir := createTempDir()
+	backupDir := createTempDir("backup")
+	varDir := createTempDir("var")
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 	appDir := filepath.Join(varDir, "test-app")
@@ -119,8 +130,8 @@ func TestStart(t *testing.T) {
 	logger, err := zap.NewProduction()
 	assert.Nil(t, err)
 
-	backupDir := createTempDir()
-	varDir := createTempDir()
+	backupDir := createTempDir("backup")
+	varDir := createTempDir("var")
 	defer os.Remove(backupDir)
 	defer os.Remove(varDir)
 
@@ -131,8 +142,8 @@ func TestStart(t *testing.T) {
 	assert.Equal(t, len(list), 0)
 }
 
-func createTempDir() string {
-	dir, err := os.MkdirTemp("", "test")
+func createTempDir(pattern string) string {
+	dir, err := os.MkdirTemp("", pattern)
 	if err != nil {
 		panic(err)
 	}
