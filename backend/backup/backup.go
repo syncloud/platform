@@ -4,6 +4,7 @@ import (
 	"fmt"
 	cp "github.com/otiai10/copy"
 	"github.com/ricochet2200/go-disk-usage/du"
+	"github.com/syncloud/platform/cli"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
@@ -15,6 +16,7 @@ import (
 type Backup struct {
 	backupDir string
 	varDir    string
+	executor  cli.CommandExecutor
 	logger    *zap.Logger
 }
 
@@ -24,10 +26,11 @@ const (
 	VarDir     = "/var/snap"
 )
 
-func New(dir string, varDir string, logger *zap.Logger) *Backup {
+func New(dir string, varDir string, executor cli.CommandExecutor, logger *zap.Logger) *Backup {
 	return &Backup{
 		backupDir: dir,
 		varDir:    varDir,
+		executor:  executor,
 		logger:    logger,
 	}
 }
