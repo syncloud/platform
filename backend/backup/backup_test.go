@@ -82,7 +82,7 @@ func TestCreate(t *testing.T) {
 		panic(err)
 	}
 
-	backup := New(backupDir+"/new", varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
+	backup := New(backupDir, varDir, &ExecutorStub{}, &DiskUsageStub{100}, logger)
 	backup.Create("test-app")
 	list, err := backup.List()
 	assert.Nil(t, err)
