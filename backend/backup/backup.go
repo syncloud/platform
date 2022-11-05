@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -81,19 +82,22 @@ func (b *Backup) Create(app string) error {
 	file := fmt.Sprintf("%s/%s-%s.tar.gz", b.backupDir, app, now)
 	b.logger.Info("Running backup create", zap.String("app", app), zap.String("file", file))
 
-	tempDir, err := os.MkdirTemp("", "test")
+	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
+		b.logger.Info("cannot create tmp dir", zap.Error(err))
 		return err
 	}
 	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, app)
-	AppCurrentDir := fmt.Sprintf("%s/current", appBaseDir)
-	AppCommonDir := fmt.Sprintf("%s/common", appBaseDir)
-	appCurrentSize, err := b.diskusage.Used(AppCurrentDir)
+	currentDir := fmt.Sprintf("%s/current", appBaseDir)
+	commonDir := fmt.Sprintf("%s/common", appBaseDir)
+	appCurrentSize, err := b.diskusage.Used(currentDir)
 	if err != nil {
+		b.logger.Info("cannot get current dir size", zap.Error(err))
 		return err
 	}
-	appCommonSize, err := b.diskusage.Used(AppCommonDir)
+	appCommonSize, err := b.diskusage.Used(commonDir)
 	if err != nil {
+		b.logger.Info("cannot get common dir size", zap.Error(err))
 		return err
 	}
 
@@ -137,8 +141,13 @@ func (b *Backup) Create(app string) error {
 	if err != nil {
 		return err
 	}
-	err = cp.Copy(AppCurrentDir, tempCurrentDir)
+	versionDir, err := filepath.EvalSymlinks(currentDir)
 	if err != nil {
+		return err
+	}
+	err = cp.Copy(versionDir, tempCurrentDir)
+	if err != nil {
+		b.logger.Info("cannot copy", zap.Error(err))
 		return err
 	}
 
@@ -147,7 +156,7 @@ func (b *Backup) Create(app string) error {
 	if err != nil {
 		return err
 	}
-	err = cp.Copy(AppCommonDir, tempCommonDir)
+	err = cp.Copy(commonDir, tempCommonDir)
 	if err != nil {
 		return err
 	}

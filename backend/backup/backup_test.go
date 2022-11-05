@@ -96,11 +96,13 @@ func TestCreate(t *testing.T) {
 	defer os.Remove(varDir)
 	appDir := filepath.Join(varDir, "test-app")
 	_ = os.Mkdir(appDir, 0750)
+	versionDir := filepath.Join(appDir, "x1")
+	_ = os.Mkdir(versionDir, 0750)
 	currentDir := filepath.Join(appDir, "current")
-	_ = os.Mkdir(currentDir, 0750)
+	_ = os.Symlink(versionDir, currentDir)
 	commonDir := filepath.Join(appDir, "common")
 	_ = os.Mkdir(commonDir, 0750)
-	tmpfn := filepath.Join(currentDir, "tmpfile")
+	tmpfn := filepath.Join(versionDir, "tmpfile")
 	if err := ioutil.WriteFile(tmpfn, []byte("*****************"), 0666); err != nil {
 		panic(err)
 	}
