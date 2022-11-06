@@ -36,8 +36,12 @@ type Backup struct {
 }
 
 const (
-	Dir    = "/data/platform/backup"
-	VarDir = "/var/snap"
+	Dir              = "/data/platform/backup"
+	VarDir           = "/var/snap"
+	CreatePreStop    = "backup-pre-stop"
+	CreatePostStop   = "backup-post-stop"
+	RestorePreStart  = "restore-pre-start"
+	RestorePostStart = "restore-post-start"
 )
 
 func New(dir string, varDir string, executor cli.Executor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, logger *zap.Logger) *Backup {
@@ -114,7 +118,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, "backup-pre-stop")
+	err = b.snapCli.RunCmdIfExists(snap, CreatePreStop)
 	if err != nil {
 		return err
 	}
@@ -124,7 +128,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, "backup-post-stop")
+	err = b.snapCli.RunCmdIfExists(snap, CreatePostStop)
 	if err != nil {
 		return err
 	}
@@ -249,7 +253,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, "restore-pre-start")
+	err = b.snapCli.RunCmdIfExists(snap, RestorePreStart)
 	if err != nil {
 		return err
 	}
@@ -259,7 +263,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, "restore-post-start")
+	err = b.snapCli.RunCmdIfExists(snap, RestorePostStart)
 	if err != nil {
 		return err
 	}

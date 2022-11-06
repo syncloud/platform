@@ -21,6 +21,7 @@ func (e *DiskUsageStub) Used(_ string) (uint64, error) {
 }
 
 type SnapServiceStub struct {
+	versionDir string
 }
 
 func (s *SnapServiceStub) Stop(_ string) error {
@@ -31,7 +32,13 @@ func (s *SnapServiceStub) Start(_ string) error {
 	return nil
 }
 
-func (s *SnapServiceStub) RunCmdIfExists(_ model.Snap, _ string) error {
+func (s *SnapServiceStub) RunCmdIfExists(_ model.Snap, cmd string) error {
+	if cmd == CreatePreStop {
+		backupFile := filepath.Join(s.versionDir, "backup.file")
+		if err := ioutil.WriteFile(backupFile, []byte("backup"), 0666); err != nil {
+			panic(err)
+		}
+	}
 	return nil
 }
 
@@ -88,7 +95,9 @@ func TestBackup(t *testing.T) {
 	diskusage := &DiskUsageStub{100}
 	logger := log.Default()
 	shellExecutor := cli.New(logger)
-	backup := New(backupDir+"/non-existent", varDir, shellExecutor, diskusage, &SnapServiceStub{}, &SnapInfoStub{}, logger)
+	snapCli := &SnapServiceStub{versionDir: versionDir}
+	snapServer := &SnapInfoStub{}
+	backup := New(backupDir+"/non-existent", varDir, shellExecutor, diskusage, snapCli, snapServer, logger)
 	backup.Init()
 	err := backup.Create("test-app")
 	assert.Nil(t, err)
@@ -104,9 +113,15 @@ func TestBackup(t *testing.T) {
 
 	err = backup.Restore(backups[0].File)
 	assert.Nil(t, err)
+
 	currentFileContent, err := ioutil.ReadFile(currentFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "current", string(currentFileContent))
+
+	backupFileContent, err := ioutil.ReadFile(filepath.Join(versionDir, "backup.file"))
+	assert.Nil(t, err)
+	assert.Equal(t, "backup", string(backupFileContent))
+
 	commonFileContent, err := ioutil.ReadFile(commonFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
