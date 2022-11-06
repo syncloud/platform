@@ -27,7 +27,7 @@ type ExecutorStub struct {
 	output string
 }
 
-func (e *ExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
+func (e *ExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, error) {
 	return []byte(e.output), nil
 }
 

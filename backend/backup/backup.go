@@ -10,16 +10,15 @@ import (
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
+	"regexp"
 	"time"
 )
 
 type SnapService interface {
 	Stop(name string) error
 	Start(name string) error
-	Run(name string) error
+	RunCmdIfExists(snap model.Snap, cmd string) error
 }
 
 type SnapInfo interface {
@@ -29,7 +28,7 @@ type SnapInfo interface {
 type Backup struct {
 	backupDir  string
 	varDir     string
-	executor   cli.CommandExecutor
+	executor   cli.Executor
 	snapCli    SnapService
 	snapServer SnapInfo
 	diskusage  du.DiskUsage
@@ -37,12 +36,11 @@ type Backup struct {
 }
 
 const (
-	Dir        = "/data/platform/backup"
-	RestoreCmd = "/snap/platform/current/bin/restore.sh"
-	VarDir     = "/var/snap"
+	Dir    = "/data/platform/backup"
+	VarDir = "/var/snap"
 )
 
-func New(dir string, varDir string, executor cli.CommandExecutor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, logger *zap.Logger) *Backup {
+func New(dir string, varDir string, executor cli.Executor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, logger *zap.Logger) *Backup {
 	return &Backup{
 		backupDir:  dir,
 		varDir:     varDir,
@@ -54,7 +52,7 @@ func New(dir string, varDir string, executor cli.CommandExecutor, diskusage du.D
 	}
 }
 
-func (b *Backup) Start() {
+func (b *Backup) Init() {
 	if _, err := os.Stat(b.backupDir); os.IsNotExist(err) {
 		err := os.MkdirAll(b.backupDir, os.ModePerm)
 		if err != nil {
@@ -102,12 +100,12 @@ func (b *Backup) Create(app string) error {
 	}
 
 	tempSpaceLeft := df.NewDiskUsage(tempDir).Available()
-	TempSpaceNeeded := (appCurrentSize + appCommonSize) * 2
+	tempSpaceNeeded := (appCurrentSize + appCommonSize) * 2
 
 	b.logger.Info(fmt.Sprintf("temp space left: %d", tempSpaceLeft))
-	b.logger.Info(fmt.Sprintf("temp space needed: %d", TempSpaceNeeded))
+	b.logger.Info(fmt.Sprintf("temp space needed: %d", tempSpaceNeeded))
 
-	if tempSpaceLeft < TempSpaceNeeded {
+	if tempSpaceLeft < tempSpaceNeeded {
 		return fmt.Errorf("not enough temp space for the backup")
 	}
 
@@ -116,24 +114,19 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	cmd := snap.FindCommand("backup-pre-stop")
-	if cmd != nil {
-		err = b.snapCli.Run(cmd.FullName())
-		if err != nil {
-			return err
-		}
+	err = b.snapCli.RunCmdIfExists(snap, "backup-pre-stop")
+	if err != nil {
+		return err
 	}
 
 	err = b.snapCli.Stop(app)
 	if err != nil {
 		return err
 	}
-	cmd = snap.FindCommand("backup-post-stop")
-	if cmd != nil {
-		err = b.snapCli.Run(cmd.FullName())
-		if err != nil {
-			return err
-		}
+
+	err = b.snapCli.RunCmdIfExists(snap, "backup-post-stop")
+	if err != nil {
+		return err
 	}
 
 	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
@@ -147,7 +140,7 @@ func (b *Backup) Create(app string) error {
 	}
 	err = cp.Copy(versionDir, tempCurrentDir)
 	if err != nil {
-		b.logger.Info("cannot copy", zap.Error(err))
+		b.logger.Error("cannot copy", zap.Error(err))
 		return err
 	}
 
@@ -156,6 +149,7 @@ func (b *Backup) Create(app string) error {
 	if err != nil {
 		return err
 	}
+
 	err = cp.Copy(commonDir, tempCommonDir)
 	if err != nil {
 		return err
@@ -166,59 +160,115 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	out, err := b.executor.CommandOutput("tar", "czf", file, "-C", tempDir, ".")
+	out, err := b.executor.CombinedOutput("tar", "czf", file, "-C", tempDir, ".")
 	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
 	if err != nil {
 		return err
 	}
+
 	err = os.RemoveAll(tempDir)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (b *Backup) Restore(fileName string) error {
-	app := strings.Split(fileName, "-")[0]
-	file := fmt.Sprintf("%s/%s", b.backupDir, fileName)
-	b.logger.Info("Running backup restore", zap.String("app", app), zap.String("file", file))
-	/*
-		EXTRACT_DIR=$(mktemp -d)
-
-		BACKUP_SIZE=$(stat --printf="%s" ${BACKUP_FILE})
-
-		TEMP_SPACE_LEFT=$(df -B 1 --output=avail ${EXTRACT_DIR} | tail -1)
-		TEMP_SPACE_NEEDED=$(( ${BACKUP_SIZE} * 10 ))
-
-		echo "temp space left: ${TEMP_SPACE_LEFT}"
-		echo "temp space needed: ${TEMP_SPACE_NEEDED}"
-
-		if [[ ${TEMP_SPACE_NEEDED} -gt ${TEMP_SPACE_LEFT} ]]; then
-		    echo "not enough temp space for the restore"
-		    exit 1
-		fi
-
-		tar -C ${EXTRACT_DIR} -xf ${BACKUP_FILE}
-		ls -la ${EXTRACT_DIR}
-		APP_DIR=/var/snap/$APP
-
-		snap stop $APP
-
-		rm -rf ${APP_DIR}/current/*
-		cp -R --preserve ${EXTRACT_DIR}/current/. ${APP_DIR}/current/
-		rm -rf ${APP_DIR}/common/*
-		cp -R --preserve ${EXTRACT_DIR}/common/. ${APP_DIR}/common/
-
-		snap run $APP.backup-restore-pre-start
-		snap start $APP
-		snap run $APP.backup-restore-pre-stop
-
-		rm -rf ${EXTRACT_DIR}*/
-	out, err := exec.Command(RestoreCmd, app, file).CombinedOutput()
-	b.logger.Info("Backup restore output", zap.String("out", string(out)))
+	r, err := regexp.Compile(`(.*?)-\d{4}-\d{4}.*`)
 	if err != nil {
 		return err
 	}
+
+	matches := r.FindStringSubmatch(fileName)
+	if len(matches) < 2 {
+		return fmt.Errorf("backup file name should start with [app]-YYYY-MMDD-")
+	}
+	app := matches[1]
+
+	file := fmt.Sprintf("%s/%s", b.backupDir, fileName)
+	b.logger.Info("Running backup restore", zap.String("app", app), zap.String("file", file))
+
+	tempDir, err := os.MkdirTemp("", "")
+	if err != nil {
+		b.logger.Info("cannot create tmp dir", zap.Error(err))
+		return err
+	}
+
+	fileStat, err := os.Stat(file)
+	if err != nil {
+		return err
+	}
+
+	tempSpaceLeft := df.NewDiskUsage(tempDir).Available()
+	tempSpaceNeeded := uint64(fileStat.Size()) * 2
+	b.logger.Info(fmt.Sprintf("temp space left: %d", tempSpaceLeft))
+	b.logger.Info(fmt.Sprintf("temp space needed: %d", tempSpaceNeeded))
+
+	if tempSpaceLeft < tempSpaceNeeded {
+		return fmt.Errorf("not enough temp space for the restore")
+	}
+
+	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xf", file)
+	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
+	if err != nil {
+		return err
+	}
+
+	err = b.snapCli.Stop(app)
+	if err != nil {
+		return err
+	}
+
+	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, app)
+
+	currentDir := fmt.Sprintf("%s/current", appBaseDir)
+	_, err = b.executor.CombinedOutput("rm", "-rf", fmt.Sprintf("%s/*", currentDir))
+	if err != nil {
+		return err
+	}
+	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
+	err = cp.Copy(tempCurrentDir, currentDir)
+	if err != nil {
+		return err
+	}
+
+	commonDir := fmt.Sprintf("%s/common", appBaseDir)
+	_, err = b.executor.CombinedOutput("rm", "-rf", fmt.Sprintf("%s/*", commonDir))
+	if err != nil {
+		return err
+	}
+	tempCommonDir := fmt.Sprintf("%s/common", tempDir)
+	err = cp.Copy(tempCommonDir, commonDir)
+	if err != nil {
+		return err
+	}
+
+	snap, err := b.snapServer.Snap(app)
+	if err != nil {
+		return err
+	}
+
+	err = b.snapCli.RunCmdIfExists(snap, "restore-pre-start")
+	if err != nil {
+		return err
+	}
+
+	err = b.snapCli.Start(app)
+	if err != nil {
+		return err
+	}
+
+	err = b.snapCli.RunCmdIfExists(snap, "restore-post-start")
+	if err != nil {
+		return err
+	}
+
+	err = os.RemoveAll(tempDir)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

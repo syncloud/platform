@@ -11,7 +11,7 @@ type ExecutorStub struct {
 	executions []string
 }
 
-func (e *ExecutorStub) CommandOutput(name string, arg ...string) ([]byte, error) {
+func (e *ExecutorStub) CombinedOutput(name string, arg ...string) ([]byte, error) {
 	e.executions = append(e.executions, fmt.Sprintf("%s %s", name, strings.Join(arg, " ")))
 	return make([]byte, 0), nil
 }

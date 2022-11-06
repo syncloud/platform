@@ -61,10 +61,14 @@ func (e *LsblkEntry) IsRaid() bool {
 	return false
 }
 
-func (e *LsblkEntry) ParentDevice() string {
-	r := *regexp.MustCompile(`(.*?)p?\d*$`)
+func (e *LsblkEntry) ParentDevice() (string, error) {
+	r, err := regexp.Compile(`(.*?)p?\d*$`)
+	if err != nil {
+		return "", err
+	}
+
 	match := r.FindStringSubmatch(e.Name)
-	return match[1]
+	return match[1], nil
 }
 
 func (e *LsblkEntry) GetFsType() string {

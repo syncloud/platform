@@ -6,7 +6,7 @@ import (
 )
 
 type JournalCtl struct {
-	executor cli.CommandExecutor
+	executor cli.Executor
 }
 
 type JournalCtlReader interface {
@@ -14,7 +14,7 @@ type JournalCtlReader interface {
 	ReadBackend(predicate func(string) bool) []string
 }
 
-func NewJournalCtl(executor cli.CommandExecutor) *JournalCtl {
+func NewJournalCtl(executor cli.Executor) *JournalCtl {
 	return &JournalCtl{
 		executor: executor,
 	}
@@ -23,7 +23,7 @@ func NewJournalCtl(executor cli.CommandExecutor) *JournalCtl {
 func (c *JournalCtl) read(predicate func(string) bool, args ...string) []string {
 
 	args = append(args, "-n", "1000", "--no-pager")
-	output, err := c.executor.CommandOutput("journalctl", args...)
+	output, err := c.executor.CombinedOutput("journalctl", args...)
 	if err != nil {
 		return []string{err.Error()}
 	}

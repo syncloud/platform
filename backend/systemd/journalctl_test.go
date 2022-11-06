@@ -11,7 +11,7 @@ type JournalCtlExecutorStub struct {
 	output string
 }
 
-func (e *JournalCtlExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
+func (e *JournalCtlExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, error) {
 	return []byte(e.output), nil
 }
 

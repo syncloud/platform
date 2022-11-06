@@ -11,19 +11,22 @@ type DiskUsage interface {
 }
 
 type ShellDiskUsage struct {
-	executor cli.CommandExecutor
+	executor cli.Executor
 }
 
-func New(executor cli.CommandExecutor) *ShellDiskUsage {
+func New(executor cli.Executor) *ShellDiskUsage {
 	return &ShellDiskUsage{executor}
 }
 
 func (d *ShellDiskUsage) Used(path string) (uint64, error) {
-	out, err := d.executor.CommandOutput("du", "-s", path)
+	out, err := d.executor.CombinedOutput("du", "-s", path)
 	if err != nil {
 		return 0, err
 	}
-	r := *regexp.MustCompile(`(\d+).*`)
+	r, err := regexp.Compile(`(\d+).*`)
+	if err != nil {
+		return 0, err
+	}
 	match := r.FindStringSubmatch(string(out))
 	i, err := strconv.ParseUint(match[1], 10, 64)
 	if err != nil {

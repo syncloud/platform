@@ -24,7 +24,7 @@ type Disks struct {
 	systemd          DisksSystemd
 	freeSpaceChecker DisksFreeSpaceChecker
 	linker           DisksLinker
-	executor         cli.CommandExecutor
+	executor         cli.Executor
 	btrfs            BtrfsDisks
 	btrfsStats       BtrfsDiskStats
 	lastError        error
@@ -76,7 +76,7 @@ func NewDisks(
 	systemd DisksSystemd,
 	freeSpaceChecker DisksFreeSpaceChecker,
 	linker DisksLinker,
-	executor cli.CommandExecutor,
+	executor cli.Executor,
 	btrfs BtrfsDisks,
 	btrfsStats BtrfsDiskStats,
 	logger *zap.Logger) *Disks {
