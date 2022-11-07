@@ -61,7 +61,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(logger *zap.Logger) *cli.ShellExecutor { return cli.New(logger) })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
-	Singleton(func(executor *cli.ShellExecutor) *snap.Cli { return snap.NewCli(executor) })
+	Singleton(func(executor *cli.ShellExecutor, logger *zap.Logger) *snap.Cli { return snap.NewCli(executor, logger) })
 	Singleton(func(executor *cli.ShellExecutor, systemConfig *config.SystemConfig) *systemd.Control {
 		return systemd.New(executor, systemConfig, logger)
 	})
