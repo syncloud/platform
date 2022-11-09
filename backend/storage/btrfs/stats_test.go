@@ -16,7 +16,7 @@ type StatsExecutorStub struct {
 	output string
 }
 
-func (e *StatsExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
+func (e *StatsExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, error) {
 	return []byte(e.output), nil
 }
 

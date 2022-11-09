@@ -7,8 +7,8 @@ import (
 )
 
 func TestExecutor_CommandOutput(t *testing.T) {
-	executor := NewExecutor(log.Default())
-	output, err := executor.CommandOutput("date")
+	executor := New(log.Default())
+	output, err := executor.CombinedOutput("date")
 	assert.Nil(t, err)
 	assert.Greater(t, len(string(output)), 0)
 }

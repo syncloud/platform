@@ -37,7 +37,7 @@ type Backend struct {
 	userConfig      *config.UserConfig
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
-	snapd           *snap.Snapd
+	snapd           *snap.Server
 	disks           *storage.Disks
 	journalCtl      *systemd.JournalCtl
 }
@@ -49,7 +49,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Snapd, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
 ) *Backend {
 
 	return &Backend{
@@ -220,7 +220,7 @@ func (b *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("app is missing")
 	}
-	_ = b.JobMaster.Offer("backup.create", func() { b.backup.Create(request.App) })
+	_ = b.JobMaster.Offer("backup.create", func() error { return b.backup.Create(request.App) })
 	return "submitted", nil
 }
 
@@ -231,12 +231,12 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	_ = b.JobMaster.Offer("backup.restore", func() { b.backup.Restore(request.File) })
+	_ = b.JobMaster.Offer("backup.restore", func() error { return b.backup.Restore(request.File) })
 	return "submitted", nil
 }
 
 func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	_ = b.JobMaster.Offer("installer.upgrade", func() { b.installer.Upgrade() })
+	_ = b.JobMaster.Offer("installer.upgrade", func() error { return b.installer.Upgrade() })
 	return "submitted", nil
 }
 
@@ -310,7 +310,7 @@ func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {
-	_ = b.JobMaster.Offer("storage.boot.extend", func() { b.storage.BootExtend() })
+	_ = b.JobMaster.Offer("storage.boot.extend", func() error { return b.storage.BootExtend() })
 	return "submitted", nil
 }
 
@@ -341,7 +341,7 @@ func (b *Backend) StorageActivatePartition(req *http.Request) (interface{}, erro
 		}
 	}
 
-	return "OK", b.JobMaster.Offer("storage.activate.partition", func() { _ = b.disks.ActivatePartition(request.Device) })
+	return "OK", b.JobMaster.Offer("storage.activate.partition", func() error { return b.disks.ActivatePartition(request.Device) })
 
 }
 
@@ -353,7 +353,7 @@ func (b *Backend) StorageActivateDisks(req *http.Request) (interface{}, error) {
 		return nil, err
 	}
 
-	return "OK", b.JobMaster.Offer("storage.activate.disks", func() { b.disks.ActivateDisks(request.Devices, request.Format) })
+	return "OK", b.JobMaster.Offer("storage.activate.disks", func() error { return b.disks.ActivateDisks(request.Devices, request.Format) })
 }
 
 func (b *Backend) StorageLastError(_ *http.Request) (interface{}, error) {

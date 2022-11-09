@@ -13,7 +13,7 @@ import (
 type Lsblk struct {
 	systemConfig Config
 	pathChecker  Checker
-	executor     cli.CommandExecutor
+	executor     cli.Executor
 	logger       *zap.Logger
 }
 
@@ -27,7 +27,7 @@ func (a ByDevice) Len() int           { return len(a) }
 func (a ByDevice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByDevice) Less(i, j int) bool { return a[i].Device < a[j].Device }
 
-func NewLsblk(config Config, pathChecker Checker, executor cli.CommandExecutor, logger *zap.Logger) *Lsblk {
+func NewLsblk(config Config, pathChecker Checker, executor cli.Executor, logger *zap.Logger) *Lsblk {
 	return &Lsblk{
 		systemConfig: config,
 		pathChecker:  pathChecker,
@@ -54,7 +54,7 @@ func (l *Lsblk) AvailableDisks() ([]model.Disk, error) {
 func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
 	var entries []model.LsblkEntry
 
-	lsblkOutputBytes, err := l.executor.CommandOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID")
+	lsblkOutputBytes, err := l.executor.CombinedOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID")
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,11 @@ func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
 		if line == "" {
 			continue
 		}
-		r := *regexp.MustCompile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)" UUID="(.*)"`)
+		r, err := regexp.Compile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)" UUID="(.*)"`)
+		if err != nil {
+			return nil, err
+		}
+
 		match := r.FindStringSubmatch(line)
 		mountPoint := match[4]
 
@@ -122,7 +126,10 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 
 		} else if entry.DeviceType == "part" {
 			partition := l.createPartition(entry)
-			parentDevice := entry.ParentDevice()
+			parentDevice, err := entry.ParentDevice()
+			if err != nil {
+				return nil, err
+			}
 
 			if _, ok := disks[parentDevice]; ok {
 				disk := disks[parentDevice]

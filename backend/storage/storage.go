@@ -29,13 +29,12 @@ func (storage *Storage) Format(device string) error {
 	return err
 }
 
-func (storage *Storage) BootExtend() {
+func (storage *Storage) BootExtend() error {
 	log.Println("Running storage boot extend: ", BootExtendCmd)
 	out, err := exec.Command(BootExtendCmd).CombinedOutput()
 	log.Printf("Storage boot extend output %s", out)
 	if err != nil {
-		log.Printf("Storage boot extend failed: %v", err)
-	} else {
-		log.Printf("Storage boot extend completed")
+		return err
 	}
+	return nil
 }

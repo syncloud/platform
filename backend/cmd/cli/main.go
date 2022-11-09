@@ -196,5 +196,5 @@ func main() {
 }
 
 func Init(userConfig string, systemConfig string) {
-	ioc.Init(userConfig, systemConfig, backup.Dir)
+	ioc.Init(userConfig, systemConfig, backup.Dir, backup.VarDir)
 }

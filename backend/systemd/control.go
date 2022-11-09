@@ -17,7 +17,7 @@ const Dir = "/lib/systemd/system"
 
 type Control struct {
 	config   ControlConfig
-	executor cli.CommandExecutor
+	executor cli.Executor
 	logger   *zap.Logger
 }
 
@@ -26,7 +26,7 @@ type ControlConfig interface {
 	ConfigDir() string
 }
 
-func New(executor cli.CommandExecutor, config ControlConfig, logger *zap.Logger) *Control {
+func New(executor cli.Executor, config ControlConfig, logger *zap.Logger) *Control {
 	return &Control{executor: executor, config: config, logger: logger}
 }
 
@@ -65,7 +65,7 @@ func (c *Control) AddMount(device string) error {
 	}
 
 	c.logger.Info("enabling", zap.String("file", mountFilename))
-	_, err = c.executor.CommandOutput("systemctl", "enable", mountFilename)
+	_, err = c.executor.CombinedOutput("systemctl", "enable", mountFilename)
 	if err != nil {
 		return err
 	}
@@ -74,10 +74,10 @@ func (c *Control) AddMount(device string) error {
 
 func (c *Control) start(service string) error {
 	c.logger.Info("starting", zap.String("service", service))
-	output, err := c.executor.CommandOutput("systemctl", "start", service)
+	output, err := c.executor.CombinedOutput("systemctl", "start", service)
 	if err != nil {
 		c.logger.Error("unable to start a service", zap.String("output", string(output)))
-		logOutput, logErr := c.executor.CommandOutput("journalctl", "-u", service)
+		logOutput, logErr := c.executor.CombinedOutput("journalctl", "-u", service)
 		if logErr != nil {
 			c.logger.Error("unable to get service log", zap.String("log output", string(logOutput)))
 		}
@@ -97,7 +97,7 @@ func (c *Control) remove(filename string) error {
 	if slices.Contains([]string{"unknown", "inactive", "failed"}, status) {
 		return nil
 	}
-	output, err := c.executor.CommandOutput("systemctl", "disable", filename)
+	output, err := c.executor.CombinedOutput("systemctl", "disable", filename)
 	if err != nil {
 		c.logger.Error(string(output))
 		return err
@@ -119,14 +119,14 @@ func (c *Control) systemdFile(filename string) string {
 func (c *Control) stop(service string) string {
 
 	c.logger.Info("checking", zap.String("service", service))
-	isAliveOutput, err := c.executor.CommandOutput("systemctl", "is-active", service)
+	isAliveOutput, err := c.executor.CombinedOutput("systemctl", "is-active", service)
 	isAliveResult := strings.TrimSpace(string(isAliveOutput))
 	if err != nil {
 		c.logger.Info("is-active", zap.String("output", string(isAliveOutput)))
 		return isAliveResult
 	}
 	c.logger.Info("stopping", zap.String("service", service))
-	stopOutput, err := c.executor.CommandOutput("systemctl", "stop", service)
+	stopOutput, err := c.executor.CombinedOutput("systemctl", "stop", service)
 	if err != nil {
 		resultResult := strings.TrimSpace(string(stopOutput))
 		return resultResult

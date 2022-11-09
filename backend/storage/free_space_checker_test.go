@@ -9,7 +9,7 @@ type FreeSpaceCheckerExecutorStub struct {
 	output string
 }
 
-func (e *FreeSpaceCheckerExecutorStub) CommandOutput(_ string, _ ...string) ([]byte, error) {
+func (e *FreeSpaceCheckerExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, error) {
 	return []byte(e.output), nil
 }
 

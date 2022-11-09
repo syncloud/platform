@@ -24,7 +24,7 @@ type Service struct {
 	userDataDir     string
 	ldapRoot        string
 	configDir       string
-	executor        cli.CommandExecutor
+	executor        cli.Executor
 	passwordChanger PasswordChanger
 }
 
@@ -33,7 +33,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.CommandExecutor, passwordChanger PasswordChanger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger) *Service {
 
 	return &Service{
 		snapService:     snapService,
@@ -65,7 +65,7 @@ func (s *Service) Init() error {
 	initScript := path.Join(s.configDir, "ldap", "slapd.ldif")
 
 	cmd := path.Join(s.ldapRoot, "sbin", "slapadd.sh")
-	output, err := s.executor.CommandOutput(cmd, "-F", s.userConfDir, "-b", "cn=config", "-l", initScript)
+	output, err := s.executor.CombinedOutput(cmd, "-F", s.userConfDir, "-b", "cn=config", "-l", initScript)
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (s *Service) initDb(filename string) error {
 
 func (s *Service) ldapAdd(filename string, bindDn string) error {
 	cmd := path.Join(s.ldapRoot, "bin", "ldapadd.sh")
-	output, err := s.executor.CommandOutput(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename)
+	output, err := s.executor.CombinedOutput(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename)
 	log.Printf("ldapadd output: %s", output)
 	return err
 }

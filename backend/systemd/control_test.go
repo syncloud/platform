@@ -24,12 +24,12 @@ type ExecutorStub struct {
 	f func(arg string) (string, error)
 }
 
-func (e *ExecutorStub) CommandOutput(_ string, args ...string) ([]byte, error) {
+func (e *ExecutorStub) CombinedOutput(_ string, args ...string) ([]byte, error) {
 	f, err := e.f(args[0])
 	return []byte(f), err
 }
 
-func ExecutorFunc(f func(arg string) (string, error)) cli.CommandExecutor {
+func ExecutorFunc(f func(arg string) (string, error)) cli.Executor {
 	return &ExecutorStub{f}
 }
 

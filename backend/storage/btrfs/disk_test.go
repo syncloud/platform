@@ -19,7 +19,7 @@ type ExecutorStub struct {
 	commands []string
 }
 
-func (e *ExecutorStub) CommandOutput(command string, args ...string) ([]byte, error) {
+func (e *ExecutorStub) CombinedOutput(command string, args ...string) ([]byte, error) {
 	e.commands = append(e.commands, fmt.Sprintf("%s %s", command, strings.Join(args, " ")))
 	return []byte(""), nil
 }
