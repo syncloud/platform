@@ -21,14 +21,14 @@ type Systemd interface {
 
 type Disks struct {
 	config   Config
-	executor cli.CommandExecutor
+	executor cli.Executor
 	systemd  Systemd
 	logger   *zap.Logger
 }
 
 func NewDisks(
 	config Config,
-	executor cli.CommandExecutor,
+	executor cli.Executor,
 	systemd Systemd,
 	logger *zap.Logger) *Disks {
 
@@ -74,7 +74,7 @@ func (d *Disks) apply(before []string, after []string, newUuid string, format bo
 	if format {
 		args := []string{"-U", newUuid, "-f", "-m", mode, "-d", mode}
 		args = append(args, after...)
-		output, err := d.executor.CommandOutput(MKFS, args...)
+		output, err := d.executor.CombinedOutput(MKFS, args...)
 		if err != nil {
 			d.logger.Info("error", zap.String("output", string(output)))
 			return err
@@ -99,14 +99,14 @@ func (d *Disks) apply(before []string, after []string, newUuid string, format bo
 			args := []string{"device", "add", "--enqueue", "-f"}
 			args = append(args, added...)
 			args = append(args, d.config.ExternalDiskDir())
-			output, err := d.executor.CommandOutput(BTRFS, args...)
+			output, err := d.executor.CombinedOutput(BTRFS, args...)
 			if err != nil {
 				d.logger.Info("error", zap.String("output", string(output)))
 				return err
 			}
 
 			args = []string{"balance", "start", "--enqueue", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir()}
-			output, err = d.executor.CommandOutput(BTRFS, args...)
+			output, err = d.executor.CombinedOutput(BTRFS, args...)
 			if err != nil {
 				d.logger.Info("error", zap.String("output", string(output)))
 				return err
@@ -114,7 +114,7 @@ func (d *Disks) apply(before []string, after []string, newUuid string, format bo
 		}
 		if len(after) == 1 {
 			args := []string{"balance", "start", "--enqueue", "-f", fmt.Sprintf("-dconvert=%s", mode), fmt.Sprintf("-mconvert=%s", mode), d.config.ExternalDiskDir()}
-			output, err := d.executor.CommandOutput(BTRFS, args...)
+			output, err := d.executor.CombinedOutput(BTRFS, args...)
 			if err != nil {
 				d.logger.Info("error", zap.String("output", string(output)))
 				return err
@@ -127,7 +127,7 @@ func (d *Disks) apply(before []string, after []string, newUuid string, format bo
 			args := []string{"device", "delete", "--enqueue"}
 			args = append(args, removed...)
 			args = append(args, d.config.ExternalDiskDir())
-			output, err := d.executor.CommandOutput(BTRFS, args...)
+			output, err := d.executor.CombinedOutput(BTRFS, args...)
 			if err != nil {
 				d.logger.Info("error", zap.String("output", string(output)))
 				return err

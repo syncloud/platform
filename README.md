@@ -30,15 +30,16 @@ Install [Node.js](https://nodejs.org/en/download)
 
 ````
 cd www
-npm install
-npm run serve
+npm i
+npm run dev
 ````
 
 ### Building a package locally
 We use Drone build server for automated builds.
 The simplest way to build a platform snap package locally is to run [drone cli](http://docs.drone.io/cli-installation):
 ````
-sudo arch=[amd64|arm] /path/to/cli/drone exec
+/path/to/cli/drone jsonnet --stream
+sudo /path/to/cli/drone exec --pipeline=[amd64|arm64|arm] --trusted
 ````
 
 ### Install a package on a device

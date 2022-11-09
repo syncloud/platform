@@ -24,7 +24,7 @@ type Disks struct {
 	systemd          DisksSystemd
 	freeSpaceChecker DisksFreeSpaceChecker
 	linker           DisksLinker
-	executor         cli.CommandExecutor
+	executor         cli.Executor
 	btrfs            BtrfsDisks
 	btrfsStats       BtrfsDiskStats
 	lastError        error
@@ -76,7 +76,7 @@ func NewDisks(
 	systemd DisksSystemd,
 	freeSpaceChecker DisksFreeSpaceChecker,
 	linker DisksLinker,
-	executor cli.CommandExecutor,
+	executor cli.Executor,
 	btrfs BtrfsDisks,
 	btrfsStats BtrfsDiskStats,
 	logger *zap.Logger) *Disks {
@@ -138,8 +138,10 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 	return disks, err
 }
 
-func (d *Disks) ActivateDisks(newDevices []string, format bool) {
-	d.lastError = d.activateDisks(newDevices, format)
+func (d *Disks) ActivateDisks(newDevices []string, format bool) error {
+	err := d.activateDisks(newDevices, format)
+	d.lastError = err
+	return err
 }
 
 func (d *Disks) activateDisks(newDevices []string, format bool) error {

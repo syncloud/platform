@@ -13,6 +13,7 @@ import (
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/date"
+	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
@@ -36,7 +37,7 @@ const (
 	CertificateLogger = "CertificateLogger"
 )
 
-func Init(userConfig string, systemConfig string, backupDir string) {
+func Init(userConfig string, systemConfig string, backupDir string, varDir string) {
 	logger := log.Default()
 
 	Singleton(func() *config.UserConfig {
@@ -57,14 +58,14 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
 	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
-	Singleton(func(logger *zap.Logger) *cli.Executor { return cli.NewExecutor(logger) })
+	Singleton(func(logger *zap.Logger) *cli.ShellExecutor { return cli.New(logger) })
 	Singleton(func(logger *zap.Logger) *auth.SystemPasswordChanger { return auth.NewSystemPassword(logger) })
 
-	Singleton(func(executor *cli.Executor) *snap.Service { return snap.NewService(executor) })
-	Singleton(func(executor *cli.Executor, systemConfig *config.SystemConfig) *systemd.Control {
+	Singleton(func(executor *cli.ShellExecutor, logger *zap.Logger) *snap.Cli { return snap.NewCli(executor, logger) })
+	Singleton(func(executor *cli.ShellExecutor, systemConfig *config.SystemConfig) *systemd.Control {
 		return systemd.New(executor, systemConfig, logger)
 	})
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
+	Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
 		return nginx.New(control, systemConfig, userConfig)
 	})
 	Singleton(func(userConfig *config.UserConfig) *info.Device {
@@ -96,12 +97,12 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return cron.NewCertificateJob(certGenerator)
 	})
 	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Snapd {
-		return snap.New(snapClient, deviceInfo, systemConfig, client, logger)
+	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
+		return snap.NewServer(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 
-	Singleton(func(snapd *snap.Snapd, executor *cli.Executor) *event.Trigger {
-		return event.New(snapd, executor)
+	Singleton(func(snapServer *snap.Server, snapCli *snap.Cli, logger *zap.Logger) *event.Trigger {
+		return event.New(snapServer, snapCli, logger)
 	})
 
 	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.PortProbe {
@@ -119,11 +120,18 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *job.SingleJobMaster { return job.NewMaster() })
-	Singleton(func(master *job.SingleJobMaster) *job.Worker { return job.NewWorker(master) })
-	Singleton(func(logger *zap.Logger) *backup.Backup { return backup.New(backupDir, logger) })
+	Singleton(func(master *job.SingleJobMaster, logger *zap.Logger) *job.Worker {
+		return job.NewWorker(master, logger)
+	})
+	Singleton(func(executor *cli.ShellExecutor) *du.ShellDiskUsage {
+		return du.New(executor)
+	})
+	Singleton(func(executor *cli.ShellExecutor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger) *backup.Backup {
+		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, logger)
+	})
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
-	Singleton(func(snapService *snap.Service, systemConfig *config.SystemConfig, executor *cli.Executor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
+	Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
 	})
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
@@ -143,34 +151,36 @@ func Init(userConfig string, systemConfig string, backupDir string) {
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)
 	})
-	Singleton(func(executor *cli.Executor) *systemd.JournalCtl { return systemd.NewJournalCtl(executor) })
+	Singleton(func(executor *cli.ShellExecutor) *systemd.JournalCtl { return systemd.NewJournalCtl(executor) })
 
 	Singleton(func(certGenerator *cert.CertificateGenerator, journalCtl *systemd.JournalCtl) *rest.Certificate {
 		return rest.NewCertificate(certGenerator, journalCtl)
 	})
 
 	Singleton(func(config *config.SystemConfig) *storage.PathChecker { return storage.NewPathChecker(config, logger) })
-	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, checker *storage.PathChecker) *storage.Lsblk {
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, checker *storage.PathChecker) *storage.Lsblk {
 		return storage.NewLsblk(systemConfig, checker, executor, logger)
 	})
-	Singleton(func(executor *cli.Executor) *storage.FreeSpaceChecker { return storage.NewFreeSpaceChecker(executor) })
+	Singleton(func(executor *cli.ShellExecutor) *storage.FreeSpaceChecker {
+		return storage.NewFreeSpaceChecker(executor)
+	})
 	Singleton(func() *storage.Linker { return storage.NewLinker() })
-	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor) *btrfs.Stats {
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor) *btrfs.Stats {
 		return btrfs.NewStats(systemConfig, executor)
 	})
-	Singleton(func(systemConfig *config.SystemConfig, executor *cli.Executor, stats *btrfs.Stats, systemd *systemd.Control) *btrfs.Disks {
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, stats *btrfs.Stats, systemd *systemd.Control) *btrfs.Disks {
 		return btrfs.NewDisks(systemConfig, executor, systemd, logger)
 	})
 	Singleton(func(systemConfig *config.SystemConfig, freeSpaceChecker *storage.FreeSpaceChecker,
 		systemd *systemd.Control, eventTrigger *event.Trigger, lsblk *storage.Lsblk,
-		executor *cli.Executor, linker *storage.Linker, btrfs *btrfs.Disks, stats *btrfs.Stats) *storage.Disks {
+		executor *cli.ShellExecutor, linker *storage.Linker, btrfs *btrfs.Disks, stats *btrfs.Stats) *storage.Disks {
 		return storage.NewDisks(systemConfig, eventTrigger, lsblk, systemd, freeSpaceChecker, linker, executor, btrfs, stats, logger)
 	})
 
 	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Snapd, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks, journalCtl)

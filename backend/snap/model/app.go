@@ -9,6 +9,6 @@ type App struct {
 	Snap string `json:"snap"`
 }
 
-func (app *App) RunCommand() string {
+func (app *App) FullName() string {
 	return fmt.Sprintf("%v.%v", app.Snap, app.Name)
 }

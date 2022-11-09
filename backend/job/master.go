@@ -5,10 +5,12 @@ import (
 	"sync"
 )
 
+type Job func() error
+
 type SingleJobMaster struct {
 	mutex  *sync.Mutex
 	status int
-	job    func()
+	job    Job
 	name   string
 }
 
@@ -25,7 +27,7 @@ func (m *SingleJobMaster) Status() Status {
 	return NewStatus(m.name, m.status)
 }
 
-func (m *SingleJobMaster) Offer(name string, job func()) error {
+func (m *SingleJobMaster) Offer(name string, job Job) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if m.status == Idle {
@@ -38,15 +40,15 @@ func (m *SingleJobMaster) Offer(name string, job func()) error {
 	}
 }
 
-func (m *SingleJobMaster) Take() (func(), error) {
+func (m *SingleJobMaster) Take() Job {
 
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	if m.status == Waiting {
 		m.status = Busy
-		return m.job, nil
+		return m.job
 	} else {
-		return nil, fmt.Errorf("no tasks")
+		return nil
 	}
 }
 

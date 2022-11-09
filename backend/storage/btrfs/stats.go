@@ -8,10 +8,10 @@ import (
 
 type Stats struct {
 	config   Config
-	executor cli.CommandExecutor
+	executor cli.Executor
 }
 
-func NewStats(config Config, executor cli.CommandExecutor) *Stats {
+func NewStats(config Config, executor cli.Executor) *Stats {
 	return &Stats{
 		config:   config,
 		executor: executor,
@@ -43,7 +43,7 @@ func (s *Stats) RaidMode(uuid string) (string, error) {
 }
 
 func (s *Stats) HasErrors(device string) (bool, error) {
-	output, err := s.executor.CommandOutput(BTRFS, "--format", "json", "device", "stats", s.config.ExternalDiskDir())
+	output, err := s.executor.CombinedOutput(BTRFS, "--format", "json", "device", "stats", s.config.ExternalDiskDir())
 	if err != nil {
 		return false, err
 	}

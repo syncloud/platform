@@ -7,19 +7,19 @@ import (
 	"strings"
 )
 
-type Executor struct {
+type ShellExecutor struct {
 	logger *zap.Logger
 }
 
-type CommandExecutor interface {
-	CommandOutput(name string, arg ...string) ([]byte, error)
+type Executor interface {
+	CombinedOutput(name string, arg ...string) ([]byte, error)
 }
 
-func NewExecutor(logger *zap.Logger) *Executor {
-	return &Executor{logger: logger}
+func New(logger *zap.Logger) *ShellExecutor {
+	return &ShellExecutor{logger: logger}
 }
 
-func (e *Executor) CommandOutput(name string, arg ...string) ([]byte, error) {
+func (e *ShellExecutor) CombinedOutput(name string, arg ...string) ([]byte, error) {
 	e.logger.Info("execute", zap.String("cmd", fmt.Sprintf("%s %s", name, strings.Join(arg, " "))))
 	output, err := exec.Command(name, arg...).CombinedOutput()
 	if err != nil {

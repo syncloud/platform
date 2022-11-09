@@ -16,13 +16,12 @@ func New() *Installer {
 	return &Installer{}
 }
 
-func (installer *Installer) Upgrade() {
+func (installer *Installer) Upgrade() error {
 	log.Println("Running installer upgrade", UpgradeCmd)
 	out, err := exec.Command(UpgradeCmd, "stable").CombinedOutput()
 	log.Printf("Installer upgrade output %s", out)
 	if err != nil {
-		log.Printf("Installer upgrade failed: %v", err)
-	} else {
-		log.Printf("Installer upgrade completed")
+		return err
 	}
+	return nil
 }

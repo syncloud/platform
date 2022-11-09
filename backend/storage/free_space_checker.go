@@ -7,10 +7,10 @@ import (
 )
 
 type FreeSpaceChecker struct {
-	executor cli.CommandExecutor
+	executor cli.Executor
 }
 
-func NewFreeSpaceChecker(executor cli.CommandExecutor) *FreeSpaceChecker {
+func NewFreeSpaceChecker(executor cli.Executor) *FreeSpaceChecker {
 	return &FreeSpaceChecker{
 		executor: executor,
 	}
@@ -18,7 +18,7 @@ func NewFreeSpaceChecker(executor cli.CommandExecutor) *FreeSpaceChecker {
 }
 
 func (f *FreeSpaceChecker) HasFreeSpace(device string) (bool, error) {
-	output, err := f.executor.CommandOutput("parted", device, "unit", "%", "print", "free", "--script", "--machine")
+	output, err := f.executor.CombinedOutput("parted", device, "unit", "%", "print", "free", "--script", "--machine")
 	if err != nil {
 		return false, err
 	}

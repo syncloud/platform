@@ -25,8 +25,13 @@ config_dir: test
 		log.Fatal(err)
 	}
 
-	backupDir, err := ioutil.TempFile("", "")
+	backupDir, err := os.MkdirTemp("", "")
 	assert.Nil(t, err)
+	defer os.Remove(backupDir)
 
-	Init(configDb.Name(), systemConfig.Name(), backupDir.Name())
+	varDir, err := os.MkdirTemp("", "")
+	assert.Nil(t, err)
+	defer os.Remove(varDir)
+
+	Init(configDb.Name(), systemConfig.Name(), backupDir, varDir)
 }
