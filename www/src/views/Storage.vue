@@ -226,7 +226,7 @@ export default {
         })
     },
     checkError() {
-      axios.get('/rest/storage/disk/error/last')
+      axios.get('/rest/storage/error/last')
         .catch(err => {
           ElNotification({
             title: 'Previous change',
@@ -238,7 +238,7 @@ export default {
         })
     },
     clearLastError () {
-      axios.post('/rest/storage/disk/error/clear')
+      axios.post('/rest/storage/error/clear')
     },
     descriptionByDisk (device) {
       let disk = this.disks.find(d => d.device === device)
@@ -282,7 +282,7 @@ export default {
         }
       }
       axios
-        .post('/rest/storage/disk/' + mode, request)
+        .post('/rest/storage/' + mode, request)
         .then(resp => {
           Common.checkForServiceError(resp.data, function () {
             Common.runAfterJobIsComplete(

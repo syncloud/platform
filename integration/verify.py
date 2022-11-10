@@ -398,7 +398,7 @@ def wait_for_jobs(domain, session):
                       attempts=100)
 
 
-def test_backup_app(device, artifact_dir, domain):
+def test_backup_rest(device, artifact_dir, domain):
     session = device.login()
     response = session.post('https://{0}/rest/backup/create'.format(domain), json={'app': 'testapp'}, verify=False)
     assert response.status_code == 200
@@ -420,6 +420,17 @@ def test_backup_app(device, artifact_dir, domain):
     assert response.status_code == 200
 
     wait_for_jobs(domain, session)
+
+
+def test_backup_cli(device, artifact_dir, domain):
+    session = device.login()
+    device.run_ssh("snap run platform.cli backup create testapp")
+    response = device.run_ssh("snap run platform.cli backup list")
+    open('{0}/cli.backup.list.json'.format(artifact_dir), 'w').write(response)
+    print(response.text)
+    backup = json.loads(response.text)['data'][0]
+    device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
+    device.run_ssh("snap run platform.cli backup restore {0}".format(backup['file']))
 
 
 def test_rest_backup_list(device, domain, artifact_dir):
@@ -491,7 +502,7 @@ def disk_activate(loop, device, domain, artifact_dir):
     assert loop in response.text
     assert response.status_code == 200
 
-    response = session.post('https://{0}/rest/storage/disk/activate/disk'.format(domain), verify=False,
+    response = session.post('https://{0}/rest/storage/activate/disk'.format(domain), verify=False,
                             json={'devices': [loop], 'format': True})
     assert response.status_code == 200, response.text
     wait_for_jobs(domain, session)
@@ -500,7 +511,7 @@ def disk_activate(loop, device, domain, artifact_dir):
 
 
 def disk_deactivate(loop, device, domain):
-    response = device.login().post('https://{0}/rest/storage/disk/deactivate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/storage/deactivate'.format(domain), verify=False,
                                    json={'device': loop})
     assert response.status_code == 200
     return current_disk_link(device)
