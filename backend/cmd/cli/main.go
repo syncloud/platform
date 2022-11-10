@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/config"
+	"os"
 )
 
 func main() {
@@ -22,6 +24,7 @@ func main() {
 
 	err := rootCmd.Execute()
 	if err != nil {
-		panic(err)
+		fmt.Print(err)
+		os.Exit(1)
 	}
 }

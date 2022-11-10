@@ -44,9 +44,9 @@ local build(arch, testUI) = [{
                 "cd backend",
                 "go test ./... -coverprofile cover.out",
                 "go tool cover -func cover.out",
-                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/backend cmd/backend/main.go",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/backend ./cmd/backend",
                 "../build/platform/bin/backend -h",
-                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/cli cmd/cli/main.go",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/cli ./cmd/cli",
                 "../build/platform/bin/cli -h"
             ]
         },
@@ -137,8 +137,8 @@ local build(arch, testUI) = [{
         image: "selenium/video:ffmpeg-4.3.1-20220208",
         detach: true,
         environment: {
-            "DISPLAY_CONTAINER_NAME": "selenium",
-             FILE_NAME: "video.mkv"
+            DISPLAY_CONTAINER_NAME: "selenium",
+            FILE_NAME: "video.mkv"
         },
         volumes: [
             {
