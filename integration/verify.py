@@ -422,8 +422,7 @@ def test_backup_rest(device, artifact_dir, domain):
     wait_for_jobs(domain, session)
 
 
-def test_backup_cli(device, artifact_dir, domain):
-    session = device.login()
+def test_backup_cli(device, artifact_dir):
     device.run_ssh("snap run platform.cli backup create testapp")
     response = device.run_ssh("snap run platform.cli backup list")
     open('{0}/cli.backup.list.json'.format(artifact_dir), 'w').write(response)
