@@ -426,8 +426,8 @@ def test_backup_cli(device, artifact_dir):
     device.run_ssh("snap run platform.cli backup create testapp")
     response = device.run_ssh("snap run platform.cli backup list")
     open('{0}/cli.backup.list.json'.format(artifact_dir), 'w').write(response)
-    print(response.text)
-    backup = json.loads(response.text)['data'][0]
+    print(response)
+    backup = json.loads(response)['data'][0]
     device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
     device.run_ssh("snap run platform.cli backup restore {0}".format(backup['file']))
 
