@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -37,7 +36,7 @@ func do(method string, url string, data url.Values) (*string, error) {
 		return nil, err
 	}
 
-	bodyBytes, err := ioutil.ReadAll(responseString.Body)
+	bodyBytes, err := io.ReadAll(responseString.Body)
 	if err != nil {
 		log.Println(err)
 		return nil, err

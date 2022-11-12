@@ -1,7 +1,7 @@
 package nginx
 
 import (
-	"io/ioutil"
+	"os"
 	"path"
 	"strings"
 )
@@ -40,7 +40,7 @@ func (n *Nginx) ReloadPublic() error {
 func (n *Nginx) InitConfig() error {
 	domain := n.userConfig.GetDeviceDomain()
 	configDir := n.systemConfig.ConfigDir()
-	templateFile, err := ioutil.ReadFile(path.Join(configDir, "nginx", "public.conf"))
+	templateFile, err := os.ReadFile(path.Join(configDir, "nginx", "public.conf"))
 	if err != nil {
 		return err
 	}
@@ -48,6 +48,6 @@ func (n *Nginx) InitConfig() error {
 	template = strings.ReplaceAll(template, "{{ domain }}", strings.ReplaceAll(domain, ".", "\\."))
 	nginxConfigDir := n.systemConfig.DataDir()
 	nginxConfigFile := path.Join(nginxConfigDir, "nginx.conf")
-	err = ioutil.WriteFile(nginxConfigFile, []byte(template), 0644)
+	err = os.WriteFile(nginxConfigFile, []byte(template), 0644)
 	return err
 }

@@ -3,11 +3,12 @@ package snap
 import (
 	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/syncloud/platform/log"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 )
 
 type ClientStub struct {
@@ -19,7 +20,7 @@ func (c *ClientStub) Get(_ string) (resp *http.Response, err error) {
 	if c.error {
 		return nil, fmt.Errorf("error")
 	}
-	r := ioutil.NopCloser(bytes.NewReader([]byte(c.json)))
+	r := io.NopCloser(bytes.NewReader([]byte(c.json)))
 	return &http.Response{
 		StatusCode: 200,
 		Body:       r,
@@ -48,7 +49,7 @@ func (h HttpClientStub) Get(_ string) (*http.Response, error) {
 		return nil, fmt.Errorf("error code: %v", h.status)
 	}
 
-	r := ioutil.NopCloser(bytes.NewReader([]byte(h.response)))
+	r := io.NopCloser(bytes.NewReader([]byte(h.response)))
 	return &http.Response{
 		StatusCode: h.status,
 		Body:       r,

@@ -5,13 +5,13 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
-	"github.com/syncloud/platform/cli"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/syncloud/platform/cli"
 )
 
 const ldapUserConfDir = "slapd.d"
@@ -105,12 +105,12 @@ func (s *Service) Reset(name string, user string, password string, email string)
 
 	passwordHash := makeSecret(password)
 
-	tmpFile, err := ioutil.TempFile("", "")
+	tmpFile, err := os.CreateTemp("", "")
 	if err != nil {
 		return err
 	}
 	defer func() { _ = os.Remove(tmpFile.Name()) }()
-	file, err := ioutil.ReadFile(path.Join(s.configDir, "ldap", "init.ldif"))
+	file, err := os.ReadFile(path.Join(s.configDir, "ldap", "init.ldif"))
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (s *Service) Reset(name string, user string, password string, email string)
 	ldif = strings.ReplaceAll(ldif, "${user}", user)
 	ldif = strings.ReplaceAll(ldif, "${email}", email)
 	ldif = strings.ReplaceAll(ldif, "${password}", passwordHash)
-	err = ioutil.WriteFile(tmpFile.Name(), []byte(ldif), 644)
+	err = os.WriteFile(tmpFile.Name(), []byte(ldif), 644)
 	if err != nil {
 		return err
 	}

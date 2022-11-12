@@ -2,12 +2,12 @@ package auth
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestToLdapDc(t *testing.T) {
@@ -50,7 +50,7 @@ func TestMakeSecret(t *testing.T) {
 
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, createTempDir(), createTempDir(), createTempDir(), executor, &PasswordChangerStub{})
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{})
 	err := ldap.Init()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 1)
@@ -59,14 +59,14 @@ func TestInit(t *testing.T) {
 
 func TestReset(t *testing.T) {
 	executor := &ExecutorStub{}
-	configDir := createTempDir()
+	configDir := t.TempDir()
 	err := os.MkdirAll(path.Join(configDir, "ldap"), os.ModePerm)
 	assert.Nil(t, err)
 	err = os.WriteFile(path.Join(configDir, "ldap", "init.ldif"), []byte("template"), 0644)
 	assert.Nil(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, createTempDir(), createTempDir(), configDir, executor, passwordChanger)
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger)
 	err = ldap.Reset("name", "user", "password", "email")
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 2)
@@ -74,12 +74,4 @@ func TestReset(t *testing.T) {
 	assert.Contains(t, executor.executions[1], "ldapadd.sh")
 	assert.True(t, passwordChanger.changed)
 
-}
-
-func createTempDir() string {
-	dir, err := ioutil.TempDir("", "test")
-	if err != nil {
-		panic(err)
-	}
-	return dir
 }

@@ -1,7 +1,7 @@
 package network
 
 import (
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 )
@@ -58,7 +58,7 @@ func (i *Interface) PublicIPv4() (*string, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	ipBytes, err := ioutil.ReadAll(resp.Body)
+	ipBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

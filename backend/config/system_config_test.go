@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSystemConfigInterpolation(t *testing.T) {
@@ -16,7 +16,7 @@ app_dir: test
 config_dir: %(app_dir)s/dir
 `
 
-	err := ioutil.WriteFile(configFile.Name(), []byte(content), 0644)
+	err := os.WriteFile(configFile.Name(), []byte(content), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

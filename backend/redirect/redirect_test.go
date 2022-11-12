@@ -2,14 +2,14 @@ package redirect
 
 import (
 	"bytes"
+	"io"
+	"net"
+	"net/http"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/log"
-	"io/ioutil"
-	"net/http"
-
-	"net"
-	"testing"
 )
 
 type UserConfigStub struct {
@@ -63,7 +63,7 @@ func (c *ClientStub) Get(_ string) (*http.Response, error) {
 
 func (c *ClientStub) Post(_, _ string, body interface{}) (*http.Response, error) {
 	c.request = string(body.([]byte))
-	r := ioutil.NopCloser(bytes.NewReader([]byte(`
+	r := io.NopCloser(bytes.NewReader([]byte(`
 {
 	"success": true,
 	"data": ""

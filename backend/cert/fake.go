@@ -8,11 +8,12 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"math/big"
+	"os"
+	"time"
+
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"math/big"
-	"time"
 )
 
 const (
@@ -92,12 +93,12 @@ func (c *Fake) Generate() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(c.systemConfig.SslCaKeyFile(), caPrivateKeyPem.Bytes(), 0644)
+	err = os.WriteFile(c.systemConfig.SslCaKeyFile(), caPrivateKeyPem.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(c.systemConfig.SslCaCertificateFile(), caPem.Bytes(), 0644)
+	err = os.WriteFile(c.systemConfig.SslCaCertificateFile(), caPem.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
@@ -143,12 +144,12 @@ func (c *Fake) Generate() error {
 		return err
 	}
 
-	err = ioutil.WriteFile(c.systemConfig.SslKeyFile(), privateKeyPem.Bytes(), 0644)
+	err = os.WriteFile(c.systemConfig.SslKeyFile(), privateKeyPem.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(c.systemConfig.SslCertificateFile(), certificatePem.Bytes(), 0644)
+	err = os.WriteFile(c.systemConfig.SslCertificateFile(), certificatePem.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
