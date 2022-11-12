@@ -2,12 +2,12 @@ package cert
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/syncloud/platform/log"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 )
 
 type GeneratorUserConfigStub struct {
@@ -225,19 +225,19 @@ func generateCertificate(now time.Time, duration time.Duration, real bool) *os.F
 		subjectOrganization = "Real"
 	}
 
-	certFile, err := ioutil.TempFile("", "")
+	certFile, err := os.CreateTemp("", "")
 	if err != nil {
 		panic(err)
 	}
-	keyFile, err := ioutil.TempFile("", "")
+	keyFile, err := os.CreateTemp("", "")
 	if err != nil {
 		panic(err)
 	}
-	caCertFile, err := ioutil.TempFile("", "")
+	caCertFile, err := os.CreateTemp("", "")
 	if err != nil {
 		panic(err)
 	}
-	caKeyFile, err := ioutil.TempFile("", "")
+	caKeyFile, err := os.CreateTemp("", "")
 	if err != nil {
 		panic(err)
 	}

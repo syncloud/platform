@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRedirectDomain(t *testing.T) {
@@ -70,7 +70,7 @@ func TestDeviceDomain_Custom(t *testing.T) {
 }
 
 func tempFile() *os.File {
-	tmpFile, err := ioutil.TempFile("", "")
+	tmpFile, err := os.CreateTemp("", "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,7 +95,7 @@ user_email = user@example.com
 user_update_token = token2
 `
 
-	err := ioutil.WriteFile(oldConfigFile.Name(), []byte(content), 0644)
+	err := os.WriteFile(oldConfigFile.Name(), []byte(content), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

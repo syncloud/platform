@@ -4,10 +4,11 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"time"
 )
 
 const (
@@ -108,7 +109,7 @@ func (g *CertificateGenerator) generateFake() (bool, error) {
 
 func (g *CertificateGenerator) ReadCertificateInfo() *Info {
 
-	certBytes, err := ioutil.ReadFile(g.systemConfig.SslCertificateFile())
+	certBytes, err := os.ReadFile(g.systemConfig.SslCertificateFile())
 	if err != nil {
 		g.logger.Info(fmt.Sprintf("unable to read certificate file: %s", err.Error()))
 		return &Info{}

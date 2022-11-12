@@ -1,15 +1,15 @@
 package backup
 
 import (
+	"os"
+	"path/filepath"
+	"testing"
+
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/snap/model"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type DiskUsageStub struct {
@@ -35,7 +35,7 @@ func (s *SnapServiceStub) Start(_ string) error {
 func (s *SnapServiceStub) RunCmdIfExists(_ model.Snap, cmd string) error {
 	if cmd == CreatePreStop {
 		backupFile := filepath.Join(s.versionDir, "backup.file")
-		if err := ioutil.WriteFile(backupFile, []byte("backup"), 0666); err != nil {
+		if err := os.WriteFile(backupFile, []byte("backup"), 0666); err != nil {
 			panic(err)
 		}
 	}
@@ -52,12 +52,10 @@ func (s *SnapInfoStub) Snap(_ string) (model.Snap, error) {
 func TestRemove(t *testing.T) {
 	logger := log.Default()
 
-	backupDir := createTempDir("backup")
-	varDir := createTempDir("var")
-	defer os.Remove(backupDir)
-	defer os.Remove(varDir)
+	backupDir := t.TempDir()
+	varDir := t.TempDir()
 	tmpfn := filepath.Join(backupDir, "tmpfile")
-	if err := ioutil.WriteFile(tmpfn, []byte(""), 0666); err != nil {
+	if err := os.WriteFile(tmpfn, []byte(""), 0666); err != nil {
 		panic(err)
 	}
 	backup := New(backupDir, varDir, cli.New(log.Default()), &DiskUsageStub{100}, &SnapServiceStub{}, &SnapInfoStub{}, logger)
@@ -69,10 +67,8 @@ func TestRemove(t *testing.T) {
 }
 
 func TestBackup(t *testing.T) {
-	backupDir := createTempDir("backup")
-	varDir := createTempDir("var")
-	defer os.Remove(backupDir)
-	defer os.Remove(varDir)
+	backupDir := t.TempDir()
+	varDir := t.TempDir()
 	appDir := filepath.Join(varDir, "test-app")
 	_ = os.Mkdir(appDir, 0750)
 	versionDir := filepath.Join(appDir, "x1")
@@ -83,12 +79,12 @@ func TestBackup(t *testing.T) {
 	_ = os.Mkdir(commonDir, 0750)
 
 	currentFile := filepath.Join(versionDir, "current.file")
-	if err := ioutil.WriteFile(currentFile, []byte("current"), 0666); err != nil {
+	if err := os.WriteFile(currentFile, []byte("current"), 0666); err != nil {
 		panic(err)
 	}
 
 	commonFile := filepath.Join(commonDir, "common.file")
-	if err := ioutil.WriteFile(commonFile, []byte("common"), 0666); err != nil {
+	if err := os.WriteFile(commonFile, []byte("common"), 0666); err != nil {
 		panic(err)
 	}
 
@@ -114,24 +110,16 @@ func TestBackup(t *testing.T) {
 	err = backup.Restore(backups[0].File)
 	assert.Nil(t, err)
 
-	currentFileContent, err := ioutil.ReadFile(currentFile)
+	currentFileContent, err := os.ReadFile(currentFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "current", string(currentFileContent))
 
-	backupFileContent, err := ioutil.ReadFile(filepath.Join(versionDir, "backup.file"))
+	backupFileContent, err := os.ReadFile(filepath.Join(versionDir, "backup.file"))
 	assert.Nil(t, err)
 	assert.Equal(t, "backup", string(backupFileContent))
 
-	commonFileContent, err := ioutil.ReadFile(commonFile)
+	commonFileContent, err := os.ReadFile(commonFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
 
-}
-
-func createTempDir(pattern string) string {
-	dir, err := os.MkdirTemp("", pattern)
-	if err != nil {
-		panic(err)
-	}
-	return dir
 }
