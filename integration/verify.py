@@ -137,6 +137,7 @@ def test_activate_custom(device, device_host, main_domain):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
@@ -151,6 +152,7 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
@@ -179,6 +181,7 @@ def test_drop_activation(device, main_domain):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
