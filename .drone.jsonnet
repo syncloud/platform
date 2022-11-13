@@ -256,7 +256,7 @@ local build(arch, testUI) = [{
                     path: "/dev"
                 }
             ]
-        }
+        },
         {
             name: "api.redirect",
             image: "syncloud/redirect-test-" + arch,
