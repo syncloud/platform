@@ -3,12 +3,12 @@ package snap
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/syncloud/platform/snap/model"
-	"go.uber.org/zap"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"sort"
+
+	"github.com/syncloud/platform/snap/model"
+	"go.uber.org/zap"
 )
 
 const (
@@ -130,7 +130,7 @@ func (s *Server) request(url string) ([]byte, error) {
 		s.logger.Error("status", zap.Error(err))
 		return nil, fmt.Errorf("unable to get apps list, status code: %d", resp.StatusCode)
 	}
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		s.logger.Error("cannot read output", zap.Error(err))
 		return nil, err

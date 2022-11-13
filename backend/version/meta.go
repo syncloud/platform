@@ -1,7 +1,7 @@
 package version
 
 import (
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func New() *PlatformVersion {
 }
 
 func (v *PlatformVersion) Get() (string, error) {
-	content, err := ioutil.ReadFile("/snap/platform/current/META/version")
+	content, err := os.ReadFile("/snap/platform/current/META/version")
 	if err != nil {
 		return "", err
 	}

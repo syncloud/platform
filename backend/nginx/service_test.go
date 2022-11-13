@@ -1,11 +1,11 @@
 package nginx
 
 import (
-	"github.com/stretchr/testify/assert"
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type SystemdMock struct {
@@ -38,20 +38,18 @@ func (u *UserConfigMock) GetDeviceDomain() string {
 
 func TestSubstitution(t *testing.T) {
 
-	outputDir, err := ioutil.TempDir("", "")
-	defer func() { _ = os.Remove(outputDir) }()
+	outputDir := t.TempDir()
 
 	configDir := path.Join("..", "..", "config")
 	systemd := &SystemdMock{}
 	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
 	userConfig := &UserConfigMock{"example.com"}
 	nginx := New(systemd, systemConfig, userConfig)
-	assert.Nil(t, err)
-	err = nginx.InitConfig()
+	err := nginx.InitConfig()
 	assert.Nil(t, err)
 	resultFile := path.Join(outputDir, "nginx.conf")
 
-	contents, err := ioutil.ReadFile(resultFile)
+	contents, err := os.ReadFile(resultFile)
 	assert.Nil(t, err)
 
 	assert.Contains(t, string(contents), "server_name example\\.com;")

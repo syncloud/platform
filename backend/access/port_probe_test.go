@@ -3,11 +3,12 @@ package access
 import (
 	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/syncloud/platform/log"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 )
 
 type UserConfigStub struct {
@@ -36,7 +37,7 @@ func (c *ClientStub) Post(_, _ string, _ interface{}) (*http.Response, error) {
 		return nil, fmt.Errorf("error code: %v", c.status)
 	}
 
-	r := ioutil.NopCloser(bytes.NewReader([]byte(c.response)))
+	r := io.NopCloser(bytes.NewReader([]byte(c.response)))
 	return &http.Response{
 		StatusCode: c.status,
 		Body:       r,

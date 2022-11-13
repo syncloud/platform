@@ -12,7 +12,7 @@ test('Activate partition', async () => {
   const showError = jest.fn()
 
   const mock = new MockAdapter(axios)
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/storage/disks').reply(200,
@@ -40,7 +40,7 @@ test('Activate partition', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate/partition').reply(function (config) {
+  mock.onPost('/rest/storage/activate/partition').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [200, { success: true }]
   })
@@ -110,11 +110,11 @@ test('Deactivate partition', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/deactivate').reply(function (_) {
+  mock.onPost('/rest/storage/deactivate').reply(function (_) {
     deactivated = true
     return [200, { success: true }]
   })
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -193,11 +193,11 @@ test('Activate partition error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate/partition').reply(function (config) {
+  mock.onPost('/rest/storage/activate/partition').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [500, { message: 'not ok' }]
   })
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -277,11 +277,11 @@ test('Activate partition service error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate/partition').reply(function (config) {
+  mock.onPost('/rest/storage/activate/partition').reply(function (config) {
     deviceAction = JSON.parse(config.data).device
     return [200, { success: false, message: 'not ok' }]
   })
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -362,11 +362,11 @@ test('Activate disks', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate/disk').reply(function (config) {
+  mock.onPost('/rest/storage/activate/disk').reply(function (config) {
     devices = JSON.parse(config.data).devices
     return [200, { success: true }]
   })
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -450,10 +450,10 @@ test('Activate disks error', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/activate/disk').reply(function (_) {
+  mock.onPost('/rest/storage/activate/disk').reply(function (_) {
     return [500, { success: false, message: 'not ok' }]
   })
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -524,11 +524,11 @@ test('Deactivate disks', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/storage/disk/deactivate').reply(function (_) {
+  mock.onPost('/rest/storage/deactivate').reply(function (_) {
     deactivated = true
     return [200, { success: true }]
   })
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -608,7 +608,7 @@ test('Show single partition', async () => {
       success: true
     }
   )
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -680,7 +680,7 @@ test('Show single partition none', async () => {
       success: true
     }
   )
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,
@@ -753,7 +753,7 @@ test('Show multi disk', async () => {
       success: true
     }
   )
-  mock.onGet('/rest/storage/disk/error/last').reply(200,
+  mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: "OK" }
   )
   mock.onGet('/rest/job/status').reply(200,

@@ -2,17 +2,17 @@ package backup
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"time"
+
 	cp "github.com/otiai10/copy"
 	df "github.com/ricochet2200/go-disk-usage/du"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"regexp"
-	"time"
 )
 
 type SnapService interface {
@@ -66,7 +66,7 @@ func (b *Backup) Init() {
 }
 
 func (b *Backup) List() ([]File, error) {
-	files, err := ioutil.ReadDir(b.backupDir)
+	files, err := os.ReadDir(b.backupDir)
 	if err != nil {
 		b.logger.Error("Cannot get list of files in ", zap.String("backupDir", b.backupDir), zap.Error(err))
 		return nil, err
