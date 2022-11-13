@@ -396,21 +396,21 @@ export function mock () {
       this.get('/rest/storage/boot/disk', function (_schema, _request) {
         return new Response(200, {}, bootDiskData)
       })
-      this.post('/rest/storage/disk/activate/partition', function (_schema, _request) {
+      this.post('/rest/storage/activate/partition', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, disksData)
         } else {
           return new Response(200, {}, disksDataError)
         }
       })
-      this.post('/rest/storage/disk/activate/disk', function (_schema, _request) {
+      this.post('/rest/storage/activate/disk', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, disksData)
         } else {
           return new Response(200, {}, disksDataError)
         }
       })
-      this.post('/rest/storage/disk/deactivate', function (_schema, _request) {
+      this.post('/rest/storage/deactivate', function (_schema, _request) {
         if (state.diskActionSuccess) {
           return new Response(200, {}, disksData)
         } else {
@@ -421,14 +421,14 @@ export function mock () {
         bootDiskData.data.extendable = !bootDiskData.data.extendable
         return new Response(200, {}, { success: true })
       })
-      this.get('/rest/storage/disk/error/last', function (_schema, _request) {
+      this.get('/rest/storage/error/last', function (_schema, _request) {
         if (state.diskLastError) {
           return new Response(500, {}, { success: false, message: "Disk format error" })
         } else {
           return new Response(200, {}, { success: true, data: "OK" })
         }
       })
-      this.post('/rest/storage/disk/error/clear', function (_schema, _request) {
+      this.post('/rest/storage/error/clear', function (_schema, _request) {
         state.diskLastError = false
         return new Response(200, {}, { success: true })
       })
