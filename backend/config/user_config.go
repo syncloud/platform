@@ -125,6 +125,7 @@ func (c *UserConfig) open() *sql.DB {
 }
 
 func (c *UserConfig) SetRedirectDomain(domain string) {
+ c.Delete("redirect.api_url")
 	c.Upsert("redirect.domain", domain)
 }
 
@@ -149,7 +150,7 @@ func (c *UserConfig) GetRedirectDomain() string {
 }
 
 func (c *UserConfig) GetRedirectApiUrl() string {
-	return fmt.Sprintf("https://api.%s", c.GetRedirectDomain())
+	return c.Get("redirect.api_url", fmt.Sprintf("https://api.%s", c.GetRedirectDomain()))
 }
 
 func (c UserConfig) IsIpv4Enabled() bool {

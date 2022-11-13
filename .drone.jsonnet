@@ -258,7 +258,7 @@ local build(arch, testUI) = [{
             ]
         }
         {
-            name: "redirect",
+            name: "api.redirect",
             image: "syncloud/redirect-test-" + arch,
             environment: {
                 SOCKET: "tcp://:80",
