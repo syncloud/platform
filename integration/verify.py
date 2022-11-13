@@ -148,7 +148,7 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
     assert response.status_code == 200, response.text
     
 
-def test_activate_device(device_host, full_domain, redirect_user, redirect_password):
+def test_activate_device(device, device_host, full_domain, redirect_user, redirect_password):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
