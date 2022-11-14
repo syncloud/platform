@@ -188,7 +188,13 @@ local build(arch, testUI) = [{
               "./release publish -f $PACKAGE -b $DRONE_BRANCH"
             ],
             when: {
-                branch: ["stable", "master"]
+                branch: [
+                    "stable",
+                    "master"
+                ],
+                event: [
+                    "push"
+                ]
             }
         },
         {
@@ -216,7 +222,13 @@ local build(arch, testUI) = [{
                ]
            },
            when: {
-              status: [ "failure", "success" ]
+              status: [
+                  "failure",
+                  "success"
+              ],
+              event: [
+                  "push"
+              ]
             }
         }
     ],
