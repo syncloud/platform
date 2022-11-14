@@ -100,35 +100,19 @@ local build(arch, testUI) = [{
         {
             name: "test-intergation-jessie",
             image: "python:3.8-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
             ]
         }] else []) + [
         {
             name: "test-intergation-buster",
             image: "python:3.8-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD"
+              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
             ]
         }
     ] + ( if testUI then [
@@ -154,18 +138,10 @@ local build(arch, testUI) = [{
         {
             name: "test-ui-" + mode + "-" + distro,
             image: "python:3.8-slim-buster",
-            environment: {
-                REDIRECT_USER: {
-                    from_secret: "REDIRECT_USER"
-                },
-                REDIRECT_PASSWORD: {
-                    from_secret: "REDIRECT_PASSWORD"
-                }
-            },
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=$REDIRECT_USER --redirect-password=$REDIRECT_PASSWORD --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=redirect --redirect-password=redirect --app=" + name + " --browser=" + browser
             ],
             privileged: true,
             volumes: [{
@@ -212,7 +188,13 @@ local build(arch, testUI) = [{
               "./release publish -f $PACKAGE -b $DRONE_BRANCH"
             ],
             when: {
-                branch: ["stable", "master"]
+                branch: [
+                    "stable",
+                    "master"
+                ],
+                event: [
+                    "push"
+                ]
             }
         },
         {
@@ -240,7 +222,13 @@ local build(arch, testUI) = [{
                ]
            },
            when: {
-              status: [ "failure", "success" ]
+              status: [
+                  "failure",
+                  "success"
+              ],
+              event: [
+                  "push"
+              ]
             }
         }
     ],
@@ -280,11 +268,19 @@ local build(arch, testUI) = [{
                     path: "/dev"
                 }
             ]
+        },
+        {
+            name: "api.redirect",
+            image: "syncloud/redirect-test-" + arch,
+            environment: {
+                SOCKET: "tcp://:80",
+                DOMAIN: "redirect"
+            }
         }
     ] + ( if testUI then [{
             name: "selenium",
             image: "selenium/standalone-" + browser + ":4.1.2-20220208",
-        environment: {
+            environment: {
                 SE_NODE_SESSION_TIMEOUT: "999999",
                 START_XVFB: "true"
             },

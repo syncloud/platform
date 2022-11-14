@@ -13,7 +13,7 @@ def project_dir():
 
 @pytest.fixture(scope='session')
 def main_domain():
-    return 'syncloud.info'
+    return 'redirect'
 
 
 @pytest.fixture(scope='session')

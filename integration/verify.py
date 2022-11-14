@@ -122,24 +122,23 @@ def test_id_before_activation(device_host):
     assert 'name' in response_json['data']
 
 
-def test_set_redirect(device, main_domain):
-    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-    device.run_ssh('snap run platform.cli config set certbot.staging true')
-
-
 def test_activate_custom(device, device_host, main_domain):
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
     response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
                              json={'domain': 'example.com',
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
+    
+
+def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
-
-
-def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
@@ -147,13 +146,14 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
+    
+
+def test_activate_device(device, device_host, main_domain, full_domain, redirect_user, redirect_password):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
-
-
-def test_activate_device(device_host, full_domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
@@ -178,6 +178,7 @@ def test_drop_activation(device, main_domain):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
