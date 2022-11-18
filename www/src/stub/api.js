@@ -278,14 +278,19 @@ export function mock () {
       })
       this.get('/rest/apps/installed', function (_schema, _request) {
         if (state.activated) {
-          const apps = store.data.filter(app => installedApps.has(app.id)).map(info => info.app)
+          const apps = store.data.filter(app => installedApps.has(app.app.id)).map(info => info.app)
           return new Response(200, {}, { data: apps })
         } else {
           return new Response(501, {}, { message: 'Not activated' })
         }
       })
       this.get('/rest/app', function (_schema, request) {
-        const info = store.data.find(info => info.app.id === request.queryParams.app_id)
+        let info = store.data.find(info => info.app.id === request.queryParams.app_id)
+        if (!installedApps.has(info.app.id)) {
+          info.installed_version = null
+        } else {
+          info.installed_version = '1'
+        }
         return new Response(200, {}, { info: info })
       })
       this.get('/rest/installer/version', function (_schema, _request) {
@@ -296,7 +301,10 @@ export function mock () {
       })
       this.post('/rest/install', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
+        console.debug(attrs.app_id)
+        console.debug(installedApps)
         installedApps.add(attrs.app_id)
+        console.debug(installedApps)
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/remove', function (_schema, request) {

@@ -17,36 +17,21 @@
     </div>
   </div>
 
-  <div id="backup_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title"><span id="confirm_caption"></span></h4>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="backup_file" v-model="file"/>
-          <input type="hidden" id="backup_action" v-model="action"/>
-          <div class="bodymod">
-            <div class="btext">
-              <span id="confirm_question"></span>
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
-            </button>
-            <button type="button" id="btn_confirm" class="btn buttonlight bwidth smbutton"
-                    data-dismiss="modal" @click="submit">OK
-            </button>
-          </div>
+  <Confirmation :visible="confirmationVisible" id="confirmation" @confirm="submit"
+                @cancel="confirmationVisible = false">
+    <template v-slot:title>
+      <span v-if="action === 'restore'">Restore</span>
+      <span v-if="this.action === 'remove'">Remove</span>
+    </template>
+    <template v-slot:text>
+      <div class="bodymod">
+        <div class="btext">
+          <span v-if="action === 'restore'">Do you want to restore: {{ file }}?</span>
+          <span v-if="action === 'remove'">Do you want to remove: {{ file }}?</span>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </Confirmation>
 
   <Error ref="error"/>
 
@@ -60,6 +45,7 @@ import toastr from 'toastr'
 import { Grid } from 'ag-grid-community'
 import axios from 'axios'
 import * as Common from '../js/common.js'
+import Confirmation from '../components/Confirmation.vue'
 
 export default {
   name: 'Backup',
@@ -72,11 +58,13 @@ export default {
       file: '',
       action: '',
       grid: undefined,
-      gridOptions: undefined
+      gridOptions: undefined,
+      confirmationVisible: false,
     }
   },
   components: {
-    Error
+    Error,
+    Confirmation
   },
   mounted () {
     this.gridOptions = {
@@ -108,16 +96,12 @@ export default {
             buttons[0].addEventListener('click', () => {
               this.file = params.data.file
               this.action = 'restore'
-              $('#confirm_caption').html('Restore')
-              $('#confirm_question').html('Do you want to restore: ' + params.data.file + '?')
-              $('#backup_action_confirmation').modal('show')
+              this.confirmationVisible = true
             })
             buttons[1].addEventListener('click', () => {
               this.file = params.data.file
               this.action = 'remove'
-              $('#confirm_caption').html('Remove')
-              $('#confirm_question').html('Do you want to remove: ' + params.data.file + '?')
-              $('#backup_action_confirmation').modal('show')
+              this.confirmationVisible = true
             })
             return div
           }
@@ -133,6 +117,7 @@ export default {
   },
   methods: {
     submit () {
+      this.confirmationVisible = false
       switch (this.action) {
         case 'restore':
           this.restore()
