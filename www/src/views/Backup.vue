@@ -12,6 +12,26 @@
 
         </div>
 
+  <el-table :data="data" style="width: 100%" table-layout="fixed">
+    <el-table-column label="File" prop="file" width="250px"/>
+    <el-table-column align="right">
+      <template #header>
+        <el-input v-model="search" size="small" placeholder="Type to search" />
+      </template>
+      <template #default="scope">
+        <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
+          >Edit</el-button
+        >
+        <el-button
+          size="small"
+          type="danger"
+          @click="handleDelete(scope.$index, scope.row)"
+          >Delete</el-button
+        >
+      </template>
+    </el-table-column>
+  </el-table>
+
       </div>
 
     </div>
@@ -60,6 +80,7 @@ export default {
       grid: undefined,
       gridOptions: undefined,
       confirmationVisible: false,
+      data: [],
     }
   },
   components: {
@@ -158,6 +179,7 @@ export default {
     reload () {
       axios.get('/rest/backup/list')
         .then((response) => {
+          this.data = response.data.data
           this.gridOptions.api.setRowData(response.data.data)
           this.gridOptions.api.sizeColumnsToFit()
         })
