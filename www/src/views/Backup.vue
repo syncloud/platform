@@ -7,31 +7,32 @@
           <h1>Backup</h1>
         </div>
         <div class="row-no-gutters settingsblock">
-
-          <div id="backupGrid" style="width: 100%; height: 300px" class="ag-theme-balham"></div>
-
-        </div>
-
-  <el-table :data="data" style="width: 100%" table-layout="fixed">
-    <el-table-column label="File" prop="file" width="250px"/>
+<el-table :data="data" style="width: 100%" table-layout="fixed">
+    <el-table-column label="File" prop="file" width="230px"/>
     <el-table-column align="right">
       <template #header>
         <el-input v-model="search" size="small" placeholder="Type to search" />
       </template>
       <template #default="scope">
-        <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
-          >Edit</el-button
+        <el-button 
+          size="small"
+          type="primary"
+          @click="this.restoreConfirm(scope.row.file)"
+          >Restore</el-button
         >
         <el-button
           size="small"
           type="danger"
-          @click="handleDelete(scope.$index, scope.row)"
+          @click="this.removeConfirm(scope.row.file)"
           >Delete</el-button
         >
       </template>
     </el-table-column>
   </el-table>
 
+             </div>
+
+  
       </div>
 
     </div>
@@ -62,7 +63,6 @@ import $ from 'jquery'
 import 'bootstrap'
 import Error from '../components/Error.vue'
 import toastr from 'toastr'
-import { Grid } from 'ag-grid-community'
 import axios from 'axios'
 import * as Common from '../js/common.js'
 import Confirmation from '../components/Confirmation.vue'
@@ -77,8 +77,6 @@ export default {
     return {
       file: '',
       action: '',
-      grid: undefined,
-      gridOptions: undefined,
       confirmationVisible: false,
       data: [],
     }
@@ -88,55 +86,19 @@ export default {
     Confirmation
   },
   mounted () {
-    this.gridOptions = {
-      defaultColDef: {
-        cellStyle: { 'text-align': 'left' }
-      },
-      columnDefs: [
-        {
-          headerName: 'File',
-          field: 'file',
-          resizable: true,
-          sortable: true,
-          suppressMovable: true,
-          filter: 'agTextColumnFilter',
-          floatingFilter: true
-        },
-        {
-          headerName: 'Actions',
-          width: 100,
-          resizable: false,
-          suppressMovable: true,
-          cellRenderer: (params) => {
-            const div = document.createElement('div')
-            div.innerHTML = `
-                <i class='fa fa-undo fa-2x' style='padding-left: 20px;  cursor:pointer;'></i>
-                <i class='fa fa-trash fa-2x' style='padding-left: 20px;  cursor:pointer;'></i>
-             `
-            const buttons = div.querySelectorAll('i')
-            buttons[0].addEventListener('click', () => {
-              this.file = params.data.file
-              this.action = 'restore'
-              this.confirmationVisible = true
-            })
-            buttons[1].addEventListener('click', () => {
-              this.file = params.data.file
-              this.action = 'remove'
-              this.confirmationVisible = true
-            })
-            return div
-          }
-        }
-      ],
-      suppressDragLeaveHidesColumns: true
-    }
-
-    const eGridDiv = document.querySelector('#backupGrid')
-    eGridDiv.innerHTML = ''
-    this.grid = new Grid(eGridDiv, this.gridOptions)
-    this.reload()
+     this.reload()
   },
   methods: {
+    removeConfirm (file) {
+        this.file = file
+        this.action = 'remove'
+        this.confirmationVisible = true
+    },
+    restoreConfirm (file) {
+        this.file = file
+        this.action = 'restore'
+        this.confirmationVisible = true
+    },
     submit () {
       this.confirmationVisible = false
       switch (this.action) {
@@ -191,6 +153,4 @@ export default {
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
 @import 'toastr/build/toastr.css';
-@import "ag-grid-community/dist/styles/ag-grid.css";
-@import "ag-grid-community/dist/styles/ag-theme-balham.css";
 </style>
