@@ -464,7 +464,6 @@ export default {
 }
 </script>
 <style>
-@import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
 @import 'bs-stepper/dist/css/bs-stepper.css';
 @import 'font-awesome/css/font-awesome.css';

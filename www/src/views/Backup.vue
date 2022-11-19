@@ -1,40 +1,29 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-
-      <div class="wd12" id="block1">
-        <div CLASS="block1" style="padding: 50px 0 0 0;">
+  <div>
+    <div>
+      <div>
+        <div class="block1 wd12">
           <h1>Backup</h1>
+          <div class="row-no-gutters settingsblock">
+            <el-table :data="filteredData" style="width: 100%" table-layout="fixed">
+              <el-table-column label="File" prop="file"/>
+              <el-table-column align="right" width="200px">
+                <template #header>
+                  <el-input v-model="search" size="small" placeholder="Type to search"/>
+                </template>
+                <template #default="scope">
+                  <el-button size="small" type="primary" @click="this.restoreConfirm(scope.row.file)">
+                    Restore
+                  </el-button>
+                  <el-button size="small" type="danger" @click="this.removeConfirm(scope.row.file)">
+                    Delete
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
         </div>
-        <div class="row-no-gutters settingsblock">
-<el-table :data="data" style="width: 100%" table-layout="fixed">
-    <el-table-column label="File" prop="file" width="230px"/>
-    <el-table-column align="right">
-      <template #header>
-        <el-input v-model="search" size="small" placeholder="Type to search" />
-      </template>
-      <template #default="scope">
-        <el-button 
-          size="small"
-          type="primary"
-          @click="this.restoreConfirm(scope.row.file)"
-          >Restore</el-button
-        >
-        <el-button
-          size="small"
-          type="danger"
-          @click="this.removeConfirm(scope.row.file)"
-          >Delete</el-button
-        >
-      </template>
-    </el-table-column>
-  </el-table>
-
-             </div>
-
-  
       </div>
-
     </div>
   </div>
 
@@ -47,8 +36,8 @@
     <template v-slot:text>
       <div class="bodymod">
         <div class="btext">
-          <span v-if="action === 'restore'">Do you want to restore: {{ file }}?</span>
-          <span v-if="action === 'remove'">Do you want to remove: {{ file }}?</span>
+          <span v-if="action === 'restore'">Do you want to restore:<br>{{ file }}?</span>
+          <span v-if="action === 'remove'">Do you want to remove:<br>{{ file }}?</span>
         </div>
       </div>
     </template>
@@ -59,8 +48,6 @@
 </template>
 
 <script>
-import $ from 'jquery'
-import 'bootstrap'
 import Error from '../components/Error.vue'
 import toastr from 'toastr'
 import axios from 'axios'
@@ -79,6 +66,12 @@ export default {
       action: '',
       confirmationVisible: false,
       data: [],
+      search: ''
+    }
+  },
+  computed: {
+    filteredData() {
+        return this.data.filter((v) =>!this.search || v.file.toLowerCase().includes(this.search.toLowerCase()))
     }
   },
   components: {
@@ -86,18 +79,18 @@ export default {
     Confirmation
   },
   mounted () {
-     this.reload()
+    this.reload()
   },
   methods: {
     removeConfirm (file) {
-        this.file = file
-        this.action = 'remove'
-        this.confirmationVisible = true
+      this.file = file
+      this.action = 'remove'
+      this.confirmationVisible = true
     },
     restoreConfirm (file) {
-        this.file = file
-        this.action = 'restore'
-        this.confirmationVisible = true
+      this.file = file
+      this.action = 'restore'
+      this.confirmationVisible = true
     },
     submit () {
       this.confirmationVisible = false
