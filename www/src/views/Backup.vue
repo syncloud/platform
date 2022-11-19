@@ -142,8 +142,6 @@ export default {
       axios.get('/rest/backup/list')
         .then((response) => {
           this.data = response.data.data
-          this.gridOptions.api.setRowData(response.data.data)
-          this.gridOptions.api.sizeColumnsToFit()
         })
     }
   }
