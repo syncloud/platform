@@ -10,7 +10,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "ag-grid-community": "^24.1.0",
     "axios": "^0.20.0",
     "bootstrap": "^3.3.5",
     "bs-stepper": "^1.7.0",
