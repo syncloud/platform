@@ -4,25 +4,30 @@
       <div>
         <div class="block1 wd12">
           <h1>Backup</h1>
-  <div style="padding-top:10px; padding-bottom: 10px">
-  Auto: 
-  <el-select v-model="auto" class="m-2" style="width: 100px; padding-right: 10px" placeholder="Select">
-    <el-option label="No" value="no"/>
-    <el-option label="Backup" value="backup"/>
-    <el-option label="Restore" value="restore"/>
-  </el-select>
-  <el-select v-model="autoDay" class="m-2" style="width: 120px; padding-right: 10px" placeholder="Select">
-     <el-option label="Every day" value="every"/>
-     <el-option label="Monday" value="monday"/>
-  </el-select>
-    <el-select v-model="autoTime" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select">
-     <el-option label="00:00" value="00:00"/>
-     <el-option label="01:00" value="00:00"/>
-  </el-select>
- <el-button type="success" @click="this.save">
-                    Save
-                  </el-button>
-</div>
+          <div style="padding-top:10px; padding-bottom: 10px">
+            Auto:
+            <el-select v-model="auto" class="m-2" style="width: 100px; padding-right: 10px" placeholder="Select">
+              <el-option label="No" value="no"/>
+              <el-option label="Backup" value="backup"/>
+              <el-option label="Restore" value="restore"/>
+            </el-select>
+            <el-select v-model="autoDay" class="m-2" style="width: 120px; padding-right: 10px" placeholder="Select">
+              <el-option label="Every day" value="0"/>
+              <el-option label="Monday" value="1"/>
+              <el-option label="Tuesday" value="2"/>
+              <el-option label="Wednesday" value="3"/>
+              <el-option label="Thursday" value="4"/>
+              <el-option label="Friday" value="5"/>
+              <el-option label="Saturday" value="6"/>
+              <el-option label="Sunday" value="7"/>
+            </el-select>
+            <el-select v-model="autoTime" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select">
+              <el-option v-for="hour in 24" :label="hour-1 + ':00'" :value="hour-1"/>
+            </el-select>
+            <el-button type="success" @click="this.save">
+              Save
+            </el-button>
+          </div>
           <div class="row-no-gutters settingsblock">
             <el-table :data="filteredData" style="width: 100%" table-layout="fixed">
               <el-table-column label="File" prop="file"/>
@@ -87,13 +92,13 @@ export default {
       data: [],
       search: '',
       auto: 'no',
-      autoDay: 'every',
-      autoTime: '00:00',
+      autoDay: '0',
+      autoTime: 1
     }
   },
   computed: {
-    filteredData() {
-        return this.data.filter((v) =>!this.search || v.file.toLowerCase().includes(this.search.toLowerCase()))
+    filteredData () {
+      return this.data.filter((v) => !this.search || v.file.toLowerCase().includes(this.search.toLowerCase()))
     }
   },
   components: {
@@ -160,7 +165,7 @@ export default {
         })
     },
     save () {
-      axios.post('/rest/backup/save', 
+      axios.post('/rest/backup/save',
         { auto: this.auto, day: this.autoDay, time: this.autoTime })
         .catch(err => {
           this.$refs.error.showToast(err)
