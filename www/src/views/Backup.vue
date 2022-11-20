@@ -2,49 +2,56 @@
   <div>
     <div>
       <div>
-        <div class="block1 wd12">
+        <div class="block1 wd12" style="max-width: 500px">
           <h1>Backup</h1>
-          <div style="padding-top:10px; padding-bottom: 10px">
-            Auto:
-            <el-select v-model="auto" class="m-2" style="width: 100px; padding-right: 10px" placeholder="Select">
-              <el-option label="No" value="no"/>
-              <el-option label="Backup" value="backup"/>
-              <el-option label="Restore" value="restore"/>
-            </el-select>
-            <el-select v-model="autoDay" class="m-2" style="width: 120px; padding-right: 10px" placeholder="Select">
-              <el-option label="Every day" value="0"/>
-              <el-option label="Monday" value="1"/>
-              <el-option label="Tuesday" value="2"/>
-              <el-option label="Wednesday" value="3"/>
-              <el-option label="Thursday" value="4"/>
-              <el-option label="Friday" value="5"/>
-              <el-option label="Saturday" value="6"/>
-              <el-option label="Sunday" value="7"/>
-            </el-select>
-            <el-select v-model="autoTime" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select">
-              <el-option v-for="hour in 24" :label="hour-1 + ':00'" :value="hour-1"/>
-            </el-select>
-            <el-button type="success" @click="this.save">
-              Save
-            </el-button>
-          </div>
-          <div class="row-no-gutters settingsblock">
-            <el-table :data="filteredData" style="width: 100%" table-layout="fixed">
-              <el-table-column label="File" prop="file"/>
-              <el-table-column align="right" width="200px">
-                <template #header>
-                  <el-input v-model="search" size="small" placeholder="Type to search"/>
-                </template>
-                <template #default="scope">
-                  <el-button size="small" type="primary" @click="this.restoreConfirm(scope.row.file)">
-                    Restore
-                  </el-button>
-                  <el-button size="small" type="danger" @click="this.removeConfirm(scope.row.file)">
-                    Delete
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+          <div :style="{ visibility: visibility }">
+            <div>
+              <div style="padding-left: 10px; padding-top:10px; padding-bottom: 10px; display: inline-block">
+                <span style="padding-right: 10px">Auto:</span>
+                <el-select id="auto" v-model="auto" class="m-2" style="width: 100px; padding-right: 10px" placeholder="Select">
+                  <el-option id="auto-no" label="No" value="no"/>
+                  <el-option id="auto-backup" label="Backup" value="backup"/>
+                  <el-option id="auto-restore" label="Restore" value="restore"/>
+                </el-select>
+                <el-select id="auto-day" v-model="autoDay" class="m-2" style="width: 130px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
+                  <el-option id="auto-day-every" label="Every day" value="0"/>
+                  <el-option id="auto-day-monday" label="Monday" value="1"/>
+                  <el-option label="Tuesday" value="2"/>
+                  <el-option label="Wednesday" value="3"/>
+                  <el-option label="Thursday" value="4"/>
+                  <el-option label="Friday" value="5"/>
+                  <el-option label="Saturday" value="6"/>
+                  <el-option label="Sunday" value="7"/>
+                </el-select>
+                <el-select id="auto-time" v-model="autoTime" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
+                  <el-option v-for="hour in 24" :label="hour-1 + ':00'" :value="hour-1"/>
+                </el-select>
+              </div>
+              <div style="padding-top:10px; padding-bottom: 10px; padding-right: 10px; display: inline-block; float: right">
+                <el-button id="save" type="success" @click="this.saveAuto">
+                  Save
+                </el-button>
+              </div>
+            </div>
+            <div class="row-no-gutters settingsblock">
+              <el-table :data="filteredData"
+                        style="width: 100%" table-layout="fixed">
+                <el-table-column label="Name" prop="file" sortable/>
+                <el-table-column align="right" width="200px">
+                  <template #header>
+                    <el-input v-model="search" size="small" placeholder="Type to search"/>
+                  </template>
+                  <template #default="scope">
+                    <el-button size="small" type="primary" @click="this.restoreConfirm(scope.row.file)">
+                      Restore
+                    </el-button>
+                    <el-button size="small" type="danger" @click="this.removeConfirm(scope.row.file)">
+                      Delete
+                    </el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
           </div>
         </div>
       </div>
@@ -67,16 +74,14 @@
     </template>
   </Confirmation>
 
-  <Error ref="error"/>
-
 </template>
 
 <script>
-import Error from '../components/Error.vue'
-import toastr from 'toastr'
 import axios from 'axios'
 import * as Common from '../js/common.js'
 import Confirmation from '../components/Confirmation.vue'
+import Notification from '../components/Notification.vue'
+import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Backup',
@@ -93,7 +98,8 @@ export default {
       search: '',
       auto: 'no',
       autoDay: '0',
-      autoTime: 1
+      autoTime: 0,
+      visibility: 'hidden',
     }
   },
   computed: {
@@ -102,13 +108,20 @@ export default {
     }
   },
   components: {
-    Error,
     Confirmation
   },
   mounted () {
+    this.progressShow()
     this.reload()
   },
   methods: {
+    progressShow () {
+      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+    },
+    progressHide () {
+      this.visibility = 'visible'
+      this.loading.close()
+    },
     removeConfirm (file) {
       this.file = file
       this.action = 'remove'
@@ -135,41 +148,49 @@ export default {
         .then(_ => {
           this.reload()
         })
-        .catch(err => this.$refs.error.showToast(err))
+        .catch(this.showError)
+    },
+    showError(error) {
+      this.progressHide()
+      Notification.error(error)
     },
     restore () {
-      const that = this
       axios
         .post('/rest/backup/restore', { file: this.file })
         .then(_ => {
-          toastr.info('Restoring an app from a backup')
-
+          Notification.info('Restoring an app from a backup')
           Common.runAfterJobIsComplete(
             setTimeout,
             () => {
-              toastr.info('Backup restore has finished')
+              Notification.success('Backup restore has finished')
               this.reload()
             },
-            err => that.$refs.error.showToast(err),
+            Notification.error,
             Common.JOB_STATUS_URL,
             Common.JOB_STATUS_PREDICATE)
         })
-        .catch(err => {
-          this.$refs.error.showToast(err)
-        })
+        .catch(this.showError)
     },
     reload () {
       axios.get('/rest/backup/list')
         .then((response) => {
           this.data = response.data.data
+          this.progressHide()
         })
+        .catch(this.showError)
+      axios.get('/rest/backup/auto')
+        .then((response) => {
+          this.auto = response.data.data.auto
+          this.autoDay = response.data.data.day
+          this.autoTime = response.data.data.time
+          this.progressHide()
+        })
+        .catch(this.showError)
     },
-    save () {
-      axios.post('/rest/backup/save',
+    saveAuto () {
+      axios.post('/rest/backup/auto',
         { auto: this.auto, day: this.autoDay, time: this.autoTime })
-        .catch(err => {
-          this.$refs.error.showToast(err)
-        })
+        .catch(this.showError)
     }
   }
 }
@@ -177,5 +198,4 @@ export default {
 <style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
-@import 'toastr/build/toastr.css';
 </style>

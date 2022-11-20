@@ -99,6 +99,8 @@ func (b *Backend) Start(network string, address string) {
 	r := mux.NewRouter()
 	r.HandleFunc("/job/status", Handle(b.JobStatus)).Methods("GET")
 	r.HandleFunc("/backup/list", Handle(b.BackupList)).Methods("GET")
+	r.HandleFunc("/backup/auto", Handle(b.GetBackupAuto)).Methods("GET")
+	r.HandleFunc("/backup/auto", Handle(b.SetBackupAuto)).Methods("POST")
 	r.HandleFunc("/backup/create", Handle(b.BackupCreate)).Methods("POST")
 	r.HandleFunc("/backup/restore", Handle(b.BackupRestore)).Methods("POST")
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
@@ -196,6 +198,14 @@ func Handle(f func(req *http.Request) (interface{}, error)) func(w http.Response
 }
 
 func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
+	return b.backup.List()
+}
+
+func (b *Backend) GetBackupAuto(_ *http.Request) (interface{}, error) {
+	return b.backup.List()
+}
+
+func (b *Backend) SetBackupAuto(_ *http.Request) (interface{}, error) {
 	return b.backup.List()
 }
 
