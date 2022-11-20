@@ -99,7 +99,7 @@ export default {
       auto: 'no',
       autoDay: '0',
       autoTime: 0,
-      visibility: 'hidden',
+      visibility: 'hidden'
     }
   },
   computed: {
@@ -150,7 +150,7 @@ export default {
         })
         .catch(this.showError)
     },
-    showError(error) {
+    showError (error) {
       this.progressHide()
       Notification.error(error)
     },

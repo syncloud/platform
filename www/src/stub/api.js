@@ -182,7 +182,7 @@ const networkInterfaces = {
 const accessData = {
   data: {
     ipv4_enabled: true,
-    ipv4_public: true,
+    ipv4_public: true
     // access_port: 443
     // public_ip: '111.111.111.111'
   },
@@ -197,7 +197,7 @@ const disksData = {
       active: true,
       size: '100G',
       has_errors: false,
-      raid: "raid10",
+      raid: 'raid10',
       partitions: []
     },
     {
@@ -205,7 +205,7 @@ const disksData = {
       device: '/dev/sdb',
       active: true,
       size: '100G',
-      raid: "raid10",
+      raid: 'raid10',
       partitions: []
     },
     {
@@ -213,7 +213,7 @@ const disksData = {
       device: '/dev/sdc',
       active: true,
       size: '100G',
-      raid: "raid10",
+      raid: 'raid10',
       partitions: []
     },
     {
@@ -221,9 +221,9 @@ const disksData = {
       device: '/dev/sdd',
       active: true,
       size: '100G',
-      raid: "raid10",
+      raid: 'raid10',
       partitions: []
-    },
+    }
   ],
   success: true
 }
@@ -285,7 +285,7 @@ export function mock () {
         }
       })
       this.get('/rest/app', function (_schema, request) {
-        let info = store.data.find(info => info.app.id === request.queryParams.app_id)
+        const info = store.data.find(info => info.app.id === request.queryParams.app_id)
         if (!installedApps.has(info.app.id)) {
           info.installed_version = null
         } else {
@@ -327,7 +327,7 @@ export function mock () {
       })
       this.get('/rest/job/status', function (_schema, _request) {
         state.jobStatusRunning = !state.jobStatusRunning
-        return new Response(200, {}, { success: true, data: { status: state.jobStatusRunning ? 'Busy' : 'Idle', name: "storage.activate.disks" }})
+        return new Response(200, {}, { success: true, data: { status: state.jobStatusRunning ? 'Busy' : 'Idle', name: 'storage.activate.disks' } })
       })
 
       this.get('/rest/apps/available', function (_schema, _request) {
@@ -442,9 +442,9 @@ export function mock () {
       })
       this.get('/rest/storage/error/last', function (_schema, _request) {
         if (state.diskLastError) {
-          return new Response(500, {}, { success: false, message: "Disk format error" })
+          return new Response(500, {}, { success: false, message: 'Disk format error' })
         } else {
-          return new Response(200, {}, { success: true, data: "OK" })
+          return new Response(200, {}, { success: true, data: 'OK' })
         }
       })
       this.post('/rest/storage/error/clear', function (_schema, _request) {
@@ -537,4 +537,3 @@ export function mock () {
     }
   })
 }
-

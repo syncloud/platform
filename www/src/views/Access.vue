@@ -182,7 +182,7 @@ export default {
       if (!val) {
         this.accessPort = 443
       }
-    },
+    }
   },
   mounted () {
     this.progressShow()
@@ -270,7 +270,7 @@ export default {
       axios.post('/rest/access', requestData)
         .then(response => Common.checkForServiceError(response.data, this.reload, onError))
         .catch(onError)
-    },
+    }
   }
 }
 </script>

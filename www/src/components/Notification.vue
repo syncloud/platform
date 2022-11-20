@@ -22,7 +22,7 @@ function error (error) {
   })
 }
 
-function info(message) {
+function info (message) {
   ElNotification({
     title: 'Info',
     message: message,
@@ -30,7 +30,7 @@ function info(message) {
   })
 }
 
-function success(message) {
+function success (message) {
   ElNotification({
     title: 'Success',
     message: message,
