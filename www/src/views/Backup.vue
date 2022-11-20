@@ -24,7 +24,7 @@
                   <el-option label="Sunday" value="7"/>
                 </el-select>
                 <el-select id="auto-time" v-model="autoTime" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
-                  <el-option v-for="hour in 24" :label="hour-1 + ':00'" :value="hour-1"/>
+                  <el-option v-for="hour in 24" :key="hour-1" :label="hour-1 + ':00'" :value="hour-1"/>
                 </el-select>
               </div>
               <div style="padding-top:10px; padding-bottom: 10px; padding-right: 10px; display: inline-block; float: right">
