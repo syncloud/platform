@@ -202,11 +202,18 @@ func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) GetBackupAuto(_ *http.Request) (interface{}, error) {
-	return b.backup.List()
+	return b.backup.Auto(), nil
 }
 
-func (b *Backend) SetBackupAuto(_ *http.Request) (interface{}, error) {
-	return b.backup.List()
+func (b *Backend) SetBackupAuto(req *http.Request) (interface{}, error) {
+	var request backup.Auto
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("bad request")
+	}
+	b.backup.SetAuto(request)
+	return "OK", nil
 }
 
 func (b *Backend) BackupRemove(req *http.Request) (interface{}, error) {

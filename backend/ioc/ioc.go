@@ -126,8 +126,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(executor *cli.ShellExecutor) *du.ShellDiskUsage {
 		return du.New(executor)
 	})
-	Singleton(func(executor *cli.ShellExecutor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger) *backup.Backup {
-		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, logger)
+	Singleton(func(executor *cli.ShellExecutor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger, userConfig *config.UserConfig) *backup.Backup {
+		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, userConfig, logger)
 	})
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })

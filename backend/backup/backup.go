@@ -25,6 +25,15 @@ type SnapInfo interface {
 	Snap(name string) (model.Snap, error)
 }
 
+type UserConfig interface {
+	GetBackupAuto() string
+	SetBackupAuto(auto string)
+	GetBackupAutoDay() int
+	SetBackupAutoDay(day int)
+	GetBackupAutoHour() int
+	SetBackupAutoHour(hour int)
+}
+
 type Backup struct {
 	backupDir  string
 	varDir     string
@@ -32,6 +41,7 @@ type Backup struct {
 	snapCli    SnapService
 	snapServer SnapInfo
 	diskusage  du.DiskUsage
+	userConfig UserConfig
 	logger     *zap.Logger
 }
 
@@ -44,7 +54,7 @@ const (
 	RestorePostStart = "restore-post-start"
 )
 
-func New(dir string, varDir string, executor cli.Executor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, logger *zap.Logger) *Backup {
+func New(dir string, varDir string, executor cli.Executor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, userConfig UserConfig, logger *zap.Logger) *Backup {
 	return &Backup{
 		backupDir:  dir,
 		varDir:     varDir,
@@ -52,6 +62,7 @@ func New(dir string, varDir string, executor cli.Executor, diskusage du.DiskUsag
 		diskusage:  diskusage,
 		snapCli:    snapCli,
 		snapServer: snapServer,
+		userConfig: userConfig,
 		logger:     logger,
 	}
 }
@@ -63,6 +74,20 @@ func (b *Backup) Init() {
 			b.logger.Info("unable to create backup dir", zap.Error(err))
 		}
 	}
+}
+
+func (b *Backup) Auto() Auto {
+	return Auto{
+		Auto: b.userConfig.GetBackupAuto(),
+		Day:  b.userConfig.GetBackupAutoDay(),
+		Hour: b.userConfig.GetBackupAutoHour(),
+	}
+}
+
+func (b *Backup) SetAuto(auto Auto) {
+	b.userConfig.SetBackupAuto(auto.Auto)
+	b.userConfig.SetBackupAutoDay(auto.Day)
+	b.userConfig.SetBackupAutoHour(auto.Hour)
 }
 
 func (b *Backup) List() ([]File, error) {

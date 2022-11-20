@@ -49,16 +49,52 @@ func (s *SnapInfoStub) Snap(_ string) (model.Snap, error) {
 	return model.Snap{}, nil
 }
 
-func TestRemove(t *testing.T) {
-	logger := log.Default()
+type UserConfigStub struct {
+	auto string
+	day  int
+	hour int
+}
 
+func (u *UserConfigStub) GetBackupAuto() string {
+	return u.auto
+}
+
+func (u *UserConfigStub) SetBackupAuto(auto string) {
+	u.auto = auto
+}
+
+func (u *UserConfigStub) GetBackupAutoDay() int {
+	return u.day
+}
+
+func (u *UserConfigStub) SetBackupAutoDay(day int) {
+	u.day = day
+}
+
+func (u *UserConfigStub) GetBackupAutoHour() int {
+	return u.hour
+}
+
+func (u *UserConfigStub) SetBackupAutoHour(hour int) {
+	u.hour = hour
+}
+
+func TestRemove(t *testing.T) {
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
-	tmpfn := filepath.Join(backupDir, "tmpfile")
-	if err := os.WriteFile(tmpfn, []byte(""), 0666); err != nil {
+	tmpFile := filepath.Join(backupDir, "tmpfile")
+	if err := os.WriteFile(tmpFile, []byte(""), 0666); err != nil {
 		panic(err)
 	}
-	backup := New(backupDir, varDir, cli.New(log.Default()), &DiskUsageStub{100}, &SnapServiceStub{}, &SnapInfoStub{}, logger)
+	backup := New(
+		backupDir,
+		varDir,
+		cli.New(log.Default()),
+		&DiskUsageStub{100},
+		&SnapServiceStub{},
+		&SnapInfoStub{},
+		&UserConfigStub{},
+		log.Default())
 	err := backup.Remove("tmpfile")
 	assert.Nil(t, err)
 	list, err := backup.List()
@@ -88,12 +124,15 @@ func TestBackup(t *testing.T) {
 		panic(err)
 	}
 
-	diskusage := &DiskUsageStub{100}
-	logger := log.Default()
-	shellExecutor := cli.New(logger)
-	snapCli := &SnapServiceStub{versionDir: versionDir}
-	snapServer := &SnapInfoStub{}
-	backup := New(backupDir+"/non-existent", varDir, shellExecutor, diskusage, snapCli, snapServer, logger)
+	backup := New(
+		backupDir+"/non-existent",
+		varDir,
+		cli.New(log.Default()),
+		&DiskUsageStub{100},
+		&SnapServiceStub{versionDir: versionDir},
+		&SnapInfoStub{},
+		&UserConfigStub{},
+		log.Default())
 	backup.Init()
 	err := backup.Create("test-app")
 	assert.Nil(t, err)
@@ -122,4 +161,34 @@ func TestBackup(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
 
+}
+
+func TestAuto(t *testing.T) {
+	backupDir := t.TempDir()
+	varDir := t.TempDir()
+	tmpFile := filepath.Join(backupDir, "tmpfile")
+	if err := os.WriteFile(tmpFile, []byte(""), 0666); err != nil {
+		panic(err)
+	}
+	backup := New(
+		backupDir,
+		varDir,
+		cli.New(log.Default()),
+		&DiskUsageStub{100},
+		&SnapServiceStub{},
+		&SnapInfoStub{},
+		&UserConfigStub{auto: "no", day: 0, hour: 0},
+		log.Default())
+
+	auto := backup.Auto()
+	assert.Equal(t, "no", auto.Auto)
+	assert.Equal(t, 0, auto.Day)
+	assert.Equal(t, 0, auto.Hour)
+
+	backup.SetAuto(Auto{Auto: "backup", Day: 1, Hour: 2})
+
+	auto = backup.Auto()
+	assert.Equal(t, "backup", auto.Auto)
+	assert.Equal(t, 1, auto.Day)
+	assert.Equal(t, 2, auto.Hour)
 }

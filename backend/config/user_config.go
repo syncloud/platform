@@ -91,7 +91,7 @@ func (c *UserConfig) migrateV1() {
 }
 
 func (c *UserConfig) migrateV2() {
-	result := c.GetOrNil("platform.external_access")
+	result := c.GetOrNilString("platform.external_access")
 	if result == nil {
 		return
 	}
@@ -125,7 +125,7 @@ func (c *UserConfig) open() *sql.DB {
 }
 
 func (c *UserConfig) SetRedirectDomain(domain string) {
- c.Delete("redirect.api_url")
+	c.Delete("redirect.api_url")
 	c.Upsert("redirect.domain", domain)
 }
 
@@ -138,7 +138,7 @@ func (c *UserConfig) SetUserEmail(userEmail string) {
 }
 
 func (c *UserConfig) GetUserEmail() *string {
-	return c.GetOrNil("redirect.user_email")
+	return c.GetOrNilString("redirect.user_email")
 }
 
 func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
@@ -153,7 +153,7 @@ func (c *UserConfig) GetRedirectApiUrl() string {
 	return c.Get("redirect.api_url", fmt.Sprintf("https://api.%s", c.GetRedirectDomain()))
 }
 
-func (c UserConfig) IsIpv4Enabled() bool {
+func (c *UserConfig) IsIpv4Enabled() bool {
 	result := c.Get("platform.ipv4_enabled", DbTrue)
 	return c.toBool(result)
 }
@@ -162,7 +162,7 @@ func (c *UserConfig) SetIpv4Enabled(enabled bool) {
 	c.Upsert("platform.ipv4_enabled", c.fromBool(enabled))
 }
 
-func (c UserConfig) IsIpv4Public() bool {
+func (c *UserConfig) IsIpv4Public() bool {
 	result := c.Get("platform.ipv4_public", DbTrue)
 	return c.toBool(result)
 }
@@ -171,7 +171,7 @@ func (c *UserConfig) SetIpv4Public(enabled bool) {
 	c.Upsert("platform.ipv4_public", c.fromBool(enabled))
 }
 
-func (c UserConfig) IsIpv6Enabled() bool {
+func (c *UserConfig) IsIpv6Enabled() bool {
 	result := c.Get("platform.ipv6_enabled", DbTrue)
 	return c.toBool(result)
 }
@@ -211,7 +211,7 @@ func (c *UserConfig) SetDomain(domain string) {
 }
 
 func (c *UserConfig) getDomain() *string {
-	return c.GetOrNil("platform.domain")
+	return c.GetOrNilString("platform.domain")
 }
 
 func (c *UserConfig) setDeprecatedUserDomain(domain string) {
@@ -219,7 +219,7 @@ func (c *UserConfig) setDeprecatedUserDomain(domain string) {
 }
 
 func (c *UserConfig) getDeprecatedUserDomain() *string {
-	return c.GetOrNil("platform.user_domain")
+	return c.GetOrNilString("platform.user_domain")
 }
 
 func (c *UserConfig) UpdateDomainToken(token string) {
@@ -244,7 +244,34 @@ func (c *UserConfig) Delete(key string) {
 	}
 }
 
-func (c *UserConfig) GetOrNil(key string) *string {
+func (c *UserConfig) GetOrDefaultInt(key string, defaultValue int) int {
+	value := c.GetOrNilInt(key)
+	if value == nil {
+		return defaultValue
+	}
+	return *value
+}
+func (c *UserConfig) GetOrNilInt(key string) *int {
+	value := c.GetOrNilString(key)
+	if value == nil {
+		return nil
+	}
+	i, err := strconv.Atoi(*value)
+	if err != nil {
+		return nil
+	}
+	return &i
+}
+
+func (c *UserConfig) GetOrDefaultString(key string, defaultValue string) string {
+	value := c.GetOrNilString(key)
+	if value == nil {
+		return defaultValue
+	}
+	return *value
+}
+
+func (c *UserConfig) GetOrNilString(key string) *string {
 	db := c.open()
 	defer db.Close()
 	var value string
@@ -282,7 +309,7 @@ func (c *UserConfig) List() map[string]string {
 }
 
 func (c *UserConfig) Get(key string, defaultValue string) string {
-	value := c.GetOrNil(key)
+	value := c.GetOrNilString(key)
 	if value == nil {
 		return defaultValue
 	}
@@ -302,11 +329,11 @@ func (c *UserConfig) fromBool(value bool) string {
 }
 
 func (c *UserConfig) GetDkimKey() *string {
-	return c.GetOrNil("dkim_key")
+	return c.GetOrNilString("dkim_key")
 }
 
 func (c *UserConfig) GetDomainUpdateToken() *string {
-	return c.GetOrNil("platform.domain_update_token")
+	return c.GetOrNilString("platform.domain_update_token")
 }
 
 func (c *UserConfig) SetPublicIp(publicIp *string) {
@@ -318,7 +345,7 @@ func (c *UserConfig) SetPublicIp(publicIp *string) {
 }
 
 func (c *UserConfig) GetPublicIp() *string {
-	return c.GetOrNil("platform.public_ip")
+	return c.GetOrNilString("platform.public_ip")
 }
 
 func (c *UserConfig) SetPublicPort(port *int) {
@@ -330,19 +357,39 @@ func (c *UserConfig) SetPublicPort(port *int) {
 }
 
 func (c *UserConfig) GetPublicPort() *int {
-	value := c.GetOrNil("platform.manual_access_port")
-	if value == nil {
-		return nil
-	}
-	i, err := strconv.Atoi(*value)
-	if err != nil {
-		return nil
-	}
-	return &i
+	return c.GetOrNilInt("platform.manual_access_port")
 }
 
 func (c *UserConfig) GetCustomDomain() *string {
-	return c.GetOrNil("platform.custom_domain")
+	return c.GetOrNilString("platform.custom_domain")
+}
+
+func (c *UserConfig) GetBackupAuto() string {
+	auto := c.GetOrNilString("platform.backup_auto")
+	if auto == nil {
+		return "no"
+	}
+	return *auto
+}
+
+func (c *UserConfig) SetBackupAuto(auto string) {
+	c.Upsert("platform.backup_auto", auto)
+}
+
+func (c *UserConfig) GetBackupAutoDay() int {
+	return c.GetOrDefaultInt("platform.backup_auto_day", 0)
+}
+
+func (c *UserConfig) SetBackupAutoDay(day int) {
+	c.Upsert("platform.backup_auto_day", strconv.Itoa(day))
+}
+
+func (c *UserConfig) GetBackupAutoHour() int {
+	return c.GetOrDefaultInt("platform.backup_auto_hour", 0)
+}
+
+func (c *UserConfig) SetBackupAutoHour(hour int) {
+	c.Upsert("platform.backup_auto_hour", strconv.Itoa(hour))
 }
 
 func (c *UserConfig) SetCustomDomain(domain string) {
