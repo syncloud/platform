@@ -392,6 +392,14 @@ func (c *UserConfig) SetBackupAutoHour(hour int) {
 	c.Upsert("platform.backup_auto_hour", strconv.Itoa(hour))
 }
 
+func (c *UserConfig) GetBackupAppTime(app string, mode string) *int {
+ c.GetOrNilInt(fmt.Sprintf("platform.backup.%s.%s", app, mode)
+}
+
+func (c *UserConfig) SetBackupAppTime(app string, mode string, time int) {
+ c.Upsert(fmt.Sprintf("platform.backup.%s.%s", app, mode, strconv.Itoa(time))
+}
+
 func (c *UserConfig) SetCustomDomain(domain string) {
 	c.Upsert("platform.custom_domain", domain)
 }

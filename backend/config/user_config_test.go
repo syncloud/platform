@@ -158,3 +158,13 @@ func TestPublicIp_Valid(t *testing.T) {
 	config.SetPublicIp(&ip)
 	assert.Equal(t, "1.1.1.1", *config.GetPublicIp())
 }
+
+func TestBackupAppTime(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.SetBackupAppTime("app1", "backup", 10000)
+	assert.Equal(t, 10000, *config.GetBackupAppTime("app1", "backup"))
+}
+
