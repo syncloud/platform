@@ -112,16 +112,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
 		return access.New(probe, userConfig, redirectService, eventTrigger, netInfo, logger)
 	})
-
-	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
-		return cron.NewExternalAddressJob(job)
-	})
-	Singleton(func(snapd *snap.Server, userConfig *config.UserConfig, logger *zap.Logger) *cron.BackupJob {
-		return cron.NewBackupJob(snapd, userConfig, logger)
-	})
-	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, userConfig *config.UserConfig) *cron.Cron {
-		return cron.New([]cron.Job{job1, job2, job3}, time.Minute*5, userConfig)
-	})
 	Singleton(func() *job.SingleJobMaster { return job.NewMaster() })
 	Singleton(func(master *job.SingleJobMaster, logger *zap.Logger) *job.Worker {
 		return job.NewWorker(master, logger)
@@ -131,6 +121,15 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	})
 	Singleton(func(executor *cli.ShellExecutor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger, userConfig *config.UserConfig) *backup.Backup {
 		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, userConfig, logger)
+	})
+	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
+		return cron.NewExternalAddressJob(job)
+	})
+	Singleton(func(snapd *snap.Server, userConfig *config.UserConfig, provider *date.RealProvider, backup *backup.Backup, logger *zap.Logger) *cron.BackupJob {
+		return cron.NewBackupJob(snapd, userConfig, backup, provider, logger)
+	})
+	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, userConfig *config.UserConfig) *cron.Cron {
+		return cron.New([]cron.Job{job1, job2, job3}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })

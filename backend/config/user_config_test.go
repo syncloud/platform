@@ -1,11 +1,11 @@
 package config
 
 import (
+	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
- "time"
-	"github.com/stretchr/testify/assert"
+	"time"
 )
 
 func TestRedirectDomain(t *testing.T) {
@@ -164,8 +164,27 @@ func TestBackupAppTime(t *testing.T) {
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
 	config.Load()
- timesatamp := time.Now().Unix()
+	timesatamp := time.Now()
 	config.SetBackupAppTime("app1", "backup", timesatamp)
-	assert.Equal(t, timesatamp, *config.GetBackupAppTime("app1", "backup"))
+	assert.Equal(t, time.Unix(timesatamp.Unix(), 0), *config.GetBackupAppTime("app1", "backup"))
 }
 
+func TestDefaultInt(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	assert.Equal(t, 0, config.GetOrDefaultInt("unknown", 0))
+	config.Upsert("unknown", "1")
+	assert.Equal(t, 1, config.GetOrDefaultInt("unknown", 0))
+}
+
+func TestDefaultString(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	assert.Equal(t, "default", config.GetOrDefaultString("unknown", "default"))
+	config.Upsert("unknown", "test")
+	assert.Equal(t, "test", config.GetOrDefaultString("unknown", "test"))
+}

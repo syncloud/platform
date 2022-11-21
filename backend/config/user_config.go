@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 const DbTrue = "true"
@@ -260,7 +261,6 @@ func (c *UserConfig) GetOrDefaultInt64(key string, defaultValue int64) int64 {
 	return *value
 }
 
-
 func (c *UserConfig) GetOrNilInt(key string) *int {
 	value := c.GetOrNilString(key)
 	if value == nil {
@@ -395,7 +395,13 @@ func (c *UserConfig) GetBackupAuto() string {
 }
 
 func (c *UserConfig) SetBackupAuto(auto string) {
-	c.Upsert("platform.backup_auto", auto)
+	switch auto {
+	case
+		"no",
+		"backup",
+		"restore":
+		c.Upsert("platform.backup_auto", auto)
+	}
 }
 
 func (c *UserConfig) GetBackupAutoDay() int {
@@ -414,12 +420,17 @@ func (c *UserConfig) SetBackupAutoHour(hour int) {
 	c.Upsert("platform.backup_auto_hour", strconv.Itoa(hour))
 }
 
-func (c *UserConfig) GetBackupAppTime(app string, mode string) *int64 {
- return c.GetOrNilInt64(fmt.Sprintf("platform.backup.%s.%s", app, mode))
+func (c *UserConfig) GetBackupAppTime(app string, mode string) *time.Time {
+	value := c.GetOrNilInt64(fmt.Sprintf("platform.backup.%s.%s", app, mode))
+	if value == nil {
+		return nil
+	}
+	unix := time.Unix(*value, 0)
+	return &unix
 }
 
-func (c *UserConfig) SetBackupAppTime(app string, mode string, time int64) {
- c.Upsert(fmt.Sprintf("platform.backup.%s.%s", app, mode), strconv.FormatInt(time, 10))
+func (c *UserConfig) SetBackupAppTime(app string, mode string, time time.Time) {
+	c.Upsert(fmt.Sprintf("platform.backup.%s.%s", app, mode), strconv.FormatInt(time.Unix(), 10))
 }
 
 func (c *UserConfig) SetCustomDomain(domain string) {

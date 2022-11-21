@@ -1,15 +1,18 @@
 package cron
 
 import (
+	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/snap/model"
-
 	"go.uber.org/zap"
+	"time"
 )
 
 type BackupJob struct {
-	snapd  Snapd
- userConfig UserConfig
-	logger *zap.Logger
+	snapd    Snapd
+	config   UserConfig
+	backup   Backup
+	provider date.Provider
+	logger   *zap.Logger
 }
 
 type Snapd interface {
@@ -20,15 +23,22 @@ type UserConfig interface {
 	GetBackupAuto() string
 	GetBackupAutoDay() int
 	GetBackupAutoHour() int
- GetBackupAppTime(string, string) *int64
-	SetBackupAppTime(string, string, int64)
+	GetBackupAppTime(string, string) *time.Time
+	SetBackupAppTime(string, string, time.Time)
 }
 
-func NewBackupJob(snapd Snapd, userConfig UserConfig, logger *zap.Logger) *BackupJob {
+type Backup interface {
+	Create(app string) error
+	Restore(fileName string) error
+}
+
+func NewBackupJob(snapd Snapd, config UserConfig, backup Backup, provider date.Provider, logger *zap.Logger) *BackupJob {
 	return &BackupJob{
-		snapd:  snapd,
-  userConfig: userConfig,
-		logger: logger,
+		snapd:    snapd,
+		config:   config,
+		backup:   backup,
+		provider: provider,
+		logger:   logger,
 	}
 }
 
@@ -37,15 +47,33 @@ func (j *BackupJob) Run() error {
 	if err != nil {
 		return err
 	}
- auto := j.userConfig.GetBackupAuto()
- if auto == "no" {
-   j.logger.Info("auto backup is disabled", zap.String("auto", auto))
-   return nil
- }
+	auto := j.config.GetBackupAuto()
+	if auto == "no" {
+		j.logger.Info("auto backup is disabled", zap.String("auto", auto))
+		return nil
+	}
+	day := j.config.GetBackupAutoDay()
+	hour := j.config.GetBackupAutoHour()
+	now := j.provider.Now()
 	for _, snap := range snaps {
-		j.logger.Info("auto backup", zap.String("app", snap.Name))
+		last := j.config.GetBackupAppTime(snap.Name, auto)
+		if j.ShouldRun(day, hour, now, last) {
+			if auto == "backup" {
+				err = j.backup.Create(snap.Name)
+				if err != nil {
+					j.logger.Error("failed", zap.String("app", snap.Name), zap.Error(err))
+				}
+			} else {
+				err = j.backup.Restore("file")
+				if err != nil {
+					j.logger.Error("failed", zap.String("app", snap.Name), zap.Error(err))
+				}
+			}
+		}
 	}
 	return nil
 }
 
-
+func (j *BackupJob) ShouldRun(day int, hour int, now time.Time, last *time.Time) bool {
+	return true
+}
