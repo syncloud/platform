@@ -124,7 +124,7 @@ func TestMigratev2_ExternalFalse(t *testing.T) {
 	config.Load()
 
 	assert.False(t, config.IsIpv4Public())
-	assert.Nil(t, config.GetOrNil("platform.external_access"))
+	assert.Nil(t, config.GetOrNilString("platform.external_access"))
 }
 
 func TestMigratev2_ExternalTrue(t *testing.T) {
@@ -136,7 +136,7 @@ func TestMigratev2_ExternalTrue(t *testing.T) {
 	config.Load()
 
 	assert.True(t, config.IsIpv4Public())
-	assert.Nil(t, config.GetOrNil("platform.external_access"))
+	assert.Nil(t, config.GetOrNilString("platform.external_access"))
 }
 
 func TestPublicIp_Empty(t *testing.T) {
