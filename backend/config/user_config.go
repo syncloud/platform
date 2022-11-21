@@ -251,12 +251,34 @@ func (c *UserConfig) GetOrDefaultInt(key string, defaultValue int) int {
 	}
 	return *value
 }
+
+func (c *UserConfig) GetOrDefaultInt64(key string, defaultValue int64) int64 {
+	value := c.GetOrNilInt64(key)
+	if value == nil {
+		return defaultValue
+	}
+	return *value
+}
+
+
 func (c *UserConfig) GetOrNilInt(key string) *int {
 	value := c.GetOrNilString(key)
 	if value == nil {
 		return nil
 	}
 	i, err := strconv.Atoi(*value)
+	if err != nil {
+		return nil
+	}
+	return &i
+}
+
+func (c *UserConfig) GetOrNilInt64(key string) *int64 {
+	value := c.GetOrNilString(key)
+	if value == nil {
+		return nil
+	}
+	i, err := strconv.ParseInt(*value, 10, 32)
 	if err != nil {
 		return nil
 	}
@@ -392,12 +414,12 @@ func (c *UserConfig) SetBackupAutoHour(hour int) {
 	c.Upsert("platform.backup_auto_hour", strconv.Itoa(hour))
 }
 
-func (c *UserConfig) GetBackupAppTime(app string, mode string) *int {
- c.GetOrNilInt(fmt.Sprintf("platform.backup.%s.%s", app, mode)
+func (c *UserConfig) GetBackupAppTime(app string, mode string) *int64 {
+ return c.GetOrNilInt64(fmt.Sprintf("platform.backup.%s.%s", app, mode))
 }
 
-func (c *UserConfig) SetBackupAppTime(app string, mode string, time int) {
- c.Upsert(fmt.Sprintf("platform.backup.%s.%s", app, mode, strconv.Itoa(time))
+func (c *UserConfig) SetBackupAppTime(app string, mode string, time int64) {
+ c.Upsert(fmt.Sprintf("platform.backup.%s.%s", app, mode), strconv.FormatInt(time, 10))
 }
 
 func (c *UserConfig) SetCustomDomain(domain string) {

@@ -116,8 +116,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
 		return cron.NewExternalAddressJob(job)
 	})
-	Singleton(func(snapd *snap.Server, logger *zap.Logger) *cron.BackupJob {
-		return cron.NewBackupJob(snapd, logger)
+	Singleton(func(snapd *snap.Server, userConfig *config.UserConfig, logger *zap.Logger) *cron.BackupJob {
+		return cron.NewBackupJob(snapd, userConfig, logger)
 	})
 	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, userConfig *config.UserConfig) *cron.Cron {
 		return cron.New([]cron.Job{job1, job2, job3}, time.Minute*5, userConfig)

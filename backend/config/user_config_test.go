@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"testing"
-
+ "time"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -164,7 +164,8 @@ func TestBackupAppTime(t *testing.T) {
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
 	config.Load()
-	config.SetBackupAppTime("app1", "backup", 10000)
-	assert.Equal(t, 10000, *config.GetBackupAppTime("app1", "backup"))
+ timesatamp := time.Now().Unix()
+	config.SetBackupAppTime("app1", "backup", timesatamp)
+	assert.Equal(t, timesatamp, *config.GetBackupAppTime("app1", "backup"))
 }
 
