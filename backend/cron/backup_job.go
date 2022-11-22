@@ -8,11 +8,12 @@ import (
 )
 
 type BackupJob struct {
-	snapd    Snapd
-	config   UserConfig
-	backup   Backup
-	provider date.Provider
-	logger   *zap.Logger
+	snapd     Snapd
+	config    UserConfig
+	backup    Backup
+	provider  date.Provider
+	scheduler Scheduler
+	logger    *zap.Logger
 }
 
 type Snapd interface {
@@ -32,13 +33,18 @@ type Backup interface {
 	Restore(fileName string) error
 }
 
-func NewBackupJob(snapd Snapd, config UserConfig, backup Backup, provider date.Provider, logger *zap.Logger) *BackupJob {
+type Scheduler interface {
+	ShouldRun(day int, hour int, now time.Time, last time.Time) bool
+}
+
+func NewBackupJob(snapd Snapd, config UserConfig, backup Backup, provider date.Provider, scheduler Scheduler, logger *zap.Logger) *BackupJob {
 	return &BackupJob{
-		snapd:    snapd,
-		config:   config,
-		backup:   backup,
-		provider: provider,
-		logger:   logger,
+		snapd:     snapd,
+		config:    config,
+		backup:    backup,
+		provider:  provider,
+		scheduler: scheduler,
+		logger:    logger,
 	}
 }
 
@@ -57,7 +63,7 @@ func (j *BackupJob) Run() error {
 	now := j.provider.Now()
 	for _, snap := range snaps {
 		last := j.config.GetBackupAppTime(snap.Name, auto)
-		if j.ShouldRun(day, hour, now, last) {
+		if j.scheduler.ShouldRun(day, hour, now, last) {
 			if auto == "backup" {
 				err = j.backup.Create(snap.Name)
 				if err != nil {
@@ -72,26 +78,4 @@ func (j *BackupJob) Run() error {
 		}
 	}
 	return nil
-}
-
-func (j *BackupJob) ShouldRun(day int, hour int, now time.Time, last time.Time) bool {
-	if now.Truncate(time.Hour) == last.Truncate(time.Hour) {
-		return false
-	}
-	if day == 0 {
-		return now.Hour() == hour
-	} else {
-		if j.weekDay(now) == day {
-			return now.Hour() == hour
-		}
-		return false
-	}
-}
-
-func (j *BackupJob) weekDay(now time.Time) int {
-	weekday := now.Weekday()
-	if weekday == time.Sunday {
-		return 7
-	}
-	return int(weekday)
 }

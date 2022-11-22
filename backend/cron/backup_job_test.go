@@ -65,41 +65,24 @@ func (p ProviderStub) Now() time.Time {
 	return p.now
 }
 
+type SchedulerStub struct {
+	run bool
+}
+
+func (s *SchedulerStub) ShouldRun(_ int, _ int, _ time.Time, _ time.Time) bool {
+	return s.run
+}
+
 func TestRun_Disabled(t *testing.T) {
 	snapd := &SnapdStub{}
 	config := &UserConfigStub{auto: "no"}
 	backup := &BackupStub{}
 	timeProvider := &ProviderStub{}
-	job := NewBackupJob(snapd, config, backup, timeProvider, log.Default())
+	scheduler := &SchedulerStub{}
+	job := NewBackupJob(snapd, config, backup, timeProvider, scheduler, log.Default())
 	err := job.Run()
 
 	assert.Nil(t, err)
 	assert.False(t, backup.created)
 	assert.False(t, backup.restored)
-}
-
-func TestShouldRun(t *testing.T) {
-	monday0am := time.Date(2022, 11, 21, 0, 0, 0, 0, time.UTC)
-
-	job := NewBackupJob(&SnapdStub{}, &UserConfigStub{}, &BackupStub{}, &ProviderStub{}, log.Default())
-	zero := time.Time{}
-	assert.False(t, job.ShouldRun(1, 1, monday0am, zero))
-	assert.True(t, job.ShouldRun(1, 1, monday0am.Add(1*time.Hour), zero))
-	assert.False(t, job.ShouldRun(1, 1, monday0am.Add(25*time.Hour), zero))
-
-	monday0amlastweek := monday0am.AddDate(0, 0, -7)
-	assert.False(t, job.ShouldRun(1, 1, monday0am, monday0amlastweek.Add(1*time.Hour)))
-	assert.True(t, job.ShouldRun(1, 1, monday0am.Add(1*time.Hour), monday0amlastweek.Add(1*time.Hour)))
-	assert.False(t, job.ShouldRun(1, 1, monday0am.Add(25*time.Hour), monday0amlastweek.Add(1*time.Hour)))
-
-	assert.False(t, job.ShouldRun(0, 1, monday0am, zero))
-	assert.True(t, job.ShouldRun(0, 1, monday0am.Add(1*time.Hour), zero))
-	assert.True(t, job.ShouldRun(0, 1, monday0am.Add(25*time.Hour), zero))
-
-	assert.False(t, job.ShouldRun(0, 0, monday0am, monday0am))
-
-	assert.True(t, job.ShouldRun(0, 0, monday0am, zero))
-	assert.True(t, job.ShouldRun(1, 0, monday0am, zero))
-	assert.True(t, job.ShouldRun(7, 0, monday0am.AddDate(0, 0, 6), zero))
-
 }
