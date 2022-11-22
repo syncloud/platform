@@ -76,11 +76,19 @@ func (j *BackupJob) Run() error {
 
 func (j *BackupJob) ShouldRun(day int, hour int, now time.Time, last *time.Time) bool {
 	if last == nil {
-   if day == 0 {
-    return now.Hour() == hour
-   } else {
-    return int(now.Weekday())+1 == day && now.Hour() == hour
-   }
- }
- return false
+		if day == 0 {
+			return now.Hour() == hour
+		} else {
+			return j.weekDay(now) == day && now.Hour() == hour
+		}
+	}
+	return false
+}
+
+func (j *BackupJob) weekDay(now time.Time) int {
+	weekday := now.Weekday()
+	if weekday == time.Sunday {
+		return 7
+	}
+	return int(weekday)
 }

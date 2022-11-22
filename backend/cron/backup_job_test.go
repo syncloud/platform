@@ -79,13 +79,12 @@ func TestRun_Disabled(t *testing.T) {
 }
 
 func TestShouldRun(t *testing.T) {
- monday0am := time.Date(2022, 11, 21, 0, 0, 0, 0, time.UTC)
+	monday0am := time.Date(2022, 11, 21, 0, 0, 0, 0, time.UTC)
 
-	job := NewBackupJob(&SnapdStub{}, &UserConfigStub{},  &BackupStub{}, &ProviderStub{}, log.Default())
-	
- assert.False(t, job.ShouldRun(1, 1, monday0am, nil))
+	job := NewBackupJob(&SnapdStub{}, &UserConfigStub{}, &BackupStub{}, &ProviderStub{}, log.Default())
+
+	assert.False(t, job.ShouldRun(1, 1, monday0am, nil))
 	assert.True(t, job.ShouldRun(1, 1, monday0am.Add(1*time.Hour), nil))
 	assert.False(t, job.ShouldRun(1, 1, monday0am.Add(25*time.Hour), nil))
-	
-}
 
+}
