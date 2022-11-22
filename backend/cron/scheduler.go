@@ -5,6 +5,9 @@ import "time"
 type SimpleScheduler struct {
 }
 
+func NewSimpleScheduler() *SimpleScheduler {
+	return &SimpleScheduler{}
+}
 func (s *SimpleScheduler) ShouldRun(day int, hour int, now time.Time, last time.Time) bool {
 	if now.Truncate(time.Hour) == last.Truncate(time.Hour) {
 		return false

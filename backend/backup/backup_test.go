@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/log"
@@ -79,7 +80,16 @@ func (u *UserConfigStub) SetBackupAutoHour(hour int) {
 	u.hour = hour
 }
 
-func TestRemove(t *testing.T) {
+type ProviderStub struct {
+	now time.Time
+}
+
+func (p ProviderStub) Now() time.Time {
+	p.now = p.now.AddDate(0, 0, 1)
+	return p.now
+}
+
+func TestBackup_Remove(t *testing.T) {
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 	tmpFile := filepath.Join(backupDir, "tmpfile")
@@ -94,6 +104,7 @@ func TestRemove(t *testing.T) {
 		&SnapServiceStub{},
 		&SnapInfoStub{},
 		&UserConfigStub{},
+		&ProviderStub{},
 		log.Default())
 	err := backup.Remove("tmpfile")
 	assert.Nil(t, err)
@@ -102,7 +113,7 @@ func TestRemove(t *testing.T) {
 	assert.Equal(t, len(list), 0)
 }
 
-func TestBackup(t *testing.T) {
+func TestBackup_Create(t *testing.T) {
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 	appDir := filepath.Join(varDir, "test-app")
@@ -132,6 +143,7 @@ func TestBackup(t *testing.T) {
 		&SnapServiceStub{versionDir: versionDir},
 		&SnapInfoStub{},
 		&UserConfigStub{},
+		&ProviderStub{},
 		log.Default())
 	backup.Init()
 	err := backup.Create("test-app")
@@ -163,7 +175,7 @@ func TestBackup(t *testing.T) {
 
 }
 
-func TestAuto(t *testing.T) {
+func TestBackup_Auto(t *testing.T) {
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 	tmpFile := filepath.Join(backupDir, "tmpfile")
@@ -178,6 +190,7 @@ func TestAuto(t *testing.T) {
 		&SnapServiceStub{},
 		&SnapInfoStub{},
 		&UserConfigStub{auto: "no", day: 0, hour: 0},
+		&ProviderStub{},
 		log.Default())
 
 	auto := backup.Auto()

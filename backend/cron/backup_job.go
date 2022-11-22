@@ -1,10 +1,19 @@
 package cron
 
 import (
+	"fmt"
+	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 	"time"
+)
+
+const (
+	AutoNo      = "no"
+	AutoBackup  = "backup"
+	AutoRestore = "restore"
 )
 
 type BackupJob struct {
@@ -31,6 +40,7 @@ type UserConfig interface {
 type Backup interface {
 	Create(app string) error
 	Restore(fileName string) error
+	List() ([]backup.File, error)
 }
 
 type Scheduler interface {
@@ -49,33 +59,68 @@ func NewBackupJob(snapd Snapd, config UserConfig, backup Backup, provider date.P
 }
 
 func (j *BackupJob) Run() error {
-	snaps, err := j.snapd.InstalledUserApps()
+	apps, err := j.snapd.InstalledUserApps()
 	if err != nil {
 		return err
 	}
 	auto := j.config.GetBackupAuto()
-	if auto == "no" {
-		j.logger.Info("auto backup is disabled", zap.String("auto", auto))
+	if auto == AutoNo {
+		j.logger.Info("auto backup is disabled")
 		return nil
 	}
 	day := j.config.GetBackupAutoDay()
 	hour := j.config.GetBackupAutoHour()
 	now := j.provider.Now()
-	for _, snap := range snaps {
-		last := j.config.GetBackupAppTime(snap.Name, auto)
+	for _, app := range apps {
+		last := j.config.GetBackupAppTime(app.Name, auto)
 		if j.scheduler.ShouldRun(day, hour, now, last) {
-			if auto == "backup" {
-				err = j.backup.Create(snap.Name)
-				if err != nil {
-					j.logger.Error("failed", zap.String("app", snap.Name), zap.Error(err))
-				}
+			if auto == AutoBackup {
+				j.runBackup(app, now)
 			} else {
-				err = j.backup.Restore("file")
-				if err != nil {
-					j.logger.Error("failed", zap.String("app", snap.Name), zap.Error(err))
-				}
+				j.runRestore(app, now)
 			}
 		}
 	}
 	return nil
+}
+
+func (j *BackupJob) runRestore(app model.SyncloudApp, now time.Time) {
+	latestBackup, err := j.LatestBackup(app.Name)
+	if err != nil {
+		j.logger.Info("no backups to restore yet", zap.String("app", app.Name))
+		return
+	}
+	err = j.backup.Restore(latestBackup)
+	if err != nil {
+		j.logger.Error("failed", zap.String("app", app.Name), zap.Error(err))
+		return
+	}
+	j.config.SetBackupAppTime(app.Name, AutoRestore, now)
+}
+
+func (j *BackupJob) runBackup(app model.SyncloudApp, now time.Time) {
+	err := j.backup.Create(app.Name)
+	if err != nil {
+		j.logger.Error("failed", zap.String("app", app.Name), zap.Error(err))
+		return
+	}
+	j.config.SetBackupAppTime(app.Name, AutoBackup, now)
+}
+
+func (j *BackupJob) LatestBackup(app string) (string, error) {
+	list, err := j.backup.List()
+	if err != nil {
+		return "", err
+	}
+	var appFiles []string
+	for _, file := range list {
+		if file.App == app {
+			appFiles = append(appFiles, file.File)
+		}
+	}
+	if len(appFiles) > 0 {
+		slices.Sort(appFiles)
+		return appFiles[len(appFiles)-1], nil
+	}
+	return "", fmt.Errorf("not found")
 }
