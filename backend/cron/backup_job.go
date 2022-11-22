@@ -75,5 +75,12 @@ func (j *BackupJob) Run() error {
 }
 
 func (j *BackupJob) ShouldRun(day int, hour int, now time.Time, last *time.Time) bool {
-	return true
+	if last == nil {
+   if day == 0 {
+    return now.Hour() == hour
+   } else {
+    return int(now.Weekday())+1 == day && now.Hour() == hour
+   }
+ }
+ return false
 }
