@@ -23,7 +23,7 @@ type UserConfig interface {
 	GetBackupAuto() string
 	GetBackupAutoDay() int
 	GetBackupAutoHour() int
-	GetBackupAppTime(string, string) *time.Time
+	GetBackupAppTime(string, string) time.Time
 	SetBackupAppTime(string, string, time.Time)
 }
 
@@ -74,15 +74,18 @@ func (j *BackupJob) Run() error {
 	return nil
 }
 
-func (j *BackupJob) ShouldRun(day int, hour int, now time.Time, last *time.Time) bool {
-	if last == nil {
-		if day == 0 {
-			return now.Hour() == hour
-		} else {
-			return j.weekDay(now) == day && now.Hour() == hour
-		}
+func (j *BackupJob) ShouldRun(day int, hour int, now time.Time, last time.Time) bool {
+	if now.Truncate(time.Hour) == last.Truncate(time.Hour) {
+		return false
 	}
-	return false
+	if day == 0 {
+		return now.Hour() == hour
+	} else {
+		if j.weekDay(now) == day {
+			return now.Hour() == hour
+		}
+		return false
+	}
 }
 
 func (j *BackupJob) weekDay(now time.Time) int {

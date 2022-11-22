@@ -19,7 +19,7 @@ type UserConfigStub struct {
 	auto string
 	day  int
 	hour int
-	last *time.Time
+	last time.Time
 }
 
 func (c *UserConfigStub) GetBackupAuto() string {
@@ -34,12 +34,12 @@ func (c *UserConfigStub) GetBackupAutoHour() int {
 	return c.hour
 }
 
-func (c *UserConfigStub) GetBackupAppTime(_ string, _ string) *time.Time {
+func (c *UserConfigStub) GetBackupAppTime(_ string, _ string) time.Time {
 	return c.last
 }
 
 func (c *UserConfigStub) SetBackupAppTime(_ string, _ string, last time.Time) {
-	c.last = &last
+	c.last = last
 }
 
 type BackupStub struct {
@@ -82,9 +82,24 @@ func TestShouldRun(t *testing.T) {
 	monday0am := time.Date(2022, 11, 21, 0, 0, 0, 0, time.UTC)
 
 	job := NewBackupJob(&SnapdStub{}, &UserConfigStub{}, &BackupStub{}, &ProviderStub{}, log.Default())
+	zero := time.Time{}
+	assert.False(t, job.ShouldRun(1, 1, monday0am, zero))
+	assert.True(t, job.ShouldRun(1, 1, monday0am.Add(1*time.Hour), zero))
+	assert.False(t, job.ShouldRun(1, 1, monday0am.Add(25*time.Hour), zero))
 
-	assert.False(t, job.ShouldRun(1, 1, monday0am, nil))
-	assert.True(t, job.ShouldRun(1, 1, monday0am.Add(1*time.Hour), nil))
-	assert.False(t, job.ShouldRun(1, 1, monday0am.Add(25*time.Hour), nil))
+	monday0amlastweek := monday0am.AddDate(0, 0, -7)
+	assert.False(t, job.ShouldRun(1, 1, monday0am, monday0amlastweek.Add(1*time.Hour)))
+	assert.True(t, job.ShouldRun(1, 1, monday0am.Add(1*time.Hour), monday0amlastweek.Add(1*time.Hour)))
+	assert.False(t, job.ShouldRun(1, 1, monday0am.Add(25*time.Hour), monday0amlastweek.Add(1*time.Hour)))
+
+	assert.False(t, job.ShouldRun(0, 1, monday0am, zero))
+	assert.True(t, job.ShouldRun(0, 1, monday0am.Add(1*time.Hour), zero))
+	assert.True(t, job.ShouldRun(0, 1, monday0am.Add(25*time.Hour), zero))
+
+	assert.False(t, job.ShouldRun(0, 0, monday0am, monday0am))
+
+	assert.True(t, job.ShouldRun(0, 0, monday0am, zero))
+	assert.True(t, job.ShouldRun(1, 0, monday0am, zero))
+	assert.True(t, job.ShouldRun(7, 0, monday0am.AddDate(0, 0, 6), zero))
 
 }

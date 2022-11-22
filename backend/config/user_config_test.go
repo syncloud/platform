@@ -164,9 +164,11 @@ func TestBackupAppTime(t *testing.T) {
 	_ = os.Remove(db)
 	config := NewUserConfig(db, tempFile().Name())
 	config.Load()
+	zero := config.GetBackupAppTime("app1", "backup")
+	assert.True(t, zero.IsZero())
 	timesatamp := time.Now()
 	config.SetBackupAppTime("app1", "backup", timesatamp)
-	assert.Equal(t, time.Unix(timesatamp.Unix(), 0), *config.GetBackupAppTime("app1", "backup"))
+	assert.Equal(t, time.Unix(timesatamp.Unix(), 0), config.GetBackupAppTime("app1", "backup"))
 }
 
 func TestDefaultInt(t *testing.T) {

@@ -420,13 +420,12 @@ func (c *UserConfig) SetBackupAutoHour(hour int) {
 	c.Upsert("platform.backup_auto_hour", strconv.Itoa(hour))
 }
 
-func (c *UserConfig) GetBackupAppTime(app string, mode string) *time.Time {
+func (c *UserConfig) GetBackupAppTime(app string, mode string) time.Time {
 	value := c.GetOrNilInt64(fmt.Sprintf("platform.backup.%s.%s", app, mode))
 	if value == nil {
-		return nil
+		return time.Time{}
 	}
-	unix := time.Unix(*value, 0)
-	return &unix
+	return time.Unix(*value, 0)
 }
 
 func (c *UserConfig) SetBackupAppTime(app string, mode string, time time.Time) {
