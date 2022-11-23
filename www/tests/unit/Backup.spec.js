@@ -52,7 +52,7 @@ test('show list of backups', async () => {
   expect(wrapper.text()).toContain('files-2019-0515-123506.tar.gz')
   expect(wrapper.find('#auto').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-day').attributes().disabled).toBeDefined()
-  expect(wrapper.find('#auto-time').attributes().disabled).toBeDefined()
+  expect(wrapper.find('#auto-hour').attributes().disabled).toBeDefined()
 
   wrapper.unmount()
 })
@@ -112,7 +112,7 @@ test('save auto mode', async () => {
 
   expect(wrapper.find('#auto').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-day').attributes().disabled).not.toBeDefined()
-  expect(wrapper.find('#auto-time').attributes().disabled).not.toBeDefined()
+  expect(wrapper.find('#auto-hour').attributes().disabled).not.toBeDefined()
   
   // await wrapper.find('#auto').trigger('click')
   // await flushPromises()
