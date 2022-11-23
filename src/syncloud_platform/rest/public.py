@@ -183,6 +183,7 @@ def app_image():
 @app.route("/rest/backup/create", methods=["POST"])
 @app.route("/rest/backup/restore", methods=["POST"])
 @app.route("/rest/backup/remove", methods=["POST"])
+@app.route("/rest/backup/auto", methods=["GET", "POST"])
 @app.route("/rest/installer/upgrade", methods=["POST"])
 @app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
