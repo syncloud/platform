@@ -97,7 +97,7 @@ export default {
       data: [],
       search: '',
       auto: 'no',
-      autoDay: '0',
+      autoDay: 0,
       autoTime: 0,
       visibility: 'hidden'
     }
