@@ -67,11 +67,11 @@ test('save auto mode', async () => {
   )
   let auto = 'backup'
   let autoDay = 1
-  let autoTime = 2
+  let autoHour = 2
   mock.onGet('/rest/backup/auto').reply(200,
     {
       success: true,
-      data: { auto: auto, day: autoDay, time: autoTime}
+      data: { auto: auto, day: autoDay, hour: autoHour}
     }
   )
   let saved = false
@@ -79,7 +79,7 @@ test('save auto mode', async () => {
     let request = JSON.parse(config.data)
     auto = request.auto
     autoDay = request.day
-    autoTime = request.time
+    autoHour = request.hour
     saved = true
     return [200, { success: true }]
   })
@@ -127,7 +127,7 @@ test('save auto mode', async () => {
 
   expect(auto).toBe('backup')
   expect(autoDay).toBe(1)
-  expect(autoTime).toBe(2)
+  expect(autoHour).toBe(2)
   expect(saved).toBe(true)
   
   wrapper.unmount()

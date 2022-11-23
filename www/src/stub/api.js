@@ -361,8 +361,8 @@ export function mock () {
           success: true,
           data: {
             auto: 'no',
-            auto_day: 0,
-            auto_time: 0
+            day: 0,
+            hour: 0
           }
         })
       })

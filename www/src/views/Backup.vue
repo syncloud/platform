@@ -23,8 +23,8 @@
                   <el-option label="Saturday" value="6"/>
                   <el-option label="Sunday" value="7"/>
                 </el-select>
-                <el-select id="auto-time" v-model="autoTime" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
-                  <el-option v-for="hour in 24" :key="hour-1" :label="hour-1 + ':00'" :value="hour-1"/>
+                <el-select id="auto-hour" v-model="autoHour" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
+                  <el-option v-for="hour in 24" :id="'auto_hour_' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'" :value="hour-1"/>
                 </el-select>
               </div>
               <div style="padding-top:10px; padding-bottom: 10px; padding-right: 10px; display: inline-block; float: right">
@@ -98,7 +98,7 @@ export default {
       search: '',
       auto: 'no',
       autoDay: 0,
-      autoTime: 0,
+      autoHour: 0,
       visibility: 'hidden'
     }
   },
@@ -182,14 +182,14 @@ export default {
         .then((response) => {
           this.auto = response.data.data.auto
           this.autoDay = response.data.data.day
-          this.autoTime = response.data.data.time
+          this.autoHour = response.data.data.hour
           this.progressHide()
         })
         .catch(this.showError)
     },
     saveAuto () {
       axios.post('/rest/backup/auto',
-        { auto: this.auto, day: this.autoDay, time: this.autoTime })
+        { auto: this.auto, day: this.autoDay, hour: this.autoHour })
         .catch(this.showError)
     }
   }

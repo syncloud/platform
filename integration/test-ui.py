@@ -166,12 +166,18 @@ def test_settings_support(driver, ui_mode, screenshot_dir):
     screenshots(driver, screenshot_dir, 'settings_support-' + ui_mode)
 
 
-def test_settings_backup(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'backup')
-    header = "//h1[text()='Backup']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_backup-' + ui_mode)
-
+def test_settings_backup(selenium, ui_mode, screenshot_dir):
+    settings(selenium.driver, screenshot_dir, ui_mode, 'backup')
+    selenium.find_by_xpath("//h1[text()='Backup']")
+    selenium.screenshot('settings_backup')
+    selenium.find_by_id("auto").click()
+    selenium.find_by_id("auto_backup").click()
+    selenium.find_by_id("auto_day").click()
+    selenium.find_by_id("auto_day_monday").click()
+    selenium.find_by_id("auto_hour").click()
+    selenium.find_by_id("auto_hour_1").click()
+    selenium.find_by_id("save").click()
+    selenium.screenshot('settings_backup_saved')
 
 def test_settings_certificate(driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'certificate')
