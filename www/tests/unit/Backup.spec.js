@@ -114,12 +114,12 @@ test('save auto mode', async () => {
   expect(wrapper.find('#auto-day').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-hour').attributes().disabled).not.toBeDefined()
   
-  // await wrapper.find('#auto').trigger('click')
-  // await flushPromises()
-  // await wrapper.find('#auto-backup').trigger('click')
+  await wrapper.find('#auto').trigger('click')
+  //await flushPromises()
+  //await wrapper.find('#auto-backup').trigger('click')
   
-  // await wrapper.find('#auto-day').trigger('click')
-  // await wrapper.find('#auto-day-monday').trigger('click')
+  //await wrapper.find('#auto-day').trigger('click')
+//  await wrapper.find('#auto-day-monday').trigger('click')
   
   await wrapper.find('#save').trigger('click')
   
