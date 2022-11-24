@@ -367,6 +367,19 @@ export function mock () {
         })
       })
 
+      this.post('/rest/backup/auto', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+  
+        return new Response(200, {}, {
+          success: true,
+          data: {
+            auto: attrs.auto,
+            day: attrs.day,
+            hour: attrs.auto
+          }
+        })
+      })
+
       this.post('/rest/backup/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         backups = backups.filter(v => v.file !== attrs.file)

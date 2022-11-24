@@ -14,17 +14,17 @@
                   <el-option id="auto-restore" label="Restore" value="restore"/>
                 </el-select>
                 <el-select id="auto-day" v-model="autoDay" class="m-2" style="width: 130px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
-                  <el-option id="auto-day-every" label="Every day" value="0"/>
-                  <el-option id="auto-day-monday" label="Monday" value="1"/>
-                  <el-option label="Tuesday" value="2"/>
-                  <el-option label="Wednesday" value="3"/>
-                  <el-option label="Thursday" value="4"/>
-                  <el-option label="Friday" value="5"/>
-                  <el-option label="Saturday" value="6"/>
-                  <el-option label="Sunday" value="7"/>
+                  <el-option id="auto-day-every" label="Every day" :value=0 />
+                  <el-option id="auto-day-monday" label="Monday" :value=1 />
+                  <el-option label="Tuesday" :value=2 />
+                  <el-option label="Wednesday" :value=3 />
+                  <el-option label="Thursday" :value=4 />
+                  <el-option label="Friday" :value=5 />
+                  <el-option label="Saturday" :value=6 />
+                  <el-option label="Sunday" :value=7 />
                 </el-select>
                 <el-select id="auto-hour" v-model="autoHour" class="m-2" style="width: 90px; padding-right: 10px" placeholder="Select" :disabled="auto === 'no'">
-                  <el-option v-for="hour in 24" :id="'auto-hour-' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'" :value="hour-1"/>
+                  <el-option v-for="hour in 24" :id="'auto-hour-' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'" :value="(hour-1)"/>
                 </el-select>
               </div>
               <div style="padding-top:10px; padding-bottom: 10px; padding-right: 10px; display: inline-block; float: right">
@@ -36,7 +36,7 @@
             <div class="row-no-gutters settingsblock">
               <el-table :data="filteredData"
                         style="width: 100%" table-layout="fixed">
-                <el-table-column label="Name" prop="file" sortable/>
+                <el-table-column label="Name" prop="file" :sortable=true />
                 <el-table-column align="right" width="200px">
                   <template #header>
                     <el-input v-model="search" size="small" placeholder="Type to search"/>
