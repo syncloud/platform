@@ -228,8 +228,8 @@ def menu(selenium, element_id):
                 find_id = element_id + '_mobile'
                 selenium.find_by_id('menubutton').click()
                 selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, find_id)))
-            selenium.wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, find_id)))
-            selenium.selenium.screenshot(element_id + '-' + ui_mode)
+            selenium.wait_or_screenshot(selenium.driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, find_id)))
+            selenium.screenshot(element_id + '-' + ui_mode)
             selenium.find_element_by_id(find_id).click()
             if selenium.ui_mode == "mobile":
                 selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
