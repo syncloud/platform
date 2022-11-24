@@ -5,9 +5,7 @@ import pytest
 import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from syncloudlib.integration.hosts import add_host_alias
-from syncloudlib.integration.screenshots import screenshots
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
@@ -100,7 +98,7 @@ def test_index(selenium, device_user, device_password):
 
 def test_settings(selenium):
     menu(selenium, 'settings')
-    selenium.find_by_xpath("//h1[text()='Settings']"((By.XPATH, header)))
+    selenium.find_by_xpath("//h1[text()='Settings']")
     selenium.screenshot('settings')
 
 
@@ -166,6 +164,7 @@ def test_settings_backup(selenium):
     selenium.screenshot('settings_backup_saved')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
 
+
 def test_settings_certificate(selenium):
     settings(selenium, 'certificate')
     selenium.find_by_xpath("//h1[text()='Certificate']")
@@ -183,7 +182,6 @@ def test_installed_app(selenium):
     menu(selenium, 'appcenter')
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']")
-    selenium.find_by_xpath(files).click()
     selenium.find_by_xpath("//h1[text()='File browser']")
     selenium.screenshot('app_installed')
 
@@ -228,8 +226,7 @@ def menu(selenium, element_id):
                 find_id = element_id + '_mobile'
                 selenium.find_by_id('menubutton').click()
                 selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, find_id)))
-            selenium.wait_or_screenshot(selenium.driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, find_id)))
-            selenium.screenshot(element_id + '-' + ui_mode)
+            selenium.wait_or_screenshot(EC.element_to_be_clickable((By.ID, find_id)))
             selenium.find_element_by_id(find_id).click()
             if selenium.ui_mode == "mobile":
                 selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
