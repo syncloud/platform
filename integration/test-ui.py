@@ -170,6 +170,7 @@ def test_settings_backup(selenium, ui_mode, screenshot_dir):
     settings(selenium.driver, screenshot_dir, ui_mode, 'backup')
     selenium.find_by_xpath("//h1[text()='Backup']")
     selenium.screenshot('settings_backup')
+    assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
     selenium.find_by_id("auto").click()
     selenium.find_by_id("auto-backup").click()
     selenium.find_by_id("auto-day").click()
@@ -178,6 +179,7 @@ def test_settings_backup(selenium, ui_mode, screenshot_dir):
     selenium.find_by_id("auto-hour-1").click()
     selenium.find_by_id("save").click()
     selenium.screenshot('settings_backup_saved')
+    assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
 
 def test_settings_certificate(driver, ui_mode, screenshot_dir):
     settings(driver, screenshot_dir, ui_mode, 'certificate')
