@@ -72,7 +72,7 @@ func (j *BackupJob) Run() error {
 	hour := j.config.GetBackupAutoHour()
 	now := j.provider.Now()
 	for _, app := range apps {
-		last := j.config.GetBackupAppTime(app.Name, auto)
+		last := j.config.GetBackupAppTime(app.Id, auto)
 		if j.scheduler.ShouldRun(day, hour, now, last) {
 			if auto == AutoBackup {
 				j.runBackup(app, now)
@@ -85,26 +85,26 @@ func (j *BackupJob) Run() error {
 }
 
 func (j *BackupJob) runRestore(app model.SyncloudApp, now time.Time) {
-	latestBackup, err := j.LatestBackup(app.Name)
+	latestBackup, err := j.LatestBackup(app.Id)
 	if err != nil {
-		j.logger.Info("no backups to restore yet", zap.String("app", app.Name))
+		j.logger.Info("no backups to restore yet", zap.String("app", app.Id))
 		return
 	}
 	err = j.backup.Restore(latestBackup)
 	if err != nil {
-		j.logger.Error("failed", zap.String("app", app.Name), zap.Error(err))
+		j.logger.Error("failed", zap.String("app", app.Id), zap.Error(err))
 		return
 	}
-	j.config.SetBackupAppTime(app.Name, AutoRestore, now)
+	j.config.SetBackupAppTime(app.Id, AutoRestore, now)
 }
 
 func (j *BackupJob) runBackup(app model.SyncloudApp, now time.Time) {
-	err := j.backup.Create(app.Name)
+	err := j.backup.Create(app.Id)
 	if err != nil {
-		j.logger.Error("failed", zap.String("app", app.Name), zap.Error(err))
+		j.logger.Error("failed", zap.String("app", app.Id), zap.Error(err))
 		return
 	}
-	j.config.SetBackupAppTime(app.Name, AutoBackup, now)
+	j.config.SetBackupAppTime(app.Id, AutoBackup, now)
 }
 
 func (j *BackupJob) LatestBackup(app string) (string, error) {

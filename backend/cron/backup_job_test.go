@@ -11,11 +11,12 @@ import (
 )
 
 type SnapdStub struct {
-	app string
+	appName string
+	appID   string
 }
 
 func (s *SnapdStub) InstalledUserApps() ([]model.SyncloudApp, error) {
-	return []model.SyncloudApp{{Name: s.app}}, nil
+	return []model.SyncloudApp{{Name: s.appName, Id: s.appID}}, nil
 }
 
 type UserConfigStub struct {
@@ -108,7 +109,7 @@ func TestRun_Disabled(t *testing.T) {
 }
 
 func TestRun_Backup(t *testing.T) {
-	snapd := &SnapdStub{app: "app1"}
+	snapd := &SnapdStub{appID: "app1", appName: "App 1"}
 	config := &UserConfigStub{auto: "backup"}
 	backuper := &BackupStub{}
 	timeProvider := &ProviderStub{}
@@ -124,7 +125,7 @@ func TestRun_Backup(t *testing.T) {
 }
 
 func TestRun_Backup_Failed(t *testing.T) {
-	snapd := &SnapdStub{app: "app1"}
+	snapd := &SnapdStub{appID: "app1", appName: "App 1"}
 	config := &UserConfigStub{auto: "backup"}
 	backuper := &BackupStub{err: fmt.Errorf("expected error")}
 	timeProvider := &ProviderStub{}
@@ -140,7 +141,7 @@ func TestRun_Backup_Failed(t *testing.T) {
 }
 
 func TestRun_Restore(t *testing.T) {
-	snapd := &SnapdStub{app: "app1"}
+	snapd := &SnapdStub{appID: "app1", appName: "App 1"}
 	config := &UserConfigStub{auto: "restore"}
 	backuper := &BackupStub{
 		list: []backup.File{
@@ -160,7 +161,7 @@ func TestRun_Restore(t *testing.T) {
 }
 
 func TestRun_Restore_Failed(t *testing.T) {
-	snapd := &SnapdStub{app: "app1"}
+	snapd := &SnapdStub{appID: "app1", appName: "App 1"}
 	config := &UserConfigStub{auto: "restore"}
 	backuper := &BackupStub{err: fmt.Errorf("expected error")}
 	timeProvider := &ProviderStub{}
@@ -176,7 +177,7 @@ func TestRun_Restore_Failed(t *testing.T) {
 }
 
 func TestBackupJob_LatestBackup(t *testing.T) {
-	snapd := &SnapdStub{app: "app1"}
+	snapd := &SnapdStub{appID: "app1", appName: "App 1"}
 	config := &UserConfigStub{auto: "restore"}
 	backuper := &BackupStub{
 		list: []backup.File{

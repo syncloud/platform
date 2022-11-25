@@ -154,9 +154,9 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)
 	})
-	Singleton(func(executor *cli.ShellExecutor) *systemd.JournalCtl { return systemd.NewJournalCtl(executor) })
+	Singleton(func(executor *cli.ShellExecutor) *systemd.Journal { return systemd.NewJournal(executor) })
 
-	Singleton(func(certGenerator *cert.CertificateGenerator, journalCtl *systemd.JournalCtl) *rest.Certificate {
+	Singleton(func(certGenerator *cert.CertificateGenerator, journalCtl *systemd.Journal) *rest.Certificate {
 		return rest.NewCertificate(certGenerator, journalCtl)
 	})
 
@@ -183,7 +183,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks, journalCtl)
