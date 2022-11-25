@@ -206,7 +206,7 @@ def app_image():
 @login_required
 def backend_proxy_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
-    return Response(response.text, response.status_code, response.headers)
+    return response.text, response.status_code, response.headers
 
 
 @app.route("/rest/redirect/domain/availability", methods=["POST"])
