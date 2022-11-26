@@ -181,7 +181,7 @@ def test_app_center(selenium):
 def test_installed_app(selenium):
     menu(selenium, 'appcenter')
     selenium.find_by_xpath("//h1[text()='App Center']")
-    selenium.find_by_xpath("//span[text()='File browser']")
+    selenium.find_by_xpath("//span[text()='File browser']").click()
     selenium.find_by_xpath("//h1[text()='File browser']")
     selenium.screenshot('app_installed')
 
