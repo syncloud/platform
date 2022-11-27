@@ -62,14 +62,7 @@ a {
     color: #292b30;
     text-decoration: none;
 }
-button:active {
-    outline: none;
-    border: none;
-}
-button:focus {
-    outline: none;
-    border: none;
-}
+
 ::-webkit-input-placeholder {
     color: #6a6e72;
     font-family: 'Roboto', Sans-serif, serif;
