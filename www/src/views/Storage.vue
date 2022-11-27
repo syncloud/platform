@@ -144,8 +144,7 @@ import 'bootstrap'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import Confirmation from '../components/Confirmation.vue'
-import { ElLoading } from 'element-plus'
-import { ElNotification } from 'element-plus'
+import { ElLoading, ElNotification } from 'element-plus'
 
 export default {
   name: 'Storage',
@@ -196,7 +195,7 @@ export default {
           if (activeDisks && activeDisks.length > 0) {
             this.activeMultiDisks = activeDisks
           } else {
-            let activePartition = this.disks.flatMap(d => d.partitions).find(p => p.active)
+            const activePartition = this.disks.flatMap(d => d.partitions).find(p => p.active)
             if (activePartition) {
               this.activeSinglePartition = activePartition.device
               this.multiMode = false
@@ -209,14 +208,14 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    checkProgress() {
+    checkProgress () {
       axios.get('/rest/job/status')
         .then(resp => {
           if (resp.data.data.name.startsWith('storage.')) {
             ElNotification({
               title: 'Current change',
               message: 'Is in progress',
-              type: 'warning',
+              type: 'warning'
             })
           }
         })
@@ -225,7 +224,7 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    checkError() {
+    checkError () {
       axios.get('/rest/storage/error/last')
         .catch(err => {
           ElNotification({
@@ -241,11 +240,11 @@ export default {
       axios.post('/rest/storage/error/clear')
     },
     descriptionByDisk (device) {
-      let disk = this.disks.find(d => d.device === device)
+      const disk = this.disks.find(d => d.device === device)
       return disk.name + ' - ' + disk.size
     },
     descriptionByPartition (device) {
-      let disk = this.disks.find(d => d.partitions.some(p => p.device === device))
+      const disk = this.disks.find(d => d.partitions.some(p => p.device === device))
       return disk.name + ' - ' + disk.partitions.find(p => p.device === device).size
     },
     diskActionCancel () {

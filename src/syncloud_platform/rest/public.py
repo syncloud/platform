@@ -183,6 +183,7 @@ def app_image():
 @app.route("/rest/backup/create", methods=["POST"])
 @app.route("/rest/backup/restore", methods=["POST"])
 @app.route("/rest/backup/remove", methods=["POST"])
+@app.route("/rest/backup/auto", methods=["GET", "POST"])
 @app.route("/rest/installer/upgrade", methods=["POST"])
 @app.route("/rest/installer/version", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
@@ -205,7 +206,8 @@ def app_image():
 @login_required
 def backend_proxy_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
-    return response.text, response.status_code
+    headers = { 'Content-Type': response.headers['Content-Type']}
+    return response.text, response.status_code, headers
 
 
 @app.route("/rest/redirect/domain/availability", methods=["POST"])

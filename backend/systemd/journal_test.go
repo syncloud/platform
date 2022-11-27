@@ -24,7 +24,7 @@ func Test_ReadBackend(t *testing.T) {
 1 log {"category": "cat1", "key": "value"}
 `,
 	}
-	reader := NewJournalCtl(journalCtl)
+	reader := NewJournal(journalCtl)
 	logs := reader.ReadBackend(func(line string) bool {
 		return strings.Contains(line, fmt.Sprintf(`"%s": "%s"`, "category", "cat1"))
 	})

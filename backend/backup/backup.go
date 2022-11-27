@@ -2,17 +2,15 @@ package backup
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"regexp"
-	"time"
-
 	cp "github.com/otiai10/copy"
 	df "github.com/ricochet2200/go-disk-usage/du"
 	"github.com/syncloud/platform/cli"
+	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
+	"os"
+	"path/filepath"
 )
 
 type SnapService interface {
@@ -25,14 +23,25 @@ type SnapInfo interface {
 	Snap(name string) (model.Snap, error)
 }
 
+type UserConfig interface {
+	GetBackupAuto() string
+	SetBackupAuto(auto string)
+	GetBackupAutoDay() int
+	SetBackupAutoDay(day int)
+	GetBackupAutoHour() int
+	SetBackupAutoHour(hour int)
+}
+
 type Backup struct {
-	backupDir  string
-	varDir     string
-	executor   cli.Executor
-	snapCli    SnapService
-	snapServer SnapInfo
-	diskusage  du.DiskUsage
-	logger     *zap.Logger
+	backupDir    string
+	varDir       string
+	executor     cli.Executor
+	snapCli      SnapService
+	snapServer   SnapInfo
+	diskusage    du.DiskUsage
+	userConfig   UserConfig
+	timeProvider date.Provider
+	logger       *zap.Logger
 }
 
 const (
@@ -44,15 +53,25 @@ const (
 	RestorePostStart = "restore-post-start"
 )
 
-func New(dir string, varDir string, executor cli.Executor, diskusage du.DiskUsage, snapCli SnapService, snapServer SnapInfo, logger *zap.Logger) *Backup {
+func New(dir string,
+	varDir string,
+	executor cli.Executor,
+	diskusage du.DiskUsage,
+	snapCli SnapService,
+	snapServer SnapInfo,
+	userConfig UserConfig,
+	timeProvider date.Provider,
+	logger *zap.Logger) *Backup {
 	return &Backup{
-		backupDir:  dir,
-		varDir:     varDir,
-		executor:   executor,
-		diskusage:  diskusage,
-		snapCli:    snapCli,
-		snapServer: snapServer,
-		logger:     logger,
+		backupDir:    dir,
+		varDir:       varDir,
+		executor:     executor,
+		diskusage:    diskusage,
+		snapCli:      snapCli,
+		snapServer:   snapServer,
+		userConfig:   userConfig,
+		timeProvider: timeProvider,
+		logger:       logger,
 	}
 }
 
@@ -65,6 +84,20 @@ func (b *Backup) Init() {
 	}
 }
 
+func (b *Backup) Auto() Auto {
+	return Auto{
+		Auto: b.userConfig.GetBackupAuto(),
+		Day:  b.userConfig.GetBackupAutoDay(),
+		Hour: b.userConfig.GetBackupAutoHour(),
+	}
+}
+
+func (b *Backup) SetAuto(auto Auto) {
+	b.userConfig.SetBackupAuto(auto.Auto)
+	b.userConfig.SetBackupAutoDay(auto.Day)
+	b.userConfig.SetBackupAutoHour(auto.Hour)
+}
+
 func (b *Backup) List() ([]File, error) {
 	files, err := os.ReadDir(b.backupDir)
 	if err != nil {
@@ -73,14 +106,19 @@ func (b *Backup) List() ([]File, error) {
 	}
 	var names []File
 	for _, x := range files {
-		names = append(names, File{b.backupDir, x.Name()})
+		file, err := Parse(b.backupDir, x.Name())
+		if err != nil {
+			b.logger.Error("Cannot parse file name", zap.String("file", x.Name()), zap.Error(err))
+		} else {
+			names = append(names, file)
+		}
 	}
 
 	return names, nil
 }
 
 func (b *Backup) Create(app string) error {
-	now := time.Now().Format("2006-0102-150405")
+	now := b.timeProvider.Now().Format("2006-0102-150405")
 	file := fmt.Sprintf("%s/%s-%s.tar.gz", b.backupDir, app, now)
 	b.logger.Info("Running backup create", zap.String("app", app), zap.String("file", file))
 
@@ -179,19 +217,11 @@ func (b *Backup) Create(app string) error {
 }
 
 func (b *Backup) Restore(fileName string) error {
-	r, err := regexp.Compile(`(.*?)-\d{4}-\d{4}.*`)
+	file, err := Parse(b.backupDir, fileName)
 	if err != nil {
 		return err
 	}
-
-	matches := r.FindStringSubmatch(fileName)
-	if len(matches) < 2 {
-		return fmt.Errorf("backup file name should start with [app]-YYYY-MMDD-")
-	}
-	app := matches[1]
-
-	file := fmt.Sprintf("%s/%s", b.backupDir, fileName)
-	b.logger.Info("Running backup restore", zap.String("app", app), zap.String("file", file))
+	b.logger.Info("Running backup restore", zap.String("app", file.App), zap.String("file", file.FullName))
 
 	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
@@ -199,7 +229,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	fileStat, err := os.Stat(file)
+	fileStat, err := os.Stat(file.FullName)
 	if err != nil {
 		return err
 	}
@@ -213,18 +243,18 @@ func (b *Backup) Restore(fileName string) error {
 		return fmt.Errorf("not enough temp space for the restore")
 	}
 
-	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xf", file)
+	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xf", file.FullName)
 	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
 	if err != nil {
 		return err
 	}
 
-	err = b.snapCli.Stop(app)
+	err = b.snapCli.Stop(file.App)
 	if err != nil {
 		return err
 	}
 
-	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, app)
+	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, file.App)
 
 	currentDir := fmt.Sprintf("%s/current", appBaseDir)
 	_, err = b.executor.CombinedOutput("rm", "-rf", fmt.Sprintf("%s/*", currentDir))
@@ -248,7 +278,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	snap, err := b.snapServer.Snap(app)
+	snap, err := b.snapServer.Snap(file.App)
 	if err != nil {
 		return err
 	}
@@ -258,7 +288,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	err = b.snapCli.Start(app)
+	err = b.snapCli.Start(file.App)
 	if err != nil {
 		return err
 	}

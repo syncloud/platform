@@ -1,4 +1,4 @@
-package util
+package redirect
 
 type PassThroughJsonError struct {
 	Message string

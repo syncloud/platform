@@ -122,24 +122,23 @@ def test_id_before_activation(device_host):
     assert 'name' in response_json['data']
 
 
-def test_set_redirect(device, main_domain):
-    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-    device.run_ssh('snap run platform.cli config set certbot.staging true')
-
-
 def test_activate_custom(device, device_host, main_domain):
+    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
+    device.run_ssh('snap run platform.cli config set certbot.staging true')
     response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
                              json={'domain': 'example.com',
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
+    
+
+def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
-
-
-def test_activate_premium(device, device_host, main_domain, redirect_user, redirect_password, arch):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
@@ -147,13 +146,14 @@ def test_activate_premium(device, device_host, main_domain, redirect_user, redir
                                    'device_username': 'user1',
                                    'device_password': DEFAULT_LOGS_SSH_PASSWORD}, verify=False)
     assert response.status_code == 200, response.text
+    
+
+def test_activate_device(device, device_host, main_domain, full_domain, redirect_user, redirect_password):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
-
-
-def test_activate_device(device_host, full_domain, redirect_user, redirect_password):
     response = requests.post('https://{0}/rest/activate/managed'.format(device_host),
                              json={'redirect_email': redirect_user,
                                    'redirect_password': redirect_password,
@@ -178,6 +178,7 @@ def test_drop_activation(device, main_domain):
     device.run_ssh('rm /var/snap/platform/current/platform.db')
     device.run_ssh('ls -la /var/snap/platform/current')
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
+    device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
     device.run_ssh('snap run platform.cli config set certbot.staging true')
 
 
@@ -343,22 +344,17 @@ def test_cron(device):
     device.run_ssh('snap run platform.cli cron')
 
 
-def test_install_app(device, domain):
-    session = device.login()
-    session.post('https://{0}/rest/install'.format(domain), json={'app_id': 'files'}, verify=False)
-    wait_for_installer(session, domain, attempts=200)
-
-
 def test_rest_installed_apps(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/apps/installed'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.installed_apps.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
-    assert len(json.loads(response.text)['data']) == 2
+    assert len(json.loads(response.text)['data']) == 1
+
 
 def test_rest_installed_app(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/app?app_id=testapp'.format(domain), verify=False)
     assert response.status_code == 200
     with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)

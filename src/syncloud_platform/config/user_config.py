@@ -29,7 +29,7 @@ class PlatformUserConfig:
         return self._get('redirect.domain', 'syncloud.it')
 
     def get_redirect_api_url(self):
-        return "https://api.{}".format(self.get_redirect_domain())
+        return self._get('redirect.api_url', "https://api.{}".format(self.get_redirect_domain()))
 
     def get_user_update_token(self):
         return self._get('redirect.user_update_token')

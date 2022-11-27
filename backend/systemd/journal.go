@@ -5,22 +5,17 @@ import (
 	"strings"
 )
 
-type JournalCtl struct {
+type Journal struct {
 	executor cli.Executor
 }
 
-type JournalCtlReader interface {
-	ReadAll(predicate func(string) bool) []string
-	ReadBackend(predicate func(string) bool) []string
-}
-
-func NewJournalCtl(executor cli.Executor) *JournalCtl {
-	return &JournalCtl{
+func NewJournal(executor cli.Executor) *Journal {
+	return &Journal{
 		executor: executor,
 	}
 }
 
-func (c *JournalCtl) read(predicate func(string) bool, args ...string) []string {
+func (c *Journal) read(predicate func(string) bool, args ...string) []string {
 
 	args = append(args, "-n", "1000", "--no-pager")
 	output, err := c.executor.CombinedOutput("journalctl", args...)
@@ -41,10 +36,10 @@ func (c *JournalCtl) read(predicate func(string) bool, args ...string) []string 
 	return logs
 }
 
-func (c *JournalCtl) ReadAll(predicate func(string) bool) []string {
+func (c *Journal) ReadAll(predicate func(string) bool) []string {
 	return c.read(predicate)
 }
 
-func (c *JournalCtl) ReadBackend(predicate func(string) bool) []string {
+func (c *Journal) ReadBackend(predicate func(string) bool) []string {
 	return c.read(predicate, "-u", "snap.platform.backend")
 }

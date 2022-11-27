@@ -39,7 +39,7 @@ type Backend struct {
 	externalAddress *access.ExternalAddress
 	snapd           *snap.Server
 	disks           *storage.Disks
-	journalCtl      *systemd.JournalCtl
+	journalCtl      *systemd.Journal
 }
 
 func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
@@ -49,7 +49,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 	identification *identification.Parser,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 ) *Backend {
 
 	return &Backend{
@@ -99,6 +99,8 @@ func (b *Backend) Start(network string, address string) {
 	r := mux.NewRouter()
 	r.HandleFunc("/job/status", Handle(b.JobStatus)).Methods("GET")
 	r.HandleFunc("/backup/list", Handle(b.BackupList)).Methods("GET")
+	r.HandleFunc("/backup/auto", Handle(b.GetBackupAuto)).Methods("GET")
+	r.HandleFunc("/backup/auto", Handle(b.SetBackupAuto)).Methods("POST")
 	r.HandleFunc("/backup/create", Handle(b.BackupCreate)).Methods("POST")
 	r.HandleFunc("/backup/restore", Handle(b.BackupRestore)).Methods("POST")
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
@@ -197,6 +199,21 @@ func Handle(f func(req *http.Request) (interface{}, error)) func(w http.Response
 
 func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
 	return b.backup.List()
+}
+
+func (b *Backend) GetBackupAuto(_ *http.Request) (interface{}, error) {
+	return b.backup.Auto(), nil
+}
+
+func (b *Backend) SetBackupAuto(req *http.Request) (interface{}, error) {
+	var request backup.Auto
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("bad request")
+	}
+	b.backup.SetAuto(request)
+	return "OK", nil
 }
 
 func (b *Backend) BackupRemove(req *http.Request) (interface{}, error) {

@@ -11,10 +11,10 @@ type Cli struct {
 	logger   *zap.Logger
 }
 
-func NewCli(executor cli.Executor, logger   *zap.Logger) *Cli {
+func NewCli(executor cli.Executor, logger *zap.Logger) *Cli {
 	return &Cli{
 		executor: executor,
- logger: logger,
+		logger:   logger,
 	}
 }
 

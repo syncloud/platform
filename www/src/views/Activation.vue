@@ -79,7 +79,7 @@ export default {
       if (this.loading) {
         this.loading.close()
       }
-    },
+    }
   }
 }
 </script>

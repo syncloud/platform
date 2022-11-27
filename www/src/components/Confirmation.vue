@@ -5,11 +5,7 @@
         <slot name="title"></slot>
       </h4>
     </template>
-    <div class="bodymod">
-      <div class="btext">
-        <slot name="text"></slot>
-      </div>
-    </div>
+    <slot name="text"></slot>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="close">Cancel</el-button>
