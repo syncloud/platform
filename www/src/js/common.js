@@ -41,27 +41,9 @@ export function runAfterJobIsComplete (timeoutFunc, onComplete, onError, statusU
     .catch(err => {
       // Auth error means job is finished
       if (err.response !== undefined && err.response.status === 401) {
-        onError(err)
+        onComplete()
       } else {
         timeoutFunc(recheckFunc, recheckTimeout)
       }
     })
-}
-
-export function findApp (appsData, appId) {
-  for (const appData of appsData) {
-    if (appData.app.id === appId) {
-      return appData
-    }
-  }
-  return null
-}
-
-export function getValue (values, name) {
-  for (const value of values) {
-    if (value.name === name) {
-      return value.value
-    }
-  }
-  return null
 }

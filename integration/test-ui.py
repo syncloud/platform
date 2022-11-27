@@ -5,9 +5,7 @@ import pytest
 import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 from syncloudlib.integration.hosts import add_host_alias
-from syncloudlib.integration.screenshots import screenshots
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
@@ -53,9 +51,9 @@ def test_fake_cert(selenium, device, device_host):
     selenium.screenshot('fake-cert')
 
 
-def test_activate(driver, selenium, device_host,
+def test_activate(selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
-    driver.get("https://{0}".format(device_host))
+    selenium.driver.get("https://{0}".format(device_host))
     selenium.find_by_xpath("//h1[text()='Activate']")
     selenium.screenshot('activate-empty')
     selenium.find_by_id('btn_free_domain').click()
@@ -66,7 +64,6 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('domain_input').send_keys(domain)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
-    wait_for_loading(driver)
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
@@ -75,53 +72,44 @@ def test_activate(driver, selenium, device_host,
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
-    wait_for_loading(driver)
     selenium.find_by_xpath("//h1[text()='Log in']")
 
 
-def test_activate_again(driver, ui_mode, device_host, screenshot_dir):
-    driver.get("https://{0}/activate".format(device_host))
-    header = "//h1[text()='Log in']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'activate')
+def test_activate_again(selenium, device_host):
+    selenium.driver.get("https://{0}/activate".format(device_host))
+    selenium.find_by_xpath("//h1[text()='Log in']")
+    selenium.screenshot('activate')
 
 
-def test_login(driver, ui_mode, device_host, screenshot_dir):
-    driver.get("https://{0}".format(device_host))
-    header = "//h1[text()='Log in']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'login-' + ui_mode)
+def test_login(selenium, device_host):
+    selenium.driver.get("https://{0}".format(device_host))
+    selenium.find_by_xpath("//h1[text()='Log in']")
+    selenium.screenshot('login')
 
 
-def test_index(driver, ui_mode, device_user, device_password, screenshot_dir):
-    user = driver.find_element_by_id("username")
-    user.send_keys(device_user)
-    password = driver.find_element_by_id("password")
-    password.send_keys(device_password)
-    login = driver.find_element_by_id("btn_login")
-    login.click()
-    screenshots(driver, screenshot_dir, 'index-progress-' + ui_mode)
-    header = "//h1[text()='Applications']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'index-' + ui_mode)
+def test_index(selenium, device_user, device_password):
+    selenium.find_by_id("username").send_keys(device_user)
+    selenium.find_by_id("password").send_keys(device_password)
+    selenium.find_by_id("btn_login").click()
+    selenium.screenshot('index-progress')
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('index')
 
 
-def test_settings(driver, ui_mode, screenshot_dir):
-    menu(driver, ui_mode, screenshot_dir, 'settings')
-    header = "//h1[text()='Settings']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings-' + ui_mode)
+def test_settings(selenium):
+    menu(selenium, 'settings')
+    selenium.find_by_xpath("//h1[text()='Settings']")
+    selenium.screenshot('settings')
 
 
-def test_settings_activation(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'activation')
-    header = "//h1[text()='Activation']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_activation-' + ui_mode)
+def test_settings_activation(selenium):
+    settings(selenium, 'activation')
+    selenium.find_by_xpath("//h1[text()='Activation']")
+    selenium.screenshot('settings_activation')
 
 
-def test_settings_access(selenium, driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'access')
+def test_settings_access(selenium):
+    settings(selenium, 'access')
     selenium.find_by_xpath("//h1[text()='Access']")
     # selenium.find_by_xpath('//input[@id="tgl_ipv4_enabled"]/../span').click()
     selenium.find_by_xpath('//input[@id="tgl_ipv4_public"]/../span').click()
@@ -130,75 +118,72 @@ def test_settings_access(selenium, driver, ui_mode, screenshot_dir):
     selenium.screenshot('settings_access')
 
 
-def test_settings_network(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'network')
-    header = "//h1[text()='Network']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_network-' + ui_mode)
+def test_settings_network(selenium):
+    settings(selenium, 'network')
+    selenium.find_by_xpath("//h1[text()='Network']")
+    selenium.screenshot('settings_network')
 
 
-def test_settings_storage(driver, ui_mode, screenshot_dir, selenium):
-    settings(driver, screenshot_dir, ui_mode, 'storage')
-    header = "//h1[text()='Storage']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
+def test_settings_storage(selenium):
+    settings(selenium, 'storage')
+    selenium.find_by_xpath("//h1[text()='Storage']")
     selenium.find_by_id('btn_save')
-    screenshots(driver, screenshot_dir, 'settings_storage-' + ui_mode)
+    selenium.screenshot('settings_storage')
 
 
-def test_settings_updates(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'updates')
-    header = "//h1[text()='Updates']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_updates-' + ui_mode)
+def test_settings_updates(selenium):
+    settings(selenium, 'updates')
+    selenium.find_by_xpath("//h1[text()='Updates']")
+    selenium.screenshot('settings_updates')
 
 
-def test_settings_internal_memory(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'internalmemory')
-    header = "//h1[text()='Internal Memory']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_internal_memory-' + ui_mode)
+def test_settings_internal_memory(selenium):
+    settings(selenium, 'internalmemory')
+    selenium.find_by_xpath("//h1[text()='Internal Memory']")
+    selenium.screenshot('settings_internal_memory')
 
 
-def test_settings_support(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'support')
-    header = "//h1[text()='Support']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_support-' + ui_mode)
+def test_settings_support(selenium):
+    settings(selenium, 'support')
+    selenium.find_by_xpath("//h1[text()='Support']")
+    selenium.screenshot('settings_support')
 
 
-def test_settings_backup(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'backup')
-    header = "//h1[text()='Backup']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_backup-' + ui_mode)
+def test_settings_backup(selenium):
+    settings(selenium, 'backup')
+    selenium.find_by_xpath("//h1[text()='Backup']")
+    selenium.screenshot('settings_backup')
+    assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
+    selenium.find_by_id("auto").click()
+    selenium.find_by_id("auto-backup").click()
+    selenium.find_by_id("auto-day").click()
+    selenium.find_by_id("auto-day-monday").click()
+    selenium.find_by_id("auto-hour").click()
+    selenium.find_by_id("auto-hour-1").click()
+    selenium.find_by_id("save").click()
+    selenium.screenshot('settings_backup_saved')
+    assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
 
 
-def test_settings_certificate(driver, ui_mode, screenshot_dir):
-    settings(driver, screenshot_dir, ui_mode, 'certificate')
-    header = "//h1[text()='Certificate']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'settings_certificate-' + ui_mode)
+def test_settings_certificate(selenium):
+    settings(selenium, 'certificate')
+    selenium.find_by_xpath("//h1[text()='Certificate']")
+    selenium.screenshot('settings_certificate')
 
 
-def test_app_center(driver, ui_mode, screenshot_dir):
-    menu(driver, ui_mode, screenshot_dir, 'appcenter')
-    header = "//h1[text()='App Center']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    files = "//span[text()='File browser']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, files)))
-    screenshots(driver, screenshot_dir, 'appcenter-' + ui_mode)
+def test_app_center(selenium):
+    menu(selenium, 'appcenter')
+    selenium.find_by_xpath("//h1[text()='App Center']")
+    selenium.find_by_xpath("//span[text()='File browser']")
+    selenium.screenshot('appcenter')
 
 
-def test_installed_app(driver, ui_mode, screenshot_dir):
-    menu(driver, ui_mode, screenshot_dir, 'appcenter')
-    header = "//h1[text()='App Center']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    files = "//span[text()='File browser']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, files)))
-    driver.find_element_by_xpath(files).click()
-    header = "//h1[text()='File browser']"
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.XPATH, header)))
-    screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
+def test_installed_app(selenium):
+    menu(selenium, 'appcenter')
+    selenium.find_by_xpath("//h1[text()='App Center']")
+    selenium.find_by_xpath("//span[text()='File browser']").click()
+    selenium.find_by_xpath("//h1[text()='File browser']")
+    selenium.screenshot('app_installed')
 
 
 # def test_remove_app(driver, ui_mode, screenshot_dir):
@@ -209,7 +194,7 @@ def test_installed_app(driver, ui_mode, screenshot_dir):
 #     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
 #     driver.find_element_by_id(confirm).click()
 #     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
-#     screenshots(driver, screenshot_dir, 'app_removed-' + ui_mode)
+#     selenium.screenshot('app_removed-' + ui_mode)
 
 
 # def test_install_app(driver, ui_mode, screenshot_dir):
@@ -220,48 +205,31 @@ def test_installed_app(driver, ui_mode, screenshot_dir):
 #     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
 #     driver.find_element_by_id(confirm).click()
 #     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
-#     screenshots(driver, screenshot_dir, 'app_installed-' + ui_mode)
+#     selenium.screenshot('app_installed-' + ui_mode)
 
 
-def test_not_installed_app(driver, ui_mode, screenshot_dir, selenium):
-    menu(driver, ui_mode, screenshot_dir, 'appcenter')
-    nextcloud = "//span[text()='Nextcloud file sharing']"
-    selenium.find_by_xpath(nextcloud).click()
-    header = "//h1[text()='Nextcloud file sharing']"
-    selenium.find_by_xpath(header)
+def test_not_installed_app(selenium):
+    menu(selenium, 'appcenter')
+    selenium.find_by_xpath("//span[text()='Nextcloud file sharing']").click()
+    selenium.find_by_xpath("//h1[text()='Nextcloud file sharing']")
     selenium.screenshot('app_not_installed')
 
 
-def wait_or_screenshot(driver, ui_mode, screenshot_dir, method):
-    wait_driver = WebDriverWait(driver, 120)
-    try:
-        wait_driver.until(method)
-    except Exception as e:
-        screenshots(driver, screenshot_dir, 'exception-' + ui_mode)
-        raise e
-    wait_for_loading(driver)
-
-
-def menu(driver, ui_mode, screenshot_dir, element_id):
-    wait_driver = WebDriverWait(driver, 30)
+def menu(selenium, element_id):
     retries = 10
     retry = 0
     exception = None
     while retry < retries:
         try:
             find_id = element_id
-            if ui_mode == "mobile":
+            if selenium.ui_mode == "mobile":
                 find_id = element_id + '_mobile'
-                menubutton = driver.find_element_by_id('menubutton')
-                menubutton.click()
-                wait_driver.until(EC.visibility_of_element_located((By.ID, find_id)))
-            wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, find_id)))
-            screenshots(driver, screenshot_dir, element_id + '-' + ui_mode)
-            element = driver.find_element_by_id(find_id)
-            element.click()
-            if ui_mode == "mobile":
-                wait_driver.until(EC.invisibility_of_element_located((By.ID, find_id)))
-            wait_for_loading(driver)
+                selenium.find_by_id('menubutton').click()
+                # selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, find_id)))
+            # selenium.wait_or_screenshot(EC.element_to_be_clickable((By.ID, find_id)))
+            selenium.find_by_id(find_id).click()
+            # if selenium.ui_mode == "mobile":
+            #     selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
             return
         except Exception as e:
             exception = e
@@ -288,17 +256,9 @@ def wait_for(selenium, method):
     raise exception
 
 
-def settings(driver, screenshot_dir, ui_mode, setting):
-    menu(driver, ui_mode, screenshot_dir, 'settings')
-    wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, setting)))
-    setting = driver.find_element_by_id(setting)
-    setting.click()
-    wait_for_loading(driver)
-
-
-def wait_for_loading(driver):
-    wait_driver = WebDriverWait(driver, 120)
-    wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'loadingoverlay')))
+def settings(selenium, setting):
+    menu(selenium, 'settings')
+    selenium.find_by_id(setting).click()
 
 
 def test_teardown(driver):

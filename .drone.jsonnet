@@ -160,7 +160,7 @@ local build(arch, testUI) = [{
           "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
           "cd integration",
           "./deps.sh",
-          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster --app-archive-path=$APP_ARCHIVE_PATH --app=" + name 
+          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster --app-archive-path=$APP_ARCHIVE_PATH --app=" + name
         ],
         privileged: true,
         volumes: [{

@@ -112,13 +112,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
 		return access.New(probe, userConfig, redirectService, eventTrigger, netInfo, logger)
 	})
-
-	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
-		return cron.NewExternalAddressJob(job)
-	})
-	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, userConfig *config.UserConfig) *cron.Cron {
-		return cron.New([]cron.Job{job1, job2}, time.Minute*5, userConfig)
-	})
 	Singleton(func() *job.SingleJobMaster { return job.NewMaster() })
 	Singleton(func(master *job.SingleJobMaster, logger *zap.Logger) *job.Worker {
 		return job.NewWorker(master, logger)
@@ -126,8 +119,18 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(executor *cli.ShellExecutor) *du.ShellDiskUsage {
 		return du.New(executor)
 	})
-	Singleton(func(executor *cli.ShellExecutor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger) *backup.Backup {
-		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, logger)
+	Singleton(func(executor *cli.ShellExecutor, diskusage *du.ShellDiskUsage, snapCli *snap.Cli, snapServer *snap.Server, logger *zap.Logger, userConfig *config.UserConfig, dateProvider *date.RealProvider) *backup.Backup {
+		return backup.New(backupDir, varDir, executor, diskusage, snapCli, snapServer, userConfig, dateProvider, logger)
+	})
+	Singleton(func(job *access.ExternalAddress) *cron.ExternalAddressJob {
+		return cron.NewExternalAddressJob(job)
+	})
+	Singleton(func() *cron.SimpleScheduler { return &cron.SimpleScheduler{} })
+	Singleton(func(snapd *snap.Server, userConfig *config.UserConfig, provider *date.RealProvider, backup *backup.Backup, scheduler *cron.SimpleScheduler, logger *zap.Logger) *cron.BackupJob {
+		return cron.NewBackupJob(snapd, userConfig, backup, provider, scheduler, logger)
+	})
+	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, userConfig *config.UserConfig) *cron.Cron {
+		return cron.New([]cron.Job{job1, job2, job3}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *installer.Installer { return installer.New() })
 	Singleton(func() *storage.Storage { return storage.New() })
@@ -151,9 +154,9 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
 		return rest.NewActivateBackend(activationManaged, activationCustom)
 	})
-	Singleton(func(executor *cli.ShellExecutor) *systemd.JournalCtl { return systemd.NewJournalCtl(executor) })
+	Singleton(func(executor *cli.ShellExecutor) *systemd.Journal { return systemd.NewJournal(executor) })
 
-	Singleton(func(certGenerator *cert.CertificateGenerator, journalCtl *systemd.JournalCtl) *rest.Certificate {
+	Singleton(func(certGenerator *cert.CertificateGenerator, journalCtl *systemd.Journal) *rest.Certificate {
 		return rest.NewCertificate(certGenerator, journalCtl)
 	})
 
@@ -180,7 +183,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.JournalCtl,
+		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks, journalCtl)

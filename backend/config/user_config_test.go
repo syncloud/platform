@@ -1,11 +1,11 @@
 package config
 
 import (
+	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
+	"time"
 )
 
 func TestRedirectDomain(t *testing.T) {
@@ -124,7 +124,7 @@ func TestMigratev2_ExternalFalse(t *testing.T) {
 	config.Load()
 
 	assert.False(t, config.IsIpv4Public())
-	assert.Nil(t, config.GetOrNil("platform.external_access"))
+	assert.Nil(t, config.GetOrNilString("platform.external_access"))
 }
 
 func TestMigratev2_ExternalTrue(t *testing.T) {
@@ -136,7 +136,7 @@ func TestMigratev2_ExternalTrue(t *testing.T) {
 	config.Load()
 
 	assert.True(t, config.IsIpv4Public())
-	assert.Nil(t, config.GetOrNil("platform.external_access"))
+	assert.Nil(t, config.GetOrNilString("platform.external_access"))
 }
 
 func TestPublicIp_Empty(t *testing.T) {
@@ -157,4 +157,36 @@ func TestPublicIp_Valid(t *testing.T) {
 	ip := "1.1.1.1"
 	config.SetPublicIp(&ip)
 	assert.Equal(t, "1.1.1.1", *config.GetPublicIp())
+}
+
+func TestBackupAppTime(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	zero := config.GetBackupAppTime("app1", "backup")
+	assert.True(t, zero.IsZero())
+	timesatamp := time.Now()
+	config.SetBackupAppTime("app1", "backup", timesatamp)
+	assert.Equal(t, time.Unix(timesatamp.Unix(), 0), config.GetBackupAppTime("app1", "backup"))
+}
+
+func TestDefaultInt(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	assert.Equal(t, 0, config.GetOrDefaultInt("unknown", 0))
+	config.Upsert("unknown", "1")
+	assert.Equal(t, 1, config.GetOrDefaultInt("unknown", 0))
+}
+
+func TestDefaultString(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	assert.Equal(t, "default", config.GetOrDefaultString("unknown", "default"))
+	config.Upsert("unknown", "test")
+	assert.Equal(t, "test", config.GetOrDefaultString("unknown", "test"))
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/syncloud/platform/http"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/network"
-	"github.com/syncloud/platform/util"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
 	"io"
@@ -193,13 +192,13 @@ func CheckHttpError(status int, body []byte) error {
 	bodyString := string(body)
 	if err != nil {
 		log.Printf("error parsing redirect response: %v\n", err)
-		return &util.PassThroughJsonError{
+		return &PassThroughJsonError{
 			Message: "Unable to parse Redirect response",
 			Json:    bodyString,
 		}
 	}
 	log.Printf("http error: %s\n", bodyString)
-	return &util.PassThroughJsonError{
+	return &PassThroughJsonError{
 		Message: redirectResponse.Message,
 		Json:    bodyString,
 	}

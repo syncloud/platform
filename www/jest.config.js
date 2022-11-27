@@ -13,6 +13,7 @@ module.exports = {
   },
   testEnvironment: 'jsdom',
   setupFiles: ['./tests/setup.js'],
+  setupFilesAfterEnv: ['./tests/setup-after-env.js'],
   testEnvironmentOptions: {
     customExportConditions: ["node", "node-addons"],
   },
