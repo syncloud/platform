@@ -72,6 +72,10 @@ func (j *BackupJob) Run() error {
 	hour := j.config.GetBackupAutoHour()
 	now := j.provider.Now()
 	for _, app := range apps {
+		if app.Id == "syncthing" {
+			j.logger.Info("syncthing app is excluded as it is used as a backup network transport")
+			continue
+		}
 		last := j.config.GetBackupAppTime(app.Id, auto)
 		if j.scheduler.ShouldRun(day, hour, now, last) {
 			if auto == AutoBackup {
