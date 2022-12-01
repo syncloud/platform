@@ -31,6 +31,18 @@ func TestHandlerSuccessBoolData(t *testing.T) {
 	assert.Equal(t, `{"success":true,"data":true}`, rr.Body.String())
 }
 
+func TestHandlerSuccess_Percent(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	rr := httptest.NewRecorder()
+	Handle(func(req *http.Request) (interface{}, error) { return []string{"test %123 "}, nil })(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, `{"success":true,"data":["test %123 "]}`, rr.Body.String())
+}
+
+
 func TestHandlerFail(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)

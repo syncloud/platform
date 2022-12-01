@@ -200,3 +200,17 @@ func TestBackupJob_LatestBackup(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "rocketchat-2022-0129-231530.tar.gz", latest)
 }
+
+func TestRun_Backup_Syncthing_exclude(t *testing.T) {
+	snapd := &SnapdStub{appID: "syncthing", appName: "App 1"}
+	config := &UserConfigStub{auto: "backup"}
+	backuper := &BackupStub{}
+	timeProvider := &ProviderStub{}
+	scheduler := &SchedulerStub{run: true}
+	job := NewBackupJob(snapd, config, backuper, timeProvider, scheduler, log.Default())
+	err := job.Run()
+
+	assert.Nil(t, err)
+	assert.False(t, backuper.created)
+	assert.False(t, backuper.restored)
+}

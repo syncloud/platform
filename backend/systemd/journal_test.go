@@ -15,7 +15,7 @@ func (e *JournalCtlExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, 
 	return []byte(e.output), nil
 }
 
-func Test_ReadBackend(t *testing.T) {
+func Test_ReadBackend_Filter(t *testing.T) {
 
 	journalCtl := &JournalCtlExecutorStub{
 		output: `
@@ -31,5 +31,19 @@ func Test_ReadBackend(t *testing.T) {
 	assert.Equal(t, []string{
 		`1 log {"category": "cat1", "key": "value"}`,
 		`3 log {"category": "cat1"}`,
+	}, logs)
+}
+
+func Test_ReadBackend_PercentChar(t *testing.T) {
+
+	journalCtl := &JournalCtlExecutorStub{
+		output: `%1#2`,
+	}
+	reader := NewJournal(journalCtl)
+	logs := reader.ReadBackend(func(line string) bool {
+		return true
+	})
+	assert.Equal(t, []string{
+		`%1#2`,
 	}, logs)
 }
