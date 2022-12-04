@@ -16,7 +16,7 @@ export function checkForServiceError (data, onComplete, onError) {
 
 export const INSTALLER_STATUS_URL = '/rest/installer/status'
 export const DEFAULT_STATUS_PREDICATE = (response) => {
-  return response.data.is_running
+  return response.data.data.is_running
 }
 
 export const JOB_STATUS_URL = '/rest/job/status'
@@ -39,6 +39,8 @@ export function runAfterJobIsComplete (timeoutFunc, onComplete, onError, statusU
       }
     })
     .catch(err => {
+      console.log("status err: " + err)
+      console.trace()
       // Auth error means job is finished
       if (err.response !== undefined && err.response.status === 401) {
         onComplete()

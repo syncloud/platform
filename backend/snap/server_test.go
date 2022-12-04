@@ -267,7 +267,7 @@ func TestServer_Changes_True(t *testing.T) {
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
-	assert.True(t, progress)
+	assert.True(t, progress.IsRunning)
 }
 
 func TestServer_Changes_False(t *testing.T) {
@@ -284,5 +284,5 @@ func TestServer_Changes_False(t *testing.T) {
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
-	assert.False(t, progress)
+	assert.False(t, progress.IsRunning)
 }

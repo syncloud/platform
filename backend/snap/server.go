@@ -186,36 +186,36 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	return response.Result, nil
 }
 
-func (s *Server) Changes() (bool, error) {
+func (s *Server) Changes() (*model.InstallerStatus, error) {
 	s.logger.Info("snap changes")
 
 	bodyBytes, err := s.request("http://unix/v2/changes?select=in-progress")
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	var response model.ServerResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
-		return false, err
+		return nil, err
 	}
 	if response.Status != "OK" {
 		var errorResponse model.ServerError
 		err = json.Unmarshal(response.Result, &errorResponse)
 		if err != nil {
 			s.logger.Error("cannot unmarshal", zap.Error(err))
-			return false, err
+			return nil, err
 		}
 
-		return false, fmt.Errorf(errorResponse.Message)
+		return nil, fmt.Errorf(errorResponse.Message)
 	}
 
 	var changesResponse []model.Change
 	err = json.Unmarshal(response.Result, &changesResponse)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
-		return false, err
+		return nil, err
 	}
 
-	return len(changesResponse) > 0, nil
+	return &model.InstallerStatus{IsRunning: len(changesResponse) > 0}, nil
 }

@@ -70,6 +70,12 @@ def test_install_testapp(device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, join(DIR, 'testapp', 'testapp.snap'))
 
 
+def test_installer_status(device_host):
+    response = requests.get('http://{0}/rest/installer/status'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert not json.loads(response.text)["data"]["is_running"], response.text
+
+
 def test_cryptography_openssl_version(device_host):
     run_ssh(device_host, "/snap/platform/current/python/bin/python "
                          "-c 'from cryptography.hazmat.backends.openssl.backend "
