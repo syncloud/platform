@@ -14,10 +14,6 @@ class Snap:
         self.platform_config = platform_config
         self.logger = logger.get_logger('Snap')
 
-    def update(self, release=None):
-        self.logger.info('snap update is not supported')
-        return None
-
     def install(self, app_id):
         self.logger.info('snap install')
         session = requests_unixsocket.Session()
@@ -39,10 +35,6 @@ class Snap:
         self.logger.info('snap remove')
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={'action': 'remove'})
-
-    def store_all_apps(self):
-        self.logger.info('snap list')
-        return [self._available_app(app) for app in self._available_snaps()]
 
     def find_in_store(self, app_id):
         self.logger.info('snap list')
