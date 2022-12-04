@@ -14,7 +14,7 @@ export function checkForServiceError (data, onComplete, onError) {
   }
 }
 
-export const INSTALLER_STATUS_URL = '/rest/settings/installer_status'
+export const INSTALLER_STATUS_URL = '/rest/installer/status'
 export const DEFAULT_STATUS_PREDICATE = (response) => {
   return response.data.is_running
 }

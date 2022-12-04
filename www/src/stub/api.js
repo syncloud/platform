@@ -318,7 +318,7 @@ export function mock () {
       this.post('/rest/shutdown', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.get('/rest/settings/installer_status', function (_schema, _request) {
+      this.get('/rest/installer/status', function (_schema, _request) {
         state.installerIsRunning = !state.installerIsRunning
         return new Response(200, {}, { success: true, is_running: state.installerIsRunning })
       })
