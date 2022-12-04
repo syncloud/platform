@@ -176,6 +176,7 @@ def app_image():
 @app.route("/rest/backup/auto", methods=["GET", "POST"])
 @app.route("/rest/installer/upgrade", methods=["POST"])
 @app.route("/rest/installer/version", methods=["GET"])
+@app.route("/rest/installer/status", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/deactivate", methods=["POST"])
 @app.route("/rest/storage/activate/partition", methods=["POST"])
@@ -192,7 +193,6 @@ def app_image():
 @app.route("/rest/apps/available", methods=["GET"])
 @app.route("/rest/apps/installed", methods=["GET"])
 @app.route("/rest/logs", methods=["GET"])
-@app.route("/rest/settings/installer/status", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():
