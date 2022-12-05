@@ -41,7 +41,13 @@ test('Update platform', async () => {
     upgraded = true
     return [200, { success: true }]
   })
-
+  
+  let statusCalled = false
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { is_running: false } }]
+  })
+  
   const wrapper = mount(Updates,
     {
       attachTo: document.body,
@@ -67,8 +73,11 @@ test('Update platform', async () => {
 
   await wrapper.find('#btn_platform_upgrade').trigger('click')
 
+  await flushPromises()
+
   expect(showError).toHaveBeenCalledTimes(0)
   expect(upgraded).toBe(true)
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
 
@@ -107,7 +116,12 @@ test('Update installer', async () => {
     upgraded = true
     return [200, { success: true }]
   })
-
+  let statusCalled = false
+  mock.onGet('/rest/job/status').reply(function (_) {
+    statusCalled = true
+    return [200, {success: true, data:{status: "Idle"}}]
+  })
+  
   const wrapper = mount(Updates,
     {
       attachTo: document.body,
@@ -132,8 +146,11 @@ test('Update installer', async () => {
 
   await wrapper.find('#btn_installer_upgrade').trigger('click')
 
+  await flushPromises()
+
   expect(showError).toHaveBeenCalledTimes(0)
   expect(upgraded).toBe(true)
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
 

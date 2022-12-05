@@ -28,6 +28,12 @@ test('Install', async () => {
     return [200, { success: true }]
   })
 
+  let statusCalled = false
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { is_running: false } }]
+  })
+
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -61,6 +67,7 @@ test('Install', async () => {
 
   expect(showError).toHaveBeenCalledTimes(0)
   expect(app).toBe('files')
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
 
@@ -85,7 +92,13 @@ test('Upgrade', async () => {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
-
+  
+  let statusCalled = false
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { is_running: false } }]
+  })
+  
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -119,6 +132,7 @@ test('Upgrade', async () => {
 
   expect(showError).toHaveBeenCalledTimes(0)
   expect(app).toBe('files')
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
 
@@ -143,7 +157,13 @@ test('Remove', async () => {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
-
+  
+  let statusCalled = false
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { is_running: false } }]
+  })
+  
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -177,6 +197,7 @@ test('Remove', async () => {
 
   expect(showError).toHaveBeenCalledTimes(0)
   expect(app).toBe('files')
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
 
@@ -296,7 +317,13 @@ test('Backup', async () => {
     app = JSON.parse(config.data).app
     return [200, { success: true }]
   })
-
+  
+  let statusCalled = false
+  mock.onGet('/rest/job/status').reply(function (_) {
+    statusCalled = true
+    return [200, {success: true, data:{status: "Idle"}}]
+  })
+  
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -328,6 +355,7 @@ test('Backup', async () => {
 
   expect(showError).toHaveBeenCalledTimes(0)
   expect(app).toBe('files')
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
 

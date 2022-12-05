@@ -46,9 +46,6 @@ class Public:
     def disk_activate(self, device):
         return self.hardware.activate_disk(device)
 
-    def installer_status(self):
-        return self.snap.status()
-
     def send_logs(self, include_support):
         user_token = self.user_platform_config.get_user_update_token()
         logs = self.log_aggregator.get_logs()

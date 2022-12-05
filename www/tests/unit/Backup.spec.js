@@ -57,6 +57,55 @@ test('show list of backups', async () => {
   wrapper.unmount()
 })
 
+test('show empty list of backups', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/backup/list').reply(200,
+    {
+      success: true,
+      data: null
+    }
+  )
+  mock.onGet('/rest/backup/auto').reply(200,
+    {
+      success: true,
+      data: { auto: 'no', auto_day: 0, auto_time: 0}
+    }
+  )
+
+  const wrapper = mount(Backup,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-option': ElOption,
+          'el-select': ElSelect,
+          'el-table': ElTable,
+          'el-table-column': ElTableColumn,
+          'el-input': ElInput,
+          'el-button': ElButton,
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          },
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  // expect(wrapper.text()).toContain('files-2019-0515-123506.tar.gz')
+  expect(wrapper.find('#auto').attributes().disabled).not.toBeDefined()
+  expect(wrapper.find('#auto-day').attributes().disabled).toBeDefined()
+  expect(wrapper.find('#auto-hour').attributes().disabled).toBeDefined()
+
+  wrapper.unmount()
+})
+
 test('save auto mode', async () => {
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/backup/list').reply(200,

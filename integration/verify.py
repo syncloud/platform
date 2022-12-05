@@ -264,7 +264,6 @@ def test_python_ssl(device):
     device.run_ssh('/ssl.test.py')
 
 
-
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
@@ -280,6 +279,12 @@ def test_get_access(device, domain):
     assert json.loads(response.text)["success"]
     assert json.loads(response.text)["data"]["ipv4_enabled"]
     assert response.status_code == 200
+
+
+def test_installer_status(device, device_host):
+    response = device.login().get('https://{0}/rest/installer/status'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 200
+    assert not json.loads(response.text)["data"]["is_running"], response.text
 
 
 def test_network_interfaces(device, domain):

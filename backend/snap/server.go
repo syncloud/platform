@@ -39,16 +39,6 @@ type Server struct {
 	logger     *zap.Logger
 }
 
-type SnapsResponse struct {
-	Result []model.Snap `json:"result"`
-	Status string       `json:"status"`
-}
-
-type SnapResponse struct {
-	Result model.Snap `json:"result"`
-	Status string     `json:"status"`
-}
-
 func NewServer(client SnapdClient, deviceInfo DeviceInfo, config Config, httpClient HttpClient, logger *zap.Logger) *Server {
 	return &Server{
 		client:     client,
@@ -94,7 +84,7 @@ func (s *Server) Snaps() ([]model.Snap, error) {
 	if err != nil {
 		return nil, err
 	}
-	var response SnapsResponse
+	var response model.SnapsResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
@@ -109,7 +99,7 @@ func (s *Server) Snap(name string) (model.Snap, error) {
 	if err != nil {
 		return model.Snap{}, err
 	}
-	var response SnapResponse
+	var response model.SnapResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
@@ -179,7 +169,7 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	if err != nil {
 		return nil, err
 	}
-	var response SnapsResponse
+	var response model.SnapsResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
@@ -194,4 +184,38 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 		return response.Result[i].Name < response.Result[i].Name
 	})
 	return response.Result, nil
+}
+
+func (s *Server) Changes() (*model.InstallerStatus, error) {
+	s.logger.Info("snap changes")
+
+	bodyBytes, err := s.request("http://unix/v2/changes?select=in-progress")
+	if err != nil {
+		return nil, err
+	}
+	var response model.ServerResponse
+	err = json.Unmarshal(bodyBytes, &response)
+	if err != nil {
+		s.logger.Error("cannot unmarshal", zap.Error(err))
+		return nil, err
+	}
+	if response.Status != "OK" {
+		var errorResponse model.ServerError
+		err = json.Unmarshal(response.Result, &errorResponse)
+		if err != nil {
+			s.logger.Error("cannot unmarshal", zap.Error(err))
+			return nil, err
+		}
+
+		return nil, fmt.Errorf(errorResponse.Message)
+	}
+
+	var changesResponse []model.Change
+	err = json.Unmarshal(response.Result, &changesResponse)
+	if err != nil {
+		s.logger.Error("cannot unmarshal", zap.Error(err))
+		return nil, err
+	}
+
+	return &model.InstallerStatus{IsRunning: len(changesResponse) > 0}, nil
 }

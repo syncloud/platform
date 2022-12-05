@@ -1,26 +1,27 @@
 #!/bin/bash -xe
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
 if [[ -z "$1" ]]; then
     echo "usage $0 channel"
     exit 1
 fi
 
 CHANNEL=$1
-VERSION=$(curl http://apps.syncloud.org/releases/${CHANNEL}/snapd.version)
+VERSION=$(curl http://apps.syncloud.org/releases/"${CHANNEL}"/snapd.version)
 ARCH=$(dpkg --print-architecture)
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 
 cd /tmp
-rm -rf ${SNAPD}
+rm -rf "${SNAPD}"
 rm -rf snapd
 
-wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
-tar xzvf ${SNAPD}
+wget http://apps.syncloud.org/apps/"${SNAPD}" --progress=dot:giga
+tar xzvf "${SNAPD}"
 systemctl stop snapd.service snapd.socket || true
 #systemctl disable snapd.service snapd.socket || true
+
+# TODO: /usr/lib/snapd/snapd is still busy sometimes right after the stop
+sleep 5
 
 cp snapd/bin/snapd /usr/lib/snapd
 cp snapd/bin/snap-exec /usr/lib/snapd

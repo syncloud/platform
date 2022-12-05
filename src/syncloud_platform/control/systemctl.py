@@ -15,19 +15,6 @@ class Systemctl:
         self.platform_config = platform_config
         self.log = logger.get_logger('systemctl')
 
-    def reload_service(self, service):
-        service = self.service_name(service)
-        
-        self.log.info('reloading {0}'.format(service))
-        try:
-            check_output('systemctl reload {0} 2>&1'.format(service), shell=True)
-        except CalledProcessError as e:
-            self.log.error(e.output.decode())
-            raise e
-
-    def remove_service(self, service):
-        self.__remove('{0}.service'.format(service))
-
     def __remove(self, filename):
 
         if self.__stop(filename) in ("unknown", "inactive"):
@@ -89,18 +76,4 @@ class Systemctl:
     def __systemd_file(self, filename):
         return join(SYSTEMD_DIR, filename)
 
-    def __systemd_service_file(self, service):
-        return self.__systemd_file("{0}.service".format(service))
 
-    def __systemd_socket_file(self, service):
-        return join(SYSTEMD_DIR, "{0}.socket".format(service))
-
-    def __app_service_file(self, app_dir, service):
-        return join(app_dir, 'config', 'systemd', "{0}.service".format(service))
-
-    def __app_socket_file(self, app_dir, service):
-        return join(app_dir, 'config', 'systemd', "{0}.socket".format(service))
-
-
-def dir_to_systemd_mount_filename(directory):
-    return "-".join(filter(None, directory.split('/'))) + '.mount'
