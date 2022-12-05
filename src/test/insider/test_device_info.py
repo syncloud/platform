@@ -1,4 +1,3 @@
-from syncloud_platform.insider.config import Port
 from syncloud_platform.insider.device_info import DeviceInfo
 from test.insider.helpers import get_user_platform_config
 

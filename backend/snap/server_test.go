@@ -229,3 +229,60 @@ func TestStoreUserApps_OK(t *testing.T) {
 	assert.Equal(t, len(apps), 1)
 	assert.Equal(t, apps[0].Name, "app")
 }
+
+func TestServer_Changes_Error(t *testing.T) {
+	json := `
+{
+    "type": "error",
+    "status-code": 401,
+    "status": "Unauthorized",
+    "result": {
+        "message": "access denied",
+        "kind": "login-required",
+    }
+}
+`
+
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	_, err := snapd.Changes()
+
+	assert.NotNil(t, err)
+}
+
+func TestServer_Changes_True(t *testing.T) {
+	json := `
+{
+    "type": "sync",
+    "status-code": 200,
+    "status": "OK",
+    "result": [
+		{
+			"id": "123"
+		}
+	]
+}
+`
+
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	progress, err := snapd.Changes()
+
+	assert.Nil(t, err)
+	assert.True(t, progress.IsRunning)
+}
+
+func TestServer_Changes_False(t *testing.T) {
+	json := `
+{
+    "type": "sync",
+    "status-code": 200,
+    "status": "OK",
+    "result": []
+}
+`
+
+	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	progress, err := snapd.Changes()
+
+	assert.Nil(t, err)
+	assert.False(t, progress.IsRunning)
+}

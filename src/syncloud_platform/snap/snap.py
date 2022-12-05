@@ -14,10 +14,6 @@ class Snap:
         self.platform_config = platform_config
         self.logger = logger.get_logger('Snap')
 
-    def update(self, release=None):
-        self.logger.info('snap update is not supported')
-        return None
-
     def install(self, app_id):
         self.logger.info('snap install')
         session = requests_unixsocket.Session()
@@ -35,27 +31,10 @@ class Snap:
         if (snapd_response['status']) != 'Accepted':
             raise Exception(snapd_response['result']['message'])
 
-    def status(self):
-        self.logger.info('snap changes')
-        
-        session = requests_unixsocket.Session()
-        response = session.get('{0}/v2/changes?select=in-progress'.format(SOCKET))
-        self.logger.info("changes response: {0}".format(response.text))
-        snapd_response = json.loads(response.text)
-
-        if (snapd_response['status']) != 'OK':
-            raise Exception(snapd_response['result']['message'])
-
-        return len(snapd_response['result']) > 0
-
     def remove(self, app_id):
         self.logger.info('snap remove')
         session = requests_unixsocket.Session()
         session.post('{0}/v2/snaps/{1}'.format(SOCKET, app_id), json={'action': 'remove'})
-
-    def store_all_apps(self):
-        self.logger.info('snap list')
-        return [self._available_app(app) for app in self._available_snaps()]
 
     def find_in_store(self, app_id):
         self.logger.info('snap list')

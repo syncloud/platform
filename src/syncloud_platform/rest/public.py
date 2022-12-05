@@ -1,24 +1,21 @@
 import sys
 import traceback
 
-from syncloudlib.json import convertible
-from syncloudlib.error import PassthroughJsonError
-
 import requests
 from flask import jsonify, request, redirect, Flask, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
-
 from syncloud_platform.injector import get_injector
-from syncloud_platform.rest.flask_decorators import nocache, fail_if_not_activated, fail_if_activated
+from syncloud_platform.rest.backend_proxy import backend_request
+from syncloud_platform.rest.flask_decorators import fail_if_not_activated, fail_if_activated
 from syncloud_platform.rest.model.flask_user import FlaskUser
 from syncloud_platform.rest.model.user import User
-from syncloud_platform.rest.backend_proxy import backend_request
 from syncloud_platform.rest.service_exception import ServiceException
+from syncloudlib.error import PassthroughJsonError
+from syncloudlib.json import convertible
 from syncloudlib.logger import get_logger
 
 injector = get_injector()
 public = injector.public
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = public.user_platform_config.get_web_secret_key()
@@ -151,13 +148,6 @@ def device_url():
     return jsonify(success=True, device_url=public.device_url()), 200
 
 
-@app.route("/rest/settings/installer_status", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def installer_status():
-    return jsonify(is_running=public.installer_status()), 200
-
-
 @app.route("/rest/settings/deactivate", methods=["POST"])
 @fail_if_not_activated
 @login_required
@@ -175,7 +165,7 @@ def app_image():
     channel = request.args['channel']
     app = request.args['app']
     r = requests.get('http://apps.syncloud.org/releases/{0}/images/{1}-128.png'.format(channel, app), stream=True)
-    return Response(r.iter_content(chunk_size=10*1024),
+    return Response(r.iter_content(chunk_size=10 * 1024),
                     content_type=r.headers['Content-Type'])
 
 
@@ -186,6 +176,7 @@ def app_image():
 @app.route("/rest/backup/auto", methods=["GET", "POST"])
 @app.route("/rest/installer/upgrade", methods=["POST"])
 @app.route("/rest/installer/version", methods=["GET"])
+@app.route("/rest/installer/status", methods=["GET"])
 @app.route("/rest/job/status", methods=["GET"])
 @app.route("/rest/storage/deactivate", methods=["POST"])
 @app.route("/rest/storage/activate/partition", methods=["POST"])
@@ -206,7 +197,7 @@ def app_image():
 @login_required
 def backend_proxy_activated():
     response = backend_request(request.method, request.full_path.replace("/rest", "", 1), request.json)
-    headers = { 'Content-Type': response.headers['Content-Type']}
+    headers = {'Content-Type': response.headers['Content-Type']}
     return response.text, response.status_code, headers
 
 
@@ -234,9 +225,9 @@ def identification():
 
 @app.errorhandler(Exception)
 def handle_exception(error):
-    print('-'*60)
+    print('-' * 60)
     traceback.print_exc(file=sys.stdout)
-    print('-'*60)
+    print('-' * 60)
     status_code = 500
 
     if isinstance(error, PassthroughJsonError):

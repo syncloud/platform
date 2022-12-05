@@ -464,10 +464,24 @@ export default {
 }
 </script>
 <style>
+@import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
 @import 'bs-stepper/dist/css/bs-stepper.css';
 @import 'font-awesome/css/font-awesome.css';
 
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 0 50px 0 20px;
+  border-radius: 3px;
+  border: 1px solid #dcdee0;
+  margin-bottom: 10px;
+  background-color: #fff!important;
+  background-size: 14px 14px;
+  -webkit-transition: all .3s ease-out;
+  -moz-transition: all .3s ease-out;
+  -o-transition: all .3s ease-out;
+  -ms-transition: all .3s ease-out;
+}
 .active .bs-stepper-circle {
   background-color: #02a0dc;
 }
@@ -520,4 +534,5 @@ export default {
     min-height: 0;
   }
 }
+
 </style>

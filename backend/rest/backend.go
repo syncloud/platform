@@ -106,6 +106,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/backup/remove", Handle(b.BackupRemove)).Methods("POST")
 	r.HandleFunc("/installer/upgrade", Handle(b.InstallerUpgrade)).Methods("POST")
 	r.HandleFunc("/installer/version", Handle(b.InstallerVersion)).Methods("GET")
+	r.HandleFunc("/installer/status", Handle(b.InstallerStatus)).Methods("GET")
 	r.HandleFunc("/storage/boot_extend", Handle(b.StorageBootExtend)).Methods("POST")
 	r.HandleFunc("/storage/boot/disk", Handle(b.StorageBootDisk)).Methods("GET")
 	r.HandleFunc("/storage/deactivate", Handle(b.StorageDiskDeactivate)).Methods("POST")
@@ -317,6 +318,10 @@ func (b *Backend) InstallerVersion(_ *http.Request) (interface{}, error) {
 	return b.snapd.Installer()
 }
 
+func (b *Backend) InstallerStatus(_ *http.Request) (interface{}, error) {
+	return b.snapd.Changes()
+}
+
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 	id, err := b.identification.Id()
 	if err != nil {
@@ -387,4 +392,3 @@ func (b *Backend) Logs(_ *http.Request) (interface{}, error) {
 		return true
 	}), nil
 }
-

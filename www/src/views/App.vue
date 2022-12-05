@@ -168,20 +168,20 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    open (_) {
+    open () {
       window.location.href = this.info.app.url
     },
-    install (_) {
+    install () {
       this.action = 'Install'
       this.actionUrl = '/rest/install'
       $('#app_action_confirmation').modal('show')
     },
-    upgrade (_) {
+    upgrade () {
       this.action = 'Upgrade'
       this.actionUrl = '/rest/upgrade'
       $('#app_action_confirmation').modal('show')
     },
-    remove (_) {
+    remove () {
       this.action = 'Remove'
       this.actionUrl = '/rest/remove'
       $('#app_action_confirmation').modal('show')
@@ -212,12 +212,12 @@ export default {
     },
     confirm () {
       this.progressShow()
-
       const error = this.$refs.error
       const onError = (err) => {
         this.progressHide()
         error.showAxios(err)
       }
+
       axios.post(this.actionUrl, { app_id: this.appId })
         .then(resp => {
           Common.checkForServiceError(resp.data, () => {

@@ -28,7 +28,13 @@ test('Extend', async () => {
     extended = true
     return [200, { success: true }]
   })
-
+  
+  let statusCalled = false
+  mock.onGet('/rest/job/status').reply(function (_) {
+    statusCalled = true
+    return [200, {success: true, data:{status: "Idle"}}]
+  })
+  
   const wrapper = mount(InternalMemory,
     {
       attachTo: document.body,
@@ -60,5 +66,6 @@ test('Extend', async () => {
 
   expect(showError).toHaveBeenCalledTimes(0)
   expect(extended).toBe(true)
+  expect(statusCalled).toBeTruthy()
   wrapper.unmount()
 })
