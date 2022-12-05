@@ -179,7 +179,11 @@ export default {
     reload () {
       axios.get('/rest/backup/list')
         .then((response) => {
-          this.data = response.data.data
+          if (response.data.data) {
+            this.data = response.data.data
+          } else {
+            this.data = []
+          }
           this.progressHide()
         })
         .catch(this.showError)
