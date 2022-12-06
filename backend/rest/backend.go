@@ -127,6 +127,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
 	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
 	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
+	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
@@ -312,6 +313,16 @@ func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
 	return b.snapd.InstalledUserApps()
+}
+
+func (b *Backend) App(req *http.Request) (interface{}, error) {
+	query := req.URL.Query()
+	if query.Has("app_id") {
+		id := query.Get("app_id")
+		return b.snapd.Find(id), nil
+	} else {
+		return nil, errors.New("app_id query param is missing")
+	}
 }
 
 func (b *Backend) InstallerVersion(_ *http.Request) (interface{}, error) {
