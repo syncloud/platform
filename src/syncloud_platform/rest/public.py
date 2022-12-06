@@ -72,11 +72,11 @@ def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
-@app.route("/rest/app", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def app_status():
-    return jsonify(info=convertible.to_dict(public.get_app(request.args['app_id']))), 200
+# @app.route("/rest/app", methods=["GET"])
+# @fail_if_not_activated
+# @login_required
+# def app_status():
+#     return jsonify(info=convertible.to_dict(public.get_app(request.args['app_id']))), 200
 
 
 @app.route("/rest/install", methods=["POST"])
@@ -193,6 +193,7 @@ def app_image():
 @app.route("/rest/apps/available", methods=["GET"])
 @app.route("/rest/apps/installed", methods=["GET"])
 @app.route("/rest/logs", methods=["GET"])
+@app.route("/rest/app", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

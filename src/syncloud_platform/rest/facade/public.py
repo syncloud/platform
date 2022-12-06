@@ -1,6 +1,5 @@
 from syncloudlib import logger
 
-from syncloud_platform.rest.model.app import app_from_snap_app
 from syncloud_platform.control import power
 
 
@@ -31,8 +30,8 @@ class Public:
     def shutdown(self):
         power.shutdown()
 
-    def get_app(self, app_id):
-        return self.snap.get_app(app_id)
+    # def get_app(self, app_id):
+    #     return self.snap.get_app(app_id)
 
     def install(self, app_id):
         self.snap.install(app_id)

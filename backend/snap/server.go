@@ -39,6 +39,12 @@ type Server struct {
 	logger     *zap.Logger
 }
 
+type NotFound struct{}
+
+func (e *NotFound) Error() string {
+	return "app not found"
+}
+
 func NewServer(client SnapdClient, deviceInfo DeviceInfo, config Config, httpClient HttpClient, logger *zap.Logger) *Server {
 	return &Server{
 		client:     client,
@@ -80,7 +86,7 @@ func (s *Server) StoreUserApps() ([]model.SyncloudApp, error) {
 }
 
 func (s *Server) Snaps() ([]model.Snap, error) {
-	bodyBytes, err := s.request("http://unix/v2/snaps")
+	bodyBytes, err := s.httpGet("http://unix/v2/snaps")
 	if err != nil {
 		return nil, err
 	}
@@ -94,28 +100,36 @@ func (s *Server) Snaps() ([]model.Snap, error) {
 
 }
 
-func (s *Server) Snap(name string) (model.Snap, error) {
-	bodyBytes, err := s.request(fmt.Sprintf("http://unix/v2/snaps/%s", name))
+func (s *Server) FindInstalled(name string) (*model.Snap, error) {
+	bodyBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/snaps/%s", name))
 	if err != nil {
-		return model.Snap{}, err
+		return nil, err
 	}
+	switch err.(type) {
+	case *NotFound:
+		return nil, nil
+	}
+
 	var response model.SnapResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
-		return model.Snap{}, err
+		return nil, err
 	}
-	return response.Result, nil
+	return &response.Result, nil
 
 }
 
-func (s *Server) request(url string) ([]byte, error) {
+func (s *Server) httpGet(url string) ([]byte, error) {
 	resp, err := s.client.Get(url)
 	if err != nil {
 		s.logger.Error("cannot connect", zap.Error(err))
 		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, &NotFound{}
+	}
 	if resp.StatusCode != http.StatusOK {
 		s.logger.Error("status", zap.Error(err))
 		return nil, fmt.Errorf("unable to get apps list, status code: %d", resp.StatusCode)
@@ -136,7 +150,7 @@ func (s *Server) StoreSnaps() ([]model.Snap, error) {
 func (s *Server) Installer() (*model.InstallerInfo, error) {
 	s.logger.Info("installer")
 	channel := s.config.Channel()
-	systemInfoBytes, err := s.request(fmt.Sprintf("http://unix/v2/system-info"))
+	systemInfoBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/system-info"))
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +179,7 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 
 func (s *Server) find(query string) ([]model.Snap, error) {
 	s.logger.Info("available snaps", zap.String("query", query))
-	bodyBytes, err := s.request(fmt.Sprintf("http://unix/v2/find?name=%s", query))
+	bodyBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +203,7 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 func (s *Server) Changes() (*model.InstallerStatus, error) {
 	s.logger.Info("snap changes")
 
-	bodyBytes, err := s.request("http://unix/v2/changes?select=in-progress")
+	bodyBytes, err := s.httpGet("http://unix/v2/changes?select=in-progress")
 	if err != nil {
 		return nil, err
 	}
@@ -218,4 +232,49 @@ func (s *Server) Changes() (*model.InstallerStatus, error) {
 	}
 
 	return &model.InstallerStatus{IsRunning: len(changesResponse) > 0}, nil
+}
+
+func (s *Server) FindInStore(name string) (*model.SyncloudAppVersions, error) {
+	s.logger.Info("snap list")
+	found, err := s.find(name)
+	if err != nil {
+		return nil, err
+	}
+	if len(found) == 0 {
+		s.logger.Warn("No app found")
+		return nil, nil
+	}
+
+	if len(found) > 1 {
+		s.logger.Warn("More than one app found")
+	}
+	snap := found[0]
+	installedApp := snap.ToInstalledApp(s.deviceInfo.Url(snap.Name))
+	return &installedApp, nil
+}
+
+func (s *Server) Find(name string) (*model.SyncloudAppVersions, error) {
+	foundInstalledApp, err := s.FindInstalled(name)
+	if err != nil {
+		return nil, err
+	}
+	storeApp, err := s.FindInStore(name)
+	if err != nil {
+		return nil, err
+	}
+	if foundInstalledApp == nil && storeApp == nil {
+		return nil, fmt.Errorf("not found")
+	}
+
+	if foundInstalledApp == nil {
+		return storeApp, nil
+	}
+
+	installedApp := foundInstalledApp.ToInstalledApp(s.deviceInfo.Url(foundInstalledApp.Name))
+	if storeApp == nil {
+		return &installedApp, nil
+	}
+
+	installedApp.CurrentVersion = storeApp.CurrentVersion
+	return &installedApp, nil
 }
