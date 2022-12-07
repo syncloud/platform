@@ -319,7 +319,7 @@ func (b *Backend) App(req *http.Request) (interface{}, error) {
 	query := req.URL.Query()
 	if query.Has("app_id") {
 		id := query.Get("app_id")
-		return b.snapd.Find(id), nil
+		return b.snapd.Find(id)
 	} else {
 		return nil, errors.New("app_id query param is missing")
 	}
