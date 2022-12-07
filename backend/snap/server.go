@@ -103,11 +103,11 @@ func (s *Server) Snaps() ([]model.Snap, error) {
 func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 	bodyBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/snaps/%s", name))
 	if err != nil {
+		switch err.(type) {
+		case *NotFound:
+			return nil, nil
+		}
 		return nil, err
-	}
-	switch err.(type) {
-	case *NotFound:
-		return nil, nil
 	}
 
 	var response model.SnapResponse

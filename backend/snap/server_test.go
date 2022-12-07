@@ -274,6 +274,118 @@ func TestServer_FindInStore_NotFound(t *testing.T) {
 	assert.Nil(t, found)
 }
 
+func TestServer_FindInstalled_Found(t *testing.T) {
+	json := `
+{
+  "type": "sync",
+  "status-code": 200,
+  "status": "OK",
+  "result": {
+    "id": "mail.239",
+    "summary": "Mail server",
+    "description": "Mail",
+    "installed-size": 268320768,
+    "name": "mail",
+    "developer": "syncloud",
+    "status": "active",
+    "type": "app",
+    "version": "239",
+    "channel": "stable",
+    "tracking-channel": "stable",
+    "ignore-validation": false,
+    "revision": "239",
+    "confinement": "strict",
+    "private": false,
+    "devmode": false,
+    "jailmode": false,
+    "apps": [
+      {
+        "snap": "mail",
+        "name": "access-change"
+      },
+      {
+        "snap": "mail",
+        "name": "dovecot",
+        "daemon": "simple",
+        "enabled": true,
+        "active": true
+      },
+      {
+        "snap": "mail",
+        "name": "nginx",
+        "daemon": "simple",
+        "enabled": true,
+        "active": true
+      },
+      {
+        "snap": "mail",
+        "name": "opendkim",
+        "daemon": "forking",
+        "enabled": true,
+        "active": true
+      },
+      {
+        "snap": "mail",
+        "name": "php-fpm",
+        "daemon": "forking",
+        "enabled": true,
+        "active": true
+      },
+      {
+        "snap": "mail",
+        "name": "postfix",
+        "daemon": "forking",
+        "enabled": true,
+        "active": true
+      },
+      {
+        "snap": "mail",
+        "name": "postgresql",
+        "daemon": "forking",
+        "enabled": true,
+        "active": true
+      },
+      {
+        "snap": "mail",
+        "name": "storage-change"
+      }
+    ],
+    "contact": "",
+    "install-date": "2022-08-24T23:45:26Z"
+  }
+}
+`
+
+	client := &ClientStub{json: json, error: false, status: 200}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.FindInstalled("mail")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "mail", found.Name)
+}
+
+func TestServer_FindInstalled_NotFound(t *testing.T) {
+	json := `
+{
+	"type":"error",
+	"status-code":404,
+	"status":"Not Found",
+	"result":{
+		"message":"snap not installed",
+		"kind":"snap-not-found",
+		"value":"files"
+	}
+}
+`
+
+	client := &ClientStub{json: json, error: false, status: 404}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.FindInstalled("files")
+
+	assert.Nil(t, err)
+	assert.Nil(t, found)
+}
+
 func TestServer_Changes_Error(t *testing.T) {
 	json := `
 {
