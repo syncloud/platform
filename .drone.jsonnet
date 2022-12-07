@@ -96,16 +96,7 @@ local build(arch, testUI) = [{
               "py.test test"
             ]
         }
-    ] + ( if arch != "arm64" then [
-        {
-            name: "test-intergation-jessie",
-            image: "python:3.8-slim-buster",
-            commands: [
-              "cd integration",
-              "./deps.sh",
-              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
-            ]
-        }] else []) + [
+    ] + [
         {
             name: "test-intergation-buster",
             image: "python:3.8-slim-buster",
@@ -150,7 +141,7 @@ local build(arch, testUI) = [{
             }]
         } 
         for mode in ["desktop", "mobile"]
-        for distro in ["buster", "jessie"] 
+        for distro in ["buster"]
     ] else []) + 
    [
     {
@@ -238,22 +229,7 @@ local build(arch, testUI) = [{
         "pull_request"
       ]
     },
-    services: ( if arch != "arm64" then [ 
-        {
-            name: arch + "-jessie",
-            image: "syncloud/bootstrap-" + arch,
-            privileged: true,
-            volumes: [
-                {
-                    name: "dbus",
-                    path: "/var/run/dbus"
-                },
-                {
-                    name: "dev",
-                    path: "/dev"
-                }
-            ]
-        }] else []) + [
+    services: [
         {
             name: arch + "-buster",
             image: "syncloud/bootstrap-buster-" + arch,
