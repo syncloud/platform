@@ -12,17 +12,18 @@ import (
 )
 
 type ClientStub struct {
-	json  string
-	error bool
+	json   string
+	error  bool
+	status int
 }
 
-func (c *ClientStub) Get(_ string) (resp *http.Response, err error) {
+func (c *ClientStub) Get(_ string) (*http.Response, error) {
 	if c.error {
 		return nil, fmt.Errorf("error")
 	}
 	r := io.NopCloser(bytes.NewReader([]byte(c.json)))
 	return &http.Response{
-		StatusCode: 200,
+		StatusCode: c.status,
 		Body:       r,
 	}, nil
 }
@@ -37,11 +38,6 @@ func (d DeviceInfoStub) Url(app string) string {
 type HttpClientStub struct {
 	response string
 	status   int
-}
-
-func (h HttpClientStub) Post(_, _ string, _ interface{}) (*http.Response, error) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (h HttpClientStub) Get(_ string) (*http.Response, error) {
@@ -69,7 +65,7 @@ func TestInstalledSnaps_OK(t *testing.T) {
 	"result": [ 
 		{ 
 			"name": "test",
-			"summary": "test",
+			"summary": "test summary",
 			"channel": "stable",
 			"version": "1",
 			"apps": [ 
@@ -83,7 +79,7 @@ func TestInstalledSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.Snaps()
 
 	assert.Nil(t, err)
@@ -106,7 +102,7 @@ func TestStoreSnaps_OK(t *testing.T) {
 	"result": [ 
 		{ 
 			"name": "test",
-			"summary": "test",
+			"summary": "test summary",
 			"channel": "stable",
 			"version": "1",
 			"apps": [ 
@@ -120,7 +116,7 @@ func TestStoreSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreSnaps()
 
 	assert.Nil(t, err)
@@ -138,7 +134,7 @@ func TestInstaller_OK(t *testing.T) {
 `
 	store := "2"
 
-	snapd := NewServer(&ClientStub{json: installed, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
+	snapd := NewServer(&ClientStub{json: installed, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
 	installer, err := snapd.Installer()
 
 	assert.Nil(t, err)
@@ -152,7 +148,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 	"result": [ 
 		{ 
 			"name": "app",
-			"summary": "app",
+			"summary": "app summary",
 			"channel": "stable",
 			"version": "1",
 			"type": "app",
@@ -165,7 +161,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 		}, 
 		{ 
 			"name": "platform",
-			"summary": "platform",
+			"summary": "platform summary",
 			"channel": "stable",
 			"version": "1",
 			"type": "system",
@@ -180,12 +176,12 @@ func TestInstalledUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledUserApps()
 
 	assert.Nil(t, err)
 	assert.Equal(t, len(apps), 1)
-	assert.Equal(t, apps[0].Name, "app")
+	assert.Equal(t, apps[0].Id, "app")
 }
 
 func TestStoreUserApps_OK(t *testing.T) {
@@ -194,7 +190,7 @@ func TestStoreUserApps_OK(t *testing.T) {
 	"result": [ 
 		{ 
 			"name": "app",
-			"summary": "app",
+			"summary": "app summary",
 			"channel": "stable",
 			"version": "1",
 			"type": "app",
@@ -207,7 +203,7 @@ func TestStoreUserApps_OK(t *testing.T) {
 		}, 
 		{ 
 			"name": "platform",
-			"summary": "platform",
+			"summary": "platform summary",
 			"channel": "stable",
 			"version": "1",
 			"type": "system",
@@ -222,12 +218,60 @@ func TestStoreUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreUserApps()
 
 	assert.Nil(t, err)
 	assert.Equal(t, len(apps), 1)
-	assert.Equal(t, apps[0].Name, "app")
+	assert.Equal(t, apps[0].Id, "app")
+}
+
+func TestServer_FindInStore_Found(t *testing.T) {
+	json := `
+{ 
+	"status": "OK",
+	"result": [ 
+		{ 
+			"name": "app",
+			"summary": "app summary",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app",
+					"snap": "app"
+				}
+			]
+		}
+	]
+}
+`
+
+	client := &ClientStub{json: json, error: false, status: 200}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.FindInStore("app")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "app", found.App.Id)
+}
+
+func TestServer_FindInStore_NotFound(t *testing.T) {
+	json := `
+{ 
+	"status": "Error",
+	"result": {
+		"message": "not found"
+	}
+}
+`
+
+	client := &ClientStub{json: json, error: false, status: 500}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.FindInStore("app")
+
+	assert.Nil(t, err)
+	assert.Nil(t, found)
 }
 
 func TestServer_Changes_Error(t *testing.T) {
@@ -243,7 +287,7 @@ func TestServer_Changes_Error(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	_, err := snapd.Changes()
 
 	assert.NotNil(t, err)
@@ -263,7 +307,7 @@ func TestServer_Changes_True(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
@@ -280,7 +324,7 @@ func TestServer_Changes_False(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)

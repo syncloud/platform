@@ -130,10 +130,10 @@ func (s *Server) httpGet(url string) ([]byte, error) {
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, &NotFound{}
 	}
-	if resp.StatusCode != http.StatusOK {
-		s.logger.Error("status", zap.Error(err))
-		return nil, fmt.Errorf("unable to get apps list, status code: %d", resp.StatusCode)
-	}
+	//if resp.StatusCode != http.StatusOK {
+	//	s.logger.Error("status", zap.Error(err))
+	//	return nil, fmt.Errorf("unable to get apps list, status code: %d", resp.StatusCode)
+	//}
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		s.logger.Error("cannot read output", zap.Error(err))
@@ -183,7 +183,7 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	if err != nil {
 		return nil, err
 	}
-	var response model.SnapsResponse
+	var response model.ServerResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
@@ -194,10 +194,17 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 		return make([]model.Snap, 0), nil
 	}
 
-	sort.SliceStable(response.Result, func(i, j int) bool {
-		return response.Result[i].Name < response.Result[i].Name
+	var snaps []model.Snap
+	err = json.Unmarshal(response.Result, &snaps)
+	if err != nil {
+		s.logger.Error("cannot unmarshal", zap.Error(err))
+		return nil, err
+	}
+
+	sort.SliceStable(snaps, func(i, j int) bool {
+		return snaps[i].Name < snaps[i].Name
 	})
-	return response.Result, nil
+	return snaps, nil
 }
 
 func (s *Server) Changes() (*model.InstallerStatus, error) {
