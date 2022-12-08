@@ -143,8 +143,8 @@ export default {
         axios.get('/rest/installer/version')]
       )
         .then((results) => {
-          this.platformVersion = results[0].data.info.installed_version
-          this.platformVersionAvailable = results[0].data.info.current_version
+          this.platformVersion = results[0].data.data.info.installed_version
+          this.platformVersionAvailable = results[0].data.data.info.current_version
           this.installerVersion = results[1].data.data.installed_version
           this.installerVersionAvailable = results[1].data.data.store_version
           this.progressHide()

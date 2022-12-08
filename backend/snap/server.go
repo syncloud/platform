@@ -256,7 +256,7 @@ func (s *Server) FindInStore(name string) (*model.SyncloudAppVersions, error) {
 		s.logger.Warn("More than one app found")
 	}
 	snap := found[0]
-	installedApp := snap.ToInstalledApp(s.deviceInfo.Url(snap.Name))
+	installedApp := snap.ToStoreApp(s.deviceInfo.Url(snap.Name))
 	return &installedApp, nil
 }
 

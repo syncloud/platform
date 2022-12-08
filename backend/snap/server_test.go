@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,18 +13,51 @@ import (
 )
 
 type ClientStub struct {
-	json   string
-	error  bool
-	status int
+	changesJson   string
+	changesStatus int
+	snapsJson     string
+	snapsStatus   int
+	snapJson      string
+	snapStatus    int
+	findJson      string
+	findStatus    int
+	systemJson    string
+	systemStatus  int
+	error         bool
 }
 
-func (c *ClientStub) Get(_ string) (*http.Response, error) {
+func (c *ClientStub) Get(url string) (*http.Response, error) {
+	json := ""
+	status := 0
+	if strings.HasPrefix(url, "http://unix/v2/changes") {
+		json = c.changesJson
+		status = c.changesStatus
+	}
+	if strings.HasPrefix(url, "http://unix/v2/snaps") {
+		json = c.snapsJson
+		status = c.snapsStatus
+	}
+	if strings.HasPrefix(url, "http://unix/v2/snaps/") {
+		json = c.snapJson
+		status = c.snapStatus
+	}
+	if strings.HasPrefix(url, "http://unix/v2/find") {
+		json = c.findJson
+		status = c.findStatus
+	}
+	if strings.HasPrefix(url, "http://unix/v2/system-info") {
+		json = c.systemJson
+		status = c.systemStatus
+	}
+	if status == 0 {
+		status = 200
+	}
 	if c.error {
 		return nil, fmt.Errorf("error")
 	}
-	r := io.NopCloser(bytes.NewReader([]byte(c.json)))
+	r := io.NopCloser(bytes.NewReader([]byte(json)))
 	return &http.Response{
-		StatusCode: c.status,
+		StatusCode: status,
 		Body:       r,
 	}, nil
 }
@@ -79,7 +113,7 @@ func TestInstalledSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.Snaps()
 
 	assert.Nil(t, err)
@@ -116,7 +150,7 @@ func TestStoreSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{findJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreSnaps()
 
 	assert.Nil(t, err)
@@ -134,7 +168,7 @@ func TestInstaller_OK(t *testing.T) {
 `
 	store := "2"
 
-	snapd := NewServer(&ClientStub{json: installed, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
+	snapd := NewServer(&ClientStub{systemJson: installed}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
 	installer, err := snapd.Installer()
 
 	assert.Nil(t, err)
@@ -176,7 +210,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledUserApps()
 
 	assert.Nil(t, err)
@@ -218,7 +252,7 @@ func TestStoreUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{findJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreUserApps()
 
 	assert.Nil(t, err)
@@ -248,12 +282,14 @@ func TestServer_FindInStore_Found(t *testing.T) {
 }
 `
 
-	client := &ClientStub{json: json, error: false, status: 200}
+	client := &ClientStub{findJson: json}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInStore("app")
 
 	assert.Nil(t, err)
 	assert.Equal(t, "app", found.App.Id)
+	assert.Equal(t, "1", *found.CurrentVersion)
+	assert.Nil(t, found.InstalledVersion)
 }
 
 func TestServer_FindInStore_NotFound(t *testing.T) {
@@ -266,7 +302,7 @@ func TestServer_FindInStore_NotFound(t *testing.T) {
 }
 `
 
-	client := &ClientStub{json: json, error: false, status: 500}
+	client := &ClientStub{findJson: json, findStatus: 500}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInStore("app")
 
@@ -284,79 +320,23 @@ func TestServer_FindInstalled_Found(t *testing.T) {
     "id": "mail.239",
     "summary": "Mail server",
     "description": "Mail",
-    "installed-size": 268320768,
     "name": "mail",
-    "developer": "syncloud",
     "status": "active",
     "type": "app",
     "version": "239",
     "channel": "stable",
-    "tracking-channel": "stable",
-    "ignore-validation": false,
     "revision": "239",
-    "confinement": "strict",
     "private": false,
     "devmode": false,
     "jailmode": false,
-    "apps": [
-      {
-        "snap": "mail",
-        "name": "access-change"
-      },
-      {
-        "snap": "mail",
-        "name": "dovecot",
-        "daemon": "simple",
-        "enabled": true,
-        "active": true
-      },
-      {
-        "snap": "mail",
-        "name": "nginx",
-        "daemon": "simple",
-        "enabled": true,
-        "active": true
-      },
-      {
-        "snap": "mail",
-        "name": "opendkim",
-        "daemon": "forking",
-        "enabled": true,
-        "active": true
-      },
-      {
-        "snap": "mail",
-        "name": "php-fpm",
-        "daemon": "forking",
-        "enabled": true,
-        "active": true
-      },
-      {
-        "snap": "mail",
-        "name": "postfix",
-        "daemon": "forking",
-        "enabled": true,
-        "active": true
-      },
-      {
-        "snap": "mail",
-        "name": "postgresql",
-        "daemon": "forking",
-        "enabled": true,
-        "active": true
-      },
-      {
-        "snap": "mail",
-        "name": "storage-change"
-      }
-    ],
+    "apps": [],
     "contact": "",
     "install-date": "2022-08-24T23:45:26Z"
   }
 }
 `
 
-	client := &ClientStub{json: json, error: false, status: 200}
+	client := &ClientStub{snapJson: json}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInstalled("mail")
 
@@ -378,7 +358,7 @@ func TestServer_FindInstalled_NotFound(t *testing.T) {
 }
 `
 
-	client := &ClientStub{json: json, error: false, status: 404}
+	client := &ClientStub{snapJson: json, snapStatus: 404}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInstalled("files")
 
@@ -399,7 +379,7 @@ func TestServer_Changes_Error(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{changesJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	_, err := snapd.Changes()
 
 	assert.NotNil(t, err)
@@ -419,7 +399,7 @@ func TestServer_Changes_True(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{changesJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
@@ -436,9 +416,144 @@ func TestServer_Changes_False(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{json: json, error: false, status: 200}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{changesJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
 	assert.False(t, progress.IsRunning)
+}
+
+func TestServer_Find_NotInstalled(t *testing.T) {
+	snapJson := `
+{
+	"type":"error",
+	"status-code":404,
+	"status":"Not Found",
+	"result":{
+		"message":"snap not installed",
+		"kind":"snap-not-found",
+		"value":"files"
+	}
+}
+`
+
+	findJson := `
+{ 
+	"status": "OK",
+	"result": [ 
+		{ 
+			"name": "app",
+			"summary": "app summary",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app",
+					"snap": "app"
+				}
+			]
+		}
+	]
+}
+`
+	client := &ClientStub{snapJson: snapJson, snapStatus: 404, findJson: findJson}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.Find("app")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "1", *found.CurrentVersion)
+	assert.Nil(t, found.InstalledVersion)
+}
+
+func TestServer_Find_Installed(t *testing.T) {
+	snapJson := `
+{
+  "type": "sync",
+  "status-code": 200,
+  "status": "OK",
+  "result": {
+    "id": "app.239",
+    "summary": "app summary",
+    "description": "",
+    "name": "app",
+    "status": "active",
+    "type": "app",
+    "version": "1",
+    "channel": "stable",
+    "revision": "239",
+    "apps": [],
+    "contact": "",
+    "install-date": "2022-08-24T23:45:26Z"
+  }
+}
+`
+
+	findJson := `
+{ 
+	"status": "OK",
+	"result": [ 
+		{ 
+			"name": "app",
+			"summary": "app summary",
+			"channel": "stable",
+			"version": "2",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app",
+					"snap": "app"
+				}
+			]
+		}
+	]
+}
+`
+	client := &ClientStub{snapJson: snapJson, findJson: findJson}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.Find("app")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "2", *found.CurrentVersion)
+	assert.Equal(t, "1", *found.InstalledVersion)
+}
+
+func TestServer_Find_NotInStore(t *testing.T) {
+	snapJson := `
+{
+  "type": "sync",
+  "status-code": 200,
+  "status": "OK",
+  "result": {
+    "id": "app.239",
+    "summary": "app summary",
+    "description": "",
+    "name": "app",
+    "status": "active",
+    "type": "app",
+    "version": "1",
+    "channel": "stable",
+    "revision": "239",
+    "apps": [],
+    "contact": "",
+    "install-date": "2022-08-24T23:45:26Z"
+  }
+}
+`
+
+	findJson := `
+{ 
+	"status": "Error",
+	"result": {
+		"message": "not found"
+	}
+}
+`
+	client := &ClientStub{snapJson: snapJson, findJson: findJson, findStatus: 500}
+	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	found, err := snapd.Find("app")
+
+	assert.Nil(t, err)
+	assert.Nil(t, found.CurrentVersion)
+	assert.Equal(t, "1", *found.InstalledVersion)
 }

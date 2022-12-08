@@ -14,17 +14,20 @@ test('Update platform', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
-        app: {
-          id: 'platform',
-          name: 'Platform',
-          required: true,
-          ui: false,
-          url: 'http://platform.odroid-c2.syncloud.it'
-        },
-        current_version: '1',
-        installed_version: '2'
-      }
+      data: {
+        info: {
+          app: {
+            id: 'platform',
+            name: 'Platform',
+            required: true,
+            ui: false,
+            url: 'http://platform.odroid-c2.syncloud.it'
+          },
+          current_version: '1',
+          installed_version: '2'
+        }
+      },
+      success: true
     }]
   })
 
@@ -89,17 +92,20 @@ test('Update installer', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
-        app: {
-          id: 'platform',
-          name: 'Platform',
-          required: true,
-          ui: false,
-          url: 'http://platform.odroid-c2.syncloud.it'
-        },
-        current_version: '1',
-        installed_version: '1'
-      }
+      data: {
+        info: {
+          app: {
+            id: 'platform',
+            name: 'Platform',
+            required: true,
+            ui: false,
+            url: 'http://platform.odroid-c2.syncloud.it'
+          },
+          current_version: '1',
+          installed_version: '1'
+        }
+      },
+      success: true
     }]
   })
 
@@ -161,17 +167,20 @@ test('Update installer error', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
-        app: {
-          id: 'platform',
-          name: 'Platform',
-          required: true,
-          ui: false,
-          url: 'http://platform.odroid-c2.syncloud.it'
-        },
-        current_version: '1',
-        installed_version: '1'
-      }
+      data: {
+        info: {
+          app: {
+            id: 'platform',
+            name: 'Platform',
+            required: true,
+            ui: false,
+            url: 'http://platform.odroid-c2.syncloud.it'
+          },
+          current_version: '1',
+          installed_version: '1'
+        }
+      },
+      success: true
     }]
   })
 
