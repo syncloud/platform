@@ -3,7 +3,7 @@ local browser = "chrome";
 local go = "1.18.2-buster";
 local node = "16.10.0";
 
-local build(arch, testUI) = [{
+local build(arch, testUI, uwsgiDistro) = [{
     kind: "pipeline",
     name: arch,
 
@@ -60,7 +60,7 @@ local build(arch, testUI) = [{
         },
         {
             name: "build uwsgi",
-            image: "debian:bookworm-slim",
+            image: "debian:" + uwsgiDistro + "-slim",
             commands: [
                 "./build-uwsgi.sh"
             ],
@@ -336,6 +336,6 @@ local build(arch, testUI) = [{
      }
  }];
 
-build("amd64", true) +
-build("arm64", false) +
-build("arm", false)
+build("amd64", true, "bookworm") +
+build("arm64", false, "bookworm") +
+build("arm", false, "buster")
