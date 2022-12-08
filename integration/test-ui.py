@@ -225,8 +225,8 @@ def menu(selenium, element_id):
             if selenium.ui_mode == "mobile":
                 find_id = element_id + '_mobile'
                 selenium.find_by_id('menubutton').click()
-                # selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, find_id)))
-            # selenium.wait_or_screenshot(EC.element_to_be_clickable((By.ID, find_id)))
+                selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, find_id)))
+            selenium.wait_or_screenshot(EC.element_to_be_clickable((By.ID, find_id)))
             selenium.find_by_id(find_id).click()
             # if selenium.ui_mode == "mobile":
             #     selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
@@ -236,6 +236,7 @@ def menu(selenium, element_id):
             print('error (attempt {0}/{1}): {2}'.format(retry + 1, retries, str(e)))
             time.sleep(1)
         retry += 1
+    selenium.screenshot('exception')
     raise exception
 
 
