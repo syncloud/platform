@@ -46,8 +46,8 @@ func (s *SnapServiceStub) RunCmdIfExists(_ model.Snap, cmd string) error {
 type SnapInfoStub struct {
 }
 
-func (s *SnapInfoStub) Snap(_ string) (model.Snap, error) {
-	return model.Snap{}, nil
+func (s *SnapInfoStub) FindInstalled(_ string) (*model.Snap, error) {
+	return &model.Snap{}, nil
 }
 
 type UserConfigStub struct {

@@ -20,7 +20,7 @@ type SnapService interface {
 }
 
 type SnapInfo interface {
-	Snap(name string) (model.Snap, error)
+	FindInstalled(name string) (*model.Snap, error)
 }
 
 type UserConfig interface {
@@ -151,12 +151,15 @@ func (b *Backup) Create(app string) error {
 		return fmt.Errorf("not enough temp space for the backup")
 	}
 
-	snap, err := b.snapServer.Snap(app)
+	snap, err := b.snapServer.FindInstalled(app)
 	if err != nil {
 		return err
 	}
+	if snap == nil {
+		return fmt.Errorf("app not found: %s", app)
+	}
 
-	err = b.snapCli.RunCmdIfExists(snap, CreatePreStop)
+	err = b.snapCli.RunCmdIfExists(*snap, CreatePreStop)
 	if err != nil {
 		return err
 	}
@@ -166,7 +169,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, CreatePostStop)
+	err = b.snapCli.RunCmdIfExists(*snap, CreatePostStop)
 	if err != nil {
 		return err
 	}
@@ -278,12 +281,15 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	snap, err := b.snapServer.Snap(file.App)
+	snap, err := b.snapServer.FindInstalled(file.App)
 	if err != nil {
 		return err
 	}
+	if snap == nil {
+		return fmt.Errorf("app not found: %s", file.App)
+	}
 
-	err = b.snapCli.RunCmdIfExists(snap, RestorePreStart)
+	err = b.snapCli.RunCmdIfExists(*snap, RestorePreStart)
 	if err != nil {
 		return err
 	}
@@ -293,7 +299,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, RestorePostStart)
+	err = b.snapCli.RunCmdIfExists(*snap, RestorePostStart)
 	if err != nil {
 		return err
 	}
