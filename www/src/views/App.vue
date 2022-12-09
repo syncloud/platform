@@ -160,7 +160,7 @@ export default {
       axios
         .get('/rest/app', { params: { app_id: this.appId } })
         .then(resp => {
-          this.info = resp.data.info
+          this.info = resp.data.data
           this.progressHide()
         })
         .catch(err => {

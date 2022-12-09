@@ -1,5 +1,6 @@
 from os.path import dirname, join
 from subprocess import check_output
+from selenium.webdriver.support.ui import WebDriverWait
 
 import pytest
 import time
@@ -64,6 +65,7 @@ def test_activate(selenium, device_host,
     selenium.find_by_id('domain_input').send_keys(domain)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
+    wait_for_loading(selenium.driver)
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
@@ -72,6 +74,7 @@ def test_activate(selenium, device_host,
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
+    wait_for_loading(selenium.driver)
     selenium.find_by_xpath("//h1[text()='Log in']")
 
 
@@ -230,6 +233,7 @@ def menu(selenium, element_id):
             selenium.find_by_id(find_id).click()
             # if selenium.ui_mode == "mobile":
             #     selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
+            wait_for_loading(selenium.driver)
             return
         except Exception as e:
             exception = e
@@ -260,6 +264,12 @@ def wait_for(selenium, method):
 def settings(selenium, setting):
     menu(selenium, 'settings')
     selenium.find_by_id(setting).click()
+    wait_for_loading(selenium.driver)
+
+
+def wait_for_loading(driver):
+    wait_driver = WebDriverWait(driver, 120)
+    wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'el-loading-mask')))
 
 
 def test_teardown(driver):
