@@ -30,9 +30,6 @@ class Public:
     def shutdown(self):
         power.shutdown()
 
-    # def get_app(self, app_id):
-    #     return self.snap.get_app(app_id)
-
     def install(self, app_id):
         self.snap.install(app_id)
 
