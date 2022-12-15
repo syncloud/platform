@@ -204,7 +204,7 @@ local build(arch, testUI, uwsgiDistro) = [{
                 target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + arch,
                 source: "artifact/*",
                 privileged: true,
-		            strip_components: 1,
+		        strip_components: 1,
                 volumes: [
                    {
                         name: "videos",
