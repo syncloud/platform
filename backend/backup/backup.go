@@ -20,7 +20,7 @@ type SnapService interface {
 }
 
 type SnapInfo interface {
-	Snap(name string) (model.Snap, error)
+	FindInstalled(name string) (*model.Snap, error)
 }
 
 type UserConfig interface {
@@ -151,12 +151,15 @@ func (b *Backup) Create(app string) error {
 		return fmt.Errorf("not enough temp space for the backup")
 	}
 
-	snap, err := b.snapServer.Snap(app)
+	snap, err := b.snapServer.FindInstalled(app)
 	if err != nil {
 		return err
 	}
+	if snap == nil {
+		return fmt.Errorf("app not found: %s", app)
+	}
 
-	err = b.snapCli.RunCmdIfExists(snap, CreatePreStop)
+	err = b.snapCli.RunCmdIfExists(*snap, CreatePreStop)
 	if err != nil {
 		return err
 	}
@@ -166,12 +169,13 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, CreatePostStop)
+	err = b.snapCli.RunCmdIfExists(*snap, CreatePostStop)
 	if err != nil {
 		return err
 	}
 
 	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
+	b.logger.Info(fmt.Sprintf("temp dir %s", tempCurrentDir))
 	err = os.Mkdir(tempCurrentDir, 0755)
 	if err != nil {
 		return err
@@ -180,6 +184,7 @@ func (b *Backup) Create(app string) error {
 	if err != nil {
 		return err
 	}
+	b.logger.Info(fmt.Sprintf("copy %s", versionDir))
 	err = cp.Copy(versionDir, tempCurrentDir)
 	if err != nil {
 		b.logger.Error("cannot copy", zap.Error(err))
@@ -192,7 +197,8 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	err = cp.Copy(commonDir, tempCommonDir)
+	b.logger.Info(fmt.Sprintf("copy %s", commonDir))
+	err = cp.Copy(commonDir, tempCommonDir, b.skipUnixSockets())
 	if err != nil {
 		return err
 	}
@@ -208,12 +214,28 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
+	b.logger.Info(fmt.Sprintf("cleanup %s", tempDir))
 	err = os.RemoveAll(tempDir)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (b *Backup) skipUnixSockets() cp.Options {
+	return cp.Options{
+		Skip: func(src string) (bool, error) {
+			info, err := os.Lstat(src)
+			if err != nil {
+				return true, err
+			}
+			if info.Mode()&os.ModeSocket != 0 {
+				return true, nil
+			}
+			return false, nil
+		},
+	}
 }
 
 func (b *Backup) Restore(fileName string) error {
@@ -278,12 +300,15 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	snap, err := b.snapServer.Snap(file.App)
+	snap, err := b.snapServer.FindInstalled(file.App)
 	if err != nil {
 		return err
 	}
+	if snap == nil {
+		return fmt.Errorf("app not found: %s", file.App)
+	}
 
-	err = b.snapCli.RunCmdIfExists(snap, RestorePreStart)
+	err = b.snapCli.RunCmdIfExists(*snap, RestorePreStart)
 	if err != nil {
 		return err
 	}
@@ -293,7 +318,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
-	err = b.snapCli.RunCmdIfExists(snap, RestorePostStart)
+	err = b.snapCli.RunCmdIfExists(*snap, RestorePostStart)
 	if err != nil {
 		return err
 	}

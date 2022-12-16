@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"net"
 	"os"
 	"path/filepath"
 	"testing"
@@ -46,8 +47,8 @@ func (s *SnapServiceStub) RunCmdIfExists(_ model.Snap, cmd string) error {
 type SnapInfoStub struct {
 }
 
-func (s *SnapInfoStub) Snap(_ string) (model.Snap, error) {
-	return model.Snap{}, nil
+func (s *SnapInfoStub) FindInstalled(_ string) (*model.Snap, error) {
+	return &model.Snap{}, nil
 }
 
 type UserConfigStub struct {
@@ -124,6 +125,9 @@ func TestBackup_Create(t *testing.T) {
 	_ = os.Symlink(versionDir, currentDir)
 	commonDir := filepath.Join(appDir, "common")
 	_ = os.Mkdir(commonDir, 0750)
+	socketFile := filepath.Join(commonDir, "web.socket")
+	_, err := net.Listen("unix", socketFile)
+	assert.Nil(t, err)
 
 	currentFile := filepath.Join(versionDir, "current.file")
 	if err := os.WriteFile(currentFile, []byte("current"), 0666); err != nil {
@@ -146,7 +150,7 @@ func TestBackup_Create(t *testing.T) {
 		&ProviderStub{},
 		log.Default())
 	backup.Init()
-	err := backup.Create("test-app")
+	err = backup.Create("test-app")
 	assert.Nil(t, err)
 	backups, err := backup.List()
 	assert.Nil(t, err)

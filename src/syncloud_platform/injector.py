@@ -49,7 +49,7 @@ class Injector:
         self.redirect_service = RedirectService(self.user_platform_config)
 
         self.device_info = DeviceInfo(self.user_platform_config)
-        self.snap = Snap(self.platform_config, self.device_info)
+        self.snap = Snap()
         self.systemctl = Systemctl(self.platform_config)
         self.ldap_auth = LdapAuth(self.platform_config, self.systemctl)
         self.event_trigger = EventTrigger(self.snap)

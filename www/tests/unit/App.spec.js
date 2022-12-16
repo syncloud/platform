@@ -15,11 +15,12 @@ test('Install', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: null
-      }
+      },
+      success: true
     }]
   })
 
@@ -80,11 +81,12 @@ test('Upgrade', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: '1'
-      }
+      },
+      success: true
     }]
   })
 
@@ -145,11 +147,12 @@ test('Remove', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: '1'
-      }
+      },
+      success: true
     }]
   })
 
@@ -212,11 +215,12 @@ test('Action error', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: '1'
-      }
+      },
+      success: true
     }]
   })
 
@@ -266,6 +270,7 @@ test('Show error', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [500, {
+      success: false,
       message: 'not ok'
     }]
   })
@@ -305,11 +310,12 @@ test('Backup', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: '1'
-      }
+      },
+      success: true
     }]
   })
 
@@ -370,11 +376,12 @@ test('Backup error', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: '1'
-      }
+      },
+      success: true
     }]
   })
 
@@ -426,11 +433,12 @@ test('Backup service error', async () => {
 
   mock.onGet('/rest/app').reply(function (_) {
     return [200, {
-      info: {
+      data: {
         app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
         current_version: '2',
         installed_version: '1'
-      }
+      },
+      success: true
     }]
   })
 

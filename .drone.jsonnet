@@ -3,7 +3,7 @@ local browser = "chrome";
 local go = "1.18.2-buster";
 local node = "16.10.0";
 
-local build(arch, testUI) = [{
+local build(arch, testUI, uwsgiDistro) = [{
     kind: "pipeline",
     name: arch,
 
@@ -60,7 +60,7 @@ local build(arch, testUI) = [{
         },
         {
             name: "build uwsgi",
-            image: "debian:buster-slim",
+            image: "debian:" + uwsgiDistro + "-slim",
             commands: [
                 "./build-uwsgi.sh"
             ],
@@ -96,16 +96,7 @@ local build(arch, testUI) = [{
               "py.test test"
             ]
         }
-    ] + ( if arch != "arm64" then [
-        {
-            name: "test-intergation-jessie",
-            image: "python:3.8-slim-buster",
-            commands: [
-              "cd integration",
-              "./deps.sh",
-              "py.test -x -s verify.py --distro=jessie --domain="+arch+"-jessie --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
-            ]
-        }] else []) + [
+    ] + [
         {
             name: "test-intergation-buster",
             image: "python:3.8-slim-buster",
@@ -150,7 +141,7 @@ local build(arch, testUI) = [{
             }]
         } 
         for mode in ["desktop", "mobile"]
-        for distro in ["buster", "jessie"] 
+        for distro in ["buster"]
     ] else []) + 
    [
     {
@@ -213,7 +204,7 @@ local build(arch, testUI) = [{
                 target: "/home/artifact/repo/" + name + "/${DRONE_BUILD_NUMBER}-" + arch,
                 source: "artifact/*",
                 privileged: true,
-		            strip_components: 1,
+		        strip_components: 1,
                 volumes: [
                    {
                         name: "videos",
@@ -238,22 +229,7 @@ local build(arch, testUI) = [{
         "pull_request"
       ]
     },
-    services: ( if arch != "arm64" then [ 
-        {
-            name: arch + "-jessie",
-            image: "syncloud/bootstrap-" + arch,
-            privileged: true,
-            volumes: [
-                {
-                    name: "dbus",
-                    path: "/var/run/dbus"
-                },
-                {
-                    name: "dev",
-                    path: "/dev"
-                }
-            ]
-        }] else []) + [
+    services: [
         {
             name: arch + "-buster",
             image: "syncloud/bootstrap-buster-" + arch,
@@ -360,6 +336,6 @@ local build(arch, testUI) = [{
      }
  }];
 
-build("amd64", true) +
-build("arm64", false) +
-build("arm", false)
+build("amd64", true, "bookworm") +
+build("arm64", false, "bookworm") +
+build("arm", false, "buster")
