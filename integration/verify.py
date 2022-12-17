@@ -310,12 +310,12 @@ def test_available_apps(device, domain, artifact_dir):
 
 
 def test_device_url(device, domain, artifact_dir, full_domain):
-    response = device.login().get('https://{0}/rest/settings/device_url'.format(domain), verify=False)
-    with open('{0}/rest.settings.device_url.json'.format(artifact_dir), 'w') as the_file:
+    response = device.login().get('https://{0}/rest/device/url'.format(domain), verify=False)
+    with open('{0}/rest.device.url.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
-    assert json.loads(response.text)["device_url"] == 'https://{}'.format(full_domain), response.text
+    assert json.loads(response.text)["data"] == 'https://{}'.format(full_domain), response.text
 
 
 def test_api_url_443(device, domain):

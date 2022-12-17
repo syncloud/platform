@@ -8,6 +8,7 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
+	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
@@ -40,6 +41,7 @@ type Backend struct {
 	snapd           *snap.Server
 	disks           *storage.Disks
 	journalCtl      *systemd.Journal
+	deviceInfo      *info.Device
 }
 
 func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
@@ -50,6 +52,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
 	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
+	deviceInfo *info.Device,
 ) *Backend {
 
 	return &Backend{
@@ -68,6 +71,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 		snapd:           snapd,
 		disks:           disks,
 		journalCtl:      journalCtl,
+		deviceInfo:      deviceInfo,
 	}
 }
 
@@ -129,6 +133,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
+	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -402,4 +407,8 @@ func (b *Backend) Logs(_ *http.Request) (interface{}, error) {
 	return b.journalCtl.ReadAll(func(line string) bool {
 		return true
 	}), nil
+}
+
+func (b *Backend) DeviceUrl(_ *http.Request) (interface{}, error) {
+	return b.deviceInfo.DeviceUrl(), nil
 }

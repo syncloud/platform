@@ -51,9 +51,9 @@ export default {
   mounted () {
     this.progressShow()
     axios
-      .get('/rest/settings/device_url')
+      .get('/rest/device/url')
       .then(resp => {
-        this.url = resp.data.device_url
+        this.url = resp.data.data
         this.progressHide()
       })
       .catch(err => {
