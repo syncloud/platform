@@ -184,9 +184,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
+		deviceInfo *info.Device,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress, snapd, disks, journalCtl)
+			installerService, storageService, id, activate, userConfig, cert, externalAddress,
+			snapd, disks, journalCtl, deviceInfo)
 	})
 
 }
