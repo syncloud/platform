@@ -312,3 +312,22 @@ NAME="/dev/sdb" SIZE="111.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrf
 	assert.Equal(t, "/dev/sdc", disks[2].Device)
 
 }
+
+func TestLsblk_AllDisks_RootPartition(t *testing.T) {
+
+	output := `
+NAME="/dev/sda" SIZE="232.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="TOSHIBA MK2552GS" UUID=""
+NAME="/dev/sda1" SIZE="184.1G" TYPE="part" MOUNTPOINT="/opt/disk/external" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID=""
+NAME="/dev/sdb" SIZE="55.9G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="INTEL SSDSC2CW06" UUID=""
+NAME="/dev/sdb1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="ntfs" MODEL="" UUID=""
+`
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+	disks, err := lsblk.AllDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(disks))
+	assert.Equal(t, "/dev/sda", disks[0].Device)
+	assert.False(t, disks[0].HasRootPartition())
+	assert.Equal(t, "/dev/sdb", disks[1].Device)
+	assert.True(t, disks[1].HasRootPartition())
+	assert.Equal(t, "/dev/sdb1", disks[1].FindRootPartition().Device)
+}

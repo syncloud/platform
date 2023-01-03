@@ -23,7 +23,7 @@ func (f *FreeSpaceChecker) HasFreeSpace(device string) (bool, error) {
 		return false, err
 	}
 
-	lines := strings.Split(string(output), "\n")
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
 	last := lines[len(lines)-1]
 	if !strings.Contains(last, "free") {
 		return false, nil

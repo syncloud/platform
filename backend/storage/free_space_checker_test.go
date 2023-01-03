@@ -56,3 +56,21 @@ func TestDisks_RootPartition_No_NotExtendable(t *testing.T) {
 	assert.Nil(t, err)
 	assert.False(t, hasFree)
 }
+
+func TestDisks_RootPartition_Extendable(t *testing.T) {
+
+	parted := `
+BYT;
+/dev/mmcblk0:100%:sd/mmc:512:512:msdos:SD SD32G:;
+1:0.00%:0.01%:0.01%:free;
+1:0.01%:0.87%:0.86%:fat32::lba;
+1:0.87%:0.87%:0.00%:free;
+2:0.87%:11.2%:10.3%:ext4::;
+1:11.2%:100%:88.8%:free;
+`
+
+	checker := NewFreeSpaceChecker(&FreeSpaceCheckerExecutorStub{output: parted})
+	hasFree, err := checker.HasFreeSpace("/dev/sda")
+	assert.Nil(t, err)
+	assert.True(t, hasFree)
+}
