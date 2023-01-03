@@ -42,7 +42,6 @@ func TestHandlerSuccess_Percent(t *testing.T) {
 	assert.Equal(t, `{"success":true,"data":["test %123 "]}`, rr.Body.String())
 }
 
-
 func TestHandlerFail(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)

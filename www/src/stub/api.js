@@ -341,7 +341,7 @@ export function mock () {
 
       this.get('/rest/settings/device_url', function (_schema, _request) {
         // return new Response(500, {}, deviceUrl)
-        return new Response(200, {}, deviceUrl)
+        return new Response(200, {}, { data: deviceUrl })
       })
 
       this.post('/rest/settings/deactivate', function (_schema, _request) {

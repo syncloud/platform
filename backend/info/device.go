@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-func ConstructUrl(port *int, domain string, app string) string {
+func ConstructUrl(port *int, domain string) string {
 	externalPort := ""
 	if port != nil && *port != 80 && *port != 443 {
 		externalPort = fmt.Sprintf(":%d", *port)
 	}
-	return fmt.Sprintf("https://%s.%s%s", app, domain, externalPort)
+	return fmt.Sprintf("https://%s%s", domain, externalPort)
 }
 
 type DeviceUserConfig interface {
@@ -34,5 +34,11 @@ func (d *Device) AppDomain(app string) string {
 func (d *Device) Url(app string) string {
 	port := d.userConfig.GetPublicPort()
 	domain := d.userConfig.GetDeviceDomain()
-	return ConstructUrl(port, domain, app)
+	return ConstructUrl(port, fmt.Sprintf("%s.%s", app, domain))
+}
+
+func (d *Device) DeviceUrl() string {
+	port := d.userConfig.GetPublicPort()
+	domain := d.userConfig.GetDeviceDomain()
+	return ConstructUrl(port, domain)
 }
