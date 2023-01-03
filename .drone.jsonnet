@@ -190,7 +190,7 @@ local build(arch, testUI, uwsgiDistro) = [{
         },
         {
             name: "artifact",
-            image: "appleboy/drone-scp",
+            image: "appleboy/drone-scp:1.6.4",
             settings: {
                 host: {
                     from_secret: "artifact_host"
