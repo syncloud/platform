@@ -125,14 +125,17 @@ func TestBackup_Create(t *testing.T) {
 	_ = os.Symlink(versionDir, currentDir)
 	commonDir := filepath.Join(appDir, "common")
 	_ = os.Mkdir(commonDir, 0750)
-	socketFile := filepath.Join(commonDir, "web.socket")
-	_, err := net.Listen("unix", socketFile)
+	socketCommonFile := filepath.Join(commonDir, "web.socket")
+	_, err := net.Listen("unix", socketCommonFile)
 	assert.Nil(t, err)
 
 	currentFile := filepath.Join(versionDir, "current.file")
 	if err := os.WriteFile(currentFile, []byte("current"), 0666); err != nil {
 		panic(err)
 	}
+	socketVersionFile := filepath.Join(versionDir, "web.socket")
+	_, err = net.Listen("unix", socketVersionFile)
+	assert.Nil(t, err)
 
 	commonFile := filepath.Join(commonDir, "common.file")
 	if err := os.WriteFile(commonFile, []byte("common"), 0666); err != nil {
