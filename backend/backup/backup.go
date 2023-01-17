@@ -185,7 +185,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 	b.logger.Info(fmt.Sprintf("copy %s", versionDir))
-	err = cp.Copy(versionDir, tempCurrentDir)
+	err = cp.Copy(versionDir, tempCurrentDir, b.skipUnixSockets())
 	if err != nil {
 		b.logger.Error("cannot copy", zap.Error(err))
 		return err
