@@ -171,7 +171,7 @@ def app_image():
 @app.route("/rest/logs", methods=["GET"])
 @app.route("/rest/app", methods=["GET"])
 @app.route("/rest/device/url", methods=["GET"])
-@app.route("/rest/settings/deactivate", methods=["POST"])
+@app.route("/rest/deactivate", methods=["POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():
