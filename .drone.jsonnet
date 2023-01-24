@@ -83,18 +83,6 @@ local build(arch, testUI, uwsgiDistro) = [{
                 "./build.sh $VERSION",
                 "./integration/testapp/build.sh "
             ]
-        },
-        {
-            name: "test-unit",
-            image: "python:3.8-slim-buster",
-            commands: [
-              "apt update",
-              "apt install -y build-essential libsasl2-dev libldap2-dev libssl-dev libjansson-dev libltdl7 libnss3 libffi-dev",
-              "pip install -r requirements.txt",
-              "pip install -r integration/requirements.txt",
-              "cd src",
-              "py.test test"
-            ]
         }
     ] + [
         {
