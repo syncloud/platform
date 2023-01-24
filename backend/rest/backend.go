@@ -122,6 +122,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/event/trigger", Handle(b.EventTrigger)).Methods("POST")
 	r.HandleFunc("/activate/managed", Handle(b.activate.Managed)).Methods("POST")
 	r.HandleFunc("/activate/custom", Handle(b.activate.Custom)).Methods("POST")
+	r.HandleFunc("/deactivate", Handle(b.Deactivate)).Methods("POST")
 	r.HandleFunc("/id", Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/certificate", Handle(b.certificate.Certificate)).Methods("GET")
 	r.HandleFunc("/certificate/log", Handle(b.certificate.CertificateLog)).Methods("GET")
@@ -345,6 +346,11 @@ func (b *Backend) Id(_ *http.Request) (interface{}, error) {
 		return nil, errors.New("id is not available")
 	}
 	return id, nil
+}
+
+func (b *Backend) Deactivate(_ *http.Request) (interface{}, error) {
+	b.userConfig.SetDeactivated()
+	return "OK", nil
 }
 
 func (b *Backend) StorageBootExtend(_ *http.Request) (interface{}, error) {

@@ -199,6 +199,10 @@ func (c *UserConfig) SetActivated() {
 	c.Upsert("platform.activated", DbTrue)
 }
 
+func (c *UserConfig) SetDeactivated() {
+	c.Upsert("platform.activated", DbFalse)
+}
+
 func (c *UserConfig) IsActivated() bool {
 	return c.toBool(c.Get("platform.activated", DbFalse))
 }

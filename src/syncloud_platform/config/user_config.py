@@ -1,8 +1,6 @@
 import sqlite3
-import os
-import uuid
-from configparser import ConfigParser
-from os.path import isfile, join
+from os.path import isfile
+
 from syncloudlib import logger
 
 USER_CONFIG_DB = '/var/snap/platform/current/platform.db'
@@ -37,16 +35,6 @@ class PlatformUserConfig:
     def get_user_email(self):
         return self._get('redirect.user_email')
 
-    def set_custom_domain(self, custom_domain):
-        self._upsert([
-            ('platform.custom_domain', custom_domain)
-        ])
-
-    def set_deactivated(self):
-        self._upsert([
-            ('platform.activated', FALSE)
-        ])
-
     def is_activated(self):
         result = self._get('platform.activated')
         return to_bool(result)
@@ -70,11 +58,6 @@ class PlatformUserConfig:
         result = self._get('platform.redirect_enabled')
         return to_bool(result)
         
-    def set_redirect_enabled(self, enabled):
-        self._upsert([
-            ('platform.redirect_enabled', from_bool(enabled))
-        ])
-  
     def get_dkim_key(self):
         return self._get('dkim_key')
 
@@ -97,11 +80,6 @@ class PlatformUserConfig:
 
     def get_web_secret_key(self):
         return self._get('platform.web_secret_key', 'default')
-
-    def set_web_secret_key(self, value):
-        self._upsert([
-            ('platform.web_secret_key', value)
-        ])
 
     def init_user_config(self):
             

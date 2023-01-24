@@ -197,7 +197,7 @@ def test_reactivate_good(device_host, full_domain, device_user, device_password,
 
 
 def test_deactivate(device, domain):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False,
                                    allow_redirects=False)
     assert '"success": true' in response.text
     assert response.status_code == 200
