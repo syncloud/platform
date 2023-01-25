@@ -127,13 +127,6 @@ def send_log():
     return jsonify(success=True), 200
 
 
-@app.route("/rest/settings/device_domain", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def device_domain():
-    return jsonify(success=True, device_domain=public.domain()), 200
-
-
 @app.route("/rest/app_image", methods=["GET"])
 @fail_if_not_activated
 @login_required
