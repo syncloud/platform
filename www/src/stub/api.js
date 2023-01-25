@@ -344,7 +344,7 @@ export function mock () {
         return new Response(200, {}, { data: deviceUrl })
       })
 
-      this.post('/rest/settings/deactivate', function (_schema, _request) {
+      this.post('/rest/deactivate', function (_schema, _request) {
         state.activated = false
         return new Response(200, {}, {})
       })
