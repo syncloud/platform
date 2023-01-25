@@ -40,7 +40,7 @@ def test_deactivate(device, main_domain, domain):
     device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
 
     response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False)
-    assert '"success": true' in response.text
+    assert '"success":true' in response.text
     assert response.status_code == 200
 
 
@@ -274,3 +274,4 @@ def wait_for_loading(driver):
 
 def test_teardown(driver):
     driver.quit()
+
