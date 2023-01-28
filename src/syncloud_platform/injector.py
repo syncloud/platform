@@ -59,7 +59,7 @@ class Injector:
         self.hardware = Hardware(self.platform_config, self.event_trigger,
                                  self.path_checker, self.systemctl)
         self.network = Network()
-        self.public = Public(self.platform_config, self.user_platform_config, self.device_info, self.snap,
+        self.public = Public(self.platform_config, self.user_platform_config, self.snap,
                              self.hardware, self.redirect_service, self.log_aggregator,
                              self.network)
 
