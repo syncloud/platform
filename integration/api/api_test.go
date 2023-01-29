@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/stretchr/testify/assert"
+	"regexp"
 	"testing"
 )
 
@@ -40,6 +41,20 @@ func TestDataPath(t *testing.T) {
 func TestUrl(t *testing.T) {
 	url, err := GetAppUrl("platform")
 	assert.Nil(t, err)
- assert.Contains(t, *url, ".redirect")
- assert.Contains(t, *url, "https://platform.")
+	assert.Regexp(t, regexp.MustCompile(`\.redirect$`), *url)
+	assert.Regexp(t, regexp.MustCompile(`^https://platform\.`), *url)
+}
+
+func TestGetDomainName(t *testing.T) {
+	domain, err := GetDomainName("platform")
+	assert.Nil(t, err)
+	assert.Regexp(t, regexp.MustCompile(`\.redirect$`), *domain)
+	assert.Regexp(t, regexp.MustCompile(`^platform\.`), *domain)
+}
+
+func TestGetDeviceDomainName(t *testing.T) {
+	domain, err := GetDeviceDomainName()
+	assert.Nil(t, err)
+	assert.Regexp(t, regexp.MustCompile(`\.redirect$`), *domain)
+	assert.NotRegexp(t, regexp.MustCompile(`^platform\.`), *domain)
 }

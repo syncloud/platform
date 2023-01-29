@@ -80,3 +80,11 @@ func GetDataDir(app string) (*string, error) {
 func GetAppUrl(app string) (*string, error) {
 	return do(http.MethodGet, fmt.Sprintf("/app/url?name=%s", app), nil)
 }
+
+func GetDomainName(app string) (*string, error) {
+	return do(http.MethodGet, fmt.Sprintf("/app/domain_name?name=%s", app), nil)
+}
+
+func GetDeviceDomainName() (*string, error) {
+	return do(http.MethodGet, "/app/device_domain_name", nil)
+}

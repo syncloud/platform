@@ -3,26 +3,39 @@ package rest
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/info"
 	"net"
 	"net/http"
 )
 
+type DeviceUserConfig interface {
+	GetDeviceDomain() string
+}
+
 type Api struct {
+	device     *info.Device
+	userConfig DeviceUserConfig
 }
 
-func NewApi() *Api {
-	return &Api{}
+func NewApi(device *info.Device, userConfig DeviceUserConfig) *Api {
+	return &Api{
+		device:     device,
+		userConfig: userConfig,
+	}
 }
 
-func (b *Api) Start(network string, address string) {
+func (a *Api) Start(network string, address string) {
 	listener, err := net.Listen(network, address)
 	if err != nil {
 		panic(err)
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/app/install_path", Handle(b.AppInstallPath)).Methods("GET")
-	r.HandleFunc("/app/data_path", Handle(b.AppDataPath)).Methods("GET")
+	r.HandleFunc("/app/install_path", Handle(a.AppInstallPath)).Methods("GET")
+	r.HandleFunc("/app/data_path", Handle(a.AppDataPath)).Methods("GET")
+	r.HandleFunc("/app/url", Handle(a.AppUrl)).Methods("GET")
+	r.HandleFunc("/app/domain_name", Handle(a.AppDomainName)).Methods("GET")
+	r.HandleFunc("/app/device_domain_name", Handle(a.AppDeviceDomainName)).Methods("GET")
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -32,22 +45,38 @@ func (b *Api) Start(network string, address string) {
 
 }
 
-// TODO: Not sure if this is used
-
-func (b *Api) AppInstallPath(req *http.Request) (interface{}, error) {
+func (a *Api) AppInstallPath(req *http.Request) (interface{}, error) {
 	keys, ok := req.URL.Query()["name"]
 	if !ok {
-		return nil, fmt.Errorf("no token")
+		return nil, fmt.Errorf("no name")
 	}
 	return fmt.Sprintf("/snap/%s/current", keys[0]), nil
 }
 
-// TODO: Not sure if this is used
-
-func (b *Api) AppDataPath(req *http.Request) (interface{}, error) {
+func (a *Api) AppDataPath(req *http.Request) (interface{}, error) {
 	keys, ok := req.URL.Query()["name"]
 	if !ok {
-		return nil, fmt.Errorf("no token")
+		return nil, fmt.Errorf("no name")
 	}
 	return fmt.Sprintf("/var/snap/%s/common", keys[0]), nil
+}
+
+func (a *Api) AppUrl(req *http.Request) (interface{}, error) {
+	keys, ok := req.URL.Query()["name"]
+	if !ok {
+		return nil, fmt.Errorf("no name")
+	}
+	return a.device.Url(keys[0]), nil
+}
+
+func (a *Api) AppDomainName(req *http.Request) (interface{}, error) {
+	keys, ok := req.URL.Query()["name"]
+	if !ok {
+		return nil, fmt.Errorf("no name")
+	}
+	return a.device.AppDomain(keys[0]), nil
+}
+
+func (a *Api) AppDeviceDomainName(_ *http.Request) (interface{}, error) {
+	return a.userConfig.GetDeviceDomain(), nil
 }

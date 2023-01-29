@@ -9,25 +9,6 @@ from syncloud_platform.injector import get_injector
 
 app = Flask(__name__)
 
-@app.route("/app/url", methods=["GET"])
-def app_url():
-    app_name = request.args['name']
-    url = get_app_setup(app_name).app_url()
-    return jsonify(success=True, message='', data=url), 200
-
-
-@app.route("/app/domain_name", methods=["GET"])
-def app_domain_name():
-    app_name = request.args['name']
-    domain_name = get_app_setup(app_name).app_domain_name()
-    return jsonify(success=True, message='', data=domain_name), 200
-
-
-@app.route("/app/device_domain_name", methods=["GET"])
-def device_domain_name():
-    device_domain_name = get_injector().device_info.domain()
-    return jsonify(success=True, message='', data=device_domain_name), 200
-
 
 @app.route("/app/init_storage", methods=["POST"])
 def init_storage():
