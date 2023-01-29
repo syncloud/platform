@@ -50,13 +50,13 @@ cd ${DIR}/build
 echo "snapping"
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 
-cp -r ${DIR}/meta ${SNAP_DIR}
-echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
-echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
-echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+cp -r ${DIR}/meta ${BUILD_DIR}
+echo "version: $VERSION" >> ${BUILD_DIR}/meta/snap.yaml
+echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
+echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 
 PACKAGE=${NAME}_${VERSION}_${ARCH}.snap
 echo ${PACKAGE} > $DIR/package.name
-mksquashfs ${SNAP_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root
+mksquashfs ${BUILD_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root
 mkdir ${DIR}/artifact
 cp ${DIR}/${PACKAGE} ${DIR}/artifact
