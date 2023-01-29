@@ -51,6 +51,7 @@ echo "snapping"
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 
 cp -r ${DIR}/meta ${BUILD_DIR}
+echo ${VERSION} >> ${BUILD_DIR}/meta/version
 echo "version: $VERSION" >> ${BUILD_DIR}/meta/snap.yaml
 echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml

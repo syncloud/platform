@@ -82,7 +82,7 @@ local build(arch, testUI, uwsgiDistro) = [{
             image: "debian:buster-slim",
             commands: [
                 "VERSION=$(cat version)",
-                "./build.sh $VERSION",
+                "./package.sh $VERSION",
                 "./integration/testapp/build.sh "
             ]
         }

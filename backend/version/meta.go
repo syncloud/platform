@@ -16,7 +16,7 @@ func New() *PlatformVersion {
 }
 
 func (v *PlatformVersion) Get() (string, error) {
-	content, err := os.ReadFile("/snap/platform/current/META/version")
+	content, err := os.ReadFile("/snap/platform/current/meta/version")
 	if err != nil {
 		return "", err
 	}
