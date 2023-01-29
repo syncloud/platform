@@ -63,9 +63,6 @@ class Injector:
                              self.hardware, self.redirect_service, self.log_aggregator,
                              self.network)
 
-    def get_app_paths(self, app_name):
-        return AppPaths(app_name, self.platform_config)
-    
     def get_app_setup(self, app_name):
-        return AppSetup(app_name, self.get_app_paths(app_name), self.nginx, self.hardware,
+        return AppSetup(app_name, self.nginx, self.hardware,
                         self.device_info, self.user_platform_config, self.systemctl)

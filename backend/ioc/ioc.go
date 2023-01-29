@@ -191,6 +191,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			snapd, disks, journalCtl, deviceInfo)
 	})
 
+	Singleton(func() *rest.Api { return rest.NewApi() })
+
 }
 
 func Singleton(resolver interface{}) {

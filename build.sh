@@ -11,12 +11,12 @@ NAME=platform
 ARCH=$(uname -m)
 VERSION=$1
 CA_CERTIFICATES_VERSION=20211016
-cd ${DIR}
 
-BUILD_DIR=${DIR}/build/${NAME}
+cd ${DIR}/build
+
+BUILD_DIR=${DIR}/build/snap
 PYTHON_DIR=${BUILD_DIR}/python
 export PATH=${PYTHON_DIR}/bin:$PATH
-SNAP_DIR=${DIR}/build/snap
 
 apt update
 apt install -y wget squashfs-tools dpkg-dev
@@ -45,26 +45,18 @@ cd ${DIR}/src
 rm -f version
 echo ${VERSION} >> version
 ${PYTHON_DIR}/bin/python setup.py install
-cd ..
-
-mkdir ${BUILD_DIR}/META
-echo ${NAME} >> ${BUILD_DIR}/META/app
-echo ${VERSION} >> ${BUILD_DIR}/META/version
+cd ${DIR}/build
 
 echo "snapping"
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-rm -rf ${DIR}/*.snap
 
-mkdir ${SNAP_DIR}
-cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
-cp -r ${DIR}/snap/meta ${SNAP_DIR}/
-cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
+cp -r ${DIR}/meta ${SNAP_DIR}
 echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
 echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
-PACKAGE=${NAME}_${VERSION}_${ARCH}.snap
-echo ${PACKAGE} > package.name
 
+PACKAGE=${NAME}_${VERSION}_${ARCH}.snap
+echo ${PACKAGE} > $DIR/package.name
 mksquashfs ${SNAP_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root
 mkdir ${DIR}/artifact
 cp ${DIR}/${PACKAGE} ${DIR}/artifact

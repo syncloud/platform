@@ -51,6 +51,14 @@ apps:
     - network-bind
     start-timeout: 200s
     restart-condition: always
+  api:
+    command: bin/service.api.sh
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    start-timeout: 200s
+    restart-condition: always
   cli:
     command: bin/cli
   python:
