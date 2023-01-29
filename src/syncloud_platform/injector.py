@@ -2,7 +2,6 @@ import logging
 from os import environ
 from os.path import join
 
-from syncloud_platform.application.apppaths import AppPaths
 from syncloud_platform.application.appsetup import AppSetup
 from syncloud_platform.auth.ldapauth import LdapAuth
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_APP_NAME
@@ -44,8 +43,6 @@ class Injector:
 
         self.log_aggregator = Aggregator(self.platform_config)
 
-        self.platform_app_paths = AppPaths(PLATFORM_APP_NAME, self.platform_config)
-        self.platform_app_paths.get_data_dir()
         self.redirect_service = RedirectService(self.user_platform_config)
 
         self.device_info = DeviceInfo(self.user_platform_config)
