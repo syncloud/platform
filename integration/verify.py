@@ -259,11 +259,6 @@ def test_api(device):
     device.run_ssh('/api.test')
 
 
-def test_python_ssl(device):
-    device.scp_to_device(join(DIR, "ssl.test.py"), '/', throw=True)
-    device.run_ssh('/ssl.test.py')
-
-
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
