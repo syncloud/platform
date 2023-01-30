@@ -62,5 +62,5 @@ func TestGetDeviceDomainName(t *testing.T) {
 func TestAppInitStorage(t *testing.T) {
 	dir, err := AppInitStorage("app1", "root")
 	assert.Nil(t, err)
-	assert.Equal(t, "/data/app1", dir)
+	assert.Equal(t, "/data/app1", *dir)
 }
