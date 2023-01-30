@@ -104,12 +104,12 @@ func (d DisksLinkerStub) RelinkDisk(_ string, _ string) error {
 	return nil
 }
 
-type StorageExecutorStub struct {
+type DisksExecutorStub struct {
 	command string
 	args    []string
 }
 
-func (e *StorageExecutorStub) CombinedOutput(command string, args ...string) ([]byte, error) {
+func (e *DisksExecutorStub) CombinedOutput(command string, args ...string) ([]byte, error) {
 	e.command = command
 	e.args = args
 	return []byte(""), nil
@@ -153,7 +153,7 @@ func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: true}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: true}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	partition, err := disks.RootPartition()
 	assert.Nil(t, err)
 	assert.True(t, partition.Extendable)
@@ -164,7 +164,7 @@ func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: false}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: false}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	partition, err := disks.RootPartition()
 	assert.Nil(t, err)
 	assert.False(t, partition.Extendable)
@@ -175,7 +175,7 @@ func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.Deactivate()
 	assert.Nil(t, err)
 }
@@ -185,7 +185,7 @@ func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.Deactivate()
 	assert.Nil(t, err)
 }
@@ -198,7 +198,7 @@ func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 	callOrder := &CallOrder{order: 0}
 	trigger := &TriggerStub{error: false, callOrderShared: callOrder}
 	systemd := &SystemdStub{callOrderShared: callOrder}
-	disks := NewDisks(&DisksConfigStub{}, trigger, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, trigger, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.Deactivate()
 	assert.Nil(t, err)
 	assert.Less(t, trigger.callOrder, systemd.callOrder)
@@ -210,7 +210,7 @@ func TestDisks_ActivatePartition_SupportedFs(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivatePartition("/dev/sda1")
 	assert.Nil(t, err)
 }
@@ -220,7 +220,7 @@ func TestDisks_ActivatePartition_Btrfs(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivatePartition("/dev/sda1")
 	assert.Nil(t, err)
 }
@@ -230,13 +230,13 @@ func TestDisks_ActivatePartition_NotSupportedFs(t *testing.T) {
 	allDisks := []model.Disk{
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivatePartition("/dev/sda1")
 	assert.NotNil(t, err)
 }
 
 func TestDisks_ActivateDisks_None(t *testing.T) {
-	executor := &StorageExecutorStub{}
+	executor := &DisksExecutorStub{}
 
 	allDisks := []model.Disk{
 		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
@@ -254,7 +254,7 @@ func TestDisks_ActivateDisks_UseUuid(t *testing.T) {
 		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false},
 	}
 	btrfs := &BtrfsDisksStub{}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivateDisks([]string{"/dev/sdb"}, true)
 	assert.Nil(t, err)
 	assert.Nil(t, disks.GetLastError())
@@ -269,7 +269,7 @@ func TestDisks_ActivateDisks_UseUuidExpand(t *testing.T) {
 		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false},
 	}
 	btrfs := &BtrfsDisksStub{}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivateDisks([]string{"/dev/sda", "/dev/sdb"}, true)
 	assert.Nil(t, err)
 	assert.Nil(t, disks.GetLastError())
@@ -284,7 +284,7 @@ func TestDisks_ActivateDisks_0_To_2_UseFirstUuid(t *testing.T) {
 		{"", "/dev/sdb", "", []model.Partition{}, false, "", "", "", false},
 	}
 	btrfs := &BtrfsDisksStub{}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivateDisks([]string{"/dev/sda", "/dev/sdb"}, true)
 	assert.Nil(t, err)
 	assert.Nil(t, disks.GetLastError())
@@ -300,7 +300,7 @@ func TestDisks_ActivateDisks_PartitionToDisk_Deactivate(t *testing.T) {
 	btrfs := &BtrfsDisksStub{}
 	systemd := &SystemdStub{}
 
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivateDisks([]string{"/dev/sda"}, true)
 	assert.Nil(t, err)
 	assert.Nil(t, disks.GetLastError())
@@ -317,7 +317,7 @@ func TestDisks_ActivateDisks_BterfsError(t *testing.T) {
 	btrfs := &BtrfsDisksStub{error: true}
 	systemd := &SystemdStub{}
 
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivateDisks([]string{"/dev/sda"}, true)
 	assert.NotNil(t, err)
 	assert.Equal(t, err, disks.GetLastError())
@@ -330,7 +330,7 @@ func TestDisks_ClearLastError(t *testing.T) {
 	btrfs := &BtrfsDisksStub{error: true}
 	systemd := &SystemdStub{}
 
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
 	assert.Nil(t, disks.GetLastError())
 	err := disks.ActivateDisks([]string{"/dev/sda"}, true)
 	assert.NotNil(t, err)
@@ -357,7 +357,7 @@ func TestDisks_AvailableDisks(t *testing.T) {
 			"/dev/loop1": false,
 		},
 	}
-	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &StorageExecutorStub{}, btrfs, stats, log.Default())
+	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, systemd, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, stats, log.Default())
 	available, err := disks.AvailableDisks()
 	assert.Nil(t, err)
 	assert.Len(t, available, 2)

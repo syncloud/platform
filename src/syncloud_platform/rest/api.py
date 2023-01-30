@@ -10,14 +10,6 @@ from syncloud_platform.injector import get_injector
 app = Flask(__name__)
 
 
-@app.route("/app/init_storage", methods=["POST"])
-def init_storage():
-    app_name = request.form['app_name']
-    user_name = request.form['user_name']
-    app_storage_dir = get_app_setup(app_name).init_storage(user_name)
-    return jsonify(success=True, message='', data=app_storage_dir), 200
-
-
 @app.route("/config/set_dkim_key", methods=["POST"])
 def config_set_dkim_key():
     dkim_key = request.form['dkim_key']

@@ -6,7 +6,6 @@ import (
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
-	"path"
 	"strings"
 )
 
@@ -213,13 +212,11 @@ func (d *Disks) firstActiveUuid(newDevices []string, disks []model.Disk) *string
 
 func (d *Disks) firstUuid(newDevices []string, disks []model.Disk) *string {
 	for _, disk := range disks {
-		//if !disk.Active {
 		if slices.Contains(newDevices, disk.Device) {
 			if disk.Uuid != "" {
 				return &disk.Uuid
 			}
 		}
-		//}
 	}
 	return nil
 }
@@ -282,22 +279,7 @@ func (d *Disks) ClearLastError() {
 	d.lastError = nil
 }
 
-func (d *Disks) GetAppStorageDir(app string) string {
-	return path.Join(d.config.DiskLink(), app)
-}
-
 /*
-func (d *Disks) InitAppStorage(app, owner string) {
-	dir = d.GetAppStorageDir(app)
-	if ! path.exists(dir) {
-		os.mkdir(app_storage_dir)
-	}
-	if owner:
-	self.log.info('fixing permissions on {0}'.format(app_storage_dir))
-	fs.chownpath(app_storage_dir, owner, recursive = True) else:
-	self.log.info('not fixing permissions')
-	return app_storage_dir
-}
 func (d *Disks) init_disk() {
 
 	if not isdir(self.platform_config.get_disk_root()):

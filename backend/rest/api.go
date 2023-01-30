@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/info"
+	"github.com/syncloud/platform/storage"
 	"net"
 	"net/http"
 )
@@ -15,12 +16,14 @@ type DeviceUserConfig interface {
 type Api struct {
 	device     *info.Device
 	userConfig DeviceUserConfig
+	storage    *storage.Storage
 }
 
-func NewApi(device *info.Device, userConfig DeviceUserConfig) *Api {
+func NewApi(device *info.Device, userConfig DeviceUserConfig, storage *storage.Storage) *Api {
 	return &Api{
 		device:     device,
 		userConfig: userConfig,
+		storage:    storage,
 	}
 }
 
@@ -36,6 +39,7 @@ func (a *Api) Start(network string, address string) {
 	r.HandleFunc("/app/url", Handle(a.AppUrl)).Methods("GET")
 	r.HandleFunc("/app/domain_name", Handle(a.AppDomainName)).Methods("GET")
 	r.HandleFunc("/app/device_domain_name", Handle(a.AppDeviceDomainName)).Methods("GET")
+	r.HandleFunc("/app/init_storage", Handle(a.AppInitStorage)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -79,4 +83,12 @@ func (a *Api) AppDomainName(req *http.Request) (interface{}, error) {
 
 func (a *Api) AppDeviceDomainName(_ *http.Request) (interface{}, error) {
 	return a.userConfig.GetDeviceDomain(), nil
+}
+
+func (a *Api) AppInitStorage(req *http.Request) (interface{}, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, err
+	}
+	return a.storage.InitAppStorageOwner(req.FormValue("app_name"), req.FormValue("user_name"))
 }

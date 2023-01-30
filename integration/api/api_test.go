@@ -58,3 +58,9 @@ func TestGetDeviceDomainName(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`\.redirect$`), *domain)
 	assert.NotRegexp(t, regexp.MustCompile(`^platform\.`), *domain)
 }
+
+func TestAppInitStorage(t *testing.T) {
+	dir, err := AppInitStorage("app1", "root")
+	assert.Nil(t, err)
+	assert.Equal(t, "/data/app1", dir)
+}

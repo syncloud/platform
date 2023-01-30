@@ -88,3 +88,7 @@ func GetDomainName(app string) (*string, error) {
 func GetDeviceDomainName() (*string, error) {
 	return do(http.MethodGet, "/app/device_domain_name", nil)
 }
+
+func AppInitStorage(app, user string) (*string, error) {
+	return do(http.MethodPost, "/app/init_storage", url.Values{"app_name": {app}, "user_name": {user}})
+}
