@@ -193,8 +193,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			snapd, disks, journalCtl, deviceInfo)
 	})
 
-	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage) *rest.Api {
-		return rest.NewApi(device, userConfig, storage)
+	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {
+		return rest.NewApi(device, userConfig, storage, systemd, logger)
 	})
 
 }

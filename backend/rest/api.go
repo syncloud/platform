@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/info"
-	"github.com/syncloud/platform/storage"
+	"go.uber.org/zap"
 	"net"
 	"net/http"
 )
@@ -15,17 +15,29 @@ type DeviceUserConfig interface {
 	SetDkimKey(key *string)
 }
 
+type Storage interface {
+	InitAppStorageOwner(app, owner string) (string, error)
+}
+
+type Systemd interface {
+	RestartService(service string) error
+}
+
 type Api struct {
 	device     *info.Device
 	userConfig DeviceUserConfig
-	storage    *storage.Storage
+	storage    Storage
+	systemd    Systemd
+	logger     *zap.Logger
 }
 
-func NewApi(device *info.Device, userConfig DeviceUserConfig, storage *storage.Storage) *Api {
+func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, systemd Systemd, logger *zap.Logger) *Api {
 	return &Api{
 		device:     device,
 		userConfig: userConfig,
 		storage:    storage,
+		systemd:    systemd,
+		logger:     logger,
 	}
 }
 
@@ -44,6 +56,7 @@ func (a *Api) Start(network string, address string) {
 	r.HandleFunc("/app/init_storage", Handle(a.AppInitStorage)).Methods("POST")
 	r.HandleFunc("/config/get_dkim_key", Handle(a.ConfigGetDkimKey)).Methods("GET")
 	r.HandleFunc("/config/set_dkim_key", Handle(a.ConfigSetDkimKey)).Methods("POST")
+	r.HandleFunc("/service/restart", Handle(a.ServiceRestart)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -109,4 +122,13 @@ func (a *Api) ConfigSetDkimKey(req *http.Request) (interface{}, error) {
 	key := req.FormValue("dkim_key")
 	a.userConfig.SetDkimKey(&key)
 	return "OK", nil
+}
+
+func (a *Api) ServiceRestart(req *http.Request) (interface{}, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, err
+	}
+	err = a.systemd.RestartService(req.FormValue("name"))
+	return "OK", err
 }

@@ -30,6 +30,11 @@ func New(executor cli.Executor, config ControlConfig, logger *zap.Logger) *Contr
 	return &Control{executor: executor, config: config, logger: logger}
 }
 
+func (c *Control) RestartService(service string) error {
+	_ = c.stop(service)
+	return c.start(service)
+}
+
 func (c *Control) ReloadService(service string) error {
 
 	log.Printf("reloading %s\n", service)
