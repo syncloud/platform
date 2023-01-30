@@ -458,7 +458,7 @@ def loop_device(device_host):
 
 def disk_writable(domain):
     run_ssh(domain, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
-    run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
+    run_ssh(domain, "touch /data/test.file", password=LOGS_SSH_PASSWORD)
 
 mkfs = {
   'btrfs': '/snap/platform/current/btrfs/bin/mkfs.sh',
