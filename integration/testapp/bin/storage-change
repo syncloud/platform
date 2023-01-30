@@ -1,5 +1,3 @@
-#!/snap/testapp/current/python/bin/python
+#!/bin/bash -e
 
-from syncloudlib.application import storage
-
-storage.init_storage('testapp', 'testapp')
+echo "changed" > /var/snap/testapp/common/on_storage_change

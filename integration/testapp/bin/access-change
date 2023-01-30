@@ -1,7 +1,3 @@
-#!/snap/testapp/current/python/bin/python
+#!/bin/bash -e
 
-from syncloudlib.application.urls import get_app_url
-
-with open('/var/snap/testapp/common/on_access_change', 'w+') as f:
-    f.write(get_app_url('testapp'))
-
+snap run platform.cli config get platform.domain > /var/snap/testapp/common/on_access_change

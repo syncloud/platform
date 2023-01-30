@@ -2,7 +2,6 @@ import logging
 from os import environ
 from os.path import join
 
-from syncloud_platform.application.appsetup import AppSetup
 from syncloud_platform.auth.ldapauth import LdapAuth
 from syncloud_platform.config.config import PlatformConfig, PLATFORM_APP_NAME
 from syncloud_platform.config.user_config import PlatformUserConfig
@@ -59,7 +58,3 @@ class Injector:
         self.public = Public(self.platform_config, self.user_platform_config, self.snap,
                              self.hardware, self.redirect_service, self.log_aggregator,
                              self.network)
-
-    def get_app_setup(self, app_name):
-        return AppSetup(app_name, self.nginx, self.hardware,
-                        self.device_info, self.user_platform_config, self.systemctl)
