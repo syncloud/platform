@@ -13,6 +13,7 @@ type DeviceUserConfig interface {
 	GetDeviceDomain() string
 	GetDkimKey() *string
 	SetDkimKey(key *string)
+	GetUserEmail() *string
 }
 
 type Storage interface {
@@ -58,7 +59,8 @@ func (a *Api) Start(network string, address string) {
 	r.HandleFunc("/config/get_dkim_key", Handle(a.ConfigGetDkimKey)).Methods("GET")
 	r.HandleFunc("/config/set_dkim_key", Handle(a.ConfigSetDkimKey)).Methods("POST")
 	r.HandleFunc("/service/restart", Handle(a.ServiceRestart)).Methods("POST")
-	r.HandleFunc("/app/storage_dir", Handle(a.AppStorageDir)).Methods("POST")
+	r.HandleFunc("/app/storage_dir", Handle(a.AppStorageDir)).Methods("GET")
+	r.HandleFunc("/user/email", Handle(a.UserEmail)).Methods("GET")
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -141,4 +143,8 @@ func (a *Api) AppStorageDir(req *http.Request) (interface{}, error) {
 		return nil, fmt.Errorf("no name")
 	}
 	return a.storage.GetAppStorageDir(keys[0]), nil
+}
+
+func (a *Api) UserEmail(_ *http.Request) (interface{}, error) {
+	return a.userConfig.GetUserEmail(), nil
 }

@@ -79,17 +79,17 @@ func TestControl_RemoveMount_Active(t *testing.T) {
 	assert.Nil(t, control.RemoveMount())
 }
 
-type ExecutorStub1 struct {
+type ExecutorRestartStub struct {
 	calls []string
 }
 
-func (e *ExecutorStub1) CombinedOutput(_ string, args ...string) ([]byte, error) {
+func (e *ExecutorRestartStub) CombinedOutput(_ string, args ...string) ([]byte, error) {
 	e.calls = append(e.calls, strings.Join(args, " "))
 	return nil, nil
 }
 
 func TestControl_RestartService(t *testing.T) {
-	executor := &ExecutorStub1{}
+	executor := &ExecutorRestartStub{}
 	control := New(executor, &ConfigStub{}, log.Default())
 	err := control.RestartService("app1")
 	assert.Nil(t, err)

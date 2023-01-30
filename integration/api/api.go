@@ -94,5 +94,9 @@ func AppInitStorage(app, user string) (*string, error) {
 }
 
 func AppStorageDir(name string) (*string, error) {
-	return do(http.MethodPost, fmt.Sprintf("/app/storage_dir?name=%s", name), nil)
+	return do(http.MethodGet, fmt.Sprintf("/app/storage_dir?name=%s", name), nil)
+}
+
+func UserEmail() (*string, error) {
+	return do(http.MethodGet, "/user/email", nil)
 }

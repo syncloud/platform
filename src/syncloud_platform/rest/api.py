@@ -4,15 +4,8 @@ import traceback
 from flask import Flask, jsonify, request, Response
 from syncloudlib.error import PassthroughJsonError
 
-from syncloud_platform.injector import get_injector
-
 app = Flask(__name__)
 
-
-@app.route("/user/email", methods=["GET"])
-def user_email():
-    email = get_injector().user_platform_config.get_user_email()
-    return jsonify(success=True, message='', data=email), 200
 
 
 @app.errorhandler(Exception)

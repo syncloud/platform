@@ -70,3 +70,9 @@ func TestAppStorageDir(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "/data/app1", *dir)
 }
+
+func TestUserEmail(t *testing.T) {
+	email, err := UserEmail()
+	assert.Nil(t, err)
+	assert.Equal(t, "email@redirect", *email)
+}
