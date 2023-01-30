@@ -31,16 +31,22 @@ func New(executor cli.Executor, config ControlConfig, logger *zap.Logger) *Contr
 }
 
 func (c *Control) RestartService(service string) error {
-	_ = c.stop(service)
-	return c.start(service)
+	serviceName := c.serviceName(service)
+	_ = c.stop(serviceName)
+	return c.start(serviceName)
 }
 
 func (c *Control) ReloadService(service string) error {
 
 	log.Printf("reloading %s\n", service)
-	output, err := exec.Command("systemctl", "reload", fmt.Sprintf("snap.%s", service)).CombinedOutput()
+	serviceName := c.serviceName(service)
+	output, err := exec.Command("systemctl", "reload", serviceName).CombinedOutput()
 	log.Printf("systemctl output: %s", string(output))
 	return err
+}
+
+func (c *Control) serviceName(service string) string {
+	return fmt.Sprintf("snap.%s", service)
 }
 
 func (c *Control) RemoveMount() error {
