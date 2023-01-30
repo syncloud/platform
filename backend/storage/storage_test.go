@@ -3,13 +3,20 @@ package storage
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/log"
 	"os"
 	"os/user"
 	"path/filepath"
 	"testing"
 )
+
+type StorageExecutorStub struct {
+	output string
+}
+
+func (e *StorageExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, error) {
+	return []byte(e.output), nil
+}
 
 type StorageConfigStub struct {
 	diskDir string
@@ -24,7 +31,7 @@ func TestStorage_ChownRecursive_LessThanLimit(t *testing.T) {
 	assert.Nil(t, os.WriteFile(filepath.Join(storageDir, "1"), []byte(""), 0666))
 	storage := New(
 		&StorageConfigStub{},
-		cli.New(log.Default()),
+		&StorageExecutorStub{},
 		2,
 		log.Default())
 
@@ -44,7 +51,7 @@ func TestStorage_ChownRecursive_MoreThanLimit(t *testing.T) {
 
 	storage := New(
 		&StorageConfigStub{},
-		cli.New(log.Default()),
+		&StorageExecutorStub{},
 		2,
 		log.Default())
 
@@ -61,7 +68,7 @@ func TestStorage_InitAppStorage(t *testing.T) {
 
 	storage := New(
 		&StorageConfigStub{diskDir: storageDir},
-		cli.New(log.Default()),
+		&StorageExecutorStub{},
 		2,
 		log.Default())
 
@@ -76,7 +83,7 @@ func TestStorage_InitAppStorageOwner(t *testing.T) {
 
 	storage := New(
 		&StorageConfigStub{diskDir: storageDir},
-		cli.New(log.Default()),
+		&StorageExecutorStub{},
 		2,
 		log.Default())
 	currentUser, err := user.Current()

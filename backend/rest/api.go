@@ -11,6 +11,8 @@ import (
 
 type DeviceUserConfig interface {
 	GetDeviceDomain() string
+	GetDkimKey() *string
+	SetDkimKey(key *string)
 }
 
 type Api struct {
@@ -40,6 +42,8 @@ func (a *Api) Start(network string, address string) {
 	r.HandleFunc("/app/domain_name", Handle(a.AppDomainName)).Methods("GET")
 	r.HandleFunc("/app/device_domain_name", Handle(a.AppDeviceDomainName)).Methods("GET")
 	r.HandleFunc("/app/init_storage", Handle(a.AppInitStorage)).Methods("POST")
+	r.HandleFunc("/config/get_dkim_key", Handle(a.ConfigGetDkimKey)).Methods("GET")
+	r.HandleFunc("/config/set_dkim_key", Handle(a.ConfigSetDkimKey)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -91,4 +95,18 @@ func (a *Api) AppInitStorage(req *http.Request) (interface{}, error) {
 		return nil, err
 	}
 	return a.storage.InitAppStorageOwner(req.FormValue("app_name"), req.FormValue("user_name"))
+}
+
+func (a *Api) ConfigGetDkimKey(_ *http.Request) (interface{}, error) {
+	return a.userConfig.GetDkimKey(), nil
+}
+
+func (a *Api) ConfigSetDkimKey(req *http.Request) (interface{}, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, err
+	}
+	key := req.FormValue("dkim_key")
+	a.userConfig.SetDkimKey(&key)
+	return "OK", nil
 }

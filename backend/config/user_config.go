@@ -358,6 +358,13 @@ func (c *UserConfig) GetDkimKey() *string {
 	return c.GetOrNilString("dkim_key")
 }
 
+func (c *UserConfig) SetDkimKey(key *string) {
+	if key == nil {
+		c.Delete("dkim_key")
+	} else {
+		c.Upsert("dkim_key", *key)
+	}
+}
 func (c *UserConfig) GetDomainUpdateToken() *string {
 	return c.GetOrNilString("platform.domain_update_token")
 }
