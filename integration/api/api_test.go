@@ -64,3 +64,9 @@ func TestAppInitStorage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "/data/app1", *dir)
 }
+
+func TestAppStorageDir(t *testing.T) {
+	dir, err := AppStorageDir("app1")
+	assert.Nil(t, err)
+	assert.Equal(t, "/data/app1", *dir)
+}

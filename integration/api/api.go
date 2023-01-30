@@ -92,3 +92,7 @@ func GetDeviceDomainName() (*string, error) {
 func AppInitStorage(app, user string) (*string, error) {
 	return do(http.MethodPost, "/app/init_storage", url.Values{"app_name": {app}, "user_name": {user}})
 }
+
+func AppStorageDir(name string) (*string, error) {
+	return do(http.MethodPost, fmt.Sprintf("/app/storage_dir?name=%s", name), nil)
+}

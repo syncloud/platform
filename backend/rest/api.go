@@ -17,6 +17,7 @@ type DeviceUserConfig interface {
 
 type Storage interface {
 	InitAppStorageOwner(app, owner string) (string, error)
+	GetAppStorageDir(app string) string
 }
 
 type Systemd interface {
@@ -57,6 +58,7 @@ func (a *Api) Start(network string, address string) {
 	r.HandleFunc("/config/get_dkim_key", Handle(a.ConfigGetDkimKey)).Methods("GET")
 	r.HandleFunc("/config/set_dkim_key", Handle(a.ConfigSetDkimKey)).Methods("POST")
 	r.HandleFunc("/service/restart", Handle(a.ServiceRestart)).Methods("POST")
+	r.HandleFunc("/app/storage_dir", Handle(a.AppStorageDir)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -131,4 +133,12 @@ func (a *Api) ServiceRestart(req *http.Request) (interface{}, error) {
 	}
 	err = a.systemd.RestartService(req.FormValue("name"))
 	return "OK", err
+}
+
+func (a *Api) AppStorageDir(req *http.Request) (interface{}, error) {
+	keys, ok := req.URL.Query()["name"]
+	if !ok {
+		return nil, fmt.Errorf("no name")
+	}
+	return a.storage.GetAppStorageDir(keys[0]), nil
 }

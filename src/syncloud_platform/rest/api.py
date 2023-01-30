@@ -4,17 +4,9 @@ import traceback
 from flask import Flask, jsonify, request, Response
 from syncloudlib.error import PassthroughJsonError
 
-from syncloud_platform.application.api import get_app_setup
 from syncloud_platform.injector import get_injector
 
 app = Flask(__name__)
-
-
-@app.route("/app/storage_dir", methods=["GET"])
-def storage_dir():
-    app_name = request.args['name']
-    app_storage_dir = get_app_setup(app_name).get_storage_dir()
-    return jsonify(success=True, message='', data=app_storage_dir), 200
 
 
 @app.route("/user/email", methods=["GET"])
