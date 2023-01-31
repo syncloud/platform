@@ -186,6 +186,13 @@ def test_installed_app(selenium):
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']").click()
     selenium.find_by_xpath("//h1[text()='File browser']")
+    selenium.screenshot('app_files')
+
+
+def test_install_app(selenium):
+    selenium.find_by_id('btn_install').click()
+    selenium.find_by_id('btn_confirm').click()
+    selenium.find_by_id('btn_remove')
     selenium.screenshot('app_installed')
 
 
@@ -194,13 +201,6 @@ def test_remove_app(selenium):
     selenium.find_by_id('btn_confirm').click()
     selenium.find_by_id("btn_install")
     selenium.screenshot('app_removed')
-
-
-def test_install_app(selenium):
-    selenium.find_by_id('btn_install').click()
-    selenium.find_by_id('btn_confirm').click()
-    selenium.find_by_id('btn_remove')
-    selenium.screenshot('app_installed')
 
 
 def test_not_installed_app(selenium):
