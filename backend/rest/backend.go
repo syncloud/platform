@@ -133,6 +133,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
 	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
 	r.HandleFunc("/app/install", Handle(b.AppInstall)).Methods("POST")
+	r.HandleFunc("/app/remove", Handle(b.AppRemove)).Methods("POST")
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
@@ -263,12 +264,25 @@ func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) AppInstall(req *http.Request) (interface{}, error) {
-	keys, ok := req.URL.Query()["app_id"]
-	if !ok {
-		return nil, fmt.Errorf("no name")
+	var request model.AppActionRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("wrong request")
 	}
 
-	return nil, b.snapd.Install(keys[0])
+	return nil, b.snapd.Install(request.AppId)
+}
+
+func (b *Backend) AppRemove(req *http.Request) (interface{}, error) {
+	var request model.AppActionRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("wrong request")
+	}
+
+	return nil, b.snapd.Remove(request.AppId)
 }
 
 func (b *Backend) App(req *http.Request) (interface{}, error) {

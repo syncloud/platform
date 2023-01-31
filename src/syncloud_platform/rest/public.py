@@ -72,13 +72,6 @@ def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
-@app.route("/rest/remove", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def remove():
-    return jsonify(message=public.remove(request.json['app_id'])), 200
-
-
 @app.route("/rest/restart", methods=["POST"])
 @fail_if_not_activated
 @login_required
@@ -158,6 +151,7 @@ def app_image():
 @app.route("/rest/device/url", methods=["GET"])
 @app.route("/rest/deactivate", methods=["POST"])
 @app.route("/rest/app/install", methods=["POST"])
+@app.route("/rest/app/remove", methods=["POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

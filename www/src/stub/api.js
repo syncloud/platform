@@ -307,7 +307,7 @@ export function mock () {
         console.debug(installedApps)
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/remove', function (_schema, request) {
+      this.post('/rest/app/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
         return new Response(200, {}, { success: true })

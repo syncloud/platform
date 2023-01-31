@@ -123,7 +123,15 @@ func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 }
 
 func (s *Server) Install(name string) error {
-	requestJson, err := json.Marshal(model.InstallRequest{Action: "install"})
+	return s.snapsAction("install", name)
+}
+
+func (s *Server) Remove(name string) error {
+	return s.snapsAction("remove", name)
+}
+
+func (s *Server) snapsAction(action, name string) error {
+	requestJson, err := json.Marshal(model.InstallRequest{Action: action})
 	if err != nil {
 		return err
 	}

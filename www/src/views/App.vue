@@ -183,7 +183,7 @@ export default {
     },
     remove () {
       this.action = 'Remove'
-      this.actionUrl = '/rest/remove'
+      this.actionUrl = '/rest/app/remove'
       $('#app_action_confirmation').modal('show')
     },
     backupConfirm () {
