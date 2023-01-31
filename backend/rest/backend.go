@@ -134,6 +134,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
 	r.HandleFunc("/app/install", Handle(b.AppInstall)).Methods("POST")
 	r.HandleFunc("/app/remove", Handle(b.AppRemove)).Methods("POST")
+	r.HandleFunc("/app/upgrade", Handle(b.AppUpgrade)).Methods("POST")
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
@@ -261,6 +262,17 @@ func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
 	return b.snapd.InstalledUserApps()
+}
+
+func (b *Backend) AppUpgrade(req *http.Request) (interface{}, error) {
+	var request model.AppActionRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err.Error())
+		return nil, errors.New("wrong request")
+	}
+
+	return nil, b.snapd.Upgrade(request.AppId)
 }
 
 func (b *Backend) AppInstall(req *http.Request) (interface{}, error) {

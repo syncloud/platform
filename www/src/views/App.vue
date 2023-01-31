@@ -178,7 +178,7 @@ export default {
     },
     upgrade () {
       this.action = 'Upgrade'
-      this.actionUrl = '/rest/upgrade'
+      this.actionUrl = '/rest/app/upgrade'
       $('#app_action_confirmation').modal('show')
     },
     remove () {

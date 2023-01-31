@@ -115,32 +115,60 @@ func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 	var response model.SnapResponse
 	err = json.Unmarshal(bodyBytes, &response)
 	if err != nil {
-		s.logger.Error("cannot unmarshal", zap.Error(err))
 		return nil, err
 	}
 	return &response.Result, nil
 
 }
 
-func (s *Server) Install(name string) error {
-	return s.snapsAction("install", name)
-}
-
-func (s *Server) Remove(name string) error {
-	return s.snapsAction("remove", name)
-}
-
-func (s *Server) snapsAction(action, name string) error {
-	requestJson, err := json.Marshal(model.InstallRequest{Action: action})
+func (s *Server) Upgrade(name string) error {
+	response, err := s.snapsAction("refresh", name)
 	if err != nil {
 		return err
 	}
+	if response.Status != "Accepted" {
+		var serverError model.ServerError
+		err = json.Unmarshal(response.Result, &serverError)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf(serverError.Message)
+	}
+	return nil
+}
+
+func (s *Server) Install(name string) error {
+	_, err := s.snapsAction("install", name)
+	return err
+}
+
+func (s *Server) Remove(name string) error {
+	_, err := s.snapsAction("remove", name)
+	return err
+}
+
+func (s *Server) snapsAction(action, name string) (*model.ServerResponse, error) {
+	requestJson, err := json.Marshal(model.InstallRequest{Action: action})
+	if err != nil {
+		return nil, err
+	}
 	resp, err := s.client.Post(fmt.Sprintf("http://unix/v2/snaps/%s", name), "application/json", bytes.NewBuffer(requestJson))
 	if resp.StatusCode == http.StatusNotFound {
-		return &NotFound{}
+		return nil, &NotFound{}
+	}
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		s.logger.Error("cannot read output", zap.Error(err))
+		return nil, err
+	}
+	var response model.ServerResponse
+	err = json.Unmarshal(bodyBytes, &response)
+	if err != nil {
+		s.logger.Error("cannot unmarshal", zap.Error(err))
+		return nil, err
 	}
 
-	return nil
+	return &response, nil
 }
 
 func (s *Server) httpGet(url string) ([]byte, error) {

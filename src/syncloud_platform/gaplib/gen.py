@@ -1,8 +1,7 @@
-import os
 from os import makedirs
-from os.path import join, dirname, relpath, isdir, split
+from os.path import dirname, isdir, split
+
 import jinja2
-import shutil
 
 
 def generate_file_jinja(from_path, to_path, variables, variable_tags=('{{', '}}')):

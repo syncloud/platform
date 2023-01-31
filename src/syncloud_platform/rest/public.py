@@ -88,14 +88,6 @@ def shutdown():
     return jsonify(success=True), 200
 
 
-@app.route("/rest/upgrade", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def upgrade():
-    public.upgrade(request.json['app_id'])
-    return jsonify(success=True), 200
-
-
 @app.route("/rest/access/network_interfaces", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -152,6 +144,7 @@ def app_image():
 @app.route("/rest/deactivate", methods=["POST"])
 @app.route("/rest/app/install", methods=["POST"])
 @app.route("/rest/app/remove", methods=["POST"])
+@app.route("/rest/app/upgrade", methods=["POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

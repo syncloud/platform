@@ -90,7 +90,7 @@ test('Upgrade', async () => {
     }]
   })
 
-  mock.onPost('/rest/upgrade').reply(function (config) {
+  mock.onPost('/rest/app/upgrade').reply(function (config) {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })

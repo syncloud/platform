@@ -296,7 +296,7 @@ export function mock () {
       this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
       })
-      this.post('/rest/upgrade', function (_schema, _request) {
+      this.post('/rest/app/upgrade', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/install', function (_schema, request) {

@@ -99,7 +99,7 @@ export default {
         this.progressHide()
       }
 
-      axios.post('/rest/upgrade', { app_id: 'platform' })
+      axios.post('/rest/app/upgrade', { app_id: 'platform' })
         .then((resp) => {
           Common.checkForServiceError(resp.data, () => {
             Common.runAfterJobIsComplete(

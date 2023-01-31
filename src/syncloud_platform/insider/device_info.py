@@ -1,16 +1,3 @@
-
-
-def construct_url(external_port, domain, app=None):
-    if external_port in [80, 443, None]:
-        external_port = ''
-    else:
-        external_port = ':{0}'.format(external_port)
-    app_string = ''
-    if app:
-        app_string = app + '.'
-    return 'https://{0}{1}{2}'.format(app_string, domain, external_port)
-
-
 class DeviceInfo:
     def __init__(self, user_platform_config):
         self.user_platform_config = user_platform_config
@@ -31,14 +18,3 @@ class DeviceInfo:
             if custom:
                 domain = custom
         return domain
-
-    def app_domain(self, app_name):
-        return '{0}.{1}'.format(app_name, self.domain())
-
-    def url(self, app=None):
-        port = self.user_platform_config.get_manual_access_port()
-        domain_name = self.domain()
-        if domain_name:
-            return construct_url(port, domain_name, app)
-        else:
-            ''
