@@ -24,7 +24,7 @@ test('Install', async () => {
     }]
   })
 
-  mock.onPost('/rest/install').reply(function (config) {
+  mock.onPost('/rest/app/install').reply(function (config) {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })

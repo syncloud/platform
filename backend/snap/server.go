@@ -1,6 +1,7 @@
 package snap
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,6 +18,7 @@ const (
 
 type SnapdClient interface {
 	Get(url string) (resp *http.Response, err error)
+	Post(url, bodyType string, body io.Reader) (*http.Response, error)
 }
 
 type HttpClient interface {
@@ -118,6 +120,19 @@ func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 	}
 	return &response.Result, nil
 
+}
+
+func (s *Server) Install(name string) error {
+	requestJson, err := json.Marshal(model.InstallRequest{Action: "install"})
+	if err != nil {
+		return err
+	}
+	resp, err := s.client.Post(fmt.Sprintf("http://unix/v2/snaps/%s", name), "application/json", bytes.NewBuffer(requestJson))
+	if resp.StatusCode == http.StatusNotFound {
+		return &NotFound{}
+	}
+
+	return nil
 }
 
 func (s *Server) httpGet(url string) ([]byte, error) {

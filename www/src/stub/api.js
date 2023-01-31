@@ -299,7 +299,7 @@ export function mock () {
       this.post('/rest/upgrade', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/install', function (_schema, request) {
+      this.post('/rest/app/install', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         console.debug(attrs.app_id)
         console.debug(installedApps)

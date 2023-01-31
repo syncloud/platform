@@ -173,7 +173,7 @@ export default {
     },
     install () {
       this.action = 'Install'
-      this.actionUrl = '/rest/install'
+      this.actionUrl = '/rest/app/install'
       $('#app_action_confirmation').modal('show')
     },
     upgrade () {

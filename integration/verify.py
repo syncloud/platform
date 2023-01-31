@@ -368,6 +368,18 @@ def test_rest_not_installed_app(device, domain, artifact_dir):
         the_file.write(response.text)
     assert response.status_code == 200
 
+def test_install_app(device, device_host):
+    session = device.login()
+    session.post('https://{0}/rest/app/install'.format(device_host), json={'app_id': 'files'}, verify=False)
+    wait_for_installer(session, device_host)
+
+
+def test_rest_installed_app(device, device_host, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.files.installed.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
 
 def test_rest_platform_version(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=platform'.format(domain), verify=False)

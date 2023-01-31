@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func NewClient() SnapdClient {
+func NewClient() *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
 			DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
