@@ -26,7 +26,7 @@ local build(arch, testUI, uwsgiDistro) = [{
                 NODE_OPTIONS: '--max_old_space_size=2048',
             },
             commands: [
-                "mkdir -p build/platform",
+                "mkdir -p build/snap",
                 "cd www",
 		        "npm config set fetch-retry-mintimeout 20000",
                 "npm config set fetch-retry-maxtimeout 120000",
@@ -34,20 +34,22 @@ local build(arch, testUI, uwsgiDistro) = [{
                 "npm run test",
                 "npm run lint",
                 "npm run build",
-                "cp -r dist ../build/platform/www"
+                "cp -r dist ../build/snap/www"
             ]
         },
         {
-            name: "build backend",
+            name: "build",
             image: "golang:" + go,
             commands: [
                 "cd backend",
                 "go test ./... -coverprofile cover.out",
                 "go tool cover -func cover.out",
-                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/backend ./cmd/backend",
-                "../build/platform/bin/backend -h",
-                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/platform/bin/cli ./cmd/cli",
-                "../build/platform/bin/cli -h"
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/backend ./cmd/backend",
+                "../build/snap/bin/backend -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/api ./cmd/api",
+                "../build/snap/bin/api -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/cli ./cmd/cli",
+                "../build/snap/bin/cli -h"
             ]
         },
         {
@@ -80,7 +82,7 @@ local build(arch, testUI, uwsgiDistro) = [{
             image: "debian:buster-slim",
             commands: [
                 "VERSION=$(cat version)",
-                "./build.sh $VERSION",
+                "./package.sh $VERSION",
                 "./integration/testapp/build.sh "
             ]
         }

@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/log"
+	"strings"
 	"testing"
 )
 
@@ -76,4 +77,24 @@ func TestControl_RemoveMount_Active(t *testing.T) {
 
 	control := New(executorFunc, &ConfigStub{diskDir: "/opt/disk/external"}, log.Default())
 	assert.Nil(t, control.RemoveMount())
+}
+
+type ExecutorRestartStub struct {
+	calls []string
+}
+
+func (e *ExecutorRestartStub) CombinedOutput(_ string, args ...string) ([]byte, error) {
+	e.calls = append(e.calls, strings.Join(args, " "))
+	return nil, nil
+}
+
+func TestControl_RestartService(t *testing.T) {
+	executor := &ExecutorRestartStub{}
+	control := New(executor, &ConfigStub{}, log.Default())
+	err := control.RestartService("app1")
+	assert.Nil(t, err)
+	assert.Len(t, executor.calls, 3)
+	assert.Equal(t, executor.calls[0], "is-active snap.app1")
+	assert.Equal(t, executor.calls[1], "stop snap.app1")
+	assert.Equal(t, executor.calls[2], "start snap.app1")
 }

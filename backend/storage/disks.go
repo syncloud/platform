@@ -212,13 +212,11 @@ func (d *Disks) firstActiveUuid(newDevices []string, disks []model.Disk) *string
 
 func (d *Disks) firstUuid(newDevices []string, disks []model.Disk) *string {
 	for _, disk := range disks {
-		//if !disk.Active {
 		if slices.Contains(newDevices, disk.Device) {
 			if disk.Uuid != "" {
 				return &disk.Uuid
 			}
 		}
-		//}
 	}
 	return nil
 }
@@ -282,21 +280,6 @@ func (d *Disks) ClearLastError() {
 }
 
 /*
-func (d *Disks) get_app_storage_dir(app_id) {
-	app_storage_dir = join(self.platform_config.get_disk_link(), app_id)
-	return app_storage_dir
-}
-
-func (d *Disks) init_app_storage(app_id, owner = None) {
-	app_storage_dir = self.get_app_storage_dir(app_id)
-	if not path.exists(app_storage_dir):
-	os.mkdir(app_storage_dir)
-	if owner:
-	self.log.info('fixing permissions on {0}'.format(app_storage_dir))
-	fs.chownpath(app_storage_dir, owner, recursive = True) else:
-	self.log.info('not fixing permissions')
-	return app_storage_dir
-}
 func (d *Disks) init_disk() {
 
 	if not isdir(self.platform_config.get_disk_root()):

@@ -80,3 +80,23 @@ func GetDataDir(app string) (*string, error) {
 func GetAppUrl(app string) (*string, error) {
 	return do(http.MethodGet, fmt.Sprintf("/app/url?name=%s", app), nil)
 }
+
+func GetDomainName(app string) (*string, error) {
+	return do(http.MethodGet, fmt.Sprintf("/app/domain_name?name=%s", app), nil)
+}
+
+func GetDeviceDomainName() (*string, error) {
+	return do(http.MethodGet, "/app/device_domain_name", nil)
+}
+
+func AppInitStorage(app, user string) (*string, error) {
+	return do(http.MethodPost, "/app/init_storage", url.Values{"app_name": {app}, "user_name": {user}})
+}
+
+func AppStorageDir(name string) (*string, error) {
+	return do(http.MethodGet, fmt.Sprintf("/app/storage_dir?name=%s", name), nil)
+}
+
+func UserEmail() (*string, error) {
+	return do(http.MethodGet, "/user/email", nil)
+}

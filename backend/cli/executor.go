@@ -23,7 +23,7 @@ func (e *ShellExecutor) CombinedOutput(name string, arg ...string) ([]byte, erro
 	e.logger.Info("execute", zap.String("cmd", fmt.Sprintf("%s %s", name, strings.Join(arg, " "))))
 	output, err := exec.Command(name, arg...).CombinedOutput()
 	if err != nil {
-		return output, fmt.Errorf(string(output))
+		return output, fmt.Errorf("%v: %s", err, string(output))
 	}
 	return output, err
 }

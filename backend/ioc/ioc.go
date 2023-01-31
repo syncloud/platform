@@ -133,7 +133,9 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return cron.New([]cron.Job{job1, job2, job3}, time.Minute*5, userConfig)
 	})
 	Singleton(func() *installer.Installer { return installer.New() })
-	Singleton(func() *storage.Storage { return storage.New() })
+	Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, logger *zap.Logger) *storage.Storage {
+		return storage.New(systemConfig, executor, 1000, logger)
+	})
 	Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
 	})
@@ -189,6 +191,10 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
 			snapd, disks, journalCtl, deviceInfo)
+	})
+
+	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {
+		return rest.NewApi(device, userConfig, storage, systemd, logger)
 	})
 
 }
