@@ -10,7 +10,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from syncloudlib.http import wait_for_response
 from syncloudlib.integration.hosts import add_host_alias
-from syncloudlib.integration.installer import local_install, wait_for_installer
+from syncloudlib.integration.installer import local_install
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
 
@@ -613,3 +613,22 @@ def retry(method, retries=10):
             time.sleep(5)
         attempt += 1
     raise exception
+
+def wait_for_installer(web_session, host, attempts=60):
+    is_running = True
+    attempt = 0
+    while is_running and attempt < attempts:
+        try:
+            response = web_session.get('https://{0}/rest/installer/status'.format(host), verify=False)
+            if response.status_code == 200:
+                status = json.loads(response.text)
+                is_running = status['data']['is_running']
+        except Exception as e:
+            print(str(e))
+
+        print("attempt: {0}/{1}".format(attempt, attempts))
+        attempt += 1
+        time.sleep(10)
+
+    if is_running:
+        raise Exception("time out waiting for thr installer")

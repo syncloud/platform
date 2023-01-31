@@ -132,7 +132,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/activation/status", Handle(b.IsActivated)).Methods("GET")
 	r.HandleFunc("/apps/available", Handle(b.AppsAvailable)).Methods("GET")
 	r.HandleFunc("/apps/installed", Handle(b.AppsInstalled)).Methods("GET")
-	r.HandleFunc("/app/install", Handle(b.AppsInstall)).Methods("POST")
+	r.HandleFunc("/app/install", Handle(b.AppInstall)).Methods("POST")
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
@@ -262,7 +262,7 @@ func (b *Backend) AppsInstalled(_ *http.Request) (interface{}, error) {
 	return b.snapd.InstalledUserApps()
 }
 
-func (b *Backend) AppsInstall(req *http.Request) (interface{}, error) {
+func (b *Backend) AppInstall(req *http.Request) (interface{}, error) {
 	keys, ok := req.URL.Query()["app_id"]
 	if !ok {
 		return nil, fmt.Errorf("no name")
