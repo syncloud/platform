@@ -186,29 +186,21 @@ def test_installed_app(selenium):
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']").click()
     selenium.find_by_xpath("//h1[text()='File browser']")
+    selenium.screenshot('app_files')
+
+
+def test_remove_app(selenium):
+    selenium.find_by_id('btn_remove').click()
+    selenium.find_by_id('btn_confirm').click()
+    selenium.find_by_id("btn_install")
+    selenium.screenshot('app_removed')
+
+
+def test_install_app(selenium):
+    selenium.find_by_id('btn_install').click()
+    selenium.find_by_id('btn_confirm').click()
+    selenium.find_by_id('btn_remove')
     selenium.screenshot('app_installed')
-
-
-# def test_remove_app(driver, ui_mode, screenshot_dir):
-#     remove = 'btn_remove'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
-#     driver.find_element_by_id(remove).click()
-#     confirm = 'btn_confirm'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-#     driver.find_element_by_id(confirm).click()
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
-#     selenium.screenshot('app_removed-' + ui_mode)
-
-
-# def test_install_app(driver, ui_mode, screenshot_dir):
-#     install = 'btn_install'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
-#     driver.find_element_by_id(install).click()
-#     confirm = 'btn_confirm'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-#     driver.find_element_by_id(confirm).click()
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
-#     selenium.screenshot('app_installed-' + ui_mode)
 
 
 def test_not_installed_app(selenium):

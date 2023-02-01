@@ -38,7 +38,7 @@ test('Update platform', async () => {
       success: true
     }
   )
-  mock.onPost('/rest/upgrade').reply(function (_) {
+  mock.onPost('/rest/app/upgrade').reply(function (_) {
     upgraded = true
     return [200, { success: true }]
   })

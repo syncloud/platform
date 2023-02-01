@@ -26,6 +26,11 @@ type ClientStub struct {
 	error         bool
 }
 
+func (c *ClientStub) Post(_, _ string, _ io.Reader) (*http.Response, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (c *ClientStub) Get(url string) (*http.Response, error) {
 	json := ""
 	status := 0

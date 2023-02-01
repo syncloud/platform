@@ -24,7 +24,7 @@ test('Install', async () => {
     }]
   })
 
-  mock.onPost('/rest/install').reply(function (config) {
+  mock.onPost('/rest/app/install').reply(function (config) {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
@@ -90,7 +90,7 @@ test('Upgrade', async () => {
     }]
   })
 
-  mock.onPost('/rest/upgrade').reply(function (config) {
+  mock.onPost('/rest/app/upgrade').reply(function (config) {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
@@ -156,7 +156,7 @@ test('Remove', async () => {
     }]
   })
 
-  mock.onPost('/rest/remove').reply(function (config) {
+  mock.onPost('/rest/app/remove').reply(function (config) {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
@@ -224,7 +224,7 @@ test('Action error', async () => {
     }]
   })
 
-  mock.onPost('/rest/remove').reply(function (_) {
+  mock.onPost('/rest/app/remove').reply(function (_) {
     return [500, { message: 'not ok' }]
   })
 

@@ -296,10 +296,10 @@ export function mock () {
       this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
       })
-      this.post('/rest/upgrade', function (_schema, _request) {
+      this.post('/rest/app/upgrade', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/install', function (_schema, request) {
+      this.post('/rest/app/install', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         console.debug(attrs.app_id)
         console.debug(installedApps)
@@ -307,7 +307,7 @@ export function mock () {
         console.debug(installedApps)
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/remove', function (_schema, request) {
+      this.post('/rest/app/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
         return new Response(200, {}, { success: true })

@@ -72,21 +72,6 @@ def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
-@app.route("/rest/install", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def install():
-    public.install(request.json['app_id'])
-    return jsonify(success=True), 200
-
-
-@app.route("/rest/remove", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def remove():
-    return jsonify(message=public.remove(request.json['app_id'])), 200
-
-
 @app.route("/rest/restart", methods=["POST"])
 @fail_if_not_activated
 @login_required
@@ -100,14 +85,6 @@ def restart():
 @login_required
 def shutdown():
     public.shutdown()
-    return jsonify(success=True), 200
-
-
-@app.route("/rest/upgrade", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def upgrade():
-    public.upgrade(request.json['app_id'])
     return jsonify(success=True), 200
 
 
@@ -165,6 +142,9 @@ def app_image():
 @app.route("/rest/app", methods=["GET"])
 @app.route("/rest/device/url", methods=["GET"])
 @app.route("/rest/deactivate", methods=["POST"])
+@app.route("/rest/app/install", methods=["POST"])
+@app.route("/rest/app/remove", methods=["POST"])
+@app.route("/rest/app/upgrade", methods=["POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

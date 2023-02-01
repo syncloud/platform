@@ -30,6 +30,7 @@ import (
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
+	"net/http"
 	"time"
 )
 
@@ -96,8 +97,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
 		return cron.NewCertificateJob(certGenerator)
 	})
-	Singleton(func() snap.SnapdClient { return snap.NewClient() })
-	Singleton(func(snapClient snap.SnapdClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
+	Singleton(func() *http.Client { return snap.NewClient() })
+	Singleton(func(snapClient *http.Client, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
 		return snap.NewServer(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 

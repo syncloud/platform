@@ -14,7 +14,6 @@ setup(
               'syncloud_platform.rest.facade',
               'syncloud_platform.rest.model',
               'syncloud_platform.config',
-              'syncloud_platform.snap',
               'syncloud_platform.control',
               'syncloud_platform.disks',
               'syncloud_platform.log',
