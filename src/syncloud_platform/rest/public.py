@@ -72,22 +72,6 @@ def user():
     return jsonify(convertible.to_dict(current_user.user)), 200
 
 
-@app.route("/rest/restart", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def restart():
-    public.restart()
-    return jsonify(success=True), 200
-
-
-@app.route("/rest/shutdown", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def shutdown():
-    public.shutdown()
-    return jsonify(success=True), 200
-
-
 @app.route("/rest/access/network_interfaces", methods=["GET"])
 @fail_if_not_activated
 @login_required
@@ -145,6 +129,8 @@ def app_image():
 @app.route("/rest/app/install", methods=["POST"])
 @app.route("/rest/app/remove", methods=["POST"])
 @app.route("/rest/app/upgrade", methods=["POST"])
+@app.route("/rest/restart", methods=["POST"])
+@app.route("/rest/shutdown", methods=["POST"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

@@ -187,11 +187,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-		deviceInfo *info.Device,
+		deviceInfo *info.Device, executor *cli.ShellExecutor,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo)
+			snapd, disks, journalCtl, deviceInfo, executor)
 	})
 
 	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {

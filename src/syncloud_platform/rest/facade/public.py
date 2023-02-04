@@ -1,8 +1,3 @@
-from syncloudlib import logger
-
-from syncloud_platform.control import power
-
-
 class Public:
 
     def __init__(self, user_platform_config, redirect_service, log_aggregator, network):
@@ -10,12 +5,6 @@ class Public:
         self.redirect_service = redirect_service
         self.log_aggregator = log_aggregator
         self.network = network
-        
-    def restart(self):
-        power.restart()
-
-    def shutdown(self):
-        power.shutdown()
 
     def send_logs(self, include_support):
         user_token = self.user_platform_config.get_user_update_token()

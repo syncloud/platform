@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
@@ -42,6 +43,7 @@ type Backend struct {
 	disks           *storage.Disks
 	journalCtl      *systemd.Journal
 	deviceInfo      *info.Device
+	executor        *cli.ShellExecutor
 }
 
 func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
@@ -52,7 +54,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 	activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress,
 	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-	deviceInfo *info.Device,
+	deviceInfo *info.Device, executor *cli.ShellExecutor,
 ) *Backend {
 
 	return &Backend{
@@ -72,6 +74,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 		disks:           disks,
 		journalCtl:      journalCtl,
 		deviceInfo:      deviceInfo,
+		executor:        executor,
 	}
 }
 
@@ -138,6 +141,8 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
+	r.HandleFunc("/restart", Handle(b.Restart)).Methods("POST")
+	r.HandleFunc("/shutdown", Handle(b.Shutdown)).Methods("POST")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -393,4 +398,12 @@ func (b *Backend) Logs(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) DeviceUrl(_ *http.Request) (interface{}, error) {
 	return b.deviceInfo.DeviceUrl(), nil
+}
+
+func (b *Backend) Restart(_ *http.Request) (interface{}, error) {
+	return b.executor.CombinedOutput("shutdown", "-r", "now")
+}
+
+func (b *Backend) Shutdown(_ *http.Request) (interface{}, error) {
+	return b.executor.CombinedOutput("shutdown", "now")
 }
