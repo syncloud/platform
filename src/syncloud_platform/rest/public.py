@@ -80,18 +80,6 @@ def send_log():
     public.send_logs(include_support)
     return jsonify(success=True), 200
 
-
-@app.route("/rest/app_image", methods=["GET"])
-@fail_if_not_activated
-@login_required
-def app_image():
-    channel = request.args['channel']
-    app = request.args['app']
-    r = requests.get('http://apps.syncloud.org/releases/{0}/images/{1}-128.png'.format(channel, app), stream=True)
-    return Response(r.iter_content(chunk_size=10 * 1024),
-                    content_type=r.headers['Content-Type'])
-
-
 @app.route("/rest/backup/list", methods=["GET"])
 @app.route("/rest/backup/create", methods=["POST"])
 @app.route("/rest/backup/restore", methods=["POST"])
@@ -125,6 +113,7 @@ def app_image():
 @app.route("/rest/restart", methods=["POST"])
 @app.route("/rest/shutdown", methods=["POST"])
 @app.route("/rest/network/interfaces", methods=["GET"])
+@app.route("/rest/proxy/image", methods=["GET"])
 @fail_if_not_activated
 @login_required
 def backend_proxy_activated():

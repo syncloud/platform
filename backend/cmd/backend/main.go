@@ -47,5 +47,5 @@ func Start(userConfig string, socketType string, socket string) {
 	ioc.Init(userConfig, config.DefaultSystemConfig, backup.Dir, backup.VarDir)
 	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
 	ioc.Call(func(backupService *backup.Backup) { backupService.Init() })
-	ioc.Call(func(backend *rest.Backend) { backend.Start(socketType, socket) })
+	ioc.Call(func(backend *rest.Backend) error { return backend.Start(socketType, socket) })
 }

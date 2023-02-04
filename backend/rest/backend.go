@@ -78,27 +78,10 @@ func NewBackend(
 	}
 }
 
-func (b *Backend) NewReverseProxy() *httputil.ReverseProxy {
-	director := func(req *http.Request) {
-		redirectApiUrl := b.userConfig.GetRedirectApiUrl()
-		redirectUrl, err := url.Parse(redirectApiUrl)
-		if err != nil {
-			fmt.Printf("proxy url error: %v", err)
-			return
-		}
-		fmt.Printf("proxy url: %v", redirectUrl)
-
-		req.URL.Scheme = redirectUrl.Scheme
-		req.URL.Host = redirectUrl.Host
-		req.Host = redirectUrl.Host
-	}
-	return &httputil.ReverseProxy{Director: director}
-}
-
-func (b *Backend) Start(network string, address string) {
+func (b *Backend) Start(network string, address string) error {
 	listener, err := net.Listen(network, address)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	go b.worker.Start()
@@ -144,14 +127,55 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/restart", Handle(b.Restart)).Methods("POST")
 	r.HandleFunc("/shutdown", Handle(b.Shutdown)).Methods("POST")
 	r.HandleFunc("/network/interfaces", Handle(b.NetworkInterfaces)).Methods("GET")
-	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
+
+	redirectProxy, err := b.ProxyRedirect()
+	if err != nil {
+		return err
+	}
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", redirectProxy))
+
+	r.PathPrefix("/proxy/image").Handler(b.ProxyImage())
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
 
 	fmt.Println("Started backend")
 	_ = http.Serve(listener, r)
+	return nil
+}
 
+func (b *Backend) ProxyRedirect() (*httputil.ReverseProxy, error) {
+	redirectApiUrl := b.userConfig.GetRedirectApiUrl()
+	redirectUrl, err := url.Parse(redirectApiUrl)
+	if err != nil {
+		fmt.Printf("proxy url error: %v", err)
+		return nil, err
+	}
+	fmt.Printf("proxy url: %v", redirectUrl)
+	director := func(req *http.Request) {
+		req.URL.Scheme = redirectUrl.Scheme
+		req.URL.Host = redirectUrl.Host
+		req.Host = redirectUrl.Host
+	}
+	return &httputil.ReverseProxy{Director: director}, nil
+}
+
+func (b *Backend) ProxyImage() *httputil.ReverseProxy {
+	host := "apps.syncloud.org"
+	director := func(req *http.Request) {
+		query := req.URL.Query()
+		if !query.Has("channel") {
+			return
+		}
+		if !query.Has("app") {
+			return
+		}
+		req.URL.Scheme = "http"
+		req.URL.Host = host
+		req.URL.Path = fmt.Sprintf("releases/%s/images/%s-128.png", query.Get("channel"), query.Get("app"))
+		req.Host = host
+	}
+	return &httputil.ReverseProxy{Director: director}
 }
 
 func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
