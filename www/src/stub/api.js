@@ -132,50 +132,24 @@ let backups = [
 ]
 
 const networkInterfaces = {
-  data: {
-    interfaces: [
-      {
-        ipv4: [
-          {
-            addr: '172.17.0.2',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          },
-          {
-            addr: '172.17.0.3',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          }
-        ],
-        name: 'eth0'
-      },
-      {
-        ipv4: [
-          {
-            addr: '172.17.0.2',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          },
-          {
-            addr: '172.17.0.3',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          }
-        ],
-        ipv6: [
-          {
-            addr: 'fe80::42:acff:fe11:2%eth0',
-            netmask: 'ffff:ffff:ffff:ffff::'
-          },
-          {
-            addr: 'fe80::42:acff:fe11:11',
-            netmask: 'ffff:ffff:ffff:ffff::'
-          }
-        ],
-        name: 'wifi0'
-      }
-    ]
-  },
+  data: [
+    {
+      name: 'eth0',
+      addresses: [
+        '172.17.0.2',
+        '172.17.0.3'
+      ],
+    },
+    {
+      name: 'wifi0',
+      addresses: [
+        '172.17.0.2',
+        '172.17.0.3',
+        'fe80::42:acff:fe11:2%eth0',
+        'fe80::42:acff:fe11:11'
+      ],
+    }
+  ],
   success: true
 }
 
@@ -398,7 +372,7 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
 
-      this.get('/rest/access/network_interfaces', function (_schema, _request) {
+      this.get('/rest/network/interfaces', function (_schema, _request) {
         return new Response(200, {}, networkInterfaces)
       })
 

@@ -22,13 +22,13 @@ type UserConfig interface {
 type Service struct {
 	userConfig UserConfig
 	idParser   identification.IdParser
-	netInfo    network.Info
+	netInfo    network.Interfaces
 	client     http.Client
 	version    version.Version
 	logger     *zap.Logger
 }
 
-func New(userConfig UserConfig, idParser identification.IdParser, netInfo network.Info, client http.Client, version version.Version, logger *zap.Logger) *Service {
+func New(userConfig UserConfig, idParser identification.IdParser, netInfo network.Interfaces, client http.Client, version version.Version, logger *zap.Logger) *Service {
 	return &Service{
 		userConfig: userConfig,
 		idParser:   idParser,

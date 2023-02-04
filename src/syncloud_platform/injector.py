@@ -11,7 +11,6 @@ from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.insider.device_info import DeviceInfo
 from syncloud_platform.insider.redirect_service import RedirectService
 from syncloud_platform.log.aggregator import Aggregator
-from syncloud_platform.network.network import Network
 from syncloud_platform.rest.facade.public import Public
 from syncloudlib import logger
 
@@ -47,5 +46,4 @@ class Injector:
 
         self.path_checker = PathChecker(self.platform_config)
         self.hardware = Hardware(self.platform_config, self.path_checker)
-        self.network = Network()
-        self.public = Public(self.user_platform_config, self.redirect_service, self.log_aggregator, self.network)
+        self.public = Public(self.user_platform_config, self.redirect_service, self.log_aggregator)

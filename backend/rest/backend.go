@@ -11,6 +11,7 @@ import (
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
+	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
 	"github.com/syncloud/platform/snap"
@@ -44,18 +45,16 @@ type Backend struct {
 	journalCtl      *systemd.Journal
 	deviceInfo      *info.Device
 	executor        *cli.ShellExecutor
+	iface           *network.TcpInterfaces
 }
 
-func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
-	eventTrigger *event.Trigger, worker *job.Worker,
-	redirect *redirect.Service, installerService *installer.Installer,
-	storageService *storage.Storage,
-	identification *identification.Parser,
-	activate *Activate, userConfig *config.UserConfig,
-	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-	deviceInfo *info.Device, executor *cli.ShellExecutor,
-) *Backend {
+func NewBackend(
+	master *job.SingleJobMaster, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
+	redirect *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
+	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
+	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
+	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
+	iface *network.TcpInterfaces) *Backend {
 
 	return &Backend{
 		JobMaster:       master,
@@ -75,6 +74,7 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 		journalCtl:      journalCtl,
 		deviceInfo:      deviceInfo,
 		executor:        executor,
+		iface:           iface,
 	}
 }
 
@@ -143,6 +143,7 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
 	r.HandleFunc("/restart", Handle(b.Restart)).Methods("POST")
 	r.HandleFunc("/shutdown", Handle(b.Shutdown)).Methods("POST")
+	r.HandleFunc("/network/interfaces", Handle(b.NetworkInterfaces)).Methods("GET")
 	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -406,4 +407,8 @@ func (b *Backend) Restart(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) Shutdown(_ *http.Request) (interface{}, error) {
 	return b.executor.CombinedOutput("shutdown", "now")
+}
+
+func (b *Backend) NetworkInterfaces(_ *http.Request) (interface{}, error) {
+	return b.iface.List()
 }

@@ -55,7 +55,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	NamedSingleton(CertificateLogger, func() *zap.Logger {
 		return logger.With(zap.String(log.CategoryKey, log.CategoryCertificate))
 	})
-	Singleton(func() *network.Interface { return network.New() })
+	Singleton(func() *network.TcpInterfaces { return network.New() })
 	Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
 	Singleton(func() *version.PlatformVersion { return version.New() })
 	Singleton(func() *identification.Parser { return identification.New() })
@@ -72,7 +72,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(userConfig *config.UserConfig) *info.Device {
 		return info.New(userConfig)
 	})
-	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.Interface,
+	Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.TcpInterfaces,
 		client *retryablehttp.Client, version *version.PlatformVersion) *redirect.Service {
 		var certLogger *zap.Logger
 		NamedResolve(&certLogger, CertificateLogger)
@@ -106,11 +106,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return event.New(snapServer, snapCli, logger)
 	})
 
-	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.Interface, logger *zap.Logger) *access.PortProbe {
+	Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.PortProbe {
 		return access.NewProbe(userConfig, client, logger)
 	})
 
-	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, netInfo *network.Interface, logger *zap.Logger) *access.ExternalAddress {
+	Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
 		return access.New(probe, userConfig, redirectService, eventTrigger, netInfo, logger)
 	})
 	Singleton(func() *job.SingleJobMaster { return job.NewMaster() })
@@ -187,11 +187,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-		deviceInfo *info.Device, executor *cli.ShellExecutor,
+		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor)
+			snapd, disks, journalCtl, deviceInfo, executor, iface)
 	})
 
 	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {
