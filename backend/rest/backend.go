@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/access"
+	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
+	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
@@ -20,12 +23,6 @@ import (
 	"github.com/syncloud/platform/systemd"
 	"net"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
-
-	"github.com/syncloud/platform/access"
-	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/job"
 )
 
 type Backend struct {
@@ -48,6 +45,7 @@ type Backend struct {
 	executor        *cli.ShellExecutor
 	iface           *network.TcpInterfaces
 	support         *support.Sender
+	proxy           *Proxy
 }
 
 func NewBackend(
@@ -56,7 +54,7 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
-	iface *network.TcpInterfaces, support *support.Sender) *Backend {
+	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy) *Backend {
 
 	return &Backend{
 		JobMaster:       master,
@@ -78,6 +76,7 @@ func NewBackend(
 		executor:        executor,
 		iface:           iface,
 		support:         support,
+		proxy:           proxy,
 	}
 }
 
@@ -132,13 +131,12 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/shutdown", Handle(b.Shutdown)).Methods("POST")
 	r.HandleFunc("/network/interfaces", Handle(b.NetworkInterfaces)).Methods("GET")
 
-	redirectProxy, err := b.ProxyRedirect()
+	proxyRedirect, err := b.proxy.ProxyRedirect()
 	if err != nil {
 		return err
 	}
-	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", redirectProxy))
-
-	r.PathPrefix("/proxy/image").Handler(b.ProxyImage())
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", proxyRedirect))
+	r.PathPrefix("/proxy/image").Handler(b.proxy.ProxyImage())
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
@@ -146,40 +144,6 @@ func (b *Backend) Start(network string, address string) error {
 	fmt.Println("Started backend")
 	_ = http.Serve(listener, r)
 	return nil
-}
-
-func (b *Backend) ProxyRedirect() (*httputil.ReverseProxy, error) {
-	redirectApiUrl := b.userConfig.GetRedirectApiUrl()
-	redirectUrl, err := url.Parse(redirectApiUrl)
-	if err != nil {
-		fmt.Printf("proxy url error: %v", err)
-		return nil, err
-	}
-	fmt.Printf("proxy url: %v", redirectUrl)
-	director := func(req *http.Request) {
-		req.URL.Scheme = redirectUrl.Scheme
-		req.URL.Host = redirectUrl.Host
-		req.Host = redirectUrl.Host
-	}
-	return &httputil.ReverseProxy{Director: director}, nil
-}
-
-func (b *Backend) ProxyImage() *httputil.ReverseProxy {
-	host := "apps.syncloud.org"
-	director := func(req *http.Request) {
-		query := req.URL.Query()
-		if !query.Has("channel") {
-			return
-		}
-		if !query.Has("app") {
-			return
-		}
-		req.URL.Scheme = "http"
-		req.URL.Host = host
-		req.URL.Path = fmt.Sprintf("releases/%s/images/%s-128.png", query.Get("channel"), query.Get("app"))
-		req.Host = host
-	}
-	return &httputil.ReverseProxy{Director: director}
 }
 
 func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {

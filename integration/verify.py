@@ -295,6 +295,11 @@ def test_send_logs(device, domain):
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
+def test_proxy_image(device, domain):
+    response = device.login().post('https://{0}/rest/proxy/image?channel=stable&app=files'.format(domain), verify=False)
+    print(response.text)
+    assert response.status_code == 200
+
 
 def test_available_apps(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/apps/available'.format(domain), verify=False)
