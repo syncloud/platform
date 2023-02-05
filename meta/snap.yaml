@@ -16,15 +16,6 @@ apps:
     - network
     - network-bind
     restart-condition: always
-  uwsgi-public:
-    command: bin/service.uwsgi.sh public start
-    stop-command: bin/service.uwsgi.sh public stop
-    daemon: notify
-    plugs:
-    - network
-    - network-bind
-    start-timeout: 200s
-    restart-condition: always
   backend:
     command: bin/service.backend.sh
     daemon: simple

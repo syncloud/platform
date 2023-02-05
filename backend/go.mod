@@ -6,6 +6,7 @@ require (
 	github.com/golobby/container/v3 v3.3.1
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/sessions v1.2.1
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/mattn/go-sqlite3 v1.14.7
 	github.com/otiai10/copy v1.7.0
@@ -20,6 +21,7 @@ require (
 require (
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/miekg/dns v1.1.43 // indirect

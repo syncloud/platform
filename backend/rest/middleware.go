@@ -43,6 +43,8 @@ func fail(w http.ResponseWriter, err error) {
 		fmt.Println("parameter error: ", v.ParameterErrors)
 		response.ParametersMessages = v.ParameterErrors
 		statusCode = 400
+	case *model.ServiceError:
+		statusCode = v.StatusCode
 	}
 	responseJson, err := json.Marshal(response)
 	responseText := ""

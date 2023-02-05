@@ -24,6 +24,7 @@ import (
 	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest"
+	"github.com/syncloud/platform/session"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/storage/btrfs"
@@ -196,16 +197,20 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return rest.NewProxy(userConfig)
 	})
 
+	Singleton(func(userConfig *config.UserConfig) *session.Cookies {
+		return session.New(userConfig)
+	})
+
 	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
-		proxy *rest.Proxy,
+		proxy *rest.Proxy, cookies *session.Cookies,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy)
+			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy, cookies, logger)
 	})
 
 	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {

@@ -54,3 +54,10 @@ func (p *Proxy) ProxyImage() *httputil.ReverseProxy {
 	}
 	return &httputil.ReverseProxy{Director: director}
 }
+
+func (p *Proxy) ProxyImageFunc() func(http.ResponseWriter, *http.Request) {
+	proxy := p.ProxyImage()
+	return func(w http.ResponseWriter, r *http.Request) {
+		proxy.ServeHTTP(w, r)
+	}
+}
