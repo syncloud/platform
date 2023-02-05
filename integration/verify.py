@@ -296,7 +296,7 @@ def test_send_logs(device, domain):
     assert response.status_code == 200
 
 def test_proxy_image(device, domain):
-    response = device.login().post('https://{0}/rest/proxy/image?channel=stable&app=files'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/proxy/image?channel=stable&app=files'.format(domain), verify=False)
     print(response.text)
     assert response.status_code == 200
 
