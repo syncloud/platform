@@ -16,6 +16,7 @@ import (
 	"github.com/syncloud/platform/rest/model"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
+	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"net"
 	"net/http"
@@ -46,6 +47,7 @@ type Backend struct {
 	deviceInfo      *info.Device
 	executor        *cli.ShellExecutor
 	iface           *network.TcpInterfaces
+	support         *support.Sender
 }
 
 func NewBackend(
@@ -54,7 +56,7 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
-	iface *network.TcpInterfaces) *Backend {
+	iface *network.TcpInterfaces, support *support.Sender) *Backend {
 
 	return &Backend{
 		JobMaster:       master,
@@ -75,6 +77,7 @@ func NewBackend(
 		deviceInfo:      deviceInfo,
 		executor:        executor,
 		iface:           iface,
+		support:         support,
 	}
 }
 
@@ -123,6 +126,7 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/app/upgrade", Handle(b.AppUpgrade)).Methods("POST")
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
+	r.HandleFunc("/logs/send", Handle(b.SendLogs)).Methods("POST")
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
 	r.HandleFunc("/restart", Handle(b.Restart)).Methods("POST")
 	r.HandleFunc("/shutdown", Handle(b.Shutdown)).Methods("POST")
@@ -435,4 +439,13 @@ func (b *Backend) Shutdown(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) NetworkInterfaces(_ *http.Request) (interface{}, error) {
 	return b.iface.List()
+}
+
+func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
+	includeSupport := false
+	query := req.URL.Query()
+	if query.Has("include_support") {
+		includeSupport = query.Get("app_id") == "true"
+	}
+	return b.support.Send(includeSupport), nil
 }

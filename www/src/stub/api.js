@@ -446,7 +446,7 @@ export function mock () {
       this.get('/rest/settings/disk_format_status', function (_schema, _request) {
         return new Response(200, {}, { success: true, is_running: false })
       })
-      this.post('/rest/send_log', function (_schema, _request) {
+      this.post('/rest/logs/send', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/activate/managed', function (_schema, _request) {

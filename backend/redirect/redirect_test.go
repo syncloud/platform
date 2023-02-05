@@ -15,6 +15,10 @@ import (
 type UserConfigStub struct {
 }
 
+func (u *UserConfigStub) GetUserUpdateToken() (string, error) {
+	return "token", nil
+}
+
 func (u *UserConfigStub) GetRedirectApiUrl() string {
 	return "url"
 }

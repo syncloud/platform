@@ -1,7 +1,6 @@
 import sys
 import traceback
 
-import requests
 from flask import jsonify, request, redirect, Flask, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from syncloud_platform.injector import get_injector
@@ -15,10 +14,8 @@ from syncloudlib.json import convertible
 from syncloudlib.logger import get_logger
 
 injector = get_injector()
-public = injector.public
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = public.user_platform_config.get_web_secret_key()
+app.config['SECRET_KEY'] = injector.user_platform_config.get_web_secret_key()
 login_manager = LoginManager()
 login_manager.init_app(app)
 log = get_logger('ldap')
@@ -71,15 +68,6 @@ def user():
     log.info('current user {0}'.format(current_user.user.name))
     return jsonify(convertible.to_dict(current_user.user)), 200
 
-
-@app.route("/rest/send_log", methods=["POST"])
-@fail_if_not_activated
-@login_required
-def send_log():
-    include_support = request.args['include_support'] == 'true'
-    public.send_logs(include_support)
-    return jsonify(success=True), 200
-
 @app.route("/rest/backup/list", methods=["GET"])
 @app.route("/rest/backup/create", methods=["POST"])
 @app.route("/rest/backup/restore", methods=["POST"])
@@ -104,6 +92,7 @@ def send_log():
 @app.route("/rest/apps/available", methods=["GET"])
 @app.route("/rest/apps/installed", methods=["GET"])
 @app.route("/rest/logs", methods=["GET"])
+@app.route("/rest/logs/send", methods=["POST"])
 @app.route("/rest/app", methods=["GET"])
 @app.route("/rest/device/url", methods=["GET"])
 @app.route("/rest/deactivate", methods=["POST"])

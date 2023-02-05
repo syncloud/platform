@@ -146,6 +146,14 @@ func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 	c.Upsert("redirect.user_update_token", userUpdateToken)
 }
 
+func (c *UserConfig) GetUserUpdateToken() (string, error) {
+	token := c.GetOrNilString("redirect.user_update_token")
+	if token == nil {
+		return "", fmt.Errorf("redirect.user_update_token is not found")
+	}
+	return *token, nil
+}
+
 func (c *UserConfig) GetRedirectDomain() string {
 	return c.Get("redirect.domain", DefaultRedirectDomain)
 }

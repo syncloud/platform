@@ -17,6 +17,7 @@ type UserConfig interface {
 	GetRedirectApiUrl() string
 	GetDomainUpdateToken() *string
 	GetDkimKey() *string
+	GetUserUpdateToken() (string, error)
 }
 
 type Service struct {
@@ -67,6 +68,21 @@ func (r *Service) CertbotCleanUp(token, fqdn string) error {
 	url := fmt.Sprintf("%s/certbot/cleanup", r.userConfig.GetRedirectApiUrl())
 	r.logger.Info(fmt.Sprintf("dns cleanup: %s", url))
 	_, err := r.postAndCheck(url, request)
+	return err
+}
+
+func (r *Service) SendLogs(logs string, includeSupport bool) error {
+	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "user/log")
+	token, err := r.userConfig.GetUserUpdateToken()
+	if err != nil {
+		return err
+	}
+	request := SendLogsRequest{
+		Token:          token,
+		Data:           logs,
+		IncludeSupport: includeSupport,
+	}
+	_, err = r.postAndCheck(url, request)
 	return err
 }
 

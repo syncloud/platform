@@ -27,6 +27,7 @@ import (
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/storage/btrfs"
+	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
@@ -183,15 +184,23 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return storage.NewDisks(systemConfig, eventTrigger, lsblk, systemd, freeSpaceChecker, linker, executor, btrfs, stats, logger)
 	})
 
+	Singleton(func() *support.LogAggregator {
+		return support.NewAggregator(logger)
+	})
+
+	Singleton(func(aggregator *support.LogAggregator, redirectService *redirect.Service) *support.Sender {
+		return support.NewSender(aggregator, redirectService)
+	})
+
 	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces,
+		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor, iface)
+			snapd, disks, journalCtl, deviceInfo, executor, iface, sender)
 	})
 
 	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {

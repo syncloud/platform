@@ -290,7 +290,7 @@ def test_network_interfaces(device, domain):
 
 
 def test_send_logs(device, domain):
-    response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(domain), verify=False)
+    response = device.login().post('https://{0}/rest/logs/send?include_support=false'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
