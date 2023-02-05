@@ -32,6 +32,22 @@ class PlatformUserConfig:
         cursor.execute("create table config (key varchar primary key, value varchar)")
         conn.close()
 
+    def is_redirect_enabled(self):
+        result = self._get('platform.redirect_enabled')
+        return to_bool(result)
+
+    def get_domain(self):
+        return self._get('platform.domain')
+
+    def get_user_domain(self):
+        return self._get('platform.user_domain')
+
+    def get_custom_domain(self):
+        return self._get('platform.custom_domain')
+
+    def get_redirect_domain(self):
+        return self._get('redirect.domain', 'syncloud.it')
+
     def _get(self, key, default_value=None):
         self.init_config()
         conn = sqlite3.connect(self.config_db)
