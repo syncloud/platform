@@ -7,6 +7,7 @@ setup(
     name='syncloud-platform',
     version=version,
     packages=['syncloud_platform',
+              'syncloud_platform.insider',
               'syncloud_platform.auth',
               'syncloud_platform.gaplib',
               'syncloud_platform.rest',
