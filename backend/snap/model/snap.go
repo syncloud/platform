@@ -31,7 +31,7 @@ func (s *Snap) toSyncloudApp(url string) SyncloudAppVersions {
 			Id:   s.Name,
 			Name: s.Summary,
 			Url:  url,
-			Icon: fmt.Sprintf("/rest/app_image?channel=%s&app=%s", s.Channel, s.Name),
+			Icon: fmt.Sprintf("/rest/proxy/image?channel=%s&app=%s", s.Channel, s.Name),
 		},
 	}
 }

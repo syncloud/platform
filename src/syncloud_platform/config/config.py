@@ -63,14 +63,11 @@ class PlatformConfig:
     def get_log_root(self):
         return self.__get('log_root')
 
-    def get_log_sender_pattern(self):
-        return self.__get('log_sender_pattern')
+    def get_external_disk_dir(self):
+        return self.__get('external_disk_dir')
 
     def get_internal_disk_dir(self):
         return self.__get('internal_disk_dir')
-
-    def get_external_disk_dir(self):
-        return self.__get('external_disk_dir')
 
     def get_disk_link(self):
         return self.__get('disk_link')

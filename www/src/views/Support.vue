@@ -56,7 +56,7 @@ export default {
       const btn = $('#send')
       btn.button('loading')
       axios
-        .post('/rest/send_log', null, { params: { include_support: this.includeSupport } })
+        .post('/rest/logs/send', null, { params: { include_support: this.includeSupport } })
         .then(_ => {
           btn.button('reset')
         })

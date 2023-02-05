@@ -283,16 +283,21 @@ def test_installer_status(device, device_host):
 
 
 def test_network_interfaces(device, domain):
-    response = device.login().get('https://{0}/rest/access/network_interfaces'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/network/interfaces'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
 def test_send_logs(device, domain):
-    response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(domain), verify=False)
+    response = device.login().post('https://{0}/rest/logs/send?include_support=false'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
+    assert response.status_code == 200
+
+def test_proxy_image(device, domain):
+    response = device.login().get('https://{0}/rest/proxy/image?channel=stable&app=files'.format(domain), verify=False)
+    print(response.text)
     assert response.status_code == 200
 
 

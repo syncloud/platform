@@ -5,24 +5,24 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/access"
+	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
+	"github.com/syncloud/platform/job"
+	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
+	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"net"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
-
-	"github.com/syncloud/platform/access"
-	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/job"
 )
 
 type Backend struct {
@@ -42,18 +42,19 @@ type Backend struct {
 	disks           *storage.Disks
 	journalCtl      *systemd.Journal
 	deviceInfo      *info.Device
+	executor        *cli.ShellExecutor
+	iface           *network.TcpInterfaces
+	support         *support.Sender
+	proxy           *Proxy
 }
 
-func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
-	eventTrigger *event.Trigger, worker *job.Worker,
-	redirect *redirect.Service, installerService *installer.Installer,
-	storageService *storage.Storage,
-	identification *identification.Parser,
-	activate *Activate, userConfig *config.UserConfig,
-	certificate *Certificate, externalAddress *access.ExternalAddress,
-	snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-	deviceInfo *info.Device,
-) *Backend {
+func NewBackend(
+	master *job.SingleJobMaster, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
+	redirect *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
+	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
+	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
+	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
+	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy) *Backend {
 
 	return &Backend{
 		JobMaster:       master,
@@ -72,30 +73,17 @@ func NewBackend(master *job.SingleJobMaster, backup *backup.Backup,
 		disks:           disks,
 		journalCtl:      journalCtl,
 		deviceInfo:      deviceInfo,
+		executor:        executor,
+		iface:           iface,
+		support:         support,
+		proxy:           proxy,
 	}
 }
 
-func (b *Backend) NewReverseProxy() *httputil.ReverseProxy {
-	director := func(req *http.Request) {
-		redirectApiUrl := b.userConfig.GetRedirectApiUrl()
-		redirectUrl, err := url.Parse(redirectApiUrl)
-		if err != nil {
-			fmt.Printf("proxy url error: %v", err)
-			return
-		}
-		fmt.Printf("proxy url: %v", redirectUrl)
-
-		req.URL.Scheme = redirectUrl.Scheme
-		req.URL.Host = redirectUrl.Host
-		req.Host = redirectUrl.Host
-	}
-	return &httputil.ReverseProxy{Director: director}
-}
-
-func (b *Backend) Start(network string, address string) {
+func (b *Backend) Start(network string, address string) error {
 	listener, err := net.Listen(network, address)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	go b.worker.Start()
@@ -137,15 +125,25 @@ func (b *Backend) Start(network string, address string) {
 	r.HandleFunc("/app/upgrade", Handle(b.AppUpgrade)).Methods("POST")
 	r.HandleFunc("/app", Handle(b.App)).Methods("GET")
 	r.HandleFunc("/logs", Handle(b.Logs)).Methods("GET")
+	r.HandleFunc("/logs/send", Handle(b.SendLogs)).Methods("POST")
 	r.HandleFunc("/device/url", Handle(b.DeviceUrl)).Methods("GET")
-	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", b.NewReverseProxy()))
+	r.HandleFunc("/restart", Handle(b.Restart)).Methods("POST")
+	r.HandleFunc("/shutdown", Handle(b.Shutdown)).Methods("POST")
+	r.HandleFunc("/network/interfaces", Handle(b.NetworkInterfaces)).Methods("GET")
+
+	proxyRedirect, err := b.proxy.ProxyRedirect()
+	if err != nil {
+		return err
+	}
+	r.PathPrefix("/redirect/domain/availability").Handler(http.StripPrefix("/redirect", proxyRedirect))
+	r.PathPrefix("/proxy/image").Handler(b.proxy.ProxyImage())
 	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	r.Use(middleware)
 
 	fmt.Println("Started backend")
 	_ = http.Serve(listener, r)
-
+	return nil
 }
 
 func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
@@ -393,4 +391,25 @@ func (b *Backend) Logs(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) DeviceUrl(_ *http.Request) (interface{}, error) {
 	return b.deviceInfo.DeviceUrl(), nil
+}
+
+func (b *Backend) Restart(_ *http.Request) (interface{}, error) {
+	return b.executor.CombinedOutput("shutdown", "-r", "now")
+}
+
+func (b *Backend) Shutdown(_ *http.Request) (interface{}, error) {
+	return b.executor.CombinedOutput("shutdown", "now")
+}
+
+func (b *Backend) NetworkInterfaces(_ *http.Request) (interface{}, error) {
+	return b.iface.List()
+}
+
+func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
+	includeSupport := false
+	query := req.URL.Query()
+	if query.Has("include_support") {
+		includeSupport = query.Get("app_id") == "true"
+	}
+	return b.support.Send(includeSupport), nil
 }

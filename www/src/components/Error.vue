@@ -65,7 +65,7 @@ export default {
   methods: {
     sendLogs () {
       axios
-        .post('/rest/send_log', null, { params: { include_support: true } })
+        .post('/rest/logs/send', null, { params: { include_support: true } })
         .catch(err => {
           console.log(err)
         })

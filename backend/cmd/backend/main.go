@@ -14,14 +14,15 @@ import (
 func main() {
 
 	var rootCmd = &cobra.Command{Use: "backend"}
-	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
+	userConfig := rootCmd.PersistentFlags().String("user-config", config.DefaultConfigDb, "sqlite config db")
+	systemConfig := rootCmd.PersistentFlags().String("system-config", config.DefaultSystemConfig, "system config")
 
 	var tcpCmd = &cobra.Command{
 		Use:   "tcp [address]",
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			Start(*configDb, "tcp", args[0])
+			Start(*userConfig, *systemConfig, "tcp", args[0])
 		},
 	}
 
@@ -31,7 +32,7 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = os.Remove(args[0])
-			Start(*configDb, "unix", args[0])
+			Start(*userConfig, *systemConfig, "unix", args[0])
 		},
 	}
 
@@ -43,9 +44,9 @@ func main() {
 	}
 }
 
-func Start(userConfig string, socketType string, socket string) {
-	ioc.Init(userConfig, config.DefaultSystemConfig, backup.Dir, backup.VarDir)
+func Start(userConfig string, systemConfig string, socketType string, socket string) {
+	ioc.Init(userConfig, systemConfig, backup.Dir, backup.VarDir)
 	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
 	ioc.Call(func(backupService *backup.Backup) { backupService.Init() })
-	ioc.Call(func(backend *rest.Backend) { backend.Start(socketType, socket) })
+	ioc.Call(func(backend *rest.Backend) error { return backend.Start(socketType, socket) })
 }

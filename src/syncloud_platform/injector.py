@@ -9,10 +9,6 @@ from syncloud_platform.control.nginx import Nginx
 from syncloud_platform.disks.hardware import Hardware
 from syncloud_platform.disks.path_checker import PathChecker
 from syncloud_platform.insider.device_info import DeviceInfo
-from syncloud_platform.insider.redirect_service import RedirectService
-from syncloud_platform.log.aggregator import Aggregator
-from syncloud_platform.network.network import Network
-from syncloud_platform.rest.facade.public import Public
 from syncloudlib import logger
 
 default_injector = None
@@ -37,15 +33,9 @@ class Injector:
 
         self.user_platform_config = PlatformUserConfig()
 
-        self.log_aggregator = Aggregator(self.platform_config)
-
-        self.redirect_service = RedirectService(self.user_platform_config)
-
         self.device_info = DeviceInfo(self.user_platform_config)
         self.ldap_auth = LdapAuth(self.platform_config)
         self.nginx = Nginx(self.platform_config, self.device_info)
 
         self.path_checker = PathChecker(self.platform_config)
         self.hardware = Hardware(self.platform_config, self.path_checker)
-        self.network = Network()
-        self.public = Public(self.user_platform_config, self.redirect_service, self.log_aggregator, self.network)

@@ -29,6 +29,12 @@ type FreeDomainAcquireRequest struct {
 	DeviceTitle      string `json:"device_title,omitempty"`
 }
 
+type SendLogsRequest struct {
+	Token          string `json:"token"`
+	Data           string `json:"data"`
+	IncludeSupport bool   `json:"include_support"`
+}
+
 type UserCredentials struct {
 	Password string `json:"password,omitempty"`
 	Email    string `json:"email,omitempty"`
