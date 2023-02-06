@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/access"
+	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
@@ -49,6 +50,7 @@ type Backend struct {
 	support         *support.Sender
 	proxy           *Proxy
 	cookies         *session.Cookies
+	auth            *auth.Service
 	logger          *zap.Logger
 }
 
@@ -59,6 +61,7 @@ func NewBackend(
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, cookies *session.Cookies,
+	auth *auth.Service,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -83,6 +86,7 @@ func NewBackend(
 		support:         support,
 		proxy:           proxy,
 		cookies:         cookies,
+		auth:            auth,
 		logger:          logger,
 	}
 }
@@ -105,6 +109,9 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/rest/id", Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/rest/activation/status", Handle(b.IsActivated)).Methods("GET")
 
+	//TODO: fail if not activated
+	r.HandleFunc("/rest/login", b.UserLogin).Methods("POST")
+
 	//TODO: fail if activated
 	r.HandleFunc("/rest/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
 	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/redirect", proxyRedirect))
@@ -112,7 +119,6 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/rest/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 
 	//TODO: fail if not activated
- r.HandleFunc("/rest/login", b.Secured(Handle(b.UserLogin))).Methods("POST")
 	r.HandleFunc("/rest/job/status", b.Secured(Handle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.Secured(Handle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.Secured(Handle(b.GetBackupAuto))).Methods("GET")
@@ -251,6 +257,26 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 		Domain: b.userConfig.GetRedirectDomain(),
 	}
 	return response, nil
+}
+
+func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
+	var request model.UserLoginRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		return
+	}
+	authenticated, err := b.auth.Authenticate(request.Username, request.Password)
+	if err != nil {
+		fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		return
+	}
+	if !authenticated {
+		fail(w, &model.ServiceError{InternalError: fmt.Errorf("invalid credentials"), StatusCode: http.StatusBadRequest})
+		return
+	}
+
+	http.Redirect(w, req, "/", http.StatusMovedPermanently)
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
@@ -437,6 +463,4 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 		includeSupport = query.Get("app_id") == "true"
 	}
 	return b.support.Send(includeSupport), nil
-}
-
 }

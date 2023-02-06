@@ -140,7 +140,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return storage.New(systemConfig, executor, 1000, logger)
 	})
 	Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, logger)
 	})
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
 		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
@@ -206,11 +206,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
-		proxy *rest.Proxy, cookies *session.Cookies,
+		proxy *rest.Proxy, cookies *session.Cookies, ldapService *auth.Service,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy, cookies, logger)
+			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy, cookies,
+			ldapService, logger)
 	})
 
 	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {

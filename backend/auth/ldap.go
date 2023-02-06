@@ -5,13 +5,14 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
+	"github.com/go-ldap/ldap/v3"
+	"github.com/syncloud/platform/cli"
+	"go.uber.org/zap"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"time"
- "github.com/go-ldap/ldap/blob/master/v3"
-	"github.com/syncloud/platform/cli"
 )
 
 const ldapUserConfDir = "slapd.d"
@@ -26,6 +27,7 @@ type Service struct {
 	configDir       string
 	executor        cli.Executor
 	passwordChanger PasswordChanger
+	logger          *zap.Logger
 }
 
 type SnapService interface {
@@ -33,7 +35,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, logger *zap.Logger) *Service {
 
 	return &Service{
 		snapService:     snapService,
@@ -43,6 +45,7 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		configDir:       configDir,
 		executor:        executor,
 		passwordChanger: passwordChanger,
+		logger:          logger,
 	}
 }
 
@@ -158,23 +161,22 @@ func ToLdapDc(fullDomain string) string {
 	return fmt.Sprintf("dc=%s", strings.Join(strings.Split(fullDomain, "."), ",dc="))
 }
 
-func Authenticate(name string, password string) (bool, error) {
-  l, err := DialURL("ldap://localhost:389")
-	  if err != nil {
-	  	return false, err
-  	}
-
-	/*    conn = ldap.initialize('ldap://localhost:389')
-	try:
-	    conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
-	except ldap.INVALID_CREDENTIALS:
-	    conn.unbind()
-	    raise Exception('Invalid credentials')
-	except Exception as e:
-	    conn.unbind()
-	    raise Exception(str(e))
-
-	*/
+func (s *Service) Authenticate(username string, password string) (bool, error) {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return false, err
+	}
+	_, err = conn.SimpleBind(
+		&ldap.SimpleBindRequest{
+			Username: fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username),
+			Password: password,
+		})
+	if err != nil {
+		s.logger.Error("ldap error", zap.Error(err))
+		return false, err
+	}
+	defer conn.Close()
+	return true, nil
 }
 
 func makeSecret(password string) string {
