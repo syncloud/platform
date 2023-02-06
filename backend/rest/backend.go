@@ -112,6 +112,7 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/rest/activate/custom", Handle(b.activate.Custom)).Methods("POST")
 
 	//TODO: fail if not activated
+ r.HandleFunc("/rest/login", b.Secured(Handle(b.UserLogin))).Methods("POST")
 	r.HandleFunc("/rest/job/status", b.Secured(Handle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.Secured(Handle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.Secured(Handle(b.GetBackupAuto))).Methods("GET")
@@ -436,4 +437,6 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 		includeSupport = query.Get("app_id") == "true"
 	}
 	return b.support.Send(includeSupport), nil
+}
+
 }

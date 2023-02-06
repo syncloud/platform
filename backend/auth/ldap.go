@@ -10,7 +10,7 @@ import (
 	"path"
 	"strings"
 	"time"
-
+ "github.com/go-ldap/ldap/blob/master/v3"
 	"github.com/syncloud/platform/cli"
 )
 
@@ -158,7 +158,12 @@ func ToLdapDc(fullDomain string) string {
 	return fmt.Sprintf("dc=%s", strings.Join(strings.Split(fullDomain, "."), ",dc="))
 }
 
-func Authenticate(name string, password string) {
+func Authenticate(name string, password string) (bool, error) {
+  l, err := DialURL("ldap://localhost:389")
+	  if err != nil {
+	  	return false, err
+  	}
+
 	/*    conn = ldap.initialize('ldap://localhost:389')
 	try:
 	    conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
