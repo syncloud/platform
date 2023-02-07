@@ -30,15 +30,19 @@ type Api struct {
 	userConfig DeviceUserConfig
 	storage    Storage
 	systemd    Systemd
+	mw         *Middleware
 	logger     *zap.Logger
 }
 
-func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, systemd Systemd, logger *zap.Logger) *Api {
+func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, systemd Systemd,
+	middleware *Middleware,
+	logger *zap.Logger) *Api {
 	return &Api{
 		device:     device,
 		userConfig: userConfig,
 		storage:    storage,
 		systemd:    systemd,
+		mw:         middleware,
 		logger:     logger,
 	}
 }
@@ -50,20 +54,20 @@ func (a *Api) Start(network string, address string) {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/app/install_path", Handle(a.AppInstallPath)).Methods("GET")
-	r.HandleFunc("/app/data_path", Handle(a.AppDataPath)).Methods("GET")
-	r.HandleFunc("/app/url", Handle(a.AppUrl)).Methods("GET")
-	r.HandleFunc("/app/domain_name", Handle(a.AppDomainName)).Methods("GET")
-	r.HandleFunc("/app/device_domain_name", Handle(a.AppDeviceDomainName)).Methods("GET")
-	r.HandleFunc("/app/init_storage", Handle(a.AppInitStorage)).Methods("POST")
-	r.HandleFunc("/config/get_dkim_key", Handle(a.ConfigGetDkimKey)).Methods("GET")
-	r.HandleFunc("/config/set_dkim_key", Handle(a.ConfigSetDkimKey)).Methods("POST")
-	r.HandleFunc("/service/restart", Handle(a.ServiceRestart)).Methods("POST")
-	r.HandleFunc("/app/storage_dir", Handle(a.AppStorageDir)).Methods("GET")
-	r.HandleFunc("/user/email", Handle(a.UserEmail)).Methods("GET")
-	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+	r.HandleFunc("/app/install_path", a.mw.Handle(a.AppInstallPath)).Methods("GET")
+	r.HandleFunc("/app/data_path", a.mw.Handle(a.AppDataPath)).Methods("GET")
+	r.HandleFunc("/app/url", a.mw.Handle(a.AppUrl)).Methods("GET")
+	r.HandleFunc("/app/domain_name", a.mw.Handle(a.AppDomainName)).Methods("GET")
+	r.HandleFunc("/app/device_domain_name", a.mw.Handle(a.AppDeviceDomainName)).Methods("GET")
+	r.HandleFunc("/app/init_storage", a.mw.Handle(a.AppInitStorage)).Methods("POST")
+	r.HandleFunc("/config/get_dkim_key", a.mw.Handle(a.ConfigGetDkimKey)).Methods("GET")
+	r.HandleFunc("/config/set_dkim_key", a.mw.Handle(a.ConfigSetDkimKey)).Methods("POST")
+	r.HandleFunc("/service/restart", a.mw.Handle(a.ServiceRestart)).Methods("POST")
+	r.HandleFunc("/app/storage_dir", a.mw.Handle(a.AppStorageDir)).Methods("GET")
+	r.HandleFunc("/user/email", a.mw.Handle(a.UserEmail)).Methods("GET")
+	r.NotFoundHandler = http.HandlerFunc(a.mw.NotFoundHandler)
 
-	r.Use(middleware)
+	r.Use(a.mw.JsonHeader)
 
 	fmt.Println("Started api")
 	_ = http.Serve(listener, r)

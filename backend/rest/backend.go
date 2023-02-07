@@ -18,7 +18,6 @@ import (
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
-	"github.com/syncloud/platform/session"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
@@ -49,8 +48,8 @@ type Backend struct {
 	iface           *network.TcpInterfaces
 	support         *support.Sender
 	proxy           *Proxy
-	cookies         *session.Cookies
 	auth            *auth.Service
+	mw              *Middleware
 	logger          *zap.Logger
 }
 
@@ -60,8 +59,8 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
-	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, cookies *session.Cookies,
-	auth *auth.Service,
+	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
+	auth *auth.Service, middleware *Middleware,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -85,8 +84,8 @@ func NewBackend(
 		iface:           iface,
 		support:         support,
 		proxy:           proxy,
-		cookies:         cookies,
 		auth:            auth,
+		mw:              middleware,
 		logger:          logger,
 	}
 }
@@ -106,77 +105,63 @@ func (b *Backend) Start(network string, address string) error {
 
 	r := mux.NewRouter()
 	//public
-	r.HandleFunc("/rest/id", Handle(b.Id)).Methods("GET")
-	r.HandleFunc("/rest/activation/status", Handle(b.IsActivated)).Methods("GET")
+	r.HandleFunc("/rest/id", b.mw.Handle(b.Id)).Methods("GET")
+	r.HandleFunc("/rest/activation/status", b.mw.Handle(b.IsActivated)).Methods("GET")
 
-	//TODO: fail if not activated
-	r.HandleFunc("/rest/login", b.UserLogin).Methods("POST")
+	r.HandleFunc("/rest/login", b.mw.FailIfNotActivated(b.UserLogin)).Methods("POST")
 
-	//TODO: fail if activated
-	r.HandleFunc("/rest/redirect_info", Handle(b.RedirectInfo)).Methods("GET")
-	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/redirect", proxyRedirect))
-	r.HandleFunc("/rest/activate/managed", Handle(b.activate.Managed)).Methods("POST")
-	r.HandleFunc("/rest/activate/custom", Handle(b.activate.Custom)).Methods("POST")
+	r.HandleFunc("/rest/redirect_info", b.mw.FailIfActivated(b.mw.Handle(b.RedirectInfo))).Methods("GET")
+	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/redirect", NewFailIfActivatedHandler(b.userConfig, proxyRedirect)))
+	r.HandleFunc("/rest/activate/managed", b.mw.FailIfActivated(b.mw.Handle(b.activate.Managed))).Methods("POST")
+	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
-	//TODO: fail if not activated
-	r.HandleFunc("/rest/job/status", b.Secured(Handle(b.JobStatus))).Methods("GET")
-	r.HandleFunc("/rest/backup/list", b.Secured(Handle(b.BackupList))).Methods("GET")
-	r.HandleFunc("/rest/backup/auto", b.Secured(Handle(b.GetBackupAuto))).Methods("GET")
-	r.HandleFunc("/rest/backup/auto", b.Secured(Handle(b.SetBackupAuto))).Methods("POST")
-	r.HandleFunc("/rest/backup/create", b.Secured(Handle(b.BackupCreate))).Methods("POST")
-	r.HandleFunc("/rest/backup/restore", b.Secured(Handle(b.BackupRestore))).Methods("POST")
-	r.HandleFunc("/rest/backup/remove", b.Secured(Handle(b.BackupRemove))).Methods("POST")
-	r.HandleFunc("/rest/installer/upgrade", b.Secured(Handle(b.InstallerUpgrade))).Methods("POST")
-	r.HandleFunc("/rest/installer/version", b.Secured(Handle(b.InstallerVersion))).Methods("GET")
-	r.HandleFunc("/rest/installer/status", b.Secured(Handle(b.InstallerStatus))).Methods("GET")
-	r.HandleFunc("/rest/storage/boot_extend", b.Secured(Handle(b.StorageBootExtend))).Methods("POST")
-	r.HandleFunc("/rest/storage/boot/disk", b.Secured(Handle(b.StorageBootDisk))).Methods("GET")
-	r.HandleFunc("/rest/storage/deactivate", b.Secured(Handle(b.StorageDiskDeactivate))).Methods("POST")
-	r.HandleFunc("/rest/storage/activate/partition", b.Secured(Handle(b.StorageActivatePartition))).Methods("POST")
-	r.HandleFunc("/rest/storage/activate/disk", b.Secured(Handle(b.StorageActivateDisks))).Methods("POST")
-	r.HandleFunc("/rest/storage/error/last", b.Secured(Handle(b.StorageLastError))).Methods("GET")
-	r.HandleFunc("/rest/storage/error/clear", b.Secured(Handle(b.StorageClearError))).Methods("POST")
-	r.HandleFunc("/rest/storage/disks", b.Secured(Handle(b.StorageDisks))).Methods("GET")
-	r.HandleFunc("/rest/event/trigger", b.Secured(Handle(b.EventTrigger))).Methods("POST")
-	r.HandleFunc("/rest/deactivate", b.Secured(Handle(b.Deactivate))).Methods("POST")
-	r.HandleFunc("/rest/certificate", b.Secured(Handle(b.certificate.Certificate))).Methods("GET")
-	r.HandleFunc("/rest/certificate/log", b.Secured(Handle(b.certificate.CertificateLog))).Methods("GET")
-	r.HandleFunc("/rest/access", b.Secured(Handle(b.GetAccess))).Methods("GET")
-	r.HandleFunc("/rest/access", b.Secured(Handle(b.SetAccess))).Methods("POST")
-	r.HandleFunc("/rest/apps/available", b.Secured(Handle(b.AppsAvailable))).Methods("GET")
-	r.HandleFunc("/rest/apps/installed", b.Secured(Handle(b.AppsInstalled))).Methods("GET")
-	r.HandleFunc("/rest/app/install", b.Secured(Handle(b.AppInstall))).Methods("POST")
-	r.HandleFunc("/rest/app/remove", b.Secured(Handle(b.AppRemove))).Methods("POST")
-	r.HandleFunc("/rest/app/upgrade", b.Secured(Handle(b.AppUpgrade))).Methods("POST")
-	r.HandleFunc("/rest/app", b.Secured(Handle(b.App))).Methods("GET")
-	r.HandleFunc("/rest/logs", b.Secured(Handle(b.Logs))).Methods("GET")
-	r.HandleFunc("/rest/logs/send", b.Secured(Handle(b.SendLogs))).Methods("POST")
-	r.HandleFunc("/rest/device/url", b.Secured(Handle(b.DeviceUrl))).Methods("GET")
-	r.HandleFunc("/rest/restart", b.Secured(Handle(b.Restart))).Methods("POST")
-	r.HandleFunc("/rest/shutdown", b.Secured(Handle(b.Shutdown))).Methods("POST")
-	r.HandleFunc("/rest/network/interfaces", b.Secured(Handle(b.NetworkInterfaces))).Methods("GET")
-	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.Secured(b.proxy.ProxyImageFunc()))
+	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
+	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
+	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
+	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetBackupAuto))).Methods("POST")
+	r.HandleFunc("/rest/backup/create", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupCreate))).Methods("POST")
+	r.HandleFunc("/rest/backup/restore", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupRestore))).Methods("POST")
+	r.HandleFunc("/rest/backup/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupRemove))).Methods("POST")
+	r.HandleFunc("/rest/installer/upgrade", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.InstallerUpgrade))).Methods("POST")
+	r.HandleFunc("/rest/installer/version", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.InstallerVersion))).Methods("GET")
+	r.HandleFunc("/rest/installer/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.InstallerStatus))).Methods("GET")
+	r.HandleFunc("/rest/storage/boot_extend", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageBootExtend))).Methods("POST")
+	r.HandleFunc("/rest/storage/boot/disk", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageBootDisk))).Methods("GET")
+	r.HandleFunc("/rest/storage/deactivate", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageDiskDeactivate))).Methods("POST")
+	r.HandleFunc("/rest/storage/activate/partition", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageActivatePartition))).Methods("POST")
+	r.HandleFunc("/rest/storage/activate/disk", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageActivateDisks))).Methods("POST")
+	r.HandleFunc("/rest/storage/error/last", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageLastError))).Methods("GET")
+	r.HandleFunc("/rest/storage/error/clear", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageClearError))).Methods("POST")
+	r.HandleFunc("/rest/storage/disks", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageDisks))).Methods("GET")
+	r.HandleFunc("/rest/event/trigger", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.EventTrigger))).Methods("POST")
+	r.HandleFunc("/rest/deactivate", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Deactivate))).Methods("POST")
+	r.HandleFunc("/rest/certificate", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.certificate.Certificate))).Methods("GET")
+	r.HandleFunc("/rest/certificate/log", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.certificate.CertificateLog))).Methods("GET")
+	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetAccess))).Methods("GET")
+	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetAccess))).Methods("POST")
+	r.HandleFunc("/rest/apps/available", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppsAvailable))).Methods("GET")
+	r.HandleFunc("/rest/apps/installed", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppsInstalled))).Methods("GET")
+	r.HandleFunc("/rest/app/install", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppInstall))).Methods("POST")
+	r.HandleFunc("/rest/app/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppRemove))).Methods("POST")
+	r.HandleFunc("/rest/app/upgrade", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppUpgrade))).Methods("POST")
+	r.HandleFunc("/rest/app", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.App))).Methods("GET")
+	r.HandleFunc("/rest/logs", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Logs))).Methods("GET")
+	r.HandleFunc("/rest/logs/send", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SendLogs))).Methods("POST")
+	r.HandleFunc("/rest/device/url", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.DeviceUrl))).Methods("GET")
+	r.HandleFunc("/rest/restart", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Restart))).Methods("POST")
+	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Shutdown))).Methods("POST")
+	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.NetworkInterfaces))).Methods("GET")
+	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.mw.FailIfNotActivated(b.mw.Secured(b.proxy.ProxyImageFunc())))
 
-	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+	r.NotFoundHandler = http.HandlerFunc(b.mw.NotFoundHandler)
 
-	r.Use(middleware)
+	r.Use(b.mw.JsonHeader)
 
 	b.logger.Info("Started backend")
 	_ = http.Serve(listener, r)
 	return nil
 }
 
-func (b *Backend) Secured(handle func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := b.cookies.GetSessionUser(r)
-		if err != nil {
-			b.logger.Info("error %v", zap.Error(err))
-			fail(w, model.NewServiceErrorWithCode("Unauthorized", 401))
-			return
-		}
-		handle(w, r)
-	}
-}
 func (b *Backend) BackupList(_ *http.Request) (interface{}, error) {
 	return b.backup.List()
 }
@@ -263,16 +248,16 @@ func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
 	var request model.UserLoginRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
 		return
 	}
 	authenticated, err := b.auth.Authenticate(request.Username, request.Password)
 	if err != nil {
-		fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
 		return
 	}
 	if !authenticated {
-		fail(w, &model.ServiceError{InternalError: fmt.Errorf("invalid credentials"), StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, &model.ServiceError{InternalError: fmt.Errorf("invalid credentials"), StatusCode: http.StatusBadRequest})
 		return
 	}
 

@@ -55,16 +55,15 @@ func (c *Cookies) clearSessionUser(w http.ResponseWriter, r *http.Request) error
 	return session.Save(r, w)
 }
 
-func (c *Cookies) GetSessionUser(r *http.Request) (*string, error) {
+func (c *Cookies) GetSessionUser(r *http.Request) (string, error) {
 	session, err := c.getSession(r)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	user, found := session.Values[UserKey]
 	if !found {
-		return nil, fmt.Errorf("no session found")
+		return "", fmt.Errorf("no session found")
 	}
 
-	userString := user.(string)
-	return &userString, nil
+	return user.(string), nil
 }

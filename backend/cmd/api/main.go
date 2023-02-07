@@ -6,7 +6,6 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/rest"
-	"log"
 	"os"
 )
 
@@ -30,7 +29,6 @@ func main() {
 	rootCmd.AddCommand(unixSocketCmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		log.Print("error: ", err)
-		os.Exit(1)
+		panic(err)
 	}
 }
