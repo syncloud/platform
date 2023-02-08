@@ -75,7 +75,7 @@ func New(dir string,
 	}
 }
 
-func (b *Backup) Init() {
+func (b *Backup) Start() {
 	if _, err := os.Stat(b.backupDir); os.IsNotExist(err) {
 		err := os.MkdirAll(b.backupDir, os.ModePerm)
 		if err != nil {

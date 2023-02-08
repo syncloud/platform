@@ -7,6 +7,7 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/rest"
+	"github.com/syncloud/platform/session"
 	"os"
 )
 
@@ -44,7 +45,8 @@ func main() {
 
 func Start(userConfig string, systemConfig string, socketType string, socket string) {
 	ioc.Init(userConfig, systemConfig, backup.Dir, backup.VarDir)
-	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
-	ioc.Call(func(backupService *backup.Backup) { backupService.Init() })
+	ioc.Call(func(cronService *cron.Cron) { cronService.Start() })
+	ioc.Call(func(backupService *backup.Backup) { backupService.Start() })
+	ioc.Call(func(cookies *session.Cookies) error { return cookies.Start() })
 	ioc.Call(func(backend *rest.Backend) error { return backend.Start(socketType, socket) })
 }

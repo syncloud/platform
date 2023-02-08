@@ -152,7 +152,7 @@ func TestBackup_Create(t *testing.T) {
 		&UserConfigStub{},
 		&ProviderStub{},
 		log.Default())
-	backup.Init()
+	backup.Start()
 	err = backup.Create("test-app")
 	assert.Nil(t, err)
 	backups, err := backup.List()

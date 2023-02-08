@@ -34,7 +34,7 @@ func (c *Cron) StartSingle() {
 
 }
 
-func (c *Cron) StartScheduler() {
+func (c *Cron) Start() {
 	go func() {
 		for {
 			c.StartSingle()
