@@ -3,7 +3,7 @@ local browser = "chrome";
 local go = "1.18.2-buster";
 local node = "16.10.0";
 
-local build(arch, testUI, uwsgiDistro) = [{
+local build(arch, testUI, python) = [{
     kind: "pipeline",
     name: arch,
 
@@ -61,10 +61,10 @@ local build(arch, testUI, uwsgiDistro) = [{
             ]
         },
         {
-            name: "build uwsgi",
-            image: "debian:" + uwsgiDistro + "-slim",
+            name: "build python",
+            image: "debian:" + python + "-slim",
             commands: [
-                "./build-uwsgi.sh"
+                "./build-python.sh"
             ],
             volumes: [
                 {

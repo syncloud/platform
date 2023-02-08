@@ -24,6 +24,7 @@ import (
 	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest"
+	"github.com/syncloud/platform/session"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/storage/btrfs"
@@ -39,8 +40,9 @@ const (
 	CertificateLogger = "CertificateLogger"
 )
 
+var logger = log.Default()
+
 func Init(userConfig string, systemConfig string, backupDir string, varDir string) {
-	logger := log.Default()
 
 	Singleton(func() *config.UserConfig {
 		userConfig := config.NewUserConfig(userConfig, config.OldConfig)
@@ -139,10 +141,16 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return storage.New(systemConfig, executor, 1000, logger)
 	})
 	Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger)
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, logger)
 	})
-	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
-		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
+
+	Singleton(func(userConfig *config.UserConfig) *session.Cookies {
+		return session.New(userConfig)
+	})
+
+	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
+		eventTrigger *event.Trigger, cookies *session.Cookies) *activation.Device {
+		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger, cookies)
 	})
 	Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
 	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig,
@@ -196,20 +204,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return rest.NewProxy(userConfig)
 	})
 
-	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
-		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
-		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
-		proxy *rest.Proxy,
-	) *rest.Backend {
-		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy)
-	})
-
-	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage, systemd *systemd.Control) *rest.Api {
-		return rest.NewApi(device, userConfig, storage, systemd, logger)
+	Singleton(func(cookies *session.Cookies, userConfig *config.UserConfig) *rest.Middleware {
+		return rest.NewMiddleware(cookies, userConfig, logger)
 	})
 
 }
@@ -240,4 +236,8 @@ func NamedResolve(abstraction interface{}, name string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Resolve(abstraction interface{}) error {
+	return container.Resolve(abstraction)
 }

@@ -105,6 +105,10 @@ func (c *UserConfig) SetWebSecretKey(key string) {
 	c.Upsert("platform.web_secret_key", key)
 }
 
+func (c *UserConfig) GetWebSecretKey() string {
+	return c.GetOrDefaultString("platform.web_secret_key", "default")
+}
+
 func (c *UserConfig) initDb() error {
 	db := c.open()
 	defer db.Close()
@@ -147,11 +151,7 @@ func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 }
 
 func (c *UserConfig) GetUserUpdateToken() (string, error) {
-	token := c.GetOrNilString("redirect.user_update_token")
-	if token == nil {
-		return "", fmt.Errorf("redirect.user_update_token is not found")
-	}
-	return *token, nil
+	return c.GetStringOrError("redirect.user_update_token")
 }
 
 func (c *UserConfig) GetRedirectDomain() string {
@@ -303,6 +303,14 @@ func (c *UserConfig) GetOrDefaultString(key string, defaultValue string) string 
 		return defaultValue
 	}
 	return *value
+}
+
+func (c *UserConfig) GetStringOrError(key string) (string, error) {
+	token := c.GetOrNilString(key)
+	if token == nil {
+		return "", fmt.Errorf(fmt.Sprintf("%s is not found", key))
+	}
+	return *token, nil
 }
 
 func (c *UserConfig) GetOrNilString(key string) *string {
