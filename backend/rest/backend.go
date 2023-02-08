@@ -123,6 +123,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
 	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
+	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.mw.Secured(b.UserLogout))).Methods("POST")
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
@@ -464,4 +465,13 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 
 func (b *Backend) User(_ *http.Request) (interface{}, error) {
 	return "OK", nil
+}
+
+func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
+	err := b.cookies.ClearSessionUser(w, req)
+	if err != nil {
+		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		return
+	}
+	http.Redirect(w, req, "/", http.StatusMovedPermanently)
 }
