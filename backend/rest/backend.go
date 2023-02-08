@@ -115,6 +115,7 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/rest/activate/managed", b.mw.FailIfActivated(b.mw.Handle(b.activate.Managed))).Methods("POST")
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
+ r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
@@ -449,3 +450,8 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 	}
 	return b.support.Send(includeSupport), nil
 }
+
+func (b *Backend) User(_ *http.Request) (interface{}, error) {
+	return "OK", nil
+}
+
