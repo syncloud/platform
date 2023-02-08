@@ -143,8 +143,14 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
 		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, logger)
 	})
-	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig, eventTrigger *event.Trigger) *activation.Device {
-		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger)
+
+	Singleton(func(userConfig *config.UserConfig) *session.Cookies {
+		return session.New(userConfig)
+	})
+
+	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
+		eventTrigger *event.Trigger, cookies *session.Cookies) *activation.Device {
+		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger, cookies)
 	})
 	Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
 	Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig,
@@ -196,10 +202,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 
 	Singleton(func(userConfig *config.UserConfig) *rest.Proxy {
 		return rest.NewProxy(userConfig)
-	})
-
-	Singleton(func(userConfig *config.UserConfig) *session.Cookies {
-		return session.New(userConfig)
 	})
 
 	Singleton(func(cookies *session.Cookies, userConfig *config.UserConfig) *rest.Middleware {

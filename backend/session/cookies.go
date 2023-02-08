@@ -14,7 +14,7 @@ type Cookies struct {
 }
 
 type Config interface {
-	GetWebSecretKey() (string, error)
+	GetWebSecretKey() string
 }
 
 func New(config Config) *Cookies {
@@ -24,12 +24,12 @@ func New(config Config) *Cookies {
 }
 
 func (c *Cookies) Start() error {
-	secretKey, err := c.config.GetWebSecretKey()
-	if err != nil {
-		return err
-	}
-	c.store = sessions.NewCookieStore([]byte(secretKey))
+	c.Reset()
 	return nil
+}
+
+func (c *Cookies) Reset() {
+	c.store = sessions.NewCookieStore([]byte(c.config.GetWebSecretKey()))
 }
 
 func (c *Cookies) getSession(r *http.Request) (*sessions.Session, error) {

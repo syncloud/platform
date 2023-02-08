@@ -105,8 +105,8 @@ func (c *UserConfig) SetWebSecretKey(key string) {
 	c.Upsert("platform.web_secret_key", key)
 }
 
-func (c *UserConfig) GetWebSecretKey() (string, error) {
-	return c.GetStringOrError("platform.web_secret_key")
+func (c *UserConfig) GetWebSecretKey() string {
+	return c.GetOrDefaultString("platform.web_secret_key", "default")
 }
 
 func (c *UserConfig) initDb() error {

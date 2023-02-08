@@ -17,6 +17,11 @@ type Device struct {
 	auth                 *auth.Service
 	nginx                *nginx.Nginx
 	trigger              *event.Trigger
+	cookies              Cookies
+}
+
+type Cookies interface {
+	Reset()
 }
 
 type DevicePlatformUserConfig interface {
@@ -37,12 +42,14 @@ func NewDevice(
 	auth *auth.Service,
 	nginx *nginx.Nginx,
 	trigger *event.Trigger,
+	cookies Cookies,
 ) *Device {
 	return &Device{
 		config:  config,
 		auth:    auth,
 		nginx:   nginx,
 		trigger: trigger,
+		cookies: cookies,
 	}
 }
 
@@ -53,6 +60,7 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 	}
 
 	d.config.SetWebSecretKey(uuid.New().String())
+	d.cookies.Reset()
 
 	err = d.auth.Reset(name, username, password, email)
 	if err != nil {
