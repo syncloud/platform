@@ -36,7 +36,7 @@ func (c *Cookies) getSession(r *http.Request) (*sessions.Session, error) {
 	return c.store.Get(r, "session")
 }
 
-func (c *Cookies) setSessionUser(w http.ResponseWriter, r *http.Request, user string) error {
+func (c *Cookies) SetSessionUser(w http.ResponseWriter, r *http.Request, user string) error {
 	session, err := c.getSession(r)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (c *Cookies) setSessionUser(w http.ResponseWriter, r *http.Request, user st
 	return session.Save(r, w)
 }
 
-func (c *Cookies) clearSessionUser(w http.ResponseWriter, r *http.Request) error {
+func (c *Cookies) ClearSessionUser(w http.ResponseWriter, r *http.Request) error {
 	r.Header.Del("Cookie")
 	session, err := c.getSession(r)
 	if err != nil {

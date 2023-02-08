@@ -22,6 +22,7 @@ import (
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/session"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -50,6 +51,7 @@ type Backend struct {
 	proxy           *Proxy
 	auth            *auth.Service
 	mw              *Middleware
+ cookies *session.Cookies
 	logger          *zap.Logger
 }
 
@@ -60,7 +62,7 @@ func NewBackend(
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
-	auth *auth.Service, middleware *Middleware,
+	auth *auth.Service, middleware *Middleware, cookies *session.Cookies,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -86,6 +88,7 @@ func NewBackend(
 		proxy:           proxy,
 		auth:            auth,
 		mw:              middleware,
+  cookies: cookies,
 		logger:          logger,
 	}
 }
@@ -261,8 +264,12 @@ func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
 		b.mw.Fail(w, &model.ServiceError{InternalError: fmt.Errorf("invalid credentials"), StatusCode: http.StatusBadRequest})
 		return
 	}
-
-	http.Redirect(w, req, "/", http.StatusMovedPermanently)
+ err = b.cookies.SetSessionUser(w, req, request.Username)
+	if err != nil {
+		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		return
+	}
+ http.Redirect(w, req, "/", http.StatusMovedPermanently)
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
