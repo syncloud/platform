@@ -31,11 +31,13 @@ type Api struct {
 	storage    Storage
 	systemd    Systemd
 	mw         *Middleware
+	network    string
+	address    string
 	logger     *zap.Logger
 }
 
 func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, systemd Systemd,
-	middleware *Middleware,
+	middleware *Middleware, network string, address string,
 	logger *zap.Logger) *Api {
 	return &Api{
 		device:     device,
@@ -43,14 +45,16 @@ func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, s
 		storage:    storage,
 		systemd:    systemd,
 		mw:         middleware,
+		network:    network,
+		address:    address,
 		logger:     logger,
 	}
 }
 
-func (a *Api) Start(network string, address string) {
-	listener, err := net.Listen(network, address)
+func (a *Api) Start() error {
+	listener, err := net.Listen(a.network, a.address)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	r := mux.NewRouter()
@@ -71,7 +75,7 @@ func (a *Api) Start(network string, address string) {
 
 	fmt.Println("Started api")
 	_ = http.Serve(listener, r)
-
+	return nil
 }
 
 func (a *Api) AppInstallPath(req *http.Request) (interface{}, error) {

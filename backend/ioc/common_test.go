@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIoC(t *testing.T) {
+func TestInit(t *testing.T) {
 	configDb, err := os.CreateTemp("", "")
 	_ = os.Remove(configDb.Name())
 	assert.Nil(t, err)

@@ -18,11 +18,11 @@ import (
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest/model"
+	"github.com/syncloud/platform/session"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
-	"github.com/syncloud/platform/session"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -51,7 +51,9 @@ type Backend struct {
 	proxy           *Proxy
 	auth            *auth.Service
 	mw              *Middleware
- cookies *session.Cookies
+	cookies         *session.Cookies
+	network         string
+	address         string
 	logger          *zap.Logger
 }
 
@@ -62,7 +64,7 @@ func NewBackend(
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
-	auth *auth.Service, middleware *Middleware, cookies *session.Cookies,
+	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -88,13 +90,15 @@ func NewBackend(
 		proxy:           proxy,
 		auth:            auth,
 		mw:              middleware,
-  cookies: cookies,
+		cookies:         cookies,
+		network:         network,
+		address:         address,
 		logger:          logger,
 	}
 }
 
-func (b *Backend) Start(network string, address string) error {
-	listener, err := net.Listen(network, address)
+func (b *Backend) Start() error {
+	listener, err := net.Listen(b.network, b.address)
 	if err != nil {
 		return err
 	}
@@ -118,7 +122,7 @@ func (b *Backend) Start(network string, address string) error {
 	r.HandleFunc("/rest/activate/managed", b.mw.FailIfActivated(b.mw.Handle(b.activate.Managed))).Methods("POST")
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
- r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
+	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
@@ -264,12 +268,12 @@ func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
 		b.mw.Fail(w, &model.ServiceError{InternalError: fmt.Errorf("invalid credentials"), StatusCode: http.StatusBadRequest})
 		return
 	}
- err = b.cookies.SetSessionUser(w, req, request.Username)
+	err = b.cookies.SetSessionUser(w, req, request.Username)
 	if err != nil {
 		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
 		return
 	}
- http.Redirect(w, req, "/", http.StatusMovedPermanently)
+	http.Redirect(w, req, "/", http.StatusMovedPermanently)
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
@@ -461,4 +465,3 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 func (b *Backend) User(_ *http.Request) (interface{}, error) {
 	return "OK", nil
 }
-

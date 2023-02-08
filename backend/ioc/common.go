@@ -40,8 +40,9 @@ const (
 	CertificateLogger = "CertificateLogger"
 )
 
+var logger = log.Default()
+
 func Init(userConfig string, systemConfig string, backupDir string, varDir string) {
-	logger := log.Default()
 
 	Singleton(func() *config.UserConfig {
 		userConfig := config.NewUserConfig(userConfig, config.OldConfig)
@@ -205,24 +206,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return rest.NewMiddleware(cookies, userConfig, logger)
 	})
 
-	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
-		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
-		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
-		proxy *rest.Proxy, middleware *rest.Middleware, ldapService *auth.Service, cookies *session.Cookies,
-	) *rest.Backend {
-		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy,
-			ldapService, middleware, cookies, logger)
-	})
-
-	Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage,
-		systemd *systemd.Control, middleware *rest.Middleware) *rest.Api {
-		return rest.NewApi(device, userConfig, storage, systemd, middleware, logger)
-	})
-
 }
 
 func Singleton(resolver interface{}) {
@@ -251,4 +234,8 @@ func NamedResolve(abstraction interface{}, name string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Resolve(abstraction interface{}) error {
+	return container.Resolve(abstraction)
 }
