@@ -118,7 +118,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/login", b.mw.FailIfNotActivated(b.UserLogin)).Methods("POST")
 
 	r.HandleFunc("/rest/redirect_info", b.mw.FailIfActivated(b.mw.Handle(b.RedirectInfo))).Methods("GET")
-	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/redirect", NewFailIfActivatedHandler(b.userConfig, proxyRedirect)))
+	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/rest/redirect", NewFailIfActivatedHandler(b.userConfig, proxyRedirect)))
 	r.HandleFunc("/rest/activate/managed", b.mw.FailIfActivated(b.mw.Handle(b.activate.Managed))).Methods("POST")
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
