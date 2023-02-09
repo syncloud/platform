@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"github.com/gorilla/sessions"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -11,15 +12,17 @@ const UserKey = "user"
 type Cookies struct {
 	config Config
 	store  *sessions.CookieStore
+	logger *zap.Logger
 }
 
 type Config interface {
 	GetWebSecretKey() string
 }
 
-func New(config Config) *Cookies {
+func New(config Config, logger *zap.Logger) *Cookies {
 	return &Cookies{
 		config: config,
+		logger: logger,
 	}
 }
 
@@ -39,6 +42,7 @@ func (c *Cookies) getSession(r *http.Request) (*sessions.Session, error) {
 func (c *Cookies) SetSessionUser(w http.ResponseWriter, r *http.Request, user string) error {
 	session, err := c.getSession(r)
 	if err != nil {
+		c.logger.Error("cannot update session", zap.Error(err))
 		return err
 	}
 	session.Values[UserKey] = user

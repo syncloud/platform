@@ -145,7 +145,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	})
 
 	Singleton(func(userConfig *config.UserConfig) *session.Cookies {
-		return session.New(userConfig)
+		return session.New(userConfig, logger)
 	})
 
 	Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
