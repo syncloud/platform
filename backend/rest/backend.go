@@ -257,21 +257,26 @@ func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
 	var request model.UserLoginRequest
 	err := json.NewDecoder(req.Body).Decode(&request)
 	if err != nil {
-		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
 	authenticated, err := b.auth.Authenticate(request.Username, request.Password)
 	if err != nil {
-		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
 	if !authenticated {
-		b.mw.Fail(w, &model.ServiceError{InternalError: fmt.Errorf("invalid credentials"), StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid credentials")))
+		return
+	}
+	err = b.cookies.ClearSessionUser(w, req)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
 	err = b.cookies.SetSessionUser(w, req, request.Username)
 	if err != nil {
-		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
+		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
 	http.Redirect(w, req, "/", http.StatusMovedPermanently)
