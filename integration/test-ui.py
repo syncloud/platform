@@ -210,6 +210,39 @@ def test_not_installed_app(selenium):
     selenium.screenshot('app_not_installed')
 
 
+def test_settings_deactivate(selenium, device_host,
+                  domain, device_user, device_password, redirect_user, redirect_password):
+    settings(selenium, 'activation')
+    selenium.find_by_xpath("//h1[text()='Activation']")
+    selenium.find_by_id('btn_reactivate').click()
+    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.screenshot('activate-empty')
+    selenium.find_by_id('btn_free_domain').click()
+    wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
+    selenium.find_by_id('email').send_keys(redirect_user)
+    selenium.screenshot('activate-redirect-email')
+    selenium.find_by_id('redirect_password').send_keys(redirect_password)
+    selenium.find_by_id('domain_input').send_keys(domain)
+    selenium.screenshot('activate-type')
+    selenium.find_by_id('btn_next').click()
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('activate-redirect')
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
+    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(""))
+    selenium.find_by_id('device_username').send_keys(device_user)
+    selenium.find_by_id('device_password').send_keys(device_password)
+    selenium.screenshot('activate-ready')
+    selenium.find_by_id('btn_activate').click()
+    wait_for_loading(selenium.driver)
+    selenium.find_by_xpath("//h1[text()='Log in']")
+    selenium.find_by_id("username").send_keys(device_user)
+    selenium.find_by_id("password").send_keys(device_password)
+    selenium.find_by_id("btn_login").click()
+    selenium.screenshot('index-progress')
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('reactivate-index')
+
 def menu(selenium, element_id):
     retries = 10
     retry = 0

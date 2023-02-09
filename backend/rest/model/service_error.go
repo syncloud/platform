@@ -1,6 +1,8 @@
 package model
 
-import "fmt"
+import (
+	"net/http"
+)
 
 type ServiceError struct {
 	InternalError error
@@ -11,6 +13,6 @@ func (e *ServiceError) Error() string {
 	return e.InternalError.Error()
 }
 
-func NewServiceErrorWithCode(message string, code int) *ServiceError {
-	return &ServiceError{InternalError: fmt.Errorf(message), StatusCode: code}
+func BadRequest(err error) *ServiceError {
+	return &ServiceError{InternalError: err, StatusCode: http.StatusBadRequest}
 }
