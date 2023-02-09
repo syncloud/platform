@@ -18,6 +18,10 @@ import (
 const ldapUserConfDir = "slapd.d"
 const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
+const AdminDn = "cn=admin, dc=syncloud,dc=org"
+const AdminPw = "syncloud"
+const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
+const AdminGroupFilter = "(memberUid=test)"
 
 type Service struct {
 	snapService     SnapService
@@ -166,17 +170,27 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	_, err = conn.SimpleBind(
-		&ldap.SimpleBindRequest{
-			Username: fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username),
-			Password: password,
-		})
+	defer conn.Close()
+	err = conn.Bind(username, password)
 	if err != nil {
 		s.logger.Error("ldap error", zap.Error(err))
 		return false, err
 	}
-	defer conn.Close()
-	return true, nil
+
+	searchRequest := ldap.NewSearchRequest(
+		AdminGroupDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		fmt.Sprintf("(memberUid=%s)", username),
+		[]string{"memberUid"},
+		nil)
+
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		s.logger.Error("user is not admin", zap.Error(err))
+		return false, err
+	}
+
+	return len(sr.Entries) == 1, nil
 }
 
 func makeSecret(password string) string {
