@@ -171,7 +171,7 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 		return false, err
 	}
 	defer conn.Close()
-	err = conn.Bind(username, password)
+	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username), password)
 	if err != nil {
 		s.logger.Error("ldap error", zap.Error(err))
 		return false, err
