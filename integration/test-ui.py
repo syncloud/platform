@@ -250,7 +250,7 @@ def test_permission_denied(selenium, device, ui_mode):
     selenium.find_by_id("username").send_keys("test{0}".format(ui_mode))
     selenium.find_by_id("password").send_keys("password")
     selenium.find_by_id("btn_login").click()
-    selenium.find_by_xpath("//div[contains(.,'not admin']")
+    selenium.find_by_xpath("//div[contains(.,'not admin')]")
 
 
 def menu(selenium, element_id):
