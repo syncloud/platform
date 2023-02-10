@@ -18,10 +18,7 @@ import (
 const ldapUserConfDir = "slapd.d"
 const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
-const AdminDn = "cn=admin, dc=syncloud,dc=org"
-const AdminPw = "syncloud"
 const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
-const AdminGroupFilter = "(memberUid=test)"
 
 type Service struct {
 	snapService     SnapService
@@ -186,11 +183,15 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 
 	sr, err := conn.Search(searchRequest)
 	if err != nil {
-		s.logger.Error("user is not admin", zap.Error(err))
 		return false, err
 	}
 
-	return len(sr.Entries) == 1, nil
+	if len(sr.Entries) < 1 {
+		if err != nil {
+			return false, fmt.Errorf("not admin (must be part of syncloud group)")
+		}
+	}
+	return true, nil
 }
 
 func makeSecret(password string) string {
