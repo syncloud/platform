@@ -183,9 +183,7 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 	}
 
 	if len(sr.Entries) < 1 {
-		if err != nil {
-			return false, fmt.Errorf("not admin (must be part of syncloud group)")
-		}
+		return false, fmt.Errorf("not admin (must be part of syncloud group)")
 	}
 	return true, nil
 }
