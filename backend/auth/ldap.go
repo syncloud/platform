@@ -158,10 +158,6 @@ func (s *Service) ldapAdd(filename string, bindDn string) error {
 	return err
 }
 
-func ToLdapDc(fullDomain string) string {
-	return fmt.Sprintf("dc=%s", strings.Join(strings.Split(fullDomain, "."), ",dc="))
-}
-
 func (s *Service) Authenticate(username string, password string) (bool, error) {
 	conn, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
