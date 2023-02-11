@@ -566,7 +566,7 @@ def test_remove(device):
 
 
 def test_install_stable_from_store(device, device_host):
-    device.run_ssh('snap install platform', retries=3)
+    device.run_ssh('snap install platform', retries=10)
     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
 
 
