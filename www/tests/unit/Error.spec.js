@@ -9,7 +9,7 @@ jest.setTimeout(30000)
 test('Send', async () => {
   let sent = false
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/send_log').reply(function (_) {
+  mock.onPost('/rest/logs/send').reply(function (_) {
     sent = true
     return [200, { success: true }]
   })

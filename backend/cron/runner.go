@@ -34,11 +34,12 @@ func (c *Cron) StartSingle() {
 
 }
 
-func (c *Cron) StartScheduler() {
+func (c *Cron) Start() error {
 	go func() {
 		for {
 			c.StartSingle()
 			time.Sleep(c.delay)
 		}
 	}()
+	return nil
 }

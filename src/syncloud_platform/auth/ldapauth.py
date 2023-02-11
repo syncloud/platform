@@ -1,8 +1,7 @@
-import ldap
 import os
-import time
-from passlib import hash
 from subprocess import check_output
+
+import ldap
 from syncloudlib import fs
 from syncloudlib.logger import get_logger
 
@@ -11,8 +10,7 @@ DOMAIN = "dc=syncloud,dc=org"
 
 
 class LdapAuth:
-    def __init__(self, platform_config, systemctl):
-        self.systemctl = systemctl
+    def __init__(self, platform_config):
         self.log = get_logger('ldap')
         self.config = platform_config
         self.user_conf_dir = ldap_user_conf_dir

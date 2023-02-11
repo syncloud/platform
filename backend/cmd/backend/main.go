@@ -4,24 +4,23 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/backup"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/ioc"
-	"github.com/syncloud/platform/rest"
-	"log"
 	"os"
 )
 
 func main() {
 
 	var rootCmd = &cobra.Command{Use: "backend"}
-	configDb := rootCmd.PersistentFlags().String("config", config.DefaultConfigDb, "sqlite config db")
+	userConfig := rootCmd.PersistentFlags().String("user-config", config.DefaultConfigDb, "sqlite config db")
+	systemConfig := rootCmd.PersistentFlags().String("system-config", config.DefaultSystemConfig, "system config")
 
 	var tcpCmd = &cobra.Command{
 		Use:   "tcp [address]",
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			Start(*configDb, "tcp", args[0])
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ioc.InitPublicApi(*userConfig, *systemConfig, backup.Dir, backup.VarDir, "tcp", args[0])
+			return ioc.Start()
 		},
 	}
 
@@ -29,23 +28,16 @@ func main() {
 		Use:   "unix [address]",
 		Args:  cobra.ExactArgs(1),
 		Short: "listen on a unix socket, like /tmp/backend.sock",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = os.Remove(args[0])
-			Start(*configDb, "unix", args[0])
+			ioc.InitPublicApi(*userConfig, *systemConfig, backup.Dir, backup.VarDir, "unix", args[0])
+			return ioc.Start()
 		},
 	}
 
 	rootCmd.AddCommand(tcpCmd, unixSocketCmd)
 
 	if err := rootCmd.Execute(); err != nil {
-		log.Print("error: ", err)
-		os.Exit(1)
+		panic(err)
 	}
-}
-
-func Start(userConfig string, socketType string, socket string) {
-	ioc.Init(userConfig, config.DefaultSystemConfig, backup.Dir, backup.VarDir)
-	ioc.Call(func(cronService *cron.Cron) { cronService.StartScheduler() })
-	ioc.Call(func(backupService *backup.Backup) { backupService.Init() })
-	ioc.Call(func(backend *rest.Backend) { backend.Start(socketType, socket) })
 }

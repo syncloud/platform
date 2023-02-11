@@ -1,0 +1,15 @@
+dn:                    cn=testdesktop,ou=users,dc=syncloud,dc=org
+objectClass:           simpleSecurityObject
+objectClass:           Person
+objectClass:           inetOrgPerson
+objectClass:           posixAccount
+uidNumber:             11
+gidNumber:             11
+homeDirectory:         testuser
+uid:                   testuser
+cn:                    testuser
+sn:                    testuser
+displayName:           testuser
+description:           testuser
+userPassword:          password
+mail:                  testuser@example.com

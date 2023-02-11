@@ -13,7 +13,7 @@ test('Send logs to the owner', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onPost('/rest/send_log').reply(function (config) {
+  mock.onPost('/rest/logs/send').reply(function (config) {
     sentToSupport = config.params.include_support
     return [200, { success: true }]
   })
@@ -51,7 +51,7 @@ test('Send logs to support', async () => {
 
   const mock = new MockAdapter(axios)
 
-  mock.onPost('/rest/send_log').reply(function (config) {
+  mock.onPost('/rest/logs/send').reply(function (config) {
     sentToSupport = config.params.include_support
     return [200, { success: true }]
   })

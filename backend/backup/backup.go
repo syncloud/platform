@@ -75,13 +75,15 @@ func New(dir string,
 	}
 }
 
-func (b *Backup) Init() {
+func (b *Backup) Start() error {
 	if _, err := os.Stat(b.backupDir); os.IsNotExist(err) {
-		err := os.MkdirAll(b.backupDir, os.ModePerm)
+		err = os.MkdirAll(b.backupDir, os.ModePerm)
 		if err != nil {
 			b.logger.Info("unable to create backup dir", zap.Error(err))
+			return err
 		}
 	}
+	return nil
 }
 
 func (b *Backup) Auto() Auto {

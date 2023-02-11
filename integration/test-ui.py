@@ -39,8 +39,8 @@ def test_deactivate(device, main_domain, domain):
     device.run_ssh('snap run platform.cli config set certbot.staging true')
     device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
 
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(domain), verify=False)
-    assert '"success": true' in response.text
+    response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False)
+    assert '"success":true' in response.text
     assert response.status_code == 200
 
 
@@ -186,29 +186,21 @@ def test_installed_app(selenium):
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']").click()
     selenium.find_by_xpath("//h1[text()='File browser']")
+    selenium.screenshot('app_files')
+
+
+def test_remove_app(selenium):
+    selenium.find_by_id('btn_remove').click()
+    selenium.find_by_id('btn_confirm').click()
+    selenium.find_by_id("btn_install")
+    selenium.screenshot('app_removed')
+
+
+def test_install_app(selenium):
+    selenium.find_by_id('btn_install').click()
+    selenium.find_by_id('btn_confirm').click()
+    selenium.find_by_id('btn_remove')
     selenium.screenshot('app_installed')
-
-
-# def test_remove_app(driver, ui_mode, screenshot_dir):
-#     remove = 'btn_remove'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, remove)))
-#     driver.find_element_by_id(remove).click()
-#     confirm = 'btn_confirm'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-#     driver.find_element_by_id(confirm).click()
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, remove)))
-#     selenium.screenshot('app_removed-' + ui_mode)
-
-
-# def test_install_app(driver, ui_mode, screenshot_dir):
-#     install = 'btn_install'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.element_to_be_clickable((By.ID, install)))
-#     driver.find_element_by_id(install).click()
-#     confirm = 'btn_confirm'
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.presence_of_element_located((By.ID, confirm)))
-#     driver.find_element_by_id(confirm).click()
-#     wait_or_screenshot(driver, ui_mode, screenshot_dir, EC.invisibility_of_element_located((By.ID, install)))
-#     selenium.screenshot('app_installed-' + ui_mode)
 
 
 def test_not_installed_app(selenium):
@@ -217,6 +209,49 @@ def test_not_installed_app(selenium):
     selenium.find_by_xpath("//h1[text()='Nextcloud file sharing']")
     selenium.screenshot('app_not_installed')
 
+
+def test_settings_deactivate(selenium, device_host,
+                  domain, device_user, device_password, redirect_user, redirect_password):
+    settings(selenium, 'activation')
+    selenium.find_by_xpath("//h1[text()='Activation']")
+    selenium.find_by_id('btn_reactivate').click()
+    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.screenshot('activate-empty')
+    selenium.find_by_id('btn_free_domain').click()
+    wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
+    selenium.find_by_id('email').send_keys(redirect_user)
+    selenium.screenshot('activate-redirect-email')
+    selenium.find_by_id('redirect_password').send_keys(redirect_password)
+    selenium.find_by_id('domain_input').send_keys(domain)
+    selenium.screenshot('activate-type')
+    selenium.find_by_id('btn_next').click()
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('activate-redirect')
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
+    wait_for(selenium, lambda: selenium.find_by_id('device_username').send_keys(""))
+    selenium.find_by_id('device_username').send_keys(device_user)
+    selenium.find_by_id('device_password').send_keys(device_password)
+    selenium.screenshot('activate-ready')
+    selenium.find_by_id('btn_activate').click()
+    wait_for_loading(selenium.driver)
+    selenium.find_by_xpath("//h1[text()='Log in']")
+    selenium.find_by_id("username").send_keys(device_user)
+    selenium.find_by_id("password").send_keys(device_password)
+    selenium.find_by_id("btn_login").click()
+    selenium.screenshot('index-progress')
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('reactivate-index')
+
+def test_permission_denied(selenium, device, ui_mode):
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /integration/test.{0}.ldif'.format(ui_mode))
+    menu(selenium, 'logout')
+    selenium.find_by_xpath("//h1[text()='Log in']")
+    selenium.find_by_id("username").send_keys("test{0}".format(ui_mode))
+    selenium.find_by_id("password").send_keys("password")
+    selenium.find_by_id("btn_login").click()
+    selenium.find_by_xpath("//div[contains(.,'not admin')]")
+    selenium.screenshot('permission-denied')
 
 def menu(selenium, element_id):
     retries = 10

@@ -173,17 +173,17 @@ export default {
     },
     install () {
       this.action = 'Install'
-      this.actionUrl = '/rest/install'
+      this.actionUrl = '/rest/app/install'
       $('#app_action_confirmation').modal('show')
     },
     upgrade () {
       this.action = 'Upgrade'
-      this.actionUrl = '/rest/upgrade'
+      this.actionUrl = '/rest/app/upgrade'
       $('#app_action_confirmation').modal('show')
     },
     remove () {
       this.action = 'Remove'
-      this.actionUrl = '/rest/remove'
+      this.actionUrl = '/rest/app/remove'
       $('#app_action_confirmation').modal('show')
     },
     backupConfirm () {

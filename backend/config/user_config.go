@@ -105,6 +105,10 @@ func (c *UserConfig) SetWebSecretKey(key string) {
 	c.Upsert("platform.web_secret_key", key)
 }
 
+func (c *UserConfig) GetWebSecretKey() string {
+	return c.GetOrDefaultString("platform.web_secret_key", "default")
+}
+
 func (c *UserConfig) initDb() error {
 	db := c.open()
 	defer db.Close()
@@ -144,6 +148,10 @@ func (c *UserConfig) GetUserEmail() *string {
 
 func (c *UserConfig) SetUserUpdateToken(userUpdateToken string) {
 	c.Upsert("redirect.user_update_token", userUpdateToken)
+}
+
+func (c *UserConfig) GetUserUpdateToken() (string, error) {
+	return c.GetStringOrError("redirect.user_update_token")
 }
 
 func (c *UserConfig) GetRedirectDomain() string {
@@ -197,6 +205,10 @@ func (c *UserConfig) SetRedirectEnabled(enabled bool) {
 
 func (c *UserConfig) SetActivated() {
 	c.Upsert("platform.activated", DbTrue)
+}
+
+func (c *UserConfig) SetDeactivated() {
+	c.Upsert("platform.activated", DbFalse)
 }
 
 func (c *UserConfig) IsActivated() bool {
@@ -293,6 +305,14 @@ func (c *UserConfig) GetOrDefaultString(key string, defaultValue string) string 
 	return *value
 }
 
+func (c *UserConfig) GetStringOrError(key string) (string, error) {
+	token := c.GetOrNilString(key)
+	if token == nil {
+		return "", fmt.Errorf(fmt.Sprintf("%s is not found", key))
+	}
+	return *token, nil
+}
+
 func (c *UserConfig) GetOrNilString(key string) *string {
 	db := c.open()
 	defer db.Close()
@@ -354,6 +374,13 @@ func (c *UserConfig) GetDkimKey() *string {
 	return c.GetOrNilString("dkim_key")
 }
 
+func (c *UserConfig) SetDkimKey(key *string) {
+	if key == nil {
+		c.Delete("dkim_key")
+	} else {
+		c.Upsert("dkim_key", *key)
+	}
+}
 func (c *UserConfig) GetDomainUpdateToken() *string {
 	return c.GetOrNilString("platform.domain_update_token")
 }

@@ -132,50 +132,24 @@ let backups = [
 ]
 
 const networkInterfaces = {
-  data: {
-    interfaces: [
-      {
-        ipv4: [
-          {
-            addr: '172.17.0.2',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          },
-          {
-            addr: '172.17.0.3',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          }
-        ],
-        name: 'eth0'
-      },
-      {
-        ipv4: [
-          {
-            addr: '172.17.0.2',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          },
-          {
-            addr: '172.17.0.3',
-            broadcast: '172.17.0.2',
-            netmask: '255.255.0.0'
-          }
-        ],
-        ipv6: [
-          {
-            addr: 'fe80::42:acff:fe11:2%eth0',
-            netmask: 'ffff:ffff:ffff:ffff::'
-          },
-          {
-            addr: 'fe80::42:acff:fe11:11',
-            netmask: 'ffff:ffff:ffff:ffff::'
-          }
-        ],
-        name: 'wifi0'
-      }
-    ]
-  },
+  data: [
+    {
+      name: 'eth0',
+      addresses: [
+        '172.17.0.2',
+        '172.17.0.3'
+      ],
+    },
+    {
+      name: 'wifi0',
+      addresses: [
+        '172.17.0.2',
+        '172.17.0.3',
+        'fe80::42:acff:fe11:2%eth0',
+        'fe80::42:acff:fe11:11'
+      ],
+    }
+  ],
   success: true
 }
 
@@ -296,10 +270,10 @@ export function mock () {
       this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
       })
-      this.post('/rest/upgrade', function (_schema, _request) {
+      this.post('/rest/app/upgrade', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/install', function (_schema, request) {
+      this.post('/rest/app/install', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         console.debug(attrs.app_id)
         console.debug(installedApps)
@@ -307,7 +281,7 @@ export function mock () {
         console.debug(installedApps)
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/remove', function (_schema, request) {
+      this.post('/rest/app/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
         return new Response(200, {}, { success: true })
@@ -344,7 +318,7 @@ export function mock () {
         return new Response(200, {}, { data: deviceUrl })
       })
 
-      this.post('/rest/settings/deactivate', function (_schema, _request) {
+      this.post('/rest/deactivate', function (_schema, _request) {
         state.activated = false
         return new Response(200, {}, {})
       })
@@ -398,7 +372,7 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
 
-      this.get('/rest/access/network_interfaces', function (_schema, _request) {
+      this.get('/rest/network/interfaces', function (_schema, _request) {
         return new Response(200, {}, networkInterfaces)
       })
 
@@ -472,7 +446,7 @@ export function mock () {
       this.get('/rest/settings/disk_format_status', function (_schema, _request) {
         return new Response(200, {}, { success: true, is_running: false })
       })
-      this.post('/rest/send_log', function (_schema, _request) {
+      this.post('/rest/logs/send', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/activate/managed', function (_schema, _request) {

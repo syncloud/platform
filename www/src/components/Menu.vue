@@ -14,15 +14,15 @@
             </router-link>
           </div>
           <div class="menuoff" v-if="loggedIn">
-            <a href="#" id="btn_logout_large" class="hlink" @click="logout">
+            <a href="#" id="logout" class="hlink" @click="logout">
               <i class="material-icons" style="vertical-align: middle">exit_to_app</i>
               <span class="button_label">Logout</span>
             </a>
-            <a href="#" id="btn_restart_large" class="hlink" @click="restart">
+            <a href="#" id="restart" class="hlink" @click="restart">
               <i class="material-icons" style="vertical-align: middle">loop</i>
               <span class="button_label">Restart</span>
             </a>
-            <a href="#" id="btn_shutdown_large" class="hlink" @click="shutdown">
+            <a href="#" id="shutdown" class="hlink" @click="shutdown">
               <i class="material-icons" style="vertical-align: middle">power_settings_new</i>
               <span class="button_label">Shutdown</span>
             </a>
@@ -41,9 +41,9 @@
           <router-link to="/settings" id="settings_mobile"><span style="display: block" @click="toggle">Settings</span>
           </router-link>
           <div class="menucolor2">
-            <a href="#" id="btn_logout_small" @click="logout">Log out</a>
-            <a href="#" id="btn_restart_small" @click="restart">Restart</a>
-            <a href="#" id="btn_shutdown_small" @click="shutdown">Shutdown</a>
+            <a href="#" id="logout_mobile" @click="logout">Log out</a>
+            <a href="#" id="restart_mobile" @click="restart">Restart</a>
+            <a href="#" id="shutdown_mobile" @click="shutdown">Shutdown</a>
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from syncloudlib.http import wait_for_response
 from syncloudlib.integration.hosts import add_host_alias
-from syncloudlib.integration.installer import local_install, wait_for_installer
+from syncloudlib.integration.installer import local_install
 from syncloudlib.integration.loop import loop_device_cleanup
 from syncloudlib.integration.ssh import run_ssh
 
@@ -197,9 +197,9 @@ def test_reactivate_good(device_host, full_domain, device_user, device_password,
 
 
 def test_deactivate(device, domain):
-    response = device.login().post('https://{0}/rest/settings/deactivate'.format(domain), verify=False,
+    response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False,
                                    allow_redirects=False)
-    assert '"success": true' in response.text
+    assert '"success":true' in response.text
     assert response.status_code == 200
 
 
@@ -259,11 +259,6 @@ def test_api(device):
     device.run_ssh('/api.test')
 
 
-def test_python_ssl(device):
-    device.scp_to_device(join(DIR, "ssl.test.py"), '/', throw=True)
-    device.run_ssh('/ssl.test.py')
-
-
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
@@ -288,16 +283,21 @@ def test_installer_status(device, device_host):
 
 
 def test_network_interfaces(device, domain):
-    response = device.login().get('https://{0}/rest/access/network_interfaces'.format(domain), verify=False)
+    response = device.login().get('https://{0}/rest/network/interfaces'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
 
 def test_send_logs(device, domain):
-    response = device.login().post('https://{0}/rest/send_log?include_support=false'.format(domain), verify=False)
+    response = device.login().post('https://{0}/rest/logs/send?include_support=false'.format(domain), verify=False)
     print(response.text)
     assert json.loads(response.text)["success"]
+    assert response.status_code == 200
+
+def test_proxy_image(device, domain):
+    response = device.login().get('https://{0}/rest/proxy/image?channel=stable&app=files'.format(domain), verify=False)
+    print(response.text)
     assert response.status_code == 200
 
 
@@ -373,6 +373,18 @@ def test_rest_not_installed_app(device, domain, artifact_dir):
         the_file.write(response.text)
     assert response.status_code == 200
 
+def test_install_app(device, device_host):
+    session = device.login()
+    session.post('https://{0}/rest/app/install'.format(device_host), json={'app_id': 'files'}, verify=False)
+    wait_for_installer(session, device_host)
+
+
+def test_rest_installed_app(device, device_host, artifact_dir):
+    response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
+    assert response.status_code == 200
+    with open('{0}/rest.app.files.installed.json'.format(artifact_dir), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200
 
 def test_rest_platform_version(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=platform'.format(domain), verify=False)
@@ -463,7 +475,7 @@ def loop_device(device_host):
 
 def disk_writable(domain):
     run_ssh(domain, 'ls -la /data/', password=LOGS_SSH_PASSWORD)
-    run_ssh(domain, "touch /data/testapp/test.file", password=LOGS_SSH_PASSWORD)
+    run_ssh(domain, "touch /data/test.file", password=LOGS_SSH_PASSWORD)
 
 mkfs = {
   'btrfs': '/snap/platform/current/btrfs/bin/mkfs.sh',
@@ -554,7 +566,7 @@ def test_remove(device):
 
 
 def test_install_stable_from_store(device, device_host):
-    device.run_ssh('snap install platform')
+    device.run_ssh('snap install platform', retries=10)
     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
 
 
@@ -606,3 +618,22 @@ def retry(method, retries=10):
             time.sleep(5)
         attempt += 1
     raise exception
+
+def wait_for_installer(web_session, host, attempts=60):
+    is_running = True
+    attempt = 0
+    while is_running and attempt < attempts:
+        try:
+            response = web_session.get('https://{0}/rest/installer/status'.format(host), verify=False)
+            if response.status_code == 200:
+                status = json.loads(response.text)
+                is_running = status['data']['is_running']
+        except Exception as e:
+            print(str(e))
+
+        print("attempt: {0}/{1}".format(attempt, attempts))
+        attempt += 1
+        time.sleep(10)
+
+    if is_running:
+        raise Exception("time out waiting for thr installer")

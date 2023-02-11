@@ -14,6 +14,9 @@ test('Activation url', async () => {
   delete window.location
   window.location = ''
   const mock = new MockAdapter(axios)
+  let availabilityDomain = ''
+  let redirectEmail = ''
+  let redirectPassword = ''
   mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
     const request = JSON.parse(config.data)
     availabilityDomain = request.domain
@@ -60,7 +63,7 @@ test('Activation reactivate', async () => {
   window.location = ''
   let deactivated = false
   const mock = new MockAdapter(axios)
-  mock.onPost('/rest/settings/deactivate').reply(function (config) {
+  mock.onPost('/rest/deactivate').reply(function (_) {
     deactivated = true
     return [200, { success: true }]
   })

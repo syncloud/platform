@@ -5,18 +5,20 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
+	"github.com/go-ldap/ldap/v3"
+	"github.com/syncloud/platform/cli"
+	"go.uber.org/zap"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"time"
-
-	"github.com/syncloud/platform/cli"
 )
 
 const ldapUserConfDir = "slapd.d"
 const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
+const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
 
 type Service struct {
 	snapService     SnapService
@@ -26,6 +28,7 @@ type Service struct {
 	configDir       string
 	executor        cli.Executor
 	passwordChanger PasswordChanger
+	logger          *zap.Logger
 }
 
 type SnapService interface {
@@ -33,7 +36,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, logger *zap.Logger) *Service {
 
 	return &Service{
 		snapService:     snapService,
@@ -43,6 +46,7 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		configDir:       configDir,
 		executor:        executor,
 		passwordChanger: passwordChanger,
+		logger:          logger,
 	}
 }
 
@@ -154,22 +158,34 @@ func (s *Service) ldapAdd(filename string, bindDn string) error {
 	return err
 }
 
-func ToLdapDc(fullDomain string) string {
-	return fmt.Sprintf("dc=%s", strings.Join(strings.Split(fullDomain, "."), ",dc="))
-}
+func (s *Service) Authenticate(username string, password string) (bool, error) {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username), password)
+	if err != nil {
+		s.logger.Error("ldap error", zap.Error(err))
+		return false, err
+	}
 
-func Authenticate(name string, password string) {
-	/*    conn = ldap.initialize('ldap://localhost:389')
-	try:
-	    conn.simple_bind_s('cn={0},ou=users,dc=syncloud,dc=org'.format(name), password)
-	except ldap.INVALID_CREDENTIALS:
-	    conn.unbind()
-	    raise Exception('Invalid credentials')
-	except Exception as e:
-	    conn.unbind()
-	    raise Exception(str(e))
+	searchRequest := ldap.NewSearchRequest(
+		AdminGroupDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		fmt.Sprintf("(memberUid=%s)", username),
+		[]string{"memberUid"},
+		nil)
 
-	*/
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return false, err
+	}
+
+	if len(sr.Entries) < 1 {
+		return false, fmt.Errorf("not admin (must be part of syncloud group)")
+	}
+	return true, nil
 }
 
 func makeSecret(password string) string {

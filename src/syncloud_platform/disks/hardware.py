@@ -1,34 +1,13 @@
 import os
-from os import path
 from os import unlink
-from os.path import islink, join, isdir
-
-from syncloudlib import logger, fs
+from os.path import islink, isdir
 
 
 class Hardware:
 
-    def __init__(self, platform_config, event_trigger, path_checker, systemctl):
+    def __init__(self, platform_config, path_checker):
         self.platform_config = platform_config
-        self.systemctl = systemctl
-        self.event_trigger = event_trigger
         self.path_checker = path_checker
-        self.log = logger.get_logger('hardware')
-
-    def get_app_storage_dir(self, app_id):
-        app_storage_dir = join(self.platform_config.get_disk_link(), app_id)
-        return app_storage_dir
-
-    def init_app_storage(self, app_id, owner=None):
-        app_storage_dir = self.get_app_storage_dir(app_id)
-        if not path.exists(app_storage_dir):
-            os.mkdir(app_storage_dir)
-        if owner:
-            self.log.info('fixing permissions on {0}'.format(app_storage_dir))
-            fs.chownpath(app_storage_dir, owner, recursive=True)
-        else:
-            self.log.info('not fixing permissions')
-        return app_storage_dir
 
     def init_disk(self):
 

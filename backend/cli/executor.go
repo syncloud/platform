@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"os/exec"
-	"strings"
 )
 
 type ShellExecutor struct {
@@ -20,10 +19,11 @@ func New(logger *zap.Logger) *ShellExecutor {
 }
 
 func (e *ShellExecutor) CombinedOutput(name string, arg ...string) ([]byte, error) {
-	e.logger.Info("execute", zap.String("cmd", fmt.Sprintf("%s %s", name, strings.Join(arg, " "))))
-	output, err := exec.Command(name, arg...).CombinedOutput()
+	command := exec.Command(name, arg...)
+	e.logger.Info("execute", zap.String("cmd", command.String()))
+	output, err := command.CombinedOutput()
 	if err != nil {
-		return output, fmt.Errorf(string(output))
+		return output, fmt.Errorf("%v: %s", err, string(output))
 	}
 	return output, err
 }

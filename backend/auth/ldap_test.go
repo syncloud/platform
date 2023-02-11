@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"github.com/syncloud/platform/log"
 	"os"
 	"path"
 	"strings"
@@ -9,10 +10,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestToLdapDc(t *testing.T) {
-	assert.Equal(t, ToLdapDc("user.syncloud.it"), "dc=user,dc=syncloud,dc=it")
-}
 
 type SnapServiceStub struct {
 }
@@ -50,7 +47,7 @@ func TestMakeSecret(t *testing.T) {
 
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{})
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, log.Default())
 	err := ldap.Init()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 1)
@@ -66,7 +63,7 @@ func TestReset(t *testing.T) {
 	assert.Nil(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger)
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger, log.Default())
 	err = ldap.Reset("name", "user", "password", "email")
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 2)

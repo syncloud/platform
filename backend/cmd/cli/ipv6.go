@@ -16,7 +16,7 @@ func ipv6Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.Interface) {
+			ioc.Call(func(iface *network.TcpInterfaces) {
 				ip, err := iface.IPv6Addr()
 				if err != nil {
 					fmt.Print(err)
@@ -32,7 +32,7 @@ func ipv6Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Short: "Print IPv6 prefix",
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.Interface) {
+			ioc.Call(func(iface *network.TcpInterfaces) {
 				ip, err := iface.IPv6Addr()
 				if err != nil {
 					fmt.Print(err)

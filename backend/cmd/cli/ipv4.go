@@ -15,7 +15,7 @@ func ipv4Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.Interface) {
+			ioc.Call(func(iface *network.TcpInterfaces) {
 				ip, err := iface.LocalIPv4()
 				if err != nil {
 					fmt.Print(err)
@@ -32,7 +32,7 @@ func ipv4Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.Interface) {
+			ioc.Call(func(iface *network.TcpInterfaces) {
 				ip, err := iface.PublicIPv4()
 				if err != nil {
 					fmt.Print(err)
