@@ -18,6 +18,7 @@ import (
 const ldapUserConfDir = "slapd.d"
 const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
+const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
 
 type Service struct {
 	snapService     SnapService
@@ -157,25 +158,33 @@ func (s *Service) ldapAdd(filename string, bindDn string) error {
 	return err
 }
 
-func ToLdapDc(fullDomain string) string {
-	return fmt.Sprintf("dc=%s", strings.Join(strings.Split(fullDomain, "."), ",dc="))
-}
-
 func (s *Service) Authenticate(username string, password string) (bool, error) {
 	conn, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
 		return false, err
 	}
-	_, err = conn.SimpleBind(
-		&ldap.SimpleBindRequest{
-			Username: fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username),
-			Password: password,
-		})
+	defer conn.Close()
+	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username), password)
 	if err != nil {
 		s.logger.Error("ldap error", zap.Error(err))
 		return false, err
 	}
-	defer conn.Close()
+
+	searchRequest := ldap.NewSearchRequest(
+		AdminGroupDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		fmt.Sprintf("(memberUid=%s)", username),
+		[]string{"memberUid"},
+		nil)
+
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return false, err
+	}
+
+	if len(sr.Entries) < 1 {
+		return false, fmt.Errorf("not admin (must be part of syncloud group)")
+	}
 	return true, nil
 }
 

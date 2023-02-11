@@ -11,10 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestToLdapDc(t *testing.T) {
-	assert.Equal(t, ToLdapDc("user.syncloud.it"), "dc=user,dc=syncloud,dc=it")
-}
-
 type SnapServiceStub struct {
 }
 
