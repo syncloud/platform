@@ -72,7 +72,7 @@ func (r *Service) CertbotCleanUp(token, fqdn string) error {
 }
 
 func (r *Service) SendLogs(logs string, includeSupport bool) error {
-	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "user/log")
+	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "user/log_v2")
 	token, err := r.userConfig.GetUserUpdateToken()
 	if err != nil {
 		return err
