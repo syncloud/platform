@@ -571,10 +571,12 @@ def test_install_stable_from_store(device, device_host):
 
 
 def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
-    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+    def activate():
+        return requests.post('https://{0}/rest/activate/custom'.format(device_host),
                              json={'domain': 'example.com',
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
+    response = retry(activate)
     assert response.status_code == 200, response.text
 
 
