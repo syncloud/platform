@@ -463,7 +463,7 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 	includeSupport := false
 	query := req.URL.Query()
 	if query.Has("include_support") {
-		includeSupport = query.Get("app_id") == "true"
+		includeSupport = query.Get("include_support") == "true"
 	}
 	return b.support.Send(includeSupport), nil
 }
