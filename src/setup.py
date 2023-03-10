@@ -10,8 +10,6 @@ setup(
               'syncloud_platform.insider',
               'syncloud_platform.auth',
               'syncloud_platform.gaplib',
-              'syncloud_platform.rest',
-              'syncloud_platform.rest.model',
               'syncloud_platform.config',
               'syncloud_platform.control',
               'syncloud_platform.disks'],
