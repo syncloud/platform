@@ -27,9 +27,7 @@ class PlatformInstaller:
             join(self.common_dir, 'log'),
             join(self.data_dir, 'nginx'),
             join(self.data_dir, 'openldap'),
-            join(self.data_dir, 'openldap-data'),
-            join(self.data_dir, 'certbot'),
-            join(self.data_dir, 'certbot', 'www')
+            join(self.data_dir, 'openldap-data')
         ]
 
         for data_dir in data_dirs:
