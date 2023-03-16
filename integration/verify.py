@@ -238,7 +238,7 @@ def test_unauthorized(device_host):
 
 
 def test_running_platform_web(device_host):
-    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True).decode())
+    print(check_output('nc -zv -w 1 {0} 443'.format(device_host), shell=True).decode())
 
 
 def test_platform_rest(device_host):
