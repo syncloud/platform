@@ -2,7 +2,6 @@ apps:
   nginx-public:
     command: bin/service.nginx-public.sh start
     post-start-command: bin/service.nginx-public.sh post-start
-    command: bin/service.nginx-public.sh
     daemon: forking
     plugs:
     - network
