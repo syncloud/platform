@@ -90,9 +90,6 @@ class PlatformConfig:
     def get_hooks_root(self):
         return self.__get('hooks_root')
 
-    def is_certbot_test_cert(self):
-        return self.parser.getboolean('platform', 'certbot_test_cert')
-
     def get_channel(self):
         return self.__get('channel')
 

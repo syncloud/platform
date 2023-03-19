@@ -1,7 +1,6 @@
 apps:
   nginx-public:
     command: bin/service.nginx-public.sh start
-    post-start-command: bin/service.nginx-public.sh post-start
     daemon: forking
     plugs:
     - network
@@ -10,7 +9,7 @@ apps:
     stop-command: bin/service.nginx-public.sh stop
     reload-command: bin/service.nginx-public.sh reload
   openldap:
-    command: bin/service.openldap.sh start
+    command: bin/service.openldap.sh
     daemon: forking
     plugs:
     - network
