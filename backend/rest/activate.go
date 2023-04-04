@@ -49,8 +49,8 @@ func validate(username string, password string) error {
 	if len(username) < 3 {
 		return model.SingleParameterError("device_username", "less than 3 characters")
 	}
-	if len(password) < 8 {
-		return model.SingleParameterError("device_password", "less than 8 characters")
+	if len(password) < 7 {
+		return model.SingleParameterError("device_password", "less than 7 characters")
 	}
 	return nil
 }

@@ -134,8 +134,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	Singleton(func(snapd *snap.Server, userConfig *config.UserConfig, provider *date.RealProvider, backup *backup.Backup, scheduler *cron.SimpleScheduler, logger *zap.Logger) *cron.BackupJob {
 		return cron.NewBackupJob(snapd, userConfig, backup, provider, scheduler, logger)
 	})
-	Singleton(func(executor *cli.ShellExecutor) *cron.TimeSyncJob {
-		return cron.NewTimeSyncJob(executor, logger)
+	Singleton(func(executor *cli.ShellExecutor, dateProvider *date.RealProvider) *cron.TimeSyncJob {
+		return cron.NewTimeSyncJob(executor, dateProvider, logger)
 	})
 	Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, userConfig *config.UserConfig) *cron.Cron {
 		return cron.New([]cron.Job{job1, job2, job3, job4}, time.Minute*5, userConfig)
