@@ -76,12 +76,6 @@ def test_cryptography_openssl_version(device_host):
                          "import backend; print(backend.openssl_version_text())'", password=LOGS_SSH_PASSWORD)
 
 
-def test_http_port_validation_url(device_host):
-    response = requests.get('http://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
-    assert response.status_code == 200
-    assert response.text == 'OK'
-
-
 def test_https_port_validation_url(device_host):
     response = requests.get('https://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 200
@@ -244,7 +238,7 @@ def test_unauthorized(device_host):
 
 
 def test_running_platform_web(device_host):
-    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True).decode())
+    print(check_output('nc -zv -w 1 {0} 443'.format(device_host), shell=True).decode())
 
 
 def test_platform_rest(device_host):
