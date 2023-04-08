@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/network"
-	"os"
 )
 
 func ipv4Cmd(userConfig *string, systemConfig *string) *cobra.Command {
@@ -13,15 +11,18 @@ func ipv4Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Use:   "ipv4 [public]",
 		Short: "Print IPv4",
 		Args:  cobra.MaximumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.TcpInterfaces) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				panic(err)
+			}
+			return c.Call(func(iface *network.TcpInterfaces) error {
 				ip, err := iface.LocalIPv4()
 				if err != nil {
-					fmt.Print(err)
-					os.Exit(1)
+					return err
 				}
 				fmt.Print(ip.String())
+				return nil
 			})
 		},
 	}
@@ -30,15 +31,18 @@ func ipv4Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Use:   "public",
 		Short: "Print public IPv4",
 		Args:  cobra.MaximumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.TcpInterfaces) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				panic(err)
+			}
+			return c.Call(func(iface *network.TcpInterfaces) error {
 				ip, err := iface.PublicIPv4()
 				if err != nil {
-					fmt.Print(err)
-					os.Exit(1)
+					return err
 				}
 				fmt.Print(*ip)
+				return nil
 			})
 		},
 	})

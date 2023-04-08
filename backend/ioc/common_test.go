@@ -1,6 +1,7 @@
 package ioc
 
 import (
+	"github.com/syncloud/platform/config"
 	"log"
 	"os"
 	"testing"
@@ -28,5 +29,9 @@ config_dir: test
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 
-	Init(configDb.Name(), systemConfig.Name(), backupDir, varDir)
+	c, err := Init(configDb.Name(), systemConfig.Name(), backupDir, varDir)
+	assert.NoError(t, err)
+	var conf *config.SystemConfig
+	err = c.Resolve(&conf)
+	assert.NoError(t, err)
 }

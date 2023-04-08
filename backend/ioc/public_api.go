@@ -1,6 +1,7 @@
 package ioc
 
 import (
+	"github.com/golobby/container/v3"
 	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
@@ -22,9 +23,13 @@ import (
 	"github.com/syncloud/platform/systemd"
 )
 
-func InitPublicApi(userConfig string, systemConfig string, backupDir string, varDir string, net string, address string) {
-	Init(userConfig, systemConfig, backupDir, varDir)
-	Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
+func InitPublicApi(userConfig string, systemConfig string, backupDir string, varDir string, net string, address string) (container.Container, error) {
+	c, err := Init(userConfig, systemConfig, backupDir, varDir)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
@@ -36,8 +41,10 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy,
 			ldapService, middleware, cookies, net, address, logger)
 	})
-
-	Singleton(func(
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(
 		cronService *cron.Cron,
 		backupService *backup.Backup,
 		cookies *session.Cookies,
@@ -50,4 +57,8 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 			backend,
 		}
 	})
+	if err != nil {
+		return nil, err
+	}
+	return c, err
 }

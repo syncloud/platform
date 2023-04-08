@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/ioc"
 )
 
 func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
@@ -19,9 +18,12 @@ func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Use:   "set [key] [value]",
 		Short: "Set config key value",
 		Args:  cobra.ExactArgs(2),
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(configuration *config.UserConfig) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				return err
+			}
+			return c.Call(func(configuration *config.UserConfig) {
 				key := args[0]
 				value := args[1]
 				configuration.Upsert(key, value)
@@ -35,9 +37,12 @@ func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Use:   "get [key]",
 		Short: "Get config key value",
 		Args:  cobra.ExactArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(configuration *config.UserConfig) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				return err
+			}
+			return c.Call(func(configuration *config.UserConfig) {
 				fmt.Println(configuration.Get(args[0], ""))
 			})
 		},
@@ -48,9 +53,12 @@ func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Use:   "list",
 		Short: "List config key value",
 		Args:  cobra.ExactArgs(0),
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(configuration *config.UserConfig) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				return err
+			}
+			return c.Call(func(configuration *config.UserConfig) {
 				for key, value := range configuration.List() {
 					fmt.Printf("%s:%s\n", key, value)
 				}
