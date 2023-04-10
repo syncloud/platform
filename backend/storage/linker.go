@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"go.uber.org/zap"
 	"os"
 )
@@ -23,15 +24,19 @@ func (d *Linker) RelinkDisk(link string, target string) error {
 
 	fi, err := os.Lstat(link)
 	if err != nil {
-		d.logger.Error("stat", zap.Error(err))
-		return err
-	}
-	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-		err = os.Remove(link)
-		if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			d.logger.Error("stat", zap.Error(err))
 			return err
 		}
+	} else {
+		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+			err = os.Remove(link)
+			if err != nil {
+				return err
+			}
+		}
 	}
+
 	err = os.Symlink(target, link)
 	return err
 }
