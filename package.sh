@@ -41,10 +41,6 @@ wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3
 tar xf btrfs-${ARCH}.tar.gz
 mv btrfs ${BUILD_DIR}
 
-cd ${DIR}/src
-rm -f version
-echo ${VERSION} >> version
-${PYTHON_DIR}/bin/python setup.py install
 cd ${DIR}/build
 
 echo "snapping"
