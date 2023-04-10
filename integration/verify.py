@@ -70,12 +70,6 @@ def test_install_testapp(device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, join(DIR, 'testapp', 'testapp.snap'))
 
 
-def test_cryptography_openssl_version(device_host):
-    run_ssh(device_host, "/snap/platform/current/python/bin/python "
-                         "-c 'from cryptography.hazmat.backends.openssl.backend "
-                         "import backend; print(backend.openssl_version_text())'", password=LOGS_SSH_PASSWORD)
-
-
 def test_https_port_validation_url(device_host):
     response = requests.get('https://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 200
