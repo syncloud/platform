@@ -1,15 +1,21 @@
 package storage
 
-import "os"
+import (
+	"go.uber.org/zap"
+	"os"
+)
 
 type Linker struct {
+	logger *zap.Logger
 }
 
-func NewLinker() *Linker {
-	return &Linker{}
+func NewLinker(logger *zap.Logger) *Linker {
+	return &Linker{
+		logger: logger,
+	}
 }
 func (d *Linker) RelinkDisk(link string, target string) error {
-
+	d.logger.Info("relink disk")
 	err := os.Chmod(target, 0o755)
 	if err != nil {
 		return err
@@ -17,6 +23,7 @@ func (d *Linker) RelinkDisk(link string, target string) error {
 
 	fi, err := os.Lstat(link)
 	if err != nil {
+		d.logger.Error("stat", zap.Error(err))
 		return err
 	}
 	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {

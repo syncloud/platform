@@ -340,7 +340,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *storage.Linker { return storage.NewLinker() })
+	err = c.Singleton(func() *storage.Linker { return storage.NewLinker(logger) })
 	if err != nil {
 		return nil, err
 	}
