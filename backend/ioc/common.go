@@ -393,8 +393,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(checker *storage.PathChecker, linker *storage.Linker, systemConfig *config.SystemConfig, certGenerator *cert.CertificateGenerator) *hook.Install {
-		return hook.NewInstall(checker, linker, systemConfig, certGenerator, logger)
+	err = c.Singleton(func(checker *storage.PathChecker, linker *storage.Linker, systemConfig *config.SystemConfig, certGenerator *cert.CertificateGenerator, ldapService *auth.Service, nginxService *nginx.Nginx) *hook.Install {
+		return hook.NewInstall(checker, linker, systemConfig, certGenerator, ldapService, nginxService, logger)
 	})
 	if err != nil {
 		return nil, err
