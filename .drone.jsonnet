@@ -49,7 +49,10 @@ local build(arch, testUI, python) = [{
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/api ./cmd/api",
                 "../build/snap/bin/api -h",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/cli ./cmd/cli",
-                "../build/snap/bin/cli -h"
+                "../build/snap/bin/cli -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/install ./cmd/install",
+                "../build/snap/meta/hooks/install -h"
+       
             ]
         },
         {
@@ -329,3 +332,4 @@ local build(arch, testUI, python) = [{
 build("amd64", true, "bookworm") +
 build("arm64", false, "bookworm") +
 build("arm", false, "buster")
+

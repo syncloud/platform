@@ -88,10 +88,8 @@ func (i *Install) Run() error {
 }
 
 func (i *Install) InitConfigs() error {
-	//snapDir := "/snap/platform/current"
 	dataDir := "/var/snap/platform/current"
 	commonDir := "/var/snap/platform/common"
-	//slapdConfigDir := path.Join(dataDir, "slapd.d")
 
 	dataDirs := []string{
 		path.Join(commonDir, "log"),
