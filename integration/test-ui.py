@@ -17,7 +17,7 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
     def module_teardown():
         device.activated()
         ui_logs = join(artifact_dir, ui_mode)
-        check_output('mkdir {0}'.format(ui_logs), shell=True)
+        check_output('mkdir -p {0}'.format(ui_logs), shell=True)
         device.run_ssh('mkdir -p {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), ui_logs)
