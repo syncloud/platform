@@ -14,6 +14,7 @@ type Install struct {
 	storageLinker  DisksLinker
 	config         Config
 	certGenerator  CertificateGenerator
+	ldap           Ldap
 	logger         *zap.Logger
 }
 
@@ -31,11 +32,16 @@ type DisksLinker interface {
 	RelinkDisk(link string, target string) error
 }
 
+type Ldap interface {
+	Init() error
+}
+
 func NewInstall(
 	storageChecker storage.Checker,
 	storageLinker DisksLinker,
 	config Config,
 	certGenerator CertificateGenerator,
+	ldap Ldap,
 	logger *zap.Logger,
 ) *Install {
 	return &Install{
@@ -43,6 +49,7 @@ func NewInstall(
 		storageLinker:  storageLinker,
 		config:         config,
 		certGenerator:  certGenerator,
+		ldap:           ldap,
 		logger:         logger,
 	}
 }
@@ -62,7 +69,10 @@ func (i *Install) Run() error {
 	if err != nil {
 		return err
 	}
-
+	err = i.ldap.Init()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
