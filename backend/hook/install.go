@@ -61,7 +61,7 @@ func NewInstall(
 	}
 }
 
-func (i *Install) Run() error {
+func (i *Install) Install() error {
 	err := i.InitConfigs()
 	if err != nil {
 		return err
@@ -80,6 +80,24 @@ func (i *Install) Run() error {
 	if err != nil {
 		return err
 	}
+	err = i.nginx.InitConfig()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (i *Install) PostRefresh() error {
+	err := i.InitConfigs()
+	if err != nil {
+		return err
+	}
+
+	err = i.InitDisk()
+	if err != nil {
+		return err
+	}
+
 	err = i.nginx.InitConfig()
 	if err != nil {
 		return err

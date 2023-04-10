@@ -12,7 +12,7 @@ import (
 
 func main() {
 	var rootCmd = &cobra.Command{
-		Use:          "install",
+		Use:          "post-refresh",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := ioc.Init(config.DefaultConfigDb, config.DefaultSystemConfig, backup.Dir, backup.VarDir)
@@ -20,7 +20,7 @@ func main() {
 				return err
 			}
 			return c.Call(func(install *hook.Install) error {
-				return install.Install()
+				return install.PostRefresh()
 			})
 		},
 	}

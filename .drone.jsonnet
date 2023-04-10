@@ -51,7 +51,9 @@ local build(arch, testUI, python) = [{
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/cli ./cmd/cli",
                 "../build/snap/bin/cli -h",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/install ./cmd/install",
-                "../build/snap/meta/hooks/install -h"
+                "../build/snap/meta/hooks/install -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
+                "../build/snap/meta/hooks/post-refresh -h"
        
             ]
         },
