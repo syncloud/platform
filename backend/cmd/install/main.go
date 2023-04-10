@@ -12,7 +12,8 @@ import (
 
 func main() {
 	var rootCmd = &cobra.Command{
-		Use: "install",
+		Use:          "install",
+		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := ioc.Init(config.DefaultConfigDb, config.DefaultSystemConfig, backup.Dir, backup.VarDir)
 			if err != nil {

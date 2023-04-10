@@ -88,6 +88,7 @@ func (i *Install) Run() error {
 }
 
 func (i *Install) InitConfigs() error {
+	i.logger.Info("init configs")
 	dataDir := "/var/snap/platform/current"
 	commonDir := "/var/snap/platform/common"
 
@@ -113,6 +114,7 @@ func (i *Install) InitConfigs() error {
 }
 
 func (i *Install) InitDisk() error {
+	i.logger.Info("init disk")
 	err := createDir(i.config.DiskRoot())
 	if err != nil {
 		return err
@@ -133,14 +135,8 @@ func (i *Install) InitDisk() error {
 
 func createDir(dir string) error {
 	_, err := os.Stat(dir)
-	if err != nil {
-		return err
-	}
 	if errors.Is(err, os.ErrNotExist) {
-		err = os.MkdirAll(dir, 0755)
-		if err != nil {
-			return err
-		}
+		return os.MkdirAll(dir, 0755)
 	}
-	return nil
+	return err
 }
