@@ -15,8 +15,6 @@ CA_CERTIFICATES_VERSION=20230311
 cd ${DIR}/build
 
 BUILD_DIR=${DIR}/build/snap
-PYTHON_DIR=${BUILD_DIR}/python
-export PATH=${PYTHON_DIR}/bin:$PATH
 
 apt update
 apt install -y wget squashfs-tools dpkg-dev
