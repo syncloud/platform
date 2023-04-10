@@ -15,6 +15,7 @@ type Install struct {
 	config         Config
 	certGenerator  CertificateGenerator
 	ldap           Ldap
+	nginx          Nginx
 	logger         *zap.Logger
 }
 
@@ -36,12 +37,17 @@ type Ldap interface {
 	Init() error
 }
 
+type Nginx interface {
+	InitConfig() error
+}
+
 func NewInstall(
 	storageChecker storage.Checker,
 	storageLinker DisksLinker,
 	config Config,
 	certGenerator CertificateGenerator,
 	ldap Ldap,
+	nginx Nginx,
 	logger *zap.Logger,
 ) *Install {
 	return &Install{
@@ -50,6 +56,7 @@ func NewInstall(
 		config:         config,
 		certGenerator:  certGenerator,
 		ldap:           ldap,
+		nginx:          nginx,
 		logger:         logger,
 	}
 }
@@ -70,6 +77,10 @@ func (i *Install) Run() error {
 		return err
 	}
 	err = i.ldap.Init()
+	if err != nil {
+		return err
+	}
+	err = i.nginx.InitConfig()
 	if err != nil {
 		return err
 	}
