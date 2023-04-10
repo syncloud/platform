@@ -25,7 +25,7 @@ func NewPathChecker(config *config.SystemConfig, logger *zap.Logger) *PathChecke
 func (c *PathChecker) ExternalDiskLinkExists() bool {
 	realLinkPath, err := filepath.EvalSymlinks(c.config.DiskLink())
 	if err != nil {
-		c.logger.Error("cannot read disk link", zap.String("name", c.config.DiskLink()))
+		c.logger.Warn("cannot read disk link", zap.String("name", c.config.DiskLink()))
 		return false
 	}
 	c.logger.Info("real link", zap.String("path", realLinkPath))

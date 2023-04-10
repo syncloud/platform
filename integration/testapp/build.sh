@@ -5,8 +5,6 @@ ARCH=$(uname -m)
 BUILD_DIR=${DIR}/build
 mkdir ${BUILD_DIR}
 
-cp -R ${DIR}/../../build/snap/python ${BUILD_DIR}/python
-
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
 cp -r ${DIR}/meta ${BUILD_DIR}
 cp -r ${DIR}/bin ${BUILD_DIR}

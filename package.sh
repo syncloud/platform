@@ -15,8 +15,6 @@ CA_CERTIFICATES_VERSION=20230311
 cd ${DIR}/build
 
 BUILD_DIR=${DIR}/build/snap
-PYTHON_DIR=${BUILD_DIR}/python
-export PATH=${PYTHON_DIR}/bin:$PATH
 
 apt update
 apt install -y wget squashfs-tools dpkg-dev
@@ -41,10 +39,6 @@ wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3
 tar xf btrfs-${ARCH}.tar.gz
 mv btrfs ${BUILD_DIR}
 
-cd ${DIR}/src
-rm -f version
-echo ${VERSION} >> version
-${PYTHON_DIR}/bin/python setup.py install
 cd ${DIR}/build
 
 echo "snapping"

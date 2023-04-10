@@ -278,17 +278,3 @@ func (d *Disks) GetLastError() error {
 func (d *Disks) ClearLastError() {
 	d.lastError = nil
 }
-
-/*
-func (d *Disks) init_disk() {
-
-	if not isdir(self.platform_config.get_disk_root()):
-	os.mkdir(self.platform_config.get_disk_root())
-
-	if not isdir(self.platform_config.get_internal_disk_dir()):
-	os.mkdir(self.platform_config.get_internal_disk_dir())
-
-	if not self.path_checker.external_disk_link_exists():
-	relink_disk(self.platform_config.get_disk_link(), self.platform_config.get_internal_disk_dir())
-}
-*/

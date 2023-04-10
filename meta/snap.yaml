@@ -33,8 +33,6 @@ apps:
     restart-condition: always
   cli:
     command: bin/cli
-  python:
-    command: python/bin/python
   btrfs:
     command: btrfs/bin/btrfs.sh
   mkfs-btrfs:
