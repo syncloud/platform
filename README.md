@@ -18,7 +18,7 @@ There are images for various devices and architectures, get one [here](https://g
 
 Syncloud image contains the following components:
 
-1. Debian based [linux OS](github.com/syncloud/image).
+1. Debian based [linux OS](httpa://github.com/syncloud/image).
 2. Snap based app [installer](https://github.com/syncloud/snapd).
 3. Platform snap package.
 
