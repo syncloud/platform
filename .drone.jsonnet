@@ -66,23 +66,6 @@ local build(arch, testUI, python) = [{
             ]
         },
         {
-            name: "build python",
-            image: "debian:" + python + "-slim",
-            commands: [
-                "./build-python.sh"
-            ],
-            volumes: [
-                {
-                    name: "docker",
-                    path: "/usr/bin/docker"
-                },
-                {
-                    name: "docker.sock",
-                    path: "/var/run/docker.sock"
-                }
-            ]
-        },
-        {
             name: "package",
             image: "debian:buster-slim",
             commands: [
