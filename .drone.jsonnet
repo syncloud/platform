@@ -49,7 +49,12 @@ local build(arch, testUI, python) = [{
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/api ./cmd/api",
                 "../build/snap/bin/api -h",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/cli ./cmd/cli",
-                "../build/snap/bin/cli -h"
+                "../build/snap/bin/cli -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/install ./cmd/install",
+                "../build/snap/meta/hooks/install -h",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
+                "../build/snap/meta/hooks/post-refresh -h"
+       
             ]
         },
         {
@@ -58,23 +63,6 @@ local build(arch, testUI, python) = [{
             commands: [
                 "cd integration/api",
                 "go test -c -o api.test"
-            ]
-        },
-        {
-            name: "build python",
-            image: "debian:" + python + "-slim",
-            commands: [
-                "./build-python.sh"
-            ],
-            volumes: [
-                {
-                    name: "docker",
-                    path: "/usr/bin/docker"
-                },
-                {
-                    name: "docker.sock",
-                    path: "/var/run/docker.sock"
-                }
             ]
         },
         {
@@ -329,3 +317,4 @@ local build(arch, testUI, python) = [{
 build("amd64", true, "bookworm") +
 build("arm64", false, "bookworm") +
 build("arm", false, "buster")
+

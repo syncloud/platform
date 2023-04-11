@@ -28,9 +28,10 @@ config_dir: test
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 
-	InitPublicApi(configDb.Name(), systemConfig.Name(), backupDir, varDir, "", "")
+	c, err := InitPublicApi(configDb.Name(), systemConfig.Name(), backupDir, varDir, "", "")
+	assert.NoError(t, err)
 	var services []Service
-	err = Resolve(&services)
+	err = c.Resolve(&services)
 	assert.Nil(t, err)
 	assert.Len(t, services, 4)
 

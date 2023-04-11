@@ -19,8 +19,11 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/api.sock",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = os.Remove(args[0])
-			ioc.InitInternalApi(*configDb, config.DefaultSystemConfig, backup.Dir, backup.VarDir, "unix", args[0])
-			return ioc.Start()
+			c, err := ioc.InitInternalApi(*configDb, config.DefaultSystemConfig, backup.Dir, backup.VarDir, "unix", args[0])
+			if err != nil {
+				return err
+			}
+			return ioc.Start(c)
 		},
 	}
 

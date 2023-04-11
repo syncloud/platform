@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/syncloud/platform/ioc"
 	"github.com/syncloud/platform/network"
 	"net"
 	"os"
@@ -14,9 +13,12 @@ func ipv6Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 		Use:   "ipv6 [prefix]",
 		Short: "Print IPv6",
 		Args:  cobra.MaximumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.TcpInterfaces) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				panic(err)
+			}
+			return c.Call(func(iface *network.TcpInterfaces) {
 				ip, err := iface.IPv6Addr()
 				if err != nil {
 					fmt.Print(err)
@@ -30,9 +32,12 @@ func ipv6Cmd(userConfig *string, systemConfig *string) *cobra.Command {
 	var cmdIpv6prefix = &cobra.Command{
 		Use:   "prefix",
 		Short: "Print IPv6 prefix",
-		Run: func(cmd *cobra.Command, args []string) {
-			Init(*userConfig, *systemConfig)
-			ioc.Call(func(iface *network.TcpInterfaces) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := Init(*userConfig, *systemConfig)
+			if err != nil {
+				panic(err)
+			}
+			return c.Call(func(iface *network.TcpInterfaces) {
 				ip, err := iface.IPv6Addr()
 				if err != nil {
 					fmt.Print(err)

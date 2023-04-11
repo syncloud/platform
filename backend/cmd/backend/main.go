@@ -19,8 +19,11 @@ func main() {
 		Short: "listen on a tcp address, like localhost:8080",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ioc.InitPublicApi(*userConfig, *systemConfig, backup.Dir, backup.VarDir, "tcp", args[0])
-			return ioc.Start()
+			c, err := ioc.InitPublicApi(*userConfig, *systemConfig, backup.Dir, backup.VarDir, "tcp", args[0])
+			if err != nil {
+				return err
+			}
+			return ioc.Start(c)
 		},
 	}
 
@@ -30,8 +33,11 @@ func main() {
 		Short: "listen on a unix socket, like /tmp/backend.sock",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = os.Remove(args[0])
-			ioc.InitPublicApi(*userConfig, *systemConfig, backup.Dir, backup.VarDir, "unix", args[0])
-			return ioc.Start()
+			c, err := ioc.InitPublicApi(*userConfig, *systemConfig, backup.Dir, backup.VarDir, "unix", args[0])
+			if err != nil {
+				return err
+			}
+			return ioc.Start(c)
 		},
 	}
 

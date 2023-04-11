@@ -37,6 +37,10 @@ func (c *SystemConfig) DataDir() string {
 	return c.get("data_dir")
 }
 
+func (c *SystemConfig) DiskRoot() string {
+	return c.get("disk_root")
+}
+
 func (c *SystemConfig) CommonDir() string {
 	return c.get("common_dir")
 }

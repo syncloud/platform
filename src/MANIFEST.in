@@ -1,6 +1,0 @@
-include version
-recursive-include syncloud *
-recursive-include test *
-
-global-exclude *.pyc
-global-exclude .gitignore
