@@ -31,6 +31,10 @@ func (t *Trigger) RunAccessChangeEvent() error {
 	return t.RunEventOnAllApps("access-change")
 }
 
+func (t *Trigger) RunCertificateChangeEvent() error {
+	return t.RunEventOnAllApps("certificate-change")
+}
+
 func (t *Trigger) RunDiskChangeEvent() error {
 	return t.RunEventOnAllApps("storage-change")
 }

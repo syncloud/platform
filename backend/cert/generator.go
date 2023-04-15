@@ -20,6 +20,10 @@ type Generator interface {
 	Generate() error
 }
 
+type Trigger interface {
+	RunCertificateChangeEvent() error
+}
+
 type CertificateGenerator struct {
 	systemConfig GeneratorSystemConfig
 	userConfig   GeneratorUserConfig
@@ -27,6 +31,7 @@ type CertificateGenerator struct {
 	fake         FakeGenerator
 	dateProvider date.Provider
 	nginx        GeneratorNginx
+	trigger      Trigger
 	logger       *zap.Logger
 }
 
@@ -45,7 +50,16 @@ type GeneratorNginx interface {
 	ReloadPublic() error
 }
 
-func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, certbot CertbotGenerator, fake FakeGenerator, nginx GeneratorNginx, logger *zap.Logger) *CertificateGenerator {
+func New(
+	systemConfig GeneratorSystemConfig,
+	userConfig GeneratorUserConfig,
+	dateProvider date.Provider,
+	certbot CertbotGenerator,
+	fake FakeGenerator,
+	nginx GeneratorNginx,
+	trigger Trigger,
+	logger *zap.Logger,
+) *CertificateGenerator {
 	return &CertificateGenerator{
 		systemConfig: systemConfig,
 		userConfig:   userConfig,
@@ -53,6 +67,7 @@ func New(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dat
 		fake:         fake,
 		dateProvider: dateProvider,
 		nginx:        nginx,
+		trigger:      trigger,
 		logger:       logger,
 	}
 }
@@ -65,14 +80,23 @@ func (g *CertificateGenerator) Generate() error {
 	}
 
 	err := g.generateReal()
+	if err == nil {
+		return nil
+	}
+
+	g.logger.Info(fmt.Sprintf("unable to generate certificate: %s", err.Error()))
+	generated, err := g.generateFake()
 	if err != nil {
-		g.logger.Info(fmt.Sprintf("unable to generate certificate: %s", err.Error()))
-		generated, err := g.generateFake()
+		return err
+	}
+	if generated {
+		err = g.nginx.ReloadPublic()
 		if err != nil {
 			return err
 		}
-		if generated {
-			return g.nginx.ReloadPublic()
+		err = g.trigger.RunCertificateChangeEvent()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -88,10 +112,21 @@ func (g *CertificateGenerator) generateReal() error {
 	}
 
 	err := g.certbot.Generate()
-	if err == nil {
-		err = g.nginx.ReloadPublic()
+	if err != nil {
+		return err
 	}
-	return err
+
+	err = g.nginx.ReloadPublic()
+	if err != nil {
+		return err
+	}
+
+	err = g.trigger.RunCertificateChangeEvent()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (g *CertificateGenerator) generateFake() (bool, error) {

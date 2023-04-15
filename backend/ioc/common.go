@@ -156,23 +156,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, nginxService *nginx.Nginx) (*cert.CertificateGenerator, error) {
-		var certLogger *zap.Logger
-		err := c.NamedResolve(&certLogger, CertificateLogger)
-		if err != nil {
-			return nil, err
-		}
-		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, nginxService, certLogger), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	err = c.Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
-		return cron.NewCertificateJob(certGenerator)
-	})
-	if err != nil {
-		return nil, err
-	}
 	err = c.Singleton(func() *http.Client { return snap.NewClient() })
 	if err != nil {
 		return nil, err
@@ -187,10 +170,27 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	err = c.Singleton(func(snapServer *snap.Server, snapCli *snap.Cli, logger *zap.Logger) *event.Trigger {
 		return event.New(snapServer, snapCli, logger)
 	})
-
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, nginxService *nginx.Nginx, eventTrigger *event.Trigger) (*cert.CertificateGenerator, error) {
+		var certLogger *zap.Logger
+		err := c.NamedResolve(&certLogger, CertificateLogger)
+		if err != nil {
+			return nil, err
+		}
+		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, nginxService, eventTrigger, certLogger), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(certGenerator *cert.CertificateGenerator) *cron.CertificateJob {
+		return cron.NewCertificateJob(certGenerator)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.PortProbe {
 		return access.NewProbe(userConfig, client, logger)
 	})
