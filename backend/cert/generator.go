@@ -80,14 +80,23 @@ func (g *CertificateGenerator) Generate() error {
 	}
 
 	err := g.generateReal()
+	if err == nil {
+		return nil
+	}
+
+	g.logger.Info(fmt.Sprintf("unable to generate certificate: %s", err.Error()))
+	generated, err := g.generateFake()
 	if err != nil {
-		g.logger.Info(fmt.Sprintf("unable to generate certificate: %s", err.Error()))
-		generated, err := g.generateFake()
+		return err
+	}
+	if generated {
+		err = g.nginx.ReloadPublic()
 		if err != nil {
 			return err
 		}
-		if generated {
-			return g.nginx.ReloadPublic()
+		err = g.trigger.RunCertificateChangeEvent()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
