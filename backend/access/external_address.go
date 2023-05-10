@@ -85,16 +85,18 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			}
 		}
 
-		if ipv4 == nil {
-			publicIp, err := a.network.PublicIPv4()
+		if request.Ipv4Public {
+			if ipv4 == nil {
+				publicIp, err := a.network.PublicIPv4()
+				if err != nil {
+					return err
+				}
+				ipv4 = publicIp
+			}
+			err := a.probe.Probe(*ipv4, port)
 			if err != nil {
 				return err
 			}
-			ipv4 = publicIp
-		}
-		err := a.probe.Probe(*ipv4, port)
-		if err != nil {
-			return err
 		}
 	}
 
