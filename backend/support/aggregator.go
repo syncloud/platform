@@ -26,20 +26,20 @@ func NewAggregator(logger *zap.Logger) *LogAggregator {
 func (a *LogAggregator) GetLogs() string {
 	log := a.fileLogs()
 	log += a.cmd("date")
-	log += a.cmd("dmesg")
 	log += a.cmd("mount")
-	log += a.cmd("journalctl", "-n", "1000", "--no-pager")
 	log += a.cmd("systemctl", "status", "--state=inactive", "snap.*")
 	log += a.cmd("top", "-n", "1", "-bc")
 	log += a.cmd("ping", "google.com", "-c", "5")
 	log += a.cmd("uname", "-a")
-	log += a.cmd("lsb_release", "-a")
+	log += a.cmd("cat", "/etc/debian_version")
 	log += a.cmd("df", "-h")
 	log += a.cmd("lsblk", "-o", "+UUID")
 	log += a.cmd("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
 	log += a.cmd("ls", "-la", "/data")
 	log += a.cmd("uptime")
 	log += a.cmd("snap", "run", "platform.cli", "ipv4", "public")
+	log += a.cmd("journalctl", "-n", "1000", "--no-pager")
+	log += a.cmd("dmesg")
 	return log
 }
 
