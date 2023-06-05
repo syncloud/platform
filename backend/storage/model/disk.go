@@ -39,19 +39,12 @@ func NewDisk(name string, device string, size string, active bool, uuid string, 
 	}
 }
 
-func (d *Disk) IsInternal() bool {
-	return strings.HasPrefix(d.Device, "/dev/mmcblk")
-}
-
 func (d *Disk) HasRootPartition() bool {
 	return d.FindRootPartition() != nil
 }
 
 func (d *Disk) IsAvailable() bool {
 	if d.HasRootPartition() {
-		return false
-	}
-	if d.IsInternal() {
 		return false
 	}
 	return true

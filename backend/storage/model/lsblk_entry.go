@@ -30,10 +30,6 @@ func (e *LsblkEntry) IsExtendedPartition() bool {
 	return e.PartType == PartTypeExtended
 }
 
-func (e *LsblkEntry) IsBootDisk() bool {
-	return strings.HasPrefix(e.Name, "/dev/mmcblk0")
-}
-
 func (e *LsblkEntry) IsSupportedType() bool {
 	if slices.Contains(SupportedDeviceTypes, e.DeviceType) {
 		return true
