@@ -31,6 +31,9 @@ func (e *LsblkEntry) IsExtendedPartition() bool {
 }
 
 func (e *LsblkEntry) IsSupportedType() bool {
+	if e.IsMMCBootPartition() {
+		return false
+	}
 	if slices.Contains(SupportedDeviceTypes, e.DeviceType) {
 		return true
 	}
@@ -38,6 +41,11 @@ func (e *LsblkEntry) IsSupportedType() bool {
 		return true
 	}
 	return false
+}
+
+func (e *LsblkEntry) IsMMCBootPartition() bool {
+	r := regexp.MustCompile(`^/dev/mmcblk\d+boot\d+$`)
+	return r.MatchString(e.Name)
 }
 
 func (e *LsblkEntry) IsSupportedFsType() bool {
