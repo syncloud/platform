@@ -248,7 +248,7 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	var snaps []model.Snap
 	err = json.Unmarshal(response.Result, &snaps)
 	if err != nil {
-		s.logger.Error("cannot unmarshal", zap.Error(err))
+		s.logger.Error("cannot unmarshal", zap.Error(err), zap.String("response", string(bodyBytes)))
 		return nil, err
 	}
 
