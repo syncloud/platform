@@ -212,7 +212,7 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 		return nil, err
 	}
 
-	resp, err := s.httpClient.Get(fmt.Sprintf("http://apps.syncloud.org/releases/%s/snapd.version", channel))
+	resp, err := s.httpClient.Get(fmt.Sprintf("http://apps.syncloud.org/releases/%s/snapd2.version", channel))
 	if err != nil {
 		return nil, err
 	}

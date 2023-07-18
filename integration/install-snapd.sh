@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 ARCH=$(dpkg --print-architecture)
-VERSION=$(curl http://apps.syncloud.org/releases/stable/snapd.version)
+VERSION=$(curl http://apps.syncloud.org/releases/stable/snapd2.version)
 
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 wget http://apps.syncloud.org/apps/${SNAPD} --progress=dot:giga
