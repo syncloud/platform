@@ -212,7 +212,7 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 		return nil, err
 	}
 
-	resp, err := s.httpClient.Get(fmt.Sprintf("http://apps.syncloud.org/releases/%s/snapd.version", channel))
+	resp, err := s.httpClient.Get(fmt.Sprintf("http://apps.syncloud.org/releases/%s/snapd2.version", channel))
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +229,7 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 }
 
 func (s *Server) find(query string) ([]model.Snap, error) {
-	s.logger.Info("available snaps", zap.String("query", query))
+	s.logger.Info("find", zap.String("query", query))
 	bodyBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
 		return nil, err
@@ -248,7 +248,7 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	var snaps []model.Snap
 	err = json.Unmarshal(response.Result, &snaps)
 	if err != nil {
-		s.logger.Error("cannot unmarshal", zap.Error(err))
+		s.logger.Error("cannot unmarshal", zap.Error(err), zap.String("response", string(bodyBytes)))
 		return nil, err
 	}
 
@@ -293,7 +293,7 @@ func (s *Server) Changes() (*model.InstallerStatus, error) {
 }
 
 func (s *Server) FindInStore(name string) (*model.SyncloudAppVersions, error) {
-	s.logger.Info("snap list")
+	s.logger.Info("find in store")
 	found, err := s.find(name)
 	if err != nil {
 		return nil, err
