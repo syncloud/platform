@@ -69,6 +69,9 @@ func (s *Server) InstalledUserApps() ([]model.SyncloudApp, error) {
 			apps = append(apps, app.App)
 		}
 	}
+	sort.Slice(apps, func(i, j int) bool {
+		return apps[i].Id < apps[i].Id
+	})
 	return apps, nil
 }
 

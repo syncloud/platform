@@ -223,6 +223,49 @@ func TestInstalledUserApps_OK(t *testing.T) {
 	assert.Equal(t, apps[0].Id, "app")
 }
 
+func TestInstalledUserApps_Sorted(t *testing.T) {
+	json := `
+{ 
+	"result": [ 
+		{ 
+			"name": "app2",
+			"summary": "app2 summary",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app2",
+					"snap": "app2"
+				}
+			]
+		}, 
+		{ 
+			"name": "app1",
+			"summary": "app1 summary",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ 
+				{
+					"name": "app1",
+					"snap": "app1"
+				}
+			]
+		} 
+	]
+}
+`
+
+	snapd := NewServer(&ClientStub{snapsJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	apps, err := snapd.InstalledUserApps()
+
+	assert.Nil(t, err)
+	assert.Equal(t, len(apps), 2)
+	assert.Equal(t, apps[0].Id, "app1")
+	assert.Equal(t, apps[1].Id, "app2")
+}
+
 func TestStoreUserApps_OK(t *testing.T) {
 	json := `
 { 
