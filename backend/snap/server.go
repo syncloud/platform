@@ -69,6 +69,9 @@ func (s *Server) InstalledUserApps() ([]model.SyncloudApp, error) {
 			apps = append(apps, app.App)
 		}
 	}
+	sort.Slice(apps, func(i, j int) bool {
+		return apps[i].Id < apps[j].Id
+	})
 	return apps, nil
 }
 
@@ -181,10 +184,6 @@ func (s *Server) httpGet(url string) ([]byte, error) {
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, &NotFound{}
 	}
-	//if resp.StatusCode != http.StatusOK {
-	//	s.logger.Error("status", zap.Error(err))
-	//	return nil, fmt.Errorf("unable to get apps list, status code: %d", resp.StatusCode)
-	//}
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		s.logger.Error("cannot read output", zap.Error(err))
@@ -251,10 +250,6 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 		s.logger.Error("cannot unmarshal", zap.Error(err), zap.String("response", string(bodyBytes)))
 		return nil, err
 	}
-
-	sort.SliceStable(snaps, func(i, j int) bool {
-		return snaps[i].Name < snaps[i].Name
-	})
 	return snaps, nil
 }
 

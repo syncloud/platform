@@ -28,8 +28,9 @@ local build(arch, testUI, python) = [{
             commands: [
                 "mkdir -p build/snap",
                 "cd www",
-		        "npm config set fetch-retry-mintimeout 20000",
-                "npm config set fetch-retry-maxtimeout 120000",
+                "npm config ls -l",
+		        "npm config set fetch-retry-mintimeout 200000",
+                "npm config set fetch-retry-maxtimeout 1200000",
                 "npm install",
                 "npm run test",
                 "npm run lint",
