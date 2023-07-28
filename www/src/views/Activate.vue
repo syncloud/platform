@@ -32,47 +32,35 @@
               </div>
             </div>
             <div class="bs-stepper-content">
-              <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger"
-                   style="text-align: center; max-width: 800px; margin: 0 auto">
-                <div class="columns">
-                  <ul class="plan">
-                    <li class="header">Premium</li>
-                    <li class="description">
-                      Syncloud will manage DNS records for your domain (like example.com)
-                      <br><br>
-                      Personal support for your device
-                    </li>
-                    <!--                    <li class="description">Personal support for your device</li>-->
-                    <li>
-                      <el-button id="btn_premium_domain" class="buttongreen" type="success"
-                                 @click="selectPremiumDomain">Select
-                      </el-button>
-                    </li>
-                  </ul>
-                </div>
-                <div class="columns">
-                  <ul class="plan">
-                    <li class="header">Free</li>
-                    <li class="description">Syncloud will manage DNS records for [name].{{ redirect_domain }} domain
-                    </li>
-                    <li>
-                      <el-button id="btn_free_domain" class="buttongreen" type="success" @click="selectFreeDomain">
-                        Select
-                      </el-button>
-                    </li>
-                  </ul>
-                </div>
-                <div class="columns">
-                  <ul class="plan">
-                    <li class="header">Custom</li>
-                    <li class="description">You will manage DNS records for your domain (like example.com)</li>
-                    <li>
-                      <el-button id="btn_custom_domain" class="buttongreen" type="success"
-                                 @click="selectCustomDomain">
-                        Select
-                      </el-button>
-                    </li>
-                  </ul>
+              <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger">
+                <div style="text-align: center; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center;">
+                  <div class="columns">
+                    <ul class="plan">
+                      <li class="header">Premium</li>
+                      <li class="description">
+                        Syncloud will manage DNS records for your domain (like example.com)
+                        <br><br>
+                        Personal support for your device
+                      </li>
+                      <li>
+                        <el-button id="btn_premium_domain" class="buttongreen" type="success"
+                                   @click="selectPremiumDomain">Select
+                        </el-button>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="columns">
+                    <ul class="plan">
+                      <li class="header">Free</li>
+                      <li class="description">Syncloud will manage DNS records for [name].{{ redirect_domain }} domain
+                      </li>
+                      <li>
+                        <el-button id="btn_free_domain" class="buttongreen" type="success" @click="selectFreeDomain">
+                          Select
+                        </el-button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
               <div id="domain-account-part" class="content formblock" role="tabpanel"
@@ -112,20 +100,6 @@
                     <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
                     <span>.{{ redirect_domain }}</span>
                   </div>
-                  <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
-
-                </div>
-
-                <div v-if=" domainType === 'custom' ">
-                  <div style="text-align: center">
-                    <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showCustomDomainHelp" type=button class="control"
-                            style="vertical-align: super; background:transparent;">
-                      <i class='fa fa-question-circle fa-lg'></i>
-                    </button>
-                  </div>
-                  <input placeholder="Top level domain like example.com"
-                         class="domain" id="domain" type="text" style="width:100% !important;" v-model="domain">
                   <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
 
                 </div>
@@ -216,24 +190,6 @@
     <template v-slot:text>
       <div class="btext">Syncloud will manage DNS records for your personal domain name
       </div>
-    </template>
-  </Dialog>
-
-  <Dialog ref="help_custom_domain">
-    <template v-slot:title>Custom domain</template>
-    <template v-slot:text>
-      <div class="btext">If you have a domain you own, make sure you have correct records on your DNS server:
-      </div>
-      <span><br></span>
-      <div class="btext" style="padding-left: 10px">A [Device IP] example.com</div>
-      <div class="btext" style="padding-left: 10px">CNAME *.example.com example.com</div>
-
-      <span><br></span>
-
-      <div class="btext">If you do not have a DNS server and want to try on your LAN, edit your hosts file:</div>
-      <span><br></span>
-      <div class="btext" style="padding-left: 10px">[Device IP] example.com (device itself)</div>
-      <div class="btext" style="padding-left: 10px">[Device IP] [app].example.com (line per app)</div>
     </template>
   </Dialog>
 
@@ -349,9 +305,6 @@ export default {
         case 'premium':
           this.activatePremiumDomain()
           break
-        case 'custom':
-          this.activateCustomDomain()
-          break
         default:
           this.activateFreeDomain()
       }
@@ -389,19 +342,6 @@ export default {
           this.$refs.error.showAxios(err)
         })
     },
-    activateCustomDomain () {
-      axios
-        .post('/rest/activate/custom', {
-          domain: this.domain,
-          device_username: this.deviceUsername,
-          device_password: this.devicePassword
-        })
-        .then(this.forceCertificateRecheck)
-        .catch(err => {
-          this.progressHide()
-          this.$refs.error.showAxios(err)
-        })
-    },
     showDeviceCredentialHelp () {
       this.$refs.help_device_credential.show()
     },
@@ -411,9 +351,6 @@ export default {
     showPremiumAccountHelp () {
       this.$refs.help_premium_account.show()
     },
-    showCustomDomainHelp () {
-      this.$refs.help_custom_domain.show()
-    },
     showManagedDomainHelp () {
       this.$refs.help_managed_domain.show()
     },
@@ -421,20 +358,12 @@ export default {
       this.domainType = 'premium'
       this.stepper.next()
     },
-    selectCustomDomain () {
-      this.domainType = 'custom'
-      this.stepper.next()
-    },
     selectFreeDomain () {
       this.domainType = 'free'
       this.stepper.next()
     },
     selectDeviceName () {
-      if (this.domainType === 'custom') {
-        this.stepper.next()
-      } else {
-        this.domainAvailability()
-      }
+      this.domainAvailability()
     },
     fullDomain () {
       if (this.domainType === 'free') {
@@ -491,7 +420,6 @@ input[type="text"], input[type="password"] {
 }
 
 .columns {
-  float: left;
   width: 33.3%;
   padding: 8px;
 }
