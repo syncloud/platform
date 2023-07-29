@@ -45,15 +45,15 @@ local build(arch, testUI, python) = [{
                 "cd backend",
                 "go test ./... -coverprofile cover.out",
                 "go tool cover -func cover.out",
-                "CGO_ENABLED=0 go build -o ../build/snap/bin/backend ./cmd/backend",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/backend ./cmd/backend",
                 "../build/snap/bin/backend -h",
-                "CGO_ENABLED=0 go build -o ../build/snap/bin/api ./cmd/api",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/api ./cmd/api",
                 "../build/snap/bin/api -h",
-                "CGO_ENABLED=0 go build -o ../build/snap/bin/cli ./cmd/cli",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/cli ./cmd/cli",
                 "../build/snap/bin/cli -h",
-                "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/install ./cmd/install",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/install ./cmd/install",
                 "../build/snap/meta/hooks/install -h",
-                "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
+                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                 "../build/snap/meta/hooks/post-refresh -h"
        
             ]
