@@ -1,5 +1,5 @@
 import { createServer, Model, Response } from 'miragejs'
-
+const domain = 'syncloud.test'
 const state = {
   loggedIn: true,
   credentials: {
@@ -9,7 +9,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: false,
   availableAppsSuccess: true,
-  activated: true,
+  activated: false,
   accessSuccess: true,
   diskActionSuccess: true,
   diskLastError: true
@@ -24,7 +24,7 @@ const store = {
         icon: '/images/wordpress-128.png',
         required: true,
         ui: false,
-        url: 'https://wordpress.odroid-c2.syncloud.it'
+        url: 'https://wordpress.odroid-c2.' + domain
       },
       current_version: '2',
       installed_version: '1'
@@ -36,7 +36,7 @@ const store = {
         icon: '/images/penguin.png',
         required: false,
         ui: true,
-        url: 'https://diaspora.odroid-c2.syncloud.it'
+        url: 'https://diaspora.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
@@ -48,7 +48,7 @@ const store = {
         icon: '/images/penguin.png',
         required: false,
         ui: true,
-        url: 'https://mail.odroid-c2.syncloud.it'
+        url: 'https://mail.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
@@ -60,7 +60,7 @@ const store = {
         icon: '/images/penguin.png',
         required: false,
         ui: true,
-        url: 'https://talk.odroid-c2.syncloud.it'
+        url: 'https://talk.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
@@ -72,7 +72,7 @@ const store = {
         icon: '/images/penguin.png',
         required: false,
         ui: true,
-        url: 'https://files.odroid-c2.syncloud.it'
+        url: 'https://files.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
@@ -84,7 +84,7 @@ const store = {
         icon: '/images/penguin.png',
         required: true,
         ui: false,
-        url: 'https://platform.odroid-c2.syncloud.it'
+        url: 'https://platform.odroid-c2.' + domain
       },
       current_version: '880',
       installed_version: '876'
@@ -96,7 +96,7 @@ const store = {
         icon: '/images/penguin.png',
         required: true,
         ui: false,
-        url: 'https://installer.odroid-c2.syncloud.it'
+        url: 'https://installer.odroid-c2.' + domain
       },
       current_version: '78',
       installed_version: '75'
@@ -118,7 +118,7 @@ const appCenterDataError = {
 }
 
 const deviceUrl = {
-  device_url: 'https://test.syncloud.it',
+  data: 'https://test.' + domain,
   success: true
 }
 
@@ -138,7 +138,7 @@ const networkInterfaces = {
       addresses: [
         '172.17.0.2',
         '172.17.0.3'
-      ],
+      ]
     },
     {
       name: 'wifi0',
@@ -147,7 +147,7 @@ const networkInterfaces = {
         '172.17.0.3',
         'fe80::42:acff:fe11:2%eth0',
         'fe80::42:acff:fe11:11'
-      ],
+      ]
     }
   ],
   success: true
@@ -259,13 +259,15 @@ export function mock () {
         }
       })
       this.get('/rest/app', function (_schema, request) {
+        console.debug(request.queryParams.app_id)
         const info = store.data.find(info => info.app.id === request.queryParams.app_id)
+        console.debug(info)
         if (!installedApps.has(info.app.id)) {
           info.installed_version = null
         } else {
           info.installed_version = '1'
         }
-        return new Response(200, {}, { info: info })
+        return new Response(200, {}, { data: info })
       })
       this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
@@ -313,9 +315,9 @@ export function mock () {
         }
       })
 
-      this.get('/rest/settings/device_url', function (_schema, _request) {
+      this.get('/rest/device/url', function (_schema, _request) {
         // return new Response(500, {}, deviceUrl)
-        return new Response(200, {}, { data: deviceUrl })
+        return new Response(200, {}, deviceUrl)
       })
 
       this.post('/rest/deactivate', function (_schema, _request) {
@@ -343,7 +345,6 @@ export function mock () {
 
       this.post('/rest/backup/auto', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
-  
         return new Response(200, {}, {
           success: true,
           data: {
@@ -484,7 +485,7 @@ export function mock () {
         if (state.activated) {
           return new Response(502, {}, { message: 'Device is activated' })
         } else {
-          return new Response(200, {}, { success: true, data: { domain: 'test.com' } })
+          return new Response(200, {}, { success: true, data: { domain: domain } })
         }
       })
       this.get('/rest/certificate', function (_schema, _request) {
