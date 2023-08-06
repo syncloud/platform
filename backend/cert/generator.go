@@ -44,6 +44,7 @@ type GeneratorSystemConfig interface {
 
 type GeneratorUserConfig interface {
 	IsActivated() bool
+	GetDeviceDomain() string
 }
 
 type GeneratorNginx interface {
@@ -104,9 +105,13 @@ func (g *CertificateGenerator) Generate() error {
 
 func (g *CertificateGenerator) generateReal() error {
 	certInfo := g.ReadCertificateInfo()
-	g.logger.Info("certificate info", zap.Int("valid days", certInfo.ValidForDays), zap.Bool("real", certInfo.IsReal))
+	g.logger.Info("certificate info",
+		zap.String("subject", certInfo.Subject),
+		zap.Int("valid days", certInfo.ValidForDays),
+		zap.Bool("real", certInfo.IsReal),
+	)
 
-	if certInfo.IsValid && certInfo.IsReal {
+	if certInfo.IsValid && certInfo.IsReal && certInfo.Subject == g.userConfig.GetDeviceDomain() {
 		g.logger.Info("not regenerating real certificate")
 		return nil
 	}
@@ -159,7 +164,7 @@ func (g *CertificateGenerator) ReadCertificateInfo() *Info {
 
 	now := g.dateProvider.Now()
 	validFor := certificateData.NotAfter.Sub(now)
-	subject := certificateData.Subject.String()
+	subject := certificateData.Subject.CommonName
 	return &Info{
 		IsValid:      validFor > Month,
 		Subject:      subject,
