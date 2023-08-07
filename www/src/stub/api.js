@@ -1,5 +1,5 @@
 import { createServer, Model, Response } from 'miragejs'
-const domain = 'syncloud.test'
+const domain = 'syncloud.it'
 const state = {
   loggedIn: true,
   credentials: {
@@ -9,7 +9,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: false,
   availableAppsSuccess: true,
-  activated: false,
+  activated: true,
   accessSuccess: true,
   diskActionSuccess: true,
   diskLastError: true
@@ -110,7 +110,7 @@ const installer = {
     store_version: 2
   }
 }
-const installedApps = new Set(['wordpress'])
+const installedApps = new Set([])
 
 const appCenterDataError = {
   message: 'error',
@@ -136,17 +136,16 @@ const networkInterfaces = {
     {
       name: 'eth0',
       addresses: [
-        '172.17.0.2',
-        '172.17.0.3'
+        '172.17.0.2'
       ]
     },
     {
       name: 'wifi0',
       addresses: [
-        '172.17.0.2',
-        '172.17.0.3',
-        'fe80::42:acff:fe11:2%eth0',
-        'fe80::42:acff:fe11:11'
+        // '172.17.0.2',
+        // '172.17.0.3',
+        // 'fe80::42:acff:fe11:2%eth0',
+        // 'fe80::42:acff:fe11:11'
       ]
     }
   ],
@@ -247,6 +246,7 @@ export function mock () {
         return new Response(200, {}, { message: 'OK' })
       })
       this.get('/rest/activation/status', function (_schema, _request) {
+        console.debug('activated: ' + state.activated)
         return new Response(200, {}, { data: state.activated })
         // return new Response(500, {}, { message: "unknown activation status" })
       })
@@ -322,6 +322,7 @@ export function mock () {
 
       this.post('/rest/deactivate', function (_schema, _request) {
         state.activated = false
+        console.debug('activated: ' + state.activated)
         return new Response(200, {}, {})
       })
 
@@ -383,19 +384,20 @@ export function mock () {
 
       this.post('/rest/access', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
-        state.accessSuccess = !state.accessSuccess
-        if (state.accessSuccess) {
-          accessData.data.external_access = attrs.external_access
-          if (attrs.public_ip === undefined) {
-            delete accessData.data.public_ip
-          } else {
-            accessData.data.public_ip = attrs.public_ip
-          }
-          accessData.access_port = attrs.access_port
-          return new Response(200, {}, { success: true })
-        } else {
-          return new Response(500, {}, { success: false, message: 'error' })
-        }
+        // state.accessSuccess = !state.accessSuccess
+        // if (state.accessSuccess) {
+        accessData.data = attrs
+        // accessData.data.external_access = attrs.external_access
+        // if (attrs.public_ip === undefined) {
+        //   delete accessData.data.public_ip
+        // } else {
+        //   accessData.data.public_ip = attrs.public_ip
+        // }
+        // accessData.access_port = attrs.access_port
+        return new Response(200, {}, { success: true })
+        // } else {
+        //   return new Response(500, {}, { success: false, message: 'error' })
+        // }
       })
       this.get('/rest/storage/disks', function (_schema, _request) {
         return new Response(200, {}, disksData)
@@ -452,6 +454,7 @@ export function mock () {
       })
       this.post('/rest/activate/managed', function (_schema, _request) {
         state.activated = true
+        console.debug('activated: ' + state.activated)
         return new Response(200, {}, { success: true })
         // return new Response(500, {}, {
         //   success: false,
@@ -460,10 +463,6 @@ export function mock () {
         //     { parameter: 'device_password', messages: ['is too short', 'has no special symbol'] }
         //   ]
         // })
-      })
-      this.post('/rest/activate/custom', function (_schema, _request) {
-        state.activated = true
-        return new Response(200, {}, { success: true })
       })
       this.post('/rest/redirect/domain/availability', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)

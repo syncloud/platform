@@ -12,10 +12,15 @@ import (
 
 type GeneratorUserConfigStub struct {
 	activated bool
+	domain    string
 }
 
 func (g *GeneratorUserConfigStub) IsActivated() bool {
 	return g.activated
+}
+
+func (g *GeneratorUserConfigStub) GetDeviceDomain() string {
+	return g.domain
 }
 
 type GeneratorSystemConfigStub struct {
@@ -101,7 +106,31 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 		certFile: file.Name(),
 	}
 
-	userConfig := &GeneratorUserConfigStub{activated: true}
+	userConfig := &GeneratorUserConfigStub{activated: true, domain: SubjectCommonName}
+	certbot := &CertbotStub{}
+	fake := &FakeStub{}
+	nginx := &GeneratorNginxStub{}
+	trigger := &TriggerStub{}
+	generator := New(systemConfig, userConfig, provider, certbot, fake, nginx, trigger, logger)
+	err := generator.Generate()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, certbot.count)
+	assert.Equal(t, 1, nginx.reloadPublic)
+	assert.Equal(t, 1, trigger.called)
+
+}
+
+func TestRegenerate_WrongDomain(t *testing.T) {
+	logger := log.Default()
+	now := time.Now()
+
+	file := generateCertificate(now, Month+1*Day, true)
+	provider := &ProviderStub{now: now}
+	systemConfig := &GeneratorSystemConfigStub{
+		certFile: file.Name(),
+	}
+
+	userConfig := &GeneratorUserConfigStub{activated: true, domain: "new.domain"}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 	nginx := &GeneratorNginxStub{}
@@ -125,7 +154,7 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		certFile: file.Name(),
 	}
-	userConfig := &GeneratorUserConfigStub{activated: true}
+	userConfig := &GeneratorUserConfigStub{activated: true, domain: SubjectCommonName}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 	nginx := &GeneratorNginxStub{}
