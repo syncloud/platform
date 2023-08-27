@@ -1,9 +1,11 @@
 package network
 
 import (
+	"context"
 	"io"
 	"net"
 	"net/http"
+	"time"
 )
 
 type TcpInterfaces struct {
@@ -25,8 +27,8 @@ func (i *TcpInterfaces) LocalIPv4() (net.IP, error) {
 		return nil, err
 	}
 	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP, nil
+	addr := conn.LocalAddr().(*net.UDPAddr)
+	return addr.IP, nil
 }
 
 func (i *TcpInterfaces) IPv6() (*string, error) {
@@ -44,16 +46,25 @@ func (i *TcpInterfaces) IPv6Addr() (net.IP, error) {
 		return nil, err
 	}
 	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP, nil
+	addr := conn.LocalAddr().(*net.UDPAddr)
+	return addr.IP, nil
 }
 
 func (i *TcpInterfaces) PublicIPv4() (*string, error) {
+	var zeroDialer net.Dialer
+	var httpClient = &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		return zeroDialer.DialContext(ctx, "tcp4", addr)
+	}
+	httpClient.Transport = transport
 	//url := "https://api.ipify.org?format=text"
 	url := "https://myexternalip.com/raw"
 	// http://api.ident.me
 	// http://whatismyipaddress.com/api
-	resp, err := http.Get(url)
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
