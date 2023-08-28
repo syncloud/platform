@@ -36,11 +36,10 @@
                 <div style="text-align: center; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center;">
                   <div class="columns">
                     <ul class="plan">
-                      <li class="header">Premium</li>
+                      <li class="header">Your name</li>
                       <li class="description">
-                        Syncloud will manage DNS records for your domain (like example.com)
-                        <br><br>
-                        Personal support for your device
+                        Syncloud manages<br>your domain (like example.com)<br>
+                        Subscription is required today.
                       </li>
                       <li>
                         <el-button id="btn_premium_domain" class="buttongreen" type="success"
@@ -51,8 +50,10 @@
                   </div>
                   <div class="columns">
                     <ul class="plan">
-                      <li class="header">Free</li>
-                      <li class="description">Syncloud will manage DNS records for [name].{{ redirect_domain }} domain
+                      <li class="header">Our name</li>
+                      <li class="description">
+                        Syncloud manages [name].{{ redirect_domain }} domain
+                        Subscription is required in 30 days.
                       </li>
                       <li>
                         <el-button id="btn_free_domain" class="buttongreen" type="success" @click="selectFreeDomain">
@@ -196,16 +197,11 @@
   <Dialog ref="help_free_account">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
-      Free Syncloud account name service (DNS) for device names at <b>{{ redirect_domain }}</b>.
-      <br>
       You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
                      target="_blank">register</a> an
-      account to control one or more
-      device names.
+      account and subscribe to our Premium Plan no more than 30 days after the registration.
       <br>
-      Domain account is also used for notifications about new releases.
-      <br>
-      It is only used to assign a dns name to IP of your device and update IP when it changes.
+      It is only used to maintain dns records of your device.
       Data transfer happens directly between your apps and device.
     </template>
   </Dialog>
@@ -213,16 +209,11 @@
   <Dialog ref="help_premium_account">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
-      Premium Syncloud account name service (DNS) for personal domain name management (like example.com).
-      <br>
       You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
                      target="_blank">register</a> an
-      account to control one or more
-      device names. Then request a premium plan in your Account services.
+      account and subscribe to our Premium Plan.
       <br>
-      Domain account is also used for notifications about new releases.
-      <br>
-      It is only used to assign a dns name to IP of your device and update IP when it changes.
+      It is only used to maintain dns records of your device.
       Data transfer happens directly between your apps and device.
     </template>
   </Dialog>
