@@ -75,7 +75,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *retryablehttp.Client { return retryablehttp.NewClient() })
+	err = c.Singleton(func() *retryablehttp.Client {
+		retryClient := retryablehttp.NewClient()
+		retryClient.RetryMax = 10
+		return retryClient
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +122,26 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(userConfig *config.UserConfig, identification *identification.Parser, iface *network.TcpInterfaces,
-		client *retryablehttp.Client, version *version.PlatformVersion) (*redirect.Service, error) {
+	err = c.Singleton(func(
+		userConfig *config.UserConfig,
+		identification *identification.Parser,
+		iface *network.TcpInterfaces,
+		client *retryablehttp.Client,
+		version *version.PlatformVersion,
+	) (*redirect.Service, error) {
 		var certLogger *zap.Logger
 		err := c.NamedResolve(&certLogger, CertificateLogger)
 		if err != nil {
 			return nil, err
 		}
-		return redirect.New(userConfig, identification, iface, client, version, logger), nil
+		return redirect.New(
+			userConfig,
+			identification,
+			iface,
+			client,
+			version,
+			logger,
+		), nil
 	})
 	if err != nil {
 		return nil, err
