@@ -227,6 +227,14 @@ func (c *UserConfig) getDomain() *string {
 	return c.GetOrNilString("platform.domain")
 }
 
+func (c *UserConfig) SetDefaultApp(app string) {
+	c.Upsert("platform.default.app", app)
+}
+
+func (c *UserConfig) GetDefailtApp() string {
+	return c.Get("platform.default.app", "www")
+}
+
 func (c *UserConfig) setDeprecatedUserDomain(domain string) {
 	c.Upsert("platform.user_domain", domain)
 }

@@ -17,6 +17,7 @@ type SystemConfig interface {
 
 type UserConfig interface {
 	GetDeviceDomain() string
+ GetDefaultApp() string
 }
 
 type Nginx struct {
@@ -39,6 +40,7 @@ func (n *Nginx) ReloadPublic() error {
 
 func (n *Nginx) InitConfig() error {
 	domain := n.userConfig.GetDeviceDomain()
+ defaultApp := n.userConfig.GetDefaultApp()
 	configDir := n.systemConfig.ConfigDir()
 	templateFile, err := os.ReadFile(path.Join(configDir, "nginx", "public.conf"))
 	if err != nil {
@@ -46,6 +48,7 @@ func (n *Nginx) InitConfig() error {
 	}
 	template := string(templateFile)
 	template = strings.ReplaceAll(template, "{{ domain }}", strings.ReplaceAll(domain, ".", "\\."))
+ template = strings.ReplaceAll(template, "{{ default }}", defaultApp)
 	nginxConfigDir := n.systemConfig.DataDir()
 	nginxConfigFile := path.Join(nginxConfigDir, "nginx.conf")
 	err = os.WriteFile(nginxConfigFile, []byte(template), 0644)
