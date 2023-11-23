@@ -100,22 +100,37 @@ func (l *Lsblk) extractActiveUuid(entries []model.LsblkEntry) map[string]bool {
 	return uuids
 }
 
+func (l *Lsblk) extractBootDevices(entries []model.LsblkEntry) map[string]bool {
+	devices := make(map[string]bool)
+	for _, entry := range entries {
+		device := entry.DetectMMCBootDevice()
+		if device != nil {
+			devices[*device] = true
+		}
+	}
+	return devices
+}
+
 func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 	disks := make(map[string]*model.Disk)
 	entries, err := l.parseLsblkOutput()
-	activeUuids := l.extractActiveUuid(entries)
 	if err != nil {
 		return nil, err
 	}
+	activeUuids := l.extractActiveUuid(entries)
+	bootDevices := l.extractBootDevices(entries)
 	for _, entry := range entries {
+		device := entry.Name
+		if ok, _ := bootDevices[device]; ok {
+			entry.Boot = true
+		}
 		if entry.IsSupportedType() && entry.IsSupportedFsType() {
-			device := entry.Name
 			diskName := entry.Model
 			active := entry.Active
 			if !active {
 				active = activeUuids[entry.Uuid]
 			}
-			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, entry.MountPoint, []model.Partition{})
+			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, entry.MountPoint, entry.Boot, []model.Partition{})
 			if entry.IsRaid() {
 				disk.Name = entry.DeviceType
 				partition := l.createPartition(entry)

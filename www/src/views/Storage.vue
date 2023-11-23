@@ -91,21 +91,29 @@
         <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
           {{ descriptionByDisk(device) }}
         </span>
-        <span v-show="activeMultiDisks.length !== 0">
-          Initialize disk by removing all data on it?
-          <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
-        </span>
-        <span>Are you sure?</span>
+        <el-row v-show="activeMultiDisks.length !== 0" style="align-items: center;">
+          <el-col :span="24" style="min-height: 20px"></el-col>
+          <el-col :span="20" style="padding-right: 10px">
+            Initialize disk by removing all data on it? (optional)
+          </el-col>
+          <el-col :span="4" style="text-align: right;">
+            <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
+          </el-col>
+        </el-row>
       </div>
       <div style="display: grid" v-if="!multiMode">
         <span v-if="activeSinglePartition !== 'none'" style="font-weight: bold;">
           {{ descriptionByPartition(activeSinglePartition) }}
         </span>
-        <span v-show="activeSinglePartition !== 'none'">
-          Initialize disk by removing all data on it?
-          <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
-        </span>
-        <span>Are you sure?</span>
+        <el-row v-show="activeSinglePartition !== 'none'" style="align-items: center;">
+          <el-col :span="24" style="min-height: 20px"></el-col>
+          <el-col :span="20" style="padding-right: 10px">
+            Initialize disk by removing all data on it? (optional)
+          </el-col>
+          <el-col :span="4" style="text-align: right;">
+            <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
+          </el-col>
+        </el-row>
       </div>
     </template>
   </Confirmation>

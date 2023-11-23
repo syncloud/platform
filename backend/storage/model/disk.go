@@ -15,6 +15,7 @@ type Disk struct {
 	MountPoint string      `json:"mount_point"`
 	Raid       string      `json:"raid"`
 	HasErrors  bool        `json:"has_errors"`
+	Boot       bool        `json:"boot"`
 }
 
 type UiDeviceEntry struct {
@@ -24,7 +25,7 @@ type UiDeviceEntry struct {
 	Active bool   `json:"active"`
 }
 
-func NewDisk(name string, device string, size string, active bool, uuid string, mountPoint string, partitions []Partition) *Disk {
+func NewDisk(name string, device string, size string, active bool, uuid string, mountPoint string, boot bool, partitions []Partition) *Disk {
 	if name == "" {
 		name = fmt.Sprintf("Disk %s", strings.TrimPrefix(device, "/dev/"))
 	}
@@ -36,6 +37,7 @@ func NewDisk(name string, device string, size string, active bool, uuid string, 
 		Active:     active,
 		Uuid:       uuid,
 		MountPoint: mountPoint,
+		Boot:       boot,
 	}
 }
 
@@ -45,6 +47,9 @@ func (d *Disk) HasRootPartition() bool {
 
 func (d *Disk) IsAvailable() bool {
 	if d.HasRootPartition() {
+		return false
+	}
+	if d.Boot {
 		return false
 	}
 	return true

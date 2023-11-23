@@ -332,7 +332,7 @@ NAME="/dev/sdb1" SIZE="48.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE=
 	assert.Equal(t, "/dev/sdb1", disks[1].FindRootPartition().Device)
 }
 
-func TestLsblk_AllDisks_MMCBootPartitions_Hide(t *testing.T) {
+func TestLsblk_AllDisks_MMCBootPartitions_HidePartition(t *testing.T) {
 
 	output := `
 NAME="/dev/mmcblk1" SIZE="1.8G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
@@ -346,5 +346,35 @@ NAME="/dev/mmcblk1boot1" SIZE="1M" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE=
 	assert.Equal(t, 1, len(disks))
 	assert.Equal(t, "/dev/mmcblk1", disks[0].Device)
 	assert.True(t, disks[0].HasRootPartition())
+	assert.True(t, disks[0].Boot)
 	assert.Equal(t, 1, len(disks[0].Partitions))
+}
+
+func TestLsblk_AvailableDisks_HideBoot(t *testing.T) {
+
+	output := `
+NAME="/dev/mmcblk1" SIZE="14.6G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
+NAME="/dev/mmcblk1boot0" SIZE="4M" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
+NAME="/dev/mmcblk1boot1" SIZE="4M" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
+`
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+	disks, err := lsblk.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(disks))
+}
+
+func TestLsblk_AvailableDisks_NotBoot_NotHide(t *testing.T) {
+
+	output := `
+NAME="/dev/mmcblk1" SIZE="14.6G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
+NAME="/dev/mmcblk1boo0" SIZE="4M" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
+NAME="/dev/mmcblk1boo1" SIZE="4M" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
+`
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+	disks, err := lsblk.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(disks))
+	assert.False(t, disks[0].Boot)
+	assert.False(t, disks[1].Boot)
+	assert.False(t, disks[2].Boot)
 }

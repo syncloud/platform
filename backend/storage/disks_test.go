@@ -151,7 +151,7 @@ func (b *BtrfsDiskStatsStub) HasErrors(device string) (bool, error) {
 func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: true}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	partition, err := disks.RootPartition()
@@ -162,7 +162,7 @@ func TestDisks_RootPartition_HasFreeSpace_Extendable(t *testing.T) {
 func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{freeSpace: false}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	partition, err := disks.RootPartition()
@@ -173,7 +173,7 @@ func TestDisks_RootPartition_HasNoFreeSpace_NonExtendable(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: true}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.Deactivate()
@@ -183,7 +183,7 @@ func TestDisks_DeactivateDisk_TriggerError_NotFail(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.Deactivate()
@@ -193,7 +193,7 @@ func TestDisks_DeactivateDisk_TriggerNotError_NotFail(t *testing.T) {
 func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false},
+		{"", "", "", []model.Partition{{"", "", "/", true, "", false}}, false, "", "", "", false, false},
 	}
 	callOrder := &CallOrder{order: 0}
 	trigger := &TriggerStub{error: false, callOrderShared: callOrder}
@@ -208,7 +208,7 @@ func TestDisks_DeactivateDisk_TriggerEventBeforeRemove(t *testing.T) {
 func TestDisks_ActivatePartition_SupportedFs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false}}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "ext4", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivatePartition("/dev/sda1")
@@ -218,7 +218,7 @@ func TestDisks_ActivatePartition_SupportedFs(t *testing.T) {
 func TestDisks_ActivatePartition_Btrfs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false}}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "", true, "btrfs", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivatePartition("/dev/sda1")
@@ -228,7 +228,7 @@ func TestDisks_ActivatePartition_Btrfs(t *testing.T) {
 func TestDisks_ActivatePartition_NotSupportedFs(t *testing.T) {
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivatePartition("/dev/sda1")
@@ -239,7 +239,7 @@ func TestDisks_ActivateDisks_None(t *testing.T) {
 	executor := &DisksExecutorStub{}
 
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false, false},
 	}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, executor, &BtrfsDisksStub{}, &BtrfsDiskStatsStub{}, log.Default())
 	err := disks.ActivateDisks([]string{}, false)
@@ -250,8 +250,8 @@ func TestDisks_ActivateDisks_None(t *testing.T) {
 
 func TestDisks_ActivateDisks_UseUuid(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", "", "", false},
-		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", "", "", false, false},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false, false},
 	}
 	btrfs := &BtrfsDisksStub{}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
@@ -265,8 +265,8 @@ func TestDisks_ActivateDisks_UseUuid(t *testing.T) {
 
 func TestDisks_ActivateDisks_UseUuidExpand(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", "", "", false},
-		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{}, true, "uuid1", "", "", false, false},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "uuid2", "", "", false, false},
 	}
 	btrfs := &BtrfsDisksStub{}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
@@ -280,8 +280,8 @@ func TestDisks_ActivateDisks_UseUuidExpand(t *testing.T) {
 
 func TestDisks_ActivateDisks_0_To_2_UseFirstUuid(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{}, false, "uuid1", "", "", false},
-		{"", "/dev/sdb", "", []model.Partition{}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{}, false, "uuid1", "", "", false, false},
+		{"", "/dev/sdb", "", []model.Partition{}, false, "", "", "", false, false},
 	}
 	btrfs := &BtrfsDisksStub{}
 	disks := NewDisks(&DisksConfigStub{}, &TriggerStub{error: false}, &LsblkDisksStub{disks: allDisks}, &SystemdStub{}, &DisksFreeSpaceCheckerStub{}, &DisksLinkerStub{}, &DisksExecutorStub{}, btrfs, &BtrfsDiskStatsStub{}, log.Default())
@@ -295,7 +295,7 @@ func TestDisks_ActivateDisks_0_To_2_UseFirstUuid(t *testing.T) {
 
 func TestDisks_ActivateDisks_PartitionToDisk_Deactivate(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{{"", "/dev/sda1", "/", true, "fat32", false}}, false, "", "", "", false, false},
 	}
 	btrfs := &BtrfsDisksStub{}
 	systemd := &SystemdStub{}
@@ -312,7 +312,7 @@ func TestDisks_ActivateDisks_PartitionToDisk_Deactivate(t *testing.T) {
 
 func TestDisks_ActivateDisks_BterfsError(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/sda", "", []model.Partition{}, false, "", "", "", false},
+		{"", "/dev/sda", "", []model.Partition{}, false, "", "", "", false, false},
 	}
 	btrfs := &BtrfsDisksStub{error: true}
 	systemd := &SystemdStub{}
@@ -341,8 +341,8 @@ func TestDisks_ClearLastError(t *testing.T) {
 
 func TestDisks_AvailableDisks(t *testing.T) {
 	allDisks := []model.Disk{
-		{"", "/dev/loop0", "", []model.Partition{}, false, "uuid1", "", "", false},
-		{"", "/dev/loop1", "", []model.Partition{}, false, "uuid2", "", "", false},
+		{"", "/dev/loop0", "", []model.Partition{}, false, "uuid1", "", "", false, false},
+		{"", "/dev/loop1", "", []model.Partition{}, false, "uuid2", "", "", false, false},
 	}
 	btrfs := &BtrfsDisksStub{error: true}
 	systemd := &SystemdStub{}

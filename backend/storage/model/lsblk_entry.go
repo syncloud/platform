@@ -24,6 +24,7 @@ type LsblkEntry struct {
 	Model      string
 	Active     bool
 	Uuid       string
+	Boot       bool
 }
 
 func (e *LsblkEntry) IsExtendedPartition() bool {
@@ -44,8 +45,16 @@ func (e *LsblkEntry) IsSupportedType() bool {
 }
 
 func (e *LsblkEntry) IsMMCBootPartition() bool {
-	r := regexp.MustCompile(`^/dev/mmcblk\d+boot\d+$`)
-	return r.MatchString(e.Name)
+	return e.DetectMMCBootDevice() != nil
+}
+
+func (e *LsblkEntry) DetectMMCBootDevice() *string {
+	r := regexp.MustCompile(`^(/dev/mmcblk\d+)boot\d+$`)
+	match := r.FindStringSubmatch(e.Name)
+	if match != nil {
+		return &match[1]
+	}
+	return nil
 }
 
 func (e *LsblkEntry) IsSupportedFsType() bool {
