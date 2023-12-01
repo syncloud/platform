@@ -1,7 +1,6 @@
 package snap
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,17 +12,14 @@ import (
 )
 
 type ClientStub struct {
-	changesJson   string
-	changesStatus int
-	snapsJson     string
-	snapsStatus   int
-	snapJson      string
-	snapStatus    int
-	findJson      string
-	findStatus    int
-	systemJson    string
-	systemStatus  int
-	error         bool
+	snapsJson   string
+	snapsError  error
+	snapJson    string
+	snapError   error
+	findJson    string
+	findError   error
+	systemJson  string
+	systemError error
 }
 
 func (c *ClientStub) Post(_, _ string, _ io.Reader) (*http.Response, error) {
@@ -31,40 +27,20 @@ func (c *ClientStub) Post(_, _ string, _ io.Reader) (*http.Response, error) {
 	panic("implement me")
 }
 
-func (c *ClientStub) Get(url string) (*http.Response, error) {
-	json := ""
-	status := 0
-	if strings.HasPrefix(url, "http://unix/v2/changes") {
-		json = c.changesJson
-		status = c.changesStatus
+func (c *ClientStub) Get(url string) ([]byte, error) {
+	if strings.HasPrefix(url, "http://unix/v2/snaps/") {
+		return []byte(c.snapJson), c.snapError
 	}
 	if strings.HasPrefix(url, "http://unix/v2/snaps") {
-		json = c.snapsJson
-		status = c.snapsStatus
-	}
-	if strings.HasPrefix(url, "http://unix/v2/snaps/") {
-		json = c.snapJson
-		status = c.snapStatus
+		return []byte(c.snapsJson), c.snapsError
 	}
 	if strings.HasPrefix(url, "http://unix/v2/find") {
-		json = c.findJson
-		status = c.findStatus
+		return []byte(c.findJson), c.findError
 	}
 	if strings.HasPrefix(url, "http://unix/v2/system-info") {
-		json = c.systemJson
-		status = c.systemStatus
+		return []byte(c.systemJson), c.systemError
 	}
-	if status == 0 {
-		status = 200
-	}
-	if c.error {
-		return nil, fmt.Errorf("error")
-	}
-	r := io.NopCloser(bytes.NewReader([]byte(json)))
-	return &http.Response{
-		StatusCode: status,
-		Body:       r,
-	}, nil
+	panic("implement me")
 }
 
 type DeviceInfoStub struct {
@@ -72,23 +48,6 @@ type DeviceInfoStub struct {
 
 func (d DeviceInfoStub) Url(app string) string {
 	return fmt.Sprintf("%s.domain.tld", app)
-}
-
-type HttpClientStub struct {
-	response string
-	status   int
-}
-
-func (h HttpClientStub) Get(_ string) (*http.Response, error) {
-	if h.status != 200 {
-		return nil, fmt.Errorf("error code: %v", h.status)
-	}
-
-	r := io.NopCloser(bytes.NewReader([]byte(h.response)))
-	return &http.Response{
-		StatusCode: h.status,
-		Body:       r,
-	}, nil
 }
 
 type ConfigStub struct {
@@ -128,7 +87,7 @@ func TestInstalledSnaps_OK(t *testing.T) {
 
 func TestInstalledSnaps_Error(t *testing.T) {
 
-	snapd := NewServer(&ClientStub{error: true}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsError: fmt.Errorf("error")}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.Snaps()
 
 	assert.Nil(t, apps)
@@ -350,7 +309,7 @@ func TestServer_FindInStore_NotFound(t *testing.T) {
 }
 `
 
-	client := &ClientStub{findJson: json, findStatus: 500}
+	client := &ClientStub{findJson: json}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInStore("app")
 
@@ -406,69 +365,12 @@ func TestServer_FindInstalled_NotFound(t *testing.T) {
 }
 `
 
-	client := &ClientStub{snapJson: json, snapStatus: 404}
+	client := &ClientStub{snapJson: json, snapError: NotFound}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInstalled("files")
 
 	assert.Nil(t, err)
 	assert.Nil(t, found)
-}
-
-func TestServer_Changes_Error(t *testing.T) {
-	json := `
-{
-    "type": "error",
-    "status-code": 401,
-    "status": "Unauthorized",
-    "result": {
-        "message": "access denied",
-        "kind": "login-required",
-    }
-}
-`
-
-	snapd := NewServer(&ClientStub{changesJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
-	_, err := snapd.Changes()
-
-	assert.NotNil(t, err)
-}
-
-func TestServer_Changes_True(t *testing.T) {
-	json := `
-{
-    "type": "sync",
-    "status-code": 200,
-    "status": "OK",
-    "result": [
-		{
-			"id": "123"
-		}
-	]
-}
-`
-
-	snapd := NewServer(&ClientStub{changesJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
-	progress, err := snapd.Changes()
-
-	assert.Nil(t, err)
-	assert.True(t, progress.IsRunning)
-}
-
-func TestServer_Changes_False(t *testing.T) {
-	json := `
-{
-    "type": "sync",
-    "status-code": 200,
-    "status": "OK",
-    "result": []
-}
-`
-
-	snapd := NewServer(&ClientStub{changesJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
-	progress, err := snapd.Changes()
-
-	assert.Nil(t, err)
-	assert.False(t, progress.IsRunning)
 }
 
 func TestServer_Find_NotInstalled(t *testing.T) {
@@ -505,7 +407,7 @@ func TestServer_Find_NotInstalled(t *testing.T) {
 	]
 }
 `
-	client := &ClientStub{snapJson: snapJson, snapStatus: 404, findJson: findJson}
+	client := &ClientStub{snapJson: snapJson, snapError: NotFound, findJson: findJson}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.Find("app")
 
@@ -597,7 +499,7 @@ func TestServer_Find_NotInStore(t *testing.T) {
 	}
 }
 `
-	client := &ClientStub{snapJson: snapJson, findJson: findJson, findStatus: 500}
+	client := &ClientStub{snapJson: snapJson, findJson: findJson}
 	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.Find("app")
 

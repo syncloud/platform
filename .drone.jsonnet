@@ -55,7 +55,6 @@ local build(arch, testUI, python) = [{
                 "../build/snap/meta/hooks/install -h",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                 "../build/snap/meta/hooks/post-refresh -h"
-       
             ]
         },
         {
@@ -77,7 +76,7 @@ local build(arch, testUI, python) = [{
         }
     ] + [
         {
-            name: "test-intergation-buster",
+            name: "test-backend",
             image: "python:3.8-slim-buster",
             commands: [
               "cd integration",
@@ -106,12 +105,12 @@ local build(arch, testUI, python) = [{
         ]
     }] + [
         {
-            name: "test-ui-" + mode + "-" + distro,
+            name: "test-ui-" + mode,
             image: "python:3.8-slim-buster",
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=redirect --redirect-password=redirect --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --ui-mode=" + mode + " --domain="+arch+" --redirect-user=redirect --redirect-password=redirect --app=" + name + " --browser=" + browser
             ],
             privileged: true,
             volumes: [{
@@ -120,7 +119,6 @@ local build(arch, testUI, python) = [{
             }]
         } 
         for mode in ["desktop", "mobile"]
-        for distro in ["buster"]
     ] else []) + 
    [
     {
