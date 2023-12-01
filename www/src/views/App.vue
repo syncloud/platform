@@ -9,13 +9,29 @@
             </div>
             <div class="appinfo">
               <h1>{{ info.app.name }}</h1>
-              <div v-if="info.installed_version !== null">
+              <div v-if="info.installed_version !== null && !progress">
                 <b>Version:</b> {{ info.installed_version }}<br>
               </div>
             </div>
           </div>
           <div>
-            <div class="buttonblock">
+            <div v-if="progress">
+            <el-row >
+              <el-col :span="8"></el-col>
+              <el-col :span="8" style="min-height: 30px" >
+                {{ progressSummary }}
+              </el-col>
+              <el-col :span="8"></el-col>
+            </el-row>
+            <el-row >
+              <el-col :span="8"></el-col>
+              <el-col :span="8">
+                <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate"/>
+              </el-col>
+              <el-col :span="8"></el-col>
+            </el-row>
+            </div>
+            <div class="buttonblock" v-if="!progress">
               <button id="btn_open" :data-url="info.app.url" class="buttonblue bwidth smbutton"
                       @click="open"
                       v-if="info.installed_version !== null">
@@ -123,7 +139,6 @@ import $ from 'jquery'
 import Error from '../components/Error.vue'
 import 'bootstrap'
 import * as Common from '../js/common.js'
-import { ElLoading } from 'element-plus'
 
 export default {
   name: 'App',
@@ -136,7 +151,11 @@ export default {
       info: undefined,
       appId: undefined,
       action: '',
-      loading: undefined
+      loading: undefined,
+      progress: false,
+      progressPercentage: 0,
+      progressSummary: 'Downloading',
+      progressIndeterminate: false
     }
   },
   components: {
@@ -145,19 +164,18 @@ export default {
   mounted () {
     this.progressShow()
     this.appId = this.$route.query.id
-    this.loadApp()
+    this.loadApp().then(() => this.status())
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.progress = true
     },
     progressHide () {
-      if (this.loading) {
-        this.loading.close()
-      }
+      this.progressSummary = ''
+      this.progress = false
     },
     loadApp () {
-      axios
+      return axios
         .get('/rest/app', { params: { app_id: this.appId } })
         .then(resp => {
           this.info = resp.data.data
@@ -210,6 +228,28 @@ export default {
         })
         .catch(onError)
     },
+    status () {
+      const error = this.$refs.error
+      const onError = (err) => {
+        this.progressHide()
+        error.showAxios(err)
+      }
+      Common.runAfterJobIsComplete(
+        setTimeout,
+        this.loadApp,
+        onError,
+        Common.INSTALLER_STATUS_URL,
+        (response) => {
+          if (response.data.data.progress) {
+            this.progress = true
+            this.progressPercentage = response.data.data.progress.percentage
+            this.progressSummary = response.data.data.progress.summary
+            this.progressIndeterminate = response.data.data.progress.indeterminate
+          }
+          return response.data.data.is_running
+        }
+      )
+    },
     confirm () {
       this.progressShow()
       const error = this.$refs.error
@@ -217,17 +257,9 @@ export default {
         this.progressHide()
         error.showAxios(err)
       }
-
       axios.post(this.actionUrl, { app_id: this.appId })
         .then(resp => {
-          Common.checkForServiceError(resp.data, () => {
-            Common.runAfterJobIsComplete(
-              setTimeout,
-              this.loadApp,
-              onError,
-              Common.INSTALLER_STATUS_URL,
-              Common.DEFAULT_STATUS_PREDICATE)
-          }, onError)
+          Common.checkForServiceError(resp.data, this.status, onError)
         })
         .catch(onError)
     }

@@ -54,5 +54,11 @@ func (s *ChangesClient) Changes() (*model.InstallerStatus, error) {
 		return nil, err
 	}
 
-	return &model.InstallerStatus{IsRunning: len(changesResponse) > 0}, nil
+	if len(changesResponse) > 0 {
+		return &model.InstallerStatus{
+			IsRunning: true,
+			Progress:  changesResponse[0].InstallerProgress(),
+		}, nil
+	}
+	return &model.InstallerStatus{IsRunning: false}, nil
 }

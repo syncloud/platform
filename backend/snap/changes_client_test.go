@@ -133,10 +133,10 @@ func TestChangesClient_Changes_Progress(t *testing.T) {
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
-	assert.False(t, progress.IsRunning)
-	assert.Equal(t, progress.Progress.Type, "percentage")
-	assert.Equal(t, progress.Progress.Percentage, 47)
-	assert.Equal(t, progress.Progress.Summary, "Downloading")
+	assert.True(t, progress.IsRunning)
+	assert.Equal(t, false, progress.Progress.Indeterminate)
+	assert.Equal(t, int64(47), progress.Progress.Percentage)
+	assert.Equal(t, "Downloading", progress.Progress.Summary)
 }
 
 func TestChangesClient_Changes_Indeterminate(t *testing.T) {
@@ -189,8 +189,8 @@ func TestChangesClient_Changes_Indeterminate(t *testing.T) {
 	progress, err := snapd.Changes()
 
 	assert.Nil(t, err)
-	assert.False(t, progress.IsRunning)
-	assert.Equal(t, progress.Progress.Type, "indeterminate")
-	assert.Equal(t, progress.Progress.Percentage, 0)
-	assert.Equal(t, progress.Progress.Summary, "Installing")
+	assert.True(t, progress.IsRunning)
+	assert.Equal(t, true, progress.Progress.Indeterminate)
+	assert.Equal(t, int64(50), progress.Progress.Percentage)
+	assert.Equal(t, "Upgrading", progress.Progress.Summary)
 }

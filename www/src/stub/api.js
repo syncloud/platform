@@ -7,7 +7,7 @@ const state = {
     password: '2'
   },
   jobStatusRunning: false,
-  installerIsRunning: false,
+  installerIsRunning: true,
   availableAppsSuccess: true,
   activated: true,
   accessSuccess: true,
@@ -215,6 +215,18 @@ const bootDiskData = {
   success: true
 }
 
+const installerProgress = {
+  counter: 0,
+  success: true,
+  data: {
+    progress: {
+      summary: 'Downloading',
+      indeterminate: false,
+      percentage: 10
+    }
+  }
+}
+
 export function mock () {
   createServer({
     models: {
@@ -273,17 +285,21 @@ export function mock () {
         return new Response(200, {}, installer)
       })
       this.post('/rest/app/upgrade', function (_schema, _request) {
+        installerProgress.counter = 0
+        state.installerIsRunning = true
+        installerProgress.data.progress.summary = 'Upgrading'
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/install', function (_schema, request) {
+        installerProgress.counter = 0
+        state.installerIsRunning = true
         const attrs = JSON.parse(request.requestBody)
-        console.debug(attrs.app_id)
-        console.debug(installedApps)
         installedApps.add(attrs.app_id)
-        console.debug(installedApps)
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/remove', function (_schema, request) {
+        installerProgress.counter = 0
+        installerProgress.data.progress.summary = 'Removing'
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
         return new Response(200, {}, { success: true })
@@ -295,8 +311,20 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/installer/status', function (_schema, _request) {
-        state.installerIsRunning = !state.installerIsRunning
-        return new Response(200, {}, { success: true, data: { is_running: state.installerIsRunning } })
+        installerProgress.counter += 1
+        if (installerProgress.counter <= 5) {
+          installerProgress.data.progress.summary = 'Downloading'
+          installerProgress.data.progress.percentage = installerProgress.counter * 20
+        } else {
+          installerProgress.data.progress.summary = 'Installing'
+          installerProgress.data.progress.indeterminate = true
+        }
+        if (installerProgress.counter > 7) {
+          state.installerIsRunning = !state.installerIsRunning
+          installerProgress.counter = 0
+        }
+        installerProgress.data.is_running = state.installerIsRunning
+        return new Response(200, {}, { data: installerProgress.data })
       })
       this.post('/rest/backup/create', function (_schema, _request) {
         return new Response(200, {}, {})

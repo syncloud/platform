@@ -1,12 +1,12 @@
 package model
 
 type InstallerStatus struct {
-	IsRunning bool      `json:"is_running"`
-	Progress  *Progress `json:"progress"`
+	IsRunning bool               `json:"is_running"`
+	Progress  *InstallerProgress `json:"progress"`
 }
 
-type Progress struct {
-	Summary    string `json:"summary"`
-	Type       string `json:"type"`
-	Percentage int    `json:"percentage"`
+type InstallerProgress struct {
+	Summary       string `json:"summary"`
+	Indeterminate bool   `json:"indeterminate"`
+	Percentage    int64  `json:"percentage"`
 }
