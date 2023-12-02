@@ -152,10 +152,10 @@ export default {
       appId: undefined,
       action: '',
       loading: undefined,
-      progress: false,
-      progressPercentage: 0,
-      progressSummary: 'Downloading',
-      progressIndeterminate: false
+      progress: true,
+      progressPercentage: 20,
+      progressSummary: '',
+      progressIndeterminate: true
     }
   },
   components: {
@@ -164,13 +164,16 @@ export default {
   mounted () {
     this.progressShow()
     this.appId = this.$route.query.id
-    this.loadApp().then(() => this.status())
+    this.loadApp()
+      .then(() => this.status())
   },
   methods: {
     progressShow () {
+      console.debug('progress show')
       this.progress = true
     },
     progressHide () {
+      console.debug('progress hide')
       this.progressSummary = ''
       this.progress = false
     },
@@ -179,10 +182,8 @@ export default {
         .get('/rest/app', { params: { app_id: this.appId } })
         .then(resp => {
           this.info = resp.data.data
-          this.progressHide()
         })
         .catch(err => {
-          this.progressHide()
           this.$refs.error.showAxios(err)
         })
     },
@@ -236,17 +237,32 @@ export default {
       }
       Common.runAfterJobIsComplete(
         setTimeout,
-        this.loadApp,
+        () => { this.loadApp().then(() => this.progressHide()) },
         onError,
         Common.INSTALLER_STATUS_URL,
         (response) => {
-          if (response.data.data.progress) {
-            this.progress = true
-            this.progressPercentage = response.data.data.progress.percentage
-            this.progressSummary = response.data.data.progress.summary
-            this.progressIndeterminate = response.data.data.progress.indeterminate
+          if (!response.data.data.is_running) {
+            console.debug('not running')
+            return false
           }
-          return response.data.data.is_running
+          if (!response.data.data.progress) {
+            console.debug('no progress')
+            return false
+          }
+          if (response.data.data.progress.app !== this.appId) {
+            console.debug(response.data.data.progress.app + ' is not my app ' + this.appId)
+            return false
+          }
+          this.progressShow()
+          this.progressSummary = response.data.data.progress.summary
+          if (response.data.data.progress.indeterminate) {
+            this.progressIndeterminate = true
+            this.progressPercentage = 20
+          } else {
+            this.progressIndeterminate = false
+            this.progressPercentage = response.data.data.progress.percentage
+          }
+          return true
         }
       )
     },

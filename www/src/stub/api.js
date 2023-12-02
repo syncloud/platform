@@ -110,7 +110,7 @@ const installer = {
     store_version: 2
   }
 }
-const installedApps = new Set([])
+const installedApps = new Set(['wordpress'])
 
 const appCenterDataError = {
   message: 'error',
@@ -220,6 +220,8 @@ const installerProgress = {
   success: true,
   data: {
     progress: {
+      app: 'wordpress',
+      action: 'Install',
       summary: 'Downloading',
       indeterminate: false,
       percentage: 10
@@ -284,24 +286,30 @@ export function mock () {
       this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
       })
-      this.post('/rest/app/upgrade', function (_schema, _request) {
+      this.post('/rest/app/upgrade', function (_schema, request) {
         installerProgress.counter = 0
         state.installerIsRunning = true
-        installerProgress.data.progress.summary = 'Upgrading'
+        installerProgress.data.progress.action = 'Upgrade'
+        const attrs = JSON.parse(request.requestBody)
+        installerProgress.data.progress.app = attrs.app_id
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/install', function (_schema, request) {
         installerProgress.counter = 0
         state.installerIsRunning = true
+        installerProgress.data.progress.action = 'Install'
         const attrs = JSON.parse(request.requestBody)
         installedApps.add(attrs.app_id)
+        installerProgress.data.progress.app = attrs.app_id
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/remove', function (_schema, request) {
         installerProgress.counter = 0
-        installerProgress.data.progress.summary = 'Removing'
+        state.installerIsRunning = true
+        installerProgress.data.progress.action = 'Remove'
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
+        installerProgress.data.progress.app = attrs.app_id
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/restart', function (_schema, _request) {
@@ -311,13 +319,23 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/installer/status', function (_schema, _request) {
+        console.debug('counter: ' + installerProgress.counter)
         installerProgress.counter += 1
-        if (installerProgress.counter <= 5) {
+        if (installerProgress.counter <= 5 && installerProgress.data.progress.action !== 'Remove') {
+          installerProgress.data.progress.indeterminate = false
           installerProgress.data.progress.summary = 'Downloading'
           installerProgress.data.progress.percentage = installerProgress.counter * 20
         } else {
-          installerProgress.data.progress.summary = 'Installing'
           installerProgress.data.progress.indeterminate = true
+          if (installerProgress.data.progress.action === 'Upgrade') {
+            installerProgress.data.progress.summary = 'Upgrading'
+          }
+          if (installerProgress.data.progress.action === 'Remove') {
+            installerProgress.data.progress.summary = 'Removing'
+          }
+          if (installerProgress.data.progress.action === 'Install') {
+            installerProgress.data.progress.summary = 'Installing'
+          }
         }
         if (installerProgress.counter > 7) {
           state.installerIsRunning = !state.installerIsRunning

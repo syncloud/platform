@@ -9,10 +9,12 @@ type Change struct {
 }
 
 func (c Change) InstallerProgress() *InstallerProgress {
+	app := ParseApp(c.Summary)
 	for _, task := range c.Tasks {
 		if task.Status == "Doing" {
 			if task.Kind == "download-snap" {
 				return &InstallerProgress{
+					App:           app,
 					Summary:       "Downloading",
 					Indeterminate: false,
 					Percentage:    task.Progress.Done * 100 / task.Progress.Total,
@@ -21,9 +23,10 @@ func (c Change) InstallerProgress() *InstallerProgress {
 		}
 	}
 	return &InstallerProgress{
+		App:           app,
 		Summary:       ParseAction(c.Summary),
 		Indeterminate: true,
-		Percentage:    50,
+		Percentage:    20,
 	}
 }
 
