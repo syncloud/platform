@@ -94,13 +94,13 @@ test('Upgrade', async () => {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
-  
+
   let statusCalled = false
   mock.onGet('/rest/installer/status').reply(function (_) {
     statusCalled = true
     return [200, { success: true, data: { is_running: false } }]
   })
-  
+
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -160,13 +160,13 @@ test('Remove', async () => {
     app = JSON.parse(config.data).app_id
     return [200, { success: true }]
   })
-  
+
   let statusCalled = false
   mock.onGet('/rest/installer/status').reply(function (_) {
     statusCalled = true
     return [200, { success: true, data: { is_running: false } }]
   })
-  
+
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -222,6 +222,10 @@ test('Action error', async () => {
       },
       success: true
     }]
+  })
+
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    return [200, { success: true, data: { is_running: false } }]
   })
 
   mock.onPost('/rest/app/remove').reply(function (_) {
@@ -318,18 +322,20 @@ test('Backup', async () => {
       success: true
     }]
   })
-
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    return [200, { success: true, data: { is_running: false } }]
+  })
   mock.onPost('/rest/backup/create').reply(function (config) {
     app = JSON.parse(config.data).app
     return [200, { success: true }]
   })
-  
+
   let statusCalled = false
   mock.onGet('/rest/job/status').reply(function (_) {
     statusCalled = true
-    return [200, {success: true, data:{status: "Idle"}}]
+    return [200, { success: true, data: { status: 'Idle' } }]
   })
-  
+
   const wrapper = mount(App,
     {
       attachTo: document.body,
@@ -383,6 +389,9 @@ test('Backup error', async () => {
       },
       success: true
     }]
+  })
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    return [200, { success: true, data: { is_running: false } }]
   })
 
   mock.onPost('/rest/backup/create').reply(function (_) {
@@ -440,6 +449,9 @@ test('Backup service error', async () => {
       },
       success: true
     }]
+  })
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    return [200, { success: true, data: { is_running: false } }]
   })
 
   mock.onPost('/rest/backup/create').reply(function (_) {
