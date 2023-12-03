@@ -81,7 +81,7 @@ local build(arch, testUI) = [{
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
+              "py.test -x -s verify.py --domain="+arch+" --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
             ]
         }
     ] + ( if testUI then [
@@ -128,7 +128,7 @@ local build(arch, testUI) = [{
           "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
           "cd integration",
           "./deps.sh",
-          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster --app-archive-path=$APP_ARCHIVE_PATH --app=" + name
+          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+" --app-archive-path=$APP_ARCHIVE_PATH --app=" + name
         ],
         privileged: true,
         volumes: [{
