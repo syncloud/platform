@@ -191,6 +191,6 @@ func TestChangesClient_Changes_Indeterminate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, progress.IsRunning)
 	assert.Equal(t, true, progress.Progress.Indeterminate)
-	assert.Equal(t, int64(50), progress.Progress.Percentage)
+	assert.Equal(t, int64(20), progress.Progress.Percentage)
 	assert.Equal(t, "Upgrading", progress.Progress.Summary)
 }

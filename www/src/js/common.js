@@ -39,8 +39,7 @@ export function runAfterJobIsComplete (timeoutFunc, onComplete, onError, statusU
       }
     })
     .catch(err => {
-      console.log("status err: " + err)
-      console.trace()
+      console.log('status err: ' + err)
       // Auth error means job is finished
       if (err.response !== undefined && err.response.status === 401) {
         onComplete()

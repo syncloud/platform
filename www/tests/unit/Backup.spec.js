@@ -90,7 +90,7 @@ test('show empty list of backups', async () => {
               show () {
               }
             }
-          },
+          }
         }
       }
     }

@@ -3,6 +3,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import App from '../../src/views/App.vue'
+import { ElButton, ElCol, ElProgress, ElRow } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -40,6 +41,9 @@ test('Install', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -106,6 +110,9 @@ test('Upgrade', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -172,6 +179,9 @@ test('Remove', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -237,6 +247,9 @@ test('Action error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -284,6 +297,9 @@ test('Show error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -341,6 +357,9 @@ test('Backup', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -405,6 +424,9 @@ test('Backup error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {
@@ -463,6 +485,9 @@ test('Backup service error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
           Error: {
             template: '<span/>',
             methods: {

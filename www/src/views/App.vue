@@ -169,11 +169,9 @@ export default {
   },
   methods: {
     progressShow () {
-      console.debug('progress show')
       this.progress = true
     },
     progressHide () {
-      console.debug('progress hide')
       this.progressSummary = ''
       this.progress = false
     },
@@ -242,11 +240,9 @@ export default {
         Common.INSTALLER_STATUS_URL,
         (response) => {
           if (!response.data.data.is_running) {
-            console.debug('not running')
             return false
           }
           if (!response.data.data.progress) {
-            console.debug('no progress')
             return false
           }
           if (response.data.data.progress.app !== this.appId) {
