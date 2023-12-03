@@ -8,7 +8,7 @@
               <img :src="info.app.icon" class="appimg" alt="">
             </div>
             <div class="appinfo">
-              <h1>{{ info.app.name }}</h1>
+              <h1 id="app_name">{{ info.app.name }}</h1>
               <div v-if="info.installed_version !== null && !progress">
                 <b>Version:</b> {{ info.installed_version }}<br>
               </div>
@@ -18,7 +18,7 @@
             <div v-if="progress">
             <el-row >
               <el-col :span="8"></el-col>
-              <el-col :span="8" style="min-height: 30px" >
+              <el-col :span="8" style="min-height: 30px " id="progress_summary" >
                 {{ progressSummary }}
               </el-col>
               <el-col :span="8"></el-col>

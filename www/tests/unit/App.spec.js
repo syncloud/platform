@@ -76,6 +76,146 @@ test('Install', async () => {
   wrapper.unmount()
 })
 
+test('Install of the same app is already in progress on open', async () => {
+  const showError = jest.fn()
+  const mockRouter = { push: jest.fn() }
+
+  const mock = new MockAdapter(axios)
+
+  mock.onGet('/rest/app').reply(function (_) {
+    return [200, {
+      data: {
+        app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
+        current_version: '2',
+        installed_version: null
+      },
+      success: true
+    }]
+  })
+
+  let statusCalled = false
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    statusCalled = true
+    return [200, {
+      success: true,
+      data: {
+        is_running: true,
+        progress: {
+          app: 'files',
+          summary: 'Downloading'
+        }
+      }
+    }]
+  })
+
+  const wrapper = mount(App,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          }
+        },
+        mocks: {
+          $route: { path: '/app', query: { id: 'files' } },
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(wrapper.find('#btn_upgrade').exists()).toBe(false)
+  expect(wrapper.find('#btn_remove').exists()).toBe(false)
+  expect(wrapper.find('#btn_install').exists()).toBe(false)
+  expect(wrapper.find('#app_name').text()).toBe('Files')
+  expect(wrapper.find('#progress_summary').text()).toBe('Downloading')
+
+  await flushPromises()
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(statusCalled).toBeTruthy()
+  wrapper.unmount()
+})
+
+test('Install of different app is already in progress on open', async () => {
+  const showError = jest.fn()
+  const mockRouter = { push: jest.fn() }
+
+  const mock = new MockAdapter(axios)
+
+  mock.onGet('/rest/app').reply(function (_) {
+    return [200, {
+      data: {
+        app: { id: 'files', name: 'Files', required: false, ui: false, url: 'http://files.odroid-c2.syncloud.it' },
+        current_version: '2',
+        installed_version: null
+      },
+      success: true
+    }]
+  })
+
+  let statusCalled = false
+  mock.onGet('/rest/installer/status').reply(function (_) {
+    statusCalled = true
+    return [200, {
+      success: true,
+      data: {
+        is_running: true,
+        progress: {
+          app: 'another_app',
+          summary: 'Downloading'
+        }
+      }
+    }]
+  })
+
+  const wrapper = mount(App,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
+          'el-progress': ElProgress,
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          }
+        },
+        mocks: {
+          $route: { path: '/app', query: { id: 'files' } },
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(wrapper.find('#btn_upgrade').exists()).toBe(false)
+  expect(wrapper.find('#btn_remove').exists()).toBe(false)
+  expect(wrapper.find('#btn_install').exists()).toBe(true)
+
+  await flushPromises()
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(statusCalled).toBeTruthy()
+  wrapper.unmount()
+})
+
 test('Upgrade', async () => {
   const showError = jest.fn()
   let app

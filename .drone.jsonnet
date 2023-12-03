@@ -3,7 +3,7 @@ local browser = "chrome";
 local go = "1.18.2-buster";
 local node = "16.10.0";
 
-local build(arch, testUI, python) = [{
+local build(arch, testUI) = [{
     kind: "pipeline",
     name: arch,
 
@@ -81,7 +81,7 @@ local build(arch, testUI, python) = [{
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
+              "py.test -x -s verify.py --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
             ]
         }
     ] + ( if testUI then [
@@ -208,7 +208,7 @@ local build(arch, testUI, python) = [{
     },
     services: [
         {
-            name: arch + "-buster",
+            name: arch,
             image: "syncloud/bootstrap-buster-" + arch,
             privileged: true,
             volumes: [
@@ -313,7 +313,7 @@ local build(arch, testUI, python) = [{
      }
  }];
 
-build("amd64", true, "bookworm") +
-build("arm64", false, "bookworm") +
-build("arm", false, "buster")
+build("amd64", true) +
+build("arm64", false) +
+build("arm", false)
 
