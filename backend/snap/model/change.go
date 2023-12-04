@@ -8,12 +8,12 @@ type Change struct {
 	Tasks   []Task `json:"tasks"`
 }
 
-func (c Change) InstallerProgress() *InstallerProgress {
+func (c Change) InstallerProgress() InstallerProgress {
 	app := ParseApp(c.Summary)
 	for _, task := range c.Tasks {
 		if task.Status == "Doing" {
 			if task.Kind == "download-snap" {
-				return &InstallerProgress{
+				return InstallerProgress{
 					App:           app,
 					Summary:       "Downloading",
 					Indeterminate: false,
@@ -22,11 +22,10 @@ func (c Change) InstallerProgress() *InstallerProgress {
 			}
 		}
 	}
-	return &InstallerProgress{
+	return InstallerProgress{
 		App:           app,
 		Summary:       ParseAction(c.Summary),
 		Indeterminate: true,
-		Percentage:    20,
 	}
 }
 

@@ -25,6 +25,7 @@ func NewChangesClient(client ChangesHttpClient, logger *zap.Logger) *ChangesClie
 
 func (s *ChangesClient) Changes() (*model.InstallerStatus, error) {
 	s.logger.Info("snap changes")
+	result := &model.InstallerStatus{IsRunning: false, Progress: make(map[string]model.InstallerProgress)}
 
 	bodyBytes, err := s.client.Get("http://unix/v2/changes?select=in-progress")
 	if err != nil {
@@ -54,11 +55,10 @@ func (s *ChangesClient) Changes() (*model.InstallerStatus, error) {
 		return nil, err
 	}
 
-	if len(changesResponse) > 0 {
-		return &model.InstallerStatus{
-			IsRunning: true,
-			Progress:  changesResponse[0].InstallerProgress(),
-		}, nil
+	for _, change := range changesResponse {
+		progress := change.InstallerProgress()
+		result.Progress[progress.App] = progress
+		result.IsRunning = true
 	}
-	return &model.InstallerStatus{IsRunning: false}, nil
+	return result, nil
 }

@@ -101,8 +101,10 @@ test('Install of the same app is already in progress on open', async () => {
       data: {
         is_running: true,
         progress: {
-          app: 'files',
-          summary: 'Downloading'
+          files: {
+            app: 'files',
+            summary: 'Downloading'
+          }
         }
       }
     }]
@@ -172,8 +174,10 @@ test('Install of different app is already in progress on open', async () => {
       data: {
         is_running: true,
         progress: {
-          app: 'another_app',
-          summary: 'Downloading'
+          another_app: {
+            app: 'another_app',
+            summary: 'Downloading'
+          }
         }
       }
     }]

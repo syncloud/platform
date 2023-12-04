@@ -134,9 +134,9 @@ func TestChangesClient_Changes_Progress(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.True(t, progress.IsRunning)
-	assert.Equal(t, false, progress.Progress.Indeterminate)
-	assert.Equal(t, int64(47), progress.Progress.Percentage)
-	assert.Equal(t, "Downloading", progress.Progress.Summary)
+	assert.Equal(t, false, progress.Progress["matrix"].Indeterminate)
+	assert.Equal(t, int64(47), progress.Progress["matrix"].Percentage)
+	assert.Equal(t, "Downloading", progress.Progress["matrix"].Summary)
 }
 
 func TestChangesClient_Changes_Indeterminate(t *testing.T) {
@@ -190,7 +190,102 @@ func TestChangesClient_Changes_Indeterminate(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.True(t, progress.IsRunning)
-	assert.Equal(t, true, progress.Progress.Indeterminate)
-	assert.Equal(t, int64(20), progress.Progress.Percentage)
-	assert.Equal(t, "Upgrading", progress.Progress.Summary)
+	assert.Equal(t, true, progress.Progress["matrix"].Indeterminate)
+	assert.Equal(t, int64(0), progress.Progress["matrix"].Percentage)
+	assert.Equal(t, "Upgrading", progress.Progress["matrix"].Summary)
+}
+
+func TestChangesClient_Changes_Simultaneous(t *testing.T) {
+	json := `
+{
+  "type": "sync",
+  "status-code": 200,
+  "status": "OK",
+  "result": [
+    {
+      "id": "487",
+      "kind": "install-snap",
+      "summary": "Install \"jellyfin\" snap",
+      "status": "Doing",
+      "tasks": [
+        {
+          "id": "2887",
+          "kind": "download-snap",
+          "summary": "Download snap \"jellyfin\" (161) from channel \"stable\"",
+          "status": "Doing",
+          "progress": {
+            "label": "jellyfin",
+            "done": 105143265,
+            "total": 192454656
+          },
+          "spawn-time": "2023-12-04T16:26:47.314203858Z"
+        },
+        {
+          "id": "2896",
+          "kind": "run-hook",
+          "summary": "Run install hook of \"jellyfin\" snap if present",
+          "status": "Do",
+          "progress": {
+            "label": "",
+            "done": 0,
+            "total": 1
+          },
+          "spawn-time": "2023-12-04T16:26:47.314762264Z"
+        }
+      ],
+      "ready": false,
+      "spawn-time": "2023-12-04T16:26:47.314887646Z"
+    },
+    {
+      "id": "488",
+      "kind": "install-snap",
+      "summary": "Install \"collabora\" snap",
+      "status": "Doing",
+      "tasks": [
+        {
+          "id": "2901",
+          "kind": "download-snap",
+          "summary": "Download snap \"collabora\" (36) from channel \"stable\"",
+          "status": "Done",
+          "progress": {
+            "label": "collabora",
+            "done": 420900864,
+            "total": 420900864
+          },
+          "spawn-time": "2023-12-04T16:26:55.201215861Z"
+        },        
+        {
+          "id": "2910",
+          "kind": "run-hook",
+          "summary": "Run install hook of \"collabora\" snap if present",
+          "status": "Doing",
+          "progress": {
+            "label": "",
+            "done": 0,
+            "total": 1
+          },
+          "spawn-time": "2023-12-04T16:26:55.201769017Z"
+        }
+      ],
+      "ready": false,
+      "spawn-time": "2023-12-04T16:26:55.201920442Z"
+    }
+  ]
+}
+`
+
+	snapd := NewChangesClient(&ChangesHttpClientStub{json: json}, log.Default())
+	progress, err := snapd.Changes()
+
+	assert.Nil(t, err)
+	assert.True(t, progress.IsRunning)
+
+	assert.Equal(t, false, progress.Progress["jellyfin"].Indeterminate)
+	assert.Equal(t, int64(54), progress.Progress["jellyfin"].Percentage)
+	assert.Equal(t, "Downloading", progress.Progress["jellyfin"].Summary)
+
+	assert.Equal(t, true, progress.Progress["collabora"].Indeterminate)
+	assert.Equal(t, int64(0), progress.Progress["collabora"].Percentage)
+	assert.Equal(t, "Installing", progress.Progress["collabora"].Summary)
+
 }

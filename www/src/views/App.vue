@@ -239,26 +239,24 @@ export default {
         onError,
         Common.INSTALLER_STATUS_URL,
         (response) => {
-          if (!response.data.data.is_running) {
-            return false
-          }
           if (!response.data.data.progress) {
             return false
           }
-          if (response.data.data.progress.app !== this.appId) {
-            console.debug(response.data.data.progress.app + ' is not my app ' + this.appId)
+          const progress = response.data.data.progress[this.appId]
+          if (progress) {
+            this.progressShow()
+            this.progressSummary = progress.summary
+            if (progress.indeterminate) {
+              this.progressIndeterminate = true
+              this.progressPercentage = 20
+            } else {
+              this.progressIndeterminate = false
+              this.progressPercentage = progress.percentage
+            }
+            return true
+          } else {
             return false
           }
-          this.progressShow()
-          this.progressSummary = response.data.data.progress.summary
-          if (response.data.data.progress.indeterminate) {
-            this.progressIndeterminate = true
-            this.progressPercentage = 20
-          } else {
-            this.progressIndeterminate = false
-            this.progressPercentage = response.data.data.progress.percentage
-          }
-          return true
         }
       )
     },

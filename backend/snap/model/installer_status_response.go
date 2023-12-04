@@ -1,8 +1,8 @@
 package model
 
 type InstallerStatus struct {
-	IsRunning bool               `json:"is_running"`
-	Progress  *InstallerProgress `json:"progress"`
+	IsRunning bool                         `json:"is_running"`
+	Progress  map[string]InstallerProgress `json:"progress"`
 }
 
 type InstallerProgress struct {
