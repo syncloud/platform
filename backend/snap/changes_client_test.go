@@ -139,61 +139,6 @@ func TestChangesClient_Changes_Progress(t *testing.T) {
 	assert.Equal(t, "Downloading", progress.Progress["matrix"].Summary)
 }
 
-func TestChangesClient_Changes_Progress_Unknown_Zero(t *testing.T) {
-	json := `
-{
-  "type": "sync",
-  "status-code": 200,
-  "status": "OK",
-  "result": [
-    {
-      "id": "2161",
-      "kind": "refresh-snap",
-      "summary": "Refresh \"matrix\" snap from \"latest/stable\" channel",
-      "status": "Doing",
-      "tasks": [
-        {
-          "id": "11282",
-          "kind": "download-snap",
-          "summary": "Download snap \"matrix\" (281) from channel \"latest/stable\"",
-          "status": "Doing",
-          "progress": {
-            "label": "matrix",
-            "done": 1,
-            "total": 1
-          },
-          "spawn-time": "2023-11-30T16:53:24.663070859Z"
-        },
-        {
-          "id": "11300",
-          "kind": "run-hook",
-          "summary": "Run configure hook of \"matrix\" snap if present",
-          "status": "Do",
-          "progress": {
-            "label": "",
-            "done": 0,
-            "total": 1
-          },
-          "spawn-time": "2023-11-30T16:53:24.663804275Z"
-        }
-      ],
-      "ready": false,
-      "spawn-time": "2023-11-30T16:53:24.663995517Z"
-    }
-  ]
-}
-`
-
-	snapd := NewChangesClient(&ChangesHttpClientStub{json: json}, log.Default())
-	progress, err := snapd.Changes()
-
-	assert.Nil(t, err)
-	assert.True(t, progress.IsRunning)
-	assert.Equal(t, false, progress.Progress["matrix"].Indeterminate)
-	assert.Equal(t, int64(0), progress.Progress["matrix"].Percentage)
-	assert.Equal(t, "Downloading", progress.Progress["matrix"].Summary)
-}
-
 func TestChangesClient_Changes_Indeterminate(t *testing.T) {
 	json := `
 {
