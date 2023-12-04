@@ -31,7 +31,7 @@ func (c Change) InstallerProgress() *InstallerProgress {
 }
 
 func ParseApp(summary string) string {
-	r := regexp.MustCompile(`^.*? \\"(.*?)\\" .*`)
+	r := regexp.MustCompile(`^.*? "(.*?)" .*`)
 	match := r.FindStringSubmatch(summary)
 	if match != nil {
 		return match[1]
