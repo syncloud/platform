@@ -7,7 +7,7 @@ const state = {
     password: '2'
   },
   jobStatusRunning: false,
-  installerIsRunning: false,
+  installerIsRunning: true,
   availableAppsSuccess: true,
   activated: true,
   accessSuccess: true,
@@ -110,7 +110,7 @@ const installer = {
     store_version: 2
   }
 }
-const installedApps = new Set([])
+const installedApps = new Set(['wordpress'])
 
 const appCenterDataError = {
   message: 'error',
@@ -215,6 +215,22 @@ const bootDiskData = {
   success: true
 }
 
+const installerProgress = {
+  counter: 0,
+  success: true,
+  data: {
+    progress: {
+      wordpress: {
+        app: 'wordpress',
+        action: 'Install',
+        summary: 'Downloading',
+        indeterminate: false,
+        percentage: 10
+      }
+    }
+  }
+}
+
 export function mock () {
   createServer({
     models: {
@@ -272,20 +288,37 @@ export function mock () {
       this.get('/rest/installer/version', function (_schema, _request) {
         return new Response(200, {}, installer)
       })
-      this.post('/rest/app/upgrade', function (_schema, _request) {
+      this.post('/rest/app/upgrade', function (_schema, request) {
+        installerProgress.counter = 0
+        state.installerIsRunning = true
+        const attrs = JSON.parse(request.requestBody)
+        installerProgress.data.progress[attrs.app_id] = {
+          app: attrs.app_id,
+          action: 'Upgrade'
+        }
+        installerProgress.data.progress.app = attrs.app_id
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/install', function (_schema, request) {
+        installerProgress.counter = 0
+        state.installerIsRunning = true
         const attrs = JSON.parse(request.requestBody)
-        console.debug(attrs.app_id)
-        console.debug(installedApps)
         installedApps.add(attrs.app_id)
-        console.debug(installedApps)
+        installerProgress.data.progress[attrs.app_id] = {
+          app: attrs.app_id,
+          action: 'Install'
+        }
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/remove', function (_schema, request) {
+        installerProgress.counter = 0
+        state.installerIsRunning = true
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
+        installerProgress.data.progress[attrs.app_id] = {
+          app: attrs.app_id,
+          action: 'Remove'
+        }
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/restart', function (_schema, _request) {
@@ -295,8 +328,31 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/installer/status', function (_schema, _request) {
-        state.installerIsRunning = !state.installerIsRunning
-        return new Response(200, {}, { success: true, data: { is_running: state.installerIsRunning } })
+        console.debug('counter: ' + installerProgress.counter)
+        installerProgress.counter += 1
+        for (const [app, progress] of Object.entries(installerProgress.data.progress)) {
+          if (installerProgress.counter <= 5 && progress.action !== 'Remove') {
+            progress.indeterminate = false
+            progress.summary = 'Downloading'
+            progress.percentage = installerProgress.counter * 20
+          } else {
+            progress.indeterminate = true
+            if (progress.action === 'Upgrade') {
+              progress.summary = 'Upgrading'
+            }
+            if (progress.action === 'Remove') {
+              progress.summary = 'Removing'
+            }
+            if (progress.action === 'Install') {
+              progress.summary = 'Installing'
+            }
+          }
+          if (installerProgress.counter > 7) {
+            installerProgress.counter = 0
+            delete installerProgress.data.progress[app]
+          }
+        }
+        return new Response(200, {}, { data: installerProgress.data })
       })
       this.post('/rest/backup/create', function (_schema, _request) {
         return new Response(200, {}, {})

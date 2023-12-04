@@ -10,12 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^1.6.0",
     "bootstrap": "^3.3.5",
     "browserslist": "^4.21.9",
     "bs-stepper": "^1.7.0",
     "caniuse-lite": "^1.0.30001517",
-    "element-plus": "^2.2.17",
+    "element-plus": "^2.4.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
     "material-icons": "^1.12.0",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.19.3",
-    "@rollup/plugin-inject": "^4.0.4",
+    "@rollup/plugin-inject": "^5.0.5",
     "@types/jest": "^29.1.1",
     "@vitejs/plugin-vue": "^1.6.1",
     "@vue/eslint-config-standard": "^5.1.2",

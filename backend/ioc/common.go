@@ -33,7 +33,6 @@ import (
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
-	"net/http"
 	"time"
 )
 
@@ -172,11 +171,19 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *http.Client { return snap.NewClient() })
+	err = c.Singleton(func() *snap.SnapdHttpClient { return snap.NewSnapdHttpClient(logger) })
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapClient *http.Client, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
+
+	err = c.Singleton(func(snapClient *snap.SnapdHttpClient) *snap.ChangesClient {
+		return snap.NewChangesClient(snapClient, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func(snapClient *snap.SnapdHttpClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
 		return snap.NewServer(snapClient, deviceInfo, systemConfig, client, logger)
 	})
 

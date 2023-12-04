@@ -3,7 +3,7 @@ local browser = "chrome";
 local go = "1.18.2-buster";
 local node = "16.10.0";
 
-local build(arch, testUI, python) = [{
+local build(arch, testUI) = [{
     kind: "pipeline",
     name: arch,
 
@@ -55,7 +55,6 @@ local build(arch, testUI, python) = [{
                 "../build/snap/meta/hooks/install -h",
                 "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                 "../build/snap/meta/hooks/post-refresh -h"
-       
             ]
         },
         {
@@ -77,12 +76,12 @@ local build(arch, testUI, python) = [{
         }
     ] + [
         {
-            name: "test-intergation-buster",
+            name: "test-backend",
             image: "python:3.8-slim-buster",
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s verify.py --distro=buster --domain="+arch+"-buster --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
+              "py.test -x -s verify.py --domain="+arch+" --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
             ]
         }
     ] + ( if testUI then [
@@ -106,12 +105,12 @@ local build(arch, testUI, python) = [{
         ]
     }] + [
         {
-            name: "test-ui-" + mode + "-" + distro,
+            name: "test-ui-" + mode,
             image: "python:3.8-slim-buster",
             commands: [
               "cd integration",
               "./deps.sh",
-              "py.test -x -s test-ui.py --distro=" + distro + " --ui-mode=" + mode + " --domain="+arch+"-"+distro+" --redirect-user=redirect --redirect-password=redirect --app=" + name + " --browser=" + browser
+              "py.test -x -s test-ui.py --ui-mode=" + mode + " --domain="+arch+" --redirect-user=redirect --redirect-password=redirect --app=" + name + " --browser=" + browser
             ],
             privileged: true,
             volumes: [{
@@ -120,7 +119,6 @@ local build(arch, testUI, python) = [{
             }]
         } 
         for mode in ["desktop", "mobile"]
-        for distro in ["buster"]
     ] else []) + 
    [
     {
@@ -130,7 +128,7 @@ local build(arch, testUI, python) = [{
           "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
           "cd integration",
           "./deps.sh",
-          "py.test -x -s test-upgrade.py --distro=buster  --domain="+arch+"-buster --app-archive-path=$APP_ARCHIVE_PATH --app=" + name
+          "py.test -x -s test-upgrade.py --domain="+arch+" --app-archive-path=$APP_ARCHIVE_PATH --app=" + name
         ],
         privileged: true,
         volumes: [{
@@ -210,7 +208,7 @@ local build(arch, testUI, python) = [{
     },
     services: [
         {
-            name: arch + "-buster",
+            name: arch,
             image: "syncloud/bootstrap-buster-" + arch,
             privileged: true,
             volumes: [
@@ -315,7 +313,7 @@ local build(arch, testUI, python) = [{
      }
  }];
 
-build("amd64", true, "bookworm") +
-build("arm64", false, "bookworm") +
-build("arm", false, "buster")
+build("amd64", true) +
+build("arm64", false) +
+build("arm", false)
 

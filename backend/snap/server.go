@@ -3,6 +3,7 @@ package snap
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,12 +18,8 @@ const (
 )
 
 type SnapdClient interface {
-	Get(url string) (resp *http.Response, err error)
+	Get(url string) ([]byte, error)
 	Post(url, bodyType string, body io.Reader) (*http.Response, error)
-}
-
-type HttpClient interface {
-	Get(url string) (resp *http.Response, err error)
 }
 
 type DeviceInfo interface {
@@ -33,21 +30,25 @@ type Config interface {
 	Channel() string
 }
 
+type ExternalHttpClient interface {
+	Get(url string) (resp *http.Response, err error)
+}
+
 type Server struct {
 	client     SnapdClient
 	deviceInfo DeviceInfo
 	config     Config
-	httpClient HttpClient
+	httpClient ExternalHttpClient
 	logger     *zap.Logger
 }
 
-type NotFound struct{}
-
-func (e *NotFound) Error() string {
-	return "app not found"
-}
-
-func NewServer(client SnapdClient, deviceInfo DeviceInfo, config Config, httpClient HttpClient, logger *zap.Logger) *Server {
+func NewServer(
+	client SnapdClient,
+	deviceInfo DeviceInfo,
+	config Config,
+	httpClient ExternalHttpClient,
+	logger *zap.Logger,
+) *Server {
 	return &Server{
 		client:     client,
 		deviceInfo: deviceInfo,
@@ -91,7 +92,7 @@ func (s *Server) StoreUserApps() ([]model.SyncloudApp, error) {
 }
 
 func (s *Server) Snaps() ([]model.Snap, error) {
-	bodyBytes, err := s.httpGet("http://unix/v2/snaps")
+	bodyBytes, err := s.client.Get("http://unix/v2/snaps")
 	if err != nil {
 		return nil, err
 	}
@@ -106,10 +107,9 @@ func (s *Server) Snaps() ([]model.Snap, error) {
 }
 
 func (s *Server) FindInstalled(name string) (*model.Snap, error) {
-	bodyBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/snaps/%s", name))
+	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/snaps/%s", name))
 	if err != nil {
-		switch err.(type) {
-		case *NotFound:
+		if errors.Is(err, NotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -157,7 +157,7 @@ func (s *Server) snapsAction(action, name string) (*model.ServerResponse, error)
 	}
 	resp, err := s.client.Post(fmt.Sprintf("http://unix/v2/snaps/%s", name), "application/json", bytes.NewBuffer(requestJson))
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, &NotFound{}
+		return nil, NotFound
 	}
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -174,25 +174,6 @@ func (s *Server) snapsAction(action, name string) (*model.ServerResponse, error)
 	return &response, nil
 }
 
-func (s *Server) httpGet(url string) ([]byte, error) {
-	resp, err := s.client.Get(url)
-	if err != nil {
-		s.logger.Error("cannot connect", zap.Error(err))
-		return nil, err
-	}
-	defer func() { _ = resp.Body.Close() }()
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, &NotFound{}
-	}
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		s.logger.Error("cannot read output", zap.Error(err))
-		return nil, err
-	}
-	return bodyBytes, nil
-
-}
-
 func (s *Server) StoreSnaps() ([]model.Snap, error) {
 	return s.find("*")
 }
@@ -200,7 +181,7 @@ func (s *Server) StoreSnaps() ([]model.Snap, error) {
 func (s *Server) Installer() (*model.InstallerInfo, error) {
 	s.logger.Info("installer")
 	channel := s.config.Channel()
-	systemInfoBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/system-info"))
+	systemInfoBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/system-info"))
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +210,7 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 
 func (s *Server) find(query string) ([]model.Snap, error) {
 	s.logger.Info("find", zap.String("query", query))
-	bodyBytes, err := s.httpGet(fmt.Sprintf("http://unix/v2/find?name=%s", query))
+	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
 		return nil, err
 	}
@@ -251,40 +232,6 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 		return nil, err
 	}
 	return snaps, nil
-}
-
-func (s *Server) Changes() (*model.InstallerStatus, error) {
-	s.logger.Info("snap changes")
-
-	bodyBytes, err := s.httpGet("http://unix/v2/changes?select=in-progress")
-	if err != nil {
-		return nil, err
-	}
-	var response model.ServerResponse
-	err = json.Unmarshal(bodyBytes, &response)
-	if err != nil {
-		s.logger.Error("cannot unmarshal", zap.Error(err))
-		return nil, err
-	}
-	if response.Status != "OK" {
-		var errorResponse model.ServerError
-		err = json.Unmarshal(response.Result, &errorResponse)
-		if err != nil {
-			s.logger.Error("cannot unmarshal", zap.Error(err))
-			return nil, err
-		}
-
-		return nil, fmt.Errorf(errorResponse.Message)
-	}
-
-	var changesResponse []model.Change
-	err = json.Unmarshal(response.Result, &changesResponse)
-	if err != nil {
-		s.logger.Error("cannot unmarshal", zap.Error(err))
-		return nil, err
-	}
-
-	return &model.InstallerStatus{IsRunning: len(changesResponse) > 0}, nil
 }
 
 func (s *Server) FindInStore(name string) (*model.SyncloudAppVersions, error) {
