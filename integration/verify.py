@@ -190,7 +190,7 @@ def wait_for_activation():
                             verify=False)
         if response.status_code != 200:
             raise Exception()
-        if not json.loads(response.text)["data"]
+        if not json.loads(response.text)["data"]:
             raise Exception()
     retry(check)
 
