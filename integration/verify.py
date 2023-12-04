@@ -184,7 +184,19 @@ def test_reactivate_good(device_host, full_domain, device_user, device_password,
     device.ssh_password = device_password
 
 
+def wait_for_activation(domain):
+    def check():
+        response = requests.get('https://{0}/rest/activation/status'.format(domain),
+                                allow_redirects=False, verify=False)
+        if response.status_code != 200:
+            raise Exception()
+        if not json.loads(response.text)["data"]:
+            raise Exception()
+    retry(check)
+
+
 def test_deactivate(device, domain):
+    wait_for_activation(domain)
     response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False,
                                    allow_redirects=False)
     assert '"success":true' in response.text

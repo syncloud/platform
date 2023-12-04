@@ -42,6 +42,7 @@ type Backend struct {
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
 	snapd           *snap.Server
+	changesClient   *snap.ChangesClient
 	disks           *storage.Disks
 	journalCtl      *systemd.Journal
 	deviceInfo      *info.Device
@@ -65,6 +66,7 @@ func NewBackend(
 	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
+	changesClient *snap.ChangesClient,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -93,6 +95,7 @@ func NewBackend(
 		cookies:         cookies,
 		network:         network,
 		address:         address,
+		changesClient:   changesClient,
 		logger:          logger,
 	}
 }
@@ -364,7 +367,7 @@ func (b *Backend) InstallerVersion(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) InstallerStatus(_ *http.Request) (interface{}, error) {
-	return b.snapd.Changes()
+	return b.changesClient.Changes()
 }
 
 func (b *Backend) Id(_ *http.Request) (interface{}, error) {

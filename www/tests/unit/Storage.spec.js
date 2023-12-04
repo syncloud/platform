@@ -3,7 +3,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Storage from '../../src/views/Storage.vue'
-import { ElSwitch, ElRadio, ElRadioGroup, ElCheckbox, ElCheckboxGroup } from 'element-plus'
+import { ElSwitch, ElRadio, ElRadioGroup, ElCheckbox, ElCheckboxGroup, ElRow, ElCol } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -13,7 +13,7 @@ test('Activate partition', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/storage/disks').reply(200,
     {
@@ -45,7 +45,7 @@ test('Activate partition', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -63,6 +63,8 @@ test('Activate partition', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -115,10 +117,10 @@ test('Deactivate partition', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -136,6 +138,8 @@ test('Deactivate partition', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -198,16 +202,18 @@ test('Activate partition error', async () => {
     return [500, { message: 'not ok' }]
   })
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
           Error: {
             template: '<span/>',
             methods: {
@@ -233,11 +239,11 @@ test('Activate partition error', async () => {
   )
 
   await flushPromises()
-  
+
   await wrapper.find('#partition_1_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#confirmation').trigger('confirm')
-  
+
   await flushPromises()
 
   expect(error).toBe('not ok')
@@ -282,16 +288,18 @@ test('Activate partition service error', async () => {
     return [200, { success: false, message: 'not ok' }]
   })
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
       attachTo: document.body,
       global: {
         stubs: {
+          'el-row': ElRow,
+          'el-col': ElCol,
           Error: {
             template: '<span/>',
             methods: {
@@ -317,18 +325,17 @@ test('Activate partition service error', async () => {
   )
 
   await flushPromises()
-  
+
   await wrapper.find('#partition_1_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#confirmation').trigger('confirm')
-  
+
   await flushPromises()
 
   expect(error).toBe('not ok')
   expect(deviceAction).toBe('/dev/sdc1')
   wrapper.unmount()
 })
-
 
 test('Activate disks', async () => {
   let devices = []
@@ -367,10 +374,10 @@ test('Activate disks', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -388,6 +395,8 @@ test('Activate disks', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -400,18 +409,18 @@ test('Activate disks', async () => {
       }
     }
   )
-  
+
   await flushPromises()
-  
+
   await wrapper.find('#disk_0').trigger('click')
   await wrapper.find('#disk_1').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await flushPromises()
   await expect(wrapper.find('#format').isVisible()).toBe(true)
   await wrapper.find('#confirmation').trigger('confirm')
-  
+
   await flushPromises()
-  
+
   expect(error).toBe('')
   expect(devices).toEqual(['/dev/sdb', '/dev/sdc'])
   wrapper.unmount()
@@ -454,10 +463,10 @@ test('Activate disks error', async () => {
     return [500, { success: false, message: 'not ok' }]
   })
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -475,6 +484,8 @@ test('Activate disks error', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -487,15 +498,15 @@ test('Activate disks error', async () => {
       }
     }
   )
-  
+
   await flushPromises()
-  
+
   expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).toContain('is-checked')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#confirmation').trigger('confirm')
-  
+
   await flushPromises()
-  
+
   expect(error).toBe('not ok')
   expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).not.toContain('is-checked')
   wrapper.unmount()
@@ -529,10 +540,10 @@ test('Deactivate disks', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -550,6 +561,8 @@ test('Deactivate disks', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -562,26 +575,25 @@ test('Deactivate disks', async () => {
       }
     }
   )
-  
+
   await flushPromises()
-  
+
   await wrapper.find('#disk_0').trigger('click')
   await wrapper.find('#btn_save').trigger('click')
   await flushPromises()
   await expect(wrapper.find('#format').isVisible()).toBe(false)
   await wrapper.find('#confirmation').trigger('confirm')
-  
+
   await flushPromises()
-  
+
   expect(error).toBe('')
   expect(deactivated).toBe(true)
   wrapper.unmount()
 })
 
-
 test('Show single partition', async () => {
   const showError = jest.fn()
-  
+
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/disks').reply(200,
     {
@@ -609,10 +621,10 @@ test('Show single partition', async () => {
     }
   )
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -630,6 +642,8 @@ test('Show single partition', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -642,18 +656,18 @@ test('Show single partition', async () => {
       }
     }
   )
-  
+
   await flushPromises()
-  
+
   await expect(wrapper.find('#partition_0_0').classes()).toContain('is-checked')
-  
+
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
 
 test('Show single partition none', async () => {
   const showError = jest.fn()
-  
+
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/disks').reply(200,
     {
@@ -681,10 +695,10 @@ test('Show single partition none', async () => {
     }
   )
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -702,6 +716,8 @@ test('Show single partition none', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -714,19 +730,19 @@ test('Show single partition none', async () => {
       }
     }
   )
-  
+
   await flushPromises()
-  
+
   await wrapper.find('#multi').trigger('click')
   await expect(wrapper.find('#none').classes()).toContain('is-checked')
-  
+
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
 
 test('Show multi disk', async () => {
   const showError = jest.fn()
-  
+
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/disks').reply(200,
     {
@@ -754,10 +770,10 @@ test('Show multi disk', async () => {
     }
   )
   mock.onGet('/rest/storage/error/last').reply(200,
-    { success: true, data: "OK" }
+    { success: true, data: 'OK' }
   )
   mock.onGet('/rest/job/status').reply(200,
-    { success: true, data: { name: "test"} }
+    { success: true, data: { name: 'test' } }
   )
   const wrapper = mount(Storage,
     {
@@ -775,6 +791,8 @@ test('Show multi disk', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
           Confirmation: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -787,13 +805,13 @@ test('Show multi disk', async () => {
       }
     }
   )
-  
+
   await flushPromises()
-  
-  await expect(wrapper.find('#multi').attributes('aria-checked')).toBe("true")
+
+  await expect(wrapper.find('#multi').attributes('aria-checked')).toBe('true')
   await expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).toContain('is-checked')
   await expect(wrapper.find('#disk_1').element.parentElement.getAttribute('class')).not.toContain('is-checked')
-  
+
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
