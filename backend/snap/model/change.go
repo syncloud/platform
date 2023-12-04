@@ -17,7 +17,7 @@ func (c Change) InstallerProgress() InstallerProgress {
 					App:           app,
 					Summary:       "Downloading",
 					Indeterminate: false,
-					Percentage:    task.Progress.Done * 100 / task.Progress.Total,
+					Percentage:    CalcPercentage(task.Progress.Done, task.Progress.Total),
 				}
 			}
 		}
@@ -27,6 +27,13 @@ func (c Change) InstallerProgress() InstallerProgress {
 		Summary:       ParseAction(c.Summary),
 		Indeterminate: true,
 	}
+}
+
+func CalcPercentage(done, total int64) int64 {
+	if total <= 1 {
+		return 0
+	}
+	return done * 100 / total
 }
 
 func ParseApp(summary string) string {
