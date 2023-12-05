@@ -27,7 +27,7 @@ func (a *LogAggregator) GetLogs() string {
 	log := a.fileLogs()
 	log += a.cmd("date")
 	log += a.cmd("mount")
-	log += a.cmd("systemctl", "status", "--state=inactive", "snap.*")
+	log += a.cmd("systemctl", "status", "--state=failed", "snap.*")
 	log += a.cmd("top", "-n", "1", "-bc")
 	log += a.cmd("ping", "google.com", "-c", "5")
 	log += a.cmd("uname", "-a")
