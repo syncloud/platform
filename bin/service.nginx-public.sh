@@ -15,9 +15,6 @@ start)
 reload)
     $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -s reload -e stderr
     ;;
-stop)
-    $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -s stop -e stderr
-    ;;
 *)
     echo "not valid command"
     exit 1

@@ -6,7 +6,6 @@ apps:
     - network
     - network-bind
     restart-condition: always
-    stop-command: bin/service.nginx-public.sh stop
     reload-command: bin/service.nginx-public.sh reload
   openldap:
     command: bin/service.openldap.sh

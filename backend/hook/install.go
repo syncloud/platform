@@ -2,7 +2,9 @@ package hook
 
 import (
 	"errors"
+	"fmt"
 	cp "github.com/otiai10/copy"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage"
 	"go.uber.org/zap"
 	"os"
@@ -16,6 +18,7 @@ type Install struct {
 	certGenerator  CertificateGenerator
 	ldap           Ldap
 	nginx          Nginx
+	logDir         string
 	logger         *zap.Logger
 }
 
@@ -41,6 +44,10 @@ type Nginx interface {
 	InitConfig() error
 }
 
+const (
+	CommonDir = "/var/snap/platform/common"
+)
+
 func NewInstall(
 	storageChecker storage.Checker,
 	storageLinker DisksLinker,
@@ -57,6 +64,7 @@ func NewInstall(
 		certGenerator:  certGenerator,
 		ldap:           ldap,
 		nginx:          nginx,
+		logDir:         path.Join(CommonDir, "log"),
 		logger:         logger,
 	}
 }
@@ -102,16 +110,21 @@ func (i *Install) PostRefresh() error {
 	if err != nil {
 		return err
 	}
+
+	err = cli.Remove(fmt.Sprintf("%s/*.log", i.logDir))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (i *Install) InitConfigs() error {
 	i.logger.Info("init configs")
 	dataDir := "/var/snap/platform/current"
-	commonDir := "/var/snap/platform/common"
 
 	dataDirs := []string{
-		path.Join(commonDir, "log"),
+		i.logDir,
 		path.Join(dataDir, "nginx"),
 		path.Join(dataDir, "openldap"),
 		path.Join(dataDir, "openldap-data"),
