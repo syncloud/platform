@@ -1,37 +1,43 @@
 <template>
-  <div ref="dialog" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">
-            <slot name="title"></slot>
-          </h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">
-              <slot name="text"></slot>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
+  <el-dialog :modelValue="visible" style="min-width: 300px; max-width: 500px" :before-close="close">
+    <template #header>
+      <h4 class="modal-title">
+        <slot name="title"></slot>
+      </h4>
+    </template>
+    <div style="font-size: 18px">
+      <slot name="text" ></slot>
     </div>
-  </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="close">{{ cancelText }}</el-button>
+        <el-button type="primary" @click="yes" v-if="confirmEnabled">Confirm</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
-<script>
-import $ from 'jquery'
 
+<script>
 export default {
   name: 'Dialog',
+  emits: ['confirm', 'cancel'],
+  props: {
+    visible: Boolean,
+    confirmEnabled: {
+      type: Boolean,
+      default: true
+    },
+    cancelText: {
+      type: String,
+      default: 'Cancel'
+    }
+  },
   methods: {
-    show () {
-      $(this.$refs.dialog).modal('show')
+    yes () {
+      this.$emit('confirm')
+    },
+    close () {
+      this.$emit('cancel')
     }
   }
 }

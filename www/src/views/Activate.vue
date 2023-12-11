@@ -186,7 +186,7 @@
     </div>
   </div>
 
-  <Dialog ref="help_managed_domain">
+  <Dialog :visible="helpManagedDomainVisible" @cancel="helpManagedDomainVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>Managed domain</template>
     <template v-slot:text>
       <div class="btext">Syncloud will manage DNS records for your personal domain name
@@ -194,7 +194,7 @@
     </template>
   </Dialog>
 
-  <Dialog ref="help_free_account">
+  <Dialog :visible="helpFreeAccountVisible" @cancel="helpFreeAccountVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
       You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
@@ -206,7 +206,7 @@
     </template>
   </Dialog>
 
-  <Dialog ref="help_premium_account">
+  <Dialog :visible="helpPremiumAccountVisible" @cancel="helpPremiumAccountVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>Domain account</template>
     <template v-slot:text>
       You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
@@ -218,7 +218,7 @@
     </template>
   </Dialog>
 
-  <Dialog ref="help_device_credential">
+  <Dialog :visible="helpDeviceCredentialVisible" @cancel="helpDeviceCredentialVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>Device credentials</template>
     <template v-slot:text>
       Device credentials are used to access your device and all the apps (as admin user).
@@ -260,7 +260,11 @@ export default {
       redirect_domain: 'syncloud.it',
       deviceUsername: '',
       devicePassword: '',
-      stepper: Stepper
+      stepper: Stepper,
+      helpManagedDomainVisible: false,
+      helpFreeAccountVisible: false,
+      helpPremiumAccountVisible: false,
+      helpDeviceCredentialVisible: false
     }
   },
   mounted () {
@@ -334,16 +338,16 @@ export default {
         })
     },
     showDeviceCredentialHelp () {
-      this.$refs.help_device_credential.show()
+      this.helpDeviceCredentialVisible = true
     },
     showFreeAccountHelp () {
-      this.$refs.help_free_account.show()
+      this.helpFreeAccountVisible = true
     },
     showPremiumAccountHelp () {
-      this.$refs.help_premium_account.show()
+      this.helpPremiumAccountVisible = true
     },
     showManagedDomainHelp () {
-      this.$refs.help_managed_domain.show()
+      this.helpManagedDomainVisible = true
     },
     selectPremiumDomain () {
       this.domainType = 'premium'
