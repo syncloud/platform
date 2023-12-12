@@ -8,7 +8,7 @@
           <el-steps :active="step" simple finish-status="success" style="max-width: 500px; margin: 0 auto">
             <el-step title="Type" />
             <el-step title="Name" />
-            <el-step title="Login" />
+            <el-step title="User" />
           </el-steps>
 
           <div v-if="step === 0" id="domain-type-part"  >
@@ -58,7 +58,8 @@
                 <div class="alert alert-danger alert90" id="email_alert" style="display: none;"></div>
                 <input :placeholder="redirect_domain + ' password'" class="passinput"
                        id="redirect_password" type="password" v-model="redirectPassword">
-                <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
+                <div class="alert alert-danger alert90" v-show="redirectPasswordAlertVisible" >{{ redirectPasswordAlert }}</div>
+
                 <div style=" display: flow-root">
                   <div style="padding-right:10px; float: right">
                     Do not have an account?
@@ -78,7 +79,7 @@
                   <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
                   <span>.{{ redirect_domain }}</span>
                 </div>
-                <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
+                <div id="domain_alert"  class="alert alert-danger alert90" v-show="domainAlertVisible" >{{ domainAlert }}</div>
 
               </div>
 
@@ -96,8 +97,7 @@
                 <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
                 <input :placeholder="redirect_domain + ' password'" class="passinput"
                        id="redirect_password" type="password" v-model="redirectPassword">
-                <div class="alert alert-danger alert90" id="redirect_password_alert"
-                     style="display: none;"></div>
+                <div class="alert alert-danger alert90" v-show="redirectPasswordAlertVisible" >{{ redirectPasswordAlert }}</div>
 
                 <div style="text-align: center">
                   <h2 style="display: inline-block">Device Name</h2>
@@ -111,8 +111,7 @@
                          class="domain" id="domain_premium" type="text" style="width:100% !important;"
                          v-model="domain">
                 </div>
-                <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
-
+                <div id="domain_alert" class="alert alert-danger alert90" v-show="domainAlertVisible" >{{ domainAlert }}</div>
               </div>
 
               <div style="padding: 10px; float: left;">
@@ -140,10 +139,11 @@
               </div>
 
               <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername">
-              <div class="alert alert-danger alert90" id="device_username_alert" style="display: none;"></div>
+              <div class="alert alert-danger alert90" v-show="deviceUsernameAlertVisible">{{ deviceUsernameAlert }}</div>
+
               <input placeholder="Password" class="passinput" id="device_password" type="password"
                      v-model="devicePassword">
-              <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
+              <div class="alert alert-danger alert90" v-show="devicePasswordAlertVisible">{{ devicePasswordAlert }}</div>
 
               <div style="padding: 10px; float: left;">
                 <el-button type="primary" @click="step--">
@@ -208,7 +208,6 @@
 
 <script>
 import axios from 'axios'
-import $ from 'jquery'
 import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import { ElLoading } from 'element-plus'
@@ -237,6 +236,14 @@ export default {
       helpFreeAccountVisible: false,
       helpPremiumAccountVisible: false,
       helpDeviceCredentialVisible: false,
+      deviceUsernameAlertVisible: false,
+      deviceUsernameAlert: '',
+      devicePasswordAlertVisible: false,
+      devicePasswordAlert: '',
+      redirectPasswordAlertVisible: false,
+      redirectPasswordAlert: '',
+      domainAlertVisible: false,
+      domainAlert: '',
       step: 0
     }
   },
@@ -267,7 +274,7 @@ export default {
     activate (event) {
       event.preventDefault()
       this.progressShow()
-      $('#form_activate .alert').remove()
+      this.hideAlerts()
       switch (this.domainType) {
         case 'premium':
           this.activatePremiumDomain()
@@ -278,6 +285,58 @@ export default {
     },
     forceCertificateRecheck () {
       window.location = '/?t=' + (new Date()).getTime()
+    },
+    hideAlerts () {
+      this.deviceUsernameAlertVisible = false
+      this.devicePasswordAlertVisible = false
+      this.redirectPasswordAlertVisible = false
+      this.domainAlertVisible = false
+    },
+    showRedirectAlert (err) {
+      if (err.response) {
+        const response = err.response
+        if (response.data) {
+          const data = response.data
+          if (data.parameters_messages) {
+            for (let i = 0; i < data.parameters_messages.length; i++) {
+              const pm = data.parameters_messages[i]
+              const message = pm.messages.join('\n')
+              if (pm.parameter === 'redirect_password') {
+                this.redirectPasswordAlertVisible = true
+                this.redirectPasswordAlert = message
+              }
+              if (pm.parameter === 'domain') {
+                this.domainAlertVisible = true
+                this.domainAlert = message
+              }
+            }
+          }
+        }
+      }
+    },
+    showActivateAlert (err) {
+      if (err.response) {
+        const response = err.response
+        if (response.data) {
+          const data = response.data
+          if (data.parameters_messages) {
+            for (let i = 0; i < data.parameters_messages.length; i++) {
+              const pm = data.parameters_messages[i]
+              const message = pm.messages.join('\n')
+              if (pm.parameter === 'device_username') {
+                this.deviceUsernameAlertVisible = true
+                this.deviceUsernameAlert = message
+              }
+              if (pm.parameter === 'device_password') {
+                this.devicePasswordAlertVisible = true
+                this.devicePasswordAlert = message
+              }
+            }
+          } else {
+            this.$refs.error.showAxios(err)
+          }
+        }
+      }
     },
     activateFreeDomain () {
       axios
@@ -291,7 +350,7 @@ export default {
         .then(this.forceCertificateRecheck)
         .catch(err => {
           this.progressHide()
-          this.$refs.error.showAxios(err)
+          this.showActivateAlert(err)
         })
     },
     activatePremiumDomain () {
@@ -306,7 +365,7 @@ export default {
         .then(this.forceCertificateRecheck)
         .catch(err => {
           this.progressHide()
-          this.$refs.error.showAxios(err)
+          this.showActivateAlert(err)
         })
     },
     showDeviceCredentialHelp () {
@@ -322,14 +381,17 @@ export default {
       this.helpManagedDomainVisible = true
     },
     selectPremiumDomain () {
+      this.hideAlerts()
       this.domainType = 'premium'
       this.step++
     },
     selectFreeDomain () {
+      this.hideAlerts()
       this.domainType = 'free'
       this.step++
     },
     selectDeviceName () {
+      this.hideAlerts()
       this.domainAvailability()
     },
     fullDomain () {
@@ -353,7 +415,7 @@ export default {
         })
         .catch(err => {
           this.progressHide()
-          this.$refs.error.showAxios(err)
+          this.showRedirectAlert(err)
         })
     }
   }
@@ -367,11 +429,6 @@ export default {
 .register {
   color: #00aeef;
   font-weight: bold;
-}
-
-.step {
-  width: 100%;
-  height: 40px;
 }
 
 input[type="text"], input[type="password"] {
@@ -396,7 +453,6 @@ input[type="text"], input[type="password"] {
 
 .plan {
   list-style-type: none;
-  border: 1px solid #eee;
   margin: 0;
   padding: 0;
   transition: 0.3s;
@@ -407,14 +463,8 @@ input[type="text"], input[type="password"] {
 }
 
 .plan li {
-  border-bottom: 1px solid #eee;
-  padding: 20px;
+  padding: 0 20px 20px 20px ;
   text-align: center;
-}
-
-.plan .header {
-  background-color: #00aeef;
-  font-size: 20px;
 }
 
 .plan .description {
