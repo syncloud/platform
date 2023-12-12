@@ -15,7 +15,7 @@
             </div>
           </div>
           <div>
-            <div v-if="progress">
+            <div v-if="progress" id="progress">
             <el-row >
               <el-col :span="8"></el-col>
               <el-col :span="8" style="min-height: 30px " id="progress_summary" >
@@ -69,65 +69,35 @@
     </div>
   </div>
 
-  <div id="app_action_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title"><span id="confirm_caption">{{ action }}</span></h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">
-              Are you sure?
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
-            </button>
-            <button type="button" id="btn_confirm" class="btn buttonlight bwidth smbutton"
-                    data-dismiss="modal" @click="confirm">OK
-            </button>
-          </div>
+  <Confirmation :visible="appActionConfirmationVisible" id="app_confirmation" @confirm="confirm"
+                @cancel="appActionConfirmationVisible = false">
+    <template v-slot:title>
+      <span id="confirm_caption">{{ action }}</span>
+    </template>
+    <template v-slot:text>
+      <div class="bodymod">
+        <div class="btext">
+          Are you sure?
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </Confirmation>
 
-  <div id="backup_confirmation" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Backup</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">
-              This will backup app settings excluding files uploaded to the disk storage.<br>
-              Later you can restore it from Settings - Backup<br>
-              Are you sure?
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close
-            </button>
-            <button type="button" id="btn_backup_confirm" class="btn buttonlight bwidth smbutton"
-                    data-dismiss="modal" @click="backup">OK
-            </button>
-          </div>
+  <Confirmation :visible="backupConfirmationVisible" id="backup_confirmation" @confirm="backup"
+                @cancel="backupConfirmationVisible = false">
+    <template v-slot:title>
+      <span id="confirm_caption">Backup</span>
+    </template>
+    <template v-slot:text>
+      <div class="bodymod">
+        <div class="btext">
+          This will backup app settings excluding files uploaded to the disk storage.<br>
+          Later you can restore it from Settings - Backup<br>
+          Are you sure?
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </Confirmation>
 
   <Error ref="error"/>
 
@@ -135,9 +105,7 @@
 
 <script>
 import axios from 'axios'
-import $ from 'jquery'
 import Error from '../components/Error.vue'
-import 'bootstrap'
 import * as Common from '../js/common.js'
 
 export default {
@@ -155,7 +123,9 @@ export default {
       progress: true,
       progressPercentage: 20,
       progressSummary: '',
-      progressIndeterminate: true
+      progressIndeterminate: true,
+      appActionConfirmationVisible: false,
+      backupConfirmationVisible: false
     }
   },
   components: {
@@ -191,23 +161,25 @@ export default {
     install () {
       this.action = 'Install'
       this.actionUrl = '/rest/app/install'
-      $('#app_action_confirmation').modal('show')
+      this.appActionConfirmationVisible = true
     },
     upgrade () {
       this.action = 'Upgrade'
       this.actionUrl = '/rest/app/upgrade'
-      $('#app_action_confirmation').modal('show')
+      this.appActionConfirmationVisible = true
     },
     remove () {
       this.action = 'Remove'
       this.actionUrl = '/rest/app/remove'
-      $('#app_action_confirmation').modal('show')
+      this.appActionConfirmationVisible = true
     },
     backupConfirm () {
-      $('#backup_confirmation').modal('show')
+      this.backupConfirmationVisible = true
     },
     backup () {
+      this.backupConfirmationVisible = false
       this.progressShow()
+      this.progressSummary = 'Creating a backup'
 
       const error = this.$refs.error
       const onError = (err) => {
@@ -219,7 +191,8 @@ export default {
           Common.checkForServiceError(resp.data, () => {
             Common.runAfterJobIsComplete(
               setTimeout,
-              this.loadApp,
+              // this.loadApp,
+              () => { this.loadApp().then(() => this.progressHide()) },
               onError,
               Common.JOB_STATUS_URL,
               Common.JOB_STATUS_PREDICATE)
@@ -261,6 +234,7 @@ export default {
       )
     },
     confirm () {
+      this.appActionConfirmationVisible = false
       this.progressShow()
       const error = this.$refs.error
       const onError = (err) => {

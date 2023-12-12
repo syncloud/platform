@@ -49,6 +49,14 @@ test('Install', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -66,7 +74,10 @@ test('Install', async () => {
   expect(wrapper.find('#btn_remove').exists()).toBe(false)
 
   await wrapper.find('#btn_install').trigger('click')
-  await wrapper.find('#btn_confirm').trigger('click')
+  await wrapper.find('#app_confirmation').trigger('confirm')
+  await flushPromises()
+
+  expect(wrapper.find('#progress').exists()).toBe(false)
 
   await flushPromises()
 
@@ -123,7 +134,8 @@ test('Install of the same app is already in progress on open', async () => {
             methods: {
               showAxios: showError
             }
-          }
+          },
+          Confirmation: true
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -196,7 +208,8 @@ test('Install of different app is already in progress on open', async () => {
             methods: {
               showAxios: showError
             }
-          }
+          },
+          Confirmation: true
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -262,6 +275,14 @@ test('Upgrade', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -279,7 +300,10 @@ test('Upgrade', async () => {
   expect(wrapper.find('#btn_remove').exists()).toBe(true)
 
   await wrapper.find('#btn_upgrade').trigger('click')
-  await wrapper.find('#btn_confirm').trigger('click')
+  await wrapper.find('#app_confirmation').trigger('confirm')
+  await flushPromises()
+
+  expect(wrapper.find('#progress').exists()).toBe(false)
 
   await flushPromises()
 
@@ -331,6 +355,14 @@ test('Remove', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -348,7 +380,10 @@ test('Remove', async () => {
   expect(wrapper.find('#btn_upgrade').exists()).toBe(true)
 
   await wrapper.find('#btn_remove').trigger('click')
-  await wrapper.find('#btn_confirm').trigger('click')
+  await wrapper.find('#app_confirmation').trigger('confirm')
+  await flushPromises()
+
+  expect(wrapper.find('#progress').exists()).toBe(false)
 
   await flushPromises()
 
@@ -399,6 +434,14 @@ test('Action error', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -412,7 +455,7 @@ test('Action error', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_remove').trigger('click')
-  await wrapper.find('#btn_confirm').trigger('click')
+  await wrapper.find('#app_confirmation').trigger('confirm')
 
   await flushPromises()
 
@@ -449,7 +492,8 @@ test('Show error', async () => {
             methods: {
               showAxios: showError
             }
-          }
+          },
+          Confirmation: true
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -509,6 +553,14 @@ test('Backup', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -524,7 +576,10 @@ test('Backup', async () => {
   expect(showError).toHaveBeenCalledTimes(0)
 
   await wrapper.find('#btn_backup').trigger('click')
-  await wrapper.find('#btn_backup_confirm').trigger('click')
+  await wrapper.find('#backup_confirmation').trigger('confirm')
+  await flushPromises()
+
+  expect(wrapper.find('#progress').exists()).toBe(false)
 
   await flushPromises()
 
@@ -576,6 +631,14 @@ test('Backup error', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -589,7 +652,8 @@ test('Backup error', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_backup').trigger('click')
-  await wrapper.find('#btn_backup_confirm').trigger('click')
+  // await wrapper.find('#btn_backup_confirm').trigger('click')
+  await wrapper.find('#backup_confirmation').trigger('confirm')
 
   await flushPromises()
 
@@ -637,6 +701,14 @@ test('Backup service error', async () => {
             methods: {
               showAxios: showError
             }
+          },
+          Confirmation: {
+            template: '<span :id="id"><slot name="text"></slot></span>',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
           }
         },
         mocks: {
@@ -650,7 +722,7 @@ test('Backup service error', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_backup').trigger('click')
-  await wrapper.find('#btn_backup_confirm').trigger('click')
+  await wrapper.find('#backup_confirmation').trigger('confirm')
 
   await flushPromises()
 
