@@ -23,7 +23,6 @@
 
 <script>
 import axios from 'axios'
-import 'bootstrap'
 import Error from '../components/Error.vue'
 import { ElLoading } from 'element-plus'
 

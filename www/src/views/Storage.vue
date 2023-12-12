@@ -148,7 +148,6 @@
 
 <script>
 import axios from 'axios'
-import 'bootstrap'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import Confirmation from '../components/Confirmation.vue'
