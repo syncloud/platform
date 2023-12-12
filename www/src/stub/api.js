@@ -506,7 +506,8 @@ export function mock () {
         return new Response(200, {}, { success: true, is_running: false })
       })
       this.post('/rest/logs/send', function (_schema, _request) {
-        return new Response(200, {}, { success: true })
+        // return new Response(200, {}, { success: true })
+        return new Response(400, {}, { message: 'Cannot send logs' })
       })
       this.post('/rest/activate/managed', function (_schema, _request) {
         state.activated = true
