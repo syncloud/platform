@@ -9,7 +9,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="close">Cancel</el-button>
-        <el-button type="primary" @click="yes">Confirm</el-button>
+        <el-button id="btn_confirm" type="primary" @click="yes">Confirm</el-button>
       </span>
     </template>
   </el-dialog>

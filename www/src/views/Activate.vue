@@ -5,182 +5,159 @@
         <h1>Activate</h1>
 
         <div>
-          <div class="bs-stepper">
-            <div class="bs-stepper-header" role="tablist" style="max-width: 500px; margin: 0 auto">
-              <div class="step" data-target="#domain-type-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="domain-type-part"
-                        id="domain-type-part-trigger">
-                  <span class="bs-stepper-circle">1</span>
-                  <span class="bs-stepper-label">Type</span>
-                </button>
+          <el-steps :active="step" simple finish-status="success" style="max-width: 500px; margin: 0 auto">
+            <el-step title="Type" />
+            <el-step title="Name" />
+            <el-step title="Login" />
+          </el-steps>
+
+          <div v-if="step === 0" id="domain-type-part"  >
+            <div style="text-align: center; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center;">
+              <div class="columns">
+                <ul class="plan">
+                  <li class="description">
+                    Syncloud manages<br>your domain (like example.com)<br>
+                    Subscription is required today.
+                  </li>
+                  <li>
+                    <el-button id="btn_premium_domain" style="width: 100%;height: 40px;" type="primary" @click="selectPremiumDomain">
+                      Your name
+                    </el-button>
+                  </li>
+                </ul>
               </div>
-              <div class="line"></div>
-              <div class="step" data-target="#domain-account-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="domain-account-part"
-                        id="domain-account-part-trigger">
-                  <span class="bs-stepper-circle">2</span>
-                  <span class="bs-stepper-label">Name</span>
-                </button>
-              </div>
-              <div class="line"></div>
-              <div class="step" data-target="#device-credentials-part">
-                <button type="button" class="step-trigger" role="tab" aria-controls="device-credentials-part"
-                        id="device-credentials-part-trigger">
-                  <span class="bs-stepper-circle">3</span>
-                  <span class="bs-stepper-label">Credentials</span>
-                </button>
+              <div class="columns">
+                <ul class="plan">
+                  <li class="description">
+                    Syncloud manages<br>[name].{{ redirect_domain }} domain<br>
+                    Subscription is required in 30 days.
+                  </li>
+                  <li>
+                    <el-button id="btn_free_domain" style="width: 100%;height: 40px;" type="primary" @click="selectFreeDomain">
+                      Our name
+                    </el-button>
+                  </li>
+                </ul>
               </div>
             </div>
-            <div class="bs-stepper-content">
-              <div id="domain-type-part" class="content" role="tabpanel" aria-labelledby="domain-type-part-trigger">
-                <div style="text-align: center; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center;">
-                  <div class="columns">
-                    <ul class="plan">
-                      <li class="header">Your name</li>
-                      <li class="description">
-                        Syncloud manages<br>your domain (like example.com)<br>
-                        Subscription is required today.
-                      </li>
-                      <li>
-                        <el-button id="btn_premium_domain" class="buttongreen" type="success"
-                                   @click="selectPremiumDomain">Select
-                        </el-button>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="columns">
-                    <ul class="plan">
-                      <li class="header">Our name</li>
-                      <li class="description">
-                        Syncloud manages [name].{{ redirect_domain }} domain
-                        Subscription is required in 30 days.
-                      </li>
-                      <li>
-                        <el-button id="btn_free_domain" class="buttongreen" type="success" @click="selectFreeDomain">
-                          Select
-                        </el-button>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div id="domain-account-part" class="content formblock" role="tabpanel"
-                   aria-labelledby="domain-account-part-trigger">
-                <div v-if="domainType === 'free'">
-                  <div style="text-align: center">
-                    <h2 style="display: inline-block">Domain Account</h2>
-                    <button @click="showFreeAccountHelp" type=button class="control"
-                            style="vertical-align: super; background:transparent;">
-                      <i class='fa fa-question-circle fa-lg'></i>
-                    </button>
-                  </div>
+          </div>
 
-                  <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
-                         type="text" v-model="redirectEmail">
-                  <div class="alert alert-danger alert90" id="email_alert" style="display: none;"></div>
-                  <input :placeholder="redirect_domain + ' password'" class="passinput"
-                         id="redirect_password" type="password" v-model="redirectPassword">
-                  <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
-                  <div style=" display: flow-root">
-                    <div style="padding-right:10px; float: right">
-                      Do not have an account?
-                      <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
-                         style="line-height: 10px"
-                         target="_blank">register</a>
-                    </div>
-                  </div>
-                  <div style="text-align: center">
-                    <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showManagedDomainHelp" type=button class="control"
-                            style="vertical-align: super; background:transparent;">
-                      <i class='fa fa-question-circle fa-lg'></i>
-                    </button>
-                  </div>
-
-                  <div id="domain">
-                    <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
-                    <span>.{{ redirect_domain }}</span>
-                  </div>
-                  <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
-
-                </div>
-
-                <div v-if=" domainType === 'premium' ">
-                  <div style="text-align: center">
-                    <h2 style="display: inline-block">Syncloud Account</h2>
-                    <button @click="showPremiumAccountHelp" type="button" class="control"
-                            style="vertical-align: super; background:transparent;">
-                      <i class='fa fa-question-circle fa-lg'></i>
-                    </button>
-                  </div>
-
-                  <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
-                         type="text" v-model="redirectEmail">
-                  <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
-                  <input :placeholder="redirect_domain + ' password'" class="passinput"
-                         id="redirect_password" type="password" v-model="redirectPassword">
-                  <div class="alert alert-danger alert90" id="redirect_password_alert"
-                       style="display: none;"></div>
-
-                  <div style="text-align: center">
-                    <h2 style="display: inline-block">Device Name</h2>
-                    <button @click="showManagedDomainHelp" type=button class="control"
-                            style="vertical-align: super; background:transparent;">
-                      <i class='fa fa-question-circle fa-lg'></i>
-                    </button>
-                  </div>
-                  <div id="domain">
-                    <input placeholder="Top level domain like example.com"
-                           class="domain" id="domain_premium" type="text" style="width:100% !important;"
-                           v-model="domain">
-                  </div>
-                  <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
-
-                </div>
-
-                <div style="padding: 10px; float: left;">
-                  <el-button class="buttonblue" type="primary" @click="stepper.previous()">
-                    Previous
-                  </el-button>
-                </div>
-                <div style="padding: 10px; float: right;">
-                  <el-button id="btn_next" type="primary" class="buttonblue" @click="selectDeviceName">
-                    Next
-                  </el-button>
-                </div>
-              </div>
-              <div id="device-credentials-part" class="content formblock" role="tabpanel"
-                   aria-labelledby="device-credentials-part-trigger">
-
+          <div v-if="step === 1" id="domain-account-part">
+            <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+              <div v-if="domainType === 'free'">
                 <div style="text-align: center">
-                  <h2 style="display: inline-block">Device Credentials</h2>
-                  <button @click="showDeviceCredentialHelp" type=button class="control"
+                  <h2 style="display: inline-block">Syncloud Account</h2>
+                  <button @click="showFreeAccountHelp" type=button class="control"
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
                   </button>
                 </div>
 
-                <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername">
-                <div class="alert alert-danger alert90" id="device_username_alert" style="display: none;"></div>
-                <input placeholder="Password" class="passinput" id="device_password" type="password"
-                       v-model="devicePassword">
-                <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
+                <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
+                       type="text" v-model="redirectEmail">
+                <div class="alert alert-danger alert90" id="email_alert" style="display: none;"></div>
+                <input :placeholder="redirect_domain + ' password'" class="passinput"
+                       id="redirect_password" type="password" v-model="redirectPassword">
+                <div class="alert alert-danger alert90" id="redirect_password_alert" style="display: none;"></div>
+                <div style=" display: flow-root">
+                  <div style="padding-right:10px; float: right">
+                    Do not have an account?
+                    <a :href="'https://' + redirect_domain" class="register"
+                       target="_blank">register</a>
+                  </div>
+                </div>
+                <div style="text-align: center">
+                  <h2 style="display: inline-block">Device Name</h2>
+                  <button @click="showManagedDomainHelp" type=button class="control"
+                          style="vertical-align: super; background:transparent;">
+                    <i class='fa fa-question-circle fa-lg'></i>
+                  </button>
+                </div>
 
-                <div style="padding: 10px; float: left;">
-                  <el-button class="buttonblue" type="primary" @click="stepper.previous()">
-                    Previous
-                  </el-button>
+                <div id="domain" style="text-align: left">
+                  <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
+                  <span>.{{ redirect_domain }}</span>
                 </div>
-                <div style="padding: 10px; float: right;">
-                  <el-button id="btn_activate" class="buttonblue" type="primary" @click="activate"
-                             data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Activating...">
-                    Finish
-                  </el-button>
-                </div>
+                <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
+
               </div>
 
+              <div v-if=" domainType === 'premium' ">
+                <div style="text-align: center">
+                  <h2 style="display: inline-block">Syncloud Account</h2>
+                  <button @click="showPremiumAccountHelp" type="button" class="control"
+                          style="vertical-align: super; background:transparent;">
+                    <i class='fa fa-question-circle fa-lg'></i>
+                  </button>
+                </div>
+
+                <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
+                       type="text" v-model="redirectEmail">
+                <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
+                <input :placeholder="redirect_domain + ' password'" class="passinput"
+                       id="redirect_password" type="password" v-model="redirectPassword">
+                <div class="alert alert-danger alert90" id="redirect_password_alert"
+                     style="display: none;"></div>
+
+                <div style="text-align: center">
+                  <h2 style="display: inline-block">Device Name</h2>
+                  <button @click="showManagedDomainHelp" type=button class="control"
+                          style="vertical-align: super; background:transparent;">
+                    <i class='fa fa-question-circle fa-lg'></i>
+                  </button>
+                </div>
+                <div id="domain">
+                  <input placeholder="Top level domain like example.com"
+                         class="domain" id="domain_premium" type="text" style="width:100% !important;"
+                         v-model="domain">
+                </div>
+                <div class="alert alert-danger alert90" id="domain_alert" style="display: none;"></div>
+
+              </div>
+
+              <div style="padding: 10px; float: left;">
+                <el-button type="primary" @click="step--">
+                  Previous
+                </el-button>
+              </div>
+              <div style="padding: 10px; float: right;">
+                <el-button id="btn_next" type="primary"  @click="selectDeviceName">
+                  Next
+                </el-button>
+              </div>
             </div>
           </div>
+
+          <div v-if="step === 2" id="device-credentials-part">
+            <div style="text-align: center; max-width: 400px; margin: 0 auto;">
+
+              <div style="text-align: center">
+                <h2 style="display: inline-block">Device Credentials</h2>
+                <button @click="showDeviceCredentialHelp" type=button class="control"
+                        style="vertical-align: super; background:transparent;">
+                  <i class='fa fa-question-circle fa-lg'></i>
+                </button>
+              </div>
+
+              <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername">
+              <div class="alert alert-danger alert90" id="device_username_alert" style="display: none;"></div>
+              <input placeholder="Password" class="passinput" id="device_password" type="password"
+                     v-model="devicePassword">
+              <div class="alert alert-danger alert90" id="device_password_alert" style="display: none;"></div>
+
+              <div style="padding: 10px; float: left;">
+                <el-button type="primary" @click="step--">
+                  Previous
+                </el-button>
+              </div>
+              <div style="padding: 10px; float: right;">
+                <el-button id="btn_activate" type="primary" @click="activate">
+                  Finish
+                </el-button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -195,11 +172,10 @@
   </Dialog>
 
   <Dialog :visible="helpFreeAccountVisible" @cancel="helpFreeAccountVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Domain account</template>
+    <template v-slot:title>Syncloud account</template>
     <template v-slot:text>
-      You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
-                     target="_blank">register</a> an
-      account and subscribe to our Premium Plan no more than 30 days after the registration.
+      You need to <a :href="'https://' + redirect_domain" target="_blank" class="register">register</a> an
+      account and have a valid Subscription no more than 30 days after the registration.
       <br>
       It is only used to maintain dns records of your device.
       Data transfer happens directly between your apps and device.
@@ -207,11 +183,10 @@
   </Dialog>
 
   <Dialog :visible="helpPremiumAccountVisible" @cancel="helpPremiumAccountVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Domain account</template>
+    <template v-slot:title>Syncloud account</template>
     <template v-slot:text>
-      You need to <a :href="'https://' + redirect_domain" class="btn btn-info" role="button"
-                     target="_blank">register</a> an
-      account and subscribe to our Premium Plan.
+      You need to <a :href="'https://' + redirect_domain" target="_blank" class="register">register</a> an
+      account and have a valid Subscription.
       <br>
       It is only used to maintain dns records of your device.
       Data transfer happens directly between your apps and device.
@@ -234,8 +209,6 @@
 <script>
 import axios from 'axios'
 import $ from 'jquery'
-import 'bootstrap'
-import Stepper from 'bs-stepper'
 import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import { ElLoading } from 'element-plus'
@@ -260,16 +233,15 @@ export default {
       redirect_domain: 'syncloud.it',
       deviceUsername: '',
       devicePassword: '',
-      stepper: Stepper,
       helpManagedDomainVisible: false,
       helpFreeAccountVisible: false,
       helpPremiumAccountVisible: false,
-      helpDeviceCredentialVisible: false
+      helpDeviceCredentialVisible: false,
+      step: 0
     }
   },
   mounted () {
     this.progressShow()
-    this.stepper = new Stepper(document.querySelector('.bs-stepper'))
     axios
       .get('/rest/redirect_info')
       .then(response => {
@@ -351,11 +323,11 @@ export default {
     },
     selectPremiumDomain () {
       this.domainType = 'premium'
-      this.stepper.next()
+      this.step++
     },
     selectFreeDomain () {
       this.domainType = 'free'
-      this.stepper.next()
+      this.step++
     },
     selectDeviceName () {
       this.domainAvailability()
@@ -376,7 +348,7 @@ export default {
             domain: this.fullDomain()
           })
         .then(_ => {
-          this.stepper.next()
+          this.step++
           this.progressHide()
         })
         .catch(err => {
@@ -390,8 +362,17 @@ export default {
 <style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
-@import 'bs-stepper/dist/css/bs-stepper.css';
 @import 'font-awesome/css/font-awesome.css';
+
+.register {
+  color: #00aeef;
+  font-weight: bold;
+}
+
+.step {
+  width: 100%;
+  height: 40px;
+}
 
 input[type="text"], input[type="password"] {
   width: 100%;
@@ -401,13 +382,7 @@ input[type="text"], input[type="password"] {
   margin-bottom: 10px;
   background-color: #fff!important;
   background-size: 14px 14px;
-  -webkit-transition: all .3s ease-out;
-  -moz-transition: all .3s ease-out;
-  -o-transition: all .3s ease-out;
-  -ms-transition: all .3s ease-out;
-}
-.active .bs-stepper-circle {
-  background-color: #02a0dc;
+  transition: all .3s ease-out;
 }
 
 * {
@@ -424,7 +399,6 @@ input[type="text"], input[type="password"] {
   border: 1px solid #eee;
   margin: 0;
   padding: 0;
-  -webkit-transition: 0.3s;
   transition: 0.3s;
 }
 

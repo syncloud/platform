@@ -3,7 +3,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Activate from '../../src/views/Activate.vue'
-import { ElButton } from 'element-plus'
+import { ElButton, ElStep, ElSteps } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -50,6 +50,8 @@ test('Activate free domain', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -113,6 +115,8 @@ test('Activate free domain error', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -171,6 +175,8 @@ test('Activate free domain availability error', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -236,6 +242,8 @@ test('Activate premium domain', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -312,6 +320,8 @@ test('Activated while page is open (mostly in local dev)', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
