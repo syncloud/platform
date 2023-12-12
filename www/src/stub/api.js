@@ -512,14 +512,14 @@ export function mock () {
       this.post('/rest/activate/managed', function (_schema, _request) {
         state.activated = true
         console.debug('activated: ' + state.activated)
-        // return new Response(200, {}, { success: true })
-        return new Response(500, {}, {
-          success: false,
-          parameters_messages: [
-            { parameter: 'device_username', messages: ['login is empty'] },
-            { parameter: 'device_password', messages: ['is too short', 'has no special symbol'] }
-          ]
-        })
+        return new Response(200, {}, { success: true })
+        // return new Response(500, {}, {
+        //   success: false,
+        //   parameters_messages: [
+        //     { parameter: 'device_username', messages: ['login is empty'] },
+        //     { parameter: 'device_password', messages: ['is too short', 'has no special symbol'] }
+        //   ]
+        // })
       })
       this.post('/rest/redirect/domain/availability', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)

@@ -295,6 +295,7 @@ def test_send_logs(device, domain):
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
 
+
 def test_proxy_image(device, domain):
     response = device.login().get('https://{0}/rest/proxy/image?channel=stable&app=files'.format(domain), verify=False)
     assert response.status_code == 200
@@ -371,6 +372,7 @@ def test_rest_not_installed_app(device, domain, artifact_dir):
     with open('{0}/rest.app.not.installed.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
+
 
 def test_install_app(device, device_host):
     session = device.login()
