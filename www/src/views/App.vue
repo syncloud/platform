@@ -69,7 +69,7 @@
     </div>
   </div>
 
-  <Confirmation :visible="appActionConfirmationVisible" id="app_confirmation" @confirm="confirm"
+  <Dialog :visible="appActionConfirmationVisible" id="app_confirmation" @confirm="confirm"
                 @cancel="appActionConfirmationVisible = false">
     <template v-slot:title>
       <span id="confirm_caption">{{ action }}</span>
@@ -81,9 +81,9 @@
         </div>
       </div>
     </template>
-  </Confirmation>
+  </Dialog>
 
-  <Confirmation :visible="backupConfirmationVisible" id="backup_confirmation" @confirm="backup"
+  <Dialog :visible="backupConfirmationVisible" id="backup_confirmation" @confirm="backup"
                 @cancel="backupConfirmationVisible = false">
     <template v-slot:title>
       <span id="confirm_caption">Backup</span>
@@ -97,7 +97,7 @@
         </div>
       </div>
     </template>
-  </Confirmation>
+  </Dialog>
 
   <Error ref="error"/>
 
@@ -107,6 +107,7 @@
 import axios from 'axios'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
+import Dialog from '../components/Dialog.vue'
 
 export default {
   name: 'App',
@@ -129,6 +130,7 @@ export default {
     }
   },
   components: {
+    Dialog,
     Error
   },
   mounted () {

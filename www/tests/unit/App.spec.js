@@ -3,7 +3,8 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import App from '../../src/views/App.vue'
-import { ElButton, ElCol, ElProgress, ElRow } from 'element-plus'
+import { ElCol, ElProgress, ElRow } from 'element-plus'
+
 
 jest.setTimeout(30000)
 
@@ -50,7 +51,7 @@ test('Install', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -135,7 +136,7 @@ test('Install of the same app is already in progress on open', async () => {
               showAxios: showError
             }
           },
-          Confirmation: true
+          Dialog: true
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -209,7 +210,7 @@ test('Install of different app is already in progress on open', async () => {
               showAxios: showError
             }
           },
-          Confirmation: true
+          Dialog: true
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -276,7 +277,7 @@ test('Upgrade', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -356,7 +357,7 @@ test('Remove', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -435,7 +436,7 @@ test('Action error', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -493,7 +494,7 @@ test('Show error', async () => {
               showAxios: showError
             }
           },
-          Confirmation: true
+          Dialog: true
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -554,7 +555,7 @@ test('Backup', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -632,7 +633,7 @@ test('Backup error', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -702,7 +703,7 @@ test('Backup service error', async () => {
               showAxios: showError
             }
           },
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
