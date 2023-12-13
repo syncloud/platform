@@ -11,7 +11,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="close">{{ cancelText }}</el-button>
-        <el-button type="primary" @click="yes" v-if="confirmEnabled">Confirm</el-button>
+        <el-button id="btn_confirm" type="primary" @click="yes" v-if="confirmEnabled">Confirm</el-button>
       </span>
     </template>
   </el-dialog>
