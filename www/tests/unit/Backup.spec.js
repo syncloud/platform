@@ -34,7 +34,7 @@ test('show list of backups', async () => {
           'el-table-column': ElTableColumn,
           'el-input': ElInput,
           'el-button': ElButton,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -83,7 +83,7 @@ test('show empty list of backups', async () => {
           'el-table-column': ElTableColumn,
           'el-input': ElInput,
           'el-button': ElButton,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -144,7 +144,7 @@ test('save auto mode', async () => {
           'el-table-column': ElTableColumn,
           'el-input': ElInput,
           'el-button': ElButton,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {

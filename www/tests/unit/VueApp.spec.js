@@ -23,7 +23,8 @@ test('activated and logged in', async () => {
         RouterView: { render () { return h('div') } }
       },
       stubs: {
-        Menu: true
+        Menu: true,
+        Error: true
       },
       mocks: {
         $route: mockRoute,
@@ -53,7 +54,8 @@ test('activated and not logged in', async () => {
         RouterView: { render () { return h('div') } }
       },
       stubs: {
-        Menu: true
+        Menu: true,
+        Error: true
       },
       mocks: {
         $route: { path: '/activate' },
@@ -84,7 +86,8 @@ test('not activated and not logged in', async () => {
         RouterView: { render () { return h('div') } }
       },
       stubs: {
-        Menu: true
+        Menu: true,
+        Error: true
       },
       mocks: {
         $route: mockRoute,

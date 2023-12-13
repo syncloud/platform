@@ -30,7 +30,7 @@ test('Logs', async () => {
               showAxios: showError
             }
           },
-          Confirmation: true
+          Dialog: true
         }
       }
     }

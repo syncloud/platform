@@ -61,7 +61,7 @@ test('Update platform', async () => {
             }
           },
           Switch: true,
-          Confirmation: true
+          Dialog: true
         }
       }
     }
@@ -136,7 +136,7 @@ test('Update installer', async () => {
             }
           },
           Switch: true,
-          Confirmation: true
+          Dialog: true
         }
       }
     }
@@ -203,7 +203,7 @@ test('Update installer error', async () => {
             }
           },
           Switch: true,
-          Confirmation: true
+          Dialog: true
         }
       }
     }

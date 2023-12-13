@@ -1,66 +1,34 @@
 <template>
-  <div :id="'block_' + name" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Error</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div :id="'txt_' + name" class="btext">Some error happened!</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-            <button
-              v-if="enableLogs"
-              id="btn_error_send_logs"
-              type="button"
-              @click="sendLogs"
-              data-dismiss="modal"
-              class="btn buttonblue bwidth smbutton">Send logs
-            </button>
-          </div>
-        </div>
+  <el-dialog v-model="visible" style="min-width: 300px; max-width: 500px">
+    <template #header>
+      <h4 class="modal-title">
+        <slot name="title">Error</slot>
+      </h4>
+    </template>
+    <slot name="text">
+      <div class="bodymod">
+        <div class="btext" id="txt_error">{{ message }}</div>
       </div>
-    </div>
-  </div>
-  <div v-if="testing">
-    <label for="test_parameter1"></label>
-    <input id="test_parameter1"/>
-  </div>
+    </slot>
+    <template #footer>
+      <el-button @click="close">Close</el-button>
+      <el-button v-if="enableLogs" id="btn_error_send_logs" @click="sendLogs">Send logs</el-button>
+    </template>
+  </el-dialog>
 </template>
 <script>
-import $ from 'jquery'
-import 'bootstrap'
-
-import toastr from 'toastr'
 import axios from 'axios'
-
-function showFieldError (field, error) {
-  const txtFieldSelector = '#' + field
-  const errorBlockId = getErrorBlockId(field)
-  const errorBlockSelector = '#' + errorBlockId
-  $(errorBlockSelector).remove()
-  const errorHtml = '<div class=\'alert alert-danger alert90\' id=\'' + errorBlockId + '\'><b>' + error + '</b></div>'
-  $(errorHtml).insertAfter(txtFieldSelector)
-  $(txtFieldSelector).bind('keyup change', function () {
-    $(errorBlockSelector).remove()
-  })
-}
-
-function getErrorBlockId (field) {
-  return field + '_alert'
-}
 
 export default {
   name: 'Error',
   props: {
-    name: { type: String, default: 'error' },
-    enableLogs: { type: Boolean, default: true },
-    testing: { type: Boolean, default: false }
+    enableLogs: { type: Boolean, default: true }
+  },
+  data () {
+    return {
+      message: 'Some error happened!',
+      visible: false
+    }
   },
   methods: {
     sendLogs () {
@@ -69,6 +37,7 @@ export default {
         .catch(err => {
           console.log(err)
         })
+      this.visible = false
     },
     showAxios (err) {
       let status = 500
@@ -90,34 +59,16 @@ export default {
       let message = 'Server Error'
       if (err.response !== undefined && err.response.data !== undefined) {
         const error = err.response.data
-        if (error.parameters_messages !== undefined) {
-          for (let i = 0; i < error.parameters_messages.length; i++) {
-            const pm = error.parameters_messages[i]
-            const message = pm.messages.join('\n')
-            showFieldError(pm.parameter, message)
-          }
-          return
-        }
         if (error.message !== undefined) {
           message = error.message
         }
       }
-      $('#txt_' + this.name).text(message)
-      $('#block_' + this.name).modal()
+      this.message = message
+      this.visible = true
     },
-    showToast (error) {
-      const status = error.response.status
-      if (status === 401) {
-        this.$router.push('/login')
-      } else if (status === 0) {
-        console.log('user navigated away from the page')
-      } else {
-        let message = 'Server Error'
-        if ('data' in error.response && 'message' in error.response.data) {
-          message = error.response.data.message
-        }
-        toastr.error(message)
-      }
+    close () {
+      this.visible = false
+      this.$emit('cancel')
     }
   }
 }

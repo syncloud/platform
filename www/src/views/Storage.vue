@@ -11,7 +11,7 @@
                 <div class="spandiv" style="font-weight: bold; margin-right: 10px;">
                   <el-switch size="large" id="multi" active-text="Disks" inactive-text="Partitions" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
                 </div>
-                <button data-toggle="modal" data-target="#help_external_disk" type=button
+                <button @click="helpVisible = true" type=button
                         class="control" style="background:transparent;">
                   <i class='fa fa-question-circle fa-lg'></i>
                 </button>
@@ -74,7 +74,7 @@
   </div>
   <Error ref="error"/>
 
-  <Confirmation :visible="confirmationVisible" id="confirmation" @confirm="diskAction"
+  <Dialog :visible="confirmationVisible" id="confirmation" @confirm="diskAction"
                 @cancel="diskActionCancel">
     <template v-slot:title>
       <div v-if="multiMode">
@@ -116,48 +116,32 @@
         </el-row>
       </div>
     </template>
-  </Confirmation>
+  </Dialog>
 
-  <div id="help_external_disk" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">External disk</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div class="btext">
-              Every app is configured to use storage provided by the system (which is available at /data).
-              This setting screen allows you to choose which attached disk to use for that storage.<br>
-              When activating a disk existing data is not copied to the selected disk.<br><br>
-              You can initialize a disk by formatting it to clear all the data or to make it compatible with the system.
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-          </div>
-        </div>
+  <Dialog :visible="helpVisible" @cancel="helpVisible=false" :confirm-enabled="false" cancel-text="Close" >
+    <template v-slot:title>External disk</template>
+    <template v-slot:text>
+      <div class="btext">
+        Every app is configured to use storage provided by the system (which is available at /data).
+        This setting screen allows you to choose which attached disk to use for that storage.<br>
+        When activating a disk existing data is not copied to the selected disk.<br><br>
+        You can initialize a disk by formatting it to clear all the data or to make it compatible with the system.
       </div>
-    </div>
-  </div>
+    </template>
+  </Dialog>
 </template>
 
 <script>
 import axios from 'axios'
-import 'bootstrap'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
-import Confirmation from '../components/Confirmation.vue'
+import Dialog from '../components/Dialog.vue'
 import { ElLoading, ElNotification } from 'element-plus'
 
 export default {
   name: 'Storage',
   components: {
-    Confirmation,
+    Dialog,
     Error
   },
   props: {
@@ -172,7 +156,8 @@ export default {
       loading: undefined,
       format: false,
       activeSinglePartition: 'none',
-      activeMultiDisks: []
+      activeMultiDisks: [],
+      helpVisible: false
     }
   },
   mounted () {

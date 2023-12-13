@@ -26,7 +26,6 @@
 
 <script>
 import axios from 'axios'
-import 'bootstrap'
 
 export default {
   name: 'Network',

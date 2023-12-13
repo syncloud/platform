@@ -9,34 +9,14 @@
             <input placeholder="Login" class="nameinput" id="username" type="text" required="" v-model="username">
             <input placeholder="Password" class="passinput" id="password" type="password" required=""
                    v-model="password">
-            <button class="submit buttongreen control" id="btn_login" type="submit"
-                    data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Logging in..."
-                    @click="login"
+            <el-button class="submit control" id="btn_login"
+                       style="width: 100%; height: 40px;"
+                       :loading="loading"
+                       type="success"
+                       @click="login"
             >Log in
-            </button>
+            </el-button>
           </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="block_error" class="modal fade bs-are-use-sure" tabindex="-1" role="dialog"
-       aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-            aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Error</h4>
-        </div>
-        <div class="modal-body">
-          <div class="bodymod">
-            <div id="txt_error" class="btext">Some error happened!</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn buttonlight bwidth smbutton" data-dismiss="modal">Close</button>
-            <button id="btn_error_send_logs" type="button" class="btn buttonblue bwidth smbutton">Send logs</button>
-          </div>
         </div>
       </div>
     </div>
@@ -47,10 +27,8 @@
 </template>
 
 <script>
-import $ from 'jquery'
 import Error from '../components/Error.vue'
 import axios from 'axios'
-import 'bootstrap'
 
 export default {
   name: 'Login',
@@ -70,22 +48,16 @@ export default {
   },
   methods: {
     login: function (event) {
+      this.loading = true
       const error = this.$refs.error
-      event.preventDefault()
-      const btn = $('#btn_login')
-      btn.button('loading')
-      $('#form-login input').prop('disabled', true)
-      $('#form-login .alert').remove()
       axios.post('/rest/login', { username: this.username, password: this.password })
         .then(_ => {
-          btn.button('reset')
-          $('#form-login input').prop('disabled', false)
+          this.loading = false
           this.checkUserSession()
           this.$router.push('/')
         })
         .catch(err => {
-          btn.button('reset')
-          $('#form-login input').prop('disabled', false)
+          this.loading = false
           error.showAxios(err)
         })
     }
@@ -102,7 +74,7 @@ input[type="text"], input[type="password"] {
   border-radius: 3px;
   border: 1px solid #dcdee0;
   margin-bottom: 10px;
-  background-color: #fff!important;
+  background-color: #fff !important;
   background-size: 14px 14px;
   -webkit-transition: all .3s ease-out;
   -moz-transition: all .3s ease-out;

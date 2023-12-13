@@ -3,6 +3,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Login from '../../src/views/Login.vue'
+import { ElButton } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -35,8 +36,8 @@ test('Login', async () => {
             methods: {
               showAxios: showError
             }
-          }
-
+          },
+          'el-button': ElButton
         },
         mocks: {
           $route: { path: '/login' },

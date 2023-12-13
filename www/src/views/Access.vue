@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <Dialog ref="access_port_info">
+  <Dialog :visible="accessPortInfoVisible" @cancel="accessPortInfoVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>Access port</template>
     <template v-slot:text>
       If your Syncloud device is not visible directly from the Internet you will need to create a port mapping on your
@@ -104,27 +104,27 @@
       Ideally port 443 on your router should be mapped to port 443 on your device.
     </template>
   </Dialog>
-  <Dialog ref="access_port_warning">
+  <Dialog :visible="accessPortWarningVisible" @cancel="accessPortWarningVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>Access port warning</template>
     <template v-slot:text>
       Access port is not default 443.
       You may not be able to access your device from networks with strict firewalls allowing only port 443.
     </template>
   </Dialog>
-  <Dialog ref="ipv4_info">
+  <Dialog :visible="ipv4InfoVisible" @cancel="ipv4InfoVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>IP v4</template>
     <template v-slot:text>
       Enables IP v4 DNS record and allows you to control which IP v4 address (public/private) is used for DNS.
       <br><br>
-      Syncloud DNS service verifies open public ip/port (internet accessibility) for convenience on save.
+      Syncloud DNS service verifies open public ip/port (Internet accessibility) for convenience on save.
     </template>
   </Dialog>
-  <Dialog ref="ipv6_info">
+  <Dialog :visible="ipv6InfoVisible" @cancel="ipv6InfoVisible = false" :confirm-enabled="false" cancel-text="Close">
     <template v-slot:title>IP v6</template>
     <template v-slot:text>
       Enables IP v6 DNS record.
       <br><br>
-      Syncloud DNS service verifies device connection (internet accessibility) for convenience on save.
+      Syncloud DNS service verifies device connection (Internet accessibility) for convenience on save.
     </template>
   </Dialog>
 
@@ -170,7 +170,11 @@ export default {
       ipv4Enabled: undefined,
       ipv4Public: undefined,
       ipv6Enabled: undefined,
-      loading: undefined
+      loading: undefined,
+      accessPortInfoVisible: false,
+      accessPortWarningVisible: false,
+      ipv4InfoVisible: false,
+      ipv6InfoVisible: false
     }
   },
   components: {
@@ -197,16 +201,16 @@ export default {
       this.loading.close()
     },
     showAccessPortWarning () {
-      this.$refs.access_port_warning.show()
+      this.accessPortWarningVisible = true
     },
     showIpv4Info () {
-      this.$refs.ipv4_info.show()
+      this.ipv4InfoVisible = true
     },
     showIpv6Info () {
-      this.$refs.ipv6_info.show()
+      this.ipv6InfoVisible = true
     },
     showPortInfo () {
-      this.$refs.access_port_info.show()
+      this.accessPortInfoVisible = true
     },
     reload () {
       const that = this
