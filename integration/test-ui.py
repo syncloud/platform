@@ -48,7 +48,7 @@ def test_fake_cert(selenium, device, device_host):
     device.run_ssh('rm /var/snap/platform/current/syncloud.crt')
     device.run_ssh('snap run platform.cli cert')
     device.run_ssh('snap restart platform')
-    wait_for_rest(requests.session(), "https://{0}".format(device_host), 200, 10)
+    wait_for_rest(requests.session(), "https://{0}/rest/activation/status".format(device_host), 200, 10)
     selenium.driver.get("https://{0}".format(device_host))
     selenium.screenshot('fake-cert')
 
