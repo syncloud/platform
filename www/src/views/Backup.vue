@@ -63,7 +63,7 @@
     </div>
   </div>
 
-  <Confirmation :visible="confirmationVisible" id="confirmation" @confirm="submit"
+  <Dialog :visible="confirmationVisible" id="confirmation" @confirm="submit"
                 @cancel="confirmationVisible = false">
     <template v-slot:title>
       <span v-if="action === 'restore'">Restore</span>
@@ -77,14 +77,14 @@
         </div>
       </div>
     </template>
-  </Confirmation>
+  </Dialog>
 
 </template>
 
 <script>
 import axios from 'axios'
 import * as Common from '../js/common.js'
-import Confirmation from '../components/Confirmation.vue'
+import Dialog from '../components/Dialog.vue'
 import Notification from '../components/Notification.vue'
 import { ElLoading } from 'element-plus'
 
@@ -113,7 +113,7 @@ export default {
     }
   },
   components: {
-    Confirmation
+    Dialog
   },
   mounted () {
     this.progressShow()
