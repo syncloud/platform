@@ -30,7 +30,7 @@ test('Certificate logs', async () => {
               showAxios: showError
             }
           },
-          Confirmation: true
+          Dialog: true
         }
       }
     }

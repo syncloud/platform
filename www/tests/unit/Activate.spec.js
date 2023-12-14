@@ -3,7 +3,7 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Activate from '../../src/views/Activate.vue'
-import { ElButton } from 'element-plus'
+import { ElButton, ElStep, ElSteps } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -50,6 +50,8 @@ test('Activate free domain', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -113,6 +115,8 @@ test('Activate free domain error', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -139,10 +143,6 @@ test('Activate free domain error', async () => {
 })
 
 test('Activate free domain availability error', async () => {
-  let error = ''
-  const showError = (err) => {
-    error = err.response.data.parameters_messages[0].messages[0]
-  }
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
@@ -163,14 +163,11 @@ test('Activate free domain availability error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          Error: {
-            template: '<span/>',
-            methods: {
-              showAxios: showError
-            }
-          },
+          Error: true,
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -188,7 +185,7 @@ test('Activate free domain availability error', async () => {
 
   await flushPromises()
 
-  expect(error).toBe('domain is already taken')
+  expect(wrapper.find('#domain_alert').text()).toBe('domain is already taken')
 
   wrapper.unmount()
 })
@@ -236,6 +233,8 @@ test('Activate premium domain', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -312,6 +311,8 @@ test('Activated while page is open (mostly in local dev)', async () => {
           },
           Dialog: true,
           'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter

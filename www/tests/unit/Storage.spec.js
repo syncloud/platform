@@ -65,7 +65,7 @@ test('Activate partition', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -140,7 +140,7 @@ test('Deactivate partition', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -225,7 +225,7 @@ test('Activate partition error', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
-          Confirmation: {
+          Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
             methods: {
@@ -311,7 +311,7 @@ test('Activate partition service error', async () => {
           'el-radio-group': ElRadioGroup,
           'el-checkbox': ElCheckbox,
           'el-checkbox-group': ElCheckboxGroup,
-          Confirmation: {
+          Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
             methods: {
@@ -397,7 +397,7 @@ test('Activate disks', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -486,7 +486,7 @@ test('Activate disks error', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -563,7 +563,7 @@ test('Deactivate disks', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
             methods: {
@@ -644,7 +644,7 @@ test('Show single partition', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
             methods: {
@@ -718,7 +718,7 @@ test('Show single partition none', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
             methods: {
@@ -793,7 +793,7 @@ test('Show multi disk', async () => {
           'el-checkbox-group': ElCheckboxGroup,
           'el-row': ElRow,
           'el-col': ElCol,
-          Confirmation: {
+          Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
             methods: {

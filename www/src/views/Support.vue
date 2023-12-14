@@ -8,16 +8,23 @@
           <div class="col2">
             <div class="setline">
               <span class="span">Send a copy to support</span>
-              <el-switch id="switch" size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;" active-text="Yes" inactive-text="No" inline-prompt />
+              <el-switch id="switch" size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;"
+                         active-text="Yes" inactive-text="No" inline-prompt/>
             </div>
             <div class="setline">
               <span class="span">Report Issue:</span>
-              <button
-                id="send"
-                class="buttonblue bwidth smbutton"
-                @click="sendLogs"
-                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs
-              </button>
+              <!--              <button
+                              id="send"
+                              class="buttonblue bwidth smbutton"
+                              @click="sendLogs"
+                              data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs
+                            </button>-->
+              <el-button id="send"
+                         :loading="loading"
+                         type="primary"
+                         @click="sendLogs">
+                Send logs
+              </el-button>
             </div>
           </div>
         </div>
@@ -25,14 +32,12 @@
     </div>
   </div>
 
-  <Error ref="error"/>
+  <Error ref="error" :enable-logs="false"/>
 
 </template>
 
 <script>
 import axios from 'axios'
-import $ from 'jquery'
-import 'bootstrap'
 import Error from '../components/Error.vue'
 
 export default {
@@ -46,21 +51,24 @@ export default {
   },
   data () {
     return {
-      includeSupport: false
+      includeSupport: false,
+      loading: false
     }
   },
   mounted () {
   },
   methods: {
     sendLogs () {
-      const btn = $('#send')
-      btn.button('loading')
+      this.loading = true
       axios
         .post('/rest/logs/send', null, { params: { include_support: this.includeSupport } })
         .then(_ => {
-          btn.button('reset')
+          this.loading = false
         })
-        .catch(this.$refs.error.showAxios)
+        .catch(err => {
+          this.loading = false
+          this.$refs.error.showAxios(err)
+        })
     }
   }
 }

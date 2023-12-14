@@ -1,7 +1,7 @@
 <template>
   <Menu v-bind:activeTab="currentPath" v-bind:checkUserSession="checkUserSession" v-bind:loggedIn="loggedIn"/>
   <router-view v-bind:checkUserSession="checkUserSession" :activated="activated"/>
-  <Error ref="app_error" name="app_error"/>
+  <Error ref="app_error"/>
 </template>
 <script>
 import axios from 'axios'

@@ -33,7 +33,6 @@
 </template>
 
 <script>
-import 'bootstrap'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'

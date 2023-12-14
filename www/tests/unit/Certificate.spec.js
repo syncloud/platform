@@ -35,7 +35,7 @@ test('Certificate', async () => {
               showAxios: showError
             }
           },
-          Confirmation: true
+          Dialog: true
         },
         mocks: {
           $router: mockRouter

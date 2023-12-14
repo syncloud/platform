@@ -3,10 +3,12 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Error from '../../src/components/Error.vue'
+import { ElButton, ElDialog } from 'element-plus'
 
 jest.setTimeout(30000)
 
 test('Send', async () => {
+  const mockRouter = { push: jest.fn() }
   let sent = false
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/logs/send').reply(function (_) {
@@ -16,9 +18,21 @@ test('Send', async () => {
 
   const wrapper = mount(Error,
     {
-      attachTo: document.body
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        },
+        mocks: {
+          $route: { path: '/' },
+          $router: mockRouter
+        }
+      }
     }
   )
+
+  await wrapper.vm.showAxios({ response: { status: 400 } })
 
   await wrapper.find('#btn_error_send_logs').trigger('click')
   await flushPromises()
@@ -33,6 +47,10 @@ test('Unauthorised', async () => {
     {
       attachTo: document.body,
       global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        },
         mocks: {
           $route: { path: '/app' },
           $router: mockRouter
@@ -53,6 +71,10 @@ test('Not activated', async () => {
     {
       attachTo: document.body,
       global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        },
         mocks: {
           $route: { path: '/' },
           $router: mockRouter
@@ -69,7 +91,17 @@ test('Not activated', async () => {
 
 test('No data', async () => {
   const mockRouter = { push: jest.fn() }
-  const wrapper = mount(Error, { attachTo: document.body })
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        }
+      }
+    }
+  )
 
   await wrapper.vm.showAxios({ response: { status: 500 } })
 
@@ -81,7 +113,16 @@ test('No data', async () => {
 
 test('No response', async () => {
   const mockRouter = { push: jest.fn() }
-  const wrapper = mount(Error, { attachTo: document.body })
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        }
+      }
+    })
 
   await wrapper.vm.showAxios({ })
 
@@ -93,7 +134,16 @@ test('No response', async () => {
 
 test('No message', async () => {
   const mockRouter = { push: jest.fn() }
-  const wrapper = mount(Error, { attachTo: document.body })
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        }
+      }
+    })
 
   await wrapper.vm.showAxios({ response: { status: 500, data: {} } })
 
@@ -105,7 +155,16 @@ test('No message', async () => {
 
 test('Message', async () => {
   const mockRouter = { push: jest.fn() }
-  const wrapper = mount(Error, { attachTo: document.body })
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        }
+      }
+    })
 
   await wrapper.vm.showAxios({ response: { status: 500, data: { message: 'test error' } } })
 
@@ -117,7 +176,16 @@ test('Message', async () => {
 
 test('Show send logs by default', async () => {
   const mockRouter = { push: jest.fn() }
-  const wrapper = mount(Error, { attachTo: document.body })
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          'el-dialog': ElDialog,
+          'el-button': ElButton
+        }
+      }
+    })
 
   await wrapper.vm.showAxios({ response: { status: 500, data: { message: 'test error' } } })
 
@@ -132,6 +200,12 @@ test('Disable send logs', async () => {
   const mockRouter = { push: jest.fn() }
   const wrapper = mount(Error, {
     attachTo: document.body,
+    global: {
+      stubs: {
+        'el-dialog': ElDialog,
+        'el-button': ElButton
+      }
+    },
     propsData: {
       enableLogs: false
     }
@@ -142,68 +216,6 @@ test('Disable send logs', async () => {
   expect(mockRouter.push).toHaveBeenCalledTimes(0)
   expect(wrapper.find('#txt_error').text()).toBe('test error')
   expect(wrapper.find('#btn_error_send_logs').exists()).toBe(false)
-
-  wrapper.unmount()
-})
-
-test('Parameters message', async () => {
-  const mockRouter = { push: jest.fn() }
-
-  const wrapper = mount(Error, {
-    attachTo: document.body,
-    props: {
-      testing: true
-    }
-  })
-
-  await wrapper.vm.showAxios({
-    response: {
-      status: 500,
-      data: { parameters_messages: [{ parameter: 'test_parameter1', messages: ['1', '2'] }] }
-    }
-  })
-  await flushPromises()
-
-  expect(mockRouter.push).toHaveBeenCalledTimes(0)
-
-  expect(wrapper.find('#test_parameter1').exists()).toBe(true)
-
-  expect(wrapper.find('#test_parameter1_alert').text()).toBe('1\n2')
-
-  wrapper.unmount()
-})
-
-test('Parameters message clean', async () => {
-  const mockRouter = { push: jest.fn() }
-
-  const wrapper = mount(Error, {
-    attachTo: document.body,
-    props: {
-      testing: true
-    }
-  })
-
-  await wrapper.vm.showAxios({
-    response: {
-      status: 500,
-      data: { parameters_messages: [{ parameter: 'test_parameter1', messages: ['1', '2'] }] }
-    }
-  })
-  await wrapper.vm.showAxios({
-    response: {
-      status: 500,
-      data: { parameters_messages: [{ parameter: 'test_parameter1', messages: ['3', '4'] }] }
-    }
-  })
-  await flushPromises()
-
-  expect(mockRouter.push).toHaveBeenCalledTimes(0)
-
-  expect(wrapper.find('#test_parameter1').exists()).toBe(true)
-
-  const alerts = wrapper.findAll('#test_parameter1_alert')
-  expect(alerts.length).toBe(1)
-  expect(alerts[0].text()).toBe('3\n4')
 
   wrapper.unmount()
 })
