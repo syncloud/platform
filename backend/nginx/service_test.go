@@ -53,5 +53,5 @@ func TestSubstitution(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Contains(t, string(contents), "server_name example\\.com;")
-	assert.Contains(t, string(contents), "server_name ~^(?P<app>.*)\\.example\\.com$;")
+	assert.Contains(t, string(contents), "server_name ~^(.*\.)?(?P<app>.*)\\.example\\.com$;")
 }
