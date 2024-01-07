@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 BOOT_PARTITION_INFO=$(lsblk -pP -o PKNAME,NAME,MOUNTPOINT | grep 'MOUNTPOINT="/"')
 DEVICE=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f1 | cut -d'=' -f2 | tr -d '"')
