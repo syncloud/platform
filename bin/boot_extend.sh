@@ -1,5 +1,10 @@
 #!/bin/bash -xe
 
+if grep -q docker /proc/1/cgroup; then 
+  echo "docker: not extending boot"
+  exit 0
+else
+
 BOOT_PARTITION_INFO=$(lsblk -pP -o PKNAME,NAME,MOUNTPOINT | grep 'MOUNTPOINT="/"')
 DEVICE=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f1 | cut -d'=' -f2 | tr -d '"')
 PARTITION=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f2 | cut -d'=' -f2 | tr -d '"')
