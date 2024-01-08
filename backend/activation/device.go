@@ -18,6 +18,7 @@ type Device struct {
 	nginx                *nginx.Nginx
 	trigger              *event.Trigger
 	cookies              Cookies
+	internalMemory       InternalMemory
 }
 
 type Cookies interface {
@@ -37,24 +38,36 @@ type DeviceActivation interface {
 	ActivateDevice(username string, password string, name string, email string) error
 }
 
+type InternalMemory interface {
+	BootExtend() error
+}
+
 func NewDevice(
 	config DevicePlatformUserConfig,
 	auth *auth.Service,
 	nginx *nginx.Nginx,
 	trigger *event.Trigger,
 	cookies Cookies,
+	internalMemory InternalMemory,
 ) *Device {
 	return &Device{
-		config:  config,
-		auth:    auth,
-		nginx:   nginx,
-		trigger: trigger,
-		cookies: cookies,
+		config:         config,
+		auth:           auth,
+		nginx:          nginx,
+		trigger:        trigger,
+		cookies:        cookies,
+		internalMemory: internalMemory,
 	}
 }
 
 func (d *Device) ActivateDevice(username string, password string, name string, email string) error {
-	err := d.resetAccess()
+
+	err := d.internalMemory.BootExtend()
+	if err != nil {
+		return err
+	}
+
+	err = d.resetAccess()
 	if err != nil {
 		return err
 	}

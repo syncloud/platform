@@ -298,17 +298,20 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	err = c.Singleton(func(userConfig *config.UserConfig) *session.Cookies {
 		return session.New(userConfig, logger)
 	})
-
 	if err != nil {
 		return nil, err
 	}
+
 	err = c.Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
-		eventTrigger *event.Trigger, cookies *session.Cookies) *activation.Device {
-		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger, cookies)
+		eventTrigger *event.Trigger, cookies *session.Cookies,
+		storage *storage.Storage,
+	) *activation.Device {
+		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger, cookies, storage)
 	})
 	if err != nil {
 		return nil, err
 	}
+
 	err = c.Singleton(func() connection.InternetChecker { return connection.NewInternetChecker() })
 	if err != nil {
 		return nil, err
