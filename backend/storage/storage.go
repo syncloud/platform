@@ -5,7 +5,6 @@ import (
 	"github.com/syncloud/platform/cli"
 	"go.uber.org/zap"
 	"io/fs"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -43,20 +42,21 @@ func New(config LinkConfig, executor cli.Executor, chownLimit int, logger *zap.L
 }
 
 func (s *Storage) Format(device string) error {
-	log.Println("Running storage format: ", FormatCmd, device)
+	s.logger.Info("format", zap.String("cmd", FormatCmd), zap.String("device", device))
 	out, err := exec.Command(FormatCmd, device).CombinedOutput()
-	log.Printf("Storage format output %s", out)
+	s.logger.Info("format", zap.String("output", string(out)))
 	return err
 }
 
 func (s *Storage) BootExtend() error {
-	log.Println("Running storage boot extend: ", BootExtendCmd)
-	out, err := exec.Command(BootExtendCmd).CombinedOutput()
-	log.Printf("Storage boot extend output %s", out)
-	if err != nil {
-		return err
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		s.logger.Info("boot extend is not supported under docker")
+		return nil
 	}
-	return nil
+	s.logger.Info("boot extend", zap.String("cmd", BootExtendCmd))
+	out, err := exec.Command(BootExtendCmd).CombinedOutput()
+	s.logger.Info("boot extend", zap.String("output", string(out)))
+	return err
 }
 
 func (s *Storage) GetAppStorageDir(app string) string {
@@ -85,6 +85,7 @@ func (s *Storage) ChownRecursive(path, user string) (bool, error) {
 	})
 
 	if err != nil {
+		s.logger.Error("fixing permissions", zap.Error(err))
 		return false, nil
 	}
 	_, err = s.executor.CombinedOutput("chown", "-RLf", fmt.Sprintf("%s.%s", user, user), path)
