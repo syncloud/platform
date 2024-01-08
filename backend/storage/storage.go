@@ -49,6 +49,10 @@ func (s *Storage) Format(device string) error {
 }
 
 func (s *Storage) BootExtend() error {
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		s.logger.Info("boot extend is not supported under docker")
+		return nil
+	}
 	s.logger.Info("boot extend", zap.String("cmd", BootExtendCmd))
 	out, err := exec.Command(BootExtendCmd).CombinedOutput()
 	s.logger.Info("boot extend", zap.String("output", string(out)))
