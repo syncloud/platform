@@ -2,6 +2,7 @@ local name = "platform";
 local browser = "chrome";
 local go = "1.18.2-buster";
 local node = "16.10.0";
+local deployer = "https://github.com/syncloud/store/releases/download/4/syncloud-release";
 
 local build(arch, testUI) = [{
     kind: "pipeline",
@@ -61,7 +62,7 @@ local build(arch, testUI) = [{
             name: "build api test",
             image: "golang:" + go,
             commands: [
-                "cd integration/api",
+                "cd test/api",
                 "go test -c -o api.test"
             ]
         },
@@ -71,17 +72,17 @@ local build(arch, testUI) = [{
             commands: [
                 "VERSION=$(cat version)",
                 "./package.sh $VERSION",
-                "./integration/testapp/build.sh "
+                "./test/testapp/build.sh "
             ]
         }
     ] + [
         {
-            name: "test-backend",
+            name: "test",
             image: "python:3.8-slim-buster",
             commands: [
-              "cd integration",
+              "cd test",
               "./deps.sh",
-              "py.test -x -s verify.py --domain="+arch+" --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
+              "py.test -x -s test.py --domain="+arch+" --app-archive-path=$(realpath ../*.snap) --app=" + name + " --arch=" + arch + " --redirect-user=redirect --redirect-password=redirect"
             ]
         }
     ] + ( if testUI then [
@@ -108,7 +109,7 @@ local build(arch, testUI) = [{
             name: "test-ui-" + mode,
             image: "python:3.8-slim-buster",
             commands: [
-              "cd integration",
+              "cd test",
               "./deps.sh",
               "py.test -x -s test-ui.py --ui-mode=" + mode + " --domain="+arch+" --redirect-user=redirect --redirect-password=redirect --app=" + name + " --browser=" + browser
             ],
@@ -126,7 +127,7 @@ local build(arch, testUI) = [{
         image: "python:3.8-slim-buster",
         commands: [
           "APP_ARCHIVE_PATH=$(realpath $(cat package.name))",
-          "cd integration",
+          "cd test",
           "./deps.sh",
           "py.test -x -s test-upgrade.py --domain="+arch+" --app-archive-path=$APP_ARCHIVE_PATH --app=" + name
         ],
@@ -135,36 +136,58 @@ local build(arch, testUI) = [{
             name: "videos",
             path: "/videos"
         }]
-    } 
-] + [
-        {
-            name: "upload",
-            image: "debian:buster-slim",
-            environment: {
-                AWS_ACCESS_KEY_ID: {
-                    from_secret: "AWS_ACCESS_KEY_ID"
-                },
-                AWS_SECRET_ACCESS_KEY: {
-                    from_secret: "AWS_SECRET_ACCESS_KEY"
-                }
-            },
-            commands: [
-              "PACKAGE=$(cat package.name)",
-              "apt update && apt install -y wget",
-              "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch + " -O release --progress=dot:giga",
-              "chmod +x release",
-              "./release publish -f $PACKAGE -b $DRONE_BRANCH"
-            ],
-            when: {
-                branch: [
-                    "stable",
-                    "master"
-                ],
-                event: [
-                    "push"
-                ]
-            }
-        },
+    },
+    {
+             name: "upload",
+             image: "debian:buster-slim",
+             environment: {
+                 AWS_ACCESS_KEY_ID: {
+                     from_secret: "AWS_ACCESS_KEY_ID"
+                 },
+                 AWS_SECRET_ACCESS_KEY: {
+                     from_secret: "AWS_SECRET_ACCESS_KEY"
+                 },
+                 SYNCLOUD_TOKEN: {
+                          from_secret: "SYNCLOUD_TOKEN"
+                      }
+             },
+             commands: [
+                 "PACKAGE=$(cat package.name)",
+                 "apt update && apt install -y wget",
+                 "wget " + deployer + "-" + arch + " -O release --progress=dot:giga",
+                 "chmod +x release",
+                 "./release publish -f $PACKAGE -b $DRONE_BRANCH"
+             ],
+             when: {
+                 branch: ["stable", "master"],
+     	    event: [ "push" ]
+     }
+         },
+         {
+                 name: "promote",
+                 image: "debian:buster-slim",
+                 environment: {
+                     AWS_ACCESS_KEY_ID: {
+                         from_secret: "AWS_ACCESS_KEY_ID"
+                     },
+                     AWS_SECRET_ACCESS_KEY: {
+                         from_secret: "AWS_SECRET_ACCESS_KEY"
+                     },
+                      SYNCLOUD_TOKEN: {
+                          from_secret: "SYNCLOUD_TOKEN"
+                      }
+                 },
+                 commands: [
+                   "apt update && apt install -y wget",
+                   "wget " + deployer + "-" + arch + " -O release --progress=dot:giga",
+                   "chmod +x release",
+                   "./release promote -n " + name + " -a $(dpkg --print-architecture)"
+                 ],
+                 when: {
+                     branch: ["stable"],
+                     event: ["push"]
+                 }
+           },
         {
             name: "artifact",
             image: "appleboy/drone-scp:1.6.4",
@@ -277,41 +300,7 @@ local build(arch, testUI) = [{
             temp: {}
         }
     ]
-},
- {
-     kind: "pipeline",
-     type: "docker",
-     name: "promote-" + arch,
-     platform: {
-         os: "linux",
-         arch: arch
-     },
-     steps: [
-     {
-             name: "promote",
-             image: "debian:buster-slim",
-             environment: {
-                 AWS_ACCESS_KEY_ID: {
-                     from_secret: "AWS_ACCESS_KEY_ID"
-                 },
-                 AWS_SECRET_ACCESS_KEY: {
-                     from_secret: "AWS_SECRET_ACCESS_KEY"
-                 }
-             },
-             commands: [
-               "apt update && apt install -y wget",
-               "wget https://github.com/syncloud/snapd/releases/download/1/syncloud-release-" + arch + " -O release --progress=dot:giga",
-               "chmod +x release",
-               "./release promote -n " + name + " -a $(dpkg --print-architecture)"
-             ]
-       }
-      ],
-      trigger: {
-       event: [
-         "promote"
-       ]
-     }
- }];
+}];
 
 build("amd64", true) +
 build("arm64", false) +

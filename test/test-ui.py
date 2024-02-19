@@ -245,7 +245,7 @@ def test_settings_deactivate(selenium, device_host,
     selenium.screenshot('reactivate-index')
 
 def test_permission_denied(selenium, device, ui_mode):
-    device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /integration/test.{0}.ldif'.format(ui_mode))
+    device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /test/test.{0}.ldif'.format(ui_mode))
     menu(selenium, 'logout')
     selenium.find_by_xpath("//h1[text()='Log in']")
     selenium.find_by_id("username").send_keys("test{0}".format(ui_mode))
