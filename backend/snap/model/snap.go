@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Snap struct {
@@ -26,12 +27,13 @@ func (s *Snap) ToInstalledApp(url string) SyncloudAppVersions {
 }
 
 func (s *Snap) toSyncloudApp(url string) SyncloudAppVersions {
+	icon := strings.TrimPrefix(s.Channel, "latest/")
 	return SyncloudAppVersions{
 		App: SyncloudApp{
 			Id:   s.Name,
 			Name: s.Summary,
 			Url:  url,
-			Icon: fmt.Sprintf("/rest/proxy/image?channel=%s&app=%s", s.Channel, s.Name),
+			Icon: fmt.Sprintf("/rest/proxy/image?channel=%s&app=%s", icon, s.Name),
 		},
 	}
 }
