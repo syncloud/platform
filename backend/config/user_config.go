@@ -463,6 +463,10 @@ func (c *UserConfig) SetCustomDomain(domain string) {
 	c.Upsert("platform.custom_domain", domain)
 }
 
+func (c *UserConfig) GetDeviceDomainNil() *string {
+	return c.getDomain()
+}
+
 func (c *UserConfig) GetDeviceDomain() string {
 	result := "localhost"
 	if c.IsRedirectEnabled() {
@@ -482,4 +486,28 @@ func (c *UserConfig) GetDeviceDomain() string {
 		}
 	}
 	return result
+}
+
+func (c *UserConfig) DeviceUrl() string {
+	port := c.GetPublicPort()
+	domain := c.GetDeviceDomain()
+	return ConstructUrl(port, domain)
+}
+
+func ConstructUrl(port *int, domain string) string {
+	externalPort := ""
+	if port != nil && *port != 80 && *port != 443 {
+		externalPort = fmt.Sprintf(":%d", *port)
+	}
+	return fmt.Sprintf("https://%s%s", domain, externalPort)
+}
+
+func (c *UserConfig) AppDomain(app string) string {
+	return fmt.Sprintf("%s.%s", app, c.GetDeviceDomain())
+}
+
+func (c *UserConfig) Url(app string) string {
+	port := c.GetPublicPort()
+	domain := c.GetDeviceDomain()
+	return ConstructUrl(port, fmt.Sprintf("%s.%s", app, domain))
 }

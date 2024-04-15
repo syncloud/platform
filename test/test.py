@@ -36,6 +36,7 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
         device.run_ssh('snap run platform.cli ipv4 public > {0}/cli.ipv4.public.log'.format(TMP_DIR), throw=False)
         device.run_ssh('snap run platform.cli config list > {0}/cli.config.list.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ps auxfw > {0}/ps.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('cp /var/snap/platform/current/config/authelia/config.yml {0}/authelia.config.yml.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ls -la /var/snap/platform/common/ > {0}/snap.common.ls.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ls -la /var/snap/platform/current/ > {0}/snap.data.ls.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ls -la /snap/platform/current/ > {0}/snap.ls.log'.format(TMP_DIR), throw=False)
@@ -49,7 +50,8 @@ def module_setup(request, data_dir, device, app_dir, artifact_dir):
     request.addfinalizer(module_teardown)
 
 
-def test_start(module_setup, device, app, domain, device_host):
+def test_start(module_setup, device, app, domain, device_host, full_domain):
+    add_host_alias(app, device_host, full_domain)
     add_host_alias(app, device_host, domain)
     add_host_alias("app", device_host, domain)
     device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
@@ -76,9 +78,12 @@ def test_https_port_validation_url(device_host):
     assert response.text == 'OK'
 
 
-def test_non_activated_device_login_redirect_to_activation(device_host):
-    response = requests.post('https://{0}/rest/login'.format(device_host), allow_redirects=False, verify=False)
-    assert response.status_code == 501
+def test_non_activated_device_login_redirect_to_activation(full_domain):
+    def login():
+        response = requests.post('https://{0}/rest/login'.format(full_domain), verify=False)
+        if response.status_code != 501:
+            raise Exception()
+    retry(login)
 
 
 def test_activation_status_false(device_host):

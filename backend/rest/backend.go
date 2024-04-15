@@ -12,7 +12,6 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/network"
@@ -45,7 +44,6 @@ type Backend struct {
 	changesClient   *snap.ChangesClient
 	disks           *storage.Disks
 	journalCtl      *systemd.Journal
-	deviceInfo      *info.Device
 	executor        *cli.ShellExecutor
 	iface           *network.TcpInterfaces
 	support         *support.Sender
@@ -63,7 +61,7 @@ func NewBackend(
 	redirect *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
-	disks *storage.Disks, journalCtl *systemd.Journal, deviceInfo *info.Device, executor *cli.ShellExecutor,
+	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
@@ -85,7 +83,6 @@ func NewBackend(
 		snapd:           snapd,
 		disks:           disks,
 		journalCtl:      journalCtl,
-		deviceInfo:      deviceInfo,
 		executor:        executor,
 		iface:           iface,
 		support:         support,
@@ -447,7 +444,7 @@ func (b *Backend) Logs(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) DeviceUrl(_ *http.Request) (interface{}, error) {
-	return b.deviceInfo.DeviceUrl(), nil
+	return b.userConfig.DeviceUrl(), nil
 }
 
 func (b *Backend) Restart(_ *http.Request) (interface{}, error) {

@@ -10,7 +10,6 @@ import (
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/network"
@@ -33,13 +32,13 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
-		deviceInfo *info.Device, executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
+		executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
 		proxy *rest.Proxy, middleware *rest.Middleware, ldapService *auth.Service, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
-			snapd, disks, journalCtl, deviceInfo, executor, iface, sender, proxy,
+			snapd, disks, journalCtl, executor, iface, sender, proxy,
 			ldapService, middleware, cookies, net, address, changesClient, logger)
 	})
 	if err != nil {

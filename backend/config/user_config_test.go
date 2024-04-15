@@ -190,3 +190,44 @@ func TestDefaultString(t *testing.T) {
 	config.Upsert("unknown", "test")
 	assert.Equal(t, "test", config.GetOrDefaultString("unknown", "test"))
 }
+
+func TestDeviceUrl(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.SetCustomDomain("domain.tld")
+	port := 443
+	config.SetPublicPort(&port)
+	url := config.DeviceUrl()
+	assert.Equal(t, "https://domain.tld", url)
+}
+
+func TestDeviceUrl_StandardPort(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.SetCustomDomain("domain.tld")
+	port := 443
+	config.SetPublicPort(&port)
+	//userConfig := &UserConfigMock{"domain.tld", 443}
+	//device := New(userConfig)
+	url := config.Url("app1")
+	assert.Equal(t, "https://app1.domain.tld", url)
+}
+
+func TestDeviceUrl_NonStandardPort(t *testing.T) {
+	db := tempFile().Name()
+	_ = os.Remove(db)
+	config := NewUserConfig(db, tempFile().Name())
+	config.Load()
+	config.SetCustomDomain("domain.tld")
+	port := 10000
+	config.SetPublicPort(&port)
+
+	//userConfig := &UserConfigMock{"domain.tld", 10000}
+	//device := New(userConfig)
+	url := config.Url("app1")
+	assert.Equal(t, "https://app1.domain.tld:10000", url)
+}

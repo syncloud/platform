@@ -1,8 +1,10 @@
 local name = "platform";
 local browser = "chrome";
-local go = "1.18.2-buster";
+local selenium = '4.19.0-20240328';
+local go = "1.21.4";
 local node = "16.10.0";
 local deployer = "https://github.com/syncloud/store/releases/download/4/syncloud-release";
+local authelia = "4.38.8";
 
 local build(arch, testUI) = [{
     kind: "pipeline",
@@ -19,6 +21,21 @@ local build(arch, testUI) = [{
             commands: [
                 "echo $DRONE_BUILD_NUMBER > version",
             ]
+        },
+        {
+              name: 'auth',
+              image: "authelia/authelia:" + authelia,
+              commands: [
+                './auth/package.sh',
+              ],
+
+            },
+        {
+            name: 'auth test',
+            image: "debian:buster-slim",
+            commands: [
+                './auth/test.sh',
+            ],
         },
         {
             name: "build web",
@@ -63,7 +80,7 @@ local build(arch, testUI) = [{
             image: "golang:" + go,
             commands: [
                 "cd test/api",
-                "go test -c -o api.test"
+                "go test -c -ldflags '-linkmode external -extldflags -static' -o api.test"
             ]
         },
         {
@@ -74,8 +91,7 @@ local build(arch, testUI) = [{
                 "./package.sh $VERSION",
                 "./test/testapp/build.sh "
             ]
-        }
-    ] + [
+        },
         {
             name: "test",
             image: "python:3.8-slim-buster",
@@ -86,25 +102,45 @@ local build(arch, testUI) = [{
             ]
         }
     ] + ( if testUI then [
- {
-        name: "selenium-video",
-        image: "selenium/video:ffmpeg-4.3.1-20220208",
-        detach: true,
-        environment: {
-            DISPLAY_CONTAINER_NAME: "selenium",
-            FILE_NAME: "video.mkv"
-        },
-        volumes: [
-            {
+        {
+            name: "selenium",
+            image: "selenium/standalone-" + browser + ":" + selenium,
+            detach: true,
+            environment: {
+                SE_NODE_SESSION_TIMEOUT: "999999",
+                START_XVFB: "true"
+            },
+               volumes: [{
                 name: "shm",
                 path: "/dev/shm"
+            }],
+            commands: [
+                "cat /etc/hosts",
+                "getent hosts " + arch + " | sed 's/" + arch +"/auth." + arch + ".redirect/g' | sudo tee -a /etc/hosts",
+                "getent hosts " + arch + " | sed 's/" + arch +"/" + arch + ".redirect/g' | sudo tee -a /etc/hosts",
+                "cat /etc/hosts",
+                "/opt/bin/entry_point.sh"
+            ]
+         },
+         {
+            name: "selenium-video",
+            image: "selenium/video:ffmpeg-4.3.1-20220208",
+            detach: true,
+            environment: {
+                DISPLAY_CONTAINER_NAME: "selenium",
+                FILE_NAME: "video.mkv"
             },
-           {
-                name: "videos",
-                path: "/videos"
-            }
-        ]
-    }] + [
+            volumes: [
+                {
+                    name: "shm",
+                    path: "/dev/shm"
+                },
+               {
+                    name: "videos",
+                    path: "/videos"
+                }
+            ]
+        }] + [
         {
             name: "test-ui-" + mode,
             image: "python:3.8-slim-buster",
@@ -253,19 +289,7 @@ local build(arch, testUI) = [{
                 DOMAIN: "redirect"
             }
         }
-    ] + ( if testUI then [{
-            name: "selenium",
-            image: "selenium/standalone-" + browser + ":4.1.2-20220208",
-            environment: {
-                SE_NODE_SESSION_TIMEOUT: "999999",
-                START_XVFB: "true"
-            },
-               volumes: [{
-                name: "shm",
-                path: "/dev/shm"
-            }]
-        }
-    ] else [] ),
+    ],
     volumes: [
         {
             name: "dbus",
@@ -305,4 +329,3 @@ local build(arch, testUI) = [{
 build("amd64", true) +
 build("arm64", false) +
 build("arm", false)
-

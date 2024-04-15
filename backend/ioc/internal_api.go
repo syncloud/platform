@@ -3,7 +3,6 @@ package ioc
 import (
 	"github.com/golobby/container/v3"
 	"github.com/syncloud/platform/config"
-	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/rest"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/systemd"
@@ -14,9 +13,9 @@ func InitInternalApi(userConfig string, systemConfig string, backupDir string, v
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(device *info.Device, userConfig *config.UserConfig, storage *storage.Storage,
+	err = c.Singleton(func(userConfig *config.UserConfig, storage *storage.Storage,
 		systemd *systemd.Control, middleware *rest.Middleware) *rest.Api {
-		return rest.NewApi(device, userConfig, storage, systemd, middleware, network, address, logger)
+		return rest.NewApi(userConfig, storage, systemd, middleware, network, address, logger)
 	})
 	if err != nil {
 		return nil, err

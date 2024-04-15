@@ -16,6 +16,7 @@ type Device struct {
 	certificateGenerator *cert.Generator
 	auth                 *auth.Service
 	nginx                *nginx.Nginx
+	web                  auth.Web
 	trigger              *event.Trigger
 	cookies              Cookies
 	internalMemory       InternalMemory
@@ -49,6 +50,7 @@ func NewDevice(
 	trigger *event.Trigger,
 	cookies Cookies,
 	internalMemory InternalMemory,
+	web auth.Web,
 ) *Device {
 	return &Device{
 		config:         config,
@@ -57,6 +59,7 @@ func NewDevice(
 		trigger:        trigger,
 		cookies:        cookies,
 		internalMemory: internalMemory,
+		web:            web,
 	}
 }
 
@@ -85,6 +88,10 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 		return err
 	}
 	err = d.nginx.ReloadPublic()
+	if err != nil {
+		return err
+	}
+	err = d.web.InitConfig(true)
 	if err != nil {
 		return err
 	}

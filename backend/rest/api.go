@@ -3,7 +3,6 @@ package rest
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/syncloud/platform/info"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -14,6 +13,8 @@ type DeviceUserConfig interface {
 	GetDkimKey() *string
 	SetDkimKey(key *string)
 	GetUserEmail() *string
+	Url(app string) string
+	AppDomain(app string) string
 }
 
 type Storage interface {
@@ -26,7 +27,6 @@ type Systemd interface {
 }
 
 type Api struct {
-	device     *info.Device
 	userConfig DeviceUserConfig
 	storage    Storage
 	systemd    Systemd
@@ -36,11 +36,10 @@ type Api struct {
 	logger     *zap.Logger
 }
 
-func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, systemd Systemd,
+func NewApi(userConfig DeviceUserConfig, storage Storage, systemd Systemd,
 	middleware *Middleware, network string, address string,
 	logger *zap.Logger) *Api {
 	return &Api{
-		device:     device,
 		userConfig: userConfig,
 		storage:    storage,
 		systemd:    systemd,
@@ -99,7 +98,7 @@ func (a *Api) AppUrl(req *http.Request) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("no name")
 	}
-	return a.device.Url(keys[0]), nil
+	return a.userConfig.Url(keys[0]), nil
 }
 
 func (a *Api) AppDomainName(req *http.Request) (interface{}, error) {
@@ -107,7 +106,7 @@ func (a *Api) AppDomainName(req *http.Request) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("no name")
 	}
-	return a.device.AppDomain(keys[0]), nil
+	return a.userConfig.AppDomain(keys[0]), nil
 }
 
 func (a *Api) AppDeviceDomainName(_ *http.Request) (interface{}, error) {
