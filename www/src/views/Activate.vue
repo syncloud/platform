@@ -55,7 +55,7 @@
 
                 <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
                        type="text" v-model="redirectEmail">
-                <div class="alert alert-danger alert90" id="email_alert" style="display: none;"></div>
+                <div id="email_alert" class="alert alert-danger alert90" v-show="redirectEmailAlertVisible ">{{ redirectEmailAlert }}</div>
                 <input :placeholder="redirect_domain + ' password'" class="passinput"
                        id="redirect_password" type="password" v-model="redirectPassword">
                 <div class="alert alert-danger alert90" v-show="redirectPasswordAlertVisible" >{{ redirectPasswordAlert }}</div>
@@ -244,6 +244,8 @@ export default {
       redirectPasswordAlert: '',
       domainAlertVisible: false,
       domainAlert: '',
+      redirectEmailAlertVisible: false,
+      redirectEmailAlert: '',
       step: 0
     }
   },
@@ -289,6 +291,7 @@ export default {
     hideAlerts () {
       this.deviceUsernameAlertVisible = false
       this.devicePasswordAlertVisible = false
+      this.redirectEmailAlertVisible = false
       this.redirectPasswordAlertVisible = false
       this.domainAlertVisible = false
     },
@@ -304,6 +307,10 @@ export default {
               if (pm.parameter === 'redirect_password') {
                 this.redirectPasswordAlertVisible = true
                 this.redirectPasswordAlert = message
+              }
+              if (pm.parameter === 'email') {
+                this.redirectEmailAlertVisible = true
+                this.redirectEmailAlert = message
               }
               if (pm.parameter === 'domain') {
                 this.domainAlertVisible = true
