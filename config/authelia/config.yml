@@ -808,4 +808,26 @@ identity_providers:
         require_pushed_authorization_requests: true
         token_endpoint_auth_method: 'none'
         authorization_policy: 'one_factor'
+
+      - client_id: 'peertube'
+        client_name: 'Peertube'
+        client_secret: '$pbkdf2-sha512$310000$c8p78n7pUMln0jzvd4aK4Q$JNRBzwAo0ek5qKn50cFzzvE9RXV88h1wJn5KGiHrD0YKtZaR/nCb2CJPOsKaPK0hjf.9yHxzQGZziziccp6Yng'
+        # The digest of 'insecure_secret'.
+        public: false
+        authorization_policy: 'one_factor'
+        redirect_uris:
+          - 'https://peertube.{{ .Domain }}/plugins/auth-openid-connect/router/code-cb'
+        scopes:
+          - 'openid'
+          - 'email'
+          - 'profile'
+        grant_types:
+          - refresh_token
+          - authorization_code
+        response_types:
+          - code
+        response_modes:
+          - form_post
+          - query
+          - fragment
 ...
