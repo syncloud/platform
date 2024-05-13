@@ -17,7 +17,6 @@ type Install struct {
 	storageChecker storage.Checker
 	storageLinker  DisksLinker
 	systemConfig   SystemConfig
-	userConfig     UserConfig
 	certGenerator  CertificateGenerator
 	ldap           Ldap
 	nginx          Nginx
@@ -30,10 +29,6 @@ type SystemConfig interface {
 	DiskRoot() string
 	InternalDiskDir() string
 	DiskLink() string
-}
-
-type UserConfig interface {
-	IsActivated() bool
 }
 
 type CertificateGenerator interface {
@@ -63,7 +58,6 @@ func NewInstall(
 	storageChecker storage.Checker,
 	storageLinker DisksLinker,
 	systemConfig SystemConfig,
-	userConfig UserConfig,
 	certGenerator CertificateGenerator,
 	ldap Ldap,
 	nginx Nginx,
@@ -74,7 +68,6 @@ func NewInstall(
 		storageChecker: storageChecker,
 		storageLinker:  storageLinker,
 		systemConfig:   systemConfig,
-		userConfig:     userConfig,
 		certGenerator:  certGenerator,
 		ldap:           ldap,
 		nginx:          nginx,
@@ -112,7 +105,7 @@ func (i *Install) Install() error {
 	if err != nil {
 		return err
 	}
-	err = i.web.InitConfig(i.userConfig.IsActivated())
+	err = i.web.InitConfig()
 	if err != nil {
 		return err
 	}
@@ -141,7 +134,7 @@ func (i *Install) PostRefresh() error {
 		return err
 	}
 
-	err = i.web.InitConfig(i.userConfig.IsActivated())
+	err = i.web.InitConfig()
 	if err != nil {
 		return err
 	}

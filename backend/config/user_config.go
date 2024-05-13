@@ -26,9 +26,11 @@ type UserConfig struct {
 }
 
 type OIDCClient struct {
-	ID          string
-	Secret      string
-	RedirectURI string
+	ID                      string
+	Secret                  string
+	RedirectURI             string
+	RequirePkce             bool
+	TokenEndpointAuthMethod string
 }
 
 var OldConfig string
@@ -144,7 +146,8 @@ func (c *UserConfig) addOidcClientTable() error {
 	db := c.open()
 	defer db.Close()
 
-	query := "create table if not exists oidc_client (id varchar primary key, secret varchar, redirect_uri varchar)"
+	query := `create table if not exists oidc_client 
+		(id varchar primary key, secret varchar, redirect_uri varchar, require_pkce integer, token_endpoint_auth_method varchar)`
 	_, err := db.Exec(query)
 	if err != nil {
 		return fmt.Errorf("unable to add oidc_clients: %s", err)
@@ -163,7 +166,7 @@ func (c *UserConfig) open() *sql.DB {
 func (c *UserConfig) OIDCClients() ([]OIDCClient, error) {
 	db := c.open()
 	defer db.Close()
-	rows, err := db.Query("select id, secret, redirect_uri from oidc_client")
+	rows, err := db.Query("select id, secret, redirect_uri, require_pkce, token_endpoint_auth_method from oidc_client")
 	if err != nil {
 		return nil, err
 	}
@@ -173,10 +176,18 @@ func (c *UserConfig) OIDCClients() ([]OIDCClient, error) {
 	for rows.Next() {
 		var client = OIDCClient{}
 		var redirectURI string
-		if err := rows.Scan(&client.ID, &client.Secret, &redirectURI); err != nil {
+		var requirePkce int
+		if err := rows.Scan(
+			&client.ID,
+			&client.Secret,
+			&redirectURI,
+			&requirePkce,
+			&client.TokenEndpointAuthMethod,
+		); err != nil {
 			return clients, err
 		}
 		client.RedirectURI = fmt.Sprintf("%s%s", c.Url(client.ID), redirectURI)
+		client.RequirePkce = requirePkce != 0
 		clients = append(clients, client)
 	}
 	if err = rows.Err(); err != nil {
@@ -186,13 +197,17 @@ func (c *UserConfig) OIDCClients() ([]OIDCClient, error) {
 
 }
 
-func (c *UserConfig) AddOIDCClient(client OIDCClient) {
+func (c *UserConfig) AddOIDCClient(client OIDCClient) error {
 	db := c.open()
 	defer db.Close()
-	_, err := db.Exec("INSERT OR REPLACE INTO oidc_client VALUES (?, ?, ?)", client.ID, client.Secret, client.RedirectURI)
-	if err != nil {
-		log.Fatal(err)
+	requirePkce := 0
+	if client.RequirePkce {
+		requirePkce = 1
 	}
+	_, err := db.Exec("INSERT OR REPLACE INTO oidc_client VALUES (?, ?, ?, ?, ?)",
+		client.ID, client.Secret, client.RedirectURI, requirePkce, client.TokenEndpointAuthMethod,
+	)
+	return err
 }
 
 func (c *UserConfig) SetRedirectDomain(domain string) {

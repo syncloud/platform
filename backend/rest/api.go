@@ -26,6 +26,10 @@ type Systemd interface {
 	RestartService(service string) error
 }
 
+type WebAuth interface {
+	RegisterOIDCClient(id string, redirectURI string, requirePkce bool, tokenEndpointAuthMethod string) (string, error)
+}
+
 type Api struct {
 	userConfig DeviceUserConfig
 	storage    Storage
@@ -33,12 +37,13 @@ type Api struct {
 	mw         *Middleware
 	network    string
 	address    string
+	webAuth    WebAuth
 	logger     *zap.Logger
 }
 
 func NewApi(userConfig DeviceUserConfig, storage Storage, systemd Systemd,
 	middleware *Middleware, network string, address string,
-	logger *zap.Logger) *Api {
+	webAuth WebAuth, logger *zap.Logger) *Api {
 	return &Api{
 		userConfig: userConfig,
 		storage:    storage,
@@ -46,6 +51,7 @@ func NewApi(userConfig DeviceUserConfig, storage Storage, systemd Systemd,
 		mw:         middleware,
 		network:    network,
 		address:    address,
+		webAuth:    webAuth,
 		logger:     logger,
 	}
 }
@@ -68,6 +74,7 @@ func (a *Api) Start() error {
 	r.HandleFunc("/service/restart", a.mw.Handle(a.ServiceRestart)).Methods("POST")
 	r.HandleFunc("/app/storage_dir", a.mw.Handle(a.AppStorageDir)).Methods("GET")
 	r.HandleFunc("/user/email", a.mw.Handle(a.UserEmail)).Methods("GET")
+	r.HandleFunc("/oidc/register", a.mw.Handle(a.RegisterOIDCClient)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(a.mw.NotFoundHandler)
 
 	r.Use(a.mw.JsonHeader)
@@ -119,6 +126,20 @@ func (a *Api) AppInitStorage(req *http.Request) (interface{}, error) {
 		return nil, err
 	}
 	return a.storage.InitAppStorageOwner(req.FormValue("app_name"), req.FormValue("user_name"))
+}
+
+func (a *Api) RegisterOIDCClient(req *http.Request) (interface{}, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, err
+	}
+	password, err := a.webAuth.RegisterOIDCClient(
+		req.FormValue("id"),
+		req.FormValue("redirect_uri"),
+		req.FormValue("require_pkce") == "true",
+		req.FormValue("token_endpoint_auth_method"),
+	)
+	return password, err
 }
 
 func (a *Api) ConfigGetDkimKey(_ *http.Request) (interface{}, error) {

@@ -308,9 +308,17 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func(executor *cli.ShellExecutor) *auth.SecretGenerator {
+		return auth.NewSecretGenerator(executor)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
 		systemd *systemd.Control,
+		secretGenerator *auth.SecretGenerator,
 	) *auth.Authelia {
 		return auth.NewWeb(
 			path.Join(hook.AppDir, "config/authelia"),
@@ -318,6 +326,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			hook.DataDir,
 			userConfig,
 			systemd,
+			secretGenerator,
 			logger,
 		)
 	})
@@ -464,7 +473,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			checker,
 			linker,
 			systemConfig,
-			userConfig,
 			certGenerator,
 			ldapService,
 			nginxService,

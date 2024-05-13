@@ -11,10 +11,11 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"path"
+	"sync"
 )
 
 type Web interface {
-	InitConfig(activated bool) error
+	InitConfig() error
 }
 
 type Variables struct {
@@ -30,6 +31,7 @@ type Variables struct {
 }
 
 type Authelia struct {
+	mutex          *sync.Mutex
 	inputDir       string
 	outDir         string
 	keyFile        string
@@ -38,6 +40,7 @@ type Authelia struct {
 	hmacSecretFile string
 	userConfig     UserConfig
 	systemd        Systemd
+	generator      PasswordGenerator
 	logger         *zap.Logger
 }
 
@@ -46,10 +49,16 @@ type UserConfig interface {
 	DeviceUrl() string
 	Url(app string) string
 	OIDCClients() ([]config.OIDCClient, error)
+	AddOIDCClient(client config.OIDCClient) error
+	IsActivated() bool
 }
 
 type Systemd interface {
 	RestartService(service string) error
+}
+
+type PasswordGenerator interface {
+	Generate() (Secret, error)
 }
 
 const (
@@ -65,9 +74,11 @@ func NewWeb(
 	outSecretDir string,
 	userConfig UserConfig,
 	systemd Systemd,
+	generator PasswordGenerator,
 	logger *zap.Logger,
 ) *Authelia {
 	return &Authelia{
+		mutex:          &sync.Mutex{},
 		inputDir:       inputDir,
 		outDir:         outDir,
 		keyFile:        path.Join(outSecretDir, KeyFile),
@@ -76,12 +87,43 @@ func NewWeb(
 		hmacSecretFile: path.Join(outSecretDir, HmacSecret),
 		userConfig:     userConfig,
 		systemd:        systemd,
+		generator:      generator,
 		logger:         logger,
 	}
 }
 
-func (w *Authelia) InitConfig(activated bool) error {
+func (w *Authelia) RegisterOIDCClient(
+	id string,
+	redirectURI string,
+	requirePkce bool,
+	tokenEndpointAuthMethod string,
+) (string, error) {
+	secret, err := w.generator.Generate()
+	if err != nil {
+		return "", err
+	}
 
+	err = w.userConfig.AddOIDCClient(config.OIDCClient{
+		ID:                      id,
+		Secret:                  secret.Hash,
+		RedirectURI:             redirectURI,
+		RequirePkce:             requirePkce,
+		TokenEndpointAuthMethod: tokenEndpointAuthMethod,
+	})
+	if err != nil {
+		return "", err
+	}
+	err = w.InitConfig()
+	if err != nil {
+		return "", err
+	}
+	return secret.Password, nil
+}
+
+func (w *Authelia) InitConfig() error {
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
+	activated := w.userConfig.IsActivated()
 	encryptionKey, err := getOrCreateUuid(w.keyFile)
 	if err != nil {
 		return err

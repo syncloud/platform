@@ -235,15 +235,20 @@ func TestUserConfig_OIDCClients(t *testing.T) {
 	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetCustomDomain("example.com")
-	config.AddOIDCClient(OIDCClient{
-		ID:          "app1",
-		Secret:      "secret",
-		RedirectURI: "/callback",
+	err := config.AddOIDCClient(OIDCClient{
+		ID:                      "app1",
+		Secret:                  "secret",
+		RedirectURI:             "/callback",
+		RequirePkce:             true,
+		TokenEndpointAuthMethod: "client_secret_post",
 	})
+	assert.NoError(t, err)
 
 	clients, err := config.OIDCClients()
 	assert.NoError(t, err)
 	assert.Equal(t, "app1", clients[0].ID)
 	assert.Equal(t, "secret", clients[0].Secret)
 	assert.Equal(t, "https://app1.example.com/callback", clients[0].RedirectURI)
+	assert.True(t, clients[0].RequirePkce)
+	assert.Equal(t, "client_secret_post", clients[0].TokenEndpointAuthMethod)
 }

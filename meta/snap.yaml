@@ -44,6 +44,8 @@ apps:
     command: btrfs/bin/btrfs.sh
   mkfs-btrfs:
     command: btrfs/bin/mkfs.sh
+  authelia-cli:
+    command: authelia/authelia.sh
 
 confinement: strict
 description: Syncloud Platform

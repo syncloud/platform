@@ -23,18 +23,18 @@ local build(arch, testUI) = [{
             ]
         },
         {
-              name: 'auth',
+              name: 'authelia',
               image: "authelia/authelia:" + authelia,
               commands: [
-                './auth/package.sh',
+                './authelia/package.sh',
               ],
 
             },
         {
-            name: 'auth test',
+            name: 'authelia test',
             image: "debian:buster-slim",
             commands: [
-                './auth/test.sh',
+                './authelia/test.sh',
             ],
         },
         {

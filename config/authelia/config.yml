@@ -820,6 +820,7 @@ identity_providers:
           - 'openid'
           - 'email'
           - 'profile'
+          - 'groups'
         grant_types:
           - refresh_token
           - authorization_code
@@ -829,5 +830,6 @@ identity_providers:
           - form_post
           - query
           - fragment
+        token_endpoint_auth_method: '{{ .TokenEndpointAuthMethod }}'
 {{ end }}
 ...
