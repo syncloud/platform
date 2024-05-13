@@ -45,7 +45,7 @@ var logger = log.Default()
 func Init(userConfig string, systemConfig string, backupDir string, varDir string) (container.Container, error) {
 	c := container.New()
 	err := c.Singleton(func() *config.UserConfig {
-		userConfig := config.NewUserConfig(userConfig, config.OldConfig)
+		userConfig := config.NewUserConfig(userConfig, config.OldConfig, logger)
 		userConfig.Load()
 		return userConfig
 	})

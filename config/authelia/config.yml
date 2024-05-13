@@ -809,14 +809,13 @@ identity_providers:
         token_endpoint_auth_method: 'none'
         authorization_policy: 'one_factor'
 
-      - client_id: 'peertube'
-        client_name: 'Peertube'
-        client_secret: '$pbkdf2-sha512$310000$c8p78n7pUMln0jzvd4aK4Q$JNRBzwAo0ek5qKn50cFzzvE9RXV88h1wJn5KGiHrD0YKtZaR/nCb2CJPOsKaPK0hjf.9yHxzQGZziziccp6Yng'
-        # The digest of 'insecure_secret'.
+{{ range $key, $value := .OIDCClients }}
+      - client_id: '{{ .ID }}'
+        client_secret: '{{ .Secret }}'
         public: false
         authorization_policy: 'one_factor'
         redirect_uris:
-          - 'https://peertube.{{ .Domain }}/plugins/auth-openid-connect/router/code-cb'
+          - '{{ .RedirectURI }}'
         scopes:
           - 'openid'
           - 'email'
@@ -830,4 +829,5 @@ identity_providers:
           - form_post
           - query
           - fragment
+{{ end }}
 ...

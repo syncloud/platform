@@ -14,7 +14,7 @@ require (
 	github.com/prometheus/procfs v0.7.3
 	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/spf13/cobra v1.1.1
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.9.0
 	github.com/syncloud/golib v1.1.5
 	go.uber.org/zap v1.25.0
 	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf

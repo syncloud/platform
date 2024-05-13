@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/google/uuid"
+	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/parser"
 	"go.uber.org/zap"
 	"os"
@@ -25,6 +26,7 @@ type Variables struct {
 	DeviceUrl     string
 	AuthUrl       string
 	IsActivated   bool
+	OIDCClients   []config.OIDCClient
 }
 
 type Authelia struct {
@@ -43,6 +45,7 @@ type UserConfig interface {
 	GetDeviceDomainNil() *string
 	DeviceUrl() string
 	Url(app string) string
+	OIDCClients() ([]config.OIDCClient, error)
 }
 
 type Systemd interface {
@@ -96,6 +99,10 @@ func (w *Authelia) InitConfig(activated bool) error {
 		return err
 	}
 
+	clients, err := w.userConfig.OIDCClients()
+	if err != nil {
+		return err
+	}
 	variables := Variables{
 		Domain:        "www.localhost",
 		EncryptionKey: encryptionKey,
@@ -104,6 +111,7 @@ func (w *Authelia) InitConfig(activated bool) error {
 		DeviceUrl:     "https://www.localhost",
 		AuthUrl:       "https://auth.www.localhost",
 		IsActivated:   activated,
+		OIDCClients:   clients,
 	}
 
 	maybeDomain := w.userConfig.GetDeviceDomainNil()
