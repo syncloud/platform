@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/url"
 	"regexp"
 	"testing"
 )
@@ -76,4 +78,15 @@ func TestUserEmail(t *testing.T) {
 	assert.Nil(t, err)
 	//TODO: not sure
 	assert.Equal(t, "redirect", *email)
+}
+
+func TestRegisterOIDCClient(t *testing.T) {
+	password, err := do(http.MethodPost, "/oidc/register", url.Values{
+		"id":                         {"app1"},
+		"redirect_uri":               {"/callback"},
+		"require_pkce":               {"true"},
+		"token_endpoint_auth_method": {"client_secret_post"},
+	})
+	assert.Nil(t, err)
+	assert.True(t, len(*password) > 50, *password)
 }

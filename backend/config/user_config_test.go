@@ -2,16 +2,17 @@ package config
 
 import (
 	"github.com/stretchr/testify/assert"
-	"log"
+	"github.com/syncloud/platform/log"
 	"os"
+	"path"
 	"testing"
 	"time"
 )
 
 func TestRedirectDomain(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 
 	config.SetRedirectDomain("syncloud.it")
@@ -26,17 +27,19 @@ func TestRedirectDomain(t *testing.T) {
 }
 
 func TestDeviceDomain_NonActivated(t *testing.T) {
-	db := tempFile().Name()
+	tempDir := t.TempDir()
+	db := path.Join(tempDir, "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	assert.Equal(t, "localhost", config.GetDeviceDomain())
 }
 
 func TestDeviceDomain_Free(t *testing.T) {
-	db := tempFile().Name()
+	tempDir := t.TempDir()
+	db := path.Join(tempDir, "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetRedirectDomain("example.com")
 
@@ -46,9 +49,10 @@ func TestDeviceDomain_Free(t *testing.T) {
 }
 
 func TestDeviceBackwardsCompatibleDomain_Free(t *testing.T) {
-	db := tempFile().Name()
+	tempDir := t.TempDir()
+	db := path.Join(tempDir, "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetRedirectDomain("example.com")
 
@@ -58,9 +62,10 @@ func TestDeviceBackwardsCompatibleDomain_Free(t *testing.T) {
 }
 
 func TestDeviceDomain_Custom(t *testing.T) {
-	db := tempFile().Name()
+	tempDir := t.TempDir()
+	db := path.Join(tempDir, "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetRedirectDomain("wrong")
 
@@ -69,16 +74,10 @@ func TestDeviceDomain_Custom(t *testing.T) {
 	assert.Equal(t, "example.com", config.GetDeviceDomain())
 }
 
-func tempFile() *os.File {
-	tmpFile, err := os.CreateTemp("", "")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return tmpFile
-}
-
 func TestMigrate(t *testing.T) {
-	oldConfigFile := tempFile()
+	tempDir := t.TempDir()
+	oldConfigFile := path.Join(tempDir, "old.db")
+
 	content := `
 [platform]
 redirect_enabled = True
@@ -95,14 +94,12 @@ user_email = user@example.com
 user_update_token = token2
 `
 
-	err := os.WriteFile(oldConfigFile.Name(), []byte(content), 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	err := os.WriteFile(oldConfigFile, []byte(content), 0644)
+	assert.NoError(t, err)
 
-	db := tempFile().Name()
+	db := path.Join(tempDir, "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, oldConfigFile.Name())
+	config := NewUserConfig(db, oldConfigFile, log.Default())
 	config.Load()
 	config.SetRedirectDomain("syncloud.it")
 
@@ -111,14 +108,14 @@ user_update_token = token2
 	assert.True(t, config.IsRedirectEnabled())
 	assert.False(t, config.IsIpv4Public())
 
-	_, err = os.Stat(oldConfigFile.Name())
+	_, err = os.Stat(oldConfigFile)
 	assert.False(t, os.IsExist(err))
 }
 
 func TestMigratev2_ExternalFalse(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.Upsert("platform.external_access", "false")
 	config.Load()
@@ -128,9 +125,9 @@ func TestMigratev2_ExternalFalse(t *testing.T) {
 }
 
 func TestMigratev2_ExternalTrue(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.Upsert("platform.external_access", "true")
 	config.Load()
@@ -140,9 +137,9 @@ func TestMigratev2_ExternalTrue(t *testing.T) {
 }
 
 func TestPublicIp_Empty(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetPublicIp(nil)
 
@@ -150,9 +147,9 @@ func TestPublicIp_Empty(t *testing.T) {
 }
 
 func TestPublicIp_Valid(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	ip := "1.1.1.1"
 	config.SetPublicIp(&ip)
@@ -160,9 +157,9 @@ func TestPublicIp_Valid(t *testing.T) {
 }
 
 func TestBackupAppTime(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	zero := config.GetBackupAppTime("app1", "backup")
 	assert.True(t, zero.IsZero())
@@ -172,9 +169,9 @@ func TestBackupAppTime(t *testing.T) {
 }
 
 func TestDefaultInt(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	assert.Equal(t, 0, config.GetOrDefaultInt("unknown", 0))
 	config.Upsert("unknown", "1")
@@ -182,9 +179,9 @@ func TestDefaultInt(t *testing.T) {
 }
 
 func TestDefaultString(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	assert.Equal(t, "default", config.GetOrDefaultString("unknown", "default"))
 	config.Upsert("unknown", "test")
@@ -192,9 +189,9 @@ func TestDefaultString(t *testing.T) {
 }
 
 func TestDeviceUrl(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetCustomDomain("domain.tld")
 	port := 443
@@ -204,9 +201,9 @@ func TestDeviceUrl(t *testing.T) {
 }
 
 func TestDeviceUrl_StandardPort(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetCustomDomain("domain.tld")
 	port := 443
@@ -218,9 +215,9 @@ func TestDeviceUrl_StandardPort(t *testing.T) {
 }
 
 func TestDeviceUrl_NonStandardPort(t *testing.T) {
-	db := tempFile().Name()
+	db := path.Join(t.TempDir(), "db")
 	_ = os.Remove(db)
-	config := NewUserConfig(db, tempFile().Name())
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
 	config.SetCustomDomain("domain.tld")
 	port := 10000
@@ -230,4 +227,28 @@ func TestDeviceUrl_NonStandardPort(t *testing.T) {
 	//device := New(userConfig)
 	url := config.Url("app1")
 	assert.Equal(t, "https://app1.domain.tld:10000", url)
+}
+
+func TestUserConfig_OIDCClients(t *testing.T) {
+	db := path.Join(t.TempDir(), "db")
+	_ = os.Remove(db)
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
+	config.Load()
+	config.SetCustomDomain("example.com")
+	err := config.AddOIDCClient(OIDCClient{
+		ID:                      "app1",
+		Secret:                  "secret",
+		RedirectURI:             "/callback",
+		RequirePkce:             true,
+		TokenEndpointAuthMethod: "client_secret_post",
+	})
+	assert.NoError(t, err)
+
+	clients, err := config.OIDCClients()
+	assert.NoError(t, err)
+	assert.Equal(t, "app1", clients[0].ID)
+	assert.Equal(t, "secret", clients[0].Secret)
+	assert.Equal(t, "https://app1.example.com/callback", clients[0].RedirectURI)
+	assert.True(t, clients[0].RequirePkce)
+	assert.Equal(t, "client_secret_post", clients[0].TokenEndpointAuthMethod)
 }

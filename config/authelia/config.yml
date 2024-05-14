@@ -808,4 +808,28 @@ identity_providers:
         require_pushed_authorization_requests: true
         token_endpoint_auth_method: 'none'
         authorization_policy: 'one_factor'
+
+{{ range $key, $value := .OIDCClients }}
+      - client_id: '{{ .ID }}'
+        client_secret: '{{ .Secret }}'
+        public: false
+        authorization_policy: 'one_factor'
+        redirect_uris:
+          - '{{ .RedirectURI }}'
+        scopes:
+          - 'openid'
+          - 'email'
+          - 'profile'
+          - 'groups'
+        grant_types:
+          - refresh_token
+          - authorization_code
+        response_types:
+          - code
+        response_modes:
+          - form_post
+          - query
+          - fragment
+        token_endpoint_auth_method: '{{ .TokenEndpointAuthMethod }}'
+{{ end }}
 ...

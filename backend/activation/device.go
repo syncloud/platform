@@ -91,12 +91,12 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 	if err != nil {
 		return err
 	}
-	err = d.web.InitConfig(true)
+	d.config.SetActivated()
+
+	err = d.web.InitConfig()
 	if err != nil {
 		return err
 	}
-
-	d.config.SetActivated()
 
 	log.Println("activation completed")
 

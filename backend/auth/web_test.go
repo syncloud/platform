@@ -2,16 +2,27 @@ package auth
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/log"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type UserConfigStub struct {
-	domain *string
+	domain    *string
+	activated bool
+	clients   []config.OIDCClient
+}
+
+func (u *UserConfigStub) AddOIDCClient(client config.OIDCClient) error {
+	return nil
+}
+
+func (u *UserConfigStub) IsActivated() bool {
+	return u.activated
 }
 
 func (u *UserConfigStub) Url(app string) string {
@@ -19,6 +30,10 @@ func (u *UserConfigStub) Url(app string) string {
 		return fmt.Sprintf("https://%s.%s", app, *u.domain)
 	}
 	return fmt.Sprintf("https://%s.localhost", app)
+}
+
+func (u *UserConfigStub) OIDCClients() ([]config.OIDCClient, error) {
+	return u.clients, nil
 }
 
 func (u *UserConfigStub) DeviceUrl() string {
@@ -36,17 +51,24 @@ func (u *UserConfigStub) GetDeviceDomainNil() *string {
 type SystemdStub struct {
 }
 
-func (s *SystemdStub) RestartService(service string) error {
+func (s *SystemdStub) RestartService(_ string) error {
 	return nil
 }
 
+type PasswordGeneratorStub struct {
+}
+
+func (p *PasswordGeneratorStub) Generate() (Secret, error) {
+	return Secret{Password: "pass", Hash: "hash"}, nil
+}
+
 func TestWebInit(t *testing.T) {
-	config := &UserConfigStub{domain: nil}
+	userConfig := &UserConfigStub{domain: nil, activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	web := NewWeb("../../config/authelia", outDir, secretDir, config, &SystemdStub{}, log.Default())
-	err := web.InitConfig(false)
-	assert.Nil(t, err)
+	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
+	err := web.InitConfig()
+	assert.NoError(t, err)
 
 	assert.FileExists(t, path.Join(secretDir, KeyFile))
 	assert.FileExists(t, path.Join(secretDir, SecretFile))
@@ -58,7 +80,7 @@ func TestWebInit(t *testing.T) {
 
 func TestWebReInit(t *testing.T) {
 	domain := "example.com"
-	config := &UserConfigStub{domain: &domain}
+	userConfig := &UserConfigStub{domain: &domain, activated: true}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
 
@@ -70,8 +92,8 @@ func TestWebReInit(t *testing.T) {
 	err = os.WriteFile(secretFilePath, []byte("secret"), 0644)
 	assert.Nil(t, err)
 
-	web := NewWeb("../../config/authelia", outDir, secretDir, config, &SystemdStub{}, log.Default())
-	err = web.InitConfig(true)
+	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
+	err = web.InitConfig()
 	assert.Nil(t, err)
 
 	body, err := os.ReadFile(keyFilePath)
@@ -85,4 +107,54 @@ func TestWebReInit(t *testing.T) {
 	body, err = os.ReadFile(path.Join(outDir, "config.yml"))
 	assert.Nil(t, err)
 	assert.Contains(t, string(body), `auth.example.com`)
+}
+
+type Config struct {
+	IdentityProviders IdentityProvider `yaml:"identity_providers"`
+}
+
+type IdentityProvider struct {
+	OIDC OIDC `yaml:"oidc"`
+}
+
+type OIDC struct {
+	Clients []Client `yaml:"clients"`
+}
+
+type Client struct {
+	ClientID     string   `yaml:"client_id"`
+	ClientSecret string   `yaml:"client_secret"`
+	RedirectUris []string `yaml:"redirect_uris"`
+}
+
+func TestWebClients(t *testing.T) {
+	domain := "example.com"
+	userConfig := &UserConfigStub{domain: &domain, clients: []config.OIDCClient{
+		{ID: "app1", Secret: "app1secret", RedirectURI: "https://app1.example.com/callback1"},
+		{ID: "app2", Secret: "app2secret", RedirectURI: "https://app2.example.com/callback2"},
+	}, activated: false}
+	outDir := t.TempDir()
+	secretDir := t.TempDir()
+	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
+	err := web.InitConfig()
+	assert.NoError(t, err)
+
+	body, err := os.ReadFile(path.Join(outDir, "config.yml"))
+	assert.NoError(t, err)
+
+	gen := Config{}
+	err = yaml.Unmarshal(body, &gen)
+	assert.NoError(t, err)
+
+	assert.Len(t, gen.IdentityProviders.OIDC.Clients, 3)
+	assert.Equal(t, "syncloud", gen.IdentityProviders.OIDC.Clients[0].ClientID)
+
+	assert.Equal(t, "app1", gen.IdentityProviders.OIDC.Clients[1].ClientID)
+	assert.Equal(t, "app1secret", gen.IdentityProviders.OIDC.Clients[1].ClientSecret)
+	assert.Len(t, gen.IdentityProviders.OIDC.Clients[1].RedirectUris, 1)
+	assert.Equal(t, "https://app1.example.com/callback1", gen.IdentityProviders.OIDC.Clients[1].RedirectUris[0])
+
+	assert.Equal(t, "app2", gen.IdentityProviders.OIDC.Clients[2].ClientID)
+	assert.Equal(t, "app2secret", gen.IdentityProviders.OIDC.Clients[2].ClientSecret)
+	assert.Equal(t, "https://app2.example.com/callback2", gen.IdentityProviders.OIDC.Clients[2].RedirectUris[0])
 }
