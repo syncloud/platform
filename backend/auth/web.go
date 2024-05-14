@@ -174,6 +174,7 @@ func (w *Authelia) InitConfig() error {
 
 	err = w.systemd.RestartService("platform.authelia")
 	if err != nil {
+		w.logger.Error("unable to restart authelia", zap.Error(err))
 		return err
 	}
 

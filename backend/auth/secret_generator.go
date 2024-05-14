@@ -22,7 +22,7 @@ func NewSecretGenerator(executor cli.Executor) *SecretGenerator {
 }
 
 func (s *SecretGenerator) Generate() (Secret, error) {
-	output, err := s.executor.CombinedOutput("snap", "run", "platform.authelia", "crypto", "hash", "generate", "--random")
+	output, err := s.executor.CombinedOutput("snap", "run", "platform.authelia-cli", "crypto", "hash", "generate", "--random")
 	if err != nil {
 		return Secret{}, err
 	}
