@@ -32,8 +32,9 @@ func New(executor cli.Executor, config ControlConfig, logger *zap.Logger) *Contr
 
 func (c *Control) RestartService(service string) error {
 	serviceName := c.serviceName(service)
-	_ = c.stop(serviceName)
-	return c.start(serviceName)
+	output, err := exec.Command("systemctl", "restart", serviceName).CombinedOutput()
+	log.Printf("systemctl output: %s", string(output))
+	return err
 }
 
 func (c *Control) ReloadService(service string) error {
