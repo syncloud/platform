@@ -93,8 +93,6 @@ func TestControl_RestartService(t *testing.T) {
 	control := New(executor, &ConfigStub{}, log.Default())
 	err := control.RestartService("app1")
 	assert.Nil(t, err)
-	assert.Len(t, executor.calls, 3)
-	assert.Equal(t, executor.calls[0], "is-active snap.app1")
-	assert.Equal(t, executor.calls[1], "stop snap.app1")
-	assert.Equal(t, executor.calls[2], "start snap.app1")
+	assert.Len(t, executor.calls, 1)
+	assert.Equal(t, executor.calls[0], "restart snap.app1")
 }

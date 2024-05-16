@@ -52,7 +52,7 @@ func (a *LogAggregator) cmd(app string, args ...string) string {
 	output, err := command.CombinedOutput()
 	if err != nil {
 		a.logger.Info(string(output))
-		a.logger.Error("failed", zap.Error(err))
+		a.logger.Warn("failed", zap.Error(err))
 	}
 
 	result += string(output) + Separator
