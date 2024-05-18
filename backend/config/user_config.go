@@ -544,12 +544,8 @@ func (c *UserConfig) SetCustomDomain(domain string) {
 	c.Upsert("platform.custom_domain", domain)
 }
 
-func (c *UserConfig) GetDeviceDomainNil() *string {
-	return c.getDomain()
-}
-
 func (c *UserConfig) GetDeviceDomain() string {
-	result := "localhost"
+	result := "www.localhost"
 	if c.IsRedirectEnabled() {
 		domain := c.getDomain()
 		if domain != nil {

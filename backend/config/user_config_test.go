@@ -32,7 +32,7 @@ func TestDeviceDomain_NonActivated(t *testing.T) {
 	_ = os.Remove(db)
 	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
 	config.Load()
-	assert.Equal(t, "localhost", config.GetDeviceDomain())
+	assert.Equal(t, "www.localhost", config.GetDeviceDomain())
 }
 
 func TestDeviceDomain_Free(t *testing.T) {

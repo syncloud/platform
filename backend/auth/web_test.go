@@ -12,7 +12,7 @@ import (
 )
 
 type UserConfigStub struct {
-	domain    *string
+	domain    string
 	activated bool
 	clients   []config.OIDCClient
 }
@@ -26,10 +26,7 @@ func (u *UserConfigStub) IsActivated() bool {
 }
 
 func (u *UserConfigStub) Url(app string) string {
-	if u.domain != nil {
-		return fmt.Sprintf("https://%s.%s", app, *u.domain)
-	}
-	return fmt.Sprintf("https://%s.localhost", app)
+	return fmt.Sprintf("https://%s.%s", app, u.domain)
 }
 
 func (u *UserConfigStub) OIDCClients() ([]config.OIDCClient, error) {
@@ -37,14 +34,10 @@ func (u *UserConfigStub) OIDCClients() ([]config.OIDCClient, error) {
 }
 
 func (u *UserConfigStub) DeviceUrl() string {
-	if u.domain != nil {
-		return fmt.Sprintf("https://auth.%s", *u.domain)
-	}
-
-	return "https://localhost"
+	return fmt.Sprintf("https://auth.%s", u.domain)
 }
 
-func (u *UserConfigStub) GetDeviceDomainNil() *string {
+func (u *UserConfigStub) GetDeviceDomain() string {
 	return u.domain
 }
 
@@ -63,7 +56,7 @@ func (p *PasswordGeneratorStub) Generate() (Secret, error) {
 }
 
 func TestWebInit(t *testing.T) {
-	userConfig := &UserConfigStub{domain: nil, activated: false}
+	userConfig := &UserConfigStub{domain: "www.localhost", activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
 	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
@@ -79,8 +72,7 @@ func TestWebInit(t *testing.T) {
 }
 
 func TestWebReInit(t *testing.T) {
-	domain := "example.com"
-	userConfig := &UserConfigStub{domain: &domain, activated: true}
+	userConfig := &UserConfigStub{domain: "example.com", activated: true}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
 
@@ -128,8 +120,7 @@ type Client struct {
 }
 
 func TestWebClients(t *testing.T) {
-	domain := "example.com"
-	userConfig := &UserConfigStub{domain: &domain, clients: []config.OIDCClient{
+	userConfig := &UserConfigStub{domain: "example.com", clients: []config.OIDCClient{
 		{ID: "app1", Secret: "app1secret", RedirectURI: "https://app1.example.com/callback1"},
 		{ID: "app2", Secret: "app2secret", RedirectURI: "https://app2.example.com/callback2"},
 	}, activated: false}

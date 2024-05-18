@@ -45,7 +45,7 @@ type Authelia struct {
 }
 
 type UserConfig interface {
-	GetDeviceDomainNil() *string
+	GetDeviceDomain() string
 	DeviceUrl() string
 	Url(app string) string
 	OIDCClients() ([]config.OIDCClient, error)
@@ -146,21 +146,14 @@ func (w *Authelia) InitConfig() error {
 		return err
 	}
 	variables := Variables{
-		Domain:        "www.localhost",
+		Domain:        w.userConfig.GetDeviceDomain(),
 		EncryptionKey: encryptionKey,
 		JwtSecret:     jwtSecret,
 		HmacSecret:    hmacSecret,
-		DeviceUrl:     "https://www.localhost",
-		AuthUrl:       "https://auth.www.localhost",
+		DeviceUrl:     w.userConfig.DeviceUrl(),
+		AuthUrl:       w.userConfig.Url("auth"),
 		IsActivated:   activated,
 		OIDCClients:   clients,
-	}
-
-	maybeDomain := w.userConfig.GetDeviceDomainNil()
-	if maybeDomain != nil {
-		variables.Domain = *maybeDomain
-		variables.DeviceUrl = w.userConfig.DeviceUrl()
-		variables.AuthUrl = w.userConfig.Url("auth")
 	}
 
 	err = parser.Generate(
