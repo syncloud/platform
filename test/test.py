@@ -260,6 +260,7 @@ def test_platform_rest(device_host):
 
 
 def test_api(device):
+    time.sleep(10) # start-limit-hit
     device.scp_to_device(join(DIR, "api/api.test"), '/', throw=True)
     device.run_ssh('/api.test')
 
