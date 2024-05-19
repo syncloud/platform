@@ -17,7 +17,6 @@ import (
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/info"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/log"
@@ -33,6 +32,7 @@ import (
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
 	"go.uber.org/zap"
+	"path"
 	"time"
 )
 
@@ -45,7 +45,7 @@ var logger = log.Default()
 func Init(userConfig string, systemConfig string, backupDir string, varDir string) (container.Container, error) {
 	c := container.New()
 	err := c.Singleton(func() *config.UserConfig {
-		userConfig := config.NewUserConfig(userConfig, config.OldConfig)
+		userConfig := config.NewUserConfig(userConfig, config.OldConfig, logger)
 		userConfig.Load()
 		return userConfig
 	})
@@ -115,12 +115,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(userConfig *config.UserConfig) *info.Device {
-		return info.New(userConfig)
-	})
-	if err != nil {
-		return nil, err
-	}
+
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
 		identification *identification.Parser,
@@ -183,8 +178,19 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(snapClient *snap.SnapdHttpClient, deviceInfo *info.Device, systemConfig *config.SystemConfig, client *retryablehttp.Client) *snap.Server {
-		return snap.NewServer(snapClient, deviceInfo, systemConfig, client, logger)
+	err = c.Singleton(func(
+		snapClient *snap.SnapdHttpClient,
+		systemConfig *config.SystemConfig,
+		client *retryablehttp.Client,
+		userConfig *config.UserConfig,
+	) *snap.Server {
+		return snap.NewServer(
+			snapClient,
+			systemConfig,
+			userConfig,
+			client,
+			logger,
+		)
 	})
 
 	if err != nil {
@@ -302,11 +308,45 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func(executor *cli.ShellExecutor) *auth.SecretGenerator {
+		return auth.NewSecretGenerator(executor)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func(
+		userConfig *config.UserConfig,
+		systemd *systemd.Control,
+		secretGenerator *auth.SecretGenerator,
+	) *auth.Authelia {
+		return auth.NewWeb(
+			path.Join(hook.AppDir, "config/authelia"),
+			path.Join(hook.DataDir, "config/authelia"),
+			hook.DataDir,
+			userConfig,
+			systemd,
+			secretGenerator,
+			logger,
+		)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
 		eventTrigger *event.Trigger, cookies *session.Cookies,
-		storage *storage.Storage,
+		storage *storage.Storage, web *auth.Authelia,
 	) *activation.Device {
-		return activation.NewDevice(userConfig, ldapService, nginxService, eventTrigger, cookies, storage)
+		return activation.NewDevice(
+			userConfig,
+			ldapService,
+			nginxService,
+			eventTrigger,
+			cookies,
+			storage,
+			web,
+		)
 	})
 	if err != nil {
 		return nil, err
@@ -419,8 +459,26 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(checker *storage.PathChecker, linker *storage.Linker, systemConfig *config.SystemConfig, certGenerator *cert.CertificateGenerator, ldapService *auth.Service, nginxService *nginx.Nginx) *hook.Install {
-		return hook.NewInstall(checker, linker, systemConfig, certGenerator, ldapService, nginxService, logger)
+	err = c.Singleton(func(
+		checker *storage.PathChecker,
+		linker *storage.Linker,
+		systemConfig *config.SystemConfig,
+		userConfig *config.UserConfig,
+		certGenerator *cert.CertificateGenerator,
+		ldapService *auth.Service,
+		nginxService *nginx.Nginx,
+		web *auth.Authelia,
+	) *hook.Install {
+		return hook.NewInstall(
+			checker,
+			linker,
+			systemConfig,
+			certGenerator,
+			ldapService,
+			nginxService,
+			web,
+			logger,
+		)
 	})
 	if err != nil {
 		return nil, err

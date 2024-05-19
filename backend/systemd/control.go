@@ -7,7 +7,6 @@ import (
 	"golang.org/x/exp/slices"
 	"log"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 	"text/template"
@@ -32,15 +31,16 @@ func New(executor cli.Executor, config ControlConfig, logger *zap.Logger) *Contr
 
 func (c *Control) RestartService(service string) error {
 	serviceName := c.serviceName(service)
-	_ = c.stop(serviceName)
-	return c.start(serviceName)
+	output, err := c.executor.CombinedOutput("systemctl", "restart", serviceName)
+	log.Printf("systemctl output: %s", string(output))
+	return err
 }
 
 func (c *Control) ReloadService(service string) error {
 
 	log.Printf("reloading %s\n", service)
 	serviceName := c.serviceName(service)
-	output, err := exec.Command("systemctl", "reload", serviceName).CombinedOutput()
+	output, err := c.executor.CombinedOutput("systemctl", "reload", serviceName)
 	log.Printf("systemctl output: %s", string(output))
 	return err
 }

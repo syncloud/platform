@@ -6,6 +6,7 @@ import (
 	"github.com/bigkevmcd/go-configparser"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
+	"go.uber.org/zap"
 	"log"
 	"os"
 	"strconv"
@@ -21,6 +22,15 @@ const DefaultRedirectDomain = "syncloud.it"
 type UserConfig struct {
 	file          string
 	oldConfigFile string
+	logger        *zap.Logger
+}
+
+type OIDCClient struct {
+	ID                      string
+	Secret                  string
+	RedirectURI             string
+	RequirePkce             bool
+	TokenEndpointAuthMethod string
 }
 
 var OldConfig string
@@ -31,17 +41,22 @@ func init() {
 	DefaultConfigDb = fmt.Sprintf("/var/snap/platform/current/platform.db")
 }
 
-func NewUserConfig(file string, oldConfigFile string) *UserConfig {
+func NewUserConfig(
+	file string,
+	oldConfigFile string,
+	logger *zap.Logger,
+) *UserConfig {
 	return &UserConfig{
 		file:          file,
 		oldConfigFile: oldConfigFile,
+		logger:        logger,
 	}
 }
 
 func (c *UserConfig) Load() {
 	err := c.ensureDb()
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 }
 
@@ -59,6 +74,12 @@ func (c *UserConfig) ensureDb() error {
 		c.migrateV1()
 	}
 	c.migrateV2()
+
+	err = c.addOidcClientTable()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -66,14 +87,14 @@ func (c *UserConfig) migrateV1() {
 
 	oldConfig, err := configparser.NewConfigParserFromFile(c.oldConfigFile)
 	if err != nil {
-		log.Println("Cannot load config: ", c.oldConfigFile, err)
+		c.logger.Error("Cannot load config", zap.String("file", c.oldConfigFile), zap.Error(err))
 		return
 	}
 
 	for _, section := range oldConfig.Sections() {
 		dict, err := oldConfig.Items(section)
 		if err != nil {
-			log.Println("Cannot read sections config: ", c.oldConfigFile, err)
+			c.logger.Error("Cannot read sections config", zap.String("file", c.oldConfigFile), zap.Error(err))
 			return
 		}
 		for key, value := range dict {
@@ -87,7 +108,7 @@ func (c *UserConfig) migrateV1() {
 	c.SetWebSecretKey(uuid.New().String())
 	err = os.Rename(c.oldConfigFile, fmt.Sprintf("%s.bak", c.oldConfigFile))
 	if err != nil {
-		log.Println("Cannot backup old config: ", c.oldConfigFile, err)
+		c.logger.Error("Cannot backup old config", zap.String("file", c.oldConfigFile), zap.Error(err))
 	}
 }
 
@@ -121,12 +142,72 @@ func (c *UserConfig) initDb() error {
 	return nil
 }
 
+func (c *UserConfig) addOidcClientTable() error {
+	db := c.open()
+	defer db.Close()
+
+	query := `create table if not exists oidc_client 
+		(id varchar primary key, secret varchar, redirect_uri varchar, require_pkce integer, token_endpoint_auth_method varchar)`
+	_, err := db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("unable to add oidc_clients: %s", err)
+	}
+	return nil
+}
+
 func (c *UserConfig) open() *sql.DB {
 	db, err := sql.Open("sqlite3", c.file)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return db
+}
+
+func (c *UserConfig) OIDCClients() ([]OIDCClient, error) {
+	db := c.open()
+	defer db.Close()
+	rows, err := db.Query("select id, secret, redirect_uri, require_pkce, token_endpoint_auth_method from oidc_client")
+	if err != nil {
+		return nil, err
+	}
+
+	clients := make([]OIDCClient, 0)
+	defer rows.Close()
+	for rows.Next() {
+		var client = OIDCClient{}
+		var redirectURI string
+		var requirePkce int
+		if err := rows.Scan(
+			&client.ID,
+			&client.Secret,
+			&redirectURI,
+			&requirePkce,
+			&client.TokenEndpointAuthMethod,
+		); err != nil {
+			return clients, err
+		}
+		client.RedirectURI = fmt.Sprintf("%s%s", c.Url(client.ID), redirectURI)
+		client.RequirePkce = requirePkce != 0
+		clients = append(clients, client)
+	}
+	if err = rows.Err(); err != nil {
+		return clients, err
+	}
+	return clients, nil
+
+}
+
+func (c *UserConfig) AddOIDCClient(client OIDCClient) error {
+	db := c.open()
+	defer db.Close()
+	requirePkce := 0
+	if client.RequirePkce {
+		requirePkce = 1
+	}
+	_, err := db.Exec("INSERT OR REPLACE INTO oidc_client VALUES (?, ?, ?, ?, ?)",
+		client.ID, client.Secret, client.RedirectURI, requirePkce, client.TokenEndpointAuthMethod,
+	)
+	return err
 }
 
 func (c *UserConfig) SetRedirectDomain(domain string) {
@@ -331,9 +412,9 @@ func (c *UserConfig) List() map[string]string {
 	db := c.open()
 	defer db.Close()
 	rows, err := db.Query("select key, value from config")
-	values := make(map[string]string, 0)
+	values := make(map[string]string)
 	if err != nil {
-		log.Println(err)
+		c.logger.Error("config query", zap.Error(err))
 		return values
 	}
 	defer rows.Close()
@@ -341,8 +422,8 @@ func (c *UserConfig) List() map[string]string {
 		var key string
 		var value string
 
-		if err := rows.Scan(&key, &value); err != nil {
-			log.Println("Unable to scan results:", err)
+		if err = rows.Scan(&key, &value); err != nil {
+			c.logger.Error("Unable to scan results", zap.Error(err))
 			continue
 		}
 		values[key] = value
@@ -464,7 +545,7 @@ func (c *UserConfig) SetCustomDomain(domain string) {
 }
 
 func (c *UserConfig) GetDeviceDomain() string {
-	result := "localhost"
+	result := "www.localhost"
 	if c.IsRedirectEnabled() {
 		domain := c.getDomain()
 		if domain != nil {
@@ -482,4 +563,28 @@ func (c *UserConfig) GetDeviceDomain() string {
 		}
 	}
 	return result
+}
+
+func (c *UserConfig) DeviceUrl() string {
+	port := c.GetPublicPort()
+	domain := c.GetDeviceDomain()
+	return ConstructUrl(port, domain)
+}
+
+func ConstructUrl(port *int, domain string) string {
+	externalPort := ""
+	if port != nil && *port != 80 && *port != 443 {
+		externalPort = fmt.Sprintf(":%d", *port)
+	}
+	return fmt.Sprintf("https://%s%s", domain, externalPort)
+}
+
+func (c *UserConfig) AppDomain(app string) string {
+	return fmt.Sprintf("%s.%s", app, c.GetDeviceDomain())
+}
+
+func (c *UserConfig) Url(app string) string {
+	port := c.GetPublicPort()
+	domain := c.GetDeviceDomain()
+	return ConstructUrl(port, fmt.Sprintf("%s.%s", app, domain))
 }

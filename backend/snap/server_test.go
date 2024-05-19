@@ -43,17 +43,17 @@ func (c *ClientStub) Get(url string) ([]byte, error) {
 	panic("implement me")
 }
 
-type DeviceInfoStub struct {
+type UserConfigStub struct {
 }
 
-func (d DeviceInfoStub) Url(app string) string {
+func (d UserConfigStub) Url(app string) string {
 	return fmt.Sprintf("%s.domain.tld", app)
 }
 
-type ConfigStub struct {
+type SystemConfigStub struct {
 }
 
-func (c ConfigStub) Channel() string {
+func (c SystemConfigStub) Channel() string {
 	return "stable"
 }
 
@@ -77,7 +77,7 @@ func TestInstalledSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{snapsJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.Snaps()
 
 	assert.Nil(t, err)
@@ -87,7 +87,7 @@ func TestInstalledSnaps_OK(t *testing.T) {
 
 func TestInstalledSnaps_Error(t *testing.T) {
 
-	snapd := NewServer(&ClientStub{snapsError: fmt.Errorf("error")}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsError: fmt.Errorf("error")}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.Snaps()
 
 	assert.Nil(t, apps)
@@ -114,7 +114,7 @@ func TestStoreSnaps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{findJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{findJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreSnaps()
 
 	assert.Nil(t, err)
@@ -132,7 +132,7 @@ func TestInstaller_OK(t *testing.T) {
 `
 	store := "2"
 
-	snapd := NewServer(&ClientStub{systemJson: installed}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
+	snapd := NewServer(&ClientStub{systemJson: installed}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{response: store, status: 200}, log.Default())
 	installer, err := snapd.Installer()
 
 	assert.Nil(t, err)
@@ -174,7 +174,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{snapsJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledUserApps()
 
 	assert.Nil(t, err)
@@ -216,7 +216,7 @@ func TestInstalledUserApps_Sorted(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{snapsJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{snapsJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.InstalledUserApps()
 
 	assert.Nil(t, err)
@@ -259,7 +259,7 @@ func TestStoreUserApps_OK(t *testing.T) {
 }
 `
 
-	snapd := NewServer(&ClientStub{findJson: json}, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(&ClientStub{findJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	apps, err := snapd.StoreUserApps()
 
 	assert.Nil(t, err)
@@ -290,7 +290,7 @@ func TestServer_FindInStore_Found(t *testing.T) {
 `
 
 	client := &ClientStub{findJson: json}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInStore("app")
 
 	assert.Nil(t, err)
@@ -310,7 +310,7 @@ func TestServer_FindInStore_NotFound(t *testing.T) {
 `
 
 	client := &ClientStub{findJson: json}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInStore("app")
 
 	assert.Nil(t, err)
@@ -344,7 +344,7 @@ func TestServer_FindInstalled_Found(t *testing.T) {
 `
 
 	client := &ClientStub{snapJson: json}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInstalled("mail")
 
 	assert.Nil(t, err)
@@ -366,7 +366,7 @@ func TestServer_FindInstalled_NotFound(t *testing.T) {
 `
 
 	client := &ClientStub{snapJson: json, snapError: NotFound}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInstalled("files")
 
 	assert.Nil(t, err)
@@ -408,7 +408,7 @@ func TestServer_Find_NotInstalled(t *testing.T) {
 }
 `
 	client := &ClientStub{snapJson: snapJson, snapError: NotFound, findJson: findJson}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.Find("app")
 
 	assert.Nil(t, err)
@@ -460,7 +460,7 @@ func TestServer_Find_Installed(t *testing.T) {
 }
 `
 	client := &ClientStub{snapJson: snapJson, findJson: findJson}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.Find("app")
 
 	assert.Nil(t, err)
@@ -500,7 +500,7 @@ func TestServer_Find_NotInStore(t *testing.T) {
 }
 `
 	client := &ClientStub{snapJson: snapJson, findJson: findJson}
-	snapd := NewServer(client, &DeviceInfoStub{}, &ConfigStub{}, &HttpClientStub{}, log.Default())
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.Find("app")
 
 	assert.Nil(t, err)

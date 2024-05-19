@@ -30,12 +30,22 @@ apps:
     - network-bind
     start-timeout: 200s
     restart-condition: always
+  authelia:
+    command: bin/service.authelia.sh
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+
   cli:
     command: bin/cli
   btrfs:
     command: btrfs/bin/btrfs.sh
   mkfs-btrfs:
     command: btrfs/bin/mkfs.sh
+  authelia-cli:
+    command: authelia/authelia.sh
 
 confinement: strict
 description: Syncloud Platform

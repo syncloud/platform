@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	cp "github.com/otiai10/copy"
+	"github.com/syncloud/golib/linux"
+	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage"
 	"go.uber.org/zap"
@@ -14,15 +16,16 @@ import (
 type Install struct {
 	storageChecker storage.Checker
 	storageLinker  DisksLinker
-	config         Config
+	systemConfig   SystemConfig
 	certGenerator  CertificateGenerator
 	ldap           Ldap
 	nginx          Nginx
+	web            auth.Web
 	logDir         string
 	logger         *zap.Logger
 }
 
-type Config interface {
+type SystemConfig interface {
 	DiskRoot() string
 	InternalDiskDir() string
 	DiskLink() string
@@ -45,32 +48,42 @@ type Nginx interface {
 }
 
 const (
+	App       = "platform"
+	AppDir    = "/snap/platform/current"
+	DataDir   = "/var/snap/platform/current"
 	CommonDir = "/var/snap/platform/common"
 )
 
 func NewInstall(
 	storageChecker storage.Checker,
 	storageLinker DisksLinker,
-	config Config,
+	systemConfig SystemConfig,
 	certGenerator CertificateGenerator,
 	ldap Ldap,
 	nginx Nginx,
+	web auth.Web,
 	logger *zap.Logger,
 ) *Install {
 	return &Install{
 		storageChecker: storageChecker,
 		storageLinker:  storageLinker,
-		config:         config,
+		systemConfig:   systemConfig,
 		certGenerator:  certGenerator,
 		ldap:           ldap,
 		nginx:          nginx,
+		web:            web,
 		logDir:         path.Join(CommonDir, "log"),
 		logger:         logger,
 	}
 }
 
 func (i *Install) Install() error {
-	err := i.InitConfigs()
+	err := linux.CreateUser(App)
+	if err != nil {
+		return err
+	}
+
+	err = i.InitConfigs()
 	if err != nil {
 		return err
 	}
@@ -92,11 +105,21 @@ func (i *Install) Install() error {
 	if err != nil {
 		return err
 	}
+	err = i.web.InitConfig()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (i *Install) PostRefresh() error {
-	err := i.InitConfigs()
+
+	err := linux.CreateUser(App)
+	if err != nil {
+		return err
+	}
+
+	err = i.InitConfigs()
 	if err != nil {
 		return err
 	}
@@ -111,6 +134,11 @@ func (i *Install) PostRefresh() error {
 		return err
 	}
 
+	err = i.web.InitConfig()
+	if err != nil {
+		return err
+	}
+
 	err = cli.Remove(fmt.Sprintf("%s/*.log", i.logDir))
 	if err != nil {
 		return err
@@ -121,13 +149,12 @@ func (i *Install) PostRefresh() error {
 
 func (i *Install) InitConfigs() error {
 	i.logger.Info("init configs")
-	dataDir := "/var/snap/platform/current"
 
 	dataDirs := []string{
 		i.logDir,
-		path.Join(dataDir, "nginx"),
-		path.Join(dataDir, "openldap"),
-		path.Join(dataDir, "openldap-data"),
+		path.Join(DataDir, "nginx"),
+		path.Join(DataDir, "openldap"),
+		path.Join(DataDir, "openldap-data"),
 	}
 
 	for _, dir := range dataDirs {
@@ -137,26 +164,27 @@ func (i *Install) InitConfigs() error {
 		}
 	}
 
-	err := cp.Copy("/snap/platform/current/certs", "/usr/share/ca-certificates/mozilla")
+	err := cp.Copy(path.Join(AppDir, "certs"), "/usr/share/ca-certificates/mozilla")
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
 func (i *Install) InitDisk() error {
 	i.logger.Info("init disk")
-	err := createDir(i.config.DiskRoot())
+	err := createDir(i.systemConfig.DiskRoot())
 	if err != nil {
 		return err
 	}
-	err = createDir(i.config.InternalDiskDir())
+	err = createDir(i.systemConfig.InternalDiskDir())
 	if err != nil {
 		return err
 	}
 
 	if !i.storageChecker.ExternalDiskLinkExists() {
-		err = i.storageLinker.RelinkDisk(i.config.DiskLink(), i.config.InternalDiskDir())
+		err = i.storageLinker.RelinkDisk(i.systemConfig.DiskLink(), i.systemConfig.InternalDiskDir())
 		if err != nil {
 			return err
 		}

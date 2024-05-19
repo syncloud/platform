@@ -3,7 +3,6 @@ package rest
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/syncloud/platform/info"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -14,6 +13,8 @@ type DeviceUserConfig interface {
 	GetDkimKey() *string
 	SetDkimKey(key *string)
 	GetUserEmail() *string
+	Url(app string) string
+	AppDomain(app string) string
 }
 
 type Storage interface {
@@ -25,28 +26,32 @@ type Systemd interface {
 	RestartService(service string) error
 }
 
+type WebAuth interface {
+	RegisterOIDCClient(id string, redirectURI string, requirePkce bool, tokenEndpointAuthMethod string) (string, error)
+}
+
 type Api struct {
-	device     *info.Device
 	userConfig DeviceUserConfig
 	storage    Storage
 	systemd    Systemd
 	mw         *Middleware
 	network    string
 	address    string
+	webAuth    WebAuth
 	logger     *zap.Logger
 }
 
-func NewApi(device *info.Device, userConfig DeviceUserConfig, storage Storage, systemd Systemd,
+func NewApi(userConfig DeviceUserConfig, storage Storage, systemd Systemd,
 	middleware *Middleware, network string, address string,
-	logger *zap.Logger) *Api {
+	webAuth WebAuth, logger *zap.Logger) *Api {
 	return &Api{
-		device:     device,
 		userConfig: userConfig,
 		storage:    storage,
 		systemd:    systemd,
 		mw:         middleware,
 		network:    network,
 		address:    address,
+		webAuth:    webAuth,
 		logger:     logger,
 	}
 }
@@ -69,6 +74,7 @@ func (a *Api) Start() error {
 	r.HandleFunc("/service/restart", a.mw.Handle(a.ServiceRestart)).Methods("POST")
 	r.HandleFunc("/app/storage_dir", a.mw.Handle(a.AppStorageDir)).Methods("GET")
 	r.HandleFunc("/user/email", a.mw.Handle(a.UserEmail)).Methods("GET")
+	r.HandleFunc("/oidc/register", a.mw.Handle(a.RegisterOIDCClient)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(a.mw.NotFoundHandler)
 
 	r.Use(a.mw.JsonHeader)
@@ -99,7 +105,7 @@ func (a *Api) AppUrl(req *http.Request) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("no name")
 	}
-	return a.device.Url(keys[0]), nil
+	return a.userConfig.Url(keys[0]), nil
 }
 
 func (a *Api) AppDomainName(req *http.Request) (interface{}, error) {
@@ -107,7 +113,7 @@ func (a *Api) AppDomainName(req *http.Request) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("no name")
 	}
-	return a.device.AppDomain(keys[0]), nil
+	return a.userConfig.AppDomain(keys[0]), nil
 }
 
 func (a *Api) AppDeviceDomainName(_ *http.Request) (interface{}, error) {
@@ -120,6 +126,20 @@ func (a *Api) AppInitStorage(req *http.Request) (interface{}, error) {
 		return nil, err
 	}
 	return a.storage.InitAppStorageOwner(req.FormValue("app_name"), req.FormValue("user_name"))
+}
+
+func (a *Api) RegisterOIDCClient(req *http.Request) (interface{}, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, err
+	}
+	password, err := a.webAuth.RegisterOIDCClient(
+		req.FormValue("id"),
+		req.FormValue("redirect_uri"),
+		req.FormValue("require_pkce") == "true",
+		req.FormValue("token_endpoint_auth_method"),
+	)
+	return password, err
 }
 
 func (a *Api) ConfigGetDkimKey(_ *http.Request) (interface{}, error) {

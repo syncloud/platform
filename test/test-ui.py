@@ -22,6 +22,8 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
         check_output('mkdir -p {0}'.format(ui_logs), shell=True)
         device.run_ssh('mkdir -p {0}'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('cp /var/snap/platform/current/nginx.conf {0}/nginx.conf.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('cp /var/snap/platform/current/config/authelia/config.yml {0}/authelia.config.yml.log'.format(TMP_DIR), throw=False)
         device.scp_from_device('{0}/*'.format(TMP_DIR), ui_logs)
         check_output('cp /videos/* {0}'.format(artifact_dir), shell=True)
         check_output('chmod -R a+r {0}'.format(ui_logs), shell=True)
@@ -29,8 +31,9 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
     request.addfinalizer(module_teardown)
 
 
-def test_start(app, device_host, module_setup, domain):
+def test_start(app, device_host, module_setup, domain, full_domain):
     add_host_alias(app, device_host, domain)
+    add_host_alias("auth", device_host, full_domain)
 
 
 def test_deactivate(device, main_domain, domain):
@@ -85,8 +88,8 @@ def test_activate_again(selenium, device_host):
     selenium.screenshot('activate')
 
 
-def test_login(selenium, device_host):
-    selenium.driver.get("https://{0}".format(device_host))
+def test_login(selenium, full_domain):
+    selenium.driver.get("https://{0}".format(full_domain))
     selenium.find_by_xpath("//h1[text()='Log in']")
     selenium.screenshot('login')
 
@@ -158,12 +161,12 @@ def test_settings_backup(selenium):
     selenium.find_by_xpath("//h1[text()='Backup']")
     selenium.screenshot('settings_backup')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
-    selenium.find_by_id("auto").click()
-    selenium.find_by_id("auto-backup").click()
-    selenium.find_by_id("auto-day").click()
-    selenium.find_by_id("auto-day-monday").click()
-    selenium.find_by_id("auto-hour").click()
-    selenium.find_by_id("auto-hour-1").click()
+    selenium.clickable_by(By.ID, "auto").click()
+    selenium.clickable_by(By.ID, "auto-backup").click()
+    selenium.clickable_by(By.ID, "auto-day").click()
+    selenium.clickable_by(By.ID, "auto-day-monday").click()
+    selenium.clickable_by(By.ID, "auto-hour").click()
+    selenium.clickable_by(By.ID, "auto-hour-1").click()
     selenium.find_by_id("save").click()
     selenium.screenshot('settings_backup_saved')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
@@ -206,13 +209,27 @@ def test_install_app(selenium):
 
 def test_not_installed_app(selenium):
     menu(selenium, 'appcenter')
-    selenium.find_by_xpath("//span[text()='Nextcloud file sharing']").click()
+    selenium.clickable_by(By.XPATH, "//span[text()='Nextcloud file sharing']").click()
     selenium.find_by_xpath("//h1[text()='Nextcloud file sharing']")
     selenium.screenshot('app_not_installed')
 
 
-def test_settings_deactivate(selenium, device_host,
+
+def test_auth_web(selenium, full_domain, device_user, device_password):
+    selenium.driver.get("https://auth.{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    password = selenium.find_by(By.ID, "password-textfield")
+    password.send_keys(device_password)
+    selenium.screenshot('auth')
+    selenium.find_by(By.ID, "sign-in-button").click()
+       
+    # redirect to the main web
+    selenium.find_by_xpath("//h1[text()='Applications']")
+ 
+
+def test_settings_deactivate(selenium, device_host, full_domain,
                   domain, device_user, device_password, redirect_user, redirect_password):
+    selenium.driver.get("https://{0}".format(full_domain))
     settings(selenium, 'activation')
     selenium.find_by_xpath("//h1[text()='Activation']")
     selenium.find_by_id('btn_reactivate').click()
@@ -270,6 +287,7 @@ def menu(selenium, element_id):
             # if selenium.ui_mode == "mobile":
             #     selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
             wait_for_loading(selenium.driver)
+            selenium.screenshot(element_id)
             return
         except Exception as e:
             exception = e
@@ -299,7 +317,7 @@ def wait_for(selenium, method):
 
 def settings(selenium, setting):
     menu(selenium, 'settings')
-    selenium.find_by_id(setting).click()
+    selenium.clickable_by(By.ID, setting).click()
     wait_for_loading(selenium.driver)
 
 

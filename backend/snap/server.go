@@ -26,8 +26,12 @@ type DeviceInfo interface {
 	Url(app string) string
 }
 
-type Config interface {
+type SystemConfig interface {
 	Channel() string
+}
+
+type UserConfig interface {
+	Url(app string) string
 }
 
 type ExternalHttpClient interface {
@@ -35,26 +39,26 @@ type ExternalHttpClient interface {
 }
 
 type Server struct {
-	client     SnapdClient
-	deviceInfo DeviceInfo
-	config     Config
-	httpClient ExternalHttpClient
-	logger     *zap.Logger
+	client       SnapdClient
+	systemConfig SystemConfig
+	userConfig   UserConfig
+	httpClient   ExternalHttpClient
+	logger       *zap.Logger
 }
 
 func NewServer(
 	client SnapdClient,
-	deviceInfo DeviceInfo,
-	config Config,
+	systemConfig SystemConfig,
+	userConfig UserConfig,
 	httpClient ExternalHttpClient,
 	logger *zap.Logger,
 ) *Server {
 	return &Server{
-		client:     client,
-		deviceInfo: deviceInfo,
-		config:     config,
-		httpClient: httpClient,
-		logger:     logger,
+		client:       client,
+		systemConfig: systemConfig,
+		userConfig:   userConfig,
+		httpClient:   httpClient,
+		logger:       logger,
 	}
 }
 
@@ -66,7 +70,7 @@ func (s *Server) InstalledUserApps() ([]model.SyncloudApp, error) {
 	var apps []model.SyncloudApp
 	for _, snap := range snaps {
 		if snap.IsApp() {
-			app := snap.ToInstalledApp(s.deviceInfo.Url(snap.Name))
+			app := snap.ToInstalledApp(s.userConfig.Url(snap.Name))
 			apps = append(apps, app.App)
 		}
 	}
@@ -84,7 +88,7 @@ func (s *Server) StoreUserApps() ([]model.SyncloudApp, error) {
 	var apps []model.SyncloudApp
 	for _, snap := range snaps {
 		if snap.IsApp() {
-			app := snap.ToStoreApp(s.deviceInfo.Url(snap.Name))
+			app := snap.ToStoreApp(s.userConfig.Url(snap.Name))
 			apps = append(apps, app.App)
 		}
 	}
@@ -156,6 +160,9 @@ func (s *Server) snapsAction(action, name string) (*model.ServerResponse, error)
 		return nil, err
 	}
 	resp, err := s.client.Post(fmt.Sprintf("http://unix/v2/snaps/%s", name), "application/json", bytes.NewBuffer(requestJson))
+	if err != nil {
+		return nil, err
+	}
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, NotFound
 	}
@@ -180,7 +187,7 @@ func (s *Server) StoreSnaps() ([]model.Snap, error) {
 
 func (s *Server) Installer() (*model.InstallerInfo, error) {
 	s.logger.Info("installer")
-	channel := s.config.Channel()
+	channel := s.systemConfig.Channel()
 	systemInfoBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/system-info"))
 	if err != nil {
 		return nil, err
@@ -249,7 +256,7 @@ func (s *Server) FindInStore(name string) (*model.SyncloudAppVersions, error) {
 		s.logger.Warn("More than one app found")
 	}
 	snap := found[0]
-	installedApp := snap.ToStoreApp(s.deviceInfo.Url(snap.Name))
+	installedApp := snap.ToStoreApp(s.userConfig.Url(snap.Name))
 	return &installedApp, nil
 }
 
@@ -270,7 +277,7 @@ func (s *Server) Find(name string) (*model.SyncloudAppVersions, error) {
 		return storeApp, nil
 	}
 
-	installedApp := foundInstalledApp.ToInstalledApp(s.deviceInfo.Url(foundInstalledApp.Name))
+	installedApp := foundInstalledApp.ToInstalledApp(s.userConfig.Url(foundInstalledApp.Name))
 	if storeApp == nil {
 		return &installedApp, nil
 	}

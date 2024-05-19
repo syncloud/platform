@@ -14,8 +14,9 @@ require (
 	github.com/prometheus/procfs v0.7.3
 	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/spf13/cobra v1.1.1
-	github.com/stretchr/testify v1.8.0
-	go.uber.org/zap v1.24.0
+	github.com/stretchr/testify v1.9.0
+	github.com/syncloud/golib v1.1.5
+	go.uber.org/zap v1.25.0
 	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
 )
 
@@ -30,8 +31,7 @@ require (
 	github.com/miekg/dns v1.1.43 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
@@ -40,4 +40,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.18
+go 1.21

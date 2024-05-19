@@ -1,0 +1,10 @@
+users:
+  fake:
+    disabled: true
+    displayname: 'Fake'
+    #password: 'syncloud'
+    password: '$argon2id$v=19$m=65536,t=3,p=4$THP1NKRQoN1ebBtEQhxpLA$2HyzgO/a8o6VVXB0DnNi9jbxlDWE8J0ctyRNTCVGSYE'
+    email: 'fake'
+    groups: []
+ 
+
