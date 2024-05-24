@@ -61,6 +61,29 @@ server:
     ## Enables the expvars endpoint.
     enable_expvars: false
 
+    authz:
+      forward-auth:
+        implementation: 'ForwardAuth'
+        authn_strategies:
+          - name: 'HeaderAuthorization'
+            schemes:
+              - 'Basic'
+          - name: 'CookieSession'
+      ext-authz:
+        implementation: 'ExtAuthz'
+        authn_strategies:
+          - name: 'HeaderAuthorization'
+            schemes:
+              - 'Basic'
+          - name: 'CookieSession'
+      auth-request:
+        implementation: 'AuthRequest'
+        authn_strategies:
+          - name: 'HeaderAuthRequestProxyAuthorization'
+            schemes:
+              - 'Basic'
+          - name: 'CookieSession'
+
   ## Disables writing the health check vars to /app/.healthcheck.env which makes healthcheck.sh return exit code 0.
   ## This is disabled by default if either /app/.healthcheck.env or /app/healthcheck.sh do not exist.
   disable_healthcheck: false
