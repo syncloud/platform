@@ -113,13 +113,8 @@ func (i *Install) Install() error {
 }
 
 func (i *Install) PostRefresh() error {
-
-	err := linux.CreateUser(App)
-	if err != nil {
-		return err
-	}
-
-	err = i.InitConfigs()
+	
+	err := i.InitConfigs()
 	if err != nil {
 		return err
 	}
