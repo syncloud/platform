@@ -61,6 +61,9 @@ func (e *LsblkEntry) IsSupportedFsType() bool {
 	if e.FsType == "squashfs" {
 		return false
 	}
+	if strings.HasPrefix(e.MountPoint, "/snap") {
+		return false
+	}
 	if e.FsType == "linux_raid_member" {
 		return false
 	}
