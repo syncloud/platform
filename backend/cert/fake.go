@@ -21,7 +21,7 @@ const (
 	SubjectProvince     = "Syncloud"
 	SubjectLocality     = "Syncloud"
 	SubjectOrganization = "Syncloud"
-	SubjectCommonName   = "syncloud"
+	//SubjectCommonName   = "syncloud"
 	SubjectCommonNameCa = "syncloud ca"
 	DefaultDuration     = 2 * Month
 )
@@ -48,7 +48,7 @@ func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, sub
 	}
 }
 
-func (c *Fake) Generate() error {
+func (c *Fake) Generate(domain string) error {
 	c.logger.Info("generating fake certificate")
 
 	now := c.dateProvider.Now()
@@ -110,13 +110,14 @@ func (c *Fake) Generate() error {
 			Province:     []string{SubjectProvince},
 			Locality:     []string{SubjectLocality},
 			Organization: []string{c.subjectOrganization},
-			CommonName:   SubjectCommonName,
+			CommonName:   domain,
 		},
 		NotBefore:             now,
 		NotAfter:              now.Add(c.duration),
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
+		DNSNames:              []string{fmt.Sprintf("*.%s", domain)},
 	}
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
