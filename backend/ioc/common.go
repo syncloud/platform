@@ -155,13 +155,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(systemConfig *config.SystemConfig, provider *date.RealProvider) (*cert.Fake, error) {
+	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider) (*cert.Fake, error) {
 		var certLogger *zap.Logger
 		err := c.NamedResolve(&certLogger, CertificateLogger)
 		if err != nil {
 			return nil, err
 		}
-		return cert.NewFake(systemConfig, provider, cert.SubjectOrganization, cert.DefaultDuration, certLogger), nil
+		return cert.NewFake(systemConfig, userConfig, provider, cert.SubjectOrganization, cert.DefaultDuration, certLogger), nil
 	})
 	if err != nil {
 		return nil, err

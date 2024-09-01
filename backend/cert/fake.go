@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"os"
 	"time"
@@ -28,6 +29,7 @@ const (
 
 type Fake struct {
 	systemConfig        GeneratorSystemConfig
+	userConfig          GeneratorUserConfig
 	dateProvider        date.Provider
 	subjectOrganization string
 	duration            time.Duration
@@ -38,9 +40,10 @@ type FakeGenerator interface {
 	Generate() error
 }
 
-func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, subjectOrganization string, duration time.Duration, logger *zap.Logger) *Fake {
+func NewFake(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, subjectOrganization string, duration time.Duration, logger *zap.Logger) *Fake {
 	return &Fake{
 		systemConfig:        systemConfig,
+		userConfig:          userConfig,
 		dateProvider:        dateProvider,
 		subjectOrganization: subjectOrganization,
 		duration:            duration,
@@ -48,7 +51,7 @@ func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, sub
 	}
 }
 
-func (c *Fake) Generate(domain string) error {
+func (c *Fake) Generate() error {
 	c.logger.Info("generating fake certificate")
 
 	now := c.dateProvider.Now()
@@ -102,7 +105,7 @@ func (c *Fake) Generate(domain string) error {
 	if err != nil {
 		return err
 	}
-
+	domain := c.userConfig.GetDeviceDomain()
 	cert := &x509.Certificate{
 		SerialNumber: big.NewInt(time.Now().UnixNano()/int64(time.Millisecond) + 1),
 		Subject: pkix.Name{
