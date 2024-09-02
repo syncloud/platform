@@ -113,7 +113,7 @@ func (i *Install) Install() error {
 }
 
 func (i *Install) PostRefresh() error {
-	
+
 	err := i.InitConfigs()
 	if err != nil {
 		return err
