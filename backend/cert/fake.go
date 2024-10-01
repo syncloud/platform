@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"os"
 	"time"
@@ -21,13 +22,14 @@ const (
 	SubjectProvince     = "Syncloud"
 	SubjectLocality     = "Syncloud"
 	SubjectOrganization = "Syncloud"
-	SubjectCommonName   = "syncloud"
+	//SubjectCommonName   = "syncloud"
 	SubjectCommonNameCa = "syncloud ca"
 	DefaultDuration     = 2 * Month
 )
 
 type Fake struct {
 	systemConfig        GeneratorSystemConfig
+	userConfig          GeneratorUserConfig
 	dateProvider        date.Provider
 	subjectOrganization string
 	duration            time.Duration
@@ -38,9 +40,10 @@ type FakeGenerator interface {
 	Generate() error
 }
 
-func NewFake(systemConfig GeneratorSystemConfig, dateProvider date.Provider, subjectOrganization string, duration time.Duration, logger *zap.Logger) *Fake {
+func NewFake(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig, dateProvider date.Provider, subjectOrganization string, duration time.Duration, logger *zap.Logger) *Fake {
 	return &Fake{
 		systemConfig:        systemConfig,
+		userConfig:          userConfig,
 		dateProvider:        dateProvider,
 		subjectOrganization: subjectOrganization,
 		duration:            duration,
@@ -102,7 +105,7 @@ func (c *Fake) Generate() error {
 	if err != nil {
 		return err
 	}
-
+	domain := c.userConfig.GetDeviceDomain()
 	cert := &x509.Certificate{
 		SerialNumber: big.NewInt(time.Now().UnixNano()/int64(time.Millisecond) + 1),
 		Subject: pkix.Name{
@@ -110,13 +113,14 @@ func (c *Fake) Generate() error {
 			Province:     []string{SubjectProvince},
 			Locality:     []string{SubjectLocality},
 			Organization: []string{c.subjectOrganization},
-			CommonName:   SubjectCommonName,
+			CommonName:   domain,
 		},
 		NotBefore:             now,
 		NotAfter:              now.Add(c.duration),
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
+		DNSNames:              []string{fmt.Sprintf("*.%s", domain)},
 	}
 
 	privateKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)

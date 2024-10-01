@@ -106,7 +106,7 @@ func TestRegenerate_LessThanAMonthBeforeExpiry(t *testing.T) {
 		certFile: file.Name(),
 	}
 
-	userConfig := &GeneratorUserConfigStub{activated: true, domain: SubjectCommonName}
+	userConfig := &GeneratorUserConfigStub{activated: true, domain: "domain"}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 	nginx := &GeneratorNginxStub{}
@@ -154,7 +154,7 @@ func TestNotRegenerate_MoreThanAMonthBeforeExpiry(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		certFile: file.Name(),
 	}
-	userConfig := &GeneratorUserConfigStub{activated: true, domain: SubjectCommonName}
+	userConfig := &GeneratorUserConfigStub{activated: true, domain: "domain"}
 	certbot := &CertbotStub{}
 	fake := &FakeStub{}
 	nginx := &GeneratorNginxStub{}
@@ -290,6 +290,9 @@ func generateCertificate(now time.Time, duration time.Duration, real bool) *os.F
 			keyFile:    keyFile.Name(),
 			caSertFile: caCertFile.Name(),
 			caKeyFile:  caKeyFile.Name(),
+		},
+		&GeneratorUserConfigStub{
+			domain: "domain",
 		},
 		&ProviderStub{now: now},
 		subjectOrganization,
