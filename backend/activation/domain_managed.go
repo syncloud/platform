@@ -5,6 +5,7 @@ import (
 	"github.com/syncloud/platform/connection"
 	"github.com/syncloud/platform/redirect"
 	"go.uber.org/zap"
+	"strings"
 )
 
 type ManagedActivateRequest struct {
@@ -54,8 +55,9 @@ func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserC
 	}
 }
 
-func (f *Managed) Activate(redirectEmail string, redirectPassword string, domainName string, deviceUsername string, devicePassword string) error {
-	f.logger.Info("activate", zap.String("domainName", domainName))
+func (f *Managed) Activate(redirectEmail string, redirectPassword string, requestDomainName string, deviceUsername string, devicePassword string) error {
+	f.logger.Info("activate", zap.String("domainName", requestDomainName))
+	domainName := strings.ToLower(requestDomainName)
 
 	err := f.internet.Check()
 	if err != nil {
