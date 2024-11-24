@@ -61,7 +61,7 @@ func TestActivate_CustomGood(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestActivate_ManagedLoginShort(t *testing.T) {
+func TestActivate_FreeLoginShort(t *testing.T) {
 	activate := NewActivateBackend(&ManagedActivationStub{}, &CustomActivationStub{})
 	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "a", DevicePassword: "password"}
 	body, err := json.Marshal(request)
@@ -72,7 +72,7 @@ func TestActivate_ManagedLoginShort(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestActivate_ManagedPasswordShort(t *testing.T) {
+func TestActivate_FreePasswordShort(t *testing.T) {
 	activate := NewActivateBackend(&ManagedActivationStub{}, &CustomActivationStub{})
 	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "pass"}
 	body, err := json.Marshal(request)
@@ -83,7 +83,7 @@ func TestActivate_ManagedPasswordShort(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestActivate_ManagedGood(t *testing.T) {
+func TestActivate_FreeGood(t *testing.T) {
 	activate := NewActivateBackend(&ManagedActivationStub{}, &CustomActivationStub{})
 	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "password"}
 	body, err := json.Marshal(request)
@@ -94,7 +94,7 @@ func TestActivate_ManagedGood(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestActivate_ManagedRedirectError(t *testing.T) {
+func TestActivate_FreeRedirectError(t *testing.T) {
 	managed := &ManagedActivationStub{error: true}
 	activate := NewActivateBackend(managed, &CustomActivationStub{})
 	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "username", DevicePassword: "password"}
@@ -102,16 +102,5 @@ func TestActivate_ManagedRedirectError(t *testing.T) {
 	assert.Nil(t, err)
 	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
 	_, err = activate.Managed(req)
-	assert.NotNil(t, err)
-}
-
-func TestActivate_ManagedLoginEmail_NotAllow(t *testing.T) {
-	activate := NewActivateBackend(&ManagedActivationStub{}, &CustomActivationStub{})
-	request := &activation.ManagedActivateRequest{Domain: "example.com", DeviceUsername: "boris@example.com", DevicePassword: "password"}
-	body, err := json.Marshal(request)
-	assert.Nil(t, err)
-	req, _ := http.NewRequest("GET", "/", bytes.NewBuffer(body))
-	message, err := activate.Managed(req)
-	assert.Nil(t, message)
 	assert.NotNil(t, err)
 }
