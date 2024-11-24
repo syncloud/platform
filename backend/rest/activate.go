@@ -5,7 +5,6 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/rest/model"
 	"net/http"
-	"strings"
 )
 
 type Activate struct {
@@ -52,9 +51,6 @@ func validate(username string, password string) error {
 	}
 	if len(password) < 7 {
 		return model.SingleParameterError("device_password", "less than 7 characters")
-	}
-	if strings.Contains(username, "@") {
-		return model.SingleParameterError("device_username", "emails as are not supported")
 	}
 	return nil
 }
