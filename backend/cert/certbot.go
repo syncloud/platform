@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"github.com/go-acme/lego/v4/certificate"
+	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"
 	"go.uber.org/zap"
@@ -94,7 +95,10 @@ func (g *Certbot) Generate() error {
 		if token == nil {
 			return fmt.Errorf("token is not set")
 		}
-		err = client.Challenge.SetDNS01Provider(NewSyncloudDNS(*token, g.redirect, g.certbotLogger))
+		err = client.Challenge.SetDNS01Provider(
+			NewSyncloudDNS(*token, g.redirect, g.certbotLogger),
+			dns01.AddRecursiveNameservers([]string{"8.8.8.8:53", "8.8.4.4:53"}),
+		)
 		if err != nil {
 			return err
 		}
