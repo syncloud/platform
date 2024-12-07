@@ -50,6 +50,7 @@ local build(arch, testUI) = [{
 		        "npm config set fetch-retry-mintimeout 200000",
                 "npm config set fetch-retry-maxtimeout 1200000",
                 "npm install",
+                "npm update browserslist",
                 "npm run test",
                 "npm run lint",
                 "npm run build",

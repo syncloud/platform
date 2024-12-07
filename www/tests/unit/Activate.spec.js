@@ -190,6 +190,62 @@ test('Activate free domain availability error', async () => {
   wrapper.unmount()
 })
 
+test('Activate free domain availability generic error', async () => {
+  const mockRouter = { push: jest.fn() }
+
+  const mock = new MockAdapter(axios)
+  mock.onPost('/rest/activate/managed').reply(500, {
+    message: 'not ok'
+  })
+
+  let error = ''
+  const showError = (err) => {
+    error = err.response.data.message
+  }
+
+  mock.onPost('/rest/redirect/domain/availability').reply(400, {
+    success: false,
+    message: 'authentication failed'
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+
+  const wrapper = mount(Activate,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Dialog: true,
+          'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
+        },
+        mocks: {
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#email').setValue('r email')
+  await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#domain_input').setValue('domain')
+  await wrapper.find('#btn_next').trigger('click')
+
+  await flushPromises()
+
+  expect(error).toBe('authentication failed')
+
+  wrapper.unmount()
+})
+
 test('Activate free domain availability error email', async () => {
   const mockRouter = { push: jest.fn() }
 
