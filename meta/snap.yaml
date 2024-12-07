@@ -7,6 +7,7 @@ apps:
     - network-bind
     restart-condition: always
     reload-command: bin/service.nginx-public.sh reload
+    start-timeout: 2000s
   openldap:
     command: bin/service.openldap.sh
     daemon: forking
@@ -14,13 +15,14 @@ apps:
     - network
     - network-bind
     restart-condition: always
+    start-timeout: 2000s
   backend:
     command: bin/service.backend.sh
     daemon: simple
     plugs:
     - network
     - network-bind
-    start-timeout: 200s
+    start-timeout: 2000s
     restart-condition: always
   api:
     command: bin/service.api.sh
@@ -28,7 +30,7 @@ apps:
     plugs:
     - network
     - network-bind
-    start-timeout: 200s
+    start-timeout: 2000s
     restart-condition: always
   authelia:
     command: bin/service.authelia.sh
@@ -37,6 +39,7 @@ apps:
     - network
     - network-bind
     restart-condition: always
+    start-timeout: 2000s
 
   cli:
     command: bin/cli
