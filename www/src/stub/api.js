@@ -523,7 +523,12 @@ export function mock () {
       })
       this.post('/rest/redirect/domain/availability', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
-        if (attrs.domain.startsWith('1')) {
+        if (attrs.email.startsWith('error')) {
+          return new Response(400, {}, {
+            success: false,
+            message: 'authentication failed'
+          })
+        } else if (attrs.domain.startsWith('1')) {
           return new Response(400, {}, {
             success: false,
             parameters_messages: [

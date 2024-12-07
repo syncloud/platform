@@ -317,6 +317,8 @@ export default {
                 this.domainAlert = message
               }
             }
+          } else {
+            this.$refs.error.showAxios(err)
           }
         }
       }
