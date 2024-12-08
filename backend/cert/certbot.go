@@ -98,6 +98,7 @@ func (g *Certbot) Generate() error {
 		err = client.Challenge.SetDNS01Provider(
 			NewSyncloudDNS(*token, g.redirect, g.certbotLogger),
 			dns01.AddRecursiveNameservers([]string{"8.8.8.8:53"}),
+			dns01.DisableAuthoritativeNssPropagationRequirement(),
 		)
 		if err != nil {
 			return err
