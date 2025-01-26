@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"path/filepath"
@@ -27,14 +28,17 @@ type SnapServiceStub struct {
 }
 
 func (s *SnapServiceStub) Stop(_ string) error {
+	fmt.Println("stop")
 	return nil
 }
 
 func (s *SnapServiceStub) Start(_ string) error {
+	fmt.Println("start")
 	return nil
 }
 
 func (s *SnapServiceStub) RunCmdIfExists(_ model.Snap, cmd string) error {
+	fmt.Println("run cmd", cmd)
 	if cmd == CreatePreStop {
 		backupFile := filepath.Join(s.versionDir, "backup.file")
 		if err := os.WriteFile(backupFile, []byte("backup"), 0666); err != nil {
@@ -118,10 +122,11 @@ func TestBackup_Create(t *testing.T) {
 	varDir := t.TempDir()
 	appDir := filepath.Join(varDir, "test-app")
 	_ = os.Mkdir(appDir, 0750)
-	versionDir := filepath.Join(appDir, "x1")
+	version := "x1"
+	versionDir := filepath.Join(appDir, version)
 	_ = os.Mkdir(versionDir, 0750)
 	currentDir := filepath.Join(appDir, "current")
-	_ = os.Symlink(versionDir, currentDir)
+	_ = os.Symlink(version, currentDir)
 	commonDir := filepath.Join(appDir, "common")
 	_ = os.Mkdir(commonDir, 0750)
 	socketCommonFile := filepath.Join(commonDir, "web.socket")
