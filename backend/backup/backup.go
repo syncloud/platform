@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type SnapService interface {
@@ -49,6 +50,8 @@ const (
 	VarDir           = "/var/snap"
 	CreatePreStop    = "backup-pre-stop"
 	CreatePostStop   = "backup-post-stop"
+	RestorePreStop   = "restore-pre-stop"
+	RestorePostStop  = "restore-post-stop"
 	RestorePreStart  = "restore-pre-start"
 	RestorePostStart = "restore-post-start"
 )
@@ -267,13 +270,31 @@ func (b *Backup) Restore(fileName string) error {
 		return fmt.Errorf("not enough temp space for the restore")
 	}
 
-	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xf", file.FullName)
-	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
+	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xvf", file.FullName)
+	b.logger.Info(fmt.Sprintf("tar output: %s", strings.TrimSpace(string(out))))
+	if err != nil {
+		return err
+	}
+
+	snap, err := b.snapServer.FindInstalled(file.App)
+	if err != nil {
+		return err
+	}
+	if snap == nil {
+		return fmt.Errorf("app not found: %s", file.App)
+	}
+
+	err = b.snapCli.RunCmdIfExists(*snap, RestorePreStop)
 	if err != nil {
 		return err
 	}
 
 	err = b.snapCli.Stop(file.App)
+	if err != nil {
+		return err
+	}
+
+	err = b.snapCli.RunCmdIfExists(*snap, RestorePostStop)
 	if err != nil {
 		return err
 	}
@@ -290,6 +311,7 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
+	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCurrentDir, currentDir))
 	err = cp.Copy(tempCurrentDir, currentDir)
 	if err != nil {
 		return err
@@ -301,17 +323,10 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 	tempCommonDir := fmt.Sprintf("%s/common", tempDir)
+	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCommonDir, commonDir))
 	err = cp.Copy(tempCommonDir, commonDir)
 	if err != nil {
 		return err
-	}
-
-	snap, err := b.snapServer.FindInstalled(file.App)
-	if err != nil {
-		return err
-	}
-	if snap == nil {
-		return fmt.Errorf("app not found: %s", file.App)
 	}
 
 	err = b.snapCli.RunCmdIfExists(*snap, RestorePreStart)
@@ -338,6 +353,7 @@ func (b *Backup) Restore(fileName string) error {
 }
 
 func (b *Backup) recreateDir(dir string) error {
+	b.logger.Info(fmt.Sprintf("recreate dir %s", dir))
 	err := os.RemoveAll(dir)
 	if err != nil {
 		return err
