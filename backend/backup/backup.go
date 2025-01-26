@@ -270,7 +270,7 @@ func (b *Backup) Restore(fileName string) error {
 		return fmt.Errorf("not enough temp space for the restore")
 	}
 
-	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xvf", file.FullName)
+	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xf", file.FullName)
 	b.logger.Info(fmt.Sprintf("tar output: %s", strings.TrimSpace(string(out))))
 	if err != nil {
 		return err
