@@ -10,8 +10,7 @@ fi
 NAME=platform
 ARCH=$(uname -m)
 VERSION=$1
-CA_CERTIFICATES_VERSION=20240203
-
+CA_CERTIFICATES_VERSION=20241223
 cd ${DIR}/build
 
 BUILD_DIR=${DIR}/build/snap
@@ -55,3 +54,4 @@ echo ${PACKAGE} > $DIR/package.name
 mksquashfs ${BUILD_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root
 mkdir ${DIR}/artifact
 cp ${DIR}/${PACKAGE} ${DIR}/artifact
+

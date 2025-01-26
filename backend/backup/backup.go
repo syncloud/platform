@@ -281,7 +281,11 @@ func (b *Backup) Restore(fileName string) error {
 	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, file.App)
 
 	currentDir := fmt.Sprintf("%s/current", appBaseDir)
-	_, err = b.executor.CombinedOutput("rm", "-rf", fmt.Sprintf("%s/*", currentDir))
+	targetCurrentDir, err := os.Readlink(currentDir)
+	if err != nil {
+		return err
+	}
+	err = b.recreateDir(targetCurrentDir)
 	if err != nil {
 		return err
 	}
@@ -292,7 +296,7 @@ func (b *Backup) Restore(fileName string) error {
 	}
 
 	commonDir := fmt.Sprintf("%s/common", appBaseDir)
-	_, err = b.executor.CombinedOutput("rm", "-rf", fmt.Sprintf("%s/*", commonDir))
+	err = b.recreateDir(commonDir)
 	if err != nil {
 		return err
 	}
@@ -331,6 +335,14 @@ func (b *Backup) Restore(fileName string) error {
 	}
 
 	return nil
+}
+
+func (b *Backup) recreateDir(dir string) error {
+	err := os.RemoveAll(dir)
+	if err != nil {
+		return err
+	}
+	return os.MkdirAll(dir, 0755)
 }
 
 func (b *Backup) Remove(fileName string) error {

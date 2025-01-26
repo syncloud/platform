@@ -94,9 +94,8 @@ func TestBackup_Remove(t *testing.T) {
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 	tmpFile := filepath.Join(backupDir, "tmpfile")
-	if err := os.WriteFile(tmpFile, []byte(""), 0666); err != nil {
-		panic(err)
-	}
+	err := os.WriteFile(tmpFile, []byte(""), 0666)
+	assert.NoError(t, err)
 	backup := New(
 		backupDir,
 		varDir,
@@ -107,7 +106,7 @@ func TestBackup_Remove(t *testing.T) {
 		&UserConfigStub{},
 		&ProviderStub{},
 		log.Default())
-	err := backup.Remove("tmpfile")
+	err = backup.Remove("tmpfile")
 	assert.Nil(t, err)
 	list, err := backup.List()
 	assert.Nil(t, err)
@@ -159,6 +158,10 @@ func TestBackup_Create(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(backups), 1)
 
+	toDeleteFile := filepath.Join(currentDir, "file.to.delete")
+	err = os.WriteFile(toDeleteFile, []byte("test"), 0666)
+	assert.NoError(t, err)
+
 	err = os.Remove(currentFile)
 	assert.Nil(t, err)
 
@@ -168,6 +171,8 @@ func TestBackup_Create(t *testing.T) {
 	err = backup.Restore(backups[0].File)
 	assert.Nil(t, err)
 
+	_, err = os.Stat(toDeleteFile)
+	assert.ErrorIs(t, err, os.ErrNotExist, "toDeleteFile should not exist")
 	currentFileContent, err := os.ReadFile(currentFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "current", string(currentFileContent))
@@ -186,9 +191,8 @@ func TestBackup_Auto(t *testing.T) {
 	backupDir := t.TempDir()
 	varDir := t.TempDir()
 	tmpFile := filepath.Join(backupDir, "tmpfile")
-	if err := os.WriteFile(tmpFile, []byte(""), 0666); err != nil {
-		panic(err)
-	}
+	err := os.WriteFile(tmpFile, []byte(""), 0666)
+	assert.NoError(t, err)
 	backup := New(
 		backupDir,
 		varDir,
