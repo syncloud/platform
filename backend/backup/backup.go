@@ -302,7 +302,7 @@ func (b *Backup) Restore(fileName string) error {
 	appBaseDir := fmt.Sprintf("%s/%s", b.varDir, file.App)
 
 	currentDir := fmt.Sprintf("%s/current", appBaseDir)
-	targetCurrentDir, err := os.Readlink(currentDir)
+	targetCurrentDir, err := filepath.EvalSymlinks(currentDir)
 	if err != nil {
 		return err
 	}

@@ -122,10 +122,11 @@ func TestBackup_Create(t *testing.T) {
 	varDir := t.TempDir()
 	appDir := filepath.Join(varDir, "test-app")
 	_ = os.Mkdir(appDir, 0750)
-	versionDir := filepath.Join(appDir, "x1")
+	version := "x1"
+	versionDir := filepath.Join(appDir, version)
 	_ = os.Mkdir(versionDir, 0750)
 	currentDir := filepath.Join(appDir, "current")
-	_ = os.Symlink(versionDir, currentDir)
+	_ = os.Symlink(version, currentDir)
 	commonDir := filepath.Join(appDir, "common")
 	_ = os.Mkdir(commonDir, 0750)
 	socketCommonFile := filepath.Join(commonDir, "web.socket")
