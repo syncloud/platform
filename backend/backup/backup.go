@@ -192,7 +192,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 	b.logger.Info(fmt.Sprintf("copy %s", versionDir))
-	err = cp.Copy(versionDir, tempCurrentDir, b.skipUnixSockets())
+	err = cp.Copy(versionDir, tempCurrentDir, b.options())
 	if err != nil {
 		b.logger.Error("cannot copy", zap.Error(err))
 		return err
@@ -205,7 +205,7 @@ func (b *Backup) Create(app string) error {
 	}
 
 	b.logger.Info(fmt.Sprintf("copy %s", commonDir))
-	err = cp.Copy(commonDir, tempCommonDir, b.skipUnixSockets())
+	err = cp.Copy(commonDir, tempCommonDir, b.options())
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func (b *Backup) Create(app string) error {
 	return nil
 }
 
-func (b *Backup) skipUnixSockets() cp.Options {
+func (b *Backup) options() cp.Options {
 	return cp.Options{
 		Skip: func(src string) (bool, error) {
 			info, err := os.Lstat(src)
@@ -242,6 +242,7 @@ func (b *Backup) skipUnixSockets() cp.Options {
 			}
 			return false, nil
 		},
+		PreserveOwner: true,
 	}
 }
 
@@ -314,7 +315,7 @@ func (b *Backup) Restore(fileName string) error {
 	}
 	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
 	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCurrentDir, currentDir))
-	err = cp.Copy(tempCurrentDir, currentDir)
+	err = cp.Copy(tempCurrentDir, currentDir, b.options())
 	if err != nil {
 		return err
 	}
@@ -326,7 +327,7 @@ func (b *Backup) Restore(fileName string) error {
 	}
 	tempCommonDir := fmt.Sprintf("%s/common", tempDir)
 	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCommonDir, commonDir))
-	err = cp.Copy(tempCommonDir, commonDir)
+	err = cp.Copy(tempCommonDir, commonDir, b.options())
 	if err != nil {
 		return err
 	}

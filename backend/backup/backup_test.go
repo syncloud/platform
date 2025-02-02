@@ -149,8 +149,13 @@ func TestBackup_Create(t *testing.T) {
 	}
 
 	app := "test-app"
-
 	err = linux.CreateUser(app)
+	assert.NoError(t, err)
+
+	err = linux.Chown(commonDir, app)
+	assert.NoError(t, err)
+
+	err = linux.Chown(versionDir, app)
 	assert.NoError(t, err)
 
 	backup := New(
@@ -163,7 +168,9 @@ func TestBackup_Create(t *testing.T) {
 		&UserConfigStub{},
 		&ProviderStub{},
 		log.Default())
-	backup.Start()
+	err = backup.Start()
+	assert.NoError(t, err)
+
 	err = backup.Create(app)
 	assert.Nil(t, err)
 	backups, err := backup.List()
@@ -197,14 +204,30 @@ func TestBackup_Create(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
 
-	fileInfo, err := os.Stat(backupFile)
+	owner, err := getOwner(currentFile)
 	assert.NoError(t, err)
-	stat, ok := fileInfo.Sys().(*syscall.Stat_t)
-	assert.True(t, ok)
-	uid := stat.Uid
-	u, err := user.LookupId(fmt.Sprint(uid))
+	assert.Equal(t, app, owner)
+
+	owner, err = getOwner(commonFile)
 	assert.NoError(t, err)
-	assert.Equal(t, app, u.Username)
+	assert.Equal(t, app, owner)
+
+}
+
+func getOwner(file string) (string, error) {
+	currentFileInfo, err := os.Stat(file)
+	if err != nil {
+		return "", err
+	}
+	stat, ok := currentFileInfo.Sys().(*syscall.Stat_t)
+	if !ok {
+		return "", fmt.Errorf("not a stat_t")
+	}
+	u, err := user.LookupId(fmt.Sprint(stat.Uid))
+	if err != nil {
+		return "", err
+	}
+	return u.Username, nil
 }
 
 func TestBackup_Auto(t *testing.T) {
