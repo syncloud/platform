@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/golib/linux"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/snap/model"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type DiskUsageStub struct {
@@ -146,6 +146,11 @@ func TestBackup_Create(t *testing.T) {
 		panic(err)
 	}
 
+	app := "test-app"
+
+	err = linux.CreateUser(app)
+	assert.NoError(t, err)
+
 	backup := New(
 		backupDir+"/non-existent",
 		varDir,
@@ -157,7 +162,7 @@ func TestBackup_Create(t *testing.T) {
 		&ProviderStub{},
 		log.Default())
 	backup.Start()
-	err = backup.Create("test-app")
+	err = backup.Create(app)
 	assert.Nil(t, err)
 	backups, err := backup.List()
 	assert.Nil(t, err)
