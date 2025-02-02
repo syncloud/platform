@@ -197,8 +197,10 @@ func TestBackup_Create(t *testing.T) {
 
 	fileInfo, err := os.Stat(backupFile)
 	assert.NoError(t, err)
-
-	u, err := user.LookupId(fmt.Sprint(stat.Uid))
+	stat := fileInfo.Sys()
+	uid := stat.(*user.Stat_t).Uid
+	u, err := user.LookupId(fmt.Sprint(uid))
+	assert.NoError(t, err)
 	assert.Equal(t, app, u.Username)
 }
 
