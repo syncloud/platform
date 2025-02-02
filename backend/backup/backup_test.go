@@ -186,8 +186,8 @@ func TestBackup_Create(t *testing.T) {
 	currentFileContent, err := os.ReadFile(currentFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "current", string(currentFileContent))
-
-	backupFileContent, err := os.ReadFile(filepath.Join(versionDir, "backup.file"))
+	backupFile := filepath.Join(versionDir, "backup.file")
+	backupFileContent, err := os.ReadFile(backupFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "backup", string(backupFileContent))
 
@@ -195,6 +195,11 @@ func TestBackup_Create(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
 
+	fileInfo, err := os.Stat(backupFile)
+	assert.NoError(t, err)
+
+	u, err := user.LookupId(fmt.Sprint(stat.Uid))
+	assert.Equal(t, app, u.Username)
 }
 
 func TestBackup_Auto(t *testing.T) {
