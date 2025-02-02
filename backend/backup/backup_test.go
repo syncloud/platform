@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"syscall"
@@ -152,10 +153,10 @@ func TestBackup_Create(t *testing.T) {
 	err = linux.CreateUser(app)
 	assert.NoError(t, err)
 
-	err = linux.Chown(commonDir, app)
+	err = ChownFile(commonFile, app)
 	assert.NoError(t, err)
 
-	err = linux.Chown(versionDir, app)
+	err = ChownFile(currentFile, app)
 	assert.NoError(t, err)
 
 	backup := New(
@@ -204,7 +205,11 @@ func TestBackup_Create(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
 
-	owner, err := getOwner(currentFile)
+	owner, err := getOwner(currentDir)
+	assert.NoError(t, err)
+	assert.Equal(t, app, owner)
+
+	owner, err = getOwner(currentFile)
 	assert.NoError(t, err)
 	assert.Equal(t, app, owner)
 
@@ -212,6 +217,18 @@ func TestBackup_Create(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, app, owner)
 
+}
+
+func ChownFile(file, username string) error {
+	command := exec.Command("chown",
+		fmt.Sprintf("%s:%s", username, username),
+		fmt.Sprintf("%s", file),
+	)
+	output, err := command.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("%w: %s", err, string(output))
+	}
+	return nil
 }
 
 func getOwner(file string) (string, error) {
