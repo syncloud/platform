@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/user"
 	"path/filepath"
+	"syscall"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/golib/linux"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/snap/model"
-
-	"github.com/stretchr/testify/assert"
 )
 
 type DiskUsageStub struct {
@@ -146,6 +148,16 @@ func TestBackup_Create(t *testing.T) {
 		panic(err)
 	}
 
+	app := "test-app"
+	err = linux.CreateUser(app)
+	assert.NoError(t, err)
+
+	err = linux.Chown(commonDir, app)
+	assert.NoError(t, err)
+
+	err = linux.Chown(versionDir, app)
+	assert.NoError(t, err)
+
 	backup := New(
 		backupDir+"/non-existent",
 		varDir,
@@ -156,8 +168,10 @@ func TestBackup_Create(t *testing.T) {
 		&UserConfigStub{},
 		&ProviderStub{},
 		log.Default())
-	backup.Start()
-	err = backup.Create("test-app")
+	err = backup.Start()
+	assert.NoError(t, err)
+
+	err = backup.Create(app)
 	assert.Nil(t, err)
 	backups, err := backup.List()
 	assert.Nil(t, err)
@@ -181,8 +195,8 @@ func TestBackup_Create(t *testing.T) {
 	currentFileContent, err := os.ReadFile(currentFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "current", string(currentFileContent))
-
-	backupFileContent, err := os.ReadFile(filepath.Join(versionDir, "backup.file"))
+	backupFile := filepath.Join(versionDir, "backup.file")
+	backupFileContent, err := os.ReadFile(backupFile)
 	assert.Nil(t, err)
 	assert.Equal(t, "backup", string(backupFileContent))
 
@@ -190,6 +204,30 @@ func TestBackup_Create(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "common", string(commonFileContent))
 
+	owner, err := getOwner(currentFile)
+	assert.NoError(t, err)
+	assert.Equal(t, app, owner)
+
+	owner, err = getOwner(commonFile)
+	assert.NoError(t, err)
+	assert.Equal(t, app, owner)
+
+}
+
+func getOwner(file string) (string, error) {
+	currentFileInfo, err := os.Stat(file)
+	if err != nil {
+		return "", err
+	}
+	stat, ok := currentFileInfo.Sys().(*syscall.Stat_t)
+	if !ok {
+		return "", fmt.Errorf("not a stat_t")
+	}
+	u, err := user.LookupId(fmt.Sprint(stat.Uid))
+	if err != nil {
+		return "", err
+	}
+	return u.Username, nil
 }
 
 func TestBackup_Auto(t *testing.T) {
