@@ -314,8 +314,12 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 	tempCurrentDir := fmt.Sprintf("%s/current", tempDir)
-	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCurrentDir, currentDir))
-	err = cp.Copy(tempCurrentDir, currentDir, b.options())
+	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCurrentDir, targetCurrentDir))
+	err = cp.Copy(tempCurrentDir, targetCurrentDir, b.options())
+	if err != nil {
+		return err
+	}
+	err = b.chown(targetCurrentDir, file.App)
 	if err != nil {
 		return err
 	}
@@ -328,6 +332,10 @@ func (b *Backup) Restore(fileName string) error {
 	tempCommonDir := fmt.Sprintf("%s/common", tempDir)
 	b.logger.Info(fmt.Sprintf("copy %s to %s", tempCommonDir, commonDir))
 	err = cp.Copy(tempCommonDir, commonDir, b.options())
+	if err != nil {
+		return err
+	}
+	err = b.chown(commonDir, file.App)
 	if err != nil {
 		return err
 	}
@@ -361,11 +369,7 @@ func (b *Backup) recreateDir(dir, app string) error {
 	if err != nil {
 		return err
 	}
-	err = os.MkdirAll(dir, 0755)
-	if err != nil {
-		return err
-	}
-	return b.chown(dir, app)
+	return os.MkdirAll(dir, 0755)
 }
 
 func (b *Backup) Remove(fileName string) error {
