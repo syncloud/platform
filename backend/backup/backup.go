@@ -10,7 +10,9 @@ import (
 	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -306,7 +308,7 @@ func (b *Backup) Restore(fileName string) error {
 	if err != nil {
 		return err
 	}
-	err = b.recreateDir(targetCurrentDir)
+	err = b.recreateDir(targetCurrentDir, file.App)
 	if err != nil {
 		return err
 	}
@@ -318,7 +320,7 @@ func (b *Backup) Restore(fileName string) error {
 	}
 
 	commonDir := fmt.Sprintf("%s/common", appBaseDir)
-	err = b.recreateDir(commonDir)
+	err = b.recreateDir(commonDir, file.App)
 	if err != nil {
 		return err
 	}
@@ -352,13 +354,17 @@ func (b *Backup) Restore(fileName string) error {
 	return nil
 }
 
-func (b *Backup) recreateDir(dir string) error {
+func (b *Backup) recreateDir(dir, app string) error {
 	b.logger.Info(fmt.Sprintf("recreate dir %s", dir))
 	err := os.RemoveAll(dir)
 	if err != nil {
 		return err
 	}
-	return os.MkdirAll(dir, 0755)
+	err = os.MkdirAll(dir, 0755)
+	if err != nil {
+		return err
+	}
+	return b.chown(dir, app)
 }
 
 func (b *Backup) Remove(fileName string) error {
@@ -371,4 +377,33 @@ func (b *Backup) Remove(fileName string) error {
 		b.logger.Info("Backup remove completed")
 	}
 	return err
+}
+
+func (b *Backup) chown(dir, app string) error {
+	u, err := user.Lookup(app)
+	if err != nil {
+		b.logger.Error("looking up user", zap.String("user", app), zap.Error(err))
+		return err
+	}
+	g, err := user.LookupGroup(app)
+	if err != nil {
+		b.logger.Error("looking up group", zap.String("user", app), zap.Error(err))
+		return err
+	}
+	uid, err := strconv.Atoi(u.Uid)
+	if err != nil {
+		b.logger.Error("converting UID", zap.String("uid", u.Uid), zap.Error(err))
+		return err
+	}
+	gid, err := strconv.Atoi(g.Gid)
+	if err != nil {
+		b.logger.Error("converting GID", zap.String("gid", u.Gid), zap.Error(err))
+		return err
+	}
+	err = os.Chown(dir, uid, gid)
+	if err != nil {
+		b.logger.Error("changing ownership", zap.String("dir", dir), zap.Error(err))
+	}
+	return err
+
 }
