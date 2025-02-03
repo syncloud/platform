@@ -88,6 +88,7 @@
     </template>
     <template v-slot:text>
       <div style="display: grid" v-if="multiMode">
+        <span style="padding-bottom: 10px">The more files you have on the disk the longer it takes to update permissions.</span>
         <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
           {{ descriptionByDisk(device) }}
         </span>

@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"github.com/syncloud/platform/cli"
 	"go.uber.org/zap"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 )
 
 type DiskStorage interface {
@@ -21,10 +19,9 @@ type LinkConfig interface {
 }
 
 type Storage struct {
-	config     LinkConfig
-	executor   cli.Executor
-	chownLimit int
-	logger     *zap.Logger
+	config   LinkConfig
+	executor cli.Executor
+	logger   *zap.Logger
 }
 
 const (
@@ -32,12 +29,11 @@ const (
 	BootExtendCmd = "/snap/platform/current/bin/boot_extend.sh"
 )
 
-func New(config LinkConfig, executor cli.Executor, chownLimit int, logger *zap.Logger) *Storage {
+func New(config LinkConfig, executor cli.Executor, logger *zap.Logger) *Storage {
 	return &Storage{
-		config:     config,
-		executor:   executor,
-		chownLimit: chownLimit,
-		logger:     logger,
+		config:   config,
+		executor: executor,
+		logger:   logger,
 	}
 }
 
@@ -69,27 +65,14 @@ func (s *Storage) InitAppStorageOwner(app, owner string) (string, error) {
 		return "", err
 	}
 	s.logger.Info("fixing permissions", zap.String("dir", dir))
-	_, err = s.ChownRecursive(dir, owner)
+	err = s.ChownRecursive(dir, owner)
 	return dir, err
 
 }
 
-func (s *Storage) ChownRecursive(path, user string) (bool, error) {
-	count := 0
-	err := filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
-		count++
-		if count > s.chownLimit {
-			return fmt.Errorf("not changing permissions, too many files")
-		}
-		return nil
-	})
-
-	if err != nil {
-		s.logger.Error("fixing permissions", zap.Error(err))
-		return false, nil
-	}
-	_, err = s.executor.CombinedOutput("chown", "-RLf", fmt.Sprintf("%s.%s", user, user), path)
-	return true, err
+func (s *Storage) ChownRecursive(path, user string) error {
+	_, err := s.executor.CombinedOutput("chown", "-RLf", fmt.Sprintf("%s.%s", user, user), path)
+	return err
 }
 
 func (s *Storage) InitAppStorage(app string) (string, error) {

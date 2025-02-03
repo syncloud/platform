@@ -289,7 +289,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 	err = c.Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, logger *zap.Logger) *storage.Storage {
-		return storage.New(systemConfig, executor, 1000, logger)
+		return storage.New(systemConfig, executor, logger)
 	})
 	if err != nil {
 		return nil, err
