@@ -5,6 +5,7 @@ local go = '1.22.0';
 local node = '16.10.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
+local distro_default = "buster";
 local distros = ["bookworm", "buster"];
 local bootstrap = '25.02-rc1';
 local nginx = '1.24.0';
@@ -167,7 +168,7 @@ local build(arch, testUI) = [{
                   commands: [
                     'cd test',
                     './deps.sh',
-                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
+                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
                   ],
                   privileged: true,
                   volumes: [{
@@ -185,7 +186,7 @@ local build(arch, testUI) = [{
                'APP_ARCHIVE_PATH=$(realpath $(cat package.name))',
                'cd test',
                './deps.sh',
-               'py.test -x -s test-upgrade.py --domain=' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
+               'py.test -x -s test-upgrade.py --domain=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
              ],
              privileged: true,
              volumes: [{
