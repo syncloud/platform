@@ -25,9 +25,6 @@ wget http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates
 dpkg -x ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb .
 mv usr/share/ca-certificates/mozilla ${BUILD_DIR}/certs
 
-wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/nginx/nginx-${ARCH}.tar.gz
-tar xf nginx-${ARCH}.tar.gz
-mv nginx ${BUILD_DIR}
 wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/gptfdisk/gptfdisk-${ARCH}.tar.gz
 tar xf gptfdisk-${ARCH}.tar.gz
 mv gptfdisk ${BUILD_DIR}
