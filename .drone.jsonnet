@@ -38,7 +38,7 @@ local build(arch, testUI) = [{
                './nginx/test.sh',
              ],
            } for distro in distros
-           ] + [,
+           ] + [
            {
              name: 'authelia',
              image: 'authelia/authelia:' + authelia,
