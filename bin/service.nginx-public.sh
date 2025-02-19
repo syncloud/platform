@@ -9,11 +9,11 @@ fi
 
 case $1 in
 start)
-    ${DIR}/nginx/sbin/nginx -t -c /var/snap/platform/current/nginx.conf -e stderr
-    exec $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -e stderr
+    ${DIR}/nginx/bin/nginx -t -c /var/snap/platform/current/nginx.conf -e stderr
+    exec $DIR/nginx/bin/nginx -c /var/snap/platform/current/nginx.conf -e stderr
     ;;
 reload)
-    $DIR/nginx/sbin/nginx -c /var/snap/platform/current/nginx.conf -s reload -e stderr
+    $DIR/nginx/bin/nginx -c /var/snap/platform/current/nginx.conf -s reload -e stderr
     ;;
 *)
     echo "not valid command"
