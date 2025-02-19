@@ -5,6 +5,8 @@ local go = '1.22.0';
 local node = '16.10.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
+local distros = ["buster", "bookworm"];
+local bootstrap = '25.02-rc1';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -92,16 +94,16 @@ local build(arch, testUI) = [{
                './package.sh $VERSION',
                './test/testapp/build.sh ',
              ],
-           },
+           }] + [
            {
-             name: 'test',
+             name: 'test ' + distro,
              image: 'python:3.8-slim-buster',
              commands: [
                'cd test',
                './deps.sh',
-               'py.test -x -s test.py --domain=' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
+               'py.test -x -s test.py --domain=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
              ],
-           },
+           } for distro in distros
          ] + (if testUI then [
                 {
                   name: 'selenium',
@@ -269,8 +271,8 @@ local build(arch, testUI) = [{
   },
   services: [
     {
-      name: arch,
-      image: 'syncloud/bootstrap-buster-' + arch,
+      name: distro + '-' + arch,
+      image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
       privileged: true,
       volumes: [
         {
@@ -282,7 +284,8 @@ local build(arch, testUI) = [{
           path: '/dev',
         },
       ],
-    },
+    } for distro in distros
+    ] + [
     {
       name: 'api.redirect',
       image: 'syncloud/redirect-test-' + arch,
