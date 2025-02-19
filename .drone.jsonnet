@@ -5,7 +5,7 @@ local go = '1.22.0';
 local node = '16.10.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
-local distros = ["buster", "bookworm"];
+local distros = ["bookworm", "buster"];
 local bootstrap = '25.02-rc1';
 
 local build(arch, testUI) = [{
@@ -24,6 +24,21 @@ local build(arch, testUI) = [{
                'echo $DRONE_BUILD_NUMBER > version',
              ],
            },
+           {
+             name: 'nginx',
+             image: 'nginx:' + nginx,
+             commands: [
+               './nginx/build.sh',
+             ],
+           }] + [
+           {
+             name: 'nginx test',
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './nginx/test.sh',
+             ],
+           } for distro in distros
+           ] + [,
            {
              name: 'authelia',
              image: 'authelia/authelia:' + authelia,
