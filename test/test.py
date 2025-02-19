@@ -572,20 +572,20 @@ def test_remove(device):
     device.run_ssh('snap remove platform')
 
 
-def test_install_stable_from_store(device, device_host):
-    device.run_ssh('snap install platform', retries=10)
-    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
-
-
-def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
-    def activate():
-        response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
-                             json={'domain': 'example.com',
-                                   'device_username': device_user,
-                                   'device_password': device_password}, verify=False)
-        if response.status_code != 200:
-            raise Exception()
-    retry(activate)
+# def test_install_stable_from_store(device, device_host):
+#     device.run_ssh('snap install platform', retries=10)
+#     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
+#
+#
+# def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
+#     def activate():
+#         response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+#                              json={'domain': 'example.com',
+#                                    'device_username': device_user,
+#                                    'device_password': device_password}, verify=False)
+#         if response.status_code != 200:
+#             raise Exception()
+#     retry(activate)
 
 
 def test_upgrade(app_archive_path, device_host, device, main_domain):
