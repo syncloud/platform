@@ -33,7 +33,7 @@ local build(arch, testUI) = [{
              ],
            }] + [
            {
-             name: 'nginx test',
+             name: 'nginx test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
                './nginx/test.sh',
