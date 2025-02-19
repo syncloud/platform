@@ -7,6 +7,7 @@ local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud
 local authelia = '4.38.8';
 local distros = ["bookworm", "buster"];
 local bootstrap = '25.02-rc1';
+local nginx = '1.24.0';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
