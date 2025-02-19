@@ -117,7 +117,7 @@ local build(arch, testUI) = [{
              commands: [
                'cd test',
                './deps.sh',
-               'py.test -x -s test.py --domain=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
+               'py.test -x -s test.py --distro=' + distro + ' --domain=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
              ],
            } for distro in distros
          ] + (if testUI then [
