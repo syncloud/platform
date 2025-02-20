@@ -136,8 +136,8 @@ local build(arch, testUI) = [{
                   }],
                   commands: [
                     'cat /etc/hosts',
-                    'getent hosts ' + arch + " | sed 's/" + arch + '/auth.' + arch + ".redirect/g' | sudo tee -a /etc/hosts",
-                    'getent hosts ' + arch + " | sed 's/" + arch + '/' + arch + ".redirect/g' | sudo tee -a /etc/hosts",
+                    'getent hosts ' + arch + " | sed 's/" + arch + '/auth.' + distro_default + '-' + arch + ".redirect/g' | sudo tee -a /etc/hosts",
+                    'getent hosts ' + arch + " | sed 's/" + arch + '/' + distro_default + '-' + arch + ".redirect/g' | sudo tee -a /etc/hosts",
                     'cat /etc/hosts',
                     '/opt/bin/entry_point.sh',
                   ],
