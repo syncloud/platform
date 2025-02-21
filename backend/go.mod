@@ -15,7 +15,7 @@ require (
 	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.9.0
-	github.com/syncloud/golib v1.1.5
+	github.com/syncloud/golib v1.1.15
 	go.uber.org/zap v1.25.0
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
 	gopkg.in/yaml.v3 v3.0.1

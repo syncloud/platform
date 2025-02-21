@@ -227,6 +227,8 @@ github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/syncloud/golib v1.1.5 h1:/p37Tk4mGKdnj6Fz5kQMPL/SmYar8nLaKxOasFbmwR4=
 github.com/syncloud/golib v1.1.5/go.mod h1:XmmoqNuegLnl27FbmzLj60dTR/tN7c1X7Qp3uUPRC88=
+github.com/syncloud/golib v1.1.15 h1:NuWw/BOJ+0maoU775HxrlpvXdAWrFvRnn5X2gPhRBxA=
+github.com/syncloud/golib v1.1.15/go.mod h1:XmmoqNuegLnl27FbmzLj60dTR/tN7c1X7Qp3uUPRC88=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

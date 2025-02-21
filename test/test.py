@@ -572,16 +572,9 @@ def test_remove(device):
     device.run_ssh('snap remove platform')
 
 
-#remove after bookworm is working
-def test_bookworm(device, app_archive_path, device_host):
-    local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
+def test_install_stable_from_store(device, device_host):
+    device.run_ssh('snap install platform', retries=10)
     device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
-
-
-#restore after bookworm is working
-#def test_install_stable_from_store(device, device_host):
-#    device.run_ssh('snap install platform', retries=10)
-#    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
 
 
 def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
