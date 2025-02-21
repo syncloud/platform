@@ -6,9 +6,10 @@
         <h1>Log in</h1>
         <div class="formblock">
           <form id="form-login">
-            <input placeholder="Login" class="nameinput" id="username" type="text" required="" v-model="username">
+            <input placeholder="Login" class="nameinput" id="username" type="text" required="" v-model="username"
+                   v-on:keyup.enter="login">
             <input placeholder="Password" class="passinput" id="password" type="password" required=""
-                   v-model="password">
+                   v-model="password" v-on:keyup.enter="login">
             <el-button class="submit control" id="btn_login"
                        style="width: 100%; height: 40px;"
                        :loading="loading"

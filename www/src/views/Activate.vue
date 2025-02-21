@@ -138,12 +138,19 @@
                 </button>
               </div>
 
-              <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername">
-              <div class="alert alert-danger alert90" v-show="deviceUsernameAlertVisible">{{ deviceUsernameAlert }}</div>
+              <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername"
+                     v-on:keyup.enter="activate">
+              <div class="alert alert-danger alert90" v-show="deviceUsernameAlertVisible">{{
+                  deviceUsernameAlert
+                }}
+              </div>
 
               <input placeholder="Password" class="passinput" id="device_password" type="password"
-                     v-model="devicePassword">
-              <div class="alert alert-danger alert90" v-show="devicePasswordAlertVisible">{{ devicePasswordAlert }}</div>
+                     v-model="devicePassword" v-on:keyup.enter="activate">
+              <div class="alert alert-danger alert90" v-show="devicePasswordAlertVisible">{{
+                  devicePasswordAlert
+                }}
+              </div>
 
               <div style="padding: 10px; float: left;">
                 <el-button type="primary" @click="step--">
