@@ -7,8 +7,15 @@ PARTITION_NUM=2
 
 DEVICE_SIZE_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "${DEVICE}:\K[0-9]*(?=B)")
 PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "^${PARTITION_NUM}:\K[0-9]*(?=B)")
+PART_END_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "^${PARTITION_NUM}:.*?:\K[0-9]*(?=B)")
 PART_START_SECTORS=$(expr ${PART_START_BYTES} / 512)
 PART_END_SECTORS=$(expr ${DEVICE_SIZE_BYTES} / 512 - 1)
+UNUSED_BYTES=$(( $DEVICE_SIZE_BYTES - $PART_END_BYTES ))
+MIN_FREE_SPACE_LIMIT_BYTES=100000
+if [[ $UNUSED_BYTES -lt $MIN_FREE_SPACE_LIMIT_BYTES ]]; then
+  echo "unused space is: ${UNUSED_BYTES}b is less then min free space limit (${MIN_FREE_SPACE_LIMIT_BYTES}b), not extending"
+  exit 0
+fi
 
 PTTYPE=$(fdisk -l ${DEVICE} | grep "Disklabel type:" | awk '{ print $3 }')
 if [[ $PTTYPE == "gpt" ]]; then
