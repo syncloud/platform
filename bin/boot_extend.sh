@@ -17,6 +17,16 @@ if [[ $UNUSED_BYTES -lt $MIN_FREE_SPACE_LIMIT_BYTES ]]; then
   exit 0
 fi
 
+if parted -sm ${DEVICE} unit B print | grep -oP "^3:.*"; then
+  echo "3 or more partitions are not supported"
+  exit 0
+fi
+
+if parted -sm ${DEVICE} unit B print | grep -oP "btrfs"; then
+  echo "btrfs not supported"
+  exit 0
+fi
+
 PTTYPE=$(fdisk -l ${DEVICE} | grep "Disklabel type:" | awk '{ print $3 }')
 if [[ $PTTYPE == "gpt" ]]; then
   GPT_BACKUP_HEADER_SIZE=33
