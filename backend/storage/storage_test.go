@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"testing"
@@ -28,9 +29,16 @@ func (c *StorageConfigStub) DiskLink() string {
 
 func TestStorage_ChownRecursive(t *testing.T) {
 	storageDir := t.TempDir()
-	assert.Nil(t, os.WriteFile(filepath.Join(storageDir, "1"), []byte(""), 0666))
-	assert.Nil(t, os.WriteFile(filepath.Join(storageDir, "2"), []byte(""), 0666))
-	assert.Nil(t, os.WriteFile(filepath.Join(storageDir, "3"), []byte(""), 0666))
+	app1Dir := filepath.Join(storageDir, "app1")
+	err := os.MkdirAll(app1Dir, 0777)
+	assert.NoError(t, err)
+	dataLink := filepath.Join(storageDir, "data")
+	output, err := exec.Command("ln", "-s", app1Dir, dataLink).CombinedOutput()
+	assert.NoError(t, err, output)
+
+	assert.Nil(t, os.WriteFile(filepath.Join(app1Dir, "1"), []byte(""), 0666))
+	assert.Nil(t, os.WriteFile(filepath.Join(app1Dir, "2"), []byte(""), 0666))
+	assert.Nil(t, os.WriteFile(filepath.Join(app1Dir, "3"), []byte(""), 0666))
 
 	storage := New(
 		&StorageConfigStub{},
@@ -39,7 +47,7 @@ func TestStorage_ChownRecursive(t *testing.T) {
 
 	currentUser, err := user.Current()
 	assert.Nil(t, err)
-	err = storage.ChownRecursive(storageDir, currentUser.Username)
+	err = storage.ChownRecursive(dataLink, currentUser.Username)
 
 	assert.Nil(t, err)
 }
