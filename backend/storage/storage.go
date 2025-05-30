@@ -71,8 +71,10 @@ func (s *Storage) InitAppStorageOwner(app, owner string) (string, error) {
 }
 
 func (s *Storage) ChownRecursive(path, user string) error {
-	// do not traverse symbolic links inside apps (-L) as they may lead to other apps except the top /data/app (-H)
-	output, err := s.executor.CombinedOutput("chown", "-RHf", fmt.Sprintf("%s.%s", user, user), path)
+	// (-L) is not good as we do not want to traverse symbolic links inside apps
+	// (-H) is not good for the same reason (traversal of dead links)
+	// (-f) is not good as it hides the real error message
+	output, err := s.executor.CombinedOutput("chown", "-R", fmt.Sprintf("%s.%s", user, user), path)
 	s.logger.Info("chown", zap.String("output", string(output)))
 	return err
 }
