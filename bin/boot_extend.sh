@@ -5,9 +5,9 @@ DEVICE=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f1 | cut -d'=' -f2 | tr -d '"'
 PARTITION=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f2 | cut -d'=' -f2 | tr -d '"')
 PARTITION_NUM=2
 
-DEVICE_SIZE_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "${DEVICE}:\K[0-9]*(?=B)")
-PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "^${PARTITION_NUM}:\K[0-9]*(?=B)")
-PART_END_BYTES=$(parted -sm ${DEVICE} unit B print | grep -oP "^${PARTITION_NUM}:.*?:\K[0-9]*(?=B)")
+DEVICE_SIZE_BYTES=$(parted -sm ${DEVICE} unit B print | grep "^${DEVICE}:" | cut -d':' -f2 | cut -d'B' -f1)
+PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep "^${PARTITION_NUM}:" | cut -d':' -f2 | cut -d'B' -f1)
+PART_END_BYTES=$(parted -sm ${DEVICE} unit B print | grep "^${PARTITION_NUM}:" | cut -d':' -f3 | cut -d'B' -f1)
 PART_START_SECTORS=$(expr ${PART_START_BYTES} / 512)
 PART_END_SECTORS=$(expr ${DEVICE_SIZE_BYTES} / 512 - 1)
 UNUSED_BYTES=$(( $DEVICE_SIZE_BYTES - $PART_END_BYTES ))
@@ -17,12 +17,12 @@ if [[ $UNUSED_BYTES -lt $MIN_FREE_SPACE_LIMIT_BYTES ]]; then
   exit 0
 fi
 
-if parted -sm ${DEVICE} unit B print | grep -oP "^3:.*"; then
+if parted -sm ${DEVICE} unit B print | grep "^3:"; then
   echo "3 or more partitions are not supported"
   exit 0
 fi
 
-if parted -sm ${DEVICE} unit B print | grep -oP "btrfs"; then
+if parted -sm ${DEVICE} unit B print | grep "btrfs"; then
   echo "btrfs not supported"
   exit 0
 fi
