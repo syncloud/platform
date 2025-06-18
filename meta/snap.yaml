@@ -40,6 +40,7 @@ apps:
     - network-bind
     restart-condition: always
     start-timeout: 2000s
+    restart-delay: 10s
 
   cli:
     command: bin/cli
