@@ -74,7 +74,7 @@ func (s *Storage) ChownRecursive(path, user string) error {
 	// (-L) is not good as we do not want to traverse symbolic links inside apps
 	// (-H) is not good for the same reason (traversal of dead links)
 	// (-f) is not good as it hides the real error message
-	output, err := s.executor.CombinedOutput("chown", "-R", fmt.Sprintf("%s.%s", user, user), path)
+	output, err := s.executor.CombinedOutput("chown", "-R", fmt.Sprintf("%s:%s", user, user), path)
 	s.logger.Info("chown", zap.String("output", string(output)))
 	return err
 }
