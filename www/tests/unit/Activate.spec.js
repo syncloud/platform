@@ -69,6 +69,7 @@ test('Activate free domain', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -133,6 +134,7 @@ test('Activate free domain error', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -356,6 +358,7 @@ test('Activate premium domain', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -434,6 +437,7 @@ test('Activated while page is open (mostly in local dev)', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
