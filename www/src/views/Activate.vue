@@ -466,7 +466,7 @@ export default {
             password: this.redirectPassword,
             domain: this.fullDomain()
           })
-        .then(_ => {
+        .then(() => {
           this.step++
           this.progressHide()
         })

@@ -36,13 +36,13 @@ export default {
   methods: {
     checkUserSession: function () {
       axios.get('/rest/user')
-        .then(_ => {
+        .then(() => {
           this.loggedIn = true
           if (this.currentPath === '/login' || this.currentPath === '/activate') {
             this.$router.push('/')
           }
         })
-        .catch(_ => {
+        .catch(() => {
           axios.get('/rest/activation/status')
             .then(response => {
               this.loggedIn = false

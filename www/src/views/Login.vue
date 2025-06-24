@@ -55,11 +55,11 @@ export default {
     Password
   },
   methods: {
-    login: function (event) {
+    login: function () {
       this.loading = true
       const error = this.$refs.error
       axios.post('/rest/login', { username: this.username, password: this.password })
-        .then(_ => {
+        .then(() => {
           this.loading = false
           this.checkUserSession()
           this.$router.push('/')
