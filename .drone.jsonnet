@@ -2,7 +2,7 @@ local name = 'platform';
 local browser = 'chrome';
 local selenium = '4.19.0-20240328';
 local go = '1.22.0';
-local node = '16.10.0';
+local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
 local distro_default = "buster";
@@ -58,7 +58,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'build web',
-             image: 'node:' + node + '-alpine3.12',
+             image: 'node:' + node,
              environment: {
                NODE_OPTIONS: '--max_old_space_size=2048',
              },
