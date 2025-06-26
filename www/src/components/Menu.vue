@@ -77,9 +77,9 @@ export default {
     toggle: function () {
       this.menuOpen = !this.menuOpen
     },
-    logout: function (_) {
+    logout: function () {
       axios.post('/rest/logout')
-        .then(_ => {
+        .then(() => {
           this.checkUserSession()
         })
         .catch(err => {

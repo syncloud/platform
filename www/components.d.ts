@@ -28,6 +28,7 @@ declare module '@vue/runtime-core' {
     Error: typeof import('./src/components/Error.vue')['default']
     Menu: typeof import('./src/components/Menu.vue')['default']
     Notification: typeof import('./src/components/Notification.vue')['default']
+    Password: typeof import('./src/components/Password.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

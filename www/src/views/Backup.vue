@@ -150,7 +150,7 @@ export default {
     },
     remove () {
       axios.post('/rest/backup/remove', { file: this.file })
-        .then(_ => {
+        .then(() => {
           this.reload()
         })
         .catch(this.showError)
@@ -162,7 +162,7 @@ export default {
     restore () {
       axios
         .post('/rest/backup/restore', { file: this.file })
-        .then(_ => {
+        .then(() => {
           Notification.info('Restoring an app from a backup')
           Common.runAfterJobIsComplete(
             setTimeout,

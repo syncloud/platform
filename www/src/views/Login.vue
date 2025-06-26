@@ -8,8 +8,13 @@
           <form id="form-login">
             <input placeholder="Login" class="nameinput" id="username" type="text" required="" v-model="username"
                    v-on:keyup.enter="login">
-            <input placeholder="Password" class="passinput" id="password" type="password" required=""
-                   v-model="password" v-on:keyup.enter="login">
+            <Password
+              id="password"
+              v-model="password"
+              placeholder="Password"
+              @trigger="login"
+            />
+
             <el-button class="submit control" id="btn_login"
                        style="width: 100%; height: 40px;"
                        :loading="loading"
@@ -29,6 +34,7 @@
 
 <script>
 import Error from '../components/Error.vue'
+import Password from '../components/Password.vue'
 import axios from 'axios'
 
 export default {
@@ -45,14 +51,15 @@ export default {
     }
   },
   components: {
-    Error
+    Error,
+    Password
   },
   methods: {
-    login: function (event) {
+    login: function () {
       this.loading = true
       const error = this.$refs.error
       axios.post('/rest/login', { username: this.username, password: this.password })
-        .then(_ => {
+        .then(() => {
           this.loading = false
           this.checkUserSession()
           this.$router.push('/')
@@ -69,7 +76,7 @@ export default {
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
 
-input[type="text"], input[type="password"] {
+input[type="text"] {
   width: 100%;
   padding: 0 50px 0 20px;
   border-radius: 3px;
