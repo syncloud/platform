@@ -21,7 +21,7 @@ local build(arch, testUI) = [{
   steps: [
            {
              name: 'version',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              commands: [
                'echo $DRONE_BUILD_NUMBER > version',
              ],
@@ -51,7 +51,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'authelia test',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              commands: [
                './authelia/test.sh',
              ],
@@ -105,7 +105,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'package',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              commands: [
                'VERSION=$(cat version)',
                './package.sh $VERSION',
@@ -197,7 +197,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'upload',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              environment: {
                AWS_ACCESS_KEY_ID: {
                  from_secret: 'AWS_ACCESS_KEY_ID',
@@ -223,7 +223,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'promote',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              environment: {
                AWS_ACCESS_KEY_ID: {
                  from_secret: 'AWS_ACCESS_KEY_ID',
