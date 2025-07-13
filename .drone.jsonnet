@@ -9,6 +9,7 @@ local distro_default = "buster";
 local distros = ["bookworm", "buster"];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
+local python = '3.8-slim-bookworm'
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -114,7 +115,7 @@ local build(arch, testUI) = [{
            }] + [
            {
              name: 'test ' + distro,
-             image: 'python:3.8-slim-buster',
+             image: 'python:' + python,
              commands: [
                'cd test',
                './deps.sh',
@@ -165,7 +166,7 @@ local build(arch, testUI) = [{
               ] + [
                 {
                   name: 'test-ui-' + mode,
-                  image: 'python:3.8-slim-buster',
+                  image: 'python:' + python,
                   commands: [
                     'cd test',
                     './deps.sh',
@@ -182,7 +183,7 @@ local build(arch, testUI) = [{
          [
            {
              name: 'test-upgrade',
-             image: 'python:3.8-slim-buster',
+             image: 'python:' + python,
              commands: [
                'APP_ARCHIVE_PATH=$(realpath $(cat package.name))',
                'cd test',
