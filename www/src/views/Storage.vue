@@ -18,7 +18,7 @@
               </div>
 
               <div>
-                <span class="span" v-if="disks.length === 0">No external disks found</span>
+                <span id="no_disks" class="span" v-if="disks.length === 0">No external disks found</span>
 
                 <!--Single disk-->
                 <div v-if="!multiMode">
@@ -184,7 +184,7 @@ export default {
         .then(resp => {
           this.activeMultiDisks = []
           this.format = false
-          this.disks = resp.data.data
+          this.disks = resp.data.data || []
           const activeDisks = this.disks.filter(d => d.active).map(d => d.device)
           if (activeDisks && activeDisks.length > 0) {
             this.activeMultiDisks = activeDisks

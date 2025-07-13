@@ -1,7 +1,7 @@
 import { createServer, Model, Response } from 'miragejs'
 const domain = 'syncloud.it'
 const state = {
-  loggedIn: false,
+  loggedIn: true,
   credentials: {
     username: '11',
     password: '2'
@@ -9,7 +9,7 @@ const state = {
   jobStatusRunning: false,
   installerIsRunning: true,
   availableAppsSuccess: true,
-  activated: false,
+  activated: true,
   accessSuccess: true,
   diskActionSuccess: true,
   diskLastError: true
