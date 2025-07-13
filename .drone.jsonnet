@@ -9,7 +9,7 @@ local distro_default = "buster";
 local distros = ["bookworm", "buster"];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
-local python = '3.8-slim-bookworm'
+local python = '3.8-slim-bookworm';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
