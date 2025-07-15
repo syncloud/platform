@@ -119,7 +119,7 @@ local build(arch, testUI) = [{
              commands: [
                'cd test',
                './deps.sh',
-               'py.test -x -s test.py --distro=' + distro + ' --domain=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
+               'py.test -x -s test.py --distro=' + distro + ' --domain=' + distro + '-' + arch + ' --device-host=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
              ],
            } for distro in distros
          ] + (if testUI then [
@@ -170,7 +170,7 @@ local build(arch, testUI) = [{
                   commands: [
                     'cd test',
                     './deps.sh',
-                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
+                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + '  --device-host=' + distro + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
                   ],
                   privileged: true,
                   volumes: [{
@@ -188,7 +188,7 @@ local build(arch, testUI) = [{
                'APP_ARCHIVE_PATH=$(realpath $(cat package.name))',
                'cd test',
                './deps.sh',
-               'py.test -x -s test-upgrade.py --domain=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
+               'py.test -x -s test-upgrade.py --domain=' + distro_default + '-' + arch + ' --device-host=' + distro + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
              ],
              privileged: true,
              volumes: [{
