@@ -5,8 +5,8 @@ local go = '1.22.0';
 local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
-local distro_default = "buster";
-local distros = ["bookworm", "buster"];
+local distro_default = 'buster';
+local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.8-slim-bookworm';
@@ -33,15 +33,17 @@ local build(arch, testUI) = [{
              commands: [
                './nginx/build.sh',
              ],
-           }] + [
+           },
+         ] + [
            {
              name: 'nginx test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
                './nginx/test.sh',
              ],
-           } for distro in distros
-           ] + [
+           }
+           for distro in distros
+         ] + [
            {
              name: 'authelia',
              image: 'authelia/authelia:' + authelia,
@@ -112,7 +114,8 @@ local build(arch, testUI) = [{
                './package.sh $VERSION',
                './test/testapp/build.sh ',
              ],
-           }] + [
+           },
+         ] + [
            {
              name: 'test ' + distro,
              image: 'python:' + python,
@@ -121,7 +124,8 @@ local build(arch, testUI) = [{
                './deps.sh',
                'py.test -x -s test.py --distro=' + distro + ' --domain=' + distro + '-' + arch + ' --device-host=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
              ],
-           } for distro in distros
+           }
+           for distro in distros
          ] + (if testUI then [
                 {
                   name: 'selenium',
@@ -303,8 +307,9 @@ local build(arch, testUI) = [{
           path: '/dev',
         },
       ],
-    } for distro in distros
-    ] + [
+    }
+    for distro in distros
+  ] + [
     {
       name: 'api.redirect',
       image: 'syncloud/redirect-test-' + arch,

@@ -153,7 +153,6 @@ export default {
         this.info = resp.data.data
       } catch (err) {
         this.$refs.error.showAxios(err)
-        ;
       }
     },
     open () {
