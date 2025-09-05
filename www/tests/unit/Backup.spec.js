@@ -3,10 +3,16 @@ import Backup from '../../src/views/Backup.vue'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import { ElOption, ElSelect, ElTable, ElInput, ElTableColumn, ElButton } from 'element-plus'
+import {ElOption, ElSelect, ElTable, ElInput, ElTableColumn, ElButton, ElCol, ElRow, ElProgress} from 'element-plus'
 
 test('show list of backups', async () => {
   const mock = new MockAdapter(axios)
+  let statusCalled = false
+  mock.onGet('/rest/job/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { status: 'Idle' } }]
+  })
+
   mock.onGet('/rest/backup/list').reply(200,
     {
       success: true,
@@ -34,6 +40,9 @@ test('show list of backups', async () => {
           'el-table-column': ElTableColumn,
           'el-input': ElInput,
           'el-button': ElButton,
+          'el-col': ElCol,
+          'el-row': ElRow,
+          'el-progress': ElProgress,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -53,12 +62,18 @@ test('show list of backups', async () => {
   expect(wrapper.find('#auto').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-day').attributes().disabled).toBeDefined()
   expect(wrapper.find('#auto-hour').attributes().disabled).toBeDefined()
+  expect(statusCalled).toBeTruthy()
 
   wrapper.unmount()
 })
 
 test('show empty list of backups', async () => {
   const mock = new MockAdapter(axios)
+  let statusCalled = false
+  mock.onGet('/rest/job/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { status: 'Idle' } }]
+  })
   mock.onGet('/rest/backup/list').reply(200,
     {
       success: true,
@@ -83,6 +98,9 @@ test('show empty list of backups', async () => {
           'el-table-column': ElTableColumn,
           'el-input': ElInput,
           'el-button': ElButton,
+          'el-col': ElCol,
+          'el-row': ElRow,
+          'el-progress': ElProgress,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -102,12 +120,18 @@ test('show empty list of backups', async () => {
   expect(wrapper.find('#auto').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-day').attributes().disabled).toBeDefined()
   expect(wrapper.find('#auto-hour').attributes().disabled).toBeDefined()
+  expect(statusCalled).toBeTruthy()
 
   wrapper.unmount()
 })
 
 test('save auto mode', async () => {
   const mock = new MockAdapter(axios)
+  let statusCalled = false
+  mock.onGet('/rest/job/status').reply(function (_) {
+    statusCalled = true
+    return [200, { success: true, data: { status: 'Idle' } }]
+  })
   mock.onGet('/rest/backup/list').reply(200,
     {
       success: true,
@@ -144,6 +168,9 @@ test('save auto mode', async () => {
           'el-table-column': ElTableColumn,
           'el-input': ElInput,
           'el-button': ElButton,
+          'el-col': ElCol,
+          'el-row': ElRow,
+          'el-progress': ElProgress,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -162,22 +189,23 @@ test('save auto mode', async () => {
   expect(wrapper.find('#auto').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-day').attributes().disabled).not.toBeDefined()
   expect(wrapper.find('#auto-hour').attributes().disabled).not.toBeDefined()
-  
+
   await wrapper.find('#auto').trigger('click')
   //await flushPromises()
   //await wrapper.find('#auto-backup').trigger('click')
-  
+
   //await wrapper.find('#auto-day').trigger('click')
 //  await wrapper.find('#auto-day-monday').trigger('click')
-  
+
   await wrapper.find('#save').trigger('click')
-  
+
   await flushPromises()
 
   expect(auto).toBe('backup')
   expect(autoDay).toBe(1)
   expect(autoHour).toBe(2)
   expect(saved).toBe(true)
-  
+  expect(statusCalled).toBeTruthy()
+
   wrapper.unmount()
 })
