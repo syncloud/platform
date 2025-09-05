@@ -5,17 +5,18 @@
         <div class="block1 wd12" style="max-width: 500px">
           <h1>Backup</h1>
           <div v-if="progress" id="progress">
-            <el-row >
+            <el-row>
               <el-col :span="4"></el-col>
-              <el-col :span="16" style="min-height: 30px " id="progress_summary" >
+              <el-col :span="16" style="min-height: 30px " id="progress_summary">
                 {{ progressSummary }}
               </el-col>
               <el-col :span="4"></el-col>
             </el-row>
-            <el-row >
+            <el-row>
               <el-col :span="4"></el-col>
               <el-col :span="16">
-                <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate"/>
+                <el-progress :show-text="false" :percentage="progressPercentage"
+                             :indeterminate="progressIndeterminate"/>
               </el-col>
               <el-col :span="4"></el-col>
             </el-row>
@@ -79,7 +80,7 @@
   </div>
 
   <Dialog :visible="confirmationVisible" id="confirmation" @confirm="submit"
-                @cancel="confirmationVisible = false">
+          @cancel="confirmationVisible = false">
     <template v-slot:title>
       <span v-if="action === 'restore'">Restore</span>
       <span v-if="this.action === 'remove'">Remove</span>
@@ -108,7 +109,7 @@ export default {
     checkUserSession: Function,
     activated: Boolean
   },
-  data () {
+  data() {
     return {
       file: '',
       action: '',
@@ -125,37 +126,37 @@ export default {
     }
   },
   computed: {
-    filteredData () {
+    filteredData() {
       return this.data.filter((v) => !this.search || v.file.toLowerCase().includes(this.search.toLowerCase()))
     }
   },
   components: {
     Dialog
   },
-  mounted () {
-    this.progressShow("Loading backup list")
-    this.reload()
+  mounted() {
+    this.progressShow("Loading")
+    this.status()
   },
   methods: {
-    progressShow (summary) {
+    progressShow(summary) {
       this.progressSummary = summary
       this.progress = true
     },
-    progressHide () {
+    progressHide() {
       this.progressSummary = ''
       this.progress = false
     },
-    removeConfirm (file) {
+    removeConfirm(file) {
       this.file = file
       this.action = 'remove'
       this.confirmationVisible = true
     },
-    restoreConfirm (file) {
+    restoreConfirm(file) {
       this.file = file
       this.action = 'restore'
       this.confirmationVisible = true
     },
-    submit () {
+    submit() {
       this.confirmationVisible = false
       switch (this.action) {
         case 'restore':
@@ -166,21 +167,21 @@ export default {
           break
       }
     },
-    remove () {
-      axios.post('/rest/backup/remove', { file: this.file })
+    remove() {
+      axios.post('/rest/backup/remove', {file: this.file})
         .then(() => {
           this.reload()
         })
         .catch(this.showError)
     },
-    showError (error) {
+    showError(error) {
       this.progressHide()
       Notification.error(error)
     },
-    restore () {
+    restore() {
       this.progressShow('Restoring: ' + this.file)
       axios
-        .post('/rest/backup/restore', { file: this.file })
+        .post('/rest/backup/restore', {file: this.file})
         .then(() => {
           Common.runAfterJobIsComplete(
             setTimeout,
@@ -194,7 +195,7 @@ export default {
         })
         .catch(this.showError)
     },
-    reload () {
+    reload() {
       axios.get('/rest/backup/list')
         .then((response) => {
           if (response.data.data) {
@@ -214,10 +215,33 @@ export default {
         })
         .catch(this.showError)
     },
-    saveAuto () {
+    status() {
+      const error = this.$refs.error
+      const onError = (err) => {
+        this.progressHide()
+        error.showAxios(err)
+      }
+      Common.runAfterJobIsComplete(
+        setTimeout,
+        () => {
+          this.progressHide()
+          this.reload()
+        },
+        onError,
+        Common.JOB_STATUS_URL,
+        (response) => {
+          if (!response.data.data.status) {
+            return false
+          }
+          this.progressSummary = response.data.data.status + ' (' + response.data.data.name + ')'
+          return response.data.data.status !== 'Idle'
+        },
+      )
+    },
+    saveAuto() {
       this.progressShow("Saving auto backup settings")
       axios.post('/rest/backup/auto',
-        { auto: this.auto, day: this.autoDay, hour: this.autoHour })
+        {auto: this.auto, day: this.autoDay, hour: this.autoHour})
         .then(() => {
           this.progressHide()
         })
