@@ -398,12 +398,6 @@ header .hlink {
     text-align: left;
 }
 
-.domain {
-    height: 50px;
-    width: 70%!important;
-    margin-right: 2%
-}
-
 input[type="text"]:focus, input[type="password"]:focus {
     background-position: 115% center!important;
     border-color: #03aff0;
@@ -431,16 +425,10 @@ input:disabled {
     font-size: 14px;
 }
 .nameinput {
-    height: 50px;
-    background: url(../assets/nameinput.svg) no-repeat 95% center;
+    height: 40px;
 }
 .passinput {
-    height: 50px;
-    background: url(../assets/passinput.svg) no-repeat 95% center;
-}
-.emailinput {
-    height: 50px;
-    background: url(../assets/emailinput.svg) no-repeat 95% center;
+    height: 40px;
 }
 .buttonblue {
     color: #fff;

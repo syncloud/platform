@@ -211,8 +211,8 @@ func (b *Backend) BackupCreate(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("app is missing")
 	}
-	_ = b.JobMaster.Offer("backup.create", func() error { return b.backup.Create(request.App) })
-	return "submitted", nil
+	err = b.JobMaster.Offer("backup.create", func() error { return b.backup.Create(request.App) })
+	return "submitted", err
 }
 
 func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
@@ -222,13 +222,13 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 		fmt.Printf("parse error: %v\n", err.Error())
 		return nil, errors.New("file is missing")
 	}
-	_ = b.JobMaster.Offer("backup.restore", func() error { return b.backup.Restore(request.File) })
-	return "submitted", nil
+	err = b.JobMaster.Offer("backup.restore", func() error { return b.backup.Restore(request.File) })
+	return "submitted", err
 }
 
 func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	_ = b.JobMaster.Offer("installer.upgrade", func() error { return b.installer.Upgrade() })
-	return "submitted", nil
+	err := b.JobMaster.Offer("installer.upgrade", func() error { return b.installer.Upgrade() })
+	return "submitted", err
 }
 
 func (b *Backend) JobStatus(_ *http.Request) (interface{}, error) {

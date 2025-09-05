@@ -2,13 +2,14 @@ local name = 'platform';
 local browser = 'chrome';
 local selenium = '4.19.0-20240328';
 local go = '1.22.0';
-local node = '16.10.0';
+local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
 local distro_default = "buster";
 local distros = ["bookworm", "buster"];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
+local python = '3.8-slim-bookworm';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -21,7 +22,7 @@ local build(arch, testUI) = [{
   steps: [
            {
              name: 'version',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              commands: [
                'echo $DRONE_BUILD_NUMBER > version',
              ],
@@ -51,14 +52,14 @@ local build(arch, testUI) = [{
            },
            {
              name: 'authelia test',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              commands: [
                './authelia/test.sh',
              ],
            },
            {
              name: 'build web',
-             image: 'node:' + node + '-alpine3.12',
+             image: 'node:' + node,
              environment: {
                NODE_OPTIONS: '--max_old_space_size=2048',
              },
@@ -105,7 +106,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'package',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              commands: [
                'VERSION=$(cat version)',
                './package.sh $VERSION',
@@ -114,11 +115,11 @@ local build(arch, testUI) = [{
            }] + [
            {
              name: 'test ' + distro,
-             image: 'python:3.8-slim-buster',
+             image: 'python:' + python,
              commands: [
                'cd test',
                './deps.sh',
-               'py.test -x -s test.py --distro=' + distro + ' --domain=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
+               'py.test -x -s test.py --distro=' + distro + ' --domain=' + distro + '-' + arch + ' --device-host=' + distro + '-' + arch + ' --app-archive-path=$(realpath ../*.snap) --app=' + name + ' --arch=' + arch + ' --redirect-user=redirect --redirect-password=redirect',
              ],
            } for distro in distros
          ] + (if testUI then [
@@ -165,11 +166,11 @@ local build(arch, testUI) = [{
               ] + [
                 {
                   name: 'test-ui-' + mode,
-                  image: 'python:3.8-slim-buster',
+                  image: 'python:' + python,
                   commands: [
                     'cd test',
                     './deps.sh',
-                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
+                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + '  --device-host=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
                   ],
                   privileged: true,
                   volumes: [{
@@ -182,12 +183,12 @@ local build(arch, testUI) = [{
          [
            {
              name: 'test-upgrade',
-             image: 'python:3.8-slim-buster',
+             image: 'python:' + python,
              commands: [
                'APP_ARCHIVE_PATH=$(realpath $(cat package.name))',
                'cd test',
                './deps.sh',
-               'py.test -x -s test-upgrade.py --domain=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
+               'py.test -x -s test-upgrade.py --domain=' + distro_default + '-' + arch + ' --device-host=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
              ],
              privileged: true,
              volumes: [{
@@ -197,7 +198,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'upload',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              environment: {
                AWS_ACCESS_KEY_ID: {
                  from_secret: 'AWS_ACCESS_KEY_ID',
@@ -223,7 +224,7 @@ local build(arch, testUI) = [{
            },
            {
              name: 'promote',
-             image: 'debian:buster-slim',
+             image: 'debian:bookworm-slim',
              environment: {
                AWS_ACCESS_KEY_ID: {
                  from_secret: 'AWS_ACCESS_KEY_ID',

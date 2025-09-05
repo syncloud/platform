@@ -4,26 +4,41 @@
       <div>
         <div class="block1 wd12" style="max-width: 500px">
           <h1>Backup</h1>
-          <div :style="{ visibility: visibility }">
+          <div v-if="progress" id="progress">
+            <el-row >
+              <el-col :span="4"></el-col>
+              <el-col :span="16" style="min-height: 30px " id="progress_summary" >
+                {{ progressSummary }}
+              </el-col>
+              <el-col :span="4"></el-col>
+            </el-row>
+            <el-row >
+              <el-col :span="4"></el-col>
+              <el-col :span="16">
+                <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate"/>
+              </el-col>
+              <el-col :span="4"></el-col>
+            </el-row>
+          </div>
+          <div v-if="!progress">
             <div>
               <div style="padding-left: 10px; padding-top:10px; padding-bottom: 10px; display: inline-block">
-                <span style="padding-right: 10px">Auto:</span>
-                <el-select id="auto" v-model="auto" class="m-2" style="width: 100px; padding-right: 10px"
+                <el-select id="auto" v-model="auto" class="m-2" style="width: 140px; padding-right: 10px"
                            placeholder="Select">
-                  <el-option id="auto-no" label="No" value="no"/>
-                  <el-option id="auto-backup" label="Backup" value="backup"/>
-                  <el-option id="auto-restore" label="Restore" value="restore"/>
+                  <el-option id="auto-no" label="No Auto" value="no"/>
+                  <el-option id="auto-backup" label="Auto Backup" value="backup"/>
+                  <el-option id="auto-restore" label="Auto Restore" value="restore"/>
                 </el-select>
-                <el-select id="auto-day" v-model="autoDay" class="m-2" style="width: 130px; padding-right: 10px"
+                <el-select id="auto-day" v-model="autoDay" class="m-2" style="width: 100px; padding-right: 10px"
                            placeholder="Select" :disabled="auto === 'no'">
-                  <el-option id="auto-day-every" label="Every day" :value="0"/>
-                  <el-option id="auto-day-monday" label="Monday" :value="1"/>
-                  <el-option label="Tuesday" :value="2"/>
-                  <el-option label="Wednesday" :value="3"/>
-                  <el-option label="Thursday" :value="4"/>
-                  <el-option label="Friday" :value="5"/>
-                  <el-option label="Saturday" :value="6"/>
-                  <el-option label="Sunday" :value="7"/>
+                  <el-option id="auto-day-every" label="Daily" :value="0"/>
+                  <el-option id="auto-day-monday" label="Mon" :value="1"/>
+                  <el-option label="Tue" :value="2"/>
+                  <el-option label="Wed" :value="3"/>
+                  <el-option label="Thu" :value="4"/>
+                  <el-option label="Fri" :value="5"/>
+                  <el-option label="Sat" :value="6"/>
+                  <el-option label="Sun" :value="7"/>
                 </el-select>
                 <el-select id="auto-hour" v-model="autoHour" class="m-2" style="width: 90px; padding-right: 10px"
                            placeholder="Select" :disabled="auto === 'no'">
@@ -86,7 +101,6 @@ import axios from 'axios'
 import * as Common from '../js/common.js'
 import Dialog from '../components/Dialog.vue'
 import Notification from '../components/Notification.vue'
-import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Backup',
@@ -104,7 +118,10 @@ export default {
       auto: 'no',
       autoDay: 0,
       autoHour: 0,
-      visibility: 'hidden'
+      progressSummary: '',
+      progress: true,
+      progressPercentage: 20,
+      progressIndeterminate: true,
     }
   },
   computed: {
@@ -116,16 +133,17 @@ export default {
     Dialog
   },
   mounted () {
-    this.progressShow()
+    this.progressShow("Loading backup list")
     this.reload()
   },
   methods: {
-    progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+    progressShow (summary) {
+      this.progressSummary = summary
+      this.progress = true
     },
     progressHide () {
-      this.visibility = 'visible'
-      this.loading.close()
+      this.progressSummary = ''
+      this.progress = false
     },
     removeConfirm (file) {
       this.file = file
@@ -150,7 +168,7 @@ export default {
     },
     remove () {
       axios.post('/rest/backup/remove', { file: this.file })
-        .then(_ => {
+        .then(() => {
           this.reload()
         })
         .catch(this.showError)
@@ -160,14 +178,14 @@ export default {
       Notification.error(error)
     },
     restore () {
+      this.progressShow('Restoring: ' + this.file)
       axios
         .post('/rest/backup/restore', { file: this.file })
-        .then(_ => {
-          Notification.info('Restoring an app from a backup')
+        .then(() => {
           Common.runAfterJobIsComplete(
             setTimeout,
             () => {
-              Notification.success('Backup restore has finished')
+              this.progressHide()
               this.reload()
             },
             Notification.error,
@@ -197,7 +215,7 @@ export default {
         .catch(this.showError)
     },
     saveAuto () {
-      this.progressShow()
+      this.progressShow("Saving auto backup settings")
       axios.post('/rest/backup/auto',
         { auto: this.auto, day: this.autoDay, hour: this.autoHour })
         .then(() => {

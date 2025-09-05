@@ -64,7 +64,7 @@ export default {
     reactivate: function () {
       axios
         .post('/rest/deactivate')
-        .then(_ => {
+        .then(() => {
           this.checkUserSession()
         })
         .catch(err => {

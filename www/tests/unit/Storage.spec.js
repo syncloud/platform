@@ -815,3 +815,59 @@ test('Show multi disk', async () => {
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
+
+test('Show null disk', async () => {
+  const showError = jest.fn()
+
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/disks').reply(200,
+    {
+      data: null,
+      success: true
+    }
+  )
+  mock.onGet('/rest/storage/error/last').reply(200,
+    { success: true, data: 'OK' }
+  )
+  mock.onGet('/rest/job/status').reply(200,
+    { success: true, data: { name: 'test' } }
+  )
+  const wrapper = mount(Storage,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          'el-switch': ElSwitch,
+          'el-radio': ElRadio,
+          'el-radio-group': ElRadioGroup,
+          'el-checkbox': ElCheckbox,
+          'el-checkbox-group': ElCheckboxGroup,
+          'el-row': ElRow,
+          'el-col': ElCol,
+          Dialog: {
+            template: '<button :id="id" />',
+            props: { id: String },
+            methods: {
+              show () {
+              }
+            }
+          }
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await expect(wrapper.find('#multi').attributes('aria-checked')).toBe('true')
+  await expect(wrapper.find('#no_disks').text()).toBe('No external disks found')
+
+  expect(showError).toHaveBeenCalledTimes(0)
+  wrapper.unmount()
+})

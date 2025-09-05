@@ -53,12 +53,17 @@
                   </button>
                 </div>
 
-                <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
+                <input :placeholder="redirect_domain + ' email'" class="input" id="email"
                        type="text" v-model="redirectEmail">
                 <div id="email_alert" class="alert alert-danger alert90" v-show="redirectEmailAlertVisible ">{{ redirectEmailAlert }}</div>
-                <input :placeholder="redirect_domain + ' password'" class="passinput"
-                       id="redirect_password" type="password" v-model="redirectPassword">
-                <div class="alert alert-danger alert90" v-show="redirectPasswordAlertVisible" >{{ redirectPasswordAlert }}</div>
+
+                <Password
+                  id="redirect_password"
+                  v-model="redirectPassword"
+                  :placeholder="redirect_domain + ' password'"
+                  :show-error="redirectPasswordAlertVisible"
+                  :error="redirectPasswordAlert"
+                />
 
                 <div style=" display: flow-root">
                   <div style="padding-right:10px; float: right">
@@ -76,7 +81,7 @@
                 </div>
 
                 <div id="domain" style="text-align: left">
-                  <input placeholder="Name" class="domain" id="domain_input" type="text" v-model="domain">
+                  <input placeholder="Name" class="domain input" id="domain_input" type="text" v-model="domain">
                   <span>.{{ redirect_domain }}</span>
                 </div>
                 <div id="domain_alert"  class="alert alert-danger alert90" v-show="domainAlertVisible" >{{ domainAlert }}</div>
@@ -92,12 +97,17 @@
                   </button>
                 </div>
 
-                <input :placeholder="redirect_domain + ' email'" class="emailinput" id="email"
+                <input :placeholder="redirect_domain + ' email'" class="input" id="email"
                        type="text" v-model="redirectEmail">
                 <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
-                <input :placeholder="redirect_domain + ' password'" class="passinput"
-                       id="redirect_password" type="password" v-model="redirectPassword">
-                <div class="alert alert-danger alert90" v-show="redirectPasswordAlertVisible" >{{ redirectPasswordAlert }}</div>
+
+                <Password
+                  id="redirect_password"
+                  v-model="redirectPassword"
+                  :placeholder="redirect_domain + ' password'"
+                  :show-error="redirectPasswordAlertVisible"
+                  :error="redirectPasswordAlert"
+                />
 
                 <div style="text-align: center">
                   <h2 style="display: inline-block">Device Name</h2>
@@ -108,7 +118,7 @@
                 </div>
                 <div id="domain">
                   <input placeholder="Top level domain like example.com"
-                         class="domain" id="domain_premium" type="text" style="width:100% !important;"
+                         class="domain input" id="domain_premium" type="text" style="width:100% !important;"
                          v-model="domain">
                 </div>
                 <div id="domain_alert" class="alert alert-danger alert90" v-show="domainAlertVisible" >{{ domainAlert }}</div>
@@ -138,19 +148,31 @@
                 </button>
               </div>
 
-              <input placeholder="Login" class="nameinput" id="device_username" type="text" v-model="deviceUsername"
-                     v-on:keyup.enter="activate">
+              <input placeholder="Login" id="device_username" type="text" v-model="deviceUsername"
+                     v-on:keyup.enter="activate"
+                     class="input">
               <div class="alert alert-danger alert90" v-show="deviceUsernameAlertVisible">{{
                   deviceUsernameAlert
                 }}
               </div>
 
-              <input placeholder="Password" class="passinput" id="device_password" type="password"
-                     v-model="devicePassword" v-on:keyup.enter="activate">
-              <div class="alert alert-danger alert90" v-show="devicePasswordAlertVisible">{{
-                  devicePasswordAlert
-                }}
-              </div>
+              <Password
+                id="device_password"
+                v-model="devicePassword"
+                placeholder="Password"
+                :show-error="devicePasswordAlertVisible"
+                :error="devicePasswordAlert"
+                @trigger="activate"
+              />
+
+              <Password
+                id="device_password_confirm"
+                v-model="devicePasswordConfirm"
+                placeholder="Confirm your password"
+                :show-error="devicePassword !== devicePasswordConfirm"
+                error="Passwords do not match"
+                @trigger="activate"
+              />
 
               <div style="padding: 10px; float: left;">
                 <el-button type="primary" @click="step--">
@@ -158,8 +180,8 @@
                 </el-button>
               </div>
               <div style="padding: 10px; float: right;">
-                <el-button id="btn_activate" type="primary" @click="activate">
-                  Finish
+                <el-button id="btn_activate" type="primary" @click="activate" :disabled="!validDeviceCredentials()">
+                Finish
                 </el-button>
               </div>
             </div>
@@ -217,6 +239,7 @@
 import axios from 'axios'
 import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
+import Password from '../components/Password.vue'
 import { ElLoading } from 'element-plus'
 
 export default {
@@ -227,7 +250,8 @@ export default {
   },
   components: {
     Dialog,
-    Error
+    Error,
+    Password
   },
   data () {
     return {
@@ -239,6 +263,7 @@ export default {
       redirect_domain: 'syncloud.it',
       deviceUsername: '',
       devicePassword: '',
+      devicePasswordConfirm: '',
       helpManagedDomainVisible: false,
       helpFreeAccountVisible: false,
       helpPremiumAccountVisible: false,
@@ -280,7 +305,22 @@ export default {
         this.loading.close()
       }
     },
+    validDeviceCredentials () {
+      if (this.deviceUsername === '') {
+        return false
+      }
+      if (this.devicePassword === '') {
+        return false
+      }
+      if (this.devicePassword !== this.devicePasswordConfirm) {
+        return false
+      }
+      return true
+    },
     activate (event) {
+      if (!this.validDeviceCredentials()) {
+        return
+      }
       event.preventDefault()
       this.progressShow()
       this.hideAlerts()
@@ -338,7 +378,7 @@ export default {
           if (data.parameters_messages) {
             for (let i = 0; i < data.parameters_messages.length; i++) {
               const pm = data.parameters_messages[i]
-              const message = pm.messages.join('\n')
+              const message = pm.messages.join(', ')
               if (pm.parameter === 'device_username') {
                 this.deviceUsernameAlertVisible = true
                 this.deviceUsernameAlert = message
@@ -355,11 +395,12 @@ export default {
       }
     },
     activateFreeDomain () {
+      let domain = this.fullDomain();
       axios
         .post('/rest/activate/managed', {
           redirect_email: this.redirectEmail,
           redirect_password: this.redirectPassword,
-          domain: this.fullDomain(),
+          domain: domain,
           device_username: this.deviceUsername,
           device_password: this.devicePassword
         })
@@ -425,7 +466,7 @@ export default {
             password: this.redirectPassword,
             domain: this.fullDomain()
           })
-        .then(_ => {
+        .then(() => {
           this.step++
           this.progressHide()
         })
@@ -447,8 +488,14 @@ export default {
   font-weight: bold;
 }
 
-input[type="text"], input[type="password"] {
+.domain {
+  width: 70%!important;
+  margin-right: 2%
+}
+
+.input {
   width: 100%;
+  height: 40px;
   padding: 0 50px 0 20px;
   border-radius: 3px;
   border: 1px solid #dcdee0;

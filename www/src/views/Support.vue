@@ -62,7 +62,7 @@ export default {
       this.loading = true
       axios
         .post('/rest/logs/send', null, { params: { include_support: this.includeSupport } })
-        .then(_ => {
+        .then(() => {
           this.loading = false
         })
         .catch(err => {

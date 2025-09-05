@@ -69,6 +69,7 @@ test('Activate free domain', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -133,6 +134,7 @@ test('Activate free domain error', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -356,6 +358,7 @@ test('Activate premium domain', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -434,6 +437,7 @@ test('Activated while page is open (mostly in local dev)', async () => {
   await wrapper.find('#btn_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
+  await wrapper.find('#device_password_confirm').setValue('password')
   await wrapper.find('#btn_activate').trigger('click')
 
   await flushPromises()
@@ -446,6 +450,67 @@ test('Activated while page is open (mostly in local dev)', async () => {
   expect(devicePassword).toBe('password')
   expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
   expect(availabilityDomain).toBe('example.com')
+
+  wrapper.unmount()
+})
+
+
+test('No finish if device password confirmation is wrong', async () => {
+  let redirectEmail = ''
+  let redirectPassword = ''
+  let availabilityDomain = ''
+  const showError = jest.fn()
+  const mockRouter = { push: jest.fn() }
+  delete window.location
+  window.location = ''
+  const mock = new MockAdapter(axios)
+  mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
+    const request = JSON.parse(config.data)
+    availabilityDomain = request.domain
+    redirectEmail = request.email
+    redirectPassword = request.password
+    return [200, { success: true }]
+  })
+  mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+
+  const wrapper = mount(Activate,
+    {
+      attachTo: document.body,
+      global: {
+        stubs: {
+          Error: {
+            template: '<span/>',
+            methods: {
+              showAxios: showError
+            }
+          },
+          Dialog: true,
+          'el-button': ElButton,
+          'el-steps': ElSteps,
+          'el-step': ElStep
+        },
+        mocks: {
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await flushPromises()
+
+  await wrapper.find('#btn_premium_domain').trigger('click')
+  await wrapper.find('#email').setValue('r email')
+  await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#domain_premium').setValue('example.com')
+  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#device_username').setValue('user')
+  await wrapper.find('#device_password').setValue('password 1')
+  await wrapper.find('#device_password_confirm').setValue('password 2')
+  const activateButton = wrapper.find('#btn_activate')
+
+  await flushPromises()
+
+  expect(activateButton.attributes('disabled')).toBe('')
 
   wrapper.unmount()
 })

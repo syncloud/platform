@@ -120,9 +120,8 @@ export default {
       info: undefined,
       appId: undefined,
       action: '',
-      loading: undefined,
       progress: true,
-      progressPercentage: 20,
+      progressPercentage: 0,
       progressSummary: '',
       progressIndeterminate: true,
       appActionConfirmationVisible: false,
@@ -147,15 +146,15 @@ export default {
       this.progressSummary = ''
       this.progress = false
     },
-    loadApp () {
-      return axios
-        .get('/rest/app', { params: { app_id: this.appId } })
-        .then(resp => {
-          this.info = resp.data.data
-        })
-        .catch(err => {
-          this.$refs.error.showAxios(err)
-        })
+    async loadApp() {
+      try {
+        let resp = await axios
+          .get('/rest/app', {params: {app_id: this.appId}})
+        this.info = resp.data.data
+      } catch (err) {
+        this.$refs.error.showAxios(err)
+        ;
+      }
     },
     open () {
       window.location.href = this.info.app.url
