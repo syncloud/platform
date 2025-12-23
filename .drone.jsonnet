@@ -144,6 +144,7 @@ local build(arch, testUI) = [{
                     'DOMAIN="' + distro_default + '-' + arch + '"',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN/g" | sudo tee -a /etc/hosts',
                     'cat /etc/hosts',
                     '/opt/bin/entry_point.sh',
                   ],
