@@ -263,6 +263,13 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('reactivate-index')
 
+
+def test_502(selenium, device_host, full_domain,
+                  domain, device_user, device_password, redirect_user, redirect_password):
+    selenium.driver.get("https://unknown.{0}".format(domain)
+    selenium.find_by_xpath("//h1[text()='unavailable']")
+
+
 def test_permission_denied(selenium, device, ui_mode):
     device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /test/test.{0}.ldif'.format(ui_mode))
     menu(selenium, 'logout')
