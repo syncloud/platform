@@ -334,6 +334,3 @@ def wait_for_loading(driver):
     wait_driver = WebDriverWait(driver, 120)
     wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'el-loading-mask')))
 
-
-def test_teardown(driver):
-    driver.quit()
