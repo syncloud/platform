@@ -266,7 +266,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
 
 def test_502(selenium, device_host, full_domain,
                   domain, device_user, device_password, redirect_user, redirect_password):
-    selenium.driver.get("https://unknown.{0}".format(domain)
+    selenium.driver.get("https://unknown.{0}".format(domain))
     selenium.find_by_xpath("//h1[text()='unavailable']")
 
 
