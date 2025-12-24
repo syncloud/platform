@@ -267,7 +267,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
 def test_502(selenium, device_host, full_domain,
                   domain, device_user, device_password, redirect_user, redirect_password):
     selenium.driver.get("https://unknown.{0}".format(full_domain))
-    selenium.find_by_xpath("//h1[text()='unavailable']")
+    selenium.find_by_xpath("//h2[contains(.,'App is not available')]")
 
 
 def test_permission_denied(selenium, device, ui_mode):
