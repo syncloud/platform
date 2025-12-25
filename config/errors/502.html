@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Temporarily Unavailable</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .error-container {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #e74c3c;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .status-code {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+        .actions {
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-refresh {
+            background: #2ecc71;
+        }
+        .btn-refresh:hover {
+            background: #27ae60;
+        }
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="status-code">Error 502</div>
+        <h2>App is not available or still starting.</h2>
+        
+        <div class="actions">
+            <a href="javascript:window.location.reload()" class="btn btn-refresh">
+                Refresh
+            </a>
+        </div>
+        
+        <div style="margin-top: 10px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+            <h3 style="color: #2c3e50; margin-top: 0;">What you can do:</h3>
+            <ul style="text-align: left; display: inline-block; margin: 0;">
+                <li>Wait a few minutes and try again</li>
+                <li>Contact support if the problem persists</li>
+            </ul>
+        </div>
+    </div>
+    
+</body>
+</html>
