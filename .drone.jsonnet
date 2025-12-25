@@ -1,7 +1,7 @@
 local name = 'platform';
 local browser = 'chrome';
-local selenium = '4.19.0-20240328';
-local go = '1.22.0';
+local selenium = '4.35.0-20250828';
+local go = '1.24.0';
 local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.38.8';
@@ -9,7 +9,7 @@ local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
-local python = '3.8-slim-bookworm';
+local python = '3.12-slim-bookworm';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -144,6 +144,7 @@ local build(arch, testUI) = [{
                     'DOMAIN="' + distro_default + '-' + arch + '"',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'cat /etc/hosts',
                     '/opt/bin/entry_point.sh',
                   ],
@@ -174,7 +175,7 @@ local build(arch, testUI) = [{
                   commands: [
                     'cd test',
                     './deps.sh',
-                    'py.test -x -s test-ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + '  --device-host=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
+                    'py.test -x -s ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + '  --device-host=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
                   ],
                   privileged: true,
                   volumes: [{
@@ -192,7 +193,7 @@ local build(arch, testUI) = [{
                'APP_ARCHIVE_PATH=$(realpath $(cat package.name))',
                'cd test',
                './deps.sh',
-               'py.test -x -s test-upgrade.py --domain=' + distro_default + '-' + arch + ' --device-host=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
+               'py.test -x -s upgrade.py --domain=' + distro_default + '-' + arch + ' --device-host=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
              ],
              privileged: true,
              volumes: [{

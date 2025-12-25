@@ -263,6 +263,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('reactivate-index')
 
+
 def test_permission_denied(selenium, device, ui_mode):
     device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /test/test.{0}.ldif'.format(ui_mode))
     menu(selenium, 'logout')
@@ -272,6 +273,12 @@ def test_permission_denied(selenium, device, ui_mode):
     selenium.find_by_id("btn_login").click()
     selenium.find_by_xpath("//div[contains(.,'not admin')]")
     selenium.screenshot('permission-denied')
+
+
+def test_502(selenium, full_domain):
+    selenium.driver.get("https://unknown.{0}".format(full_domain))
+    selenium.find_by_xpath("//h2[contains(.,'App is not available')]")
+
 
 def menu(selenium, element_id):
     retries = 10
@@ -326,7 +333,3 @@ def settings(selenium, setting):
 def wait_for_loading(driver):
     wait_driver = WebDriverWait(driver, 120)
     wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'el-loading-mask')))
-
-
-def test_teardown(driver):
-    driver.quit()

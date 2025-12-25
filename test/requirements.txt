@@ -1,4 +1,6 @@
-pytest==6.2.4
+pytest==8.4.1
+selenium==4.35.0
+syncloud-lib==356
+pytest-retry==1.6.3
+retrying==1.4.2
 responses==0.5.0
-selenium==3.141.0
-syncloud-lib==305
