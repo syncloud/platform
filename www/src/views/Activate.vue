@@ -321,7 +321,9 @@ export default {
       if (!this.validDeviceCredentials()) {
         return
       }
-      event.preventDefault()
+      if (event && event.preventDefault) {
+        event.preventDefault()
+      }
       this.progressShow()
       this.hideAlerts()
       switch (this.domainType) {

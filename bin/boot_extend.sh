@@ -6,8 +6,8 @@ PARTITION=$(echo ${BOOT_PARTITION_INFO} | cut -d' ' -f2 | cut -d'=' -f2 | tr -d 
 PARTITION_NUM=2
 
 DEVICE_SIZE_BYTES=$(parted -sm ${DEVICE} unit B print | grep "^${DEVICE}:" | cut -d':' -f2 | cut -d'B' -f1)
-PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep "^${PARTITION_NUM}:" | cut -d':' -f2 | cut -d'B' -f1)
-PART_END_BYTES=$(parted -sm ${DEVICE} unit B print | grep "^${PARTITION_NUM}:" | cut -d':' -f3 | cut -d'B' -f1)
+PART_START_BYTES=$(parted -sm ${DEVICE} unit B print | grep ext4 | cut -d':' -f2 | cut -d'B' -f1)
+PART_END_BYTES=$(parted -sm ${DEVICE} unit B print | grep ext4 | cut -d':' -f3 | cut -d'B' -f1)
 PART_START_SECTORS=$(expr ${PART_START_BYTES} / 512)
 PART_END_SECTORS=$(expr ${DEVICE_SIZE_BYTES} / 512 - 1)
 UNUSED_BYTES=$(( $DEVICE_SIZE_BYTES - $PART_END_BYTES ))
