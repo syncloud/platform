@@ -49,12 +49,14 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		backupService *backup.Backup,
 		cookies *session.Cookies,
 		backend *rest.Backend,
+		lcdDisplay Service,
 	) []Service {
 		return []Service{
 			cronService,
 			backupService,
 			cookies,
 			backend,
+			lcdDisplay,
 		}
 	})
 	if err != nil {

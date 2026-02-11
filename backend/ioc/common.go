@@ -31,6 +31,7 @@ import (
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
+	"github.com/syncloud/platform/hardware/lcd"
 	"go.uber.org/zap"
 	"path"
 	"time"
@@ -479,6 +480,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			web,
 			logger,
 		)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func() *lcd.Display {
+		return lcd.NewDisplay()
 	})
 	if err != nil {
 		return nil, err
