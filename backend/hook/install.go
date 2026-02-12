@@ -139,6 +139,46 @@ func (i *Install) PostRefresh() error {
 		return err
 	}
 
+	// Clean up old manually-installed odroidhc4-display service
+	// TODO: Remove this cleanup code after sufficient time has passed for devices to upgrade
+	err = i.cleanupOldLcdService()
+	if err != nil {
+		i.logger.Warn("failed to cleanup old LCD service", zap.Error(err))
+		// Don't fail the refresh if cleanup fails
+	}
+
+	return nil
+}
+
+func (i *Install) cleanupOldLcdService() error {
+	servicePath := "/etc/systemd/system/odroidhc4-display.service"
+	binaryPath := "/usr/bin/odroidhc4-display"
+
+	// Check if the service file exists
+	if _, err := os.Stat(servicePath); err == nil {
+		i.logger.Info("found old odroidhc4-display service, removing it")
+
+		// Stop and disable the service
+		_ = linux.SystemCtl("stop", "odroidhc4-display")
+		_ = linux.SystemCtl("disable", "odroidhc4-display")
+
+		// Remove the service file
+		if err := os.Remove(servicePath); err != nil {
+			i.logger.Warn("failed to remove service file", zap.Error(err))
+		}
+
+		// Reload systemd daemon
+		_ = linux.SystemCtl("daemon-reload")
+	}
+
+	// Check if the binary exists
+	if _, err := os.Stat(binaryPath); err == nil {
+		i.logger.Info("found old odroidhc4-display binary, removing it")
+		if err := os.Remove(binaryPath); err != nil {
+			i.logger.Warn("failed to remove binary", zap.Error(err))
+		}
+	}
+
 	return nil
 }
 
