@@ -21,6 +21,7 @@ type Install struct {
 	ldap           Ldap
 	nginx          Nginx
 	web            auth.Web
+	systemdControl SystemdControl
 	logDir         string
 	logger         *zap.Logger
 }
@@ -47,6 +48,12 @@ type Nginx interface {
 	InitConfig() error
 }
 
+type SystemdControl interface {
+	StopService(service string) error
+	DisableService(service string) error
+	DaemonReload() error
+}
+
 const (
 	App       = "platform"
 	AppDir    = "/snap/platform/current"
@@ -62,6 +69,7 @@ func NewInstall(
 	ldap Ldap,
 	nginx Nginx,
 	web auth.Web,
+	systemdControl SystemdControl,
 	logger *zap.Logger,
 ) *Install {
 	return &Install{
@@ -72,6 +80,7 @@ func NewInstall(
 		ldap:           ldap,
 		nginx:          nginx,
 		web:            web,
+		systemdControl: systemdControl,
 		logDir:         path.Join(CommonDir, "log"),
 		logger:         logger,
 	}
@@ -159,8 +168,8 @@ func (i *Install) cleanupOldLcdService() error {
 		i.logger.Info("found old odroidhc4-display service, removing it")
 
 		// Stop and disable the service
-		_ = linux.SystemCtl("stop", "odroidhc4-display")
-		_ = linux.SystemCtl("disable", "odroidhc4-display")
+		_ = i.systemdControl.StopService("odroidhc4-display")
+		_ = i.systemdControl.DisableService("odroidhc4-display")
 
 		// Remove the service file
 		if err := os.Remove(servicePath); err != nil {
@@ -168,7 +177,7 @@ func (i *Install) cleanupOldLcdService() error {
 		}
 
 		// Reload systemd daemon
-		_ = linux.SystemCtl("daemon-reload")
+		_ = i.systemdControl.DaemonReload()
 	}
 
 	// Check if the binary exists

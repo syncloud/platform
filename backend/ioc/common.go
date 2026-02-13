@@ -469,6 +469,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		ldapService *auth.Service,
 		nginxService *nginx.Nginx,
 		web *auth.Authelia,
+		systemdControl *systemd.Control,
 	) *hook.Install {
 		return hook.NewInstall(
 			checker,
@@ -478,6 +479,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			ldapService,
 			nginxService,
 			web,
+			systemdControl,
 			logger,
 		)
 	})
