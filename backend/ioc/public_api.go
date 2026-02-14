@@ -20,6 +20,7 @@ import (
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/hardware/lcd"
 )
 
 func InitPublicApi(userConfig string, systemConfig string, backupDir string, varDir string, net string, address string) (container.Container, error) {
@@ -49,12 +50,14 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		backupService *backup.Backup,
 		cookies *session.Cookies,
 		backend *rest.Backend,
+		lcdDisplay *lcd.Display,
 	) []Service {
 		return []Service{
 			cronService,
 			backupService,
 			cookies,
 			backend,
+			lcdDisplay,
 		}
 	})
 	if err != nil {

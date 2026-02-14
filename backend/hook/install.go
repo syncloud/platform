@@ -21,6 +21,7 @@ type Install struct {
 	ldap           Ldap
 	nginx          Nginx
 	web            auth.Web
+	systemdControl SystemdControl
 	logDir         string
 	logger         *zap.Logger
 }
@@ -47,6 +48,12 @@ type Nginx interface {
 	InitConfig() error
 }
 
+type SystemdControl interface {
+	StopService(service string) error
+	DisableService(service string) error
+	DaemonReload() error
+}
+
 const (
 	App       = "platform"
 	AppDir    = "/snap/platform/current"
@@ -62,6 +69,7 @@ func NewInstall(
 	ldap Ldap,
 	nginx Nginx,
 	web auth.Web,
+	systemdControl SystemdControl,
 	logger *zap.Logger,
 ) *Install {
 	return &Install{
@@ -72,6 +80,7 @@ func NewInstall(
 		ldap:           ldap,
 		nginx:          nginx,
 		web:            web,
+		systemdControl: systemdControl,
 		logDir:         path.Join(CommonDir, "log"),
 		logger:         logger,
 	}
@@ -137,6 +146,46 @@ func (i *Install) PostRefresh() error {
 	err = cli.Remove(fmt.Sprintf("%s/*.log", i.logDir))
 	if err != nil {
 		return err
+	}
+
+	// Clean up old manually-installed odroidhc4-display service
+	// TODO: Remove this cleanup code after sufficient time has passed for devices to upgrade
+	err = i.cleanupOldLcdService()
+	if err != nil {
+		i.logger.Warn("failed to cleanup old LCD service", zap.Error(err))
+		// Don't fail the refresh if cleanup fails
+	}
+
+	return nil
+}
+
+func (i *Install) cleanupOldLcdService() error {
+	servicePath := "/etc/systemd/system/odroidhc4-display.service"
+	binaryPath := "/usr/bin/odroidhc4-display"
+
+	// Check if the service file exists
+	if _, err := os.Stat(servicePath); err == nil {
+		i.logger.Info("found old odroidhc4-display service, removing it")
+
+		// Stop and disable the service
+		_ = i.systemdControl.StopService("odroidhc4-display")
+		_ = i.systemdControl.DisableService("odroidhc4-display")
+
+		// Remove the service file
+		if err := os.Remove(servicePath); err != nil {
+			i.logger.Warn("failed to remove service file", zap.Error(err))
+		}
+
+		// Reload systemd daemon
+		_ = i.systemdControl.DaemonReload()
+	}
+
+	// Check if the binary exists
+	if _, err := os.Stat(binaryPath); err == nil {
+		i.logger.Info("found old odroidhc4-display binary, removing it")
+		if err := os.Remove(binaryPath); err != nil {
+			i.logger.Warn("failed to remove binary", zap.Error(err))
+		}
 	}
 
 	return nil

@@ -146,3 +146,21 @@ func (c *Control) stop(service string) string {
 	c.logger.Info("result", zap.String(service, isAliveResult))
 	return isAliveResult
 }
+
+func (c *Control) StopService(service string) error {
+	c.logger.Info("stopping service", zap.String("service", service))
+	_, err := c.executor.CombinedOutput("systemctl", "stop", service)
+	return err
+}
+
+func (c *Control) DisableService(service string) error {
+	c.logger.Info("disabling service", zap.String("service", service))
+	_, err := c.executor.CombinedOutput("systemctl", "disable", service)
+	return err
+}
+
+func (c *Control) DaemonReload() error {
+	c.logger.Info("reloading systemd daemon")
+	_, err := c.executor.CombinedOutput("systemctl", "daemon-reload")
+	return err
+}

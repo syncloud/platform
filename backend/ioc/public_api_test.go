@@ -33,6 +33,6 @@ config_dir: test
 	var services []Service
 	err = c.Resolve(&services)
 	assert.Nil(t, err)
-	assert.Len(t, services, 4)
+	assert.Len(t, services, 5)
 
 }
