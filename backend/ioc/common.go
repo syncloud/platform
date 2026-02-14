@@ -31,6 +31,7 @@ import (
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/version"
+	"github.com/syncloud/platform/hardware/lcd"
 	"go.uber.org/zap"
 	"path"
 	"time"
@@ -468,6 +469,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		ldapService *auth.Service,
 		nginxService *nginx.Nginx,
 		web *auth.Authelia,
+		systemdControl *systemd.Control,
 	) *hook.Install {
 		return hook.NewInstall(
 			checker,
@@ -477,8 +479,16 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			ldapService,
 			nginxService,
 			web,
+			systemdControl,
 			logger,
 		)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func() *lcd.Display {
+		return lcd.NewDisplay()
 	})
 	if err != nil {
 		return nil, err
