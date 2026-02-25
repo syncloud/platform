@@ -80,7 +80,7 @@ def test_https_port_validation_url(device_host):
 
 def test_non_activated_device_login_redirect_to_activation(full_domain):
     def login():
-        response = requests.post('https://{0}/rest/login'.format(full_domain), verify=False)
+        response = requests.get('https://{0}/rest/oidc/login'.format(full_domain), verify=False)
         if response.status_code != 501:
             raise Exception()
     retry(login)
