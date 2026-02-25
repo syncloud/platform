@@ -3,8 +3,10 @@ from subprocess import check_output
 from selenium.webdriver.support.ui import WebDriverWait
 
 import pytest
+import re
 import time
 import requests
+import pyotp
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from syncloudlib.integration.hosts import add_host_alias
@@ -89,17 +91,13 @@ def test_activate_again(selenium, device_host):
     selenium.screenshot('activate')
 
 
-def test_login(selenium, full_domain):
+def test_login(selenium, full_domain, device_user, device_password):
     selenium.driver.get("https://{0}".format(full_domain))
-    selenium.find_by_xpath("//h1[text()='Log in']")
+    # OIDC flow redirects to Authelia
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.screenshot('login')
-
-
-def test_index(selenium, device_user, device_password):
-    selenium.find_by_id("username").send_keys(device_user)
-    selenium.find_by_id("password").send_keys(device_password)
-    selenium.find_by_id("btn_login").click()
-    selenium.screenshot('index-progress')
+    selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('index')
 
@@ -223,9 +221,133 @@ def test_auth_web(selenium, full_domain, device_user, device_password):
     password.send_keys(device_password)
     selenium.screenshot('auth')
     selenium.find_by(By.ID, "sign-in-button").click()
-       
+
     # redirect to the main web
     selenium.find_by_xpath("//h1[text()='Applications']")
+
+
+def test_2fa_settings(selenium, full_domain):
+    selenium.driver.get("https://{0}".format(full_domain))
+    settings(selenium, 'twofactor')
+    selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
+    selenium.find_by_id('twofa_status')
+    selenium.screenshot('2fa_settings')
+
+
+def test_2fa_enable(selenium, device, full_domain, device_user, device_password):
+    selenium.driver.get("https://{0}".format(full_domain))
+    settings(selenium, 'twofactor')
+    selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
+
+    # open authelia settings to register TOTP
+    selenium.find_by_id('btn_authelia_settings').click()
+    time.sleep(2)
+
+    # switch to authelia tab
+    windows = selenium.driver.window_handles
+    selenium.driver.switch_to.window(windows[-1])
+
+    # login to authelia if needed
+    wait_for(selenium, lambda: selenium.find_by(By.ID, "username-textfield").send_keys(""))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+    time.sleep(2)
+    selenium.screenshot('2fa_authelia_settings')
+
+    # start TOTP registration
+    selenium.find_by(By.XPATH, "//a[contains(@href, 'one-time-password')]").click()
+    time.sleep(2)
+
+    # identity verification - read link from filesystem notifier
+    notification = device.run_ssh('cat /var/snap/platform/current/authelia-notification.txt')
+    link_match = re.search(r'https?://\S+', notification)
+    if link_match:
+        selenium.driver.get(link_match.group(0))
+        time.sleep(2)
+
+    # extract TOTP secret from the registration page
+    selenium.screenshot('2fa_totp_register')
+    secret_element = selenium.find_by(By.XPATH, "//code")
+    totp_secret = secret_element.text.replace(' ', '')
+
+    # generate and enter TOTP code
+    totp = pyotp.TOTP(totp_secret)
+    code = totp.now()
+    selenium.find_by(By.XPATH, "//input[@type='tel']").send_keys(code)
+    selenium.find_by(By.XPATH, "//button[contains(text(), 'Register')]").click()
+    time.sleep(2)
+    selenium.screenshot('2fa_totp_registered')
+
+    # close authelia tab and switch back
+    selenium.driver.close()
+    selenium.driver.switch_to.window(windows[0])
+
+    # enable 2FA on platform
+    selenium.find_by_id('btn_enable_2fa').click()
+    time.sleep(3)
+    selenium.screenshot('2fa_enabled')
+
+
+def test_2fa_login(selenium, device, full_domain, device_user, device_password):
+    # logout first
+    menu(selenium, 'logout')
+    time.sleep(1)
+
+    # navigate to login - should redirect to authelia
+    selenium.driver.get("https://{0}".format(full_domain))
+
+    # enter credentials in authelia
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+    time.sleep(2)
+
+    # should see TOTP input
+    selenium.screenshot('2fa_login_totp')
+
+    # read TOTP secret from authelia DB and generate code
+    totp_secret = device.run_ssh(
+        "sqlite3 /var/snap/platform/current/authelia.sqlite3 "
+        "\"SELECT value FROM totp_configurations WHERE username='{0}'\"".format(device_user)
+    ).strip()
+    totp = pyotp.TOTP(totp_secret)
+    code = totp.now()
+    selenium.find_by(By.XPATH, "//input[@type='tel']").send_keys(code)
+    time.sleep(2)
+    selenium.find_by(By.ID, "sign-in-button").click()
+
+    # should redirect back to platform
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('2fa_login_success')
+
+
+def test_2fa_disable(selenium, full_domain):
+    settings(selenium, 'twofactor')
+    selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
+    selenium.find_by_id('btn_disable_2fa').click()
+    time.sleep(3)
+    selenium.screenshot('2fa_disabled')
+
+
+def test_2fa_recovery_cli(device, selenium, full_domain, device_user, device_password):
+    # enable 2FA again via API
+    session = device.login()
+    session.post('https://{0}/rest/settings/2fa'.format(full_domain),
+                 json={'enabled': True}, verify=False)
+
+    # disable via CLI
+    device.run_ssh('snap run platform.cli disable-2fa')
+    time.sleep(2)
+
+    # verify login works without TOTP
+    menu(selenium, 'logout')
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('2fa_recovery_cli')
  
 
 def test_settings_deactivate(selenium, device_host, full_domain,
@@ -255,23 +377,23 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
-    selenium.find_by_xpath("//h1[text()='Log in']")
-    selenium.find_by_id("username").send_keys(device_user)
-    selenium.find_by_id("password").send_keys(device_password)
-    selenium.find_by_id("btn_login").click()
-    selenium.screenshot('index-progress')
+    # OIDC login via Authelia after reactivation
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('reactivate-index')
 
 
-def test_permission_denied(selenium, device, ui_mode):
+def test_permission_denied(selenium, device, ui_mode, full_domain):
     device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /test/test.{0}.ldif'.format(ui_mode))
     menu(selenium, 'logout')
-    selenium.find_by_xpath("//h1[text()='Log in']")
-    selenium.find_by_id("username").send_keys("test{0}".format(ui_mode))
-    selenium.find_by_id("password").send_keys("password")
-    selenium.find_by_id("btn_login").click()
-    selenium.find_by_xpath("//div[contains(.,'not admin')]")
+    # OIDC login via Authelia with non-admin user
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys("test{0}".format(ui_mode))
+    selenium.find_by(By.ID, "password-textfield").send_keys("password")
+    selenium.find_by(By.ID, "sign-in-button").click()
+    time.sleep(2)
     selenium.screenshot('permission-denied')
 
 

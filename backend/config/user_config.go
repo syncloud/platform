@@ -583,6 +583,15 @@ func (c *UserConfig) AppDomain(app string) string {
 	return fmt.Sprintf("%s.%s", app, c.GetDeviceDomain())
 }
 
+func (c *UserConfig) IsTwoFactorEnabled() bool {
+	result := c.Get("platform.two_factor_enabled", DbFalse)
+	return c.toBool(result)
+}
+
+func (c *UserConfig) SetTwoFactorEnabled(enabled bool) {
+	c.Upsert("platform.two_factor_enabled", c.fromBool(enabled))
+}
+
 func (c *UserConfig) Url(app string) string {
 	port := c.GetPublicPort()
 	domain := c.GetDeviceDomain()

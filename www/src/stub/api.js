@@ -237,14 +237,17 @@ export function mock () {
       author: Model
     },
     routes () {
-      this.post('/rest/login', function (_schema, request) {
+      this.get('/rest/oidc/login', function (_schema, _request) {
+        state.loggedIn = true
+        return new Response(200, {}, { message: 'OK' })
+      })
+      this.get('/rest/settings/2fa', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: { enabled: state.twoFactorEnabled || false, authelia_url: 'https://auth.test.' + domain } })
+      })
+      this.post('/rest/settings/2fa', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
-        if (state.credentials.username === attrs.username && state.credentials.password === attrs.password) {
-          state.loggedIn = true
-          return new Response(200, {}, { message: 'OK' })
-        } else {
-          return new Response(400, {}, { message: 'Authentication failed' })
-        }
+        state.twoFactorEnabled = attrs.enabled
+        return new Response(200, {}, { success: true, data: 'OK' })
       })
       this.get('/rest/user', function (_schema, _request) {
         if (!state.activated) {

@@ -52,7 +52,7 @@ server:
 
   ## Set the path on disk to Authelia assets.
   ## Useful to allow overriding of specific static assets.
-  # asset_path: /config/assets/
+  asset_path: /var/snap/platform/current/config/authelia/assets/
   
   endpoints:
     ## Enables the pprof endpoint.
@@ -818,9 +818,11 @@ identity_providers:
         require_pkce: true
         pkce_challenge_method: 'S256'
         redirect_uris:
-          - 'http://localhost/callback'
+          - '{{ .DeviceUrl }}/rest/oidc/callback'
         scopes:
-          - 'offline_access'
+          - 'openid'
+          - 'email'
+          - 'profile'
           - 'groups'
         requested_audience_mode: 'implicit'
         grant_types:
@@ -829,17 +831,17 @@ identity_providers:
         response_types:
           - 'code'
         response_modes:
-          - 'form_post'
-        consent_mode: 'explicit'
-        require_pushed_authorization_requests: true
+          - 'query'
+        consent_mode: 'implicit'
+        require_pushed_authorization_requests: false
         token_endpoint_auth_method: 'none'
-        authorization_policy: 'one_factor'
+        authorization_policy: '{{ if .TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
 
 {{ range $key, $value := .OIDCClients }}
       - client_id: '{{ .ID }}'
         client_secret: '{{ .Secret }}'
         public: false
-        authorization_policy: 'one_factor'
+        authorization_policy: '{{ if $.TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
         redirect_uris:
           - '{{ .RedirectURI }}'
         scopes:

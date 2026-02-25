@@ -316,6 +316,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func(userConfig *config.UserConfig) *auth.OIDCService {
+		return auth.NewOIDCService(userConfig, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
 		systemd *systemd.Control,

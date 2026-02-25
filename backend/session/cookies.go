@@ -8,6 +8,8 @@ import (
 )
 
 const UserKey = "user"
+const OIDCStateKey = "oidc_state"
+const OIDCCodeVerifierKey = "oidc_code_verifier"
 
 type Cookies struct {
 	config Config
@@ -70,4 +72,41 @@ func (c *Cookies) GetSessionUser(r *http.Request) (string, error) {
 	}
 
 	return user.(string), nil
+}
+
+func (c *Cookies) SetOIDCState(w http.ResponseWriter, r *http.Request, state string, codeVerifier string) error {
+	session, err := c.getSession(r)
+	if err != nil {
+		c.logger.Error("cannot update session for OIDC state", zap.Error(err))
+		return err
+	}
+	session.Values[OIDCStateKey] = state
+	session.Values[OIDCCodeVerifierKey] = codeVerifier
+	return session.Save(r, w)
+}
+
+func (c *Cookies) GetOIDCState(r *http.Request) (string, string, error) {
+	session, err := c.getSession(r)
+	if err != nil {
+		return "", "", err
+	}
+	state, found := session.Values[OIDCStateKey]
+	if !found {
+		return "", "", fmt.Errorf("no OIDC state found")
+	}
+	codeVerifier, found := session.Values[OIDCCodeVerifierKey]
+	if !found {
+		return "", "", fmt.Errorf("no OIDC code verifier found")
+	}
+	return state.(string), codeVerifier.(string), nil
+}
+
+func (c *Cookies) ClearOIDCState(w http.ResponseWriter, r *http.Request) error {
+	session, err := c.getSession(r)
+	if err != nil {
+		return err
+	}
+	delete(session.Values, OIDCStateKey)
+	delete(session.Values, OIDCCodeVerifierKey)
+	return session.Save(r, w)
 }

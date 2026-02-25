@@ -51,6 +51,8 @@ type Backend struct {
 	auth            *auth.Service
 	mw              *Middleware
 	cookies         *session.Cookies
+	oidc            *auth.OIDCService
+	authelia        *auth.Authelia
 	network         string
 	address         string
 	logger          *zap.Logger
@@ -65,6 +67,7 @@ func NewBackend(
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
+	oidcService *auth.OIDCService, authelia *auth.Authelia,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -90,6 +93,8 @@ func NewBackend(
 		auth:            auth,
 		mw:              middleware,
 		cookies:         cookies,
+		oidc:            oidcService,
+		authelia:        authelia,
 		network:         network,
 		address:         address,
 		changesClient:   changesClient,
@@ -115,7 +120,8 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/id", b.mw.Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/rest/activation/status", b.mw.Handle(b.IsActivated)).Methods("GET")
 
-	r.HandleFunc("/rest/login", b.mw.FailIfNotActivated(b.UserLogin)).Methods("POST")
+	r.HandleFunc("/rest/oidc/login", b.mw.FailIfNotActivated(b.OIDCLogin)).Methods("GET")
+	r.HandleFunc("/rest/oidc/callback", b.mw.FailIfNotActivated(b.OIDCCallback)).Methods("GET")
 
 	r.HandleFunc("/rest/redirect_info", b.mw.FailIfActivated(b.mw.Handle(b.RedirectInfo))).Methods("GET")
 	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/rest/redirect", NewFailIfActivatedHandler(b.userConfig, proxyRedirect)))
@@ -124,6 +130,8 @@ func (b *Backend) Start() error {
 
 	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
 	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.mw.Secured(b.UserLogout))).Methods("POST")
+	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
+	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
@@ -253,33 +261,63 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 	return response, nil
 }
 
-func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
-	var request model.UserLoginRequest
-	err := json.NewDecoder(req.Body).Decode(&request)
+func (b *Backend) OIDCLogin(w http.ResponseWriter, req *http.Request) {
+	authURL, state, codeVerifier, err := b.oidc.GetAuthorizationURL()
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	authenticated, err := b.auth.Authenticate(request.Username, request.Password)
+	err = b.cookies.SetOIDCState(w, req, state, codeVerifier)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	if !authenticated {
-		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid credentials")))
+	http.Redirect(w, req, authURL, http.StatusFound)
+}
+
+func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
+	query := req.URL.Query()
+	code := query.Get("code")
+	state := query.Get("state")
+
+	if code == "" || state == "" {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("missing code or state")))
 		return
 	}
+
+	savedState, codeVerifier, err := b.cookies.GetOIDCState(req)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no OIDC session")))
+		return
+	}
+
+	if state != savedState {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid state")))
+		return
+	}
+
+	username, err := b.oidc.ExchangeCode(code, codeVerifier)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
+		return
+	}
+
+	err = b.cookies.ClearOIDCState(w, req)
+	if err != nil {
+		b.logger.Warn("unable to clear OIDC state", zap.Error(err))
+	}
+
 	err = b.cookies.ClearSessionUser(w, req)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	err = b.cookies.SetSessionUser(w, req, request.Username)
+	err = b.cookies.SetSessionUser(w, req, username)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	http.Redirect(w, req, "/", http.StatusMovedPermanently)
+	http.Redirect(w, req, "/", http.StatusFound)
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
@@ -478,5 +516,28 @@ func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
 		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
 		return
 	}
-	http.Redirect(w, req, "/", http.StatusMovedPermanently)
+	http.Redirect(w, req, "/", http.StatusFound)
+}
+
+func (b *Backend) GetTwoFactorSettings(_ *http.Request) (interface{}, error) {
+	return map[string]interface{}{
+		"enabled":      b.userConfig.IsTwoFactorEnabled(),
+		"authelia_url": b.userConfig.Url("auth"),
+	}, nil
+}
+
+func (b *Backend) SetTwoFactorSettings(req *http.Request) (interface{}, error) {
+	var request struct {
+		Enabled bool `json:"enabled"`
+	}
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return nil, errors.New("bad request")
+	}
+	b.userConfig.SetTwoFactorEnabled(request.Enabled)
+	err = b.authelia.InitConfig()
+	if err != nil {
+		return nil, fmt.Errorf("unable to apply 2FA settings: %w", err)
+	}
+	return "OK", nil
 }

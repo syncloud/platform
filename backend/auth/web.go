@@ -9,8 +9,10 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/parser"
 	"go.uber.org/zap"
+	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"sync"
 )
 
@@ -19,15 +21,16 @@ type Web interface {
 }
 
 type Variables struct {
-	Domain        string
-	AppUrl        string
-	EncryptionKey string
-	JwtSecret     string
-	HmacSecret    string
-	DeviceUrl     string
-	AuthUrl       string
-	IsActivated   bool
-	OIDCClients   []config.OIDCClient
+	Domain            string
+	AppUrl            string
+	EncryptionKey     string
+	JwtSecret         string
+	HmacSecret        string
+	DeviceUrl         string
+	AuthUrl           string
+	IsActivated       bool
+	TwoFactorEnabled  bool
+	OIDCClients       []config.OIDCClient
 }
 
 type Authelia struct {
@@ -51,6 +54,7 @@ type UserConfig interface {
 	OIDCClients() ([]config.OIDCClient, error)
 	AddOIDCClient(client config.OIDCClient) error
 	IsActivated() bool
+	IsTwoFactorEnabled() bool
 }
 
 type Systemd interface {
@@ -146,14 +150,23 @@ func (w *Authelia) InitConfig() error {
 		return err
 	}
 	variables := Variables{
-		Domain:        w.userConfig.GetDeviceDomain(),
-		EncryptionKey: encryptionKey,
-		JwtSecret:     jwtSecret,
-		HmacSecret:    hmacSecret,
-		DeviceUrl:     w.userConfig.DeviceUrl(),
-		AuthUrl:       w.userConfig.Url("auth"),
-		IsActivated:   activated,
-		OIDCClients:   clients,
+		Domain:           w.userConfig.GetDeviceDomain(),
+		EncryptionKey:    encryptionKey,
+		JwtSecret:        jwtSecret,
+		HmacSecret:       hmacSecret,
+		DeviceUrl:        w.userConfig.DeviceUrl(),
+		AuthUrl:          w.userConfig.Url("auth"),
+		IsActivated:      activated,
+		TwoFactorEnabled: w.userConfig.IsTwoFactorEnabled(),
+		OIDCClients:      clients,
+	}
+
+	err = copyAssetsDir(
+		path.Join(w.inputDir, "assets"),
+		path.Join(w.outDir, "assets"),
+	)
+	if err != nil {
+		w.logger.Warn("unable to copy authelia assets", zap.Error(err))
 	}
 
 	err = parser.Generate(
@@ -186,6 +199,44 @@ func getOrCreateUuid(file string) (string, error) {
 		return "", err
 	}
 	return string(content), nil
+}
+
+func copyAssetsDir(srcDir string, dstDir string) error {
+	_, err := os.Stat(srcDir)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	err = os.MkdirAll(dstDir, 0755)
+	if err != nil {
+		return err
+	}
+	entries, err := os.ReadDir(srcDir)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		src := filepath.Join(srcDir, entry.Name())
+		dst := filepath.Join(dstDir, entry.Name())
+		srcFile, err := os.Open(src)
+		if err != nil {
+			return err
+		}
+		dstFile, err := os.Create(dst)
+		if err != nil {
+			srcFile.Close()
+			return err
+		}
+		_, err = io.Copy(dstFile, srcFile)
+		srcFile.Close()
+		dstFile.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func createRsaKeyFileIfMissing(file string) error {

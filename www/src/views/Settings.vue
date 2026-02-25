@@ -69,6 +69,13 @@
           </div>
 
           <div class="colapp app">
+            <router-link to="/twofactor" id="twofactor" class="app-link">
+              <i class="material-icons settings-icon">verified_user</i>
+              <div class="setting-name"><span class="withline">2FA</span></div>
+            </router-link>
+          </div>
+
+          <div class="colapp app">
             <router-link to="/logs" id="logs" class="app-link">
               <i class="material-icons-outlined settings-icon">feed</i>
               <div class="setting-name"><span class="withline">Logs</span></div>

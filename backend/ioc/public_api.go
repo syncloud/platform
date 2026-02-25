@@ -36,11 +36,13 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
 		proxy *rest.Proxy, middleware *rest.Middleware, ldapService *auth.Service, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
+		oidcService *auth.OIDCService, authelia *auth.Authelia,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
 			snapd, disks, journalCtl, executor, iface, sender, proxy,
-			ldapService, middleware, cookies, net, address, changesClient, logger)
+			ldapService, middleware, cookies, net, address, changesClient,
+			oidcService, authelia, logger)
 	})
 	if err != nil {
 		return nil, err
