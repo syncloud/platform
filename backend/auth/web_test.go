@@ -21,6 +21,10 @@ func (u *UserConfigStub) AddOIDCClient(client config.OIDCClient) error {
 	return nil
 }
 
+func (u *UserConfigStub) IsTwoFactorEnabled() bool {
+	return false
+}
+
 func (u *UserConfigStub) IsActivated() bool {
 	return u.activated
 }
