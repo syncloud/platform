@@ -44,7 +44,7 @@ def test_deactivate(device, main_domain, domain):
     device.run_ssh('snap run platform.cli config set certbot.staging true')
     device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
 
-    response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False)
+    response = device.login_v2().post('https://{0}/rest/deactivate'.format(domain), verify=False)
     assert '"success":true' in response.text
     assert response.status_code == 200
 
@@ -332,7 +332,7 @@ def test_2fa_disable(selenium, full_domain):
 
 def test_2fa_recovery_cli(device, selenium, full_domain, device_user, device_password):
     # enable 2FA again via API
-    session = device.login()
+    session = device.login_v2()
     session.post('https://{0}/rest/settings/2fa'.format(full_domain),
                  json={'enabled': True}, verify=False)
 
