@@ -21,6 +21,7 @@ func main() {
 		btrfsCmd(userConfig, systemConfig),
 		backupCmd(userConfig, systemConfig),
 		disable2faCmd(userConfig, systemConfig),
+		loginCmd(userConfig, systemConfig),
 	)
 
 	err := rootCmd.Execute()

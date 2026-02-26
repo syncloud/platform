@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/auth"
@@ -122,6 +125,7 @@ func (b *Backend) Start() error {
 
 	r.HandleFunc("/rest/oidc/login", b.mw.FailIfNotActivated(b.OIDCLogin)).Methods("GET")
 	r.HandleFunc("/rest/oidc/callback", b.mw.FailIfNotActivated(b.OIDCCallback)).Methods("GET")
+	r.HandleFunc("/rest/login/token", b.mw.FailIfNotActivated(b.LoginToken)).Methods("POST")
 
 	r.HandleFunc("/rest/redirect_info", b.mw.FailIfActivated(b.mw.Handle(b.RedirectInfo))).Methods("GET")
 	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/rest/redirect", NewFailIfActivatedHandler(b.userConfig, proxyRedirect)))
@@ -318,6 +322,56 @@ func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	http.Redirect(w, req, "/", http.StatusFound)
+}
+
+const loginTokenFile = "/var/snap/platform/common/login-token"
+
+func (b *Backend) LoginToken(w http.ResponseWriter, req *http.Request) {
+	var request struct {
+		Token string `json:"token"`
+	}
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil || request.Token == "" {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("missing token")))
+		return
+	}
+
+	data, err := os.ReadFile(loginTokenFile)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no pending login token")))
+		return
+	}
+
+	parts := strings.SplitN(string(data), ":", 2)
+	if len(parts) != 2 {
+		_ = os.Remove(loginTokenFile)
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid token file")))
+		return
+	}
+
+	savedToken := parts[0]
+	username := parts[1]
+
+	if request.Token != savedToken {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid token")))
+		return
+	}
+
+	_ = os.Remove(loginTokenFile)
+
+	err = b.cookies.SetSessionUser(w, req, username)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
+		return
+	}
+
+	response := model.Response{Success: true}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
+		return
+	}
+	_, _ = fmt.Fprint(w, string(responseJson))
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
