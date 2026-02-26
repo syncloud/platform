@@ -82,11 +82,24 @@ def test_activate(selenium, device_host,
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
-    selenium.find_by_xpath("//h1[text()='Log in']")
+    wait_for_login(selenium, device_host)
 
 
 def test_activate_again(selenium, device_host):
     selenium.driver.get("https://{0}/activate".format(device_host))
+    wait_for_login(selenium, device_host)
+
+
+def wait_for_login(selenium, device_host):
+    retries = 30
+    for attempt in range(retries):
+        try:
+            selenium.find_by_xpath("//h1[text()='Log in']")
+            return
+        except Exception:
+            print('waiting for authelia (attempt {0}/{1})'.format(attempt + 1, retries))
+            time.sleep(2)
+            selenium.driver.get("https://{0}".format(device_host))
     selenium.find_by_xpath("//h1[text()='Log in']")
     selenium.screenshot('activate')
 
