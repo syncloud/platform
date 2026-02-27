@@ -273,7 +273,12 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
         time.sleep(2)
     selenium.screenshot('2fa_authelia_settings')
 
-    # start TOTP registration
+    # navigate to TOTP registration via settings menu
+    selenium.find_by(By.ID, "settings-menu").click()
+    time.sleep(1)
+    selenium.find_by(By.ID, "settings-menu-twofactor").click()
+    time.sleep(2)
+    selenium.screenshot('2fa_authelia_twofactor')
     selenium.find_by(By.XPATH, "//a[contains(@href, 'one-time-password')]").click()
     time.sleep(2)
 
