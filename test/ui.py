@@ -265,11 +265,12 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     selenium.driver.switch_to.window(windows[-1])
 
     # login to authelia if needed
-    wait_for(selenium, lambda: selenium.find_by(By.ID, "username-textfield").send_keys(""))
-    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
-    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
-    selenium.find_by(By.ID, "sign-in-button").click()
     time.sleep(2)
+    if selenium.exists_by(By.ID, "username-textfield"):
+        selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+        selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+        selenium.find_by(By.ID, "sign-in-button").click()
+        time.sleep(2)
     selenium.screenshot('2fa_authelia_settings')
 
     # start TOTP registration
