@@ -231,6 +231,7 @@ def test_not_installed_app(selenium):
 
 
 def test_auth_web(selenium, full_domain, device_user, device_password):
+    selenium.driver.delete_all_cookies()
     selenium.driver.get("https://auth.{0}".format(full_domain))
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     password = selenium.find_by(By.ID, "password-textfield")
