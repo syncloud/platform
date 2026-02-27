@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import pytest
 import re
+import socket
 import time
 import requests
 import pyotp
@@ -38,8 +39,10 @@ def test_start(app, device_host, module_setup, domain, full_domain):
     add_host_alias("auth", device_host, full_domain)
 
 
-def test_deactivate(device, main_domain, domain):
+def test_deactivate(device, device_host, main_domain, domain, full_domain):
     device.activated()
+    ip = socket.gethostbyname(device_host)
+    device.run_ssh('echo "{0} auth.{1}" >> /etc/hosts'.format(ip, full_domain))
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
     device.run_ssh('snap run platform.cli config set certbot.staging true')
     device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
