@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -8,6 +9,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,14 +21,16 @@ type OIDCConfig interface {
 }
 
 type OIDCService struct {
-	config OIDCConfig
-	logger *zap.Logger
+	config     OIDCConfig
+	socketPath string
+	logger     *zap.Logger
 }
 
-func NewOIDCService(config OIDCConfig, logger *zap.Logger) *OIDCService {
+func NewOIDCService(config OIDCConfig, socketPath string, logger *zap.Logger) *OIDCService {
 	return &OIDCService{
-		config: config,
-		logger: logger,
+		config:     config,
+		socketPath: socketPath,
+		logger:     logger,
 	}
 }
 
@@ -60,7 +64,7 @@ func (s *OIDCService) GetAuthorizationURL() (authURL string, state string, codeV
 }
 
 func (s *OIDCService) ExchangeCode(code string, codeVerifier string) (string, error) {
-	tokenEndpoint := s.config.Url("auth") + "/api/oidc/token"
+	tokenEndpoint := "http://authelia/api/oidc/token"
 	redirectURI := s.config.DeviceUrl() + "/rest/oidc/callback"
 
 	data := url.Values{
@@ -71,7 +75,14 @@ func (s *OIDCService) ExchangeCode(code string, codeVerifier string) (string, er
 		"code_verifier": {codeVerifier},
 	}
 
-	resp, err := http.PostForm(tokenEndpoint, data)
+	client := &http.Client{
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				return net.Dial("unix", s.socketPath)
+			},
+		},
+	}
+	resp, err := client.PostForm(tokenEndpoint, data)
 	if err != nil {
 		return "", fmt.Errorf("token request: %w", err)
 	}

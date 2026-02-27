@@ -316,8 +316,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(userConfig *config.UserConfig) *auth.OIDCService {
-		return auth.NewOIDCService(userConfig, logger)
+	err = c.Singleton(func(userConfig *config.UserConfig, systemConfig *config.SystemConfig) *auth.OIDCService {
+		return auth.NewOIDCService(userConfig, path.Join(systemConfig.DataDir(), "authelia.socket"), logger)
 	})
 	if err != nil {
 		return nil, err
