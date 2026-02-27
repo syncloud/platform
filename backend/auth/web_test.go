@@ -59,11 +59,12 @@ func (p *PasswordGeneratorStub) Generate() (Secret, error) {
 	return Secret{Password: "pass", Hash: "hash"}, nil
 }
 
+
 func TestWebInit(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "www.localhost", activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
+	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, log.Default())
 	err := web.InitConfig()
 	assert.NoError(t, err)
 
@@ -88,7 +89,7 @@ func TestWebReInit(t *testing.T) {
 	err = os.WriteFile(secretFilePath, []byte("secret"), 0644)
 	assert.Nil(t, err)
 
-	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
+	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, log.Default())
 	err = web.InitConfig()
 	assert.Nil(t, err)
 
@@ -130,7 +131,7 @@ func TestWebClients(t *testing.T) {
 	}, activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
+	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, log.Default())
 	err := web.InitConfig()
 	assert.NoError(t, err)
 

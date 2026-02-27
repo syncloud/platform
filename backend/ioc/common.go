@@ -327,6 +327,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		userConfig *config.UserConfig,
 		systemd *systemd.Control,
 		secretGenerator *auth.SecretGenerator,
+		executor *cli.ShellExecutor,
 	) *auth.Authelia {
 		return auth.NewWeb(
 			path.Join(hook.AppDir, "config/authelia"),
@@ -335,6 +336,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			userConfig,
 			systemd,
 			secretGenerator,
+			executor,
 			logger,
 		)
 	})

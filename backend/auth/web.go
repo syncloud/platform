@@ -5,7 +5,9 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"github.com/google/uuid"
+	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/parser"
 	"go.uber.org/zap"
@@ -44,6 +46,7 @@ type Authelia struct {
 	userConfig     UserConfig
 	systemd        Systemd
 	generator      PasswordGenerator
+	executor       cli.Executor
 	logger         *zap.Logger
 }
 
@@ -79,6 +82,7 @@ func NewWeb(
 	userConfig UserConfig,
 	systemd Systemd,
 	generator PasswordGenerator,
+	executor cli.Executor,
 	logger *zap.Logger,
 ) *Authelia {
 	return &Authelia{
@@ -92,6 +96,7 @@ func NewWeb(
 		userConfig:     userConfig,
 		systemd:        systemd,
 		generator:      generator,
+		executor:       executor,
 		logger:         logger,
 	}
 }
@@ -161,9 +166,20 @@ func (w *Authelia) InitConfig() error {
 		OIDCClients:      clients,
 	}
 
+	tmpDir := w.outDir + ".tmp"
+	err = os.RemoveAll(tmpDir)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(tmpDir, 0755)
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpDir)
+
 	err = copyAssetsDir(
 		path.Join(w.inputDir, "assets"),
-		path.Join(w.outDir, "assets"),
+		path.Join(tmpDir, "assets"),
 	)
 	if err != nil {
 		w.logger.Warn("unable to copy authelia assets", zap.Error(err))
@@ -171,9 +187,23 @@ func (w *Authelia) InitConfig() error {
 
 	err = parser.Generate(
 		w.inputDir,
-		w.outDir,
+		tmpDir,
 		variables,
 	)
+	if err != nil {
+		return err
+	}
+
+	output, err := w.executor.CombinedOutput(
+		"snap", "run", "platform.authelia-cli",
+		"validate-configuration",
+		"--config", path.Join(tmpDir, "config.yml"),
+	)
+	if err != nil {
+		return fmt.Errorf("authelia config validation failed, contact support: %s", string(output))
+	}
+
+	err = copyDir(tmpDir, w.outDir)
 	if err != nil {
 		return err
 	}
@@ -184,6 +214,44 @@ func (w *Authelia) InitConfig() error {
 		return err
 	}
 
+	return nil
+}
+
+func copyDir(srcDir string, dstDir string) error {
+	err := os.MkdirAll(dstDir, 0755)
+	if err != nil {
+		return err
+	}
+	entries, err := os.ReadDir(srcDir)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		src := filepath.Join(srcDir, entry.Name())
+		dst := filepath.Join(dstDir, entry.Name())
+		if entry.IsDir() {
+			err = copyDir(src, dst)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+		srcFile, err := os.Open(src)
+		if err != nil {
+			return err
+		}
+		dstFile, err := os.Create(dst)
+		if err != nil {
+			srcFile.Close()
+			return err
+		}
+		_, err = io.Copy(dstFile, srcFile)
+		srcFile.Close()
+		dstFile.Close()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
