@@ -256,31 +256,23 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     settings(selenium, 'twofactor')
     selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
 
-    # open authelia settings to register TOTP
-    selenium.find_by_id('btn_authelia_settings').click()
-    time.sleep(2)
+    # enable 2FA on platform first - this changes Authelia default_policy to two_factor
+    selenium.find_by_id('btn_enable_2fa').click()
+    time.sleep(5)
+    selenium.screenshot('2fa_enabled')
 
-    # switch to authelia tab
-    windows = selenium.driver.window_handles
-    selenium.driver.switch_to.window(windows[-1])
+    # navigate to authelia to register TOTP (now required by policy)
+    auth_url = "https://auth.{0}".format(full_domain)
+    selenium.driver.get(auth_url + '/settings/one-time-password')
+    time.sleep(2)
 
     # login to authelia if needed
-    time.sleep(2)
     if selenium.exists_by(By.ID, "username-textfield"):
         selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
         selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
         selenium.find_by(By.ID, "sign-in-button").click()
         time.sleep(2)
-    selenium.screenshot('2fa_authelia_settings')
-
-    # navigate to TOTP registration via settings menu
-    selenium.find_by(By.ID, "settings-menu").click()
-    time.sleep(1)
-    selenium.find_by(By.ID, "settings-menu-twofactor").click()
-    time.sleep(2)
-    selenium.screenshot('2fa_authelia_twofactor')
-    selenium.find_by(By.XPATH, "//a[contains(@href, 'one-time-password')]").click()
-    time.sleep(2)
+    selenium.screenshot('2fa_authelia_totp')
 
     # identity verification - read link from filesystem notifier
     notification = device.run_ssh('cat /var/snap/platform/current/authelia-notification.txt')
@@ -301,15 +293,6 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     selenium.find_by(By.XPATH, "//button[contains(text(), 'Register')]").click()
     time.sleep(2)
     selenium.screenshot('2fa_totp_registered')
-
-    # close authelia tab and switch back
-    selenium.driver.close()
-    selenium.driver.switch_to.window(windows[0])
-
-    # enable 2FA on platform
-    selenium.find_by_id('btn_enable_2fa').click()
-    time.sleep(3)
-    selenium.screenshot('2fa_enabled')
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
