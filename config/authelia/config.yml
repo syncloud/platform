@@ -746,35 +746,8 @@ notifier:
   ## You can disable the notifier startup check by setting this to true.
   disable_startup_check: true
 
-    ##
-    ## File System (Notification Provider)
-    ##
-    ## Important: Kubernetes (or HA) users must read https://www.authelia.com/t/statelessness
-    ##
-    # filesystem:
-    # filename: /config/notification.txt
-
-    ##
-    ## SMTP (Notification Provider)
-    ##
-    ## Use a SMTP server for sending notifications. Authelia uses the PLAIN or LOGIN methods to authenticate.
-    ## [Security] By default Authelia will:
-    ##   - force all SMTP connections over TLS including unauthenticated connections
-    ##      - use the disable_require_tls boolean value to disable this requirement
-    ##        (only works for unauthenticated connections)
-    ##   - validate the SMTP server x509 certificate during the TLS handshake against the hosts trusted certificates
-    ##     (configure in tls section)
-  smtp:
-    address: smtp://127.0.0.1:25
-    # timeout: 5s
-    # username: test
-    # password: password
-    sender: "Syncloud <auth@{{ .Domain }}>"
-    # identifier: localhost
-    subject: "[Syncloud] {title}"
-    # startup_check_address: test@authelia.com
-    # disable_require_tls: false
-    # disable_html_emails: false
+  filesystem:
+    filename: /var/snap/platform/current/authelia-notification.txt
 
 identity_providers:
   oidc:
