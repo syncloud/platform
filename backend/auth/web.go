@@ -196,7 +196,7 @@ func (w *Authelia) InitConfig() error {
 
 	output, err := w.executor.CombinedOutput(
 		"snap", "run", "platform.authelia-cli",
-		"validate-configuration",
+		"validate-config",
 		"--config", path.Join(tmpDir, "config.yml"),
 	)
 	if err != nil {
