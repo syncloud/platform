@@ -1,4 +1,4 @@
 #!/bin/bash -e
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-LIBS=$(echo ${DIR}/lib/*-linux-gnu*)
-exec ${DIR}/lib/*-linux*/ld-linux*.so* --library-path $LIBS ${DIR}/authelia "$@"
+LD=$(find ${DIR}/lib -name 'ld-*.so*' -type f | head -1)
+exec ${LD} --library-path ${DIR}/lib ${DIR}/authelia "$@"
