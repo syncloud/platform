@@ -274,28 +274,49 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
         time.sleep(2)
     selenium.screenshot('2fa_authelia_totp')
 
-    # click "Register device" to start TOTP registration
+    # click "Register device" to navigate to settings page
     selenium.find_by(By.ID, "register-link").click()
     time.sleep(3)
+    selenium.screenshot('2fa_settings_page')
 
-    # identity verification - read link from filesystem notifier
+    # click "Add" to start TOTP registration (opens elevation/verification dialogs)
+    selenium.find_by(By.ID, "one-time-password-add").click()
+    time.sleep(3)
+
+    # identity verification - read OTP code from filesystem notifier
     notification = device.run_ssh('cat /var/snap/platform/current/authelia-notification.txt')
-    link_match = re.search(r'https?://\S+', notification)
-    if link_match:
-        selenium.driver.get(link_match.group(0))
+    otp_match = re.search(r'(\d{6})', notification)
+    selenium.screenshot('2fa_identity_verification')
+    if otp_match:
+        selenium.find_by(By.ID, "one-time-code").send_keys(otp_match.group(1))
+        selenium.find_by(By.ID, "dialog-verify").click()
         time.sleep(2)
 
-    # extract TOTP secret from the registration page
-    selenium.screenshot('2fa_totp_register')
-    secret_element = selenium.find_by(By.XPATH, "//code")
-    totp_secret = secret_element.text.replace(' ', '')
+    # TOTP registration dialog Step 0 (Start) - click Next to proceed
+    selenium.screenshot('2fa_totp_register_config')
+    selenium.find_by(By.ID, "dialog-next").click()
+    time.sleep(2)
 
-    # generate and enter TOTP code
+    # Step 1 (Register) - toggle off QR code to show secret URL text field
+    selenium.find_by(By.ID, "qr-toggle").click()
+    time.sleep(1)
+    selenium.screenshot('2fa_totp_register')
+
+    # extract TOTP secret from the otpauth URL
+    secret_element = selenium.find_by(By.ID, "secret-url")
+    secret_url = secret_element.get_attribute('value')
+    secret_match = re.search(r'secret=([A-Z2-7]+)', secret_url)
+    totp_secret = secret_match.group(1)
+
+    # Step 2 (Confirm) - enter TOTP code to verify
+    selenium.find_by(By.ID, "dialog-next").click()
+    time.sleep(1)
     totp = pyotp.TOTP(totp_secret)
     code = totp.now()
-    selenium.find_by(By.XPATH, "//input[@type='tel']").send_keys(code)
-    selenium.find_by(By.XPATH, "//button[contains(text(), 'Register')]").click()
-    time.sleep(2)
+    otp_inputs = selenium.driver.find_elements(By.CSS_SELECTOR, "#otp-input input")
+    for i, digit in enumerate(code):
+        otp_inputs[i].send_keys(digit)
+    time.sleep(3)
     selenium.screenshot('2fa_totp_registered')
 
 
