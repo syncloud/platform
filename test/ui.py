@@ -275,7 +275,7 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     selenium.screenshot('2fa_authelia_totp')
 
     # click "Register device" to start TOTP registration
-    selenium.find_by(By.XPATH, "//a[contains(text(), 'Register device')]").click()
+    selenium.find_by(By.ID, "register-link").click()
     time.sleep(3)
 
     # identity verification - read link from filesystem notifier
