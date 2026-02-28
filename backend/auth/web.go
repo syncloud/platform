@@ -198,6 +198,7 @@ func (w *Authelia) InitConfig() error {
 		"snap", "run", "platform.authelia-cli",
 		"validate-config",
 		"--config", path.Join(tmpDir, "config.yml"),
+		"--config.experimental.filters", "template",
 	)
 	if err != nil {
 		return fmt.Errorf("authelia config validation failed, contact support: %s", string(output))
