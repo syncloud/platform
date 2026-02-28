@@ -50,15 +50,17 @@ local build(arch, testUI) = [{
              commands: [
                './authelia/build.sh',
              ],
-
            },
+         ] + [
            {
-             name: 'authelia test',
-             image: 'syncloud/bootstrap-bookworm-' + arch + ':' + bootstrap,
+             name: 'authelia test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
                './authelia/test.sh',
              ],
-           },
+           }
+           for distro in distros
+         ] + [
            {
              name: 'build web',
              image: 'node:' + node,
