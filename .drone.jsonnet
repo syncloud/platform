@@ -48,13 +48,13 @@ local build(arch, testUI) = [{
              name: 'authelia',
              image: 'authelia/authelia:' + authelia,
              commands: [
-               './authelia/package.sh',
+               './authelia/build.sh',
              ],
 
            },
            {
              name: 'authelia test',
-             image: 'debian:bookworm-slim',
+             image: 'syncloud/bootstrap-bookworm-' + arch + ':' + bootstrap,
              commands: [
                './authelia/test.sh',
              ],
