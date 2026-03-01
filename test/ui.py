@@ -285,7 +285,7 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
 
     # identity verification - read OTP code from filesystem notifier
     notification = device.run_ssh('cat /var/snap/platform/current/authelia-notification.txt')
-    otp_match = re.search(r'(\d{6})', notification)
+    otp_match = re.search(r'\n([A-Z0-9]{8})\n', notification)
     selenium.screenshot('2fa_identity_verification')
     if otp_match:
         selenium.find_by(By.ID, "one-time-code").send_keys(otp_match.group(1))
