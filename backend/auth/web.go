@@ -183,6 +183,7 @@ func (w *Authelia) InitConfig() error {
 	)
 	if err != nil {
 		w.logger.Warn("unable to copy authelia assets", zap.Error(err))
+		_ = os.MkdirAll(path.Join(tmpDir, "assets"), 0755)
 	}
 
 	err = parser.Generate(
