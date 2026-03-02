@@ -301,6 +301,9 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
+    selenium.driver.get("https://auth.{0}".format(full_domain))
+    selenium.driver.delete_all_cookies()
+    selenium.driver.get("https://{0}".format(full_domain))
     selenium.driver.delete_all_cookies()
     selenium.driver.get("https://{0}".format(full_domain))
 
