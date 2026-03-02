@@ -257,6 +257,7 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
 
     selenium.find_by_id('btn_enable_2fa').click()
+    selenium.find_by_id('btn_disable_2fa')
     selenium.screenshot('2fa_enabled')
 
     auth_url = "https://auth.{0}".format(full_domain)
