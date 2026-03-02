@@ -256,91 +256,59 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     settings(selenium, 'twofactor')
     selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
 
-    # enable 2FA on platform first - this changes Authelia default_policy to two_factor
     selenium.find_by_id('btn_enable_2fa').click()
-    time.sleep(5)
     selenium.screenshot('2fa_enabled')
 
-    # navigate to authelia to register TOTP (now required by policy)
     auth_url = "https://auth.{0}".format(full_domain)
     selenium.driver.get(auth_url + '/settings/one-time-password')
-    time.sleep(2)
 
-    # login to authelia if needed
     if selenium.exists_by(By.ID, "username-textfield"):
         selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
         selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
         selenium.find_by(By.ID, "sign-in-button").click()
-        time.sleep(2)
     selenium.screenshot('2fa_authelia_totp')
 
-    # click "Register device" to navigate to settings page
     selenium.find_by(By.ID, "register-link").click()
-    time.sleep(3)
     selenium.screenshot('2fa_settings_page')
 
-    # click "Add" to start TOTP registration (opens elevation/verification dialogs)
     selenium.find_by(By.ID, "one-time-password-add").click()
-    time.sleep(3)
 
-    # identity verification - read OTP code from filesystem notifier
     notification = device.run_ssh('cat /var/snap/platform/current/authelia-notification.txt')
     otp_code = re.search(r'-{10,}\n\n(.+)\n\n-{10,}', notification).group(1)
     selenium.screenshot('2fa_identity_verification')
     selenium.find_by(By.ID, "one-time-code").send_keys(otp_code)
     selenium.find_by(By.ID, "dialog-verify").click()
-    time.sleep(2)
 
-    # TOTP registration dialog Step 0 (Start) - click Next to proceed
     selenium.screenshot('2fa_totp_register_config')
     selenium.find_by(By.ID, "dialog-next").click()
-    time.sleep(2)
 
-    # Step 1 (Register) - toggle off QR code to show secret URL text field
     selenium.find_by(By.ID, "qr-toggle").click()
-    time.sleep(1)
     selenium.screenshot('2fa_totp_register')
 
-    # extract TOTP secret from the otpauth URL
     secret_element = selenium.find_by(By.ID, "secret-url")
     secret_url = secret_element.get_attribute('value')
     secret_match = re.search(r'secret=([A-Z2-7]+)', secret_url)
     totp_secret = secret_match.group(1)
 
-    # Step 2 (Confirm) - enter TOTP code to verify
     selenium.find_by(By.ID, "dialog-next").click()
-    time.sleep(1)
     totp = pyotp.TOTP(totp_secret)
     code = totp.now()
     otp_inputs = selenium.driver.find_elements(By.CSS_SELECTOR, "#otp-input input")
     for i, digit in enumerate(code):
         otp_inputs[i].send_keys(digit)
-    time.sleep(3)
     selenium.screenshot('2fa_totp_registered')
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
-    # navigate to platform first (may still be on authelia page from previous test)
-    selenium.driver.get("https://{0}".format(full_domain))
-    time.sleep(2)
-
-    # logout
-    menu(selenium, 'logout')
-    time.sleep(1)
-
-    # navigate to login - should redirect to authelia
+    selenium.driver.delete_all_cookies()
     selenium.driver.get("https://{0}".format(full_domain))
 
-    # enter credentials in authelia
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.find_by(By.ID, "sign-in-button").click()
-    time.sleep(2)
 
-    # should see TOTP input
+    # TOTP challenge
     selenium.screenshot('2fa_login_totp')
-
-    # read TOTP secret from authelia DB and generate code
     totp_secret = device.run_ssh(
         "sqlite3 /var/snap/platform/current/authelia.sqlite3 "
         "\"SELECT value FROM totp_configurations WHERE username='{0}'\"".format(device_user)
@@ -348,10 +316,8 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
     totp = pyotp.TOTP(totp_secret)
     code = totp.now()
     selenium.find_by(By.XPATH, "//input[@type='tel']").send_keys(code)
-    time.sleep(2)
     selenium.find_by(By.ID, "sign-in-button").click()
 
-    # should redirect back to platform
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('2fa_login_success')
 
@@ -360,7 +326,6 @@ def test_2fa_disable(selenium, full_domain):
     settings(selenium, 'twofactor')
     selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
     selenium.find_by_id('btn_disable_2fa').click()
-    time.sleep(3)
     selenium.screenshot('2fa_disabled')
 
 
