@@ -320,7 +320,11 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
-    # logout first
+    # navigate to platform first (may still be on authelia page from previous test)
+    selenium.driver.get("https://{0}".format(full_domain))
+    time.sleep(2)
+
+    # logout
     menu(selenium, 'logout')
     time.sleep(1)
 
