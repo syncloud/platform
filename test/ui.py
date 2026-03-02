@@ -15,6 +15,7 @@ from syncloudlib.http import wait_for_rest
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
+stored_totp_secret = None
 
 
 @pytest.fixture(scope="session")
@@ -286,10 +287,12 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     selenium.find_by(By.ID, "qr-toggle").click()
     selenium.screenshot('2fa_totp_register')
 
+    global stored_totp_secret
     secret_element = selenium.find_by(By.ID, "secret-url")
     secret_url = secret_element.get_attribute('value')
     secret_match = re.search(r'secret=([A-Z2-7]+)', secret_url)
     totp_secret = secret_match.group(1)
+    stored_totp_secret = totp_secret
 
     selenium.find_by(By.ID, "dialog-next").click()
     totp = pyotp.TOTP(totp_secret)
@@ -313,11 +316,7 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
 
     # TOTP challenge
     selenium.screenshot('2fa_login_totp')
-    totp_secret = device.run_ssh(
-        "sqlite3 /var/snap/platform/current/authelia.sqlite3 "
-        "\"SELECT value FROM totp_configurations WHERE username='{0}'\"".format(device_user)
-    ).strip()
-    totp = pyotp.TOTP(totp_secret)
+    totp = pyotp.TOTP(stored_totp_secret)
     code = totp.now()
     selenium.find_by(By.XPATH, "//input[@type='tel']").send_keys(code)
     selenium.find_by(By.ID, "sign-in-button").click()
