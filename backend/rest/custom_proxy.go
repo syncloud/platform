@@ -9,7 +9,7 @@ import (
 )
 
 type CustomProxyNginx interface {
-	InitCustomProxyConfig() error
+	ReloadCustomProxy() error
 }
 
 type CustomProxy struct {
@@ -48,7 +48,7 @@ func (cp *CustomProxy) Add(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return "OK", cp.nginx.InitCustomProxyConfig()
+	return "OK", cp.nginx.ReloadCustomProxy()
 }
 
 type customProxyRemoveRequest struct {
@@ -69,5 +69,5 @@ func (cp *CustomProxy) Remove(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return "OK", cp.nginx.InitCustomProxyConfig()
+	return "OK", cp.nginx.ReloadCustomProxy()
 }

@@ -85,7 +85,7 @@ func TestCustomProxy_ZeroEntries(t *testing.T) {
 	assert.Contains(t, text, "return 502")
 	assert.NotContains(t, text, "proxy_pass http://")
 	assert.Equal(t, 1, strings.Count(text, "listen unix:"), "should have only the default server block")
-	assert.Equal(t, "platform.nginx-custom-proxy", systemd.reloadedService)
+	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
 }
 
 func TestCustomProxy_OneEntry(t *testing.T) {
@@ -110,7 +110,7 @@ func TestCustomProxy_OneEntry(t *testing.T) {
 	assert.Contains(t, text, "proxy_pass http://192.168.1.10:8080;")
 	assert.Contains(t, text, "X-Syncloud-Custom-Proxy")
 	assert.Equal(t, 2, strings.Count(text, "listen unix:"), "should have default + 1 custom server block")
-	assert.Equal(t, "platform.nginx-custom-proxy", systemd.reloadedService)
+	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
 }
 
 func TestCustomProxy_TwoEntries(t *testing.T) {
@@ -137,5 +137,27 @@ func TestCustomProxy_TwoEntries(t *testing.T) {
 	assert.Contains(t, text, "server_name camera.mydevice.syncloud.it;")
 	assert.Contains(t, text, "proxy_pass http://10.0.0.100:8443;")
 	assert.Equal(t, 3, strings.Count(text, "listen unix:"), "should have default + 2 custom server blocks")
+	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
+}
+
+func TestCustomProxy_ReloadCustomProxy(t *testing.T) {
+	outputDir := t.TempDir()
+	configDir := path.Join("..", "..", "config")
+	systemd := &SystemdMock{}
+	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
+	userConfig := &UserConfigMock{"example.com"}
+	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
+		{Name: "myapp", Host: "192.168.1.10", Port: 8080},
+	}}
+	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
+
+	err := nginx.ReloadCustomProxy()
+	assert.Nil(t, err)
+
+	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
+	assert.Nil(t, err)
+	text := string(contents)
+
+	assert.Contains(t, text, "server_name myapp.example.com;")
 	assert.Equal(t, "platform.nginx-custom-proxy", systemd.reloadedService)
 }

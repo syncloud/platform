@@ -77,6 +77,18 @@ type customProxyServerEntry struct {
 }
 
 func (n *Nginx) InitCustomProxyConfig() error {
+	return n.writeCustomProxyConfig()
+}
+
+func (n *Nginx) ReloadCustomProxy() error {
+	err := n.writeCustomProxyConfig()
+	if err != nil {
+		return err
+	}
+	return n.systemd.ReloadService("platform.nginx-custom-proxy")
+}
+
+func (n *Nginx) writeCustomProxyConfig() error {
 	domain := n.userConfig.GetDeviceDomain()
 	configDir := n.systemConfig.ConfigDir()
 	templateFile := path.Join(configDir, "nginx", "custom-proxy.conf")
@@ -108,9 +120,5 @@ func (n *Nginx) InitCustomProxyConfig() error {
 
 	nginxConfigDir := n.systemConfig.DataDir()
 	nginxConfigFile := path.Join(nginxConfigDir, "custom-proxy.conf")
-	err = os.WriteFile(nginxConfigFile, buf.Bytes(), 0644)
-	if err != nil {
-		return err
-	}
-	return n.systemd.ReloadService("platform.nginx-custom-proxy")
+	return os.WriteFile(nginxConfigFile, buf.Bytes(), 0644)
 }
