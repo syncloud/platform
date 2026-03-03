@@ -80,6 +80,11 @@ func (c *UserConfig) ensureDb() error {
 		return err
 	}
 
+	err = c.addCustomProxyTable()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -587,4 +592,56 @@ func (c *UserConfig) Url(app string) string {
 	port := c.GetPublicPort()
 	domain := c.GetDeviceDomain()
 	return ConstructUrl(port, fmt.Sprintf("%s.%s", app, domain))
+}
+
+func (c *UserConfig) addCustomProxyTable() error {
+	db := c.open()
+	defer db.Close()
+
+	query := `create table if not exists custom_proxy
+		(name varchar primary key, host varchar, port integer)`
+	_, err := db.Exec(query)
+	if err != nil {
+		return fmt.Errorf("unable to add custom_proxy table: %s", err)
+	}
+	return nil
+}
+
+type CustomProxyEntry struct {
+	Name string `json:"name"`
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
+func (c *UserConfig) AddCustomProxy(name string, host string, port int) error {
+	db := c.open()
+	defer db.Close()
+	_, err := db.Exec("INSERT OR REPLACE INTO custom_proxy VALUES (?, ?, ?)", name, host, port)
+	return err
+}
+
+func (c *UserConfig) RemoveCustomProxy(name string) error {
+	db := c.open()
+	defer db.Close()
+	_, err := db.Exec("DELETE FROM custom_proxy WHERE name = ?", name)
+	return err
+}
+
+func (c *UserConfig) CustomProxies() ([]CustomProxyEntry, error) {
+	db := c.open()
+	defer db.Close()
+	rows, err := db.Query("select name, host, port from custom_proxy")
+	if err != nil {
+		return nil, err
+	}
+	entries := make([]CustomProxyEntry, 0)
+	defer rows.Close()
+	for rows.Next() {
+		var entry CustomProxyEntry
+		if err := rows.Scan(&entry.Name, &entry.Host, &entry.Port); err != nil {
+			return entries, err
+		}
+		entries = append(entries, entry)
+	}
+	return entries, rows.Err()
 }

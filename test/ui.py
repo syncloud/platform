@@ -216,6 +216,27 @@ def test_not_installed_app(selenium):
 
 
 
+def test_settings_custom_proxy(selenium, device, device_host, domain, full_domain):
+    device.run_ssh('nohup /test/externalapp/externalapp > /tmp/syncloud/ui/externalapp.log 2>&1 &', throw=False)
+    add_host_alias("externalapp", device_host, domain)
+    settings(selenium, 'customproxy')
+    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
+    selenium.screenshot('settings_custom_proxy')
+    selenium.find_by_id('proxy_name').send_keys('externalapp')
+    selenium.find_by_id('proxy_host').send_keys('localhost')
+    selenium.find_by_id('proxy_port').send_keys('8585')
+    selenium.screenshot('settings_custom_proxy_filled')
+    selenium.find_by_id('btn_add').click()
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('settings_custom_proxy_added')
+
+    response = requests.get('https://externalapp.{0}'.format(full_domain), verify=False)
+    assert response.status_code == 200, response.text
+    assert response.text == "external", response.text
+
+    selenium.screenshot('settings_custom_proxy_verified')
+
+
 def test_auth_web(selenium, full_domain, device_user, device_password):
     selenium.driver.get("https://auth.{0}".format(full_domain))
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
