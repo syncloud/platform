@@ -385,6 +385,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
     # OIDC login via Authelia after reactivation
+    # Clear cookies on all domains to avoid stale session errors
     selenium.driver.get("https://auth.{0}".format(full_domain))
     selenium.driver.delete_all_cookies()
     selenium.driver.get("https://{0}".format(full_domain))
@@ -392,7 +393,8 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.driver.get("https://{0}".format(device_host))
     selenium.driver.delete_all_cookies()
     selenium.screenshot('deactivate-cookies-cleared')
-    wait_for_login(selenium, device_host)
+    # Use full_domain so the OIDC authorization flow initiates properly
+    wait_for_login(selenium, full_domain)
     selenium.screenshot('deactivate-login-page')
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
