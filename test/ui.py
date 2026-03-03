@@ -318,6 +318,9 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
     selenium.find_by(By.ID, "otp-input")
     selenium.screenshot('2fa_login_totp')
     totp = pyotp.TOTP(stored_totp_secret)
+    # Wait for next TOTP period to avoid replay rejection
+    remaining = totp.interval - time.time() % totp.interval
+    time.sleep(remaining + 1)
     code = totp.now()
     otp_inputs = selenium.driver.find_elements(By.CSS_SELECTOR, "#otp-input input")
     for i, digit in enumerate(code):
