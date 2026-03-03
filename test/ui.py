@@ -385,6 +385,11 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
     # OIDC login via Authelia after reactivation
+    selenium.driver.get("https://auth.{0}".format(full_domain))
+    selenium.driver.delete_all_cookies()
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.driver.delete_all_cookies()
+    selenium.driver.get("https://{0}".format(full_domain))
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.find_by(By.ID, "sign-in-button").click()
