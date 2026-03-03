@@ -315,11 +315,13 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
     selenium.find_by(By.ID, "sign-in-button").click()
 
     # TOTP challenge
+    selenium.find_by(By.ID, "otp-input")
     selenium.screenshot('2fa_login_totp')
     totp = pyotp.TOTP(stored_totp_secret)
     code = totp.now()
-    selenium.find_by(By.XPATH, "//input[@type='tel']").send_keys(code)
-    selenium.find_by(By.ID, "sign-in-button").click()
+    otp_inputs = selenium.driver.find_elements(By.CSS_SELECTOR, "#otp-input input")
+    for i, digit in enumerate(code):
+        otp_inputs[i].send_keys(digit)
 
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('2fa_login_success')
