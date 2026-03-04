@@ -406,6 +406,9 @@ def test_settings_deactivate(selenium, device_host, full_domain,
 def test_permission_denied(selenium, device, ui_mode, full_domain):
     device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /test/test.{0}.ldif'.format(ui_mode))
     menu(selenium, 'logout')
+    # Clear Authelia session so OIDC flow shows login page
+    selenium.driver.get("https://auth.{0}".format(full_domain))
+    selenium.driver.delete_all_cookies()
     # OIDC login via Authelia with non-admin user
     selenium.driver.get("https://{0}".format(full_domain))
     selenium.find_by(By.ID, "username-textfield").send_keys("test{0}".format(ui_mode))
