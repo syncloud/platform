@@ -349,6 +349,8 @@ def test_2fa_recovery_cli(device, selenium, full_domain, device_user, device_pas
 
     # verify login works without TOTP
     menu(selenium, 'logout')
+    selenium.driver.get("https://auth.{0}".format(full_domain))
+    selenium.driver.delete_all_cookies()
     selenium.driver.get("https://{0}".format(full_domain))
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
