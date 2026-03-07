@@ -1,8 +1,9 @@
+import json
 from subprocess import run
 
 import pytest
 import requests
-from syncloudlib.http import wait_for_rest
+from syncloudlib.http import wait_for_rest, wait_for_response
 from syncloudlib.integration.hosts import add_host_alias
 from syncloudlib.integration.installer import local_install
 
@@ -33,3 +34,27 @@ def test_upgrade(device, device_user, device_password, device_host, app_archive_
     device.run_ssh('snap install platform', retries=3)
     local_install(device_host, device_password, app_archive_path)
     wait_for_rest(requests.session(), "https://{0}".format(app_domain), 200, 10)
+
+
+def test_activate_after_upgrade(device, device_host, device_user, device_password):
+    wait_for_rest(requests.session(), "https://{0}/rest/activation/status".format(device_host), 200, 10)
+    response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
+                             json={'domain': 'example.com',
+                                   'device_username': device_user,
+                                   'device_password': device_password}, verify=False)
+    assert response.status_code == 200, response.text
+
+
+def test_installer_upgrade(device, domain):
+    session = device.login()
+    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
+    assert response.status_code == 200, response.text
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
+                      lambda r: json.loads(r.text)['data']['status'] == 'Idle',
+                      attempts=100)
+
+    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
+    assert response.status_code == 200, response.text
+    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
+                      lambda r: json.loads(r.text)['data']['status'] == 'Idle',
+                      attempts=100)

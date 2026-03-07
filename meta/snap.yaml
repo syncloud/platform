@@ -8,6 +8,15 @@ apps:
     restart-condition: always
     reload-command: bin/service.nginx-public.sh reload
     start-timeout: 2000s
+  nginx-custom-proxy:
+    command: bin/service.nginx-custom-proxy.sh start
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    reload-command: bin/service.nginx-custom-proxy.sh reload
+    start-timeout: 2000s
   openldap:
     command: bin/service.openldap.sh
     daemon: forking

@@ -46,6 +46,7 @@ type Ldap interface {
 
 type Nginx interface {
 	InitConfig() error
+	InitCustomProxyConfig() error
 }
 
 type SystemdControl interface {
@@ -114,6 +115,10 @@ func (i *Install) Install() error {
 	if err != nil {
 		return err
 	}
+	err = i.nginx.InitCustomProxyConfig()
+	if err != nil {
+		return err
+	}
 	err = i.web.InitConfig()
 	if err != nil {
 		return err
@@ -134,6 +139,11 @@ func (i *Install) PostRefresh() error {
 	}
 
 	err = i.nginx.InitConfig()
+	if err != nil {
+		return err
+	}
+
+	err = i.nginx.InitCustomProxyConfig()
 	if err != nil {
 		return err
 	}
