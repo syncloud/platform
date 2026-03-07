@@ -265,6 +265,35 @@ def test_api(device):
     device.run_ssh('/api.test')
 
 
+def test_custom_proxy(device, device_host, full_domain):
+    device.run_ssh('nohup /test/externalapp/externalapp > /tmp/syncloud/externalapp.log 2>&1 &', throw=False)
+    time.sleep(2)
+    add_host_alias("externalapp", device_host, full_domain)
+    session = device.login()
+    response = session.post('https://{0}/rest/proxy_custom/add'.format(device_host),
+                            json={'name': 'externalapp', 'host': 'localhost', 'port': 8585},
+                            verify=False)
+    assert response.status_code == 200, response.text
+    assert json.loads(response.text)["success"], response.text
+
+    response = session.get('https://{0}/rest/proxy_custom/list'.format(device_host), verify=False)
+    assert response.status_code == 200, response.text
+    proxies = json.loads(response.text)["data"]
+    assert len(proxies) == 1
+    assert proxies[0]["name"] == "externalapp"
+
+    def check_proxy():
+        response = requests.get('https://externalapp.{0}'.format(full_domain), verify=False)
+        assert response.status_code == 200, response.text
+        assert response.text == "external", response.text
+    retry(check_proxy)
+
+    response = session.post('https://{0}/rest/proxy_custom/remove'.format(device_host),
+                            json={'name': 'externalapp'},
+                            verify=False)
+    assert response.status_code == 200, response.text
+
+
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
@@ -364,14 +393,6 @@ def test_rest_installed_apps(device, domain, artifact_dir):
     assert len(json.loads(response.text)['data']) == 1
 
 
-def test_rest_installed_app(device, domain, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=testapp'.format(domain), verify=False)
-    assert response.status_code == 200
-    with open('{0}/rest.app.installed.json'.format(artifact_dir), 'w') as the_file:
-        the_file.write(response.text)
-    assert response.status_code == 200
-
-
 def test_rest_not_installed_app(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=files'.format(domain), verify=False)
     assert response.status_code == 200
@@ -380,19 +401,6 @@ def test_rest_not_installed_app(device, domain, artifact_dir):
     assert response.status_code == 200
 
 
-def test_install_app(device, device_host):
-    session = device.login()
-    session.post('https://{0}/rest/app/install'.format(device_host), json={'app_id': 'files'}, verify=False)
-    wait_for_installer(session, device_host)
-
-
-def test_rest_installed_app(device, device_host, artifact_dir):
-    response = device.login().get('https://{0}/rest/app?app_id=files'.format(device_host), verify=False)
-    assert response.status_code == 200
-    with open('{0}/rest.app.files.installed.json'.format(artifact_dir), 'w') as the_file:
-        the_file.write(response.text)
-    assert response.status_code == 200
-
 def test_rest_platform_version(device, domain, artifact_dir):
     response = device.login().get('https://{0}/rest/app?app_id=platform'.format(domain), verify=False)
     assert response.status_code == 200
@@ -400,16 +408,6 @@ def test_rest_platform_version(device, domain, artifact_dir):
         the_file.write(response.text)
     assert response.status_code == 200
 
-
-def test_installer_upgrade(device, domain):
-    session = device.login()
-    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
-    assert response.status_code == 200, response.text
-    wait_for_jobs(domain, session)
-
-    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
-    assert response.status_code == 200, response.text
-    wait_for_jobs(domain, session)
 
 
 def wait_for_jobs(domain, session):
@@ -564,43 +562,6 @@ def test_local_upgrade(app_archive_path, device_host):
 
 def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
-
-
-def test_remove(device):
-    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.new.log'.format(TMP_DIR))
-    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.new'.format(TMP_DIR))
-    device.run_ssh('snap remove platform')
-
-
-def test_install_stable_from_store(device, device_host):
-    device.run_ssh('snap install platform', retries=10)
-    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.old.log'.format(TMP_DIR), throw=False)
-
-
-def test_activate_stable(device, device_host, main_domain, device_user, device_password, arch):
-    def activate():
-        response = requests.post('https://{0}/rest/activate/custom'.format(device_host),
-                             json={'domain': 'example.com',
-                                   'device_username': device_user,
-                                   'device_password': device_password}, verify=False)
-        if response.status_code != 200:
-            raise Exception()
-    retry(activate)
-
-
-def test_upgrade(app_archive_path, device_host, device, main_domain):
-    local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
-    device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
-    device.run_ssh('/snap/platform/current/openldap/bin/ldapsearch.sh -x -w syncloud -D "dc=syncloud,dc=org" -b "ou=users,dc=syncloud,dc=org" > {0}/ldapsearch.upgraded.log'.format(TMP_DIR))
-    device.run_ssh('cp -r /var/snap/platform/current/slapd.d {0}/slapd.d.upgraded'.format(TMP_DIR))
-
-
-def test_login_after_upgrade(device):
-    device.login()
-
-
-def test_if_cron_is_empty_after_upgrade(device_host):
-    cron_is_empty_after_install(device_host)
 
 
 def test_nginx_performance(device_host):

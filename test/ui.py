@@ -119,10 +119,8 @@ def test_settings_activation(selenium):
 def test_settings_access(selenium):
     settings(selenium, 'access')
     selenium.find_by_xpath("//h1[text()='Access']")
-    # selenium.find_by_xpath('//input[@id="tgl_ipv4_enabled"]/../span').click()
+    selenium.find_by_xpath('//input[@id="tgl_ipv4_enabled"]/../span').click()
     selenium.find_by_xpath('//input[@id="tgl_ipv4_public"]/../span').click()
-    # selenium.find_by_xpath('//input[@id="tgl_ip_autodetect"]/../span').click()
-    # selenium.find_by_xpath('//input[@id="tgl_ipv6_enabled"]/../span').click()
     selenium.screenshot('settings_access')
 
 
@@ -186,26 +184,67 @@ def test_app_center(selenium):
     selenium.screenshot('appcenter')
 
 
-def test_installed_app(selenium):
+def test_custom_proxy_overrides_missing_app(selenium, device, device_host, full_domain):
+    device.run_ssh('nohup /test/externalapp/externalapp > /tmp/syncloud/ui/externalapp.log 2>&1 &', throw=False)
+    add_host_alias("files", device_host, full_domain)
+    settings(selenium, 'customproxy')
+    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
+    selenium.find_by_id('proxy_name').send_keys('files')
+    selenium.find_by_id('proxy_host').send_keys('localhost')
+    selenium.find_by_id('proxy_port').send_keys('8585')
+    selenium.find_by_id('btn_add').click()
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('settings_custom_proxy_files_added')
+
+    def check_proxy():
+        response = requests.get('https://files.{0}'.format(full_domain), verify=False)
+        assert response.status_code == 200, response.text
+        assert response.text == "external", response.text
+    wait_for(selenium, check_proxy)
+    selenium.screenshot('settings_custom_proxy_files_verified')
+
+
+def test_install_app(selenium, device, full_domain):
     menu(selenium, 'appcenter')
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']").click()
     selenium.find_by_xpath("//h1[text()='File browser']")
-    selenium.screenshot('app_files')
+    selenium.find_by_id('btn_install').click()
+    selenium.find_by_id('btn_confirm').click()
+    # Store install takes several minutes, poll for btn_remove
+    for attempt in range(60):
+        if selenium.exists_by(By.ID, 'btn_remove'):
+            break
+        print('waiting for install to finish (attempt {0}/60)'.format(attempt + 1))
+    selenium.find_by_id('btn_remove')
+    selenium.screenshot('app_installed')
+
+    # Debug: check what socket files the installed app created
+    device.run_ssh('ls -la /var/snap/files/common/', throw=False)
+
+    # After installing the real files app, the socket file exists
+    # so nginx should route to the real app, not the custom proxy
+    def check_real_app():
+        response = requests.get('https://files.{0}'.format(full_domain), verify=False)
+        assert response.status_code == 200, response.text
+        assert response.text != "external", "custom proxy should not be used when app is installed"
+    wait_for(selenium, check_real_app)
 
 
 def test_remove_app(selenium):
     selenium.find_by_id('btn_remove').click()
     selenium.find_by_id('btn_confirm').click()
+    wait_for_loading(selenium.driver)
     selenium.find_by_id("btn_install")
     selenium.screenshot('app_removed')
 
 
-def test_install_app(selenium):
-    selenium.find_by_id('btn_install').click()
-    selenium.find_by_id('btn_confirm').click()
-    selenium.find_by_id('btn_remove')
-    selenium.screenshot('app_installed')
+def test_remove_custom_proxy_files(selenium):
+    settings(selenium, 'customproxy')
+    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
+    selenium.find_by_id('btn_remove_files').click()
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('settings_custom_proxy_files_removed')
 
 
 def test_not_installed_app(selenium):
@@ -214,6 +253,27 @@ def test_not_installed_app(selenium):
     selenium.find_by_xpath("//h1[text()='Nextcloud file sharing']")
     selenium.screenshot('app_not_installed')
 
+
+def test_settings_custom_proxy(selenium, device, device_host, full_domain):
+    add_host_alias("externalapp", device_host, full_domain)
+    settings(selenium, 'customproxy')
+    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
+    selenium.screenshot('settings_custom_proxy')
+    selenium.find_by_id('proxy_name').send_keys('externalapp')
+    selenium.find_by_id('proxy_host').send_keys('localhost')
+    selenium.find_by_id('proxy_port').send_keys('8585')
+    selenium.screenshot('settings_custom_proxy_filled')
+    selenium.find_by_id('btn_add').click()
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('settings_custom_proxy_added')
+
+    def check_proxy():
+        response = requests.get('https://externalapp.{0}'.format(full_domain), verify=False)
+        assert response.status_code == 200, response.text
+        assert response.text == "external", response.text
+    wait_for(selenium, check_proxy)
+
+    selenium.screenshot('settings_custom_proxy_verified')
 
 
 def test_auth_web(selenium, full_domain, device_user, device_password):
