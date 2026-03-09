@@ -6,6 +6,7 @@ apps:
     - network
     - network-bind
     restart-condition: always
+    restart-delay: 10s
     reload-command: bin/service.nginx-public.sh reload
     start-timeout: 2000s
   nginx-custom-proxy:
@@ -15,6 +16,7 @@ apps:
     - network
     - network-bind
     restart-condition: always
+    restart-delay: 10s
     reload-command: bin/service.nginx-custom-proxy.sh reload
     start-timeout: 2000s
   openldap:
@@ -24,6 +26,7 @@ apps:
     - network
     - network-bind
     restart-condition: always
+    restart-delay: 10s
     start-timeout: 2000s
   backend:
     command: bin/service.backend.sh
@@ -33,6 +36,7 @@ apps:
     - network-bind
     start-timeout: 2000s
     restart-condition: always
+    restart-delay: 10s
   api:
     command: bin/service.api.sh
     daemon: simple
@@ -41,6 +45,7 @@ apps:
     - network-bind
     start-timeout: 2000s
     restart-condition: always
+    restart-delay: 10s
   authelia:
     command: bin/service.authelia.sh
     daemon: simple

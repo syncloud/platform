@@ -9,6 +9,7 @@ fi
 
 case $1 in
 start)
+    rm -f /var/snap/platform/current/custom-proxy.socket
     ${DIR}/nginx/bin/nginx.sh -t -c /var/snap/platform/current/custom-proxy.conf -e stderr
     exec $DIR/nginx/bin/nginx.sh -c /var/snap/platform/current/custom-proxy.conf -e stderr
     ;;
