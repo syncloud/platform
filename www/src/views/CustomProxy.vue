@@ -14,6 +14,9 @@
               <label class="span proxy-label" for="proxy_name">Name:</label>
               <input class="proxy-input" id="proxy_name" type="text" v-model="newName" placeholder="myservice">
             </div>
+            <div class="setline">
+              <span class="proxy-hint">URL: {{ newName || 'name' }}.{{ domain }}</span>
+            </div>
 
             <div class="setline" style='display: flex'>
               <label class="span proxy-label" for="proxy_host">Host:</label>
@@ -164,5 +167,13 @@ export default {
 
 .proxy-entry {
   padding: 5px 0;
+}
+
+.proxy-hint {
+  margin-left: 10px;
+  color: #999;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
 }
 </style>

@@ -258,6 +258,7 @@ def test_settings_custom_proxy(selenium, device, device_host, full_domain):
     add_host_alias("externalapp", device_host, full_domain)
     settings(selenium, 'customproxy')
     selenium.find_by_xpath("//h1[text()='Custom Proxy']")
+    wait_for_loading(selenium.driver)
     selenium.screenshot('settings_custom_proxy')
     selenium.find_by_id('proxy_name').send_keys('externalapp')
     selenium.find_by_id('proxy_host').send_keys('localhost')
@@ -265,6 +266,7 @@ def test_settings_custom_proxy(selenium, device, device_host, full_domain):
     selenium.screenshot('settings_custom_proxy_filled')
     selenium.find_by_id('btn_add').click()
     wait_for_loading(selenium.driver)
+    selenium.find_by_xpath("//a[text()='externalapp']")
     selenium.screenshot('settings_custom_proxy_added')
 
     def check_proxy():
