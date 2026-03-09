@@ -10,6 +10,10 @@
               <h3>Add proxy</h3>
             </div>
 
+            <div class="setline">
+              <span class="proxy-warning">Warning: Proxying internal websites without proper authentication exposes them to the internet and may allow attackers to access your home network.</span>
+            </div>
+
             <div class="setline" style='display: flex'>
               <label class="span proxy-label" for="proxy_name">Name:</label>
               <input class="proxy-input" id="proxy_name" type="text" v-model="newName" placeholder="myservice">
@@ -167,6 +171,13 @@ export default {
 
 .proxy-entry {
   padding: 5px 0;
+}
+
+.proxy-warning {
+  margin-left: 10px;
+  color: #d9534f;
+  display: inline-flex;
+  align-items: center;
 }
 
 .proxy-hint {
