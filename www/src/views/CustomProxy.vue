@@ -176,8 +176,6 @@ export default {
 .proxy-warning {
   margin-left: 10px;
   color: #d9534f;
-  display: inline-flex;
-  align-items: center;
 }
 
 .proxy-hint {
