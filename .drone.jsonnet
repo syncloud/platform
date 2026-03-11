@@ -1,7 +1,7 @@
 local name = 'platform';
 local browser = 'chrome';
 local selenium = '4.35.0-20250828';
-local go = '1.24.0';
+local go = '1.24.2';
 local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.39.15';
@@ -27,6 +27,23 @@ local build(arch, testUI) = [{
                'echo $DRONE_BUILD_NUMBER > version',
              ],
            },
+           {
+             name: 'gptfdisk',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './gptfdisk/build.sh',
+             ],
+           },
+         ] + [
+           {
+             name: 'gptfdisk test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './gptfdisk/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
            {
              name: 'nginx',
              image: 'nginx:' + nginx,

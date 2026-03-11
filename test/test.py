@@ -470,6 +470,19 @@ def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, a
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
 
 
+def test_public_settings_partition_add_remove(loop_device, device, domain, artifact_dir):
+    device.run_ssh('/snap/platform/current/bin/disk_format.sh {0}'.format(loop_device), retries=3)
+    partition = device.run_ssh('lsblk -pl -o NAME,TYPE {0} | grep part | head -1'.format(loop_device)).split()[0]
+    session = device.login_v2()
+    response = session.post('https://{0}/rest/storage/activate/partition'.format(domain), verify=False,
+                            json={'device': partition, 'format': False})
+    assert response.status_code == 200, response.text
+    wait_for_jobs(domain, session)
+    assert current_disk_link(device) == '/opt/disk/external/platform'
+    disk_writable(domain)
+    assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
+
+
 def disk_create(loop, fs, device):
     tmp_disk = '/tmp/test'
     device.run_ssh('{0} {1}'.format(mkfs[fs], loop), retries=3)
