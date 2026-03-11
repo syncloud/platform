@@ -52,7 +52,7 @@ server:
 
   ## Set the path on disk to Authelia assets.
   ## Useful to allow overriding of specific static assets.
-  # asset_path: /config/assets/
+  asset_path: /snap/platform/current/config/authelia/assets/
   
   endpoints:
     ## Enables the pprof endpoint.
@@ -493,7 +493,7 @@ password_policy:
 access_control:
   ## Default policy can either be 'bypass', 'one_factor', 'two_factor' or 'deny'. It is the policy applied to any
   ## resource if there is no policy to be applied to the user.
-  default_policy: one_factor
+  default_policy: {{ if .TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}
 
     # networks:
     # - name: internal
@@ -746,35 +746,8 @@ notifier:
   ## You can disable the notifier startup check by setting this to true.
   disable_startup_check: true
 
-    ##
-    ## File System (Notification Provider)
-    ##
-    ## Important: Kubernetes (or HA) users must read https://www.authelia.com/t/statelessness
-    ##
-    # filesystem:
-    # filename: /config/notification.txt
-
-    ##
-    ## SMTP (Notification Provider)
-    ##
-    ## Use a SMTP server for sending notifications. Authelia uses the PLAIN or LOGIN methods to authenticate.
-    ## [Security] By default Authelia will:
-    ##   - force all SMTP connections over TLS including unauthenticated connections
-    ##      - use the disable_require_tls boolean value to disable this requirement
-    ##        (only works for unauthenticated connections)
-    ##   - validate the SMTP server x509 certificate during the TLS handshake against the hosts trusted certificates
-    ##     (configure in tls section)
-  smtp:
-    address: smtp://127.0.0.1:25
-    # timeout: 5s
-    # username: test
-    # password: password
-    sender: "Syncloud <auth@{{ .Domain }}>"
-    # identifier: localhost
-    subject: "[Syncloud] {title}"
-    # startup_check_address: test@authelia.com
-    # disable_require_tls: false
-    # disable_html_emails: false
+  filesystem:
+    filename: /var/snap/platform/current/authelia-notification.txt
 
 identity_providers:
   oidc:
@@ -818,9 +791,11 @@ identity_providers:
         require_pkce: true
         pkce_challenge_method: 'S256'
         redirect_uris:
-          - 'http://localhost/callback'
+          - '{{ .DeviceUrl }}/rest/oidc/callback'
         scopes:
-          - 'offline_access'
+          - 'openid'
+          - 'email'
+          - 'profile'
           - 'groups'
         requested_audience_mode: 'implicit'
         grant_types:
@@ -829,17 +804,17 @@ identity_providers:
         response_types:
           - 'code'
         response_modes:
-          - 'form_post'
-        consent_mode: 'explicit'
-        require_pushed_authorization_requests: true
+          - 'query'
+        consent_mode: 'implicit'
+        require_pushed_authorization_requests: false
         token_endpoint_auth_method: 'none'
-        authorization_policy: 'one_factor'
+        authorization_policy: '{{ if .TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
 
 {{ range $key, $value := .OIDCClients }}
       - client_id: '{{ .ID }}'
         client_secret: '{{ .Secret }}'
         public: false
-        authorization_policy: 'one_factor'
+        authorization_policy: '{{ if $.TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
         redirect_uris:
           - '{{ .RedirectURI }}'
         scopes:

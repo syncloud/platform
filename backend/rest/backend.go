@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/auth"
@@ -48,10 +51,11 @@ type Backend struct {
 	iface           *network.TcpInterfaces
 	support         *support.Sender
 	proxy           *Proxy
-	customProxy     *CustomProxy
 	auth            *auth.Service
 	mw              *Middleware
 	cookies         *session.Cookies
+	oidc            *auth.OIDCService
+	authelia        *auth.Authelia
 	network         string
 	address         string
 	logger          *zap.Logger
@@ -63,9 +67,10 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
-	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
+	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
+	oidcService *auth.OIDCService, authelia *auth.Authelia,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -88,10 +93,11 @@ func NewBackend(
 		iface:           iface,
 		support:         support,
 		proxy:           proxy,
-		customProxy:     customProxy,
 		auth:            auth,
 		mw:              middleware,
 		cookies:         cookies,
+		oidc:            oidcService,
+		authelia:        authelia,
 		network:         network,
 		address:         address,
 		changesClient:   changesClient,
@@ -117,7 +123,9 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/id", b.mw.Handle(b.Id)).Methods("GET")
 	r.HandleFunc("/rest/activation/status", b.mw.Handle(b.IsActivated)).Methods("GET")
 
-	r.HandleFunc("/rest/login", b.mw.FailIfNotActivated(b.UserLogin)).Methods("POST")
+	r.HandleFunc("/rest/oidc/login", b.mw.FailIfNotActivated(b.OIDCLogin)).Methods("GET")
+	r.HandleFunc("/rest/oidc/callback", b.mw.FailIfNotActivated(b.OIDCCallback)).Methods("GET")
+	r.HandleFunc("/rest/login/token", b.mw.FailIfNotActivated(b.LoginToken)).Methods("POST")
 
 	r.HandleFunc("/rest/redirect_info", b.mw.FailIfActivated(b.mw.Handle(b.RedirectInfo))).Methods("GET")
 	r.PathPrefix("/rest/redirect/domain/availability").Handler(http.StripPrefix("/rest/redirect", NewFailIfActivatedHandler(b.userConfig, proxyRedirect)))
@@ -125,7 +133,10 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
 	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
-	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.mw.Secured(b.UserLogout))).Methods("POST")
+	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.UserLogout)).Methods("POST", "GET")
+	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
+	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
+	r.HandleFunc("/rest/settings/2fa/totp", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GenerateTOTP))).Methods("POST")
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
@@ -163,9 +174,6 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Shutdown))).Methods("POST")
 	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.NetworkInterfaces))).Methods("GET")
 	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.mw.FailIfNotActivated(b.mw.Secured(b.proxy.ProxyImageFunc())))
-	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.List))).Methods("GET")
-	r.HandleFunc("/rest/proxy_custom/add", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Add))).Methods("POST")
-	r.HandleFunc("/rest/proxy_custom/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Remove))).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(b.mw.NotFoundHandler)
 
@@ -258,33 +266,113 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 	return response, nil
 }
 
-func (b *Backend) UserLogin(w http.ResponseWriter, req *http.Request) {
-	var request model.UserLoginRequest
-	err := json.NewDecoder(req.Body).Decode(&request)
+func (b *Backend) OIDCLogin(w http.ResponseWriter, req *http.Request) {
+	authURL, state, codeVerifier, err := b.oidc.GetAuthorizationURL()
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	authenticated, err := b.auth.Authenticate(request.Username, request.Password)
+	err = b.cookies.SetOIDCState(w, req, state, codeVerifier)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	if !authenticated {
-		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid credentials")))
+	http.Redirect(w, req, authURL, http.StatusFound)
+}
+
+func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
+	query := req.URL.Query()
+	code := query.Get("code")
+	state := query.Get("state")
+
+	if code == "" || state == "" {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("missing code or state")))
 		return
 	}
+
+	savedState, codeVerifier, err := b.cookies.GetOIDCState(req)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no OIDC session")))
+		return
+	}
+
+	if state != savedState {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid state")))
+		return
+	}
+
+	username, err := b.oidc.ExchangeCode(code, codeVerifier)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
+		return
+	}
+
+	err = b.cookies.ClearOIDCState(w, req)
+	if err != nil {
+		b.logger.Warn("unable to clear OIDC state", zap.Error(err))
+	}
+
 	err = b.cookies.ClearSessionUser(w, req)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	err = b.cookies.SetSessionUser(w, req, request.Username)
+	err = b.cookies.SetSessionUser(w, req, username)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	http.Redirect(w, req, "/", http.StatusMovedPermanently)
+	http.Redirect(w, req, "/", http.StatusFound)
+}
+
+const loginTokenFile = "/var/snap/platform/common/login-token"
+
+func (b *Backend) LoginToken(w http.ResponseWriter, req *http.Request) {
+	var request struct {
+		Token string `json:"token"`
+	}
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil || request.Token == "" {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("missing token")))
+		return
+	}
+
+	data, err := os.ReadFile(loginTokenFile)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no pending login token")))
+		return
+	}
+
+	parts := strings.SplitN(string(data), ":", 2)
+	if len(parts) != 2 {
+		_ = os.Remove(loginTokenFile)
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid token file")))
+		return
+	}
+
+	savedToken := parts[0]
+	username := parts[1]
+
+	if request.Token != savedToken {
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("invalid token")))
+		return
+	}
+
+	_ = os.Remove(loginTokenFile)
+
+	err = b.cookies.SetSessionUser(w, req, username)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
+		return
+	}
+
+	response := model.Response{Success: true}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		b.mw.Fail(w, model.BadRequest(err))
+		return
+	}
+	_, _ = fmt.Fprint(w, string(responseJson))
 }
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
@@ -483,5 +571,48 @@ func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
 		b.mw.Fail(w, &model.ServiceError{InternalError: err, StatusCode: http.StatusBadRequest})
 		return
 	}
-	http.Redirect(w, req, "/", http.StatusMovedPermanently)
+	autheliaLogout := fmt.Sprintf("%s/logout", b.userConfig.Url("auth"))
+	http.Redirect(w, req, autheliaLogout, http.StatusFound)
+}
+
+func (b *Backend) GetTwoFactorSettings(_ *http.Request) (interface{}, error) {
+	return map[string]interface{}{
+		"enabled":      b.userConfig.IsTwoFactorEnabled(),
+		"authelia_url": b.userConfig.Url("auth"),
+	}, nil
+}
+
+func (b *Backend) SetTwoFactorSettings(req *http.Request) (interface{}, error) {
+	var request struct {
+		Enabled bool `json:"enabled"`
+	}
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return nil, errors.New("bad request")
+	}
+	b.userConfig.SetTwoFactorEnabled(request.Enabled)
+	err = b.authelia.InitConfig()
+	if err != nil {
+		return nil, fmt.Errorf("unable to apply 2FA settings: %w", err)
+	}
+	err = b.authelia.WaitForReady()
+	if err != nil {
+		return nil, fmt.Errorf("authelia not ready after 2FA settings change: %w", err)
+	}
+	return "OK", nil
+}
+
+func (b *Backend) GenerateTOTP(req *http.Request) (interface{}, error) {
+	username, err := b.cookies.GetSessionUser(req)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get session user: %w", err)
+	}
+	b.logger.Info("generating TOTP", zap.String("username", username))
+	uri, err := b.authelia.GenerateTOTP(username)
+	if err != nil {
+		return nil, fmt.Errorf("unable to generate TOTP: %w", err)
+	}
+	return map[string]interface{}{
+		"uri": uri,
+	}, nil
 }

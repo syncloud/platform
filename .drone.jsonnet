@@ -4,7 +4,7 @@ local selenium = '4.35.0-20250828';
 local go = '1.24.0';
 local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
-local authelia = '4.38.8';
+local authelia = '4.39.15';
 local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
@@ -48,17 +48,19 @@ local build(arch, testUI) = [{
              name: 'authelia',
              image: 'authelia/authelia:' + authelia,
              commands: [
-               './authelia/package.sh',
+               './authelia/build.sh',
              ],
-
            },
+         ] + [
            {
-             name: 'authelia test',
-             image: 'debian:bookworm-slim',
+             name: 'authelia test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
                './authelia/test.sh',
              ],
-           },
+           }
+           for distro in distros
+         ] + [
            {
              name: 'build web',
              image: 'node:' + node,
@@ -107,14 +109,6 @@ local build(arch, testUI) = [{
              ],
            },
            {
-             name: 'build external app',
-             image: 'golang:' + go,
-             commands: [
-               'cd test/externalapp',
-               "CGO_ENABLED=0 go build -ldflags '-extldflags -static' -o externalapp",
-             ],
-           },
-           {
              name: 'package',
              image: 'debian:bookworm-slim',
              commands: [
@@ -153,7 +147,6 @@ local build(arch, testUI) = [{
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
-                    'getent hosts $DOMAIN | sed "s/$DOMAIN/externalapp.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'cat /etc/hosts',
                     '/opt/bin/entry_point.sh',
                   ],

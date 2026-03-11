@@ -17,6 +17,7 @@
     "element-plus": "^2.4.1",
     "font-awesome": "^4.7.0",
     "material-icons": "^1.12.0",
+    "qrcode": "^1.5.4",
     "querystring": "^0.2.0",
     "roboto-fontface": "^0.10.0",
     "vue": "^3.2.40",

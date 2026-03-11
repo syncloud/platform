@@ -20,6 +20,9 @@ func main() {
 		certCmd(userConfig, systemConfig),
 		btrfsCmd(userConfig, systemConfig),
 		backupCmd(userConfig, systemConfig),
+		disable2faCmd(userConfig, systemConfig),
+		resetTotpCmd(userConfig, systemConfig),
+		loginCmd(userConfig, systemConfig),
 	)
 
 	err := rootCmd.Execute()

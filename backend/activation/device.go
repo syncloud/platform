@@ -98,6 +98,11 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 		return err
 	}
 
+	err = d.web.WaitForReady()
+	if err != nil {
+		return err
+	}
+
 	log.Println("activation completed")
 
 	return nil

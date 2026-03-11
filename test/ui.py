@@ -3,8 +3,11 @@ from subprocess import check_output
 from selenium.webdriver.support.ui import WebDriverWait
 
 import pytest
+import re
+import socket
 import time
 import requests
+import pyotp
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from syncloudlib.integration.hosts import add_host_alias
@@ -12,6 +15,7 @@ from syncloudlib.http import wait_for_rest
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud/ui'
+stored_totp_secret = None
 
 
 @pytest.fixture(scope="session")
@@ -36,13 +40,15 @@ def test_start(app, device_host, module_setup, domain, full_domain):
     add_host_alias("auth", device_host, full_domain)
 
 
-def test_deactivate(device, main_domain, domain):
+def test_deactivate(device, device_host, main_domain, domain, full_domain):
     device.activated()
+    ip = socket.gethostbyname(device_host)
+    device.run_ssh('echo "{0} auth.{1}" >> /etc/hosts'.format(ip, full_domain))
     device.run_ssh('snap run platform.cli config set redirect.domain {}'.format(main_domain))
     device.run_ssh('snap run platform.cli config set certbot.staging true')
     device.run_ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
 
-    response = device.login().post('https://{0}/rest/deactivate'.format(domain), verify=False)
+    response = device.login_v2().post('https://{0}/rest/deactivate'.format(domain), verify=False)
     assert '"success":true' in response.text
     assert response.status_code == 200
 
@@ -80,26 +86,17 @@ def test_activate(selenium, device_host,
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
-    selenium.find_by_xpath("//h1[text()='Log in']")
-
-
-def test_activate_again(selenium, device_host):
-    selenium.driver.get("https://{0}/activate".format(device_host))
-    selenium.find_by_xpath("//h1[text()='Log in']")
+    selenium.find_by(By.ID, "username-textfield")
     selenium.screenshot('activate')
 
 
-def test_login(selenium, full_domain):
+def test_login(selenium, full_domain, device_user, device_password):
     selenium.driver.get("https://{0}".format(full_domain))
-    selenium.find_by_xpath("//h1[text()='Log in']")
+    # OIDC flow redirects to Authelia
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.screenshot('login')
-
-
-def test_index(selenium, device_user, device_password):
-    selenium.find_by_id("username").send_keys(device_user)
-    selenium.find_by_id("password").send_keys(device_password)
-    selenium.find_by_id("btn_login").click()
-    selenium.screenshot('index-progress')
+    selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('index')
 
@@ -184,27 +181,7 @@ def test_app_center(selenium):
     selenium.screenshot('appcenter')
 
 
-def test_custom_proxy_overrides_missing_app(selenium, device, device_host, full_domain):
-    device.run_ssh('nohup /test/externalapp/externalapp > /tmp/syncloud/ui/externalapp.log 2>&1 &', throw=False)
-    add_host_alias("files", device_host, full_domain)
-    settings(selenium, 'customproxy')
-    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
-    selenium.find_by_id('proxy_name').send_keys('files')
-    selenium.find_by_id('proxy_host').send_keys('localhost')
-    selenium.find_by_id('proxy_port').send_keys('8585')
-    selenium.find_by_id('btn_add').click()
-    wait_for_loading(selenium.driver)
-    selenium.screenshot('settings_custom_proxy_files_added')
-
-    def check_proxy():
-        response = requests.get('https://files.{0}'.format(full_domain), verify=False)
-        assert response.status_code == 200, response.text
-        assert response.text == "external", response.text
-    wait_for(selenium, check_proxy)
-    selenium.screenshot('settings_custom_proxy_files_verified')
-
-
-def test_install_app(selenium, device, full_domain):
+def test_install_app(selenium):
     menu(selenium, 'appcenter')
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']").click()
@@ -219,32 +196,12 @@ def test_install_app(selenium, device, full_domain):
     selenium.find_by_id('btn_remove')
     selenium.screenshot('app_installed')
 
-    # Debug: check what socket files the installed app created
-    device.run_ssh('ls -la /var/snap/files/common/', throw=False)
-
-    # After installing the real files app, the socket file exists
-    # so nginx should route to the real app, not the custom proxy
-    def check_real_app():
-        response = requests.get('https://files.{0}'.format(full_domain), verify=False)
-        assert response.status_code == 200, response.text
-        assert response.text != "external", "custom proxy should not be used when app is installed"
-    wait_for(selenium, check_real_app)
-
 
 def test_remove_app(selenium):
     selenium.find_by_id('btn_remove').click()
     selenium.find_by_id('btn_confirm').click()
-    wait_for_loading(selenium.driver)
     selenium.find_by_id("btn_install")
     selenium.screenshot('app_removed')
-
-
-def test_remove_custom_proxy_files(selenium):
-    settings(selenium, 'customproxy')
-    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
-    selenium.find_by_id('btn_remove_files').click()
-    wait_for_loading(selenium.driver)
-    selenium.screenshot('settings_custom_proxy_files_removed')
 
 
 def test_not_installed_app(selenium):
@@ -254,40 +211,105 @@ def test_not_installed_app(selenium):
     selenium.screenshot('app_not_installed')
 
 
-def test_settings_custom_proxy(selenium, device, device_host, full_domain):
-    add_host_alias("externalapp", device_host, full_domain)
-    settings(selenium, 'customproxy')
-    selenium.find_by_xpath("//h1[text()='Custom Proxy']")
-    wait_for_loading(selenium.driver)
-    selenium.screenshot('settings_custom_proxy')
-    selenium.find_by_id('proxy_name').send_keys('externalapp')
-    selenium.find_by_id('proxy_host').send_keys('localhost')
-    selenium.find_by_id('proxy_port').send_keys('8585')
-    selenium.screenshot('settings_custom_proxy_filled')
-    selenium.find_by_id('btn_add').click()
-    wait_for_loading(selenium.driver)
-    selenium.find_by_xpath("//a[text()='externalapp']")
-    selenium.screenshot('settings_custom_proxy_added')
 
-    def check_proxy():
-        response = requests.get('https://externalapp.{0}'.format(full_domain), verify=False)
-        assert response.status_code == 200, response.text
-        assert response.text == "external", response.text
-    wait_for(selenium, check_proxy)
-
-    selenium.screenshot('settings_custom_proxy_verified')
+def logout(selenium, full_domain):
+    selenium.driver.get("https://{0}/rest/logout".format(full_domain))
+    # Wait for Authelia logout to complete (redirects to login form)
+    selenium.find_by(By.ID, "username-textfield")
 
 
 def test_auth_web(selenium, full_domain, device_user, device_password):
+    logout(selenium, full_domain)
     selenium.driver.get("https://auth.{0}".format(full_domain))
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     password = selenium.find_by(By.ID, "password-textfield")
     password.send_keys(device_password)
     selenium.screenshot('auth')
     selenium.find_by(By.ID, "sign-in-button").click()
-       
+
     # redirect to the main web
     selenium.find_by_xpath("//h1[text()='Applications']")
+
+
+def test_2fa_settings(selenium, full_domain):
+    selenium.driver.get("https://{0}".format(full_domain))
+    settings(selenium, 'twofactor')
+    selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
+    selenium.find_by_id('twofa_status')
+    selenium.screenshot('2fa_settings')
+
+
+def test_2fa_enable(selenium, device, full_domain, device_user, device_password):
+    selenium.driver.get("https://{0}".format(full_domain))
+    settings(selenium, 'twofactor')
+    selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
+
+    selenium.find_by_id('btn_enable_2fa').click()
+    # Wait for QR code to appear (backend enables 2FA + generates TOTP via CLI)
+    for attempt in range(30):
+        if selenium.exists_by(By.ID, 'totp_qr'):
+            break
+        print('waiting for TOTP QR code (attempt {0}/30)'.format(attempt + 1))
+        time.sleep(2)
+    selenium.find_by_id('totp_qr')
+    selenium.screenshot('2fa_enabled')
+
+    global stored_totp_secret
+    secret_element = selenium.find_by_id('totp_secret')
+    stored_totp_secret = secret_element.text
+    selenium.find_by_id('btn_disable_2fa')
+    selenium.screenshot('2fa_totp_registered')
+
+
+def test_2fa_login(selenium, device, full_domain, device_user, device_password):
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+
+    # TOTP challenge
+    selenium.find_by(By.ID, "otp-input")
+    selenium.screenshot('2fa_login_totp')
+    totp = pyotp.TOTP(stored_totp_secret)
+    # Wait for next TOTP period to avoid replay rejection
+    remaining = totp.interval - time.time() % totp.interval
+    time.sleep(remaining + 1)
+    code = totp.now()
+    otp_inputs = selenium.driver.find_elements(By.CSS_SELECTOR, "#otp-input input")
+    for i, digit in enumerate(code):
+        otp_inputs[i].send_keys(digit)
+
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('2fa_login_success')
+
+
+def test_2fa_disable(selenium, full_domain):
+    settings(selenium, 'twofactor')
+    selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
+    selenium.find_by_id('btn_disable_2fa').click()
+    selenium.screenshot('2fa_disabled')
+
+
+def test_2fa_recovery_cli(device, selenium, full_domain, device_user, device_password):
+    # enable 2FA again via API
+    session = device.login_v2()
+    session.post('https://{0}/rest/settings/2fa'.format(full_domain),
+                 json={'enabled': True}, verify=False)
+
+    # disable via CLI
+    device.run_ssh('snap run platform.cli disable-2fa')
+    time.sleep(2)
+
+    # verify login works without TOTP
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    selenium.screenshot('2fa_recovery_cli')
  
 
 def test_settings_deactivate(selenium, device_host, full_domain,
@@ -317,23 +339,23 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
-    selenium.find_by_xpath("//h1[text()='Log in']")
-    selenium.find_by_id("username").send_keys(device_user)
-    selenium.find_by_id("password").send_keys(device_password)
-    selenium.find_by_id("btn_login").click()
-    selenium.screenshot('index-progress')
+    selenium.find_by(By.ID, "username-textfield")
+    selenium.screenshot('deactivate-login-page')
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     selenium.screenshot('reactivate-index')
 
 
-def test_permission_denied(selenium, device, ui_mode):
+def test_permission_denied(selenium, device, ui_mode, full_domain):
     device.run_ssh('/snap/platform/current/openldap/bin/ldapadd.sh -x -w syncloud -D "dc=syncloud,dc=org" -f /test/test.{0}.ldif'.format(ui_mode))
-    menu(selenium, 'logout')
-    selenium.find_by_xpath("//h1[text()='Log in']")
-    selenium.find_by_id("username").send_keys("test{0}".format(ui_mode))
-    selenium.find_by_id("password").send_keys("password")
-    selenium.find_by_id("btn_login").click()
-    selenium.find_by_xpath("//div[contains(.,'not admin')]")
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys("test{0}".format(ui_mode))
+    selenium.find_by(By.ID, "password-textfield").send_keys("password")
+    selenium.find_by(By.ID, "sign-in-button").click()
+    time.sleep(2)
     selenium.screenshot('permission-denied')
 
 

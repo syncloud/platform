@@ -21,6 +21,10 @@ func (u *UserConfigStub) AddOIDCClient(client config.OIDCClient) error {
 	return nil
 }
 
+func (u *UserConfigStub) IsTwoFactorEnabled() bool {
+	return false
+}
+
 func (u *UserConfigStub) IsActivated() bool {
 	return u.activated
 }
@@ -55,12 +59,19 @@ func (p *PasswordGeneratorStub) Generate() (Secret, error) {
 	return Secret{Password: "pass", Hash: "hash"}, nil
 }
 
-func TestWebInit(t *testing.T) {
+type AutheliaHealthStub struct {
+}
+
+func (h *AutheliaHealthStub) WaitForReady() error {
+	return nil
+}
+
+func TestAutheliaInit(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "www.localhost", activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
-	err := web.InitConfig()
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	err := a.InitConfig()
 	assert.NoError(t, err)
 
 	assert.FileExists(t, path.Join(secretDir, KeyFile))
@@ -71,7 +82,7 @@ func TestWebInit(t *testing.T) {
 	assert.Contains(t, string(body), `auth.www.localhost`)
 }
 
-func TestWebReInit(t *testing.T) {
+func TestAutheliaReInit(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "example.com", activated: true}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
@@ -84,8 +95,8 @@ func TestWebReInit(t *testing.T) {
 	err = os.WriteFile(secretFilePath, []byte("secret"), 0644)
 	assert.Nil(t, err)
 
-	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
-	err = web.InitConfig()
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	err = a.InitConfig()
 	assert.Nil(t, err)
 
 	body, err := os.ReadFile(keyFilePath)
@@ -119,15 +130,15 @@ type Client struct {
 	RedirectUris []string `yaml:"redirect_uris"`
 }
 
-func TestWebClients(t *testing.T) {
+func TestAutheliaClients(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "example.com", clients: []config.OIDCClient{
 		{ID: "app1", Secret: "app1secret", RedirectURI: "https://app1.example.com/callback1"},
 		{ID: "app2", Secret: "app2secret", RedirectURI: "https://app2.example.com/callback2"},
 	}, activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	web := NewWeb("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, log.Default())
-	err := web.InitConfig()
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	err := a.InitConfig()
 	assert.NoError(t, err)
 
 	body, err := os.ReadFile(path.Join(outDir, "config.yml"))

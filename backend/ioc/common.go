@@ -111,7 +111,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
-		return nginx.New(control, systemConfig, userConfig, nginx.NewProxyConfigAdapter(userConfig))
+		return nginx.New(control, systemConfig, userConfig)
 	})
 	if err != nil {
 		return nil, err
@@ -316,18 +316,36 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func(userConfig *config.UserConfig, systemConfig *config.SystemConfig) *auth.OIDCService {
+		return auth.NewOIDCService(userConfig, path.Join(systemConfig.DataDir(), "authelia.socket"), logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func(systemConfig *config.SystemConfig) *auth.AutheliaHealth {
+		return auth.NewAutheliaHealth(path.Join(systemConfig.DataDir(), "authelia.socket"), logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
 		systemd *systemd.Control,
 		secretGenerator *auth.SecretGenerator,
+		executor *cli.ShellExecutor,
+		health *auth.AutheliaHealth,
 	) *auth.Authelia {
-		return auth.NewWeb(
+		return auth.NewAuthelia(
 			path.Join(hook.AppDir, "config/authelia"),
 			path.Join(hook.DataDir, "config/authelia"),
 			hook.DataDir,
 			userConfig,
 			systemd,
 			secretGenerator,
+			executor,
+			health,
 			logger,
 		)
 	})
@@ -448,13 +466,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	}
 	err = c.Singleton(func(userConfig *config.UserConfig) *rest.Proxy {
 		return rest.NewProxy(userConfig)
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	err = c.Singleton(func(userConfig *config.UserConfig, nginxService *nginx.Nginx) *rest.CustomProxy {
-		return rest.NewCustomProxy(userConfig, nginxService)
 	})
 
 	if err != nil {

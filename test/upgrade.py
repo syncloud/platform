@@ -46,15 +46,17 @@ def test_activate_after_upgrade(device, device_host, device_user, device_passwor
 
 
 def test_installer_upgrade(device, domain):
-    session = device.login()
+    session = device.login_v2()
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
-    wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
-                      lambda r: json.loads(r.text)['data']['status'] == 'Idle',
-                      attempts=100)
+    wait_for_jobs(domain, session)
 
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
+    wait_for_jobs(domain, session)
+
+
+def wait_for_jobs(domain, session):
     wait_for_response(session, 'https://{0}/rest/job/status'.format(domain),
                       lambda r: json.loads(r.text)['data']['status'] == 'Idle',
                       attempts=100)
