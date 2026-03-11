@@ -3,8 +3,8 @@
     <div class="content">
       <div class="headblock">
         <header class="wd12">
-          <div class="logo" :class="{ onelogo: !loggedIn }">Syncloud</div>
-          <div class="menulinks" v-if="loggedIn">
+          <div class="logo" :class="{ onelogo: !auth.loggedIn }">Syncloud</div>
+          <div class="menulinks" v-if="auth.loggedIn">
             <router-link to="/" id="apps" class="apps hlink" :class="{ active: activeTab === '/' }">Apps</router-link>
             <router-link to="/appcenter" id="appcenter" class="appcenter hlink"
                          :class="{ active: activeTab === '/appcenter' }">App Center
@@ -13,7 +13,7 @@
                          :class="{ active: activeTab === '/settings' }">Settings
             </router-link>
           </div>
-          <div class="menuoff" v-if="loggedIn">
+          <div class="menuoff" v-if="auth.loggedIn">
             <a href="#" id="logout" class="hlink" @click="logout">
               <i class="material-icons" style="vertical-align: middle">exit_to_app</i>
               <span class="button_label">Logout</span>
@@ -27,14 +27,14 @@
               <span class="button_label">Shutdown</span>
             </a>
           </div>
-          <div id="menubutton" class="menubutton" v-if="loggedIn" @click="toggle" :class="{ menuopen: menuOpen }">
+          <div id="menubutton" class="menubutton" v-if="auth.loggedIn" @click="toggle" :class="{ menuopen: menuOpen }">
             <span></span>
             <span></span>
             <span></span>
             <span></span>
           </div>
         </header>
-        <div id="menu" class="navi" v-if="loggedIn" :class="{ naviopen: menuOpen }">
+        <div id="menu" class="navi" v-if="auth.loggedIn" :class="{ naviopen: menuOpen }">
           <router-link to="/" id="apps_mobile"><span style="display: block" @click="toggle">Apps</span></router-link>
           <router-link to="/appcenter" id="appcenter_mobile"><span style="display: block"
                                                                    @click="toggle">App Center</span></router-link>
@@ -55,16 +55,16 @@
 <script>
 import axios from 'axios'
 import Error from '../components/Error.vue'
+import { useAuthStore } from '../stores/auth'
 
 export default {
   props: {
-    activeTab: String,
-    loggedIn: Boolean,
-    checkUserSession: Function
+    activeTab: String
   },
   data () {
     return {
-      menuOpen: false
+      menuOpen: false,
+      auth: useAuthStore()
     }
   },
   components: {
@@ -80,7 +80,7 @@ export default {
     logout: function () {
       axios.post('/rest/logout')
         .then(() => {
-          this.checkUserSession()
+          this.auth.checkUserSession(this.$router)
         })
         .catch(err => {
           console.log(err)

@@ -145,10 +145,6 @@ export default {
     Dialog,
     Error
   },
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       disks: [],

@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import VueApp from './VueApp.vue'
 import router from './router'
 import 'element-plus/dist/index.css'
@@ -9,5 +10,6 @@ if (import.meta.env.DEV) {
 }
 
 createApp(VueApp)
+  .use(createPinia())
   .use(router)
   .mount('#app')

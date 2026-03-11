@@ -32,13 +32,10 @@
 import axios from 'axios'
 import Error from '../components/Error.vue'
 import { ElLoading } from 'element-plus'
+import { useAuthStore } from '../stores/auth'
 
 export default {
   name: 'Activation',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       url: 'Loading ...'
@@ -65,7 +62,8 @@ export default {
       axios
         .post('/rest/deactivate')
         .then(() => {
-          this.checkUserSession()
+          const auth = useAuthStore()
+          auth.checkUserSession(this.$router)
         })
         .catch(err => {
           this.$refs.error.showAxios(err)

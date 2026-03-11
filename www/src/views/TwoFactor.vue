@@ -53,10 +53,6 @@ import QRCode from 'qrcode'
 
 export default {
   name: 'TwoFactor',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       enabled: false,

@@ -156,10 +156,6 @@ function error (message) {
 
 export default {
   name: 'Access',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       interfaces: undefined,

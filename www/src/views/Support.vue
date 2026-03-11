@@ -45,10 +45,6 @@ export default {
   components: {
     Error
   },
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       includeSupport: false,

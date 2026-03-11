@@ -19,10 +19,6 @@ import Error from '../components/Error.vue'
 
 export default {
   name: 'Login',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   components: {
     Error
   },

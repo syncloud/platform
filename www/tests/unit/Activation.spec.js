@@ -4,13 +4,14 @@ import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Activation from '../../src/views/Activation.vue'
 import { ElButton } from 'element-plus'
+import { createPinia } from 'pinia'
 
 jest.setTimeout(30000)
 
 test('Activation url', async () => {
-  
+
   const showError = jest.fn()
-  const mockRouter = { push: jest.fn() }
+  const mockRouter = { push: jest.fn(), currentRoute: { value: { path: '/activation' } } }
   delete window.location
   window.location = ''
   const mock = new MockAdapter(axios)
@@ -30,6 +31,7 @@ test('Activation url', async () => {
     {
       attachTo: document.body,
       global: {
+        plugins: [createPinia()],
         stubs: {
           Error: {
             template: '<span/>',
@@ -51,14 +53,14 @@ test('Activation url', async () => {
 
   expect(showError).toHaveBeenCalledTimes(0)
   expect(wrapper.find('#txt_device_domain').text()).toBe('test.com')
-  
+
   wrapper.unmount()
 })
 
 test('Activation reactivate', async () => {
-  
+
   const showError = jest.fn()
-  const mockRouter = { push: jest.fn() }
+  const mockRouter = { push: jest.fn(), currentRoute: { value: { path: '/activation' } } }
   delete window.location
   window.location = ''
   let deactivated = false
@@ -68,11 +70,14 @@ test('Activation reactivate', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/device/url').reply(200, { success: true, data: 'test.com' })
+  mock.onGet('/rest/user').reply(500, { message: 'not OK' })
+  mock.onGet('/rest/activation/status').reply(200, { data: false })
 
   const wrapper = mount(Activation,
     {
       attachTo: document.body,
       global: {
+        plugins: [createPinia()],
         stubs: {
           Error: {
             template: '<span/>',
@@ -102,4 +107,3 @@ test('Activation reactivate', async () => {
 
   wrapper.unmount()
 })
-

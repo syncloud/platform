@@ -11,10 +11,6 @@ test('Login redirects to OIDC', async () => {
   const wrapper = mount(Login,
     {
       attachTo: document.body,
-      props: {
-        checkUserSession: jest.fn(),
-        activated: true
-      },
       global: {
         stubs: {
           Error: {

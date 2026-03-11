@@ -29,10 +29,6 @@ import axios from 'axios'
 
 export default {
   name: 'Network',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       interfaces: undefined

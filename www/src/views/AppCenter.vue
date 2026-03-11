@@ -24,10 +24,6 @@ import { ElLoading } from 'element-plus'
 
 export default {
   name: 'AppCenter',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       apps: undefined,

@@ -28,10 +28,6 @@ import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Apps',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   components: {
     Error
   },

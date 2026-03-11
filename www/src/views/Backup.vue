@@ -105,10 +105,6 @@ import Notification from '../components/Notification.vue'
 
 export default {
   name: 'Backup',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data() {
     return {
       file: '',

@@ -4,10 +4,11 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import { h } from 'vue'
+import { createPinia } from 'pinia'
 
 test('activated and logged in', async () => {
   const mockRoute = { params: { id: 1 } }
-  const mockRouter = { push: jest.fn() }
+  const mockRouter = { push: jest.fn(), currentRoute: { value: { path: '/' } } }
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/activation/status').reply(200,
@@ -19,6 +20,7 @@ test('activated and logged in', async () => {
 
   mount(VueApp, {
     global: {
+      plugins: [createPinia()],
       components: {
         RouterView: { render () { return h('div') } }
       },
@@ -38,7 +40,7 @@ test('activated and logged in', async () => {
 })
 
 test('activated and not logged in', async () => {
-  const mockRouter = { push: jest.fn() }
+  const mockRouter = { push: jest.fn(), currentRoute: { value: { path: '/activate' } } }
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/activation/status').reply(200,
@@ -50,6 +52,7 @@ test('activated and not logged in', async () => {
 
   mount(VueApp, {
     global: {
+      plugins: [createPinia()],
       components: {
         RouterView: { render () { return h('div') } }
       },
@@ -70,7 +73,7 @@ test('activated and not logged in', async () => {
 
 test('not activated and not logged in', async () => {
   const mockRoute = { params: { id: 1 } }
-  const mockRouter = { push: jest.fn() }
+  const mockRouter = { push: jest.fn(), currentRoute: { value: { path: '/' } } }
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/activation/status').reply(200,
@@ -82,6 +85,7 @@ test('not activated and not logged in', async () => {
 
   mount(VueApp, {
     global: {
+      plugins: [createPinia()],
       components: {
         RouterView: { render () { return h('div') } }
       },

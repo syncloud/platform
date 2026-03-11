@@ -64,10 +64,6 @@ export default {
   components: {
     Error
   },
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       platformVersion: undefined,

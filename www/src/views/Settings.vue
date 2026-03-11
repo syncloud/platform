@@ -91,11 +91,7 @@
 
 <script>
 export default {
-  name: 'Settings',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  }
+  name: 'Settings'
 }
 </script>
 <style>

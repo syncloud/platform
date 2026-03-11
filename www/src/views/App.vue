@@ -111,10 +111,6 @@ import Dialog from '../components/Dialog.vue'
 
 export default {
   name: 'App',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   data () {
     return {
       info: undefined,

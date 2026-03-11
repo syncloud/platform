@@ -244,10 +244,6 @@ import { ElLoading } from 'element-plus'
 
 export default {
   name: 'Activate',
-  props: {
-    checkUserSession: Function,
-    activated: Boolean
-  },
   components: {
     Dialog,
     Error,
