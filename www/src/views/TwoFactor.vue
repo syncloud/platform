@@ -27,8 +27,9 @@
           </div>
 
           <div v-if="totpQr" class="setline">
-            <el-alert type="warning" :closable="false" show-icon>
+            <el-alert class="totp-warning" type="warning" :closable="false" show-icon>
               Scan this QR code now. It will not be shown again.
+              <br/>
               If you lose access to your authenticator app, see
               <a href="https://github.com/syncloud/platform/wiki/Two-Factor-Authentication#recovery" target="_blank">recovery instructions</a>.
             </el-alert>
@@ -122,4 +123,8 @@ export default {
 <style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
+.totp-warning {
+  max-width: 500px;
+  margin: 0 auto;
+}
 </style>
