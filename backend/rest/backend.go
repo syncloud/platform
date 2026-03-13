@@ -51,6 +51,7 @@ type Backend struct {
 	iface           *network.TcpInterfaces
 	support         *support.Sender
 	proxy           *Proxy
+	customProxy     *CustomProxy
 	auth            *auth.Service
 	mw              *Middleware
 	cookies         *session.Cookies
@@ -67,7 +68,7 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
-	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy,
+	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
 	oidcService *auth.OIDCService, authelia *auth.Authelia,
@@ -93,6 +94,7 @@ func NewBackend(
 		iface:           iface,
 		support:         support,
 		proxy:           proxy,
+		customProxy:     customProxy,
 		auth:            auth,
 		mw:              middleware,
 		cookies:         cookies,
@@ -174,6 +176,9 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Shutdown))).Methods("POST")
 	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.NetworkInterfaces))).Methods("GET")
 	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.mw.FailIfNotActivated(b.mw.Secured(b.proxy.ProxyImageFunc())))
+	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.List))).Methods("GET")
+	r.HandleFunc("/rest/proxy_custom/add", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Add))).Methods("POST")
+	r.HandleFunc("/rest/proxy_custom/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Remove))).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(b.mw.NotFoundHandler)
 

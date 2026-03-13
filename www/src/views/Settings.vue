@@ -82,6 +82,13 @@
             </router-link>
           </div>
 
+          <div class="colapp app">
+            <router-link to="/customproxy" id="customproxy" class="app-link">
+              <i class="material-icons settings-icon">swap_horiz</i>
+              <div class="setting-name"><span class="withline">Custom Proxy</span></div>
+            </router-link>
+          </div>
+
         </div>
       </div>
     </div>

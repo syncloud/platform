@@ -111,7 +111,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
-		return nginx.New(control, systemConfig, userConfig)
+		return nginx.New(control, systemConfig, userConfig, nginx.NewProxyConfigAdapter(userConfig))
 	})
 	if err != nil {
 		return nil, err
@@ -466,6 +466,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	}
 	err = c.Singleton(func(userConfig *config.UserConfig) *rest.Proxy {
 		return rest.NewProxy(userConfig)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(userConfig *config.UserConfig, nginxService *nginx.Nginx) *rest.CustomProxy {
+		return rest.NewCustomProxy(userConfig, nginxService)
 	})
 
 	if err != nil {

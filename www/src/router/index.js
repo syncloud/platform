@@ -19,6 +19,7 @@ const routes = [
   { path: '/certificate/log', name: 'Certificate Log', component: () => import('../views/CertificateLog.vue') },
   { path: '/twofactor', name: 'TwoFactor', component: () => import('../views/TwoFactor.vue') },
   { path: '/logs', name: 'Logs', component: () => import('../views/Logs.vue') },
+  { path: '/customproxy', name: 'CustomProxy', component: () => import('../views/CustomProxy.vue') },
   { path: '/:catchAll(.*)', redirect: '/' }
 ]
 

@@ -109,6 +109,14 @@ local build(arch, testUI) = [{
              ],
            },
            {
+             name: 'build external app',
+             image: 'golang:' + go,
+             commands: [
+               'cd test/externalapp',
+               "CGO_ENABLED=0 go build -ldflags '-extldflags -static' -o externalapp",
+             ],
+           },
+           {
              name: 'package',
              image: 'debian:bookworm-slim',
              commands: [
@@ -147,6 +155,7 @@ local build(arch, testUI) = [{
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/externalapp.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'cat /etc/hosts',
                     '/opt/bin/entry_point.sh',
                   ],

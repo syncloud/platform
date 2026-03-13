@@ -265,6 +265,35 @@ def test_api(device):
     device.run_ssh('/api.test')
 
 
+def test_custom_proxy(device, device_host, full_domain):
+    device.run_ssh('nohup /test/externalapp/externalapp > /tmp/syncloud/externalapp.log 2>&1 &', throw=False)
+    time.sleep(2)
+    add_host_alias("externalapp", device_host, full_domain)
+    session = device.login_v2()
+    response = session.post('https://{0}/rest/proxy_custom/add'.format(device_host),
+                            json={'name': 'externalapp', 'host': 'localhost', 'port': 8585},
+                            verify=False)
+    assert response.status_code == 200, response.text
+    assert json.loads(response.text)["success"], response.text
+
+    response = session.get('https://{0}/rest/proxy_custom/list'.format(device_host), verify=False)
+    assert response.status_code == 200, response.text
+    proxies = json.loads(response.text)["data"]
+    assert len(proxies) == 1
+    assert proxies[0]["name"] == "externalapp"
+
+    def check_proxy():
+        response = requests.get('https://externalapp.{0}'.format(full_domain), verify=False)
+        assert response.status_code == 200, response.text
+        assert response.text == "external", response.text
+    retry(check_proxy)
+
+    response = session.post('https://{0}/rest/proxy_custom/remove'.format(device_host),
+                            json={'name': 'externalapp'},
+                            verify=False)
+    assert response.status_code == 200, response.text
+
+
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
@@ -384,6 +413,7 @@ def test_rest_platform_version(device, domain, artifact_dir):
     with open('{0}/rest.platform.version.json'.format(artifact_dir), 'w') as the_file:
         the_file.write(response.text)
     assert response.status_code == 200
+
 
 
 def wait_for_jobs(domain, session):
