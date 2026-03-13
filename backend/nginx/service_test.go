@@ -83,7 +83,7 @@ func TestCustomProxy_ZeroEntries(t *testing.T) {
 	text := string(contents)
 
 	assert.Contains(t, text, "return 502")
-	assert.NotContains(t, text, "proxy_pass http://")
+	assert.NotContains(t, text, "proxy_pass")
 	assert.Equal(t, 1, strings.Count(text, "listen unix:"), "should have only the default server block")
 	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
 }
@@ -121,7 +121,7 @@ func TestCustomProxy_TwoEntries(t *testing.T) {
 	userConfig := &UserConfigMock{"mydevice.syncloud.it"}
 	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
 		{Name: "nas", Host: "192.168.1.50", Port: 5000},
-		{Name: "camera", Host: "10.0.0.100", Port: 8443},
+		{Name: "camera", Host: "10.0.0.100", Port: 8443, Https: true},
 	}}
 	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
 
@@ -135,7 +135,7 @@ func TestCustomProxy_TwoEntries(t *testing.T) {
 	assert.Contains(t, text, "server_name nas.mydevice.syncloud.it;")
 	assert.Contains(t, text, "proxy_pass http://192.168.1.50:5000;")
 	assert.Contains(t, text, "server_name camera.mydevice.syncloud.it;")
-	assert.Contains(t, text, "proxy_pass http://10.0.0.100:8443;")
+	assert.Contains(t, text, "proxy_pass https://10.0.0.100:8443;")
 	assert.Equal(t, 3, strings.Count(text, "listen unix:"), "should have default + 2 custom server blocks")
 	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
 }

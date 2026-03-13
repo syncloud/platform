@@ -32,6 +32,11 @@
               <input class="proxy-input" id="proxy_port" type="number" v-model.number="newPort" placeholder="8080">
             </div>
 
+            <div class="setline" style='display: flex; align-items: center;'>
+              <label class="span proxy-label" for="proxy_https">HTTPS:</label>
+              <input id="proxy_https" type="checkbox" v-model="newHttps">
+            </div>
+
             <div class="setline">
               <div class="spandiv">
                 <button class="submit buttongreen control" id="btn_add" type="button"
@@ -50,7 +55,7 @@
 
             <div v-for="proxy in proxies" :key="proxy.name" class="setline proxy-entry" style='display: flex; align-items: center;'>
               <a class="proxy-label" :href="'https://' + proxy.name + '.' + domain" target="_blank">{{ proxy.name }}</a>
-              <span style="flex: 1">{{ proxy.host }}:{{ proxy.port }}</span>
+              <span style="flex: 1">{{ proxy.https ? 'https' : 'http' }}://{{ proxy.host }}:{{ proxy.port }}</span>
               <button class="submit control btn_remove" type="button" :id="'btn_remove_' + proxy.name"
                       style="width: 80px; background-color: #d9534f; color: white;" @click="remove(proxy.name)">Remove
               </button>
@@ -84,6 +89,7 @@ export default {
       newName: '',
       newHost: '',
       newPort: null,
+      newHttps: false,
       visibility: 'hidden',
       loading: undefined
     }
@@ -129,12 +135,14 @@ export default {
       axios.post('/rest/proxy_custom/add', {
         name: this.newName,
         host: this.newHost,
-        port: this.newPort
+        port: this.newPort,
+        https: this.newHttps
       })
         .then(resp => Common.checkForServiceError(resp.data, () => {
           this.newName = ''
           this.newHost = ''
           this.newPort = null
+          this.newHttps = false
           this.reload()
         }, onError))
         .catch(onError)
