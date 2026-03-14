@@ -17,3 +17,4 @@ logs
 *.snap
 .pytest_cache
 venv
+visual-diff/output

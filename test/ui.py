@@ -98,6 +98,7 @@ def test_login(selenium, full_domain, device_user, device_password):
     selenium.screenshot('login')
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
     selenium.screenshot('index')
 
 
@@ -292,6 +293,7 @@ def test_auth_web(selenium, full_domain, device_user, device_password):
 
     # redirect to the main web
     selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
 
 
 def test_2fa_settings(selenium, full_domain):
@@ -345,6 +347,7 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
         otp_inputs[i].send_keys(digit)
 
     selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
     selenium.screenshot('2fa_login_success')
 
 
@@ -372,6 +375,7 @@ def test_2fa_recovery_cli(device, selenium, full_domain, device_user, device_pas
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
     selenium.screenshot('2fa_recovery_cli')
  
 
@@ -408,6 +412,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
     selenium.screenshot('reactivate-index')
 
 
@@ -440,8 +445,8 @@ def menu(selenium, element_id):
                 selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, find_id)))
             selenium.wait_or_screenshot(EC.element_to_be_clickable((By.ID, find_id)))
             selenium.find_by_id(find_id).click()
-            # if selenium.ui_mode == "mobile":
-            #     selenium.wait_or_screenshot(EC.invisibility_of_element_located((By.ID, find_id)))
+            if selenium.ui_mode == "mobile":
+                wait_for_menu_close(selenium.driver)
             wait_for_loading(selenium.driver)
             selenium.screenshot(element_id)
             return
@@ -475,6 +480,11 @@ def settings(selenium, setting):
     menu(selenium, 'settings')
     selenium.clickable_by(By.ID, setting).click()
     wait_for_loading(selenium.driver)
+
+
+def wait_for_menu_close(driver):
+    wait_driver = WebDriverWait(driver, 10)
+    wait_driver.until_not(EC.visibility_of_element_located((By.CSS_SELECTOR, '.navi.naviopen')))
 
 
 def wait_for_loading(driver):
