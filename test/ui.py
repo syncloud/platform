@@ -480,15 +480,15 @@ def settings(selenium, setting):
     menu(selenium, 'settings')
     selenium.clickable_by(By.ID, setting).click()
     wait_for_loading(selenium.driver)
-    time.sleep(1)
-    wait_for_loading(selenium.driver)
 
 
 def wait_for_menu_close(driver):
     wait_driver = WebDriverWait(driver, 10)
-    wait_driver.until_not(EC.visibility_of_element_located((By.CSS_SELECTOR, '.navi.naviopen')))
+    wait_driver.until(EC.invisibility_of_element_located((By.ID, 'menu')))
 
 
 def wait_for_loading(driver):
+    # Brief pause to let async loading overlays appear before checking invisibility
+    time.sleep(0.5)
     wait_driver = WebDriverWait(driver, 120)
     wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'el-loading-mask')))
