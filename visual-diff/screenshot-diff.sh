@@ -157,8 +157,8 @@ for view in $VIEWS; do
     echo ""
     echo "=== ${view} ==="
 
-    BASE_DIR="${OUTPUT_DIR}/${BASE_BRANCH}-${BASE_BUILD}/${view}"
-    CMP_DIR="${OUTPUT_DIR}/${CMP_BRANCH}-${CMP_BUILD}/${view}"
+    BASE_DIR="${OUTPUT_DIR}/${BASE_BRANCH}/${view}"
+    CMP_DIR="${OUTPUT_DIR}/${CMP_BRANCH}/${view}"
     DIFF_DIR="${OUTPUT_DIR}/diff/${view}"
 
     mkdir -p "$BASE_DIR" "$CMP_DIR" "$DIFF_DIR"
@@ -196,8 +196,8 @@ if [ -d "$HOME/storage/pictures" ]; then
     rm -rf "$PICTURES_DIR"
     mkdir -p "$PICTURES_DIR/base" "$PICTURES_DIR/compare" "$PICTURES_DIR/diff"
     for view in $VIEWS; do
-        BASE_DIR="${OUTPUT_DIR}/${BASE_BRANCH}-${BASE_BUILD}/${view}"
-        CMP_DIR="${OUTPUT_DIR}/${CMP_BRANCH}-${CMP_BUILD}/${view}"
+        BASE_DIR="${OUTPUT_DIR}/${BASE_BRANCH}/${view}"
+        CMP_DIR="${OUTPUT_DIR}/${CMP_BRANCH}/${view}"
         for subdir_src_dest in "${BASE_DIR}:base" "${CMP_DIR}:compare" "${OUTPUT_DIR}/diff/${view}:diff"; do
             src="${subdir_src_dest%%:*}"
             dest="${subdir_src_dest##*:}"

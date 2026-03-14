@@ -35,15 +35,13 @@
           </div>
         </header>
         <div id="menu" class="navi" v-if="auth.loggedIn" :class="{ naviopen: menuOpen }">
-          <router-link to="/" id="apps_mobile"><span style="display: block" @click="toggle">Apps</span></router-link>
-          <router-link to="/appcenter" id="appcenter_mobile"><span style="display: block"
-                                                                   @click="toggle">App Center</span></router-link>
-          <router-link to="/settings" id="settings_mobile"><span style="display: block" @click="toggle">Settings</span>
-          </router-link>
+          <router-link to="/" id="apps_mobile" @click="close">Apps</router-link>
+          <router-link to="/appcenter" id="appcenter_mobile" @click="close">App Center</router-link>
+          <router-link to="/settings" id="settings_mobile" @click="close">Settings</router-link>
           <div class="menucolor2">
-            <a href="#" id="logout_mobile" @click="logout">Log out</a>
-            <a href="#" id="restart_mobile" @click="restart">Restart</a>
-            <a href="#" id="shutdown_mobile" @click="shutdown">Shutdown</a>
+            <a href="#" id="logout_mobile" @click="logout(); close()">Log out</a>
+            <a href="#" id="restart_mobile" @click="restart(); close()">Restart</a>
+            <a href="#" id="shutdown_mobile" @click="shutdown(); close()">Shutdown</a>
           </div>
         </div>
       </div>

@@ -480,6 +480,8 @@ def settings(selenium, setting):
     menu(selenium, 'settings')
     selenium.clickable_by(By.ID, setting).click()
     wait_for_loading(selenium.driver)
+    time.sleep(1)
+    wait_for_loading(selenium.driver)
 
 
 def wait_for_menu_close(driver):
