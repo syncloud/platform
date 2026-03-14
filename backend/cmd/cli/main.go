@@ -23,6 +23,7 @@ func main() {
 		disable2faCmd(userConfig, systemConfig),
 		resetTotpCmd(userConfig, systemConfig),
 		loginCmd(userConfig, systemConfig),
+		proxyCmd(userConfig, systemConfig),
 	)
 
 	err := rootCmd.Execute()

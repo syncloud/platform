@@ -8,6 +8,7 @@ from syncloudlib.integration.hosts import add_host_alias
 from syncloudlib.integration.installer import local_install
 
 TMP_DIR = '/tmp/syncloud'
+DB_PATH = '/var/snap/platform/current/platform.db'
 
 
 @pytest.fixture(scope="session")
@@ -32,6 +33,15 @@ def test_upgrade(device, device_user, device_password, device_host, app_archive_
     device.run_ssh('snap remove platform')
     device.run_ssh('/test/install-snapd.sh')
     device.run_ssh('snap install platform', retries=3)
+
+    # Insert a custom proxy entry using old schema (without https column) to test migration
+    # TODO: replace sqlite3 manipulation with CLI after this version goes to stable
+    run('rm -rf /tmp/upgrade && mkdir /tmp/upgrade', shell=True, check=True)
+    device.scp_from_device(DB_PATH, '/tmp/upgrade')
+    run('sqlite3 /tmp/upgrade/platform.db "INSERT INTO custom_proxy (name, host, port) VALUES (\'testproxy\', \'localhost\', 8080)"',
+        shell=True, check=True)
+    device.scp_to_device('/tmp/upgrade/platform.db', DB_PATH)
+
     local_install(device_host, device_password, app_archive_path)
     wait_for_rest(requests.session(), "https://{0}".format(app_domain), 200, 10)
 
@@ -43,6 +53,17 @@ def test_activate_after_upgrade(device, device_host, device_user, device_passwor
                                    'device_username': device_user,
                                    'device_password': device_password}, verify=False)
     assert response.status_code == 200, response.text
+
+
+def test_custom_proxy_migration(device):
+    # TODO: replace sqlite3 manipulation with CLI after this version goes to stable
+    output = device.run_ssh('snap run platform.cli proxy list')
+    proxies = json.loads(output)
+    assert len(proxies) == 1
+    assert proxies[0]["name"] == "testproxy"
+    assert proxies[0]["host"] == "localhost"
+    assert proxies[0]["port"] == 8080
+    assert proxies[0]["https"] is False
 
 
 def test_installer_upgrade(device, domain):

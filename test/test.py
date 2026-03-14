@@ -294,6 +294,22 @@ def test_custom_proxy(device, device_host, full_domain):
     assert response.status_code == 200, response.text
 
 
+def test_custom_proxy_cli(device):
+    device.run_ssh('snap run platform.cli proxy add --name cliproxy --host localhost --port 9090 --https')
+    output = device.run_ssh('snap run platform.cli proxy list')
+    proxies = json.loads(output)
+    assert len(proxies) == 1
+    assert proxies[0]["name"] == "cliproxy"
+    assert proxies[0]["host"] == "localhost"
+    assert proxies[0]["port"] == 9090
+    assert proxies[0]["https"] is True
+
+    device.run_ssh('snap run platform.cli proxy remove --name cliproxy')
+    output = device.run_ssh('snap run platform.cli proxy list')
+    proxies = json.loads(output)
+    assert len(proxies) == 0
+
+
 def test_testapp_access_change(device_host, domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
     assert not output.strip() == "https://testapp.{0}".format(domain)
