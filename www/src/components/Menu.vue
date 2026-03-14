@@ -76,13 +76,7 @@ export default {
       this.menuOpen = !this.menuOpen
     },
     logout: function () {
-      axios.post('/rest/logout')
-        .then(() => {
-          this.auth.checkUserSession(this.$router)
-        })
-        .catch(err => {
-          console.log(err)
-        })
+      window.location.href = '/rest/logout'
     },
     restart: function () {
       const error = this.$refs.menu_error

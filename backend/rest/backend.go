@@ -287,11 +287,20 @@ func (b *Backend) OIDCLogin(w http.ResponseWriter, req *http.Request) {
 
 func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 	query := req.URL.Query()
+
+	if oidcError := query.Get("error"); oidcError != "" {
+		description := query.Get("error_description")
+		b.logger.Warn("OIDC authorization error", zap.String("error", oidcError), zap.String("description", description))
+		http.Redirect(w, req, "/#/login", http.StatusFound)
+		return
+	}
+
 	code := query.Get("code")
 	state := query.Get("state")
 
 	if code == "" || state == "" {
-		b.mw.Fail(w, model.BadRequest(fmt.Errorf("missing code or state")))
+		b.logger.Warn("OIDC callback missing code or state")
+		http.Redirect(w, req, "/#/login", http.StatusFound)
 		return
 	}
 
