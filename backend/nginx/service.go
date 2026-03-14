@@ -22,9 +22,10 @@ type UserConfig interface {
 }
 
 type ProxyEntry struct {
-	Name string
-	Host string
-	Port int
+	Name  string
+	Host  string
+	Port  int
+	Https bool
 }
 
 type ProxyConfig interface {
@@ -74,6 +75,7 @@ type customProxyServerEntry struct {
 	ServerName string
 	Host       string
 	Port       int
+	Scheme     string
 }
 
 func (n *Nginx) InitCustomProxyConfig() error {
@@ -105,10 +107,15 @@ func (n *Nginx) writeCustomProxyConfig() error {
 
 	serverEntries := make([]customProxyServerEntry, len(entries))
 	for i, e := range entries {
+		scheme := "http"
+		if e.Https {
+			scheme = "https"
+		}
 		serverEntries[i] = customProxyServerEntry{
 			ServerName: e.Name + "." + domain,
 			Host:       e.Host,
 			Port:       e.Port,
+			Scheme:     scheme,
 		}
 	}
 
