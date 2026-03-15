@@ -59,6 +59,8 @@ def test_fake_cert(selenium, device, device_host):
     device.run_ssh('snap restart platform')
     wait_for_rest(requests.session(), "https://{0}/rest/activation/status".format(device_host), 200, 10)
     selenium.driver.get("https://{0}".format(device_host))
+    selenium.find_by_xpath("//h1[text()='Activate']")
+    wait_for_loading(selenium.driver)
     selenium.screenshot('fake-cert')
 
 
@@ -118,7 +120,9 @@ def test_settings_access(selenium):
     settings(selenium, 'access')
     selenium.find_by_xpath("//h1[text()='Access']")
     selenium.find_by_xpath('//input[@id="tgl_ipv4_enabled"]/../span').click()
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.CSS_SELECTOR, '#ipv4_mode_block[data-ready]')))
     selenium.find_by_xpath('//input[@id="tgl_ipv4_public"]/../span').click()
+    selenium.wait_or_screenshot(EC.presence_of_element_located((By.CSS_SELECTOR, '#ipv4_public_block[data-ready]')))
     selenium.screenshot('settings_access')
 
 
@@ -249,6 +253,7 @@ def test_not_installed_app(selenium):
     menu(selenium, 'appcenter')
     selenium.clickable_by(By.XPATH, "//span[text()='Nextcloud file sharing']").click()
     selenium.find_by_xpath("//h1[text()='Nextcloud file sharing']")
+    selenium.wait_or_screenshot(EC.visibility_of_element_located((By.ID, 'btn_install')))
     selenium.screenshot('app_not_installed')
 
 

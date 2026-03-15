@@ -18,7 +18,7 @@
               </button>
             </div>
 
-            <Transition>
+            <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
             <div id="ipv4_mode_block" v-if="ipv4Enabled">
               <div class="setline" style='display: flex'>
                   <span class="span name-alignment">Public:</span>
@@ -27,7 +27,7 @@
                   </div>
               </div>
 
-              <Transition>
+              <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
               <div id="ipv4_public_block" v-if="ipv4Public">
                 <div class="setline" style='display: flex'>
                     <span class="span name-alignment">Detect IP:</span>

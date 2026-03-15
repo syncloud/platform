@@ -9,7 +9,7 @@
             <router-link to="/appcenter" class="appcenterh">App Center</router-link>
           </div>
           <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
-            <img :src="app.icon" class="appimg" :alt="app.name">
+            <img :src="app.icon" class="appimg" :alt="app.name" @error="(e) => e.target.src = defaultIcon">
             <div class="appname"><span class="withline">{{ app.name }}</span></div>
             <div class="appdesc"></div>
           </router-link>
@@ -34,7 +34,8 @@ export default {
   data () {
     return {
       apps: Array,
-      loading: undefined
+      loading: undefined,
+      defaultIcon: '/images/default-app.svg'
     }
   },
   mounted () {

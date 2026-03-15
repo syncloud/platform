@@ -5,7 +5,7 @@
         <h1 class="bigh1">App Center</h1>
         <div class="row-no-gutters appcenterlist" id="block_apps" style="min-height: 200px">
           <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
-            <img :src="app.icon" class="appimg" alt="">
+            <img :src="app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
             <div class="appname"><span class="withline">{{ app.name }}</span></div>
             <div class="appdesc"></div>
           </router-link>
@@ -27,7 +27,8 @@ export default {
   data () {
     return {
       apps: undefined,
-      loading: undefined
+      loading: undefined,
+      defaultIcon: '/images/default-app.svg'
     }
   },
   components: {

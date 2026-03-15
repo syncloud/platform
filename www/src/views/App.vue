@@ -5,7 +5,7 @@
         <div class="appblock" v-if="info !== undefined">
           <div>
             <div>
-              <img :src="info.app.icon" class="appimg" alt="">
+              <img :src="info.app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
             </div>
             <div class="appinfo">
               <h1 id="app_name">{{ info.app.name }}</h1>
@@ -113,6 +113,7 @@ export default {
   name: 'App',
   data () {
     return {
+      defaultIcon: '/images/default-app.svg',
       info: undefined,
       appId: undefined,
       action: '',
