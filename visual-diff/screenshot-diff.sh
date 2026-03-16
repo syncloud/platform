@@ -60,6 +60,8 @@ import json, sys
 for f in json.load(sys.stdin):
     name = f['name']
     if name.endswith('${suffix}'):
+        if name.startswith('exception'):
+            continue
         if '${filter}' and '${filter}' not in name:
             continue
         print(name)

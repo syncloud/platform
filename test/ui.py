@@ -97,10 +97,13 @@ def test_login(selenium, full_domain, device_user, device_password):
     # OIDC flow redirects to Authelia
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('login')
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
     selenium.screenshot('index')
 
 
