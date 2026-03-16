@@ -85,10 +85,14 @@ def test_activate(selenium, device_host,
     selenium.find_by_id('device_username').send_keys(device_user)
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.find_by_id('device_password_confirm').send_keys(device_password)
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
     selenium.find_by(By.ID, "username-textfield")
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('activate')
 
 
@@ -97,6 +101,8 @@ def test_login(selenium, full_domain, device_user, device_password):
     # OIDC flow redirects to Authelia
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('login')
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
@@ -409,10 +415,14 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_id('device_username').send_keys(device_user)
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.find_by_id('device_password_confirm').send_keys(device_password)
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
     selenium.find_by(By.ID, "username-textfield")
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('deactivate-login-page')
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
@@ -429,7 +439,7 @@ def test_permission_denied(selenium, device, ui_mode, full_domain):
     selenium.find_by(By.ID, "username-textfield").send_keys("test{0}".format(ui_mode))
     selenium.find_by(By.ID, "password-textfield").send_keys("password")
     selenium.find_by(By.ID, "sign-in-button").click()
-    time.sleep(2)
+    selenium.find_by(By.CSS_SELECTOR, ".notification")
     selenium.screenshot('permission-denied')
 
 
