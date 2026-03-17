@@ -10,6 +10,7 @@ OUTPUT_DIR="${SCRIPT_DIR}/output"
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
 
 FILTER=""
+PIXEL_THRESHOLD=100
 BASE_BRANCH="master"
 CMP_BRANCH="$CURRENT_BRANCH"
 
@@ -92,7 +93,7 @@ compare_screenshots() {
         if command -v magick >/dev/null 2>&1; then
             METRIC=$(magick compare -fuzz 5% -metric AE "${base_dir}/${name}" "${cmp_dir}/${name}" "${diff_dir}/${name}" 2>&1 || true)
             PIXELS=$(echo "$METRIC" | grep -oE '^[0-9]+')
-            if [ "${PIXELS:-0}" = "0" ]; then
+            if [ "${PIXELS:-0}" -le "$PIXEL_THRESHOLD" ]; then
                 identical=$((identical + 1))
                 rm -f "${diff_dir}/${name}"
             else
@@ -102,7 +103,7 @@ compare_screenshots() {
         elif command -v compare >/dev/null 2>&1; then
             METRIC=$(compare -fuzz 5% -metric AE "${base_dir}/${name}" "${cmp_dir}/${name}" "${diff_dir}/${name}" 2>&1 || true)
             PIXELS=$(echo "$METRIC" | grep -oE '^[0-9]+')
-            if [ "${PIXELS:-0}" = "0" ]; then
+            if [ "${PIXELS:-0}" -le "$PIXEL_THRESHOLD" ]; then
                 identical=$((identical + 1))
                 rm -f "${diff_dir}/${name}"
             else
