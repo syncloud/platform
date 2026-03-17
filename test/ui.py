@@ -300,6 +300,8 @@ def test_auth_web(selenium, full_domain, device_user, device_password):
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     password = selenium.find_by(By.ID, "password-textfield")
     password.send_keys(device_password)
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
     selenium.screenshot('auth')
     selenium.find_by(By.ID, "sign-in-button").click()
 
