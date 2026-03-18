@@ -440,7 +440,7 @@ def test_permission_denied(selenium, device, ui_mode, full_domain):
     selenium.find_by(By.ID, "password-textfield").send_keys("password")
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by(By.CSS_SELECTOR, ".notification")
-    selenium.wait_or_screenshot(EC.element_to_be_clickable((By.ID, "sign-in-button")))
+    selenium.invisible_by(By.CSS_SELECTOR, ".notification")
     selenium.screenshot('permission-denied')
 
 
