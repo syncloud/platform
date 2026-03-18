@@ -202,6 +202,7 @@ def test_custom_proxy_overrides_missing_app(selenium, device, device_host, full_
     selenium.find_by_id('proxy_port').send_keys('8585')
     selenium.find_by_id('btn_add').click()
     wait_for_loading(selenium.driver)
+    defocus(selenium)
     selenium.screenshot('settings_custom_proxy_files_added')
 
     def check_proxy():
@@ -276,6 +277,7 @@ def test_settings_custom_proxy(selenium, device, device_host, full_domain):
     selenium.find_by_id('btn_add').click()
     wait_for_loading(selenium.driver)
     selenium.find_by_xpath("//a[text()='externalapp']")
+    defocus(selenium)
     selenium.screenshot('settings_custom_proxy_added')
 
     def check_proxy():
