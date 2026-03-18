@@ -135,7 +135,7 @@ def test_settings_access(selenium):
 def test_settings_network(selenium):
     settings(selenium, 'network')
     selenium.find_by_xpath("//h1[text()='Network']")
-    selenium.screenshot('settings_network')
+    selenium.screenshot('settings_network_unstable')
 
 
 def test_settings_storage(selenium):
@@ -166,7 +166,7 @@ def test_settings_support(selenium):
 def test_settings_backup(selenium):
     settings(selenium, 'backup')
     selenium.find_by_xpath("//h1[text()='Backup']")
-    selenium.screenshot('settings_backup')
+    selenium.screenshot('settings_backup_unstable')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
     selenium.clickable_by(By.ID, "auto").click()
     selenium.clickable_by(By.ID, "auto-backup").click()
@@ -175,7 +175,7 @@ def test_settings_backup(selenium):
     selenium.clickable_by(By.ID, "auto-hour").click()
     selenium.clickable_by(By.ID, "auto-hour-1").click()
     selenium.find_by_id("save").click()
-    selenium.screenshot('settings_backup_saved')
+    selenium.screenshot('settings_backup_saved_unstable')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
 
 
@@ -331,13 +331,13 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
         print('waiting for TOTP QR code (attempt {0}/30)'.format(attempt + 1))
         time.sleep(2)
     selenium.find_by_id('totp_qr')
-    selenium.screenshot('2fa_enabled')
+    selenium.screenshot('2fa_enabled_unstable')
 
     global stored_totp_secret
     secret_element = selenium.find_by_id('totp_secret')
     stored_totp_secret = secret_element.text
     selenium.find_by_id('btn_disable_2fa')
-    selenium.screenshot('2fa_totp_registered')
+    selenium.screenshot('2fa_totp_registered_unstable')
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
@@ -350,7 +350,7 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
 
     # TOTP challenge
     selenium.find_by(By.ID, "otp-input")
-    selenium.screenshot('2fa_login_totp')
+    selenium.screenshot('2fa_login_totp_unstable')
     totp = pyotp.TOTP(stored_totp_secret)
     # Wait for next TOTP period to avoid replay rejection
     remaining = totp.interval - time.time() % totp.interval

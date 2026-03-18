@@ -63,6 +63,8 @@ for f in json.load(sys.stdin):
     if name.endswith('${suffix}'):
         if name.startswith('exception'):
             continue
+        if '_unstable' in name:
+            continue
         if '${filter}' and '${filter}' not in name:
             continue
         print(name)
