@@ -431,6 +431,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
     selenium.screenshot('reactivate-index')
 
 
