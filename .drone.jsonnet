@@ -10,6 +10,7 @@ local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
+local alpine = '3.21';
 local visual_diff_skip_build = '2492';
 
 local build(arch, testUI) = [{
@@ -202,7 +203,7 @@ local build(arch, testUI) = [{
               ] + [
                 {
                   name: 'visual-diff',
-                  image: 'debian:bookworm-slim',
+                  image: 'alpine:' + alpine,
                   commands: [
                     './visual-diff/visual-diff ci-diff artifact/distro ' + visual_diff_skip_build,
                   ],
