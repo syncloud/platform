@@ -13,11 +13,11 @@ SKIP_BUILD="${2:-}"
 
 find_latest_build() {
     local branch="$1"
-    curl -s "${CI_API}/builds?limit=50" | python3 -c "
+    curl -s "${CI_API}/builds?limit=5&branch=${branch}" | python3 -c "
 import json, sys
 builds = json.load(sys.stdin)
 for b in builds:
-    if b['source'] == '${branch}' and b['status'] == 'success':
+    if b['status'] == 'success':
         print(b['number'])
         break
 else:
