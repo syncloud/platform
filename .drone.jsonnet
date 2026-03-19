@@ -10,6 +10,7 @@ local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
+local visual_diff_skip_build = '2492';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -196,6 +197,14 @@ local build(arch, testUI) = [{
                   }],
                 }
                 for mode in ['desktop', 'mobile']
+              ] + [
+                {
+                  name: 'visual-diff',
+                  image: 'dpokidov/imagemagick',
+                  commands: [
+                    './visual-diff/ci-diff.sh artifact/distro ' + visual_diff_skip_build,
+                  ],
+                },
               ] else []) +
          [
            {
