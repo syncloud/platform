@@ -100,6 +100,8 @@ local build(arch, testUI) = [{
                '../build/snap/meta/hooks/install -h',
                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                '../build/snap/meta/hooks/post-refresh -h',
+               'cd ../visual-diff',
+               'CGO_ENABLED=0 go build -o visual-diff ./cmd',
              ],
            },
            {
@@ -200,9 +202,9 @@ local build(arch, testUI) = [{
               ] + [
                 {
                   name: 'visual-diff',
-                  image: 'dpokidov/imagemagick',
+                  image: 'debian:bookworm-slim',
                   commands: [
-                    './visual-diff/ci-diff.sh artifact/distro ' + visual_diff_skip_build,
+                    './visual-diff/visual-diff ci-diff artifact/distro ' + visual_diff_skip_build,
                   ],
                 },
               ] else []) +
