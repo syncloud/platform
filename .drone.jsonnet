@@ -10,6 +10,8 @@ local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
+local alpine = '3.21';
+local visual_diff_skip_build = '2492';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -86,6 +88,7 @@ local build(arch, testUI) = [{
              image: 'golang:' + go,
              commands: [
                'cd backend',
+               'for i in 1 2 3; do go mod download && break || sleep 5; done',
                'go test ./... -coverprofile cover.out',
                'go tool cover -func cover.out',
                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/backend ./cmd/backend",
@@ -98,6 +101,8 @@ local build(arch, testUI) = [{
                '../build/snap/meta/hooks/install -h',
                "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                '../build/snap/meta/hooks/post-refresh -h',
+               'cd ../visual-diff',
+               'CGO_ENABLED=0 go build -o visual-diff ./cmd',
              ],
            },
            {
@@ -195,6 +200,14 @@ local build(arch, testUI) = [{
                   }],
                 }
                 for mode in ['desktop', 'mobile']
+              ] + [
+                {
+                  name: 'visual-diff',
+                  image: 'alpine:' + alpine,
+                  commands: [
+                    './visual-diff/visual-diff ci-diff artifact/distro ' + visual_diff_skip_build,
+                  ],
+                },
               ] else []) +
          [
            {

@@ -72,9 +72,11 @@ def test_activate(selenium, device_host,
     selenium.find_by_id('btn_free_domain').click()
     wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
     selenium.find_by_id('email').send_keys(redirect_user)
+    defocus(selenium)
     selenium.screenshot('activate-redirect-email')
     selenium.find_by_id('redirect_password').send_keys(redirect_password)
     selenium.find_by_id('domain_input').send_keys(domain)
+    defocus(selenium)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
     wait_for_loading(selenium.driver)
@@ -85,14 +87,12 @@ def test_activate(selenium, device_host,
     selenium.find_by_id('device_username').send_keys(device_user)
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.find_by_id('device_password_confirm').send_keys(device_password)
-    selenium.driver.find_element(By.TAG_NAME, "body").click()
-    time.sleep(1)
+    defocus(selenium)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
     selenium.find_by(By.ID, "username-textfield")
-    selenium.driver.find_element(By.TAG_NAME, "body").click()
-    time.sleep(1)
+    defocus(selenium)
     selenium.screenshot('activate')
 
 
@@ -101,8 +101,7 @@ def test_login(selenium, full_domain, device_user, device_password):
     # OIDC flow redirects to Authelia
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
-    selenium.driver.find_element(By.TAG_NAME, "body").click()
-    time.sleep(1)
+    defocus(selenium)
     selenium.screenshot('login')
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
@@ -136,7 +135,7 @@ def test_settings_access(selenium):
 def test_settings_network(selenium):
     settings(selenium, 'network')
     selenium.find_by_xpath("//h1[text()='Network']")
-    selenium.screenshot('settings_network')
+    selenium.screenshot('settings_network_unstable')
 
 
 def test_settings_storage(selenium):
@@ -167,7 +166,7 @@ def test_settings_support(selenium):
 def test_settings_backup(selenium):
     settings(selenium, 'backup')
     selenium.find_by_xpath("//h1[text()='Backup']")
-    selenium.screenshot('settings_backup')
+    selenium.screenshot('settings_backup_unstable')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
     selenium.clickable_by(By.ID, "auto").click()
     selenium.clickable_by(By.ID, "auto-backup").click()
@@ -176,7 +175,7 @@ def test_settings_backup(selenium):
     selenium.clickable_by(By.ID, "auto-hour").click()
     selenium.clickable_by(By.ID, "auto-hour-1").click()
     selenium.find_by_id("save").click()
-    selenium.screenshot('settings_backup_saved')
+    selenium.screenshot('settings_backup_saved_unstable')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
 
 
@@ -203,6 +202,7 @@ def test_custom_proxy_overrides_missing_app(selenium, device, device_host, full_
     selenium.find_by_id('proxy_port').send_keys('8585')
     selenium.find_by_id('btn_add').click()
     wait_for_loading(selenium.driver)
+    defocus(selenium)
     selenium.screenshot('settings_custom_proxy_files_added')
 
     def check_proxy():
@@ -277,6 +277,7 @@ def test_settings_custom_proxy(selenium, device, device_host, full_domain):
     selenium.find_by_id('btn_add').click()
     wait_for_loading(selenium.driver)
     selenium.find_by_xpath("//a[text()='externalapp']")
+    defocus(selenium)
     selenium.screenshot('settings_custom_proxy_added')
 
     def check_proxy():
@@ -300,6 +301,7 @@ def test_auth_web(selenium, full_domain, device_user, device_password):
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     password = selenium.find_by(By.ID, "password-textfield")
     password.send_keys(device_password)
+    defocus(selenium)
     selenium.screenshot('auth')
     selenium.find_by(By.ID, "sign-in-button").click()
 
@@ -329,13 +331,13 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
         print('waiting for TOTP QR code (attempt {0}/30)'.format(attempt + 1))
         time.sleep(2)
     selenium.find_by_id('totp_qr')
-    selenium.screenshot('2fa_enabled')
+    selenium.screenshot('2fa_enabled_unstable')
 
     global stored_totp_secret
     secret_element = selenium.find_by_id('totp_secret')
     stored_totp_secret = secret_element.text
     selenium.find_by_id('btn_disable_2fa')
-    selenium.screenshot('2fa_totp_registered')
+    selenium.screenshot('2fa_totp_registered_unstable')
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
@@ -348,7 +350,7 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
 
     # TOTP challenge
     selenium.find_by(By.ID, "otp-input")
-    selenium.screenshot('2fa_login_totp')
+    selenium.screenshot('2fa_login_totp_unstable')
     totp = pyotp.TOTP(stored_totp_secret)
     # Wait for next TOTP period to avoid replay rejection
     remaining = totp.interval - time.time() % totp.interval
@@ -402,9 +404,11 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_id('btn_free_domain').click()
     wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
     selenium.find_by_id('email').send_keys(redirect_user)
+    defocus(selenium)
     selenium.screenshot('activate-redirect-email')
     selenium.find_by_id('redirect_password').send_keys(redirect_password)
     selenium.find_by_id('domain_input').send_keys(domain)
+    defocus(selenium)
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
     wait_for_loading(selenium.driver)
@@ -415,20 +419,19 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_id('device_username').send_keys(device_user)
     selenium.find_by_id('device_password').send_keys(device_password)
     selenium.find_by_id('device_password_confirm').send_keys(device_password)
-    selenium.driver.find_element(By.TAG_NAME, "body").click()
-    time.sleep(1)
+    defocus(selenium)
     selenium.screenshot('activate-ready')
     selenium.find_by_id('btn_activate').click()
     wait_for_loading(selenium.driver)
     selenium.find_by(By.ID, "username-textfield")
-    selenium.driver.find_element(By.TAG_NAME, "body").click()
-    time.sleep(1)
+    defocus(selenium)
     selenium.screenshot('deactivate-login-page')
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
     selenium.screenshot('reactivate-index')
 
 
@@ -440,6 +443,7 @@ def test_permission_denied(selenium, device, ui_mode, full_domain):
     selenium.find_by(By.ID, "password-textfield").send_keys("password")
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by(By.CSS_SELECTOR, ".notification")
+    selenium.invisible_by(By.CSS_SELECTOR, ".notification")
     selenium.screenshot('permission-denied')
 
 
@@ -490,6 +494,11 @@ def wait_for(selenium, method):
         retry += 1
     selenium.screenshot('exception')
     raise exception
+
+
+def defocus(selenium):
+    selenium.driver.find_element(By.TAG_NAME, "body").click()
+    time.sleep(1)
 
 
 def settings(selenium, setting):
