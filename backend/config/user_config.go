@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/bigkevmcd/go-configparser"
 	"github.com/google/uuid"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"go.uber.org/zap"
 	"log"
 	"os"
@@ -166,7 +166,7 @@ func (c *UserConfig) addOidcClientTable() error {
 }
 
 func (c *UserConfig) open() *sql.DB {
-	db, err := sql.Open("sqlite3", c.file)
+	db, err := sql.Open("sqlite", c.file)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -399,7 +399,7 @@ func (c *UserConfig) GetOrDefaultString(key string, defaultValue string) string 
 func (c *UserConfig) GetStringOrError(key string) (string, error) {
 	token := c.GetOrNilString(key)
 	if token == nil {
-		return "", fmt.Errorf(fmt.Sprintf("%s is not found", key))
+		return "", fmt.Errorf("%s is not found", key)
 	}
 	return *token, nil
 }

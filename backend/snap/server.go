@@ -139,7 +139,7 @@ func (s *Server) Upgrade(name string) error {
 		if err != nil {
 			return err
 		}
-		return fmt.Errorf(serverError.Message)
+		return fmt.Errorf("%s", serverError.Message)
 	}
 	return nil
 }

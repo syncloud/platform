@@ -341,6 +341,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			path.Join(hook.AppDir, "config/authelia"),
 			path.Join(hook.DataDir, "config/authelia"),
 			hook.DataDir,
+			path.Join(hook.DataDir, "authelia.socket"),
 			userConfig,
 			systemd,
 			secretGenerator,

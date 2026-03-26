@@ -1,6 +1,8 @@
 package backup
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"fmt"
 	cp "github.com/otiai10/copy"
 	df "github.com/ricochet2200/go-disk-usage/du"
@@ -9,11 +11,12 @@ import (
 	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/snap/model"
 	"go.uber.org/zap"
+	"io"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strconv"
-	"strings"
+	"syscall"
 )
 
 type SnapService interface {
@@ -215,8 +218,7 @@ func (b *Backup) Create(app string) error {
 		return err
 	}
 
-	out, err := b.executor.CombinedOutput("tar", "czf", file, "-C", tempDir, ".")
-	b.logger.Info(fmt.Sprintf("tar output: %s", string(out)))
+	err = createTarGz(file, tempDir)
 	if err != nil {
 		return err
 	}
@@ -273,8 +275,7 @@ func (b *Backup) Restore(fileName string) error {
 		return fmt.Errorf("not enough temp space for the restore")
 	}
 
-	out, err := b.executor.CombinedOutput("tar", "-C", tempDir, "-xf", file.FullName)
-	b.logger.Info(fmt.Sprintf("tar output: %s", strings.TrimSpace(string(out))))
+	err = extractTarGz(file.FullName, tempDir)
 	if err != nil {
 		return err
 	}
@@ -411,4 +412,102 @@ func (b *Backup) chown(dir, app string) error {
 	}
 	return err
 
+}
+
+func createTarGz(outputFile, sourceDir string) error {
+	f, err := os.Create(outputFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	gw := gzip.NewWriter(f)
+	defer gw.Close()
+
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
+
+	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+		if rel == "." {
+			return nil
+		}
+		header, err := tar.FileInfoHeader(info, "")
+		if err != nil {
+			return err
+		}
+		header.Name = "./" + rel
+		if stat, ok := info.Sys().(*syscall.Stat_t); ok {
+			header.Uid = int(stat.Uid)
+			header.Gid = int(stat.Gid)
+		}
+		if err := tw.WriteHeader(header); err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(tw, file)
+		return err
+	})
+}
+
+func extractTarGz(archiveFile, destDir string) error {
+	f, err := os.Open(archiveFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	gr, err := gzip.NewReader(f)
+	if err != nil {
+		return err
+	}
+	defer gr.Close()
+
+	tr := tar.NewReader(gr)
+	for {
+		header, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		target := filepath.Join(destDir, header.Name)
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
+				return err
+			}
+			os.Chown(target, header.Uid, header.Gid)
+		case tar.TypeReg:
+			dir := filepath.Dir(target)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return err
+			}
+			file, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(header.Mode))
+			if err != nil {
+				return err
+			}
+			if _, err := io.Copy(file, tr); err != nil {
+				file.Close()
+				return err
+			}
+			file.Close()
+			os.Chown(target, header.Uid, header.Gid)
+		}
+	}
+	return nil
 }

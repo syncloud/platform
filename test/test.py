@@ -599,6 +599,36 @@ def test_nginx_plus_flask_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
 
 
+def test_cli_user_add_remove(device):
+    device.run_ssh('snap run platform.cli user add testuser --password=testpassword123')
+    device.run_ssh('snap run platform.cli user remove testuser')
+
+
+def test_admin_api_secured(device, domain):
+    # Unauthenticated requests to admin endpoints should return 401
+    admin_endpoints = [
+        '/rest/settings/2fa',
+        '/rest/backup/list',
+        '/rest/storage/disks',
+        '/rest/certificate',
+        '/rest/access',
+        '/rest/apps/available',
+    ]
+    for endpoint in admin_endpoints:
+        response = requests.get('https://{0}{1}'.format(domain, endpoint), verify=False, allow_redirects=False)
+        assert response.status_code == 401, 'Expected 401 for {}, got {}'.format(endpoint, response.status_code)
+
+
+def test_non_admin_api_allowed(device, domain):
+    # Non-admin accessible endpoints should return 401 when unauthenticated (not 403)
+    user_endpoints = [
+        '/rest/apps/installed',
+    ]
+    for endpoint in user_endpoints:
+        response = requests.get('https://{0}{1}'.format(domain, endpoint), verify=False, allow_redirects=False)
+        assert response.status_code == 401, 'Expected 401 for {}, got {}'.format(endpoint, response.status_code)
+
+
 def retry(method, retries=10):
     attempt = 0
     exception = None

@@ -70,7 +70,7 @@ func TestAutheliaInit(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "www.localhost", activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	a := NewAuthelia("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
 	err := a.InitConfig()
 	assert.NoError(t, err)
 
@@ -95,7 +95,7 @@ func TestAutheliaReInit(t *testing.T) {
 	err = os.WriteFile(secretFilePath, []byte("secret"), 0644)
 	assert.Nil(t, err)
 
-	a := NewAuthelia("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
 	err = a.InitConfig()
 	assert.Nil(t, err)
 
@@ -137,7 +137,7 @@ func TestAutheliaClients(t *testing.T) {
 	}, activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	a := NewAuthelia("../../config/authelia", outDir, secretDir, userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
 	err := a.InitConfig()
 	assert.NoError(t, err)
 

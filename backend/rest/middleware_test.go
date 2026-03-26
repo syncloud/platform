@@ -17,6 +17,10 @@ func (c *CookiesStub) GetSessionUser(_ *http.Request) (string, error) {
 	return "user", nil
 }
 
+func (c *CookiesStub) IsAdmin(_ *http.Request) bool {
+	return true
+}
+
 type UserConfigStub struct {
 }
 

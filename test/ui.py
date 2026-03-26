@@ -64,6 +64,13 @@ def test_fake_cert(selenium, device, device_host):
     selenium.screenshot('fake-cert')
 
 
+def test_login_page_loads(selenium, full_domain):
+    """Verify the custom login page on auth.domain renders"""
+    selenium.driver.get("https://auth.{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield")
+    selenium.screenshot('login-page-direct')
+
+
 def test_activate(selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
     selenium.driver.get("https://{0}".format(device_host))
@@ -310,6 +317,31 @@ def test_auth_web(selenium, full_domain, device_user, device_password):
     wait_for_loading(selenium.driver)
 
 
+def test_regular_user_login_no_2fa(selenium, device, full_domain, device_user, device_password):
+    """Regular user can login when 2FA is not enabled"""
+    device.run_ssh('snap run platform.cli user add regularuser --password=regularpass123')
+
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+
+    selenium.find_by(By.ID, "username-textfield").send_keys("regularuser")
+    selenium.find_by(By.ID, "password-textfield").send_keys("regularpass123")
+    selenium.find_by(By.ID, "sign-in-button").click()
+
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
+
+    # Clean up — remove user and log back in as admin
+    device.run_ssh('snap run platform.cli user remove regularuser')
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
+
+
 def test_2fa_settings(selenium, full_domain):
     selenium.driver.get("https://{0}".format(full_domain))
     settings(selenium, 'twofactor')
@@ -324,23 +356,48 @@ def test_2fa_enable(selenium, device, full_domain, device_user, device_password)
     selenium.find_by_xpath("//h1[text()='Two-Factor Authentication']")
 
     selenium.find_by_id('btn_enable_2fa').click()
-    # Wait for QR code to appear (backend enables 2FA + generates TOTP via CLI)
     for attempt in range(30):
-        if selenium.exists_by(By.ID, 'totp_qr'):
+        if selenium.exists_by(By.ID, 'btn_disable_2fa'):
             break
-        print('waiting for TOTP QR code (attempt {0}/30)'.format(attempt + 1))
+        print('waiting for 2FA to be enabled (attempt {0}/30)'.format(attempt + 1))
         time.sleep(2)
-    selenium.find_by_id('totp_qr')
-    selenium.screenshot('2fa_enabled_unstable')
-
-    global stored_totp_secret
-    secret_element = selenium.find_by_id('totp_secret')
-    stored_totp_secret = secret_element.text
     selenium.find_by_id('btn_disable_2fa')
-    selenium.screenshot('2fa_totp_registered_unstable')
+    selenium.screenshot('2fa_enabled_unstable')
 
 
 def test_2fa_login(selenium, device, full_domain, device_user, device_password):
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+
+    # Login page (our custom page on auth.domain)
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+
+    # First time — login page shows QR code for TOTP setup
+    selenium.find_by(By.ID, "totp_qr")
+    selenium.screenshot('2fa_enabled_unstable')
+
+    global stored_totp_secret
+    secret_element = selenium.find_by(By.ID, "totp_secret")
+    stored_totp_secret = secret_element.text
+
+    # Enter TOTP code to complete setup and login
+    totp = pyotp.TOTP(stored_totp_secret)
+    remaining = totp.interval - time.time() % totp.interval
+    time.sleep(remaining + 1)
+    code = totp.now()
+    selenium.find_by(By.ID, "otp-input").send_keys(code)
+    selenium.screenshot('2fa_login_totp_unstable')
+    selenium.find_by(By.CSS_SELECTOR, "button[type='button']").click()
+
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('2fa_login_success')
+
+
+def test_2fa_login_returning(selenium, device, full_domain, device_user, device_password):
+    """Second login — TOTP already configured, just verify"""
     logout(selenium, full_domain)
     selenium.driver.get("https://{0}".format(full_domain))
 
@@ -348,21 +405,67 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
     selenium.find_by(By.ID, "sign-in-button").click()
 
-    # TOTP challenge
+    # Returning user — shows TOTP input directly (no QR)
     selenium.find_by(By.ID, "otp-input")
-    selenium.screenshot('2fa_login_totp_unstable')
+    selenium.screenshot('2fa_returning')
     totp = pyotp.TOTP(stored_totp_secret)
-    # Wait for next TOTP period to avoid replay rejection
     remaining = totp.interval - time.time() % totp.interval
     time.sleep(remaining + 1)
     code = totp.now()
-    otp_inputs = selenium.driver.find_elements(By.CSS_SELECTOR, "#otp-input input")
-    for i, digit in enumerate(code):
-        otp_inputs[i].send_keys(digit)
+    selenium.find_by(By.ID, "otp-input").send_keys(code)
+    selenium.find_by(By.CSS_SELECTOR, "button[type='button']").click()
 
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
     selenium.screenshot('2fa_login_success')
+
+
+def test_2fa_regular_user_login(selenium, device, full_domain, device_user, device_password):
+    """Regular user logs in with 2FA enabled — gets QR code on login page"""
+    # Create a regular user
+    device.run_ssh('snap run platform.cli user add testuser --password=testpass123')
+
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+
+    selenium.find_by(By.ID, "username-textfield").send_keys("testuser")
+    selenium.find_by(By.ID, "password-textfield").send_keys("testpass123")
+    selenium.find_by(By.ID, "sign-in-button").click()
+
+    # First time — login page shows QR code
+    selenium.find_by(By.ID, "totp_qr")
+    secret_element = selenium.find_by(By.ID, "totp_secret")
+    user_secret = secret_element.text
+
+    # Enter TOTP code
+    totp = pyotp.TOTP(user_secret)
+    remaining = totp.interval - time.time() % totp.interval
+    time.sleep(remaining + 1)
+    code = totp.now()
+    selenium.find_by(By.ID, "otp-input").send_keys(code)
+    selenium.find_by(By.CSS_SELECTOR, "button[type='button']").click()
+
+    # Regular user should see apps page
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
+    selenium.screenshot('2fa_regular_user_login')
+
+    # Clean up — remove user and log back in as admin
+    device.run_ssh('snap run platform.cli user remove testuser')
+    logout(selenium, full_domain)
+    selenium.driver.get("https://{0}".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    selenium.find_by(By.ID, "sign-in-button").click()
+    selenium.find_by(By.ID, "otp-input")
+    totp = pyotp.TOTP(stored_totp_secret)
+    remaining = totp.interval - time.time() % totp.interval
+    time.sleep(remaining + 1)
+    code = totp.now()
+    selenium.find_by(By.ID, "otp-input").send_keys(code)
+    selenium.find_by(By.CSS_SELECTOR, "button[type='button']").click()
+    selenium.find_by_xpath("//h1[text()='Applications']")
+    wait_for_loading(selenium.driver)
 
 
 def test_2fa_disable(selenium, full_domain):

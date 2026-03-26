@@ -4,9 +4,11 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"database/sql"
 	"encoding/pem"
 	"fmt"
 	"github.com/google/uuid"
+	_ "modernc.org/sqlite"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/parser"
@@ -50,6 +52,7 @@ type Authelia struct {
 	secretFile     string
 	jwksKeyFile    string
 	hmacSecretFile string
+	socketPath     string
 	userConfig     UserConfig
 	systemd        Systemd
 	generator      PasswordGenerator
@@ -87,6 +90,7 @@ func NewAuthelia(
 	inputDir string,
 	outDir string,
 	outSecretDir string,
+	socketPath string,
 	userConfig UserConfig,
 	systemd Systemd,
 	generator PasswordGenerator,
@@ -103,6 +107,7 @@ func NewAuthelia(
 		secretFile:     path.Join(outSecretDir, SecretFile),
 		jwksKeyFile:    path.Join(outSecretDir, JwksKey),
 		hmacSecretFile: path.Join(outSecretDir, HmacSecret),
+		socketPath:     socketPath,
 		userConfig:     userConfig,
 		systemd:        systemd,
 		generator:      generator,
@@ -358,6 +363,32 @@ func (w *Authelia) GenerateTOTP(username string) (string, error) {
 		uri = uri[:idx]
 	}
 	return strings.TrimSpace(uri), nil
+}
+
+func (w *Authelia) HasTOTP(username string) (bool, error) {
+	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
+	db, err := sql.Open("sqlite", sqlitePath)
+	if err != nil {
+		return false, fmt.Errorf("failed to open authelia db: %w", err)
+	}
+	defer db.Close()
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM totp_configurations WHERE username = ?", username).Scan(&count)
+	if err != nil {
+		return false, nil
+	}
+	return count > 0, nil
+}
+
+func (w *Authelia) ResetAllTOTP() error {
+	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
+	db, err := sql.Open("sqlite", sqlitePath)
+	if err != nil {
+		return fmt.Errorf("failed to open authelia db: %w", err)
+	}
+	defer db.Close()
+	_, err = db.Exec("DELETE FROM totp_configurations")
+	return err
 }
 
 func (w *Authelia) ResetTOTP(username string) error {

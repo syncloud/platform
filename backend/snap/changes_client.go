@@ -45,7 +45,7 @@ func (s *ChangesClient) Changes() (*model.InstallerStatus, error) {
 			return nil, err
 		}
 
-		return nil, fmt.Errorf(errorResponse.Message)
+		return nil, fmt.Errorf("%s", errorResponse.Message)
 	}
 
 	var changesResponse []model.Change

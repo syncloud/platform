@@ -8,6 +8,7 @@ import (
 )
 
 const UserKey = "user"
+const AdminKey = "admin"
 const OIDCStateKey = "oidc_state"
 const OIDCCodeVerifierKey = "oidc_code_verifier"
 
@@ -45,9 +46,10 @@ func (c *Cookies) getSession(r *http.Request) *sessions.Session {
 	return session
 }
 
-func (c *Cookies) SetSessionUser(w http.ResponseWriter, r *http.Request, user string) error {
+func (c *Cookies) SetSessionUser(w http.ResponseWriter, r *http.Request, user string, admin bool) error {
 	session := c.getSession(r)
 	session.Values[UserKey] = user
+	session.Values[AdminKey] = admin
 	return session.Save(r, w)
 }
 
@@ -65,6 +67,16 @@ func (c *Cookies) GetSessionUser(r *http.Request) (string, error) {
 		return "", fmt.Errorf("no session found")
 	}
 	return user.(string), nil
+}
+
+func (c *Cookies) IsAdmin(r *http.Request) bool {
+	session := c.getSession(r)
+	admin, found := session.Values[AdminKey]
+	if !found {
+		return false
+	}
+	isAdmin, ok := admin.(bool)
+	return ok && isAdmin
 }
 
 func (c *Cookies) SetOIDCState(w http.ResponseWriter, r *http.Request, state string, codeVerifier string) error {

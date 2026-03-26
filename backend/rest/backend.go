@@ -137,37 +137,38 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
 	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.UserLogout)).Methods("POST", "GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
-	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
-	r.HandleFunc("/rest/settings/2fa/totp", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GenerateTOTP))).Methods("POST")
-	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.JobStatus))).Methods("GET")
-	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupList))).Methods("GET")
-	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetBackupAuto))).Methods("GET")
-	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetBackupAuto))).Methods("POST")
-	r.HandleFunc("/rest/backup/create", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupCreate))).Methods("POST")
-	r.HandleFunc("/rest/backup/restore", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupRestore))).Methods("POST")
-	r.HandleFunc("/rest/backup/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.BackupRemove))).Methods("POST")
-	r.HandleFunc("/rest/installer/upgrade", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.InstallerUpgrade))).Methods("POST")
-	r.HandleFunc("/rest/installer/version", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.InstallerVersion))).Methods("GET")
-	r.HandleFunc("/rest/installer/status", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.InstallerStatus))).Methods("GET")
-	r.HandleFunc("/rest/storage/boot_extend", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageBootExtend))).Methods("POST")
-	r.HandleFunc("/rest/storage/boot/disk", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageBootDisk))).Methods("GET")
-	r.HandleFunc("/rest/storage/deactivate", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageDiskDeactivate))).Methods("POST")
-	r.HandleFunc("/rest/storage/activate/partition", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageActivatePartition))).Methods("POST")
-	r.HandleFunc("/rest/storage/activate/disk", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageActivateDisks))).Methods("POST")
-	r.HandleFunc("/rest/storage/error/last", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageLastError))).Methods("GET")
-	r.HandleFunc("/rest/storage/error/clear", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageClearError))).Methods("POST")
-	r.HandleFunc("/rest/storage/disks", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.StorageDisks))).Methods("GET")
-	r.HandleFunc("/rest/event/trigger", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.EventTrigger))).Methods("POST")
-	r.HandleFunc("/rest/deactivate", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Deactivate))).Methods("POST")
-	r.HandleFunc("/rest/certificate", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.certificate.Certificate))).Methods("GET")
-	r.HandleFunc("/rest/certificate/log", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.certificate.CertificateLog))).Methods("GET")
-	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetAccess))).Methods("GET")
-	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SetAccess))).Methods("POST")
-	r.HandleFunc("/rest/apps/available", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppsAvailable))).Methods("GET")
+	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
+	r.HandleFunc("/rest/settings/2fa/totp", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GenerateTOTP))).Methods("POST")
+	// /rest/totp/setup is handled by the login service, not the backend
+	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.JobStatus))).Methods("GET")
+	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupList))).Methods("GET")
+	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetBackupAuto))).Methods("GET")
+	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetBackupAuto))).Methods("POST")
+	r.HandleFunc("/rest/backup/create", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupCreate))).Methods("POST")
+	r.HandleFunc("/rest/backup/restore", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupRestore))).Methods("POST")
+	r.HandleFunc("/rest/backup/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupRemove))).Methods("POST")
+	r.HandleFunc("/rest/installer/upgrade", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.InstallerUpgrade))).Methods("POST")
+	r.HandleFunc("/rest/installer/version", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.InstallerVersion))).Methods("GET")
+	r.HandleFunc("/rest/installer/status", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.InstallerStatus))).Methods("GET")
+	r.HandleFunc("/rest/storage/boot_extend", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageBootExtend))).Methods("POST")
+	r.HandleFunc("/rest/storage/boot/disk", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageBootDisk))).Methods("GET")
+	r.HandleFunc("/rest/storage/deactivate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageDiskDeactivate))).Methods("POST")
+	r.HandleFunc("/rest/storage/activate/partition", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageActivatePartition))).Methods("POST")
+	r.HandleFunc("/rest/storage/activate/disk", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageActivateDisks))).Methods("POST")
+	r.HandleFunc("/rest/storage/error/last", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageLastError))).Methods("GET")
+	r.HandleFunc("/rest/storage/error/clear", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageClearError))).Methods("POST")
+	r.HandleFunc("/rest/storage/disks", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageDisks))).Methods("GET")
+	r.HandleFunc("/rest/event/trigger", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.EventTrigger))).Methods("POST")
+	r.HandleFunc("/rest/deactivate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Deactivate))).Methods("POST")
+	r.HandleFunc("/rest/certificate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.certificate.Certificate))).Methods("GET")
+	r.HandleFunc("/rest/certificate/log", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.certificate.CertificateLog))).Methods("GET")
+	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetAccess))).Methods("GET")
+	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetAccess))).Methods("POST")
+	r.HandleFunc("/rest/apps/available", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppsAvailable))).Methods("GET")
 	r.HandleFunc("/rest/apps/installed", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppsInstalled))).Methods("GET")
-	r.HandleFunc("/rest/app/install", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppInstall))).Methods("POST")
-	r.HandleFunc("/rest/app/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppRemove))).Methods("POST")
-	r.HandleFunc("/rest/app/upgrade", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppUpgrade))).Methods("POST")
+	r.HandleFunc("/rest/app/install", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppInstall))).Methods("POST")
+	r.HandleFunc("/rest/app/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppRemove))).Methods("POST")
+	r.HandleFunc("/rest/app/upgrade", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppUpgrade))).Methods("POST")
 	r.HandleFunc("/rest/app", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.App))).Methods("GET")
 	r.HandleFunc("/rest/logs", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Logs))).Methods("GET")
 	r.HandleFunc("/rest/logs/send", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SendLogs))).Methods("POST")
@@ -331,7 +332,12 @@ func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	err = b.cookies.SetSessionUser(w, req, username)
+	isAdmin, err := b.auth.IsAdmin(username)
+	if err != nil {
+		b.logger.Warn("unable to check admin status", zap.Error(err))
+		isAdmin = false
+	}
+	err = b.cookies.SetSessionUser(w, req, username, isAdmin)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
@@ -374,7 +380,7 @@ func (b *Backend) LoginToken(w http.ResponseWriter, req *http.Request) {
 
 	_ = os.Remove(loginTokenFile)
 
-	err = b.cookies.SetSessionUser(w, req, username)
+	err = b.cookies.SetSessionUser(w, req, username, true)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
@@ -575,8 +581,12 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 	return b.support.Send(includeSupport), nil
 }
 
-func (b *Backend) User(_ *http.Request) (interface{}, error) {
-	return "OK", nil
+func (b *Backend) User(req *http.Request) (interface{}, error) {
+	username, _ := b.cookies.GetSessionUser(req)
+	return map[string]interface{}{
+		"admin":    b.cookies.IsAdmin(req),
+		"username": username,
+	}, nil
 }
 
 func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
@@ -605,6 +615,9 @@ func (b *Backend) SetTwoFactorSettings(req *http.Request) (interface{}, error) {
 		return nil, errors.New("bad request")
 	}
 	b.userConfig.SetTwoFactorEnabled(request.Enabled)
+	if request.Enabled {
+		_ = b.authelia.ResetAllTOTP()
+	}
 	err = b.authelia.InitConfig()
 	if err != nil {
 		return nil, fmt.Errorf("unable to apply 2FA settings: %w", err)
@@ -630,3 +643,4 @@ func (b *Backend) GenerateTOTP(req *http.Request) (interface{}, error) {
 		"uri": uri,
 	}, nil
 }
+

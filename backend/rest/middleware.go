@@ -10,6 +10,7 @@ import (
 
 type Cookies interface {
 	GetSessionUser(r *http.Request) (string, error)
+	IsAdmin(r *http.Request) bool
 }
 
 type UserConfig interface {
@@ -52,6 +53,20 @@ func (m *Middleware) FailIfActivated(f func(http.ResponseWriter, *http.Request))
 
 func (m *Middleware) SecuredHandle(f func(*http.Request) (interface{}, error)) func(http.ResponseWriter, *http.Request) {
 	return m.Secured(m.Handle(f))
+}
+
+func (m *Middleware) AdminSecuredHandle(f func(*http.Request) (interface{}, error)) func(http.ResponseWriter, *http.Request) {
+	return m.AdminSecured(m.Handle(f))
+}
+
+func (m *Middleware) AdminSecured(f func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return m.Secured(func(w http.ResponseWriter, r *http.Request) {
+		if !m.cookies.IsAdmin(r) {
+			http.Error(w, "Forbidden", 403)
+			return
+		}
+		f(w, r)
+	})
 }
 
 func (m *Middleware) Secured(f func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {

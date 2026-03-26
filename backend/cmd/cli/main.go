@@ -24,6 +24,7 @@ func main() {
 		resetTotpCmd(userConfig, systemConfig),
 		loginCmd(userConfig, systemConfig),
 		proxyCmd(userConfig, systemConfig),
+		userCmd(userConfig, systemConfig),
 	)
 
 	err := rootCmd.Execute()

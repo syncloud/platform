@@ -1,7 +1,7 @@
 local name = 'platform';
 local browser = 'chrome';
 local selenium = '4.35.0-20250828';
-local go = '1.24.0';
+local go = '1.25.8';
 local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
 local authelia = '4.39.15';
@@ -80,7 +80,12 @@ local build(arch, testUI) = [{
                'npm run test',
                'npm run lint',
                'npm run build',
-               'cp -r dist ../build/snap/www',
+               'mkdir -p ../build/snap/web',
+               'cp -r dist ../build/snap/web/platform',
+               'cd ../web/login',
+               'npm install',
+               'npm run build',
+               'cp -r dist ../../build/snap/web/login',
              ],
            },
            {
@@ -91,16 +96,17 @@ local build(arch, testUI) = [{
                'for i in 1 2 3; do go mod download && break || sleep 5; done',
                'go test ./... -coverprofile cover.out',
                'go tool cover -func cover.out',
-               "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/backend ./cmd/backend",
+               "CGO_ENABLED=0 go build -o ../build/snap/bin/backend ./cmd/backend",
                '../build/snap/bin/backend -h',
-               "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/api ./cmd/api",
+               "CGO_ENABLED=0 go build -o ../build/snap/bin/api ./cmd/api",
                '../build/snap/bin/api -h',
-               "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/bin/cli ./cmd/cli",
+               "CGO_ENABLED=0 go build -o ../build/snap/bin/cli ./cmd/cli",
                '../build/snap/bin/cli -h',
-               "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/install ./cmd/install",
+               "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/install ./cmd/install",
                '../build/snap/meta/hooks/install -h',
-               "go build -ldflags '-linkmode external -extldflags -static' -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
+               "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                '../build/snap/meta/hooks/post-refresh -h',
+               "CGO_ENABLED=0 go build -o ../build/snap/bin/login ./cmd/login",
                'cd ../visual-diff',
                'CGO_ENABLED=0 go build -o visual-diff ./cmd',
              ],
@@ -110,7 +116,7 @@ local build(arch, testUI) = [{
              image: 'golang:' + go,
              commands: [
                'cd test/api',
-               "go test -c -ldflags '-linkmode external -extldflags -static' -o api.test",
+               "CGO_ENABLED=0 go test -c -o api.test",
              ],
            },
            {
@@ -118,7 +124,7 @@ local build(arch, testUI) = [{
              image: 'golang:' + go,
              commands: [
                'cd test/externalapp',
-               "CGO_ENABLED=0 go build -ldflags '-extldflags -static' -o externalapp",
+               "CGO_ENABLED=0 go build -o externalapp",
              ],
            },
            {

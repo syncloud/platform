@@ -26,17 +26,10 @@
             >Disable 2FA</el-button>
           </div>
 
-          <div v-if="totpQr" class="setline">
-            <el-alert class="totp-warning" type="warning" :closable="false" show-icon>
-              Scan this QR code now. It will not be shown again.
-              <br/>
-              If you lose access to your authenticator app, see
-              <a href="https://github.com/syncloud/platform/wiki/Two-Factor-Authentication#recovery" target="_blank">recovery instructions</a>.
+          <div v-if="enabled" class="setline" style="max-width: 500px; margin: 10px auto">
+            <el-alert type="info" :closable="false" show-icon>
+              Users will be prompted to set up their authenticator app during login.
             </el-alert>
-            <p>Scan this QR code with your authenticator app:</p>
-            <img id="totp_qr" :src="totpQr" alt="TOTP QR Code" />
-            <p>Or enter this secret manually:</p>
-            <code id="totp_secret">{{ totpSecret }}</code>
           </div>
         </div>
       </div>
@@ -50,16 +43,13 @@
 <script>
 import Error from '../components/Error.vue'
 import axios from 'axios'
-import QRCode from 'qrcode'
 
 export default {
   name: 'TwoFactor',
   data () {
     return {
       enabled: false,
-      loading: false,
-      totpQr: null,
-      totpSecret: null
+      loading: false
     }
   },
   components: {
@@ -84,18 +74,8 @@ export default {
       const error = this.$refs.error
       axios.post('/rest/settings/2fa', { enabled: true })
         .then(() => {
-          this.enabled = true
-          return axios.post('/rest/settings/2fa/totp')
-        })
-        .then(resp => {
           this.loading = false
-          const uri = resp.data.data.uri
-          const params = new URL(uri).searchParams
-          this.totpSecret = params.get('secret')
-          return QRCode.toDataURL(uri)
-        })
-        .then(qr => {
-          this.totpQr = qr
+          this.enabled = true
         })
         .catch(err => {
           this.loading = false
@@ -109,8 +89,6 @@ export default {
         .then(() => {
           this.loading = false
           this.enabled = false
-          this.totpQr = null
-          this.totpSecret = null
         })
         .catch(err => {
           this.loading = false
@@ -123,8 +101,4 @@ export default {
 <style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
-.totp-warning {
-  max-width: 500px;
-  margin: 0 auto;
-}
 </style>

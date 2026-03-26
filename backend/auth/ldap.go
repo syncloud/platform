@@ -158,6 +158,19 @@ func (s *Service) ldapAdd(filename string, bindDn string) error {
 	return err
 }
 
+func (s *Service) AuthenticateUser(username string, password string) error {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return fmt.Errorf("ldap connect: %w", err)
+	}
+	defer conn.Close()
+	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,%s", username, Domain), password)
+	if err != nil {
+		return fmt.Errorf("invalid credentials")
+	}
+	return nil
+}
+
 func (s *Service) Authenticate(username string, password string) (bool, error) {
 	conn, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
@@ -186,6 +199,82 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 		return false, fmt.Errorf("not admin (must be part of syncloud group)")
 	}
 	return true, nil
+}
+
+func (s *Service) IsAdmin(username string) (bool, error) {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return false, fmt.Errorf("ldap connect: %w", err)
+	}
+	defer conn.Close()
+	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
+	if err != nil {
+		return false, fmt.Errorf("ldap bind: %w", err)
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		AdminGroupDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		fmt.Sprintf("(memberUid=%s)", ldap.EscapeFilter(username)),
+		[]string{"memberUid"},
+		nil)
+
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return false, fmt.Errorf("ldap search: %w", err)
+	}
+	return len(sr.Entries) > 0, nil
+}
+
+func (s *Service) AddUser(username string, password string) error {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return fmt.Errorf("ldap connect: %w", err)
+	}
+	defer conn.Close()
+	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
+	if err != nil {
+		return fmt.Errorf("ldap bind: %w", err)
+	}
+
+	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
+	addReq := ldap.NewAddRequest(userDn, nil)
+	addReq.Attribute("objectClass", []string{"simpleSecurityObject", "Person", "inetOrgPerson", "posixAccount"})
+	addReq.Attribute("cn", []string{username})
+	addReq.Attribute("sn", []string{username})
+	addReq.Attribute("uid", []string{username})
+	addReq.Attribute("displayName", []string{username})
+	addReq.Attribute("uidNumber", []string{"10"})
+	addReq.Attribute("gidNumber", []string{"10"})
+	addReq.Attribute("homeDirectory", []string{username})
+	addReq.Attribute("userPassword", []string{makeSecret(password)})
+	addReq.Attribute("mail", []string{fmt.Sprintf("%s@localhost", username)})
+
+	err = conn.Add(addReq)
+	if err != nil {
+		return fmt.Errorf("ldap add user: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) RemoveUser(username string) error {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return fmt.Errorf("ldap connect: %w", err)
+	}
+	defer conn.Close()
+	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
+	if err != nil {
+		return fmt.Errorf("ldap bind: %w", err)
+	}
+
+	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
+	delReq := ldap.NewDelRequest(userDn, nil)
+	err = conn.Del(delReq)
+	if err != nil {
+		return fmt.Errorf("ldap delete user: %w", err)
+	}
+	return nil
 }
 
 func makeSecret(password string) string {

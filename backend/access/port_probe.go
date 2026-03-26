@@ -79,7 +79,7 @@ func (p *PortProbe) Probe(ip string, port int) error {
 		if probeResponse.Message != nil {
 			message = fmt.Sprintf("%v, %v", message, *probeResponse.Message)
 		}
-		return fmt.Errorf(message)
+		return fmt.Errorf("%s", message)
 	}
 
 	return nil
