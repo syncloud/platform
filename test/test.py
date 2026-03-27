@@ -265,6 +265,23 @@ def test_api(device):
     device.run_ssh('/api.test')
 
 
+def test_oidc_discovery(full_domain):
+    response = requests.get('https://auth.{0}/.well-known/openid-configuration'.format(full_domain), verify=False)
+    assert response.status_code == 200, response.text
+    config = response.json()
+    assert 'authorization_endpoint' in config
+    assert 'token_endpoint' in config
+
+
+def test_oauth2_jwks(full_domain):
+    discovery = requests.get('https://auth.{0}/.well-known/openid-configuration'.format(full_domain), verify=False).json()
+    jwks_uri = discovery['jwks_uri']
+    response = requests.get(jwks_uri, verify=False)
+    assert response.status_code == 200, response.text
+    jwks = response.json()
+    assert 'keys' in jwks
+
+
 def test_custom_proxy(device, device_host, full_domain):
     device.run_ssh('nohup /test/externalapp/externalapp > /tmp/syncloud/externalapp.log 2>&1 &', throw=False)
     time.sleep(2)
