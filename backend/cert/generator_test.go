@@ -199,7 +199,7 @@ func TestNotGenerateFakeIfValid(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		certFile: generateCertificate(now, Month+1*Day, false).Name(),
 	}
-	userConfig := &GeneratorUserConfigStub{activated: true}
+	userConfig := &GeneratorUserConfigStub{activated: true, domain: "domain"}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
 	nginx := &GeneratorNginxStub{}
@@ -248,7 +248,7 @@ func TestNotGenerateFake_IfDeviceIsNotActivatedButCertIsValid(t *testing.T) {
 	systemConfig := &GeneratorSystemConfigStub{
 		certFile: generateCertificate(now, Month+1*Day, false).Name(),
 	}
-	userConfig := &GeneratorUserConfigStub{activated: false}
+	userConfig := &GeneratorUserConfigStub{activated: false, domain: "domain"}
 	certbot := &CertbotStub{fail: true}
 	fake := &FakeStub{}
 	nginx := &GeneratorNginxStub{}

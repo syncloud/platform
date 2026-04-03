@@ -38,6 +38,7 @@ def module_setup(request, device, artifact_dir, ui_mode, data_dir):
 def test_start(app, device_host, module_setup, domain, full_domain):
     add_host_alias(app, device_host, domain)
     add_host_alias("auth", device_host, full_domain)
+    add_host_alias("testapp", device_host, full_domain)
 
 
 def test_deactivate(device, device_host, main_domain, domain, full_domain):
@@ -300,6 +301,18 @@ def logout(selenium, full_domain):
     selenium.driver.get("https://{0}/rest/logout".format(full_domain))
     # Wait for Authelia logout to complete (redirects to login form)
     selenium.find_by(By.ID, "username-textfield")
+
+
+def test_testapp_oidc(selenium, device, full_domain, device_user, device_password):
+    logout(selenium, full_domain)
+    selenium.driver.get("https://testapp.{0}/oidc/login".format(full_domain))
+    selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
+    selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
+    defocus(selenium)
+    selenium.screenshot('testapp-oidc-login')
+    selenium.find_by(By.ID, "sign-in-button").click()
+    selenium.find_by_xpath("//*[contains(text(),'OK {0}')]".format(device_user))
+    selenium.screenshot('testapp-oidc-callback')
 
 
 def test_auth_web(selenium, full_domain, device_user, device_password):

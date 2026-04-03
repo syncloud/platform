@@ -54,6 +54,8 @@ def test_start(module_setup, device, app, domain, device_host, full_domain):
     add_host_alias(app, device_host, full_domain)
     add_host_alias(app, device_host, domain)
     add_host_alias("app", device_host, domain)
+    add_host_alias("testapp", device_host, full_domain)
+    device.run_ssh("echo '127.0.0.1 auth.{0}' >> /etc/hosts".format(full_domain))
     device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('date', retries=100, throw=True)
     device.scp_to_device(DIR, '/', throw=True)
@@ -66,10 +68,6 @@ def test_start(module_setup, device, app, domain, device_host, full_domain):
 
 def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, app_archive_path)
-
-
-def test_install_testapp(device_host):
-    local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, join(DIR, 'testapp', 'testapp.snap'))
 
 
 def test_https_port_validation_url(device_host):
@@ -243,6 +241,16 @@ def test_activation_status_true(device_host):
     assert json.loads(response.text)["data"], response.text
 
 
+def test_install_ca_cert(device_host, full_domain):
+    run_ssh(device_host, 'cp /var/snap/platform/current/syncloud.ca.crt /usr/local/share/ca-certificates/syncloud.crt', password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'update-ca-certificates', password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'curl https://auth.{0}'.format(full_domain), password=LOGS_SSH_PASSWORD)
+
+
+def test_install_testapp(device_host):
+    local_install(device_host, LOGS_SSH_PASSWORD, join(DIR, 'testapp', 'testapp.snap'))
+
+
 def test_unauthorized(device_host):
     response = requests.get('https://{0}/rest/user'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 401
@@ -327,13 +335,53 @@ def test_custom_proxy_cli(device):
     assert len(proxies) == 0
 
 
-def test_testapp_access_change(device_host, domain):
-    output = run_ssh(device_host, 'cat /var/snap/testapp/common/on_access_change', password=LOGS_SSH_PASSWORD)
-    assert not output.strip() == "https://testapp.{0}".format(domain)
+def test_testapp_access_change(device_host, full_domain):
+    output = run_ssh(device_host, 'cat /var/snap/testapp/current/config/authelia-location.conf', password=LOGS_SSH_PASSWORD)
+    assert 'https://auth.{0}'.format(full_domain) in output, output
 
 
 def test_testapp_access_change_hook(device_host):
     run_ssh(device_host, 'snap run testapp.access-change', password=LOGS_SSH_PASSWORD)
+
+
+def test_testapp_session_unauthorized(full_domain):
+    response = requests.get(
+        'https://testapp.{0}/'.format(full_domain),
+        verify=False,
+        allow_redirects=False)
+    assert response.status_code == 302, "expected redirect to login, got {0}".format(response.status_code)
+    assert 'auth.{0}'.format(full_domain) in response.headers.get('Location', ''), response.headers.get('Location', '')
+
+
+def test_testapp_session_authorized(full_domain, device_user, device_password):
+    session = requests.session()
+    session.post(
+        'https://auth.{0}/api/firstfactor'.format(full_domain),
+        json={'username': device_user, 'password': device_password},
+        verify=False)
+    response = session.get(
+        'https://testapp.{0}/'.format(full_domain),
+        verify=False,
+        allow_redirects=False)
+    assert response.status_code == 200, "expected 200 with session, got {0}: {1}".format(response.status_code, response.text)
+    assert 'session protected page' in response.text, response.text
+
+
+def test_testapp_basic_unauthorized(full_domain):
+    response = requests.get(
+        'https://testapp.{0}/basic'.format(full_domain),
+        verify=False,
+        allow_redirects=False)
+    assert response.status_code == 401, "expected 401 without credentials, got {0}".format(response.status_code)
+
+
+def test_testapp_basic_authorized(full_domain, device_user, device_password):
+    response = requests.get(
+        'https://{0}:{1}@testapp.{2}/basic'.format(device_user, device_password, full_domain),
+        verify=False,
+        allow_redirects=False)
+    assert response.status_code == 200, "expected 200 with basic auth, got {0}: {1}".format(response.status_code, response.text)
+    assert 'session protected page' in response.text, response.text
 
 
 def test_get_access(device, domain):
@@ -417,6 +465,12 @@ def test_api_url_10000(device, domain):
 
     response = device.login_v2().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
+
+    response = device.login_v2().post('https://{0}/rest/access'.format(domain), verify=False,
+                                   json={'ipv4_enabled': False,
+                                         'ipv4_public': False,
+                                         'access_port': 443})
+    assert json.loads(response.text)["success"]
 
 
 def test_cron(device):

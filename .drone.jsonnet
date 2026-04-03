@@ -128,6 +128,17 @@ local build(arch, testUI) = [{
              ],
            },
            {
+             name: 'build testapp cli',
+             image: 'golang:' + go,
+             commands: [
+               'cd test/testapp/cli',
+               'CGO_ENABLED=0 go build -o ../build/meta/hooks/install ./cmd/install',
+               'CGO_ENABLED=0 go build -o ../build/meta/hooks/configure ./cmd/configure',
+               'CGO_ENABLED=0 go build -o ../build/bin/cli ./cmd/cli',
+               'CGO_ENABLED=0 go build -o ../build/bin/backend ./cmd/backend',
+             ],
+           },
+           {
              name: 'package',
              image: 'debian:bookworm-slim',
              commands: [
@@ -167,6 +178,7 @@ local build(arch, testUI) = [{
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/externalapp.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/testapp.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
                     'cat /etc/hosts',
                     '/opt/bin/entry_point.sh',
                   ],

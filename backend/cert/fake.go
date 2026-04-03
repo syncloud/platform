@@ -158,5 +158,11 @@ func (c *Fake) Generate() error {
 		return err
 	}
 
+	c.logger.Info("generated fake certificate",
+		zap.String("domain", domain),
+		zap.String("ca_serial", ca.SerialNumber.String()),
+		zap.String("cert_serial", cert.SerialNumber.String()),
+	)
+
 	return nil
 }

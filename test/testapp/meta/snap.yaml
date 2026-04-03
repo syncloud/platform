@@ -1,14 +1,23 @@
 apps:
   service:
-    command: bin/service.sh
+    user: testapp
+    command: bin/service.nginx.sh
     daemon: simple
     start-timeout: 200s
     restart-condition: always
+    restart-delay: 10s
+
+  backend:
+    user: testapp
+    command: bin/service.backend.sh
+    daemon: simple
+    restart-condition: always
+    restart-delay: 10s
 
   storage-change:
-    command: bin/storage-change
+    command: bin/cli storage-change
   access-change:
-    command: bin/access-change
+    command: bin/cli access-change
 
 confinement: strict
 description: Test app

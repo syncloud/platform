@@ -136,7 +136,7 @@ func (g *CertificateGenerator) generateReal() error {
 
 func (g *CertificateGenerator) generateFake() (bool, error) {
 	certInfo := g.ReadCertificateInfo()
-	if certInfo.IsValid {
+	if certInfo.IsValid && certInfo.Subject == g.userConfig.GetDeviceDomain() {
 		return false, nil
 	}
 	err := g.fake.Generate()

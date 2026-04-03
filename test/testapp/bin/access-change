@@ -1,3 +1,0 @@
-#!/bin/bash -e
-
-snap run platform.cli config get platform.domain > /var/snap/testapp/common/on_access_change
