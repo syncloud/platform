@@ -71,7 +71,7 @@ local build(arch, testUI) = [{
              },
              commands: [
                'mkdir -p build/snap',
-               'cd www',
+               'cd web/platform',
                'npm config ls -l',
                'npm config set fetch-retry-mintimeout 200000',
                'npm config set fetch-retry-maxtimeout 1200000',

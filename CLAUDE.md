@@ -88,7 +88,7 @@ curl -O "http://ci.syncloud.org:8081/files/platform/282-amd64/distro/desktop/scr
   - `installer/` — App installation service
   - `backup/` — Backup/restore
   - Built with `CGO_ENABLED` and static linking
-- `www/` — Vue 3 frontend (Element Plus, Vite, TypeScript)
+- `web/platform/` — Vue 3 frontend (Element Plus, Vite, TypeScript)
 - `config/` — Configuration templates (authelia, ldap, nginx, errors)
 - `authelia/` — Authelia auth server packaging
 - `nginx/` — Nginx build/test scripts
