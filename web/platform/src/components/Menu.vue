@@ -18,14 +18,6 @@
               <i class="material-icons" style="vertical-align: middle">exit_to_app</i>
               <span class="button_label">Logout</span>
             </a>
-            <a href="#" id="restart" class="hlink" @click="restart">
-              <i class="material-icons" style="vertical-align: middle">loop</i>
-              <span class="button_label">Restart</span>
-            </a>
-            <a href="#" id="shutdown" class="hlink" @click="shutdown">
-              <i class="material-icons" style="vertical-align: middle">power_settings_new</i>
-              <span class="button_label">Shutdown</span>
-            </a>
           </div>
           <div id="menubutton" class="menubutton" v-if="auth.loggedIn" @click="toggle" :class="{ menuopen: menuOpen }">
             <span></span>
@@ -40,19 +32,14 @@
           <router-link to="/settings" id="settings_mobile" @click="close">Settings</router-link>
           <div class="menucolor2">
             <a href="#" id="logout_mobile" @click="logout(); close()">Log out</a>
-            <a href="#" id="restart_mobile" @click="restart(); close()">Restart</a>
-            <a href="#" id="shutdown_mobile" @click="shutdown(); close()">Shutdown</a>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <Error ref="menu_error"/>
 </template>
 
 <script>
-import axios from 'axios'
-import Error from '../components/Error.vue'
 import { useAuthStore } from '../stores/auth'
 
 export default {
@@ -65,9 +52,6 @@ export default {
       auth: useAuthStore()
     }
   },
-  components: {
-    Error
-  },
   methods: {
     close: function () {
       this.menuOpen = false
@@ -77,16 +61,6 @@ export default {
     },
     logout: function () {
       window.location.href = '/rest/logout'
-    },
-    restart: function () {
-      const error = this.$refs.menu_error
-      axios.post('/rest/restart')
-        .catch(err => error.showAxios(err))
-    },
-    shutdown: function () {
-      const error = this.$refs.menu_error
-      axios.post('/rest/shutdown')
-        .catch(err => error.showAxios(err))
     }
   }
 }

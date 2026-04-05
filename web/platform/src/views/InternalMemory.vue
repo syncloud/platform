@@ -5,23 +5,17 @@
         <h1>Internal Memory</h1>
         <div class="row-no-gutters settingsblock" id="wrapper">
           <div class="col2">
-            <div class="setline">
-              <div class="setline" style="margin-top: 20px;">
-                <span class="span" style="font-weight: bold;">Boot</span>
-              </div>
-
-              <div class="setline">
-                <div id="block_boot_disk" v-if="boot !== undefined">
-                  <span class="span">Partition - {{ boot.size }}</span>
-                  <div class="spandiv" v-if="boot.extendable">
-                    <button class="buttongreen bwidth smbutton btn-lg"
-                            @click="extend"
-                            id="btn_boot_extend"
-                            data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Extending...">Extend
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div class="setline" style="margin-top: 20px;">
+              <span class="span" style="font-weight: bold;">Boot</span>
+            </div>
+            <div class="setline memory-line" id="block_boot_disk" v-if="boot !== undefined">
+              <span class="span">Partition - {{ boot.size }}</span>
+              <el-button
+                v-if="boot.extendable"
+                id="btn_boot_extend"
+                type="primary"
+                @click="extend"
+              >Extend</el-button>
             </div>
           </div>
         </div>
@@ -102,4 +96,12 @@ export default {
 <style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
+.memory-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.memory-line .el-button {
+  min-width: 120px;
+}
 </style>
