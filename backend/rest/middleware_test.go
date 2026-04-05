@@ -17,8 +17,11 @@ func (c *CookiesStub) GetSessionUser(_ *http.Request) (string, error) {
 	return "user", nil
 }
 
-func (c *CookiesStub) IsAdmin(_ *http.Request) bool {
-	return true
+type AdminCheckerStub struct {
+}
+
+func (a *AdminCheckerStub) IsAdmin(_ string) (bool, error) {
+	return true, nil
 }
 
 type UserConfigStub struct {
@@ -34,7 +37,7 @@ func TestHandlerSuccess(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	m := NewMiddleware(&CookiesStub{}, &UserConfigStub{}, log.Default())
+	m := NewMiddleware(&CookiesStub{}, &AdminCheckerStub{}, &UserConfigStub{}, log.Default())
 	m.Handle(func(req *http.Request) (interface{}, error) { return []string{"test"}, nil })(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
@@ -46,7 +49,7 @@ func TestHandlerSuccessBoolData(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	rr := httptest.NewRecorder()
-	m := NewMiddleware(&CookiesStub{}, &UserConfigStub{}, log.Default())
+	m := NewMiddleware(&CookiesStub{}, &AdminCheckerStub{}, &UserConfigStub{}, log.Default())
 	m.Handle(func(req *http.Request) (interface{}, error) { return true, nil })(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
@@ -58,7 +61,7 @@ func TestHandlerSuccess_Percent(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	rr := httptest.NewRecorder()
-	m := NewMiddleware(&CookiesStub{}, &UserConfigStub{}, log.Default())
+	m := NewMiddleware(&CookiesStub{}, &AdminCheckerStub{}, &UserConfigStub{}, log.Default())
 	m.Handle(func(req *http.Request) (interface{}, error) { return []string{"test %123 "}, nil })(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
@@ -70,7 +73,7 @@ func TestHandlerFail(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	rr := httptest.NewRecorder()
-	m := NewMiddleware(&CookiesStub{}, &UserConfigStub{}, log.Default())
+	m := NewMiddleware(&CookiesStub{}, &AdminCheckerStub{}, &UserConfigStub{}, log.Default())
 	m.Handle(func(req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)
@@ -82,7 +85,7 @@ func TestBackupCreateFail(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	rr := httptest.NewRecorder()
-	m := NewMiddleware(&CookiesStub{}, &UserConfigStub{}, log.Default())
+	m := NewMiddleware(&CookiesStub{}, &AdminCheckerStub{}, &UserConfigStub{}, log.Default())
 	m.Handle(func(req *http.Request) (interface{}, error) { return nil, errors.New("error") })(rr, req)
 
 	assert.Equal(t, http.StatusInternalServerError, rr.Code)

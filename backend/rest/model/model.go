@@ -38,6 +38,11 @@ type EventTriggerRequest struct {
 	Event string `json:"event"`
 }
 
+type UserInfo struct {
+	Admin    bool   `json:"admin"`
+	Username string `json:"username"`
+}
+
 type Response struct {
 	Success            bool                 `json:"success"`
 	Message            string               `json:"message,omitempty"`

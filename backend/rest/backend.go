@@ -332,12 +332,7 @@ func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
 	}
-	isAdmin, err := b.auth.IsAdmin(username)
-	if err != nil {
-		b.logger.Warn("unable to check admin status", zap.Error(err))
-		isAdmin = false
-	}
-	err = b.cookies.SetSessionUser(w, req, username, isAdmin)
+	err = b.cookies.SetSessionUser(w, req, username)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
@@ -380,7 +375,7 @@ func (b *Backend) LoginToken(w http.ResponseWriter, req *http.Request) {
 
 	_ = os.Remove(loginTokenFile)
 
-	err = b.cookies.SetSessionUser(w, req, username, true)
+	err = b.cookies.SetSessionUser(w, req, username)
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
 		return
@@ -583,9 +578,13 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 
 func (b *Backend) User(req *http.Request) (interface{}, error) {
 	username, _ := b.cookies.GetSessionUser(req)
-	return map[string]interface{}{
-		"admin":    b.cookies.IsAdmin(req),
-		"username": username,
+	isAdmin, err := b.auth.IsAdmin(username)
+	if err != nil {
+		b.logger.Warn("unable to check admin status", zap.Error(err))
+	}
+	return &model.UserInfo{
+		Admin:    isAdmin,
+		Username: username,
 	}, nil
 }
 
