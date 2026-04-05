@@ -479,8 +479,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(cookies *session.Cookies, userConfig *config.UserConfig) *rest.Middleware {
-		return rest.NewMiddleware(cookies, userConfig, logger)
+	err = c.Singleton(func(cookies *session.Cookies, authService *auth.Service, userConfig *config.UserConfig) *rest.Middleware {
+		return rest.NewMiddleware(cookies, authService, userConfig, logger)
 	})
 	if err != nil {
 		return nil, err

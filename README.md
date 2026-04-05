@@ -29,7 +29,7 @@ Platform provides shared services for all the apps and manages device settings.
 Install [Node.js](https://nodejs.org/en/download)
 
 ````
-cd www
+cd web/platform
 npm i
 npm run dev
 ````

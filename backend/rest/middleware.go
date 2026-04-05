@@ -10,7 +10,10 @@ import (
 
 type Cookies interface {
 	GetSessionUser(r *http.Request) (string, error)
-	IsAdmin(r *http.Request) bool
+}
+
+type AdminChecker interface {
+	IsAdmin(username string) (bool, error)
 }
 
 type UserConfig interface {
@@ -18,16 +21,18 @@ type UserConfig interface {
 }
 
 type Middleware struct {
-	cookies    Cookies
-	userConfig UserConfig
-	logger     *zap.Logger
+	cookies      Cookies
+	adminChecker AdminChecker
+	userConfig   UserConfig
+	logger       *zap.Logger
 }
 
-func NewMiddleware(cookies Cookies, userConfig UserConfig, logger *zap.Logger) *Middleware {
+func NewMiddleware(cookies Cookies, adminChecker AdminChecker, userConfig UserConfig, logger *zap.Logger) *Middleware {
 	return &Middleware{
-		cookies:    cookies,
-		userConfig: userConfig,
-		logger:     logger,
+		cookies:      cookies,
+		adminChecker: adminChecker,
+		userConfig:   userConfig,
+		logger:       logger,
 	}
 }
 
@@ -61,7 +66,18 @@ func (m *Middleware) AdminSecuredHandle(f func(*http.Request) (interface{}, erro
 
 func (m *Middleware) AdminSecured(f func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return m.Secured(func(w http.ResponseWriter, r *http.Request) {
-		if !m.cookies.IsAdmin(r) {
+		username, err := m.cookies.GetSessionUser(r)
+		if err != nil {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		isAdmin, err := m.adminChecker.IsAdmin(username)
+		if err != nil {
+			m.logger.Warn("admin check failed", zap.Error(err))
+			http.Error(w, "Forbidden", 403)
+			return
+		}
+		if !isAdmin {
 			http.Error(w, "Forbidden", 403)
 			return
 		}
