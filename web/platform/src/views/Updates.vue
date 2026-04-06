@@ -6,42 +6,34 @@
         <h1>Updates</h1>
         <div class="row-no-gutters settingsblock" id="block_updates">
           <div class="col2">
-            <div class="setline">
-              <button
-                @click="check"
-                class="buttongreen bwidth smbutton btn-lg" id="btn_check_updates"
-                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Checking..."
-              >Check for updates
-              </button>
+            <div class="setline update-line">
+              <span class="span">Check</span>
+              <el-button id="btn_check_updates" type="primary" @click="check">Check for updates</el-button>
             </div>
             <div class="setline">
               <span class="span">Note: upgrade System first if available before upgrading Installer.</span>
             </div>
-            <div class="setline">
-              <span class="span">System: </span>
-              <span id="txt_platform_version" style="padding-right: 10px">{{ platformVersion }}</span>
-              <button
+            <div class="setline update-line">
+              <span class="span">System: <span id="txt_platform_version">{{ platformVersion }}</span></span>
+              <el-button
                 v-if="platformVersion !== platformVersionAvailable"
                 id="btn_platform_upgrade"
+                type="success"
                 @click="upgradePlatform"
-                class="buttongreen bwidth smbutton btn-lg"
-                :data-loading-text="'<i class=\'fa fa-circle-o-notch fa-spin\'></i> Upgrading to ' + platformVersionAvailable + ' ...'"
               >
                 Upgrade to {{ platformVersionAvailable }}
-              </button>
+              </el-button>
             </div>
-            <div class="setline">
-              <span class="span">Installer: </span>
-              <span id="txt_installer_version" style="padding-right: 10px">{{ installerVersion }}</span>
-              <button
+            <div class="setline update-line">
+              <span class="span">Installer: <span id="txt_installer_version">{{ installerVersion }}</span></span>
+              <el-button
                 v-if="installerVersion !== installerVersionAvailable"
                 id="btn_installer_upgrade"
+                type="success"
                 @click="upgradeInstaller"
-                class="buttongreen bwidth smbutton btn-lg"
-                :data-loading-text="'<i class=\'fa fa-circle-o-notch fa-spin\'></i> Upgrading to ' + installerVersionAvailable + ' ...'"
               >
                 Upgrade to {{ installerVersionAvailable }}
-              </button>
+              </el-button>
             </div>
           </div>
         </div>
@@ -155,4 +147,12 @@ export default {
 <style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
+.update-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.update-line .el-button {
+  min-width: 120px;
+}
 </style>

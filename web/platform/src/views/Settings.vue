@@ -89,6 +89,13 @@
             </router-link>
           </div>
 
+          <div class="colapp app">
+            <router-link to="/system" id="system" class="app-link">
+              <i class="material-icons settings-icon">settings_power</i>
+              <div class="setting-name"><span class="withline">System</span></div>
+            </router-link>
+          </div>
+
         </div>
       </div>
     </div>

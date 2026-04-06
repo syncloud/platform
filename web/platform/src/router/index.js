@@ -20,6 +20,7 @@ const routes = [
   { path: '/twofactor', name: 'TwoFactor', component: () => import('../views/TwoFactor.vue') },
   { path: '/logs', name: 'Logs', component: () => import('../views/Logs.vue') },
   { path: '/customproxy', name: 'CustomProxy', component: () => import('../views/CustomProxy.vue') },
+  { path: '/system', name: 'System', component: () => import('../views/System.vue') },
   { path: '/:catchAll(.*)', redirect: '/' }
 ]
 
