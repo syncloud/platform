@@ -337,7 +337,7 @@ def test_custom_proxy_cli(device):
 
 def test_testapp_access_change(device_host, full_domain):
     output = run_ssh(device_host, 'cat /var/snap/testapp/current/config/authelia-location.conf', password=LOGS_SSH_PASSWORD)
-    assert 'https://auth.{0}'.format(full_domain) in output, output
+    assert 'unix:/var/snap/platform/current/authelia.socket:' in output, output
 
 
 def test_testapp_access_change_hook(device_host):

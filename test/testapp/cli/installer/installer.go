@@ -16,9 +16,10 @@ const (
 )
 
 type Variables struct {
-	AuthUrl      string
-	AppUrl       string
-	ClientSecret string
+	AuthUrl         string
+	AuthLocalSocket string
+	AppUrl          string
+	ClientSecret    string
 }
 
 func Install() error {
@@ -75,9 +76,10 @@ func UpdateConfigs() error {
 		path.Join(AppDir, "config"),
 		path.Join(DataDir, "config"),
 		Variables{
-			AuthUrl:      authUrl,
-			AppUrl:       appUrl,
-			ClientSecret: clientSecret,
+			AuthUrl:         authUrl,
+			AuthLocalSocket: client.GetAuthLocalSocket(),
+			AppUrl:          appUrl,
+			ClientSecret:    clientSecret,
 		},
 	)
 	if err != nil {
