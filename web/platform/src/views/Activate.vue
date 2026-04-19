@@ -2,13 +2,20 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block_activate">
-        <h1>Activate</h1>
+        <div class="language-bar">
+          <span class="language-label">{{ $t('language.select') }}:</span>
+          <el-select id="activate_language" v-model="locale" @change="onLocaleChange" size="default" style="width: 180px">
+            <el-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'lang_' + l.code"/>
+          </el-select>
+        </div>
+
+        <h1>{{ $t('activate.title') }}</h1>
 
         <div>
           <el-steps :active="step" simple finish-status="success" style="max-width: 500px; margin: 0 auto">
-            <el-step title="Type" />
-            <el-step title="Name" />
-            <el-step title="User" />
+            <el-step :title="$t('activate.stepType')" />
+            <el-step :title="$t('activate.stepName')" />
+            <el-step :title="$t('activate.stepUser')" />
           </el-steps>
 
           <div v-if="step === 0" id="domain-type-part"  >
@@ -16,12 +23,11 @@
               <div class="columns">
                 <ul class="plan">
                   <li class="description">
-                    Syncloud manages<br>your domain (like example.com)<br>
-                    Subscription is required today.
+                    {{ $t('activate.premiumDescription') }}
                   </li>
                   <li>
                     <el-button id="btn_premium_domain" style="width: 100%;height: 40px;" type="primary" @click="selectPremiumDomain">
-                      Your name
+                      {{ $t('activate.premiumButton') }}
                     </el-button>
                   </li>
                 </ul>
@@ -29,12 +35,11 @@
               <div class="columns">
                 <ul class="plan">
                   <li class="description">
-                    Syncloud manages<br>[name].{{ redirect_domain }} domain<br>
-                    Subscription is required in 30 days.
+                    {{ $t('activate.freeDescription', { domain: redirect_domain }) }}
                   </li>
                   <li>
                     <el-button id="btn_free_domain" style="width: 100%;height: 40px;" type="primary" @click="selectFreeDomain">
-                      Our name
+                      {{ $t('activate.freeButton') }}
                     </el-button>
                   </li>
                 </ul>
@@ -46,34 +51,34 @@
             <div style="text-align: center; max-width: 400px; margin: 0 auto;">
               <div v-if="domainType === 'free'">
                 <div style="text-align: center">
-                  <h2 style="display: inline-block">Syncloud Account</h2>
+                  <h2 style="display: inline-block">{{ $t('activate.syncloudAccount') }}</h2>
                   <button @click="showFreeAccountHelp" type=button class="control"
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
                   </button>
                 </div>
 
-                <input :placeholder="redirect_domain + ' email'" class="input" id="email"
+                <input :placeholder="$t('activate.emailPlaceholder', { domain: redirect_domain })" class="input" id="email"
                        type="text" v-model="redirectEmail">
                 <div id="email_alert" class="alert alert-danger alert90" v-show="redirectEmailAlertVisible ">{{ redirectEmailAlert }}</div>
 
                 <Password
                   id="redirect_password"
                   v-model="redirectPassword"
-                  :placeholder="redirect_domain + ' password'"
+                  :placeholder="$t('activate.passwordPlaceholder', { domain: redirect_domain })"
                   :show-error="redirectPasswordAlertVisible"
                   :error="redirectPasswordAlert"
                 />
 
                 <div style=" display: flow-root">
                   <div style="padding-right:10px; float: right">
-                    Do not have an account?
+                    {{ $t('activate.noAccount') }}
                     <a :href="'https://' + redirect_domain" class="register"
-                       target="_blank">register</a>
+                       target="_blank">{{ $t('activate.register') }}</a>
                   </div>
                 </div>
                 <div style="text-align: center">
-                  <h2 style="display: inline-block">Device Name</h2>
+                  <h2 style="display: inline-block">{{ $t('activate.deviceName') }}</h2>
                   <button @click="showManagedDomainHelp" type=button class="control"
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
@@ -81,7 +86,7 @@
                 </div>
 
                 <div id="domain" style="text-align: left">
-                  <input placeholder="Name" class="domain input" id="domain_input" type="text" v-model="domain">
+                  <input :placeholder="$t('activate.domainNamePlaceholder')" class="domain input" id="domain_input" type="text" v-model="domain">
                   <span>.{{ redirect_domain }}</span>
                 </div>
                 <div id="domain_alert"  class="alert alert-danger alert90" v-show="domainAlertVisible" >{{ domainAlert }}</div>
@@ -90,34 +95,34 @@
 
               <div v-if=" domainType === 'premium' ">
                 <div style="text-align: center">
-                  <h2 style="display: inline-block">Syncloud Account</h2>
+                  <h2 style="display: inline-block">{{ $t('activate.syncloudAccount') }}</h2>
                   <button @click="showPremiumAccountHelp" type="button" class="control"
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
                   </button>
                 </div>
 
-                <input :placeholder="redirect_domain + ' email'" class="input" id="email"
+                <input :placeholder="$t('activate.emailPlaceholder', { domain: redirect_domain })" class="input" id="email"
                        type="text" v-model="redirectEmail">
                 <div class="alert alert-danger alert90" id="alert" style="display: none;"></div>
 
                 <Password
                   id="redirect_password"
                   v-model="redirectPassword"
-                  :placeholder="redirect_domain + ' password'"
+                  :placeholder="$t('activate.passwordPlaceholder', { domain: redirect_domain })"
                   :show-error="redirectPasswordAlertVisible"
                   :error="redirectPasswordAlert"
                 />
 
                 <div style="text-align: center">
-                  <h2 style="display: inline-block">Device Name</h2>
+                  <h2 style="display: inline-block">{{ $t('activate.deviceName') }}</h2>
                   <button @click="showManagedDomainHelp" type=button class="control"
                           style="vertical-align: super; background:transparent;">
                     <i class='fa fa-question-circle fa-lg'></i>
                   </button>
                 </div>
                 <div id="domain">
-                  <input placeholder="Top level domain like example.com"
+                  <input :placeholder="$t('activate.premiumDomainPlaceholder')"
                          class="domain input" id="domain_premium" type="text" style="width:100% !important;"
                          v-model="domain">
                 </div>
@@ -126,12 +131,12 @@
 
               <div style="padding: 10px; float: left;">
                 <el-button type="primary" @click="step--">
-                  Previous
+                  {{ $t('common.previous') }}
                 </el-button>
               </div>
               <div style="padding: 10px; float: right;">
                 <el-button id="btn_next" type="primary"  @click="selectDeviceName">
-                  Next
+                  {{ $t('common.next') }}
                 </el-button>
               </div>
             </div>
@@ -141,14 +146,14 @@
             <div style="text-align: center; max-width: 400px; margin: 0 auto;">
 
               <div style="text-align: center">
-                <h2 style="display: inline-block">Device Credentials</h2>
+                <h2 style="display: inline-block">{{ $t('activate.deviceCredentials') }}</h2>
                 <button @click="showDeviceCredentialHelp" type=button class="control"
                         style="vertical-align: super; background:transparent;">
                   <i class='fa fa-question-circle fa-lg'></i>
                 </button>
               </div>
 
-              <input placeholder="Login" id="device_username" type="text" v-model="deviceUsername"
+              <input :placeholder="$t('activate.loginPlaceholder')" id="device_username" type="text" v-model="deviceUsername"
                      v-on:keyup.enter="activate"
                      class="input">
               <div class="alert alert-danger alert90" v-show="deviceUsernameAlertVisible">{{
@@ -159,7 +164,7 @@
               <Password
                 id="device_password"
                 v-model="devicePassword"
-                placeholder="Password"
+                :placeholder="$t('activate.passwordInputPlaceholder')"
                 :show-error="devicePasswordAlertVisible"
                 :error="devicePasswordAlert"
                 @trigger="activate"
@@ -168,20 +173,20 @@
               <Password
                 id="device_password_confirm"
                 v-model="devicePasswordConfirm"
-                placeholder="Confirm your password"
+                :placeholder="$t('activate.confirmPasswordPlaceholder')"
                 :show-error="devicePassword !== devicePasswordConfirm"
-                error="Passwords do not match"
+                :error="$t('activate.passwordsMismatch')"
                 @trigger="activate"
               />
 
               <div style="padding: 10px; float: left;">
                 <el-button type="primary" @click="step--">
-                  Previous
+                  {{ $t('common.previous') }}
                 </el-button>
               </div>
               <div style="padding: 10px; float: right;">
                 <el-button id="btn_activate" type="primary" @click="activate" :disabled="!validDeviceCredentials()">
-                Finish
+                {{ $t('activate.finish') }}
                 </el-button>
               </div>
             </div>
@@ -192,42 +197,31 @@
     </div>
   </div>
 
-  <Dialog :visible="helpManagedDomainVisible" @cancel="helpManagedDomainVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Managed domain</template>
+  <Dialog :visible="helpManagedDomainVisible" @cancel="helpManagedDomainVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('activate.help.managedDomainTitle') }}</template>
     <template v-slot:text>
-      <div class="btext">Syncloud will manage DNS records for your personal domain name
-      </div>
+      <div class="btext">{{ $t('activate.help.managedDomainText') }}</div>
     </template>
   </Dialog>
 
-  <Dialog :visible="helpFreeAccountVisible" @cancel="helpFreeAccountVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Syncloud account</template>
+  <Dialog :visible="helpFreeAccountVisible" @cancel="helpFreeAccountVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('activate.help.syncloudAccountTitle') }}</template>
     <template v-slot:text>
-      You need to <a :href="'https://' + redirect_domain" target="_blank" class="register">register</a> an
-      account and have a valid Subscription no more than 30 days after the registration.
-      <br>
-      It is only used to maintain dns records of your device.
-      Data transfer happens directly between your apps and device.
+      {{ $t('activate.help.freeAccountText') }}
     </template>
   </Dialog>
 
-  <Dialog :visible="helpPremiumAccountVisible" @cancel="helpPremiumAccountVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Syncloud account</template>
+  <Dialog :visible="helpPremiumAccountVisible" @cancel="helpPremiumAccountVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('activate.help.syncloudAccountTitle') }}</template>
     <template v-slot:text>
-      You need to <a :href="'https://' + redirect_domain" target="_blank" class="register">register</a> an
-      account and have a valid Subscription.
-      <br>
-      It is only used to maintain dns records of your device.
-      Data transfer happens directly between your apps and device.
+      {{ $t('activate.help.premiumAccountText') }}
     </template>
   </Dialog>
 
-  <Dialog :visible="helpDeviceCredentialVisible" @cancel="helpDeviceCredentialVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Device credentials</template>
+  <Dialog :visible="helpDeviceCredentialVisible" @cancel="helpDeviceCredentialVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('activate.help.deviceCredentialsTitle') }}</template>
     <template v-slot:text>
-      Device credentials are used to access your device and all the apps (as admin user).
-      They are stored on device and no one knows them. If you forget them you will need to reactivate your
-      device.
+      {{ $t('activate.help.deviceCredentialsText') }}
     </template>
   </Dialog>
 
@@ -241,6 +235,7 @@ import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import Password from '../components/Password.vue'
 import { ElLoading } from 'element-plus'
+import { SUPPORTED_LOCALES, setLocale } from '../i18n'
 
 export default {
   name: 'Activate',
@@ -274,11 +269,14 @@ export default {
       domainAlert: '',
       redirectEmailAlertVisible: false,
       redirectEmailAlert: '',
-      step: 0
+      step: 0,
+      locale: this.$i18n ? this.$i18n.locale : 'en',
+      locales: SUPPORTED_LOCALES
     }
   },
   mounted () {
     this.progressShow()
+    this.locale = this.$i18n.locale
     axios
       .get('/rest/redirect_info')
       .then(response => {
@@ -293,8 +291,11 @@ export default {
       })
   },
   methods: {
+    onLocaleChange (code) {
+      setLocale(code)
+    },
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
@@ -480,6 +481,19 @@ export default {
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
 @import 'font-awesome/css/font-awesome.css';
+
+.language-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px 0 20px;
+}
+
+.language-label {
+  font-size: 14px;
+  color: #555;
+}
 
 .register {
   color: #00aeef;

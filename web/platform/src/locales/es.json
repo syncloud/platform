@@ -11,7 +11,10 @@
     "info": "Info",
     "success": "Success",
     "serverError": "Server Error",
-    "loading": "Loading"
+    "loading": "Loading",
+    "previous": "Previous",
+    "next": "Next",
+    "finish": "Finish"
   },
   "menu": {
     "apps": "Apps",
@@ -49,5 +52,38 @@
     "reassign": "You can assign different\ndomain name to your device",
     "reactivate": "Reactivate",
     "loading": "Loading ..."
+  },
+  "activate": {
+    "title": "Activate",
+    "stepType": "Type",
+    "stepName": "Name",
+    "stepUser": "User",
+    "premiumDescription": "Syncloud manages your domain (like example.com). Subscription is required today.",
+    "premiumButton": "Your name",
+    "freeDescription": "Syncloud manages [name].{domain} domain. Subscription is required in 30 days.",
+    "freeButton": "Our name",
+    "syncloudAccount": "Syncloud Account",
+    "emailPlaceholder": "{domain} email",
+    "passwordPlaceholder": "{domain} password",
+    "noAccount": "Do not have an account?",
+    "register": "register",
+    "deviceName": "Device Name",
+    "domainNamePlaceholder": "Name",
+    "premiumDomainPlaceholder": "Top level domain like example.com",
+    "deviceCredentials": "Device Credentials",
+    "loginPlaceholder": "Login",
+    "passwordInputPlaceholder": "Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "passwordsMismatch": "Passwords do not match",
+    "finish": "Finish",
+    "help": {
+      "managedDomainTitle": "Managed domain",
+      "managedDomainText": "Syncloud will manage DNS records for your personal domain name",
+      "syncloudAccountTitle": "Syncloud account",
+      "freeAccountText": "You need to register an account and have a valid Subscription no more than 30 days after the registration. It is only used to maintain dns records of your device. Data transfer happens directly between your apps and device.",
+      "premiumAccountText": "You need to register an account and have a valid Subscription. It is only used to maintain dns records of your device. Data transfer happens directly between your apps and device.",
+      "deviceCredentialsTitle": "Device credentials",
+      "deviceCredentialsText": "Device credentials are used to access your device and all the apps (as admin user). They are stored on device and no one knows them. If you forget them you will need to reactivate your device."
+    }
   }
 }
