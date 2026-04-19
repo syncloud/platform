@@ -176,11 +176,11 @@ def test_settings_backup(selenium):
     selenium.find_by_xpath("//h1[text()='Backup']")
     selenium.screenshot('settings_backup_unstable')
     assert not selenium.exists_by(By.CSS_SELECTOR, '.el-notification__title')
-    selenium.clickable_by(By.ID, "auto").click()
+    click_el_select(selenium, "auto")
     selenium.clickable_by(By.ID, "auto-backup").click()
-    selenium.clickable_by(By.ID, "auto-day").click()
+    click_el_select(selenium, "auto-day")
     selenium.clickable_by(By.ID, "auto-day-monday").click()
-    selenium.clickable_by(By.ID, "auto-hour").click()
+    click_el_select(selenium, "auto-hour")
     selenium.clickable_by(By.ID, "auto-hour-1").click()
     selenium.find_by_id("save").click()
     selenium.screenshot('settings_backup_saved_unstable')
@@ -615,6 +615,16 @@ def wait_for(selenium, method):
 def defocus(selenium):
     selenium.driver.find_element(By.TAG_NAME, "body").click()
     time.sleep(1)
+
+
+def click_el_select(selenium, select_id):
+    # Element Plus 2.13 places the provided id on a hidden input inside the
+    # select; the actual click target is the enclosing .el-select__wrapper.
+    wrapper = selenium.driver.find_element(
+        By.XPATH,
+        "//*[@id='{0}']/ancestor::div[contains(@class, 'el-select__wrapper')]".format(select_id)
+    )
+    wrapper.click()
 
 
 def settings(selenium, setting):
