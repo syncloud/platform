@@ -2,11 +2,11 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1 class="bigh1">Applications</h1>
+        <h1 class="bigh1">{{ $t('apps.title') }}</h1>
         <div class="row-no-gutters appcenterlist" id="block_apps">
           <div v-if="apps.length === 0">
-            <h2 class="bh2">You don't have any apps installed yet. You can install one from App Center</h2>
-            <router-link to="/appcenter" class="appcenterh">App Center</router-link>
+            <h2 class="bh2">{{ $t('apps.emptyHeading') }}</h2>
+            <router-link to="/appcenter" class="appcenterh">{{ $t('apps.appCenterLink') }}</router-link>
           </div>
           <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
             <img :src="app.icon" class="appimg" :alt="app.name" @error="(e) => e.target.src = defaultIcon">
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

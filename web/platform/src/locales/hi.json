@@ -58,6 +58,29 @@
     "noNetworks": "No networks found",
     "interface": "Interface:"
   },
+  "apps": {
+    "title": "Applications",
+    "emptyHeading": "You don't have any apps installed yet. You can install one from App Center",
+    "appCenterLink": "App Center"
+  },
+  "appCenter": {
+    "title": "App Center"
+  },
+  "app": {
+    "version": "Version:",
+    "open": "Open",
+    "install": "Install v{version}",
+    "upgrade": "Upgrade v{version}",
+    "remove": "Remove",
+    "backup": "Backup",
+    "installAction": "Install",
+    "upgradeAction": "Upgrade",
+    "removeAction": "Remove",
+    "areYouSure": "Are you sure?",
+    "backupTitle": "Backup",
+    "backupConfirmText": "This will backup app settings excluding files uploaded to the disk storage. Later you can restore it from Settings - Backup. Are you sure?",
+    "creatingBackup": "Creating a backup"
+  },
   "access": {
     "title": "Access",
     "ipv4": "IP v4",

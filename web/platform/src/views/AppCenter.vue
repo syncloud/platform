@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1 class="bigh1">App Center</h1>
+        <h1 class="bigh1">{{ $t('appCenter.title') }}</h1>
         <div class="row-no-gutters appcenterlist" id="block_apps" style="min-height: 200px">
           <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
             <img :src="app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
