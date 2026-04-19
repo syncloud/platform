@@ -2,14 +2,14 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12">
-        <h1>Access</h1>
+        <h1>{{ $t('access.title') }}</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2" :style="{ visibility: visibility }">
             <div class="setline">
-              <h3>IP v4</h3>
+              <h3>{{ $t('access.ipv4') }}</h3>
             </div>
             <div class="setline" style='display: flex'>
-              <span class="span name-alignment">Support:</span>
+              <span class="span name-alignment">{{ $t('access.support') }}</span>
               <div class="value-alignment">
                 <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #36ad40; float: right" />
               </div>
@@ -21,7 +21,7 @@
             <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
             <div id="ipv4_mode_block" v-if="ipv4Enabled">
               <div class="setline" style='display: flex'>
-                  <span class="span name-alignment">Public:</span>
+                  <span class="span name-alignment">{{ $t('access.public') }}</span>
                   <div class="value-alignment">
                     <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40; float: right" />
                   </div>
@@ -30,7 +30,7 @@
               <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
               <div id="ipv4_public_block" v-if="ipv4Public">
                 <div class="setline" style='display: flex'>
-                    <span class="span name-alignment">Detect IP:</span>
+                    <span class="span name-alignment">{{ $t('access.detectIp') }}</span>
                     <div class="value-alignment">
                       <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #36ad40; float: right" />
                     </div>
@@ -38,7 +38,7 @@
 
                 <Transition>
                 <div class="setline" id="ipv4_block" style='display: flex' v-if="!ipAutoDetect">
-                  <label class="span name-alignment" for="ipv4" style="font-weight: 300">Public IP:</label>
+                  <label class="span name-alignment" for="ipv4" style="font-weight: 300">{{ $t('access.publicIp') }}</label>
                   <input class="value-alignment" id="ipv4" type="text"
                          style="width: 130px; height: 30px; padding: 0 10px 0 10px"
                          :disabled="ipAutoDetect" v-model="ipv4">
@@ -46,7 +46,7 @@
                 </Transition>
 
                 <div class="setline" style='display: flex'>
-                    <label for="access_port" class="span name-alignment" style="font-weight: 300">Public port:</label>
+                    <label for="access_port" class="span name-alignment" style="font-weight: 300">{{ $t('access.publicPort') }}</label>
                     <input class="value-alignment" id="access_port" type="number"
                            style="width: 100px; height: 30px; padding: 0 10px 0 10px"
                            v-model.number="accessPort"
@@ -67,11 +67,11 @@
             </Transition>
 
             <div class="setline">
-              <h3>IP v6</h3>
+              <h3>{{ $t('access.ipv6') }}</h3>
             </div>
 
             <div class="setline" style='display: flex'>
-              <span class="span name-alignment">Support:</span>
+              <span class="span name-alignment">{{ $t('access.support') }}</span>
               <div class="value-alignment">
                 <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #36ad40; float: right" />
               </div>
@@ -84,7 +84,7 @@
               <div class="spandiv">
                 <button class="submit buttongreen control" id="btn_save" type="submit"
                         data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."
-                        style="width: 150px" @click="save">Save
+                        style="width: 150px" @click="save">{{ $t('access.save') }}
                 </button>
               </div>
             </div>
@@ -96,35 +96,28 @@
     </div>
   </div>
 
-  <Dialog :visible="accessPortInfoVisible" @cancel="accessPortInfoVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Access port</template>
+  <Dialog :visible="accessPortInfoVisible" @cancel="accessPortInfoVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('access.accessPortTitle') }}</template>
     <template v-slot:text>
-      If your Syncloud device is not visible directly from the Internet you will need to create a port mapping on your
-      router.
-      Ideally port 443 on your router should be mapped to port 443 on your device.
+      {{ $t('access.accessPortText') }}
     </template>
   </Dialog>
-  <Dialog :visible="accessPortWarningVisible" @cancel="accessPortWarningVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>Access port warning</template>
+  <Dialog :visible="accessPortWarningVisible" @cancel="accessPortWarningVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('access.accessPortWarningTitle') }}</template>
     <template v-slot:text>
-      Access port is not default 443.
-      You may not be able to access your device from networks with strict firewalls allowing only port 443.
+      {{ $t('access.accessPortWarningText') }}
     </template>
   </Dialog>
-  <Dialog :visible="ipv4InfoVisible" @cancel="ipv4InfoVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>IP v4</template>
+  <Dialog :visible="ipv4InfoVisible" @cancel="ipv4InfoVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('access.ipv4Title') }}</template>
     <template v-slot:text>
-      Enables IP v4 DNS record and allows you to control which IP v4 address (public/private) is used for DNS.
-      <br><br>
-      Syncloud DNS service verifies open public ip/port (Internet accessibility) for convenience on save.
+      {{ $t('access.ipv4Text') }}
     </template>
   </Dialog>
-  <Dialog :visible="ipv6InfoVisible" @cancel="ipv6InfoVisible = false" :confirm-enabled="false" cancel-text="Close">
-    <template v-slot:title>IP v6</template>
+  <Dialog :visible="ipv6InfoVisible" @cancel="ipv6InfoVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('access.ipv6Title') }}</template>
     <template v-slot:text>
-      Enables IP v6 DNS record.
-      <br><br>
-      Syncloud DNS service verifies device connection (Internet accessibility) for convenience on save.
+      {{ $t('access.ipv6Text') }}
     </template>
   </Dialog>
 
@@ -190,7 +183,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       this.visibility = 'visible'
@@ -249,13 +242,13 @@ export default {
       }
       if (this.ipv4Enabled) {
         if (!isValidPort(this.accessPort)) {
-          this.$refs.error.showAxios(error('Access port (' + this.accessPort + ') has to be between 1 and 65535'))
+          this.$refs.error.showAxios(error(this.$t('access.errorPortRange', { port: this.accessPort })))
           this.progressHide()
           return
         }
         if (!this.ipAutoDetect) {
           if (this.ipv4.trim() === '') {
-            this.$refs.error.showAxios(error('Empty IP'))
+            this.$refs.error.showAxios(error(this.$t('access.errorEmptyIp')))
             this.progressHide()
             return
           }

@@ -58,6 +58,27 @@
     "noNetworks": "No networks found",
     "interface": "Interface:"
   },
+  "access": {
+    "title": "Access",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "Support:",
+    "public": "Public:",
+    "detectIp": "Detect IP:",
+    "publicIp": "Public IP:",
+    "publicPort": "Public port:",
+    "save": "Save",
+    "errorPortRange": "Access port ({port}) has to be between 1 and 65535",
+    "errorEmptyIp": "Empty IP",
+    "accessPortTitle": "Access port",
+    "accessPortText": "If your Syncloud device is not visible directly from the Internet you will need to create a port mapping on your router. Ideally port 443 on your router should be mapped to port 443 on your device.",
+    "accessPortWarningTitle": "Access port warning",
+    "accessPortWarningText": "Access port is not default 443. You may not be able to access your device from networks with strict firewalls allowing only port 443.",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "Enables IP v4 DNS record and allows you to control which IP v4 address (public/private) is used for DNS. Syncloud DNS service verifies open public ip/port (Internet accessibility) for convenience on save.",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "Enables IP v6 DNS record. Syncloud DNS service verifies device connection (Internet accessibility) for convenience on save."
+  },
   "activate": {
     "title": "Activate",
     "stepType": "Type",
