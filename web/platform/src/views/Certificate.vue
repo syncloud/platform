@@ -2,30 +2,30 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Certificate</h1>
+        <h1>{{ $t('certificate.title') }}</h1>
         <div class="row-no-gutters settingsblock">
 
           <div class="col2">
             <div class="setline">
-              <span class="span">Valid: </span>
+              <span class="span">{{ $t('certificate.valid') }} </span>
               <i v-if="valid" class="material-icons icon-good" id="valid_good">check_circle</i>
               <i v-if="!valid" class="material-icons icon-bad" id="valid_bad">error</i>
             </div>
             <div class="setline">
-              <span class="span">Valid days: </span>
+              <span class="span">{{ $t('certificate.validDays') }} </span>
               <span class="span" id="valid_days">{{ validDays }}</span>
             </div>
             <div class="setline">
-              <span class="span">Real: </span>
+              <span class="span">{{ $t('certificate.real') }} </span>
               <i v-if="real" class="material-icons icon-good" id="real_good">check_circle</i>
               <i v-if="!real" class="material-icons icon-bad" id="real_bad">error</i>
             </div>
 
             <div class="setline">
-              <span class="span">You can see more details</span>
+              <span class="span">{{ $t('certificate.moreDetails') }}</span>
               <div class="spandiv">
                 <router-link to="/certificate/log" class="apps hlink">
-                  <button class="buttonblue bwidth smbutton">Log</button>
+                  <button class="buttonblue bwidth smbutton">{{ $t('certificate.log') }}</button>
                 </router-link>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

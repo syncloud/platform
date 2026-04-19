@@ -2,16 +2,16 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>System</h1>
+        <h1>{{ $t('system.title') }}</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2">
             <div class="setline system-action">
-              <span class="span">Restart the device</span>
-              <el-button id="restart" type="primary" @click="restartConfirmVisible = true">Restart</el-button>
+              <span class="span">{{ $t('system.restartLabel') }}</span>
+              <el-button id="restart" type="primary" @click="restartConfirmVisible = true">{{ $t('system.restart') }}</el-button>
             </div>
             <div class="setline system-action">
-              <span class="span">Shut down the device</span>
-              <el-button id="shutdown" type="danger" @click="shutdownConfirmVisible = true">Shutdown</el-button>
+              <span class="span">{{ $t('system.shutdownLabel') }}</span>
+              <el-button id="shutdown" type="danger" @click="shutdownConfirmVisible = true">{{ $t('system.shutdown') }}</el-button>
             </div>
           </div>
         </div>
@@ -20,13 +20,13 @@
   </div>
 
   <Dialog :visible="restartConfirmVisible" @confirm="restart" @cancel="restartConfirmVisible = false">
-    <template #title>Restart</template>
-    <template #text>Are you sure you want to restart the device?</template>
+    <template #title>{{ $t('system.restart') }}</template>
+    <template #text>{{ $t('system.restartConfirm') }}</template>
   </Dialog>
 
   <Dialog :visible="shutdownConfirmVisible" @confirm="shutdown" @cancel="shutdownConfirmVisible = false">
-    <template #title>Shutdown</template>
-    <template #text>Are you sure you want to shut down the device? You will need physical access to turn it back on.</template>
+    <template #title>{{ $t('system.shutdown') }}</template>
+    <template #text>{{ $t('system.shutdownConfirm') }}</template>
   </Dialog>
 
   <Error ref="error"/>

@@ -2,20 +2,20 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12">
-        <h1>Internal Memory</h1>
+        <h1>{{ $t('internalMemory.title') }}</h1>
         <div class="row-no-gutters settingsblock" id="wrapper">
           <div class="col2">
             <div class="setline" style="margin-top: 20px;">
-              <span class="span" style="font-weight: bold;">Boot</span>
+              <span class="span" style="font-weight: bold;">{{ $t('internalMemory.boot') }}</span>
             </div>
             <div class="setline memory-line" id="block_boot_disk" v-if="boot !== undefined">
-              <span class="span">Partition - {{ boot.size }}</span>
+              <span class="span">{{ $t('internalMemory.partition', { size: boot.size }) }}</span>
               <el-button
                 v-if="boot.extendable"
                 id="btn_boot_extend"
                 type="primary"
                 @click="extend"
-              >Extend</el-button>
+              >{{ $t('internalMemory.extend') }}</el-button>
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

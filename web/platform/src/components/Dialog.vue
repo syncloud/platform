@@ -10,8 +10,8 @@
     </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="close">{{ cancelText }}</el-button>
-        <el-button id="btn_confirm" type="primary" @click="yes" v-if="confirmEnabled">Confirm</el-button>
+        <el-button @click="close">{{ cancelText || $t('common.cancel') }}</el-button>
+        <el-button id="btn_confirm" type="primary" @click="yes" v-if="confirmEnabled">{{ $t('common.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>
@@ -29,7 +29,7 @@ export default {
     },
     cancelText: {
       type: String,
-      default: 'Cancel'
+      default: ''
     }
   },
   methods: {

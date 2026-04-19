@@ -10,7 +10,7 @@
             <div class="appinfo">
               <h1 id="app_name">{{ info.app.name }}</h1>
               <div v-if="info.installed_version !== null && !progress">
-                <b>Version:</b> {{ info.installed_version }}<br>
+                <b>{{ $t('app.version') }}</b> {{ info.installed_version }}<br>
               </div>
             </div>
           </div>
@@ -35,31 +35,31 @@
               <button id="btn_open" :data-url="info.app.url" class="buttonblue bwidth smbutton"
                       @click="open"
                       v-if="info.installed_version !== null">
-                Open
+                {{ $t('app.open') }}
               </button>
               <button id="btn_install" class="buttonblue bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing..."
                       @click="install"
                       v-if="info.installed_version === null">
-                Install v{{ info.current_version }}
+                {{ $t('app.install', { version: info.current_version }) }}
               </button>
               <button id="btn_upgrade" class="buttongreen bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
                       @click="upgrade"
                       v-if="info.installed_version !== null && info.installed_version !== info.current_version">
-                Upgrade v{{ info.current_version }}
+                {{ $t('app.upgrade', { version: info.current_version }) }}
               </button>
               <button id="btn_remove" class="buttongrey bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
                       @click="remove"
                       v-if="info.installed_version !== null">
-                Remove
+                {{ $t('app.remove') }}
               </button>
               <button id="btn_backup" class="buttonblue bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup..."
                       @click="backupConfirm"
                       v-if="info.installed_version !== null">
-                Backup
+                {{ $t('app.backup') }}
               </button>
             </div>
             <div class="btext">{{ info.app.description }}</div>
@@ -77,7 +77,7 @@
     <template v-slot:text>
       <div class="bodymod">
         <div class="btext">
-          Are you sure?
+          {{ $t('app.areYouSure') }}
         </div>
       </div>
     </template>
@@ -86,14 +86,12 @@
   <Dialog :visible="backupConfirmationVisible" id="backup_confirmation" @confirm="backup"
                 @cancel="backupConfirmationVisible = false">
     <template v-slot:title>
-      <span id="confirm_caption">Backup</span>
+      <span id="confirm_caption">{{ $t('app.backupTitle') }}</span>
     </template>
     <template v-slot:text>
       <div class="bodymod">
         <div class="btext">
-          This will backup app settings excluding files uploaded to the disk storage.<br>
-          Later you can restore it from Settings - Backup<br>
-          Are you sure?
+          {{ $t('app.backupConfirmText') }}
         </div>
       </div>
     </template>
@@ -156,17 +154,17 @@ export default {
       window.location.href = this.info.app.url
     },
     install () {
-      this.action = 'Install'
+      this.action = this.$t('app.installAction')
       this.actionUrl = '/rest/app/install'
       this.appActionConfirmationVisible = true
     },
     upgrade () {
-      this.action = 'Upgrade'
+      this.action = this.$t('app.upgradeAction')
       this.actionUrl = '/rest/app/upgrade'
       this.appActionConfirmationVisible = true
     },
     remove () {
-      this.action = 'Remove'
+      this.action = this.$t('app.removeAction')
       this.actionUrl = '/rest/app/remove'
       this.appActionConfirmationVisible = true
     },
@@ -176,7 +174,7 @@ export default {
     backup () {
       this.backupConfirmationVisible = false
       this.progressShow()
-      this.progressSummary = 'Creating a backup'
+      this.progressSummary = this.$t('app.creatingBackup')
 
       const error = this.$refs.error
       const onError = (err) => {

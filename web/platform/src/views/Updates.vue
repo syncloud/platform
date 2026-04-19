@@ -3,36 +3,36 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Updates</h1>
+        <h1>{{ $t('updates.title') }}</h1>
         <div class="row-no-gutters settingsblock" id="block_updates">
           <div class="col2">
             <div class="setline update-line">
-              <span class="span">Check</span>
-              <el-button id="btn_check_updates" type="primary" @click="check">Check for updates</el-button>
+              <span class="span">{{ $t('updates.check') }}</span>
+              <el-button id="btn_check_updates" type="primary" @click="check">{{ $t('updates.checkButton') }}</el-button>
             </div>
             <div class="setline">
-              <span class="span">Note: upgrade System first if available before upgrading Installer.</span>
+              <span class="span">{{ $t('updates.note') }}</span>
             </div>
             <div class="setline update-line">
-              <span class="span">System: <span id="txt_platform_version">{{ platformVersion }}</span></span>
+              <span class="span">{{ $t('updates.system') }} <span id="txt_platform_version">{{ platformVersion }}</span></span>
               <el-button
                 v-if="platformVersion !== platformVersionAvailable"
                 id="btn_platform_upgrade"
                 type="success"
                 @click="upgradePlatform"
               >
-                Upgrade to {{ platformVersionAvailable }}
+                {{ $t('updates.upgradeTo', { version: platformVersionAvailable }) }}
               </el-button>
             </div>
             <div class="setline update-line">
-              <span class="span">Installer: <span id="txt_installer_version">{{ installerVersion }}</span></span>
+              <span class="span">{{ $t('updates.installer') }} <span id="txt_installer_version">{{ installerVersion }}</span></span>
               <el-button
                 v-if="installerVersion !== installerVersionAvailable"
                 id="btn_installer_upgrade"
                 type="success"
                 @click="upgradeInstaller"
               >
-                Upgrade to {{ installerVersionAvailable }}
+                {{ $t('updates.upgradeTo', { version: installerVersionAvailable }) }}
               </el-button>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

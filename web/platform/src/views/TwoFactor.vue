@@ -2,11 +2,11 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Two-Factor Authentication</h1>
+        <h1>{{ $t('twoFactor.title') }}</h1>
         <div class="setblock">
           <div class="setline">
-            <span class="setname">Status: </span>
-            <span class="setvalue" id="twofa_status">{{ enabled ? 'Enabled' : 'Disabled' }}</span>
+            <span class="setname">{{ $t('twoFactor.status') }} </span>
+            <span class="setvalue" id="twofa_status">{{ enabled ? $t('twoFactor.enabled') : $t('twoFactor.disabled') }}</span>
           </div>
 
           <div class="setline">
@@ -16,19 +16,19 @@
               type="success"
               :loading="loading"
               @click="enableTwoFactor"
-            >Enable 2FA</el-button>
+            >{{ $t('twoFactor.enable') }}</el-button>
             <el-button
               v-else
               id="btn_disable_2fa"
               type="danger"
               :loading="loading"
               @click="disableTwoFactor"
-            >Disable 2FA</el-button>
+            >{{ $t('twoFactor.disable') }}</el-button>
           </div>
 
           <div v-if="enabled" class="setline" style="max-width: 500px; margin: 10px auto">
             <el-alert type="info" :closable="false" show-icon>
-              Users will be prompted to set up their authenticator app during login.
+              {{ $t('twoFactor.enabledNote') }}
             </el-alert>
           </div>
         </div>

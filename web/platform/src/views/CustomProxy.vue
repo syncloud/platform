@@ -2,62 +2,62 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12">
-        <h1>Custom Proxy</h1>
+        <h1>{{ $t('customProxy.title') }}</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2" :style="{ visibility: visibility }">
 
             <div class="setline">
-              <h3>Add proxy</h3>
+              <h3>{{ $t('customProxy.addProxy') }}</h3>
             </div>
 
             <div class="setline">
-              <span class="proxy-warning">Warning: Proxying internal websites without proper authentication exposes them to the internet and may allow attackers to access your home network.</span>
+              <span class="proxy-warning">{{ $t('customProxy.warning') }}</span>
             </div>
 
             <div class="setline" style='display: flex'>
-              <label class="span proxy-label" for="proxy_name">Name:</label>
-              <input class="proxy-input" id="proxy_name" type="text" v-model="newName" placeholder="myservice">
+              <label class="span proxy-label" for="proxy_name">{{ $t('customProxy.name') }}</label>
+              <input class="proxy-input" id="proxy_name" type="text" v-model="newName" :placeholder="$t('customProxy.namePlaceholder')">
             </div>
             <div class="setline">
-              <span class="proxy-hint">URL: {{ newName || 'name' }}.{{ domain }}</span>
+              <span class="proxy-hint">{{ $t('customProxy.urlPreview') }} {{ newName || $t('customProxy.nameFallback') }}.{{ domain }}</span>
             </div>
 
             <div class="setline" style='display: flex'>
-              <label class="span proxy-label" for="proxy_host">Host:</label>
-              <input class="proxy-input" id="proxy_host" type="text" v-model="newHost" placeholder="192.168.1.10">
+              <label class="span proxy-label" for="proxy_host">{{ $t('customProxy.host') }}</label>
+              <input class="proxy-input" id="proxy_host" type="text" v-model="newHost" :placeholder="$t('customProxy.hostPlaceholder')">
             </div>
 
             <div class="setline" style='display: flex'>
-              <label class="span proxy-label" for="proxy_port">Port:</label>
-              <input class="proxy-input" id="proxy_port" type="number" v-model.number="newPort" placeholder="8080">
+              <label class="span proxy-label" for="proxy_port">{{ $t('customProxy.port') }}</label>
+              <input class="proxy-input" id="proxy_port" type="number" v-model.number="newPort" :placeholder="$t('customProxy.portPlaceholder')">
             </div>
 
             <div class="setline" style='display: flex; align-items: center;'>
-              <label class="span proxy-label" for="proxy_https">HTTPS:</label>
+              <label class="span proxy-label" for="proxy_https">{{ $t('customProxy.https') }}</label>
               <input id="proxy_https" type="checkbox" v-model="newHttps">
             </div>
 
             <div class="setline">
               <div class="spandiv">
                 <button class="submit buttongreen control" id="btn_add" type="button"
-                        style="width: 150px" @click="add">Add
+                        style="width: 150px" @click="add">{{ $t('customProxy.add') }}
                 </button>
               </div>
             </div>
 
             <div class="setline">
-              <h3>Proxies</h3>
+              <h3>{{ $t('customProxy.proxies') }}</h3>
             </div>
 
             <div v-if="proxies.length === 0" class="setline">
-              <span>No custom proxies configured</span>
+              <span>{{ $t('customProxy.noProxies') }}</span>
             </div>
 
             <div v-for="proxy in proxies" :key="proxy.name" class="setline proxy-entry" style='display: flex; align-items: center;'>
               <a class="proxy-label" :href="'https://' + proxy.name + '.' + domain" target="_blank">{{ proxy.name }}</a>
               <span style="flex: 1">{{ proxy.https ? 'https' : 'http' }}://{{ proxy.host }}:{{ proxy.port }}</span>
               <button class="submit control btn_remove" type="button" :id="'btn_remove_' + proxy.name"
-                      style="width: 80px; background-color: #d9534f; color: white;" @click="remove(proxy.name)">Remove
+                      style="width: 80px; background-color: #d9534f; color: white;" @click="remove(proxy.name)">{{ $t('customProxy.remove') }}
               </button>
             </div>
 
@@ -108,7 +108,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       this.visibility = 'visible'

@@ -1,0 +1,258 @@
+{
+  "language": {
+    "name": "Deutsch",
+    "select": "Sprache",
+    "title": "Sprache"
+  },
+  "common": {
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "error": "Fehler",
+    "info": "Info",
+    "success": "Erfolg",
+    "serverError": "Serverfehler",
+    "loading": "Laden",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertigstellen"
+  },
+  "menu": {
+    "apps": "Apps",
+    "appCenter": "App-Center",
+    "settings": "Einstellungen",
+    "logout": "Abmelden"
+  },
+  "error": {
+    "sendLogs": "Protokolle senden",
+    "defaultMessage": "Ein Fehler ist aufgetreten!"
+  },
+  "login": {
+    "title": "Anmelden",
+    "redirecting": "Weiterleitung zur Anmeldung..."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "activation": "Aktivierung",
+    "network": "Netzwerk",
+    "access": "Zugriff",
+    "internalMemory": "Interner Speicher",
+    "storage": "Speicher",
+    "updates": "Updates",
+    "support": "Support",
+    "backup": "Sicherung",
+    "certificate": "Zertifikat",
+    "twoFactor": "2FA",
+    "logs": "Protokolle",
+    "customProxy": "Benutzerdefinierter Proxy",
+    "system": "System",
+    "language": "Sprache"
+  },
+  "activation": {
+    "title": "Aktivierung",
+    "activatedAt": "Aktiviert unter:",
+    "reassign": "Sie können Ihrem Gerät einen\nanderen Domänennamen zuweisen",
+    "reactivate": "Neu aktivieren",
+    "loading": "Laden ..."
+  },
+  "network": {
+    "title": "Netzwerk",
+    "noNetworks": "Keine Netzwerke gefunden",
+    "interface": "Schnittstelle:"
+  },
+  "apps": {
+    "title": "Anwendungen",
+    "emptyHeading": "Sie haben noch keine Apps installiert. Sie können eine aus dem App-Center installieren",
+    "appCenterLink": "App-Center"
+  },
+  "appCenter": {
+    "title": "App-Center"
+  },
+  "app": {
+    "version": "Version:",
+    "open": "Öffnen",
+    "install": "Installieren v{version}",
+    "upgrade": "Aktualisieren v{version}",
+    "remove": "Entfernen",
+    "backup": "Sichern",
+    "installAction": "Installieren",
+    "upgradeAction": "Aktualisieren",
+    "removeAction": "Entfernen",
+    "areYouSure": "Sind Sie sicher?",
+    "backupTitle": "Sicherung",
+    "backupConfirmText": "Dies sichert die App-Einstellungen ohne die in den Festplattenspeicher hochgeladenen Dateien. Sie können sie später über Einstellungen - Sicherung wiederherstellen. Sind Sie sicher?",
+    "creatingBackup": "Sicherung wird erstellt"
+  },
+  "certificate": {
+    "title": "Zertifikat",
+    "valid": "Gültig:",
+    "validDays": "Gültige Tage:",
+    "real": "Echt:",
+    "moreDetails": "Sie können weitere Details sehen",
+    "log": "Protokoll"
+  },
+  "certificateLog": {
+    "title": "Zertifikatsprotokoll"
+  },
+  "logs": {
+    "title": "Protokolle"
+  },
+  "support": {
+    "title": "Support",
+    "copyToSupport": "Eine Kopie an den Support senden",
+    "yes": "Ja",
+    "no": "Nein",
+    "reportIssue": "Problem melden:",
+    "sendLogs": "Protokolle senden"
+  },
+  "system": {
+    "title": "System",
+    "restartLabel": "Gerät neu starten",
+    "restart": "Neu starten",
+    "shutdownLabel": "Gerät herunterfahren",
+    "shutdown": "Herunterfahren",
+    "restartConfirm": "Möchten Sie das Gerät wirklich neu starten?",
+    "shutdownConfirm": "Möchten Sie das Gerät wirklich herunterfahren? Sie benötigen physischen Zugriff, um es wieder einzuschalten."
+  },
+  "twoFactor": {
+    "title": "Zwei-Faktor-Authentifizierung",
+    "status": "Status:",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "enable": "2FA aktivieren",
+    "disable": "2FA deaktivieren",
+    "enabledNote": "Benutzer werden bei der Anmeldung aufgefordert, ihre Authenticator-App einzurichten."
+  },
+  "customProxy": {
+    "title": "Benutzerdefinierter Proxy",
+    "addProxy": "Proxy hinzufügen",
+    "warning": "Warnung: Das Proxying interner Websites ohne geeignete Authentifizierung gibt sie dem Internet preis und kann Angreifern Zugang zu Ihrem Heimnetzwerk ermöglichen.",
+    "name": "Name:",
+    "nameFallback": "name",
+    "namePlaceholder": "meindienst",
+    "urlPreview": "URL:",
+    "host": "Host:",
+    "hostPlaceholder": "192.168.1.10",
+    "port": "Port:",
+    "portPlaceholder": "8080",
+    "https": "HTTPS:",
+    "add": "Hinzufügen",
+    "proxies": "Proxys",
+    "noProxies": "Keine benutzerdefinierten Proxys konfiguriert",
+    "remove": "Entfernen"
+  },
+  "backup": {
+    "title": "Sicherung",
+    "select": "Auswählen",
+    "autoNo": "Kein Automatik",
+    "autoBackup": "Auto-Sicherung",
+    "autoRestore": "Auto-Wiederherstellung",
+    "daily": "Täglich",
+    "mon": "Mo",
+    "tue": "Di",
+    "wed": "Mi",
+    "thu": "Do",
+    "fri": "Fr",
+    "sat": "Sa",
+    "sun": "So",
+    "save": "Speichern",
+    "name": "Name",
+    "typeToSearch": "Suchtext eingeben",
+    "restore": "Wiederherstellen",
+    "delete": "Löschen",
+    "restoreTitle": "Wiederherstellen",
+    "removeTitle": "Entfernen",
+    "restorePrompt": "Möchten Sie wiederherstellen:",
+    "removePrompt": "Möchten Sie entfernen:",
+    "loading": "Laden",
+    "restoring": "Wiederherstellen: {file}",
+    "savingAuto": "Automatische Sicherungseinstellungen werden gespeichert"
+  },
+  "updates": {
+    "title": "Updates",
+    "check": "Prüfen",
+    "checkButton": "Nach Updates suchen",
+    "note": "Hinweis: Aktualisieren Sie zuerst das System, falls verfügbar, bevor Sie den Installer aktualisieren.",
+    "system": "System:",
+    "installer": "Installer:",
+    "upgradeTo": "Aktualisieren auf {version}"
+  },
+  "internalMemory": {
+    "title": "Interner Speicher",
+    "boot": "Boot",
+    "partition": "Partition - {size}",
+    "extend": "Erweitern"
+  },
+  "storage": {
+    "title": "Speicher",
+    "disks": "Festplatten",
+    "partitions": "Partitionen",
+    "noExternalDisks": "Keine externen Festplatten gefunden",
+    "none": "Keine",
+    "save": "Speichern",
+    "activateDisks": "Festplatten aktivieren",
+    "deactivateDisk": "Festplatte deaktivieren",
+    "activatePartition": "Partition aktivieren",
+    "permissionsWarning": "Je mehr Dateien Sie auf der Festplatte haben, desto länger dauert die Aktualisierung der Berechtigungen.",
+    "initializeQuestion": "Festplatte initialisieren und alle Daten entfernen? (optional)",
+    "externalDiskTitle": "Externe Festplatte",
+    "externalDiskText": "Jede App ist so konfiguriert, dass sie den vom System bereitgestellten Speicher verwendet (verfügbar unter /data). Auf diesem Bildschirm können Sie auswählen, welche angeschlossene Festplatte für diesen Speicher verwendet werden soll. Beim Aktivieren einer Festplatte werden vorhandene Daten nicht auf die ausgewählte Festplatte kopiert. Sie können eine Festplatte formatieren, um alle Daten zu löschen oder sie mit dem System kompatibel zu machen.",
+    "currentChange": "Aktuelle Änderung",
+    "inProgress": "Wird ausgeführt",
+    "previousChange": "Vorherige Änderung"
+  },
+  "access": {
+    "title": "Zugriff",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "Unterstützung:",
+    "public": "Öffentlich:",
+    "detectIp": "IP erkennen:",
+    "publicIp": "Öffentliche IP:",
+    "publicPort": "Öffentlicher Port:",
+    "save": "Speichern",
+    "errorPortRange": "Der Zugriffsport ({port}) muss zwischen 1 und 65535 liegen",
+    "errorEmptyIp": "Leere IP",
+    "accessPortTitle": "Zugriffsport",
+    "accessPortText": "Wenn Ihr Syncloud-Gerät nicht direkt über das Internet erreichbar ist, müssen Sie auf Ihrem Router eine Portweiterleitung einrichten. Idealerweise sollte Port 443 des Routers auf Port 443 des Geräts weitergeleitet werden.",
+    "accessPortWarningTitle": "Warnung zum Zugriffsport",
+    "accessPortWarningText": "Der Zugriffsport ist nicht der Standard-Port 443. Möglicherweise können Sie Ihr Gerät aus Netzwerken mit strengen Firewalls, die nur Port 443 erlauben, nicht erreichen.",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "Aktiviert den IP v4 DNS-Eintrag und ermöglicht die Kontrolle, welche IP v4-Adresse (öffentlich/privat) für DNS verwendet wird. Der Syncloud DNS-Dienst prüft beim Speichern die öffentliche IP/Port-Erreichbarkeit (Internet-Zugänglichkeit).",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "Aktiviert den IP v6 DNS-Eintrag. Der Syncloud DNS-Dienst prüft beim Speichern die Geräteverbindung (Internet-Zugänglichkeit)."
+  },
+  "activate": {
+    "title": "Aktivieren",
+    "stepType": "Typ",
+    "stepName": "Name",
+    "stepUser": "Benutzer",
+    "premiumDescription": "Syncloud verwaltet Ihre Domain (wie example.com). Ein Abonnement ist ab heute erforderlich.",
+    "premiumButton": "Ihr Name",
+    "freeDescription": "Syncloud verwaltet die Domain [name].{domain}. Ein Abonnement ist innerhalb von 30 Tagen erforderlich.",
+    "freeButton": "Unser Name",
+    "syncloudAccount": "Syncloud-Konto",
+    "emailPlaceholder": "{domain} E-Mail",
+    "passwordPlaceholder": "{domain} Passwort",
+    "noAccount": "Noch kein Konto?",
+    "register": "registrieren",
+    "deviceName": "Gerätename",
+    "domainNamePlaceholder": "Name",
+    "premiumDomainPlaceholder": "Top-Level-Domain wie example.com",
+    "deviceCredentials": "Gerätedaten",
+    "loginPlaceholder": "Anmeldung",
+    "passwordInputPlaceholder": "Passwort",
+    "confirmPasswordPlaceholder": "Passwort bestätigen",
+    "passwordsMismatch": "Passwörter stimmen nicht überein",
+    "finish": "Fertigstellen",
+    "help": {
+      "managedDomainTitle": "Verwaltete Domain",
+      "managedDomainText": "Syncloud verwaltet die DNS-Einträge für Ihren persönlichen Domainnamen",
+      "syncloudAccountTitle": "Syncloud-Konto",
+      "freeAccountText": "Sie müssen ein Konto registrieren und innerhalb von 30 Tagen nach der Registrierung ein gültiges Abonnement besitzen. Es dient nur der Pflege der DNS-Einträge Ihres Geräts. Der Datentransfer erfolgt direkt zwischen Ihren Apps und dem Gerät.",
+      "premiumAccountText": "Sie müssen ein Konto registrieren und ein gültiges Abonnement besitzen. Es dient nur der Pflege der DNS-Einträge Ihres Geräts. Der Datentransfer erfolgt direkt zwischen Ihren Apps und dem Gerät.",
+      "deviceCredentialsTitle": "Gerätedaten",
+      "deviceCredentialsText": "Die Gerätedaten werden verwendet, um auf Ihr Gerät und alle Apps zuzugreifen (als Administrator). Sie werden auf dem Gerät gespeichert und niemand kennt sie. Wenn Sie sie vergessen, müssen Sie Ihr Gerät neu aktivieren."
+    }
+  }
+}

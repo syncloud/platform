@@ -1,0 +1,258 @@
+{
+  "language": {
+    "name": "日本語",
+    "select": "言語",
+    "title": "言語"
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "confirm": "確認",
+    "error": "エラー",
+    "info": "情報",
+    "success": "成功",
+    "serverError": "サーバーエラー",
+    "loading": "読み込み中",
+    "previous": "戻る",
+    "next": "次へ",
+    "finish": "完了"
+  },
+  "menu": {
+    "apps": "アプリ",
+    "appCenter": "アプリセンター",
+    "settings": "設定",
+    "logout": "ログアウト"
+  },
+  "error": {
+    "sendLogs": "ログを送信",
+    "defaultMessage": "エラーが発生しました!"
+  },
+  "login": {
+    "title": "ログイン",
+    "redirecting": "ログインにリダイレクト中..."
+  },
+  "settings": {
+    "title": "設定",
+    "activation": "アクティベーション",
+    "network": "ネットワーク",
+    "access": "アクセス",
+    "internalMemory": "内部ストレージ",
+    "storage": "ストレージ",
+    "updates": "アップデート",
+    "support": "サポート",
+    "backup": "バックアップ",
+    "certificate": "証明書",
+    "twoFactor": "2FA",
+    "logs": "ログ",
+    "customProxy": "カスタムプロキシ",
+    "system": "システム",
+    "language": "言語"
+  },
+  "activation": {
+    "title": "アクティベーション",
+    "activatedAt": "アクティベーション先:",
+    "reassign": "デバイスに別のドメイン名を\n割り当てることができます",
+    "reactivate": "再アクティベーション",
+    "loading": "読み込み中 ..."
+  },
+  "network": {
+    "title": "ネットワーク",
+    "noNetworks": "ネットワークが見つかりません",
+    "interface": "インターフェース:"
+  },
+  "apps": {
+    "title": "アプリケーション",
+    "emptyHeading": "まだインストールされているアプリはありません。アプリセンターからインストールできます",
+    "appCenterLink": "アプリセンター"
+  },
+  "appCenter": {
+    "title": "アプリセンター"
+  },
+  "app": {
+    "version": "バージョン:",
+    "open": "開く",
+    "install": "v{version} をインストール",
+    "upgrade": "v{version} にアップグレード",
+    "remove": "削除",
+    "backup": "バックアップ",
+    "installAction": "インストール",
+    "upgradeAction": "アップグレード",
+    "removeAction": "削除",
+    "areYouSure": "よろしいですか?",
+    "backupTitle": "バックアップ",
+    "backupConfirmText": "ディスクストレージにアップロードされたファイルを除くアプリ設定をバックアップします。後で「設定 - バックアップ」から復元できます。よろしいですか?",
+    "creatingBackup": "バックアップを作成中"
+  },
+  "certificate": {
+    "title": "証明書",
+    "valid": "有効:",
+    "validDays": "有効日数:",
+    "real": "本物:",
+    "moreDetails": "詳細を確認できます",
+    "log": "ログ"
+  },
+  "certificateLog": {
+    "title": "証明書ログ"
+  },
+  "logs": {
+    "title": "ログ"
+  },
+  "support": {
+    "title": "サポート",
+    "copyToSupport": "サポートにコピーを送信",
+    "yes": "はい",
+    "no": "いいえ",
+    "reportIssue": "問題を報告:",
+    "sendLogs": "ログを送信"
+  },
+  "system": {
+    "title": "システム",
+    "restartLabel": "デバイスを再起動",
+    "restart": "再起動",
+    "shutdownLabel": "デバイスをシャットダウン",
+    "shutdown": "シャットダウン",
+    "restartConfirm": "本当にデバイスを再起動しますか?",
+    "shutdownConfirm": "本当にデバイスをシャットダウンしますか?再度電源を入れるには物理的なアクセスが必要になります。"
+  },
+  "twoFactor": {
+    "title": "二要素認証",
+    "status": "状態:",
+    "enabled": "有効",
+    "disabled": "無効",
+    "enable": "2FA を有効化",
+    "disable": "2FA を無効化",
+    "enabledNote": "ログイン時に、ユーザーは認証アプリのセットアップを求められます。"
+  },
+  "customProxy": {
+    "title": "カスタムプロキシ",
+    "addProxy": "プロキシを追加",
+    "warning": "警告: 適切な認証なしに内部 Web サイトをプロキシすると、インターネットに公開され、攻撃者が家庭ネットワークにアクセスできる可能性があります。",
+    "name": "名前:",
+    "nameFallback": "名前",
+    "namePlaceholder": "myservice",
+    "urlPreview": "URL:",
+    "host": "ホスト:",
+    "hostPlaceholder": "192.168.1.10",
+    "port": "ポート:",
+    "portPlaceholder": "8080",
+    "https": "HTTPS:",
+    "add": "追加",
+    "proxies": "プロキシ",
+    "noProxies": "カスタムプロキシが設定されていません",
+    "remove": "削除"
+  },
+  "backup": {
+    "title": "バックアップ",
+    "select": "選択",
+    "autoNo": "自動なし",
+    "autoBackup": "自動バックアップ",
+    "autoRestore": "自動リストア",
+    "daily": "毎日",
+    "mon": "月",
+    "tue": "火",
+    "wed": "水",
+    "thu": "木",
+    "fri": "金",
+    "sat": "土",
+    "sun": "日",
+    "save": "保存",
+    "name": "名前",
+    "typeToSearch": "検索するには入力",
+    "restore": "復元",
+    "delete": "削除",
+    "restoreTitle": "復元",
+    "removeTitle": "削除",
+    "restorePrompt": "復元しますか:",
+    "removePrompt": "削除しますか:",
+    "loading": "読み込み中",
+    "restoring": "復元中: {file}",
+    "savingAuto": "自動バックアップ設定を保存中"
+  },
+  "updates": {
+    "title": "アップデート",
+    "check": "確認",
+    "checkButton": "アップデートを確認",
+    "note": "注: 利用可能な場合はインストーラーより先にシステムをアップグレードしてください。",
+    "system": "システム:",
+    "installer": "インストーラー:",
+    "upgradeTo": "{version} にアップグレード"
+  },
+  "internalMemory": {
+    "title": "内部ストレージ",
+    "boot": "ブート",
+    "partition": "パーティション - {size}",
+    "extend": "拡張"
+  },
+  "storage": {
+    "title": "ストレージ",
+    "disks": "ディスク",
+    "partitions": "パーティション",
+    "noExternalDisks": "外部ディスクが見つかりません",
+    "none": "なし",
+    "save": "保存",
+    "activateDisks": "ディスクを有効化",
+    "deactivateDisk": "ディスクを無効化",
+    "activatePartition": "パーティションを有効化",
+    "permissionsWarning": "ディスク上のファイルが多いほど、権限の更新に時間がかかります。",
+    "initializeQuestion": "すべてのデータを削除してディスクを初期化しますか?(任意)",
+    "externalDiskTitle": "外部ディスク",
+    "externalDiskText": "各アプリはシステム提供のストレージ(/data で利用可能)を使用するように設定されています。この設定画面で、そのストレージに使用する接続済みディスクを選択できます。ディスクを有効化する際、既存のデータは選択したディスクにコピーされません。ディスクをフォーマットしてすべてのデータを消去するか、システムと互換性を持たせるために初期化できます。",
+    "currentChange": "現在の変更",
+    "inProgress": "進行中",
+    "previousChange": "前回の変更"
+  },
+  "access": {
+    "title": "アクセス",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "サポート:",
+    "public": "パブリック:",
+    "detectIp": "IP を検出:",
+    "publicIp": "パブリック IP:",
+    "publicPort": "パブリックポート:",
+    "save": "保存",
+    "errorPortRange": "アクセスポート ({port}) は 1 から 65535 の間で指定してください",
+    "errorEmptyIp": "IP が空です",
+    "accessPortTitle": "アクセスポート",
+    "accessPortText": "Syncloud デバイスがインターネットから直接見えない場合、ルーターでポートマッピングを作成する必要があります。理想的には、ルーターのポート 443 をデバイスのポート 443 にマッピングしてください。",
+    "accessPortWarningTitle": "アクセスポートの警告",
+    "accessPortWarningText": "アクセスポートがデフォルトの 443 ではありません。ポート 443 のみを許可する厳格なファイアウォールのネットワークからデバイスにアクセスできない可能性があります。",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "IP v4 DNS レコードを有効にし、DNS に使用する IP v4 アドレス(パブリック/プライベート)を制御できます。Syncloud DNS サービスは保存時に公開 IP/ポート(インターネットアクセス性)の開放を便宜的に確認します。",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "IP v6 DNS レコードを有効にします。Syncloud DNS サービスは保存時にデバイス接続(インターネットアクセス性)を便宜的に確認します。"
+  },
+  "activate": {
+    "title": "アクティベート",
+    "stepType": "タイプ",
+    "stepName": "名前",
+    "stepUser": "ユーザー",
+    "premiumDescription": "Syncloud があなたのドメイン(example.com など)を管理します。本日よりサブスクリプションが必要です。",
+    "premiumButton": "あなたの名前",
+    "freeDescription": "Syncloud が [名前].{domain} ドメインを管理します。30 日以内にサブスクリプションが必要です。",
+    "freeButton": "私たちの名前",
+    "syncloudAccount": "Syncloud アカウント",
+    "emailPlaceholder": "{domain} のメール",
+    "passwordPlaceholder": "{domain} のパスワード",
+    "noAccount": "アカウントをお持ちでない方は?",
+    "register": "登録",
+    "deviceName": "デバイス名",
+    "domainNamePlaceholder": "名前",
+    "premiumDomainPlaceholder": "example.com のような最上位ドメイン",
+    "deviceCredentials": "デバイスの認証情報",
+    "loginPlaceholder": "ログイン",
+    "passwordInputPlaceholder": "パスワード",
+    "confirmPasswordPlaceholder": "パスワードを確認",
+    "passwordsMismatch": "パスワードが一致しません",
+    "finish": "完了",
+    "help": {
+      "managedDomainTitle": "管理ドメイン",
+      "managedDomainText": "Syncloud があなたの個人ドメイン名の DNS レコードを管理します",
+      "syncloudAccountTitle": "Syncloud アカウント",
+      "freeAccountText": "アカウントを登録し、登録後 30 日以内に有効なサブスクリプションを持っている必要があります。これはデバイスの DNS レコードを維持するためだけに使用されます。データ転送はアプリとデバイスの間で直接行われます。",
+      "premiumAccountText": "アカウントを登録し、有効なサブスクリプションを持っている必要があります。これはデバイスの DNS レコードを維持するためだけに使用されます。データ転送はアプリとデバイスの間で直接行われます。",
+      "deviceCredentialsTitle": "デバイスの認証情報",
+      "deviceCredentialsText": "デバイスの認証情報はデバイスとすべてのアプリ(管理者ユーザーとして)にアクセスするために使用されます。デバイスに保存されており、誰も知りません。忘れた場合はデバイスを再アクティベートする必要があります。"
+    }
+  }
+}

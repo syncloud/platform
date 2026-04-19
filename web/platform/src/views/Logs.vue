@@ -3,7 +3,7 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1">
-        <h1>Logs</h1>
+        <h1>{{ $t('logs.title') }}</h1>
         <div class="row-no-gutters">
           <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
             <div id="logs">
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

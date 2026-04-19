@@ -5,18 +5,18 @@
         <header class="wd12">
           <div class="logo" :class="{ onelogo: !auth.loggedIn }">Syncloud</div>
           <div class="menulinks" v-if="auth.loggedIn">
-            <router-link to="/" id="apps" class="apps hlink" :class="{ active: activeTab === '/' }">Apps</router-link>
+            <router-link to="/" id="apps" class="apps hlink" :class="{ active: activeTab === '/' }">{{ $t('menu.apps') }}</router-link>
             <router-link to="/appcenter" id="appcenter" class="appcenter hlink"
-                         :class="{ active: activeTab === '/appcenter' }">App Center
+                         :class="{ active: activeTab === '/appcenter' }">{{ $t('menu.appCenter') }}
             </router-link>
             <router-link to="/settings" id="settings" class="settings hlink"
-                         :class="{ active: activeTab === '/settings' }">Settings
+                         :class="{ active: activeTab === '/settings' }">{{ $t('menu.settings') }}
             </router-link>
           </div>
           <div class="menuoff" v-if="auth.loggedIn">
             <a href="#" id="logout" class="hlink" @click="logout">
               <i class="material-icons" style="vertical-align: middle">exit_to_app</i>
-              <span class="button_label">Logout</span>
+              <span class="button_label">{{ $t('menu.logout') }}</span>
             </a>
           </div>
           <div id="menubutton" class="menubutton" v-if="auth.loggedIn" @click="toggle" :class="{ menuopen: menuOpen }">

@@ -1,0 +1,258 @@
+{
+  "language": {
+    "name": "العربية",
+    "select": "اللغة",
+    "title": "اللغة"
+  },
+  "common": {
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "error": "خطأ",
+    "info": "معلومات",
+    "success": "نجاح",
+    "serverError": "خطأ في الخادم",
+    "loading": "جارٍ التحميل",
+    "previous": "السابق",
+    "next": "التالي",
+    "finish": "إنهاء"
+  },
+  "menu": {
+    "apps": "التطبيقات",
+    "appCenter": "مركز التطبيقات",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "error": {
+    "sendLogs": "إرسال السجلات",
+    "defaultMessage": "حدث خطأ ما!"
+  },
+  "login": {
+    "title": "تسجيل الدخول",
+    "redirecting": "جارٍ التحويل إلى تسجيل الدخول..."
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "activation": "التفعيل",
+    "network": "الشبكة",
+    "access": "الوصول",
+    "internalMemory": "الذاكرة الداخلية",
+    "storage": "التخزين",
+    "updates": "التحديثات",
+    "support": "الدعم",
+    "backup": "النسخ الاحتياطي",
+    "certificate": "الشهادة",
+    "twoFactor": "2FA",
+    "logs": "السجلات",
+    "customProxy": "وكيل مخصص",
+    "system": "النظام",
+    "language": "اللغة"
+  },
+  "activation": {
+    "title": "التفعيل",
+    "activatedAt": "تم التفعيل عند:",
+    "reassign": "يمكنك تعيين اسم\nنطاق مختلف لجهازك",
+    "reactivate": "إعادة التفعيل",
+    "loading": "جارٍ التحميل ..."
+  },
+  "network": {
+    "title": "الشبكة",
+    "noNetworks": "لم يتم العثور على شبكات",
+    "interface": "الواجهة:"
+  },
+  "apps": {
+    "title": "التطبيقات",
+    "emptyHeading": "لم تقم بتثبيت أي تطبيقات حتى الآن. يمكنك تثبيت واحد من مركز التطبيقات",
+    "appCenterLink": "مركز التطبيقات"
+  },
+  "appCenter": {
+    "title": "مركز التطبيقات"
+  },
+  "app": {
+    "version": "الإصدار:",
+    "open": "فتح",
+    "install": "تثبيت v{version}",
+    "upgrade": "ترقية إلى v{version}",
+    "remove": "إزالة",
+    "backup": "نسخة احتياطية",
+    "installAction": "تثبيت",
+    "upgradeAction": "ترقية",
+    "removeAction": "إزالة",
+    "areYouSure": "هل أنت متأكد؟",
+    "backupTitle": "نسخة احتياطية",
+    "backupConfirmText": "سيقوم هذا بنسخ إعدادات التطبيق احتياطيًا باستثناء الملفات التي تم تحميلها إلى تخزين القرص. يمكنك استعادتها لاحقًا من الإعدادات - النسخ الاحتياطي. هل أنت متأكد؟",
+    "creatingBackup": "جارٍ إنشاء نسخة احتياطية"
+  },
+  "certificate": {
+    "title": "الشهادة",
+    "valid": "صالحة:",
+    "validDays": "أيام الصلاحية:",
+    "real": "حقيقية:",
+    "moreDetails": "يمكنك رؤية المزيد من التفاصيل",
+    "log": "السجل"
+  },
+  "certificateLog": {
+    "title": "سجل الشهادة"
+  },
+  "logs": {
+    "title": "السجلات"
+  },
+  "support": {
+    "title": "الدعم",
+    "copyToSupport": "إرسال نسخة إلى الدعم",
+    "yes": "نعم",
+    "no": "لا",
+    "reportIssue": "الإبلاغ عن مشكلة:",
+    "sendLogs": "إرسال السجلات"
+  },
+  "system": {
+    "title": "النظام",
+    "restartLabel": "إعادة تشغيل الجهاز",
+    "restart": "إعادة تشغيل",
+    "shutdownLabel": "إيقاف تشغيل الجهاز",
+    "shutdown": "إيقاف التشغيل",
+    "restartConfirm": "هل أنت متأكد أنك تريد إعادة تشغيل الجهاز؟",
+    "shutdownConfirm": "هل أنت متأكد أنك تريد إيقاف تشغيل الجهاز؟ ستحتاج إلى وصول مادي لإعادة تشغيله."
+  },
+  "twoFactor": {
+    "title": "المصادقة الثنائية",
+    "status": "الحالة:",
+    "enabled": "مُفعَّلة",
+    "disabled": "مُعطَّلة",
+    "enable": "تفعيل 2FA",
+    "disable": "تعطيل 2FA",
+    "enabledNote": "ستتم مطالبة المستخدمين بإعداد تطبيق المصادقة الخاص بهم عند تسجيل الدخول."
+  },
+  "customProxy": {
+    "title": "وكيل مخصص",
+    "addProxy": "إضافة وكيل",
+    "warning": "تحذير: توكيل المواقع الداخلية دون مصادقة صحيحة يعرضها للإنترنت وقد يسمح للمهاجمين بالوصول إلى شبكتك المنزلية.",
+    "name": "الاسم:",
+    "nameFallback": "الاسم",
+    "namePlaceholder": "myservice",
+    "urlPreview": "الرابط:",
+    "host": "المضيف:",
+    "hostPlaceholder": "192.168.1.10",
+    "port": "المنفذ:",
+    "portPlaceholder": "8080",
+    "https": "HTTPS:",
+    "add": "إضافة",
+    "proxies": "الوكلاء",
+    "noProxies": "لم يتم تكوين أي وكيل مخصص",
+    "remove": "إزالة"
+  },
+  "backup": {
+    "title": "النسخ الاحتياطي",
+    "select": "اختر",
+    "autoNo": "بدون تلقائي",
+    "autoBackup": "نسخ احتياطي تلقائي",
+    "autoRestore": "استعادة تلقائية",
+    "daily": "يوميًا",
+    "mon": "الإثنين",
+    "tue": "الثلاثاء",
+    "wed": "الأربعاء",
+    "thu": "الخميس",
+    "fri": "الجمعة",
+    "sat": "السبت",
+    "sun": "الأحد",
+    "save": "حفظ",
+    "name": "الاسم",
+    "typeToSearch": "اكتب للبحث",
+    "restore": "استعادة",
+    "delete": "حذف",
+    "restoreTitle": "استعادة",
+    "removeTitle": "إزالة",
+    "restorePrompt": "هل تريد استعادة:",
+    "removePrompt": "هل تريد إزالة:",
+    "loading": "جارٍ التحميل",
+    "restoring": "جارٍ الاستعادة: {file}",
+    "savingAuto": "جارٍ حفظ إعدادات النسخ الاحتياطي التلقائي"
+  },
+  "updates": {
+    "title": "التحديثات",
+    "check": "فحص",
+    "checkButton": "فحص التحديثات",
+    "note": "ملاحظة: قم بترقية النظام أولًا إن توفر قبل ترقية المثبت.",
+    "system": "النظام:",
+    "installer": "المثبت:",
+    "upgradeTo": "الترقية إلى {version}"
+  },
+  "internalMemory": {
+    "title": "الذاكرة الداخلية",
+    "boot": "الإقلاع",
+    "partition": "القسم - {size}",
+    "extend": "توسيع"
+  },
+  "storage": {
+    "title": "التخزين",
+    "disks": "الأقراص",
+    "partitions": "الأقسام",
+    "noExternalDisks": "لم يتم العثور على أقراص خارجية",
+    "none": "لا شيء",
+    "save": "حفظ",
+    "activateDisks": "تفعيل الأقراص",
+    "deactivateDisk": "تعطيل القرص",
+    "activatePartition": "تفعيل القسم",
+    "permissionsWarning": "كلما زاد عدد الملفات على القرص، زاد الوقت اللازم لتحديث الأذونات.",
+    "initializeQuestion": "هل تريد تهيئة القرص بإزالة جميع البيانات عليه؟ (اختياري)",
+    "externalDiskTitle": "قرص خارجي",
+    "externalDiskText": "كل تطبيق مُهيأ لاستخدام التخزين المقدم من النظام (المتاح في /data). تسمح لك شاشة الإعدادات هذه باختيار القرص المتصل الذي سيتم استخدامه لهذا التخزين. عند تفعيل قرص، لا يتم نسخ البيانات الموجودة إلى القرص المحدد. يمكنك تهيئة القرص بتهيئته لمسح جميع البيانات أو لجعله متوافقًا مع النظام.",
+    "currentChange": "التغيير الحالي",
+    "inProgress": "قيد التقدم",
+    "previousChange": "التغيير السابق"
+  },
+  "access": {
+    "title": "الوصول",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "الدعم:",
+    "public": "عام:",
+    "detectIp": "اكتشف IP:",
+    "publicIp": "IP العام:",
+    "publicPort": "المنفذ العام:",
+    "save": "حفظ",
+    "errorPortRange": "يجب أن يكون منفذ الوصول ({port}) بين 1 و 65535",
+    "errorEmptyIp": "IP فارغ",
+    "accessPortTitle": "منفذ الوصول",
+    "accessPortText": "إذا لم يكن جهاز Syncloud الخاص بك مرئيًا مباشرة من الإنترنت، فستحتاج إلى إنشاء تعيين منفذ على جهاز التوجيه الخاص بك. من الأفضل أن يتم تعيين المنفذ 443 على جهاز التوجيه إلى المنفذ 443 على الجهاز.",
+    "accessPortWarningTitle": "تحذير منفذ الوصول",
+    "accessPortWarningText": "منفذ الوصول ليس الافتراضي 443. قد لا تتمكن من الوصول إلى جهازك من شبكات ذات جدران حماية صارمة تسمح فقط بالمنفذ 443.",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "يُفعّل سجل DNS لـ IP v4 ويسمح لك بالتحكم في عنوان IP v4 (العام/الخاص) المُستخدم لـ DNS. تتحقق خدمة DNS الخاصة بـ Syncloud من إمكانية الوصول العامة (إمكانية الوصول إلى الإنترنت) عند الحفظ للراحة.",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "يُفعّل سجل DNS لـ IP v6. تتحقق خدمة DNS الخاصة بـ Syncloud من اتصال الجهاز (إمكانية الوصول إلى الإنترنت) عند الحفظ للراحة."
+  },
+  "activate": {
+    "title": "تفعيل",
+    "stepType": "النوع",
+    "stepName": "الاسم",
+    "stepUser": "المستخدم",
+    "premiumDescription": "يدير Syncloud نطاقك (مثل example.com). الاشتراك مطلوب اليوم.",
+    "premiumButton": "اسمك",
+    "freeDescription": "يدير Syncloud النطاق [الاسم].{domain}. الاشتراك مطلوب خلال 30 يومًا.",
+    "freeButton": "اسمنا",
+    "syncloudAccount": "حساب Syncloud",
+    "emailPlaceholder": "البريد الإلكتروني لـ {domain}",
+    "passwordPlaceholder": "كلمة مرور {domain}",
+    "noAccount": "ليس لديك حساب؟",
+    "register": "سجّل",
+    "deviceName": "اسم الجهاز",
+    "domainNamePlaceholder": "الاسم",
+    "premiumDomainPlaceholder": "نطاق من المستوى الأعلى مثل example.com",
+    "deviceCredentials": "بيانات اعتماد الجهاز",
+    "loginPlaceholder": "تسجيل الدخول",
+    "passwordInputPlaceholder": "كلمة المرور",
+    "confirmPasswordPlaceholder": "أكد كلمة المرور",
+    "passwordsMismatch": "كلمتا المرور غير متطابقتين",
+    "finish": "إنهاء",
+    "help": {
+      "managedDomainTitle": "النطاق المُدار",
+      "managedDomainText": "سيدير Syncloud سجلات DNS لاسم نطاقك الشخصي",
+      "syncloudAccountTitle": "حساب Syncloud",
+      "freeAccountText": "تحتاج إلى تسجيل حساب ولديك اشتراك صالح خلال 30 يومًا كحد أقصى بعد التسجيل. يتم استخدامه فقط للحفاظ على سجلات DNS لجهازك. يتم نقل البيانات مباشرة بين تطبيقاتك والجهاز.",
+      "premiumAccountText": "تحتاج إلى تسجيل حساب ولديك اشتراك صالح. يتم استخدامه فقط للحفاظ على سجلات DNS لجهازك. يتم نقل البيانات مباشرة بين تطبيقاتك والجهاز.",
+      "deviceCredentialsTitle": "بيانات اعتماد الجهاز",
+      "deviceCredentialsText": "تُستخدم بيانات اعتماد الجهاز للوصول إلى جهازك وجميع التطبيقات (بصلاحية المسؤول). يتم تخزينها على الجهاز ولا يعلمها أحد. إذا نسيتها، فستحتاج إلى إعادة تفعيل جهازك."
+    }
+  }
+}

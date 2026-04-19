@@ -1,0 +1,258 @@
+{
+  "language": {
+    "name": "Português",
+    "select": "Idioma",
+    "title": "Idioma"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "error": "Erro",
+    "info": "Informação",
+    "success": "Sucesso",
+    "serverError": "Erro do servidor",
+    "loading": "Carregando",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "finish": "Concluir"
+  },
+  "menu": {
+    "apps": "Aplicações",
+    "appCenter": "Centro de Aplicações",
+    "settings": "Configurações",
+    "logout": "Sair"
+  },
+  "error": {
+    "sendLogs": "Enviar registros",
+    "defaultMessage": "Ocorreu um erro!"
+  },
+  "login": {
+    "title": "Entrar",
+    "redirecting": "Redirecionando para o login..."
+  },
+  "settings": {
+    "title": "Configurações",
+    "activation": "Ativação",
+    "network": "Rede",
+    "access": "Acesso",
+    "internalMemory": "Memória interna",
+    "storage": "Armazenamento",
+    "updates": "Atualizações",
+    "support": "Suporte",
+    "backup": "Cópia de segurança",
+    "certificate": "Certificado",
+    "twoFactor": "2FA",
+    "logs": "Registros",
+    "customProxy": "Proxy personalizado",
+    "system": "Sistema",
+    "language": "Idioma"
+  },
+  "activation": {
+    "title": "Ativação",
+    "activatedAt": "Ativado em:",
+    "reassign": "Você pode atribuir um nome de\ndomínio diferente ao seu dispositivo",
+    "reactivate": "Reativar",
+    "loading": "Carregando ..."
+  },
+  "network": {
+    "title": "Rede",
+    "noNetworks": "Nenhuma rede encontrada",
+    "interface": "Interface:"
+  },
+  "apps": {
+    "title": "Aplicações",
+    "emptyHeading": "Você ainda não tem nenhuma aplicação instalada. Pode instalar uma pelo Centro de Aplicações",
+    "appCenterLink": "Centro de Aplicações"
+  },
+  "appCenter": {
+    "title": "Centro de Aplicações"
+  },
+  "app": {
+    "version": "Versão:",
+    "open": "Abrir",
+    "install": "Instalar v{version}",
+    "upgrade": "Atualizar v{version}",
+    "remove": "Remover",
+    "backup": "Cópia de segurança",
+    "installAction": "Instalar",
+    "upgradeAction": "Atualizar",
+    "removeAction": "Remover",
+    "areYouSure": "Tem certeza?",
+    "backupTitle": "Cópia de segurança",
+    "backupConfirmText": "Isto fará uma cópia das configurações da aplicação, excluindo arquivos enviados ao armazenamento em disco. Depois você pode restaurá-la em Configurações - Cópia de segurança. Tem certeza?",
+    "creatingBackup": "Criando uma cópia de segurança"
+  },
+  "certificate": {
+    "title": "Certificado",
+    "valid": "Válido:",
+    "validDays": "Dias válidos:",
+    "real": "Real:",
+    "moreDetails": "Você pode ver mais detalhes",
+    "log": "Registro"
+  },
+  "certificateLog": {
+    "title": "Registro do certificado"
+  },
+  "logs": {
+    "title": "Registros"
+  },
+  "support": {
+    "title": "Suporte",
+    "copyToSupport": "Enviar uma cópia ao suporte",
+    "yes": "Sim",
+    "no": "Não",
+    "reportIssue": "Relatar problema:",
+    "sendLogs": "Enviar registros"
+  },
+  "system": {
+    "title": "Sistema",
+    "restartLabel": "Reiniciar o dispositivo",
+    "restart": "Reiniciar",
+    "shutdownLabel": "Desligar o dispositivo",
+    "shutdown": "Desligar",
+    "restartConfirm": "Tem certeza de que deseja reiniciar o dispositivo?",
+    "shutdownConfirm": "Tem certeza de que deseja desligar o dispositivo? Será necessário acesso físico para ligá-lo novamente."
+  },
+  "twoFactor": {
+    "title": "Autenticação de dois fatores",
+    "status": "Status:",
+    "enabled": "Ativada",
+    "disabled": "Desativada",
+    "enable": "Ativar 2FA",
+    "disable": "Desativar 2FA",
+    "enabledNote": "Os usuários serão solicitados a configurar seu aplicativo autenticador durante o login."
+  },
+  "customProxy": {
+    "title": "Proxy personalizado",
+    "addProxy": "Adicionar proxy",
+    "warning": "Aviso: Fazer proxy de sites internos sem autenticação adequada os expõe à internet e pode permitir que invasores acessem sua rede doméstica.",
+    "name": "Nome:",
+    "nameFallback": "nome",
+    "namePlaceholder": "meuservico",
+    "urlPreview": "URL:",
+    "host": "Host:",
+    "hostPlaceholder": "192.168.1.10",
+    "port": "Porta:",
+    "portPlaceholder": "8080",
+    "https": "HTTPS:",
+    "add": "Adicionar",
+    "proxies": "Proxies",
+    "noProxies": "Nenhum proxy personalizado configurado",
+    "remove": "Remover"
+  },
+  "backup": {
+    "title": "Cópia de segurança",
+    "select": "Selecionar",
+    "autoNo": "Sem automático",
+    "autoBackup": "Cópia automática",
+    "autoRestore": "Restauração automática",
+    "daily": "Diariamente",
+    "mon": "Seg",
+    "tue": "Ter",
+    "wed": "Qua",
+    "thu": "Qui",
+    "fri": "Sex",
+    "sat": "Sáb",
+    "sun": "Dom",
+    "save": "Salvar",
+    "name": "Nome",
+    "typeToSearch": "Digite para pesquisar",
+    "restore": "Restaurar",
+    "delete": "Excluir",
+    "restoreTitle": "Restaurar",
+    "removeTitle": "Remover",
+    "restorePrompt": "Deseja restaurar:",
+    "removePrompt": "Deseja remover:",
+    "loading": "Carregando",
+    "restoring": "Restaurando: {file}",
+    "savingAuto": "Salvando configurações de cópia automática"
+  },
+  "updates": {
+    "title": "Atualizações",
+    "check": "Verificar",
+    "checkButton": "Verificar atualizações",
+    "note": "Nota: atualize o Sistema primeiro se disponível antes de atualizar o Instalador.",
+    "system": "Sistema:",
+    "installer": "Instalador:",
+    "upgradeTo": "Atualizar para {version}"
+  },
+  "internalMemory": {
+    "title": "Memória interna",
+    "boot": "Inicialização",
+    "partition": "Partição - {size}",
+    "extend": "Ampliar"
+  },
+  "storage": {
+    "title": "Armazenamento",
+    "disks": "Discos",
+    "partitions": "Partições",
+    "noExternalDisks": "Nenhum disco externo encontrado",
+    "none": "Nenhum",
+    "save": "Salvar",
+    "activateDisks": "Ativar discos",
+    "deactivateDisk": "Desativar disco",
+    "activatePartition": "Ativar partição",
+    "permissionsWarning": "Quanto mais arquivos você tiver no disco, mais tempo levará para atualizar as permissões.",
+    "initializeQuestion": "Inicializar o disco removendo todos os dados nele? (opcional)",
+    "externalDiskTitle": "Disco externo",
+    "externalDiskText": "Cada aplicação é configurada para usar o armazenamento fornecido pelo sistema (disponível em /data). Esta tela de configuração permite escolher qual disco conectado usar para esse armazenamento. Ao ativar um disco, os dados existentes não são copiados para o disco selecionado. Você pode inicializar um disco formatando-o para limpar todos os dados ou torná-lo compatível com o sistema.",
+    "currentChange": "Alteração atual",
+    "inProgress": "Em andamento",
+    "previousChange": "Alteração anterior"
+  },
+  "access": {
+    "title": "Acesso",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "Suporte:",
+    "public": "Público:",
+    "detectIp": "Detectar IP:",
+    "publicIp": "IP público:",
+    "publicPort": "Porta pública:",
+    "save": "Salvar",
+    "errorPortRange": "A porta de acesso ({port}) deve estar entre 1 e 65535",
+    "errorEmptyIp": "IP vazio",
+    "accessPortTitle": "Porta de acesso",
+    "accessPortText": "Se o seu dispositivo Syncloud não estiver visível diretamente da internet, será necessário criar um redirecionamento de portas no seu roteador. Idealmente, a porta 443 do roteador deve ser mapeada para a porta 443 do dispositivo.",
+    "accessPortWarningTitle": "Aviso da porta de acesso",
+    "accessPortWarningText": "A porta de acesso não é a 443 padrão. Você pode não conseguir acessar seu dispositivo a partir de redes com firewalls rigorosos que permitem apenas a porta 443.",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "Ativa o registro DNS IP v4 e permite controlar qual endereço IP v4 (público/privado) é usado para DNS. O serviço de DNS do Syncloud verifica a acessibilidade pública de IP/porta (acessibilidade à internet) por conveniência ao salvar.",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "Ativa o registro DNS IP v6. O serviço de DNS do Syncloud verifica a conexão do dispositivo (acessibilidade à internet) por conveniência ao salvar."
+  },
+  "activate": {
+    "title": "Ativar",
+    "stepType": "Tipo",
+    "stepName": "Nome",
+    "stepUser": "Usuário",
+    "premiumDescription": "Syncloud gerencia o seu domínio (como example.com). É necessário ter assinatura hoje.",
+    "premiumButton": "Seu nome",
+    "freeDescription": "Syncloud gerencia o domínio [nome].{domain}. É necessário ter assinatura em 30 dias.",
+    "freeButton": "Nosso nome",
+    "syncloudAccount": "Conta Syncloud",
+    "emailPlaceholder": "email de {domain}",
+    "passwordPlaceholder": "senha de {domain}",
+    "noAccount": "Não tem uma conta?",
+    "register": "cadastre-se",
+    "deviceName": "Nome do dispositivo",
+    "domainNamePlaceholder": "Nome",
+    "premiumDomainPlaceholder": "Domínio de nível superior como example.com",
+    "deviceCredentials": "Credenciais do dispositivo",
+    "loginPlaceholder": "Usuário",
+    "passwordInputPlaceholder": "Senha",
+    "confirmPasswordPlaceholder": "Confirme sua senha",
+    "passwordsMismatch": "As senhas não coincidem",
+    "finish": "Concluir",
+    "help": {
+      "managedDomainTitle": "Domínio gerenciado",
+      "managedDomainText": "O Syncloud gerenciará os registros DNS do seu nome de domínio pessoal",
+      "syncloudAccountTitle": "Conta Syncloud",
+      "freeAccountText": "Você precisa cadastrar uma conta e ter uma assinatura válida em no máximo 30 dias após o cadastro. Ela é usada apenas para manter os registros DNS do seu dispositivo. A transferência de dados ocorre diretamente entre suas aplicações e o dispositivo.",
+      "premiumAccountText": "Você precisa cadastrar uma conta e ter uma assinatura válida. Ela é usada apenas para manter os registros DNS do seu dispositivo. A transferência de dados ocorre diretamente entre suas aplicações e o dispositivo.",
+      "deviceCredentialsTitle": "Credenciais do dispositivo",
+      "deviceCredentialsText": "As credenciais do dispositivo são usadas para acessar seu dispositivo e todas as aplicações (como usuário administrador). Elas são armazenadas no dispositivo e ninguém as conhece. Se esquecê-las, você precisará reativar o dispositivo."
+    }
+  }
+}

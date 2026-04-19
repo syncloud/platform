@@ -2,18 +2,18 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Activation</h1>
+        <h1>{{ $t('activation.title') }}</h1>
         <div class="row-no-gutters settingsblock">
 
           <div class="col2">
             <div class="setline">
-              <span class="span">Activated at: </span><a id="txt_device_domain" :href="url">{{ url }}</a>
+              <span class="span">{{ $t('activation.activatedAt') }} </span><a id="txt_device_domain" :href="url">{{ url }}</a>
             </div>
 
             <div class="setline">
-              <span class="span">You can assign different<br>domain name to your device</span>
+              <span class="span" style="white-space: pre-line">{{ $t('activation.reassign') }}</span>
               <div class="spandiv">
-                <button class="buttongreen bwidth smbutton" id="btn_reactivate" @click="reactivate">Reactivate</button>
+                <button class="buttongreen bwidth smbutton" id="btn_reactivate" @click="reactivate">{{ $t('activation.reactivate') }}</button>
               </div>
             </div>
 
@@ -38,7 +38,7 @@ export default {
   name: 'Activation',
   data () {
     return {
-      url: 'Loading ...'
+      url: ''
     }
   },
   components: {
@@ -70,7 +70,7 @@ export default {
         })
     },
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

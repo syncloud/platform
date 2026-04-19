@@ -1,17 +1,21 @@
 <template>
-  <Menu v-bind:activeTab="currentPath"/>
-  <router-view/>
-  <Error ref="app_error"/>
+  <el-config-provider :locale="elementLocale">
+    <Menu v-bind:activeTab="currentPath"/>
+    <router-view/>
+    <Error ref="app_error"/>
+  </el-config-provider>
 </template>
 <script>
 import Menu from './components/Menu.vue'
 import Error from './components/Error.vue'
 import { useAuthStore } from './stores/auth'
+import { elementLocale } from './i18n'
 
 export default {
   data () {
     return {
-      currentPath: ''
+      currentPath: '',
+      elementLocale
     }
   },
   name: 'VueApp',

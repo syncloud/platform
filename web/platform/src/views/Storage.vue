@@ -2,14 +2,14 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1" id="block1">
-        <h1>Storage</h1>
+        <h1>{{ $t('storage.title') }}</h1>
         <div>
           <div class="col2">
             <div class="setline">
 
               <div class="setline" style="margin-top: 20px;">
                 <div class="spandiv" style="font-weight: bold; margin-right: 10px;">
-                  <el-switch size="large" id="multi" active-text="Disks" inactive-text="Partitions" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
+                  <el-switch size="large" id="multi" :active-text="$t('storage.disks')" :inactive-text="$t('storage.partitions')" v-model="multiMode" style="--el-switch-on-color: #36ad40;"/>
                 </div>
                 <button @click="helpVisible = true" type=button
                         class="control" style="background:transparent;">
@@ -18,7 +18,7 @@
               </div>
 
               <div>
-                <span id="no_disks" class="span" v-if="disks.length === 0">No external disks found</span>
+                <span id="no_disks" class="span" v-if="disks.length === 0">{{ $t('storage.noExternalDisks') }}</span>
 
                 <!--Single disk-->
                 <div v-if="!multiMode">
@@ -34,7 +34,7 @@
                       </div>
                     </div>
                     <el-radio id="none" label="none" size="large" border class="disk" v-if="disks.length !== 0">
-                      <span>None</span>
+                      <span>{{ $t('storage.none') }}</span>
                     </el-radio>
                   </el-radio-group>
                 </div>
@@ -59,7 +59,7 @@
                   <div class="spandiv">
                     <button class="submit buttongreen control" id="btn_save" type="submit"
                             data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."
-                            style="width: 150px" @click="confirmationVisible = true">Save
+                            style="width: 150px" @click="confirmationVisible = true">{{ $t('storage.save') }}
                     </button>
                   </div>
                 </div>
@@ -78,24 +78,24 @@
                 @cancel="diskActionCancel">
     <template v-slot:title>
       <div v-if="multiMode">
-        <span v-if="activeMultiDisks.length !== 0">Activate disks</span>
-        <span v-if="activeMultiDisks.length === 0">Deactivate disk</span>
+        <span v-if="activeMultiDisks.length !== 0">{{ $t('storage.activateDisks') }}</span>
+        <span v-if="activeMultiDisks.length === 0">{{ $t('storage.deactivateDisk') }}</span>
       </div>
       <div v-if="!multiMode">
-        <span v-if="activeSinglePartition !== 'none'">Activate partition</span>
-        <span v-if="activeSinglePartition === 'none'">Deactivate disk</span>
+        <span v-if="activeSinglePartition !== 'none'">{{ $t('storage.activatePartition') }}</span>
+        <span v-if="activeSinglePartition === 'none'">{{ $t('storage.deactivateDisk') }}</span>
       </div>
     </template>
     <template v-slot:text>
       <div style="display: grid" v-if="multiMode">
-        <span style="padding-bottom: 10px">The more files you have on the disk the longer it takes to update permissions.</span>
+        <span style="padding-bottom: 10px">{{ $t('storage.permissionsWarning') }}</span>
         <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
           {{ descriptionByDisk(device) }}
         </span>
         <el-row v-show="activeMultiDisks.length !== 0" style="align-items: center;">
           <el-col :span="24" style="min-height: 20px"></el-col>
           <el-col :span="20" style="padding-right: 10px">
-            Initialize disk by removing all data on it? (optional)
+            {{ $t('storage.initializeQuestion') }}
           </el-col>
           <el-col :span="4" style="text-align: right;">
             <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
@@ -109,7 +109,7 @@
         <el-row v-show="activeSinglePartition !== 'none'" style="align-items: center;">
           <el-col :span="24" style="min-height: 20px"></el-col>
           <el-col :span="20" style="padding-right: 10px">
-            Initialize disk by removing all data on it? (optional)
+            {{ $t('storage.initializeQuestion') }}
           </el-col>
           <el-col :span="4" style="text-align: right;">
             <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
@@ -119,14 +119,11 @@
     </template>
   </Dialog>
 
-  <Dialog :visible="helpVisible" @cancel="helpVisible=false" :confirm-enabled="false" cancel-text="Close" >
-    <template v-slot:title>External disk</template>
+  <Dialog :visible="helpVisible" @cancel="helpVisible=false" :confirm-enabled="false" :cancel-text="$t('common.close')" >
+    <template v-slot:title>{{ $t('storage.externalDiskTitle') }}</template>
     <template v-slot:text>
       <div class="btext">
-        Every app is configured to use storage provided by the system (which is available at /data).
-        This setting screen allows you to choose which attached disk to use for that storage.<br>
-        When activating a disk existing data is not copied to the selected disk.<br><br>
-        You can initialize a disk by formatting it to clear all the data or to make it compatible with the system.
+        {{ $t('storage.externalDiskText') }}
       </div>
     </template>
   </Dialog>
@@ -163,7 +160,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
@@ -203,8 +200,8 @@ export default {
         .then(resp => {
           if (resp.data.data.name.startsWith('storage.')) {
             ElNotification({
-              title: 'Current change',
-              message: 'Is in progress',
+              title: this.$t('storage.currentChange'),
+              message: this.$t('storage.inProgress'),
               type: 'warning'
             })
           }
@@ -218,7 +215,7 @@ export default {
       axios.get('/rest/storage/error/last')
         .catch(err => {
           ElNotification({
-            title: 'Previous change',
+            title: this.$t('storage.previousChange'),
             message: err.response.data.message,
             type: 'error',
             duration: 0,

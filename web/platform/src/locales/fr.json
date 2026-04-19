@@ -1,0 +1,258 @@
+{
+  "language": {
+    "name": "Français",
+    "select": "Langue",
+    "title": "Langue"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "error": "Erreur",
+    "info": "Information",
+    "success": "Succès",
+    "serverError": "Erreur du serveur",
+    "loading": "Chargement",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "finish": "Terminer"
+  },
+  "menu": {
+    "apps": "Applications",
+    "appCenter": "Catalogue d'applications",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "error": {
+    "sendLogs": "Envoyer les journaux",
+    "defaultMessage": "Une erreur est survenue !"
+  },
+  "login": {
+    "title": "Se connecter",
+    "redirecting": "Redirection vers la connexion..."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "activation": "Activation",
+    "network": "Réseau",
+    "access": "Accès",
+    "internalMemory": "Mémoire interne",
+    "storage": "Stockage",
+    "updates": "Mises à jour",
+    "support": "Assistance",
+    "backup": "Sauvegarde",
+    "certificate": "Certificat",
+    "twoFactor": "2FA",
+    "logs": "Journaux",
+    "customProxy": "Proxy personnalisé",
+    "system": "Système",
+    "language": "Langue"
+  },
+  "activation": {
+    "title": "Activation",
+    "activatedAt": "Activé à :",
+    "reassign": "Vous pouvez attribuer un\nnom de domaine différent à votre appareil",
+    "reactivate": "Réactiver",
+    "loading": "Chargement ..."
+  },
+  "network": {
+    "title": "Réseau",
+    "noNetworks": "Aucun réseau trouvé",
+    "interface": "Interface :"
+  },
+  "apps": {
+    "title": "Applications",
+    "emptyHeading": "Vous n'avez encore aucune application installée. Vous pouvez en installer une depuis le Catalogue d'applications",
+    "appCenterLink": "Catalogue d'applications"
+  },
+  "appCenter": {
+    "title": "Catalogue d'applications"
+  },
+  "app": {
+    "version": "Version :",
+    "open": "Ouvrir",
+    "install": "Installer v{version}",
+    "upgrade": "Mettre à jour v{version}",
+    "remove": "Supprimer",
+    "backup": "Sauvegarder",
+    "installAction": "Installer",
+    "upgradeAction": "Mettre à jour",
+    "removeAction": "Supprimer",
+    "areYouSure": "Êtes-vous sûr ?",
+    "backupTitle": "Sauvegarde",
+    "backupConfirmText": "Ceci sauvegardera les paramètres de l'application en excluant les fichiers téléversés vers le stockage disque. Vous pourrez ensuite la restaurer depuis Paramètres - Sauvegarde. Êtes-vous sûr ?",
+    "creatingBackup": "Création d'une sauvegarde"
+  },
+  "certificate": {
+    "title": "Certificat",
+    "valid": "Valide :",
+    "validDays": "Jours de validité :",
+    "real": "Réel :",
+    "moreDetails": "Vous pouvez voir plus de détails",
+    "log": "Journal"
+  },
+  "certificateLog": {
+    "title": "Journal du certificat"
+  },
+  "logs": {
+    "title": "Journaux"
+  },
+  "support": {
+    "title": "Assistance",
+    "copyToSupport": "Envoyer une copie à l'assistance",
+    "yes": "Oui",
+    "no": "Non",
+    "reportIssue": "Signaler un problème :",
+    "sendLogs": "Envoyer les journaux"
+  },
+  "system": {
+    "title": "Système",
+    "restartLabel": "Redémarrer l'appareil",
+    "restart": "Redémarrer",
+    "shutdownLabel": "Éteindre l'appareil",
+    "shutdown": "Éteindre",
+    "restartConfirm": "Voulez-vous vraiment redémarrer l'appareil ?",
+    "shutdownConfirm": "Voulez-vous vraiment éteindre l'appareil ? Il vous faudra un accès physique pour le rallumer."
+  },
+  "twoFactor": {
+    "title": "Authentification à deux facteurs",
+    "status": "Statut :",
+    "enabled": "Activée",
+    "disabled": "Désactivée",
+    "enable": "Activer 2FA",
+    "disable": "Désactiver 2FA",
+    "enabledNote": "Les utilisateurs seront invités à configurer leur application d'authentification lors de la connexion."
+  },
+  "customProxy": {
+    "title": "Proxy personnalisé",
+    "addProxy": "Ajouter un proxy",
+    "warning": "Attention : faire transiter des sites internes sans authentification adéquate les expose à internet et peut permettre à des attaquants d'accéder à votre réseau domestique.",
+    "name": "Nom :",
+    "nameFallback": "nom",
+    "namePlaceholder": "monservice",
+    "urlPreview": "URL :",
+    "host": "Hôte :",
+    "hostPlaceholder": "192.168.1.10",
+    "port": "Port :",
+    "portPlaceholder": "8080",
+    "https": "HTTPS :",
+    "add": "Ajouter",
+    "proxies": "Proxies",
+    "noProxies": "Aucun proxy personnalisé configuré",
+    "remove": "Supprimer"
+  },
+  "backup": {
+    "title": "Sauvegarde",
+    "select": "Sélectionner",
+    "autoNo": "Pas d'auto",
+    "autoBackup": "Sauvegarde auto",
+    "autoRestore": "Restauration auto",
+    "daily": "Quotidien",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mer",
+    "thu": "Jeu",
+    "fri": "Ven",
+    "sat": "Sam",
+    "sun": "Dim",
+    "save": "Enregistrer",
+    "name": "Nom",
+    "typeToSearch": "Taper pour rechercher",
+    "restore": "Restaurer",
+    "delete": "Supprimer",
+    "restoreTitle": "Restaurer",
+    "removeTitle": "Supprimer",
+    "restorePrompt": "Voulez-vous restaurer :",
+    "removePrompt": "Voulez-vous supprimer :",
+    "loading": "Chargement",
+    "restoring": "Restauration : {file}",
+    "savingAuto": "Enregistrement des réglages de sauvegarde auto"
+  },
+  "updates": {
+    "title": "Mises à jour",
+    "check": "Vérifier",
+    "checkButton": "Rechercher des mises à jour",
+    "note": "Note : mettez à jour le Système d'abord s'il y a une mise à jour disponible avant de mettre à jour l'Installeur.",
+    "system": "Système :",
+    "installer": "Installeur :",
+    "upgradeTo": "Mettre à jour vers {version}"
+  },
+  "internalMemory": {
+    "title": "Mémoire interne",
+    "boot": "Démarrage",
+    "partition": "Partition - {size}",
+    "extend": "Étendre"
+  },
+  "storage": {
+    "title": "Stockage",
+    "disks": "Disques",
+    "partitions": "Partitions",
+    "noExternalDisks": "Aucun disque externe trouvé",
+    "none": "Aucun",
+    "save": "Enregistrer",
+    "activateDisks": "Activer les disques",
+    "deactivateDisk": "Désactiver le disque",
+    "activatePartition": "Activer la partition",
+    "permissionsWarning": "Plus vous avez de fichiers sur le disque, plus la mise à jour des permissions prend de temps.",
+    "initializeQuestion": "Initialiser le disque en supprimant toutes les données ? (facultatif)",
+    "externalDiskTitle": "Disque externe",
+    "externalDiskText": "Chaque application est configurée pour utiliser le stockage fourni par le système (disponible dans /data). Cet écran vous permet de choisir quel disque attaché utiliser pour ce stockage. Lors de l'activation d'un disque, les données existantes ne sont pas copiées vers le disque sélectionné. Vous pouvez initialiser un disque en le formatant pour effacer toutes les données ou le rendre compatible avec le système.",
+    "currentChange": "Modification en cours",
+    "inProgress": "En cours",
+    "previousChange": "Modification précédente"
+  },
+  "access": {
+    "title": "Accès",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "Prise en charge :",
+    "public": "Public :",
+    "detectIp": "Détecter l'IP :",
+    "publicIp": "IP publique :",
+    "publicPort": "Port public :",
+    "save": "Enregistrer",
+    "errorPortRange": "Le port d'accès ({port}) doit être entre 1 et 65535",
+    "errorEmptyIp": "IP vide",
+    "accessPortTitle": "Port d'accès",
+    "accessPortText": "Si votre appareil Syncloud n'est pas visible directement depuis internet, vous devrez configurer une redirection de port sur votre routeur. Idéalement, le port 443 du routeur doit être mappé vers le port 443 de l'appareil.",
+    "accessPortWarningTitle": "Avertissement port d'accès",
+    "accessPortWarningText": "Le port d'accès n'est pas le 443 par défaut. Vous pourriez ne pas pouvoir accéder à votre appareil depuis des réseaux avec des pare-feu stricts autorisant uniquement le port 443.",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "Active l'enregistrement DNS IP v4 et vous permet de contrôler quelle adresse IP v4 (publique/privée) est utilisée pour le DNS. Le service DNS Syncloud vérifie l'accessibilité publique ip/port (accessibilité internet) par commodité lors de l'enregistrement.",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "Active l'enregistrement DNS IP v6. Le service DNS Syncloud vérifie la connexion de l'appareil (accessibilité internet) par commodité lors de l'enregistrement."
+  },
+  "activate": {
+    "title": "Activer",
+    "stepType": "Type",
+    "stepName": "Nom",
+    "stepUser": "Utilisateur",
+    "premiumDescription": "Syncloud gère votre domaine (comme example.com). Un abonnement est requis dès aujourd'hui.",
+    "premiumButton": "Votre nom",
+    "freeDescription": "Syncloud gère le domaine [nom].{domain}. Un abonnement est requis sous 30 jours.",
+    "freeButton": "Notre nom",
+    "syncloudAccount": "Compte Syncloud",
+    "emailPlaceholder": "email {domain}",
+    "passwordPlaceholder": "mot de passe {domain}",
+    "noAccount": "Pas de compte ?",
+    "register": "s'inscrire",
+    "deviceName": "Nom de l'appareil",
+    "domainNamePlaceholder": "Nom",
+    "premiumDomainPlaceholder": "Domaine de premier niveau comme example.com",
+    "deviceCredentials": "Identifiants de l'appareil",
+    "loginPlaceholder": "Identifiant",
+    "passwordInputPlaceholder": "Mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+    "passwordsMismatch": "Les mots de passe ne correspondent pas",
+    "finish": "Terminer",
+    "help": {
+      "managedDomainTitle": "Domaine géré",
+      "managedDomainText": "Syncloud gérera les enregistrements DNS de votre nom de domaine personnel",
+      "syncloudAccountTitle": "Compte Syncloud",
+      "freeAccountText": "Vous devez créer un compte et disposer d'un abonnement valide dans les 30 jours suivant l'inscription. Il sert uniquement à maintenir les enregistrements DNS de votre appareil. Le transfert de données se fait directement entre vos applications et l'appareil.",
+      "premiumAccountText": "Vous devez créer un compte et disposer d'un abonnement valide. Il sert uniquement à maintenir les enregistrements DNS de votre appareil. Le transfert de données se fait directement entre vos applications et l'appareil.",
+      "deviceCredentialsTitle": "Identifiants de l'appareil",
+      "deviceCredentialsText": "Les identifiants de l'appareil servent à accéder à votre appareil et à toutes les applications (en tant qu'administrateur). Ils sont stockés sur l'appareil et personne ne les connaît. Si vous les oubliez, vous devrez réactiver votre appareil."
+    }
+  }
+}

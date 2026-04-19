@@ -1,0 +1,258 @@
+{
+  "language": {
+    "name": "中文",
+    "select": "语言",
+    "title": "语言"
+  },
+  "common": {
+    "cancel": "取消",
+    "close": "关闭",
+    "confirm": "确认",
+    "error": "错误",
+    "info": "信息",
+    "success": "成功",
+    "serverError": "服务器错误",
+    "loading": "加载中",
+    "previous": "上一步",
+    "next": "下一步",
+    "finish": "完成"
+  },
+  "menu": {
+    "apps": "应用",
+    "appCenter": "应用中心",
+    "settings": "设置",
+    "logout": "退出"
+  },
+  "error": {
+    "sendLogs": "发送日志",
+    "defaultMessage": "发生错误!"
+  },
+  "login": {
+    "title": "登录",
+    "redirecting": "正在跳转登录..."
+  },
+  "settings": {
+    "title": "设置",
+    "activation": "激活",
+    "network": "网络",
+    "access": "访问",
+    "internalMemory": "内部存储",
+    "storage": "存储",
+    "updates": "更新",
+    "support": "支持",
+    "backup": "备份",
+    "certificate": "证书",
+    "twoFactor": "2FA",
+    "logs": "日志",
+    "customProxy": "自定义代理",
+    "system": "系统",
+    "language": "语言"
+  },
+  "activation": {
+    "title": "激活",
+    "activatedAt": "激活地址:",
+    "reassign": "您可以为设备分配\n不同的域名",
+    "reactivate": "重新激活",
+    "loading": "加载中 ..."
+  },
+  "network": {
+    "title": "网络",
+    "noNetworks": "未找到网络",
+    "interface": "接口:"
+  },
+  "apps": {
+    "title": "应用",
+    "emptyHeading": "您还没有安装任何应用。您可以从应用中心安装",
+    "appCenterLink": "应用中心"
+  },
+  "appCenter": {
+    "title": "应用中心"
+  },
+  "app": {
+    "version": "版本:",
+    "open": "打开",
+    "install": "安装 v{version}",
+    "upgrade": "升级 v{version}",
+    "remove": "卸载",
+    "backup": "备份",
+    "installAction": "安装",
+    "upgradeAction": "升级",
+    "removeAction": "卸载",
+    "areYouSure": "您确定吗?",
+    "backupTitle": "备份",
+    "backupConfirmText": "这将备份应用设置,但不包括上传到磁盘存储的文件。之后您可以从「设置 - 备份」恢复。您确定吗?",
+    "creatingBackup": "正在创建备份"
+  },
+  "certificate": {
+    "title": "证书",
+    "valid": "有效:",
+    "validDays": "有效天数:",
+    "real": "真实:",
+    "moreDetails": "您可以查看更多详情",
+    "log": "日志"
+  },
+  "certificateLog": {
+    "title": "证书日志"
+  },
+  "logs": {
+    "title": "日志"
+  },
+  "support": {
+    "title": "支持",
+    "copyToSupport": "向支持团队发送副本",
+    "yes": "是",
+    "no": "否",
+    "reportIssue": "报告问题:",
+    "sendLogs": "发送日志"
+  },
+  "system": {
+    "title": "系统",
+    "restartLabel": "重启设备",
+    "restart": "重启",
+    "shutdownLabel": "关闭设备",
+    "shutdown": "关机",
+    "restartConfirm": "您确定要重启设备吗?",
+    "shutdownConfirm": "您确定要关闭设备吗?您需要物理访问才能再次开机。"
+  },
+  "twoFactor": {
+    "title": "双因素认证",
+    "status": "状态:",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "enable": "启用 2FA",
+    "disable": "禁用 2FA",
+    "enabledNote": "用户登录时将被提示设置验证器应用。"
+  },
+  "customProxy": {
+    "title": "自定义代理",
+    "addProxy": "添加代理",
+    "warning": "警告:在未进行适当身份验证的情况下为内部网站设置代理,会将其暴露到互联网,可能使攻击者访问您的家庭网络。",
+    "name": "名称:",
+    "nameFallback": "名称",
+    "namePlaceholder": "myservice",
+    "urlPreview": "URL:",
+    "host": "主机:",
+    "hostPlaceholder": "192.168.1.10",
+    "port": "端口:",
+    "portPlaceholder": "8080",
+    "https": "HTTPS:",
+    "add": "添加",
+    "proxies": "代理",
+    "noProxies": "未配置自定义代理",
+    "remove": "移除"
+  },
+  "backup": {
+    "title": "备份",
+    "select": "选择",
+    "autoNo": "无自动",
+    "autoBackup": "自动备份",
+    "autoRestore": "自动恢复",
+    "daily": "每天",
+    "mon": "周一",
+    "tue": "周二",
+    "wed": "周三",
+    "thu": "周四",
+    "fri": "周五",
+    "sat": "周六",
+    "sun": "周日",
+    "save": "保存",
+    "name": "名称",
+    "typeToSearch": "输入以搜索",
+    "restore": "恢复",
+    "delete": "删除",
+    "restoreTitle": "恢复",
+    "removeTitle": "移除",
+    "restorePrompt": "您要恢复:",
+    "removePrompt": "您要移除:",
+    "loading": "加载中",
+    "restoring": "正在恢复: {file}",
+    "savingAuto": "正在保存自动备份设置"
+  },
+  "updates": {
+    "title": "更新",
+    "check": "检查",
+    "checkButton": "检查更新",
+    "note": "注意:如有可用更新,请先升级系统,然后再升级安装器。",
+    "system": "系统:",
+    "installer": "安装器:",
+    "upgradeTo": "升级到 {version}"
+  },
+  "internalMemory": {
+    "title": "内部存储",
+    "boot": "引导",
+    "partition": "分区 - {size}",
+    "extend": "扩展"
+  },
+  "storage": {
+    "title": "存储",
+    "disks": "磁盘",
+    "partitions": "分区",
+    "noExternalDisks": "未找到外部磁盘",
+    "none": "无",
+    "save": "保存",
+    "activateDisks": "激活磁盘",
+    "deactivateDisk": "停用磁盘",
+    "activatePartition": "激活分区",
+    "permissionsWarning": "磁盘上的文件越多,更新权限所需时间越长。",
+    "initializeQuestion": "初始化磁盘并删除其上所有数据?(可选)",
+    "externalDiskTitle": "外部磁盘",
+    "externalDiskText": "每个应用都配置为使用系统提供的存储(位于 /data)。此设置屏幕允许您选择要用于该存储的已连接磁盘。激活磁盘时,现有数据不会被复制到所选磁盘。您可以通过格式化磁盘来清除所有数据或使其与系统兼容。",
+    "currentChange": "当前更改",
+    "inProgress": "进行中",
+    "previousChange": "之前的更改"
+  },
+  "access": {
+    "title": "访问",
+    "ipv4": "IP v4",
+    "ipv6": "IP v6",
+    "support": "支持:",
+    "public": "公网:",
+    "detectIp": "自动检测 IP:",
+    "publicIp": "公网 IP:",
+    "publicPort": "公网端口:",
+    "save": "保存",
+    "errorPortRange": "访问端口 ({port}) 必须在 1 到 65535 之间",
+    "errorEmptyIp": "IP 为空",
+    "accessPortTitle": "访问端口",
+    "accessPortText": "如果您的 Syncloud 设备无法直接从互联网访问,您需要在路由器上创建端口映射。理想情况下,路由器上的 443 端口应映射到设备的 443 端口。",
+    "accessPortWarningTitle": "访问端口警告",
+    "accessPortWarningText": "访问端口不是默认的 443。您可能无法从仅允许 443 端口的严格防火墙网络访问您的设备。",
+    "ipv4Title": "IP v4",
+    "ipv4Text": "启用 IP v4 DNS 记录,并允许您控制用于 DNS 的 IP v4 地址(公网/私有)。Syncloud DNS 服务在保存时会为方便起见验证公网 IP/端口的开放性(互联网可访问性)。",
+    "ipv6Title": "IP v6",
+    "ipv6Text": "启用 IP v6 DNS 记录。Syncloud DNS 服务在保存时会为方便起见验证设备连接(互联网可访问性)。"
+  },
+  "activate": {
+    "title": "激活",
+    "stepType": "类型",
+    "stepName": "名称",
+    "stepUser": "用户",
+    "premiumDescription": "Syncloud 管理您的域名(如 example.com)。今天即需订阅。",
+    "premiumButton": "您的名称",
+    "freeDescription": "Syncloud 管理 [名称].{domain} 域名。30 天内需要订阅。",
+    "freeButton": "我们的名称",
+    "syncloudAccount": "Syncloud 账户",
+    "emailPlaceholder": "{domain} 邮箱",
+    "passwordPlaceholder": "{domain} 密码",
+    "noAccount": "还没有账户?",
+    "register": "注册",
+    "deviceName": "设备名称",
+    "domainNamePlaceholder": "名称",
+    "premiumDomainPlaceholder": "顶级域名如 example.com",
+    "deviceCredentials": "设备凭据",
+    "loginPlaceholder": "登录名",
+    "passwordInputPlaceholder": "密码",
+    "confirmPasswordPlaceholder": "确认密码",
+    "passwordsMismatch": "密码不匹配",
+    "finish": "完成",
+    "help": {
+      "managedDomainTitle": "托管域名",
+      "managedDomainText": "Syncloud 将为您的个人域名管理 DNS 记录",
+      "syncloudAccountTitle": "Syncloud 账户",
+      "freeAccountText": "您需要注册账户,并在注册后 30 天内拥有有效订阅。它仅用于维护设备的 DNS 记录。数据传输直接在您的应用与设备之间进行。",
+      "premiumAccountText": "您需要注册账户并拥有有效订阅。它仅用于维护设备的 DNS 记录。数据传输直接在您的应用与设备之间进行。",
+      "deviceCredentialsTitle": "设备凭据",
+      "deviceCredentialsText": "设备凭据用于访问您的设备和所有应用(作为管理员用户)。它们存储在设备上,无人知晓。如果您忘记,需要重新激活设备。"
+    }
+  }
+}

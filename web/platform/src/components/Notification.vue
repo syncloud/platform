@@ -1,8 +1,13 @@
 <script>
 import { ElNotification } from 'element-plus'
+import i18n from '../i18n'
+
+function t (key) {
+  return i18n.global.t(key)
+}
 
 function error (error) {
-  let message = 'Server Error'
+  let message = t('common.serverError')
   if (error.response) {
     const status = error.response.status
     if (status === 401) {
@@ -16,7 +21,7 @@ function error (error) {
     }
   }
   ElNotification({
-    title: 'Error',
+    title: t('common.error'),
     message: message,
     type: 'error'
   })
@@ -24,7 +29,7 @@ function error (error) {
 
 function info (message) {
   ElNotification({
-    title: 'Info',
+    title: t('common.info'),
     message: message,
     type: 'info'
   })
@@ -32,7 +37,7 @@ function info (message) {
 
 function success (message) {
   ElNotification({
-    title: 'Success',
+    title: t('common.success'),
     message: message,
     type: 'success'
   })
