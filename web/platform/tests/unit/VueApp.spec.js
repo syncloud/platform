@@ -26,7 +26,8 @@ test('activated and logged in', async () => {
       },
       stubs: {
         Menu: true,
-        Error: true
+        Error: true,
+        'el-config-provider': { template: '<div><slot/></div>' }
       },
       mocks: {
         $route: mockRoute,
@@ -58,7 +59,8 @@ test('activated and not logged in', async () => {
       },
       stubs: {
         Menu: true,
-        Error: true
+        Error: true,
+        'el-config-provider': { template: '<div><slot/></div>' }
       },
       mocks: {
         $route: { path: '/activate' },
@@ -91,7 +93,8 @@ test('not activated and not logged in', async () => {
       },
       stubs: {
         Menu: true,
-        Error: true
+        Error: true,
+        'el-config-provider': { template: '<div><slot/></div>' }
       },
       mocks: {
         $route: mockRoute,
