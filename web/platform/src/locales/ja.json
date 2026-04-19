@@ -2,5 +2,25 @@
   "language": {
     "name": "English",
     "select": "Language"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "error": "Error",
+    "info": "Info",
+    "success": "Success",
+    "serverError": "Server Error",
+    "loading": "Loading"
+  },
+  "menu": {
+    "apps": "Apps",
+    "appCenter": "App Center",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "error": {
+    "sendLogs": "Send logs",
+    "defaultMessage": "Some error happened!"
   }
 }

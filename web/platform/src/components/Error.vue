@@ -2,7 +2,7 @@
   <el-dialog v-model="visible" style="min-width: 300px; max-width: 500px">
     <template #header>
       <h4 class="modal-title">
-        <slot name="title">Error</slot>
+        <slot name="title">{{ $t('common.error') }}</slot>
       </h4>
     </template>
     <slot name="text">
@@ -11,8 +11,8 @@
       </div>
     </slot>
     <template #footer>
-      <el-button @click="close">Close</el-button>
-      <el-button v-if="enableLogs" id="btn_error_send_logs" @click="sendLogs">Send logs</el-button>
+      <el-button @click="close">{{ $t('common.close') }}</el-button>
+      <el-button v-if="enableLogs" id="btn_error_send_logs" @click="sendLogs">{{ $t('error.sendLogs') }}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -26,7 +26,7 @@ export default {
   },
   data () {
     return {
-      message: 'Some error happened!',
+      message: '',
       visible: false
     }
   },
@@ -56,7 +56,7 @@ export default {
         console.log('user navigated away from the page')
         return
       }
-      let message = 'Server Error'
+      let message = this.$t('common.serverError')
       if (err.response !== undefined && err.response.data !== undefined) {
         const error = err.response.data
         if (error.message !== undefined) {
