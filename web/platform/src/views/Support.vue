@@ -3,27 +3,21 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Support</h1>
+        <h1>{{ $t('support.title') }}</h1>
         <div class="row-no-gutters settingsblock">
           <div class="col2">
             <div class="setline">
-              <span class="span">Send a copy to support</span>
+              <span class="span">{{ $t('support.copyToSupport') }}</span>
               <el-switch id="switch" size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;"
-                         active-text="Yes" inactive-text="No" inline-prompt/>
+                         :active-text="$t('support.yes')" :inactive-text="$t('support.no')" inline-prompt/>
             </div>
             <div class="setline">
-              <span class="span">Report Issue:</span>
-              <!--              <button
-                              id="send"
-                              class="buttonblue bwidth smbutton"
-                              @click="sendLogs"
-                              data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Sending...">Send logs
-                            </button>-->
+              <span class="span">{{ $t('support.reportIssue') }}</span>
               <el-button id="send"
                          :loading="loading"
                          type="primary"
                          @click="sendLogs">
-                Send logs
+                {{ $t('support.sendLogs') }}
               </el-button>
             </div>
           </div>
