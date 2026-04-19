@@ -81,6 +81,30 @@
     "backupConfirmText": "This will backup app settings excluding files uploaded to the disk storage. Later you can restore it from Settings - Backup. Are you sure?",
     "creatingBackup": "Creating a backup"
   },
+  "internalMemory": {
+    "title": "Internal Memory",
+    "boot": "Boot",
+    "partition": "Partition - {size}",
+    "extend": "Extend"
+  },
+  "storage": {
+    "title": "Storage",
+    "disks": "Disks",
+    "partitions": "Partitions",
+    "noExternalDisks": "No external disks found",
+    "none": "None",
+    "save": "Save",
+    "activateDisks": "Activate disks",
+    "deactivateDisk": "Deactivate disk",
+    "activatePartition": "Activate partition",
+    "permissionsWarning": "The more files you have on the disk the longer it takes to update permissions.",
+    "initializeQuestion": "Initialize disk by removing all data on it? (optional)",
+    "externalDiskTitle": "External disk",
+    "externalDiskText": "Every app is configured to use storage provided by the system (which is available at /data). This setting screen allows you to choose which attached disk to use for that storage. When activating a disk existing data is not copied to the selected disk. You can initialize a disk by formatting it to clear all the data or to make it compatible with the system.",
+    "currentChange": "Current change",
+    "inProgress": "Is in progress",
+    "previousChange": "Previous change"
+  },
   "access": {
     "title": "Access",
     "ipv4": "IP v4",
