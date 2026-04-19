@@ -53,6 +53,11 @@
     "reactivate": "Reactivate",
     "loading": "Loading ..."
   },
+  "network": {
+    "title": "Network",
+    "noNetworks": "No networks found",
+    "interface": "Interface:"
+  },
   "activate": {
     "title": "Activate",
     "stepType": "Type",

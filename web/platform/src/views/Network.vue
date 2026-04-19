@@ -2,14 +2,14 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Network</h1>
+        <h1>{{ $t('network.title') }}</h1>
         <div class="row-no-gutters settingsblock">
           <div>
             <div class="setline" style="display: flex; flex-wrap: wrap; justify-content: center;">
-              <span v-if="interfaces === undefined || interfaces.length === 0" class="span">No networks found</span>
+              <span v-if="interfaces === undefined || interfaces.length === 0" class="span">{{ $t('network.noNetworks') }}</span>
               <div style="font-size: 18px; margin: 10px; min-width: 300px;" v-for="(iface, index) in interfaces" :key="index">
                 <div>
-                <span style="font-weight: bold">Interface: {{ iface.name }}</span>
+                <span style="font-weight: bold">{{ $t('network.interface') }} {{ iface.name }}</span>
                 </div>
                 <div v-for="(name, index) in iface.addresses" :key="index">
                   {{ name }}
