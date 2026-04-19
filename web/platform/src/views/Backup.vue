@@ -3,7 +3,7 @@
     <div>
       <div>
         <div class="block1 wd12" style="max-width: 500px">
-          <h1>Backup</h1>
+          <h1>{{ $t('backup.title') }}</h1>
           <div v-if="progress" id="progress">
             <el-row>
               <el-col :span="4"></el-col>
@@ -25,24 +25,24 @@
             <div>
               <div style="padding-left: 10px; padding-top:10px; padding-bottom: 10px; display: inline-block">
                 <el-select id="auto" v-model="auto" class="m-2" style="width: 140px; padding-right: 10px"
-                           placeholder="Select">
-                  <el-option id="auto-no" label="No Auto" value="no"/>
-                  <el-option id="auto-backup" label="Auto Backup" value="backup"/>
-                  <el-option id="auto-restore" label="Auto Restore" value="restore"/>
+                           :placeholder="$t('backup.select')">
+                  <el-option id="auto-no" :label="$t('backup.autoNo')" value="no"/>
+                  <el-option id="auto-backup" :label="$t('backup.autoBackup')" value="backup"/>
+                  <el-option id="auto-restore" :label="$t('backup.autoRestore')" value="restore"/>
                 </el-select>
                 <el-select id="auto-day" v-model="autoDay" class="m-2" style="width: 100px; padding-right: 10px"
-                           placeholder="Select" :disabled="auto === 'no'">
-                  <el-option id="auto-day-every" label="Daily" :value="0"/>
-                  <el-option id="auto-day-monday" label="Mon" :value="1"/>
-                  <el-option label="Tue" :value="2"/>
-                  <el-option label="Wed" :value="3"/>
-                  <el-option label="Thu" :value="4"/>
-                  <el-option label="Fri" :value="5"/>
-                  <el-option label="Sat" :value="6"/>
-                  <el-option label="Sun" :value="7"/>
+                           :placeholder="$t('backup.select')" :disabled="auto === 'no'">
+                  <el-option id="auto-day-every" :label="$t('backup.daily')" :value="0"/>
+                  <el-option id="auto-day-monday" :label="$t('backup.mon')" :value="1"/>
+                  <el-option :label="$t('backup.tue')" :value="2"/>
+                  <el-option :label="$t('backup.wed')" :value="3"/>
+                  <el-option :label="$t('backup.thu')" :value="4"/>
+                  <el-option :label="$t('backup.fri')" :value="5"/>
+                  <el-option :label="$t('backup.sat')" :value="6"/>
+                  <el-option :label="$t('backup.sun')" :value="7"/>
                 </el-select>
                 <el-select id="auto-hour" v-model="autoHour" class="m-2" style="width: 90px; padding-right: 10px"
-                           placeholder="Select" :disabled="auto === 'no'">
+                           :placeholder="$t('backup.select')" :disabled="auto === 'no'">
                   <el-option v-for="hour in 24" :id="'auto-hour-' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'"
                              :value="(hour-1)"/>
                 </el-select>
@@ -50,24 +50,24 @@
               <div
                 style="padding-top:10px; padding-bottom: 10px; padding-right: 10px; display: inline-block; float: right">
                 <el-button id="save" type="success" @click="this.saveAuto">
-                  Save
+                  {{ $t('backup.save') }}
                 </el-button>
               </div>
             </div>
             <div class="row-no-gutters settingsblock">
               <el-table :data="filteredData"
                         style="width: 100%" table-layout="fixed">
-                <el-table-column label="Name" prop="file" :sortable="true"/>
+                <el-table-column :label="$t('backup.name')" prop="file" :sortable="true"/>
                 <el-table-column align="right" width="200px">
                   <template #header>
-                    <el-input v-model="search" size="small" placeholder="Type to search"/>
+                    <el-input v-model="search" size="small" :placeholder="$t('backup.typeToSearch')"/>
                   </template>
                   <template #default="scope">
                     <el-button size="small" type="primary" @click="this.restoreConfirm(scope.row.file)">
-                      Restore
+                      {{ $t('backup.restore') }}
                     </el-button>
                     <el-button size="small" type="danger" @click="this.removeConfirm(scope.row.file)">
-                      Delete
+                      {{ $t('backup.delete') }}
                     </el-button>
                   </template>
                 </el-table-column>
@@ -82,14 +82,14 @@
   <Dialog :visible="confirmationVisible" id="confirmation" @confirm="submit"
           @cancel="confirmationVisible = false">
     <template v-slot:title>
-      <span v-if="action === 'restore'">Restore</span>
-      <span v-if="this.action === 'remove'">Remove</span>
+      <span v-if="action === 'restore'">{{ $t('backup.restoreTitle') }}</span>
+      <span v-if="this.action === 'remove'">{{ $t('backup.removeTitle') }}</span>
     </template>
     <template v-slot:text>
       <div class="bodymod">
         <div class="btext">
-          <span v-if="action === 'restore'">Do you want to restore:<br>{{ file }}?</span>
-          <span v-if="action === 'remove'">Do you want to remove:<br>{{ file }}?</span>
+          <span v-if="action === 'restore'">{{ $t('backup.restorePrompt') }}<br>{{ file }}?</span>
+          <span v-if="action === 'remove'">{{ $t('backup.removePrompt') }}<br>{{ file }}?</span>
         </div>
       </div>
     </template>
@@ -130,7 +130,7 @@ export default {
     Dialog
   },
   mounted() {
-    this.progressShow("Loading")
+    this.progressShow(this.$t('backup.loading'))
     this.status()
   },
   methods: {
@@ -175,7 +175,7 @@ export default {
       Notification.error(error)
     },
     restore() {
-      this.progressShow('Restoring: ' + this.file)
+      this.progressShow(this.$t('backup.restoring', { file: this.file }))
       axios
         .post('/rest/backup/restore', {file: this.file})
         .then(() => {
@@ -235,7 +235,7 @@ export default {
       )
     },
     saveAuto() {
-      this.progressShow("Saving auto backup settings")
+      this.progressShow(this.$t('backup.savingAuto'))
       axios.post('/rest/backup/auto',
         {auto: this.auto, day: this.autoDay, hour: this.autoHour})
         .then(() => {
