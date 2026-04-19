@@ -2,9 +2,9 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block1">
-        <h1>Log in</h1>
+        <h1>{{ $t('login.title') }}</h1>
         <div class="formblock">
-          <p>Redirecting to login...</p>
+          <p>{{ $t('login.redirecting') }}</p>
         </div>
       </div>
     </div>

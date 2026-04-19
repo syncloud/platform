@@ -22,5 +22,32 @@
   "error": {
     "sendLogs": "Send logs",
     "defaultMessage": "Some error happened!"
+  },
+  "login": {
+    "title": "Log in",
+    "redirecting": "Redirecting to login..."
+  },
+  "settings": {
+    "title": "Settings",
+    "activation": "Activation",
+    "network": "Network",
+    "access": "Access",
+    "internalMemory": "Internal Memory",
+    "storage": "Storage",
+    "updates": "Updates",
+    "support": "Support",
+    "backup": "Backup",
+    "certificate": "Certificate",
+    "twoFactor": "2FA",
+    "logs": "Logs",
+    "customProxy": "Custom Proxy",
+    "system": "System"
+  },
+  "activation": {
+    "title": "Activation",
+    "activatedAt": "Activated at:",
+    "reassign": "You can assign different\ndomain name to your device",
+    "reactivate": "Reactivate",
+    "loading": "Loading ..."
   }
 }
