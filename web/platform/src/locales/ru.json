@@ -1,7 +1,8 @@
 {
   "language": {
     "name": "Русский",
-    "select": "Язык"
+    "select": "Язык",
+    "title": "Язык"
   },
   "common": {
     "cancel": "Отмена",
@@ -44,7 +45,8 @@
     "twoFactor": "2FA",
     "logs": "Журналы",
     "customProxy": "Свой прокси",
-    "system": "Система"
+    "system": "Система",
+    "language": "Язык"
   },
   "activation": {
     "title": "Активация",

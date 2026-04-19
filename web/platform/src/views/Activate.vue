@@ -2,13 +2,6 @@
   <div class="wrapper">
     <div class="content">
       <div class="block1 wd12" id="block_activate">
-        <div class="language-bar">
-          <span class="language-label">{{ $t('language.select') }}:</span>
-          <el-select id="activate_language" v-model="locale" @change="onLocaleChange" size="default" style="width: 180px">
-            <el-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'lang_' + l.code"/>
-          </el-select>
-        </div>
-
         <h1>{{ $t('activate.title') }}</h1>
 
         <div>
@@ -19,6 +12,12 @@
           </el-steps>
 
           <div v-if="step === 0" id="domain-type-part"  >
+            <div class="language-picker">
+              <span class="language-label">{{ $t('language.select') }}:</span>
+              <el-select id="activate_language" v-model="locale" @change="onLocaleChange" size="default" style="width: 180px">
+                <el-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'lang_' + l.code"/>
+              </el-select>
+            </div>
             <div style="text-align: center; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center;">
               <div class="columns">
                 <ul class="plan">
@@ -482,12 +481,12 @@ export default {
 @import 'material-icons/iconfont/material-icons.css';
 @import 'font-awesome/css/font-awesome.css';
 
-.language-bar {
+.language-picker {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 10px;
-  padding: 10px 20px 0 20px;
+  margin: 20px 0 10px 0;
 }
 
 .language-label {

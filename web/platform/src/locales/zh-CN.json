@@ -1,7 +1,8 @@
 {
   "language": {
     "name": "中文",
-    "select": "语言"
+    "select": "语言",
+    "title": "语言"
   },
   "common": {
     "cancel": "取消",
@@ -44,7 +45,8 @@
     "twoFactor": "2FA",
     "logs": "日志",
     "customProxy": "自定义代理",
-    "system": "系统"
+    "system": "系统",
+    "language": "语言"
   },
   "activation": {
     "title": "激活",

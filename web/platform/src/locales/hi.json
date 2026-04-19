@@ -1,7 +1,8 @@
 {
   "language": {
     "name": "हिन्दी",
-    "select": "भाषा"
+    "select": "भाषा",
+    "title": "भाषा"
   },
   "common": {
     "cancel": "रद्द करें",
@@ -44,7 +45,8 @@
     "twoFactor": "2FA",
     "logs": "लॉग",
     "customProxy": "कस्टम प्रॉक्सी",
-    "system": "सिस्टम"
+    "system": "सिस्टम",
+    "language": "भाषा"
   },
   "activation": {
     "title": "सक्रियण",

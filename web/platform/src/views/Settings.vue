@@ -96,6 +96,13 @@
             </router-link>
           </div>
 
+          <div class="colapp app">
+            <router-link to="/language" id="language" class="app-link">
+              <i class="material-icons settings-icon">translate</i>
+              <div class="setting-name"><span class="withline">{{ $t('settings.language') }}</span></div>
+            </router-link>
+          </div>
+
         </div>
       </div>
     </div>

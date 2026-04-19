@@ -1,7 +1,8 @@
 {
   "language": {
     "name": "العربية",
-    "select": "اللغة"
+    "select": "اللغة",
+    "title": "اللغة"
   },
   "common": {
     "cancel": "إلغاء",
@@ -44,7 +45,8 @@
     "twoFactor": "2FA",
     "logs": "السجلات",
     "customProxy": "وكيل مخصص",
-    "system": "النظام"
+    "system": "النظام",
+    "language": "اللغة"
   },
   "activation": {
     "title": "التفعيل",

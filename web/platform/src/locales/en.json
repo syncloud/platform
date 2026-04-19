@@ -1,6 +1,7 @@
 {
   "language": {
     "name": "English",
+    "title": "Language",
     "select": "Language"
   },
   "common": {
@@ -44,7 +45,8 @@
     "twoFactor": "2FA",
     "logs": "Logs",
     "customProxy": "Custom Proxy",
-    "system": "System"
+    "system": "System",
+    "language": "Language"
   },
   "activation": {
     "title": "Activation",

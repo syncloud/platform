@@ -1,7 +1,8 @@
 {
   "language": {
     "name": "Français",
-    "select": "Langue"
+    "select": "Langue",
+    "title": "Langue"
   },
   "common": {
     "cancel": "Annuler",
@@ -44,7 +45,8 @@
     "twoFactor": "2FA",
     "logs": "Journaux",
     "customProxy": "Proxy personnalisé",
-    "system": "Système"
+    "system": "Système",
+    "language": "Langue"
   },
   "activation": {
     "title": "Activation",
