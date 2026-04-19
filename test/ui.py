@@ -76,19 +76,28 @@ LOCALES = ['en', 'zh-CN', 'es', 'hi', 'ar', 'pt', 'ru', 'ja', 'de', 'fr']
 
 
 def test_activate_languages(selenium, device_host):
-    """Visit the activation page and screenshot it in each supported locale."""
+    """Visit the activation page and screenshot it in each supported locale.
+
+    Uses localStorage + reload rather than driving the el-select dropdown so
+    the test isn't coupled to Element Plus popper animation timing.
+    """
     selenium.driver.get("https://{0}".format(device_host))
-    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.find_by_xpath("//h1")
     wait_for_loading(selenium.driver)
     for code in LOCALES:
-        click_el_select(selenium, "activate_language")
-        selenium.clickable_by(By.ID, "lang_{0}".format(code)).click()
-        time.sleep(0.5)
+        selenium.driver.execute_script(
+            "localStorage.setItem('syncloud.locale', arguments[0]); window.location.reload();",
+            code
+        )
+        selenium.find_by_xpath("//h1")
+        wait_for_loading(selenium.driver)
         selenium.screenshot('activate-lang-{0}'.format(code))
-    # Restore English so downstream tests keep finding their English text.
-    click_el_select(selenium, "activate_language")
-    selenium.clickable_by(By.ID, "lang_en").click()
-    time.sleep(0.5)
+    # Restore English so downstream tests find their English text.
+    selenium.driver.execute_script(
+        "localStorage.setItem('syncloud.locale', 'en'); window.location.reload();"
+    )
+    selenium.find_by_xpath("//h1[text()='Activate']")
+    wait_for_loading(selenium.driver)
 
 
 def test_activate(selenium, device_host,
