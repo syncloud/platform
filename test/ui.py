@@ -72,6 +72,25 @@ def test_login_page_loads(selenium, full_domain):
     selenium.screenshot('login-page-direct')
 
 
+LOCALES = ['en', 'zh-CN', 'es', 'hi', 'ar', 'pt', 'ru', 'ja', 'de', 'fr']
+
+
+def test_activate_languages(selenium, device_host):
+    """Visit the activation page and screenshot it in each supported locale."""
+    selenium.driver.get("https://{0}".format(device_host))
+    selenium.find_by_xpath("//h1[text()='Activate']")
+    wait_for_loading(selenium.driver)
+    for code in LOCALES:
+        click_el_select(selenium, "activate_language")
+        selenium.clickable_by(By.ID, "lang_{0}".format(code)).click()
+        time.sleep(0.5)
+        selenium.screenshot('activate-lang-{0}'.format(code))
+    # Restore English so downstream tests keep finding their English text.
+    click_el_select(selenium, "activate_language")
+    selenium.clickable_by(By.ID, "lang_en").click()
+    time.sleep(0.5)
+
+
 def test_activate(selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
     selenium.driver.get("https://{0}".format(device_host))
