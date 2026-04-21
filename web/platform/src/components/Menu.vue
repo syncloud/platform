@@ -27,11 +27,11 @@
           </div>
         </header>
         <div id="menu" class="navi" v-if="auth.loggedIn" :class="{ naviopen: menuOpen }">
-          <router-link to="/" id="apps_mobile" @click="close">Apps</router-link>
-          <router-link to="/appcenter" id="appcenter_mobile" @click="close">App Center</router-link>
-          <router-link to="/settings" id="settings_mobile" @click="close">Settings</router-link>
+          <router-link to="/" id="apps_mobile" @click="close">{{ $t('menu.apps') }}</router-link>
+          <router-link to="/appcenter" id="appcenter_mobile" @click="close">{{ $t('menu.appCenter') }}</router-link>
+          <router-link to="/settings" id="settings_mobile" @click="close">{{ $t('menu.settings') }}</router-link>
           <div class="menucolor2">
-            <a href="#" id="logout_mobile" @click="logout(); close()">Log out</a>
+            <a href="#" id="logout_mobile" @click="logout(); close()">{{ $t('menu.logout') }}</a>
           </div>
         </div>
       </div>
