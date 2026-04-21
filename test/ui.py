@@ -62,7 +62,7 @@ def test_fake_cert(selenium, device, device_host):
     selenium.driver.get("https://{0}".format(device_host))
     selenium.find_by_id('btn_welcome_next')
     wait_for_loading(selenium.driver)
-    selenium.screenshot('fake-cert')
+    selenium.screenshot('fake-cert_unstable')
 
 
 def test_login_page_loads(selenium, full_domain):
@@ -91,7 +91,7 @@ def test_activate_languages(selenium, device_host):
         )
         selenium.find_by_xpath("//h1")
         wait_for_loading(selenium.driver)
-        selenium.screenshot('activate-lang-{0}'.format(code))
+        selenium.screenshot('activate-lang-{0}_unstable'.format(code))
     # Restore English so downstream tests find their English text.
     selenium.driver.execute_script(
         "localStorage.setItem('syncloud.locale', 'en'); window.location.reload();"
@@ -104,7 +104,7 @@ def test_activate(selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
     selenium.driver.get("https://{0}".format(device_host))
     selenium.find_by_id('btn_welcome_next')
-    selenium.screenshot('activate-welcome')
+    selenium.screenshot('activate-welcome_unstable')
     selenium.find_by_id('btn_welcome_next').click()
     wait_for(selenium, lambda: selenium.find_by_id('btn_free_domain').is_displayed())
     selenium.screenshot('activate-empty')
@@ -119,6 +119,7 @@ def test_activate(selenium, device_host,
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
     wait_for_loading(selenium.driver)
+    wait_stable(selenium, 'btn_activate')
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
@@ -187,7 +188,7 @@ def test_settings_storage(selenium):
 def test_settings_updates(selenium):
     settings(selenium, 'updates')
     selenium.find_by_xpath("//h1[text()='Updates']")
-    selenium.screenshot('settings_updates')
+    selenium.screenshot('settings_updates_unstable')
 
 
 def test_settings_internal_memory(selenium):
@@ -227,7 +228,7 @@ def test_settings_certificate(selenium):
 def test_settings_locale(selenium, device):
     settings(selenium, 'locale')
     selenium.find_by_xpath("//h1[text()='Locale']")
-    selenium.screenshot('settings_locale')
+    selenium.screenshot('settings_locale_unstable')
     baseline = selenium.find_by_id('current_time').text
     click_el_select(selenium, 'settings_timezone')
     selenium.driver.switch_to.active_element.send_keys('Asia/Tokyo')
@@ -240,7 +241,7 @@ def test_settings_locale(selenium, device):
     time.sleep(2)
     updated = selenium.find_by_id('current_time').text
     assert updated != baseline, 'current_time did not change after tz switch: {0}'.format(updated)
-    selenium.screenshot('settings_locale_tokyo')
+    selenium.screenshot('settings_locale_tokyo_unstable')
 
 
 def test_app_center(selenium):
@@ -579,6 +580,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.screenshot('activate-type')
     selenium.find_by_id('btn_next').click()
     wait_for_loading(selenium.driver)
+    wait_stable(selenium, 'btn_activate')
     selenium.screenshot('activate-redirect')
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_username')))
     selenium.wait_or_screenshot(EC.presence_of_element_located((By.ID, 'device_password')))
@@ -694,3 +696,16 @@ def wait_for_loading(driver):
     time.sleep(0.5)
     wait_driver = WebDriverWait(driver, 120)
     wait_driver.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'el-loading-mask')))
+
+
+def wait_stable(selenium, element_id, poll=0.1, max_wait=5.0):
+    el = selenium.find_by_id(element_id)
+    last = None
+    elapsed = 0.0
+    while elapsed < max_wait:
+        rect = el.rect
+        if rect == last:
+            return
+        last = rect
+        time.sleep(poll)
+        elapsed += poll
