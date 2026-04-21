@@ -11,7 +11,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '2649';
+local visual_diff_skip_build = '2691';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
