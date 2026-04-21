@@ -46,7 +46,7 @@
     "logs": "Protokolle",
     "customProxy": "Benutzerdefinierter Proxy",
     "system": "System",
-    "language": "Sprache"
+    "locale": "Regional"
   },
   "activation": {
     "title": "Aktivierung",
@@ -224,7 +224,13 @@
   },
   "activate": {
     "title": "Aktivieren",
-    "stepType": "Typ",
+    "welcome": "Willkommen",
+    "welcomeSub": "Wir richten dein Syncloud-Gerät in wenigen Schritten ein.",
+    "continue": "Weiter",
+    "chooseDomainSub": "Wähle, wie dein Gerät im Internet erreichbar sein soll.",
+    "accountSub": "Melde dich bei Syncloud an und wähle einen Gerätenamen.",
+    "credentialsSub": "Lege den Administrator-Login für dieses Gerät fest.",
+    "stepType": "Wähle deine Domain",
     "stepName": "Name",
     "stepUser": "Benutzer",
     "premiumDescription": "Syncloud verwaltet Ihre Domain (wie example.com). Ein Abonnement ist ab heute erforderlich.",
@@ -254,5 +260,12 @@
       "deviceCredentialsTitle": "Gerätedaten",
       "deviceCredentialsText": "Die Gerätedaten werden verwendet, um auf Ihr Gerät und alle Apps zuzugreifen (als Administrator). Sie werden auf dem Gerät gespeichert und niemand kennt sie. Wenn Sie sie vergessen, müssen Sie Ihr Gerät neu aktivieren."
     }
+  },
+  "locale": {
+    "title": "Regional",
+    "language": "Sprache:",
+    "timezone": "Zeitzone:",
+    "currentTime": "Aktuelle Zeit:",
+    "save": "Speichern"
   }
 }

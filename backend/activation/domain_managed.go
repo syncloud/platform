@@ -14,6 +14,7 @@ type ManagedActivateRequest struct {
 	Domain           string `json:"domain"`
 	DeviceUsername   string `json:"device_username"`
 	DevicePassword   string `json:"device_password"`
+	Timezone         string `json:"timezone,omitempty"`
 }
 
 type ManagedPlatformUserConfig interface {

@@ -602,6 +602,14 @@ func (c *UserConfig) SetTwoFactorEnabled(enabled bool) {
 	c.Upsert("platform.two_factor_enabled", c.fromBool(enabled))
 }
 
+func (c *UserConfig) GetTimezone() string {
+	return c.Get("platform.timezone", "UTC")
+}
+
+func (c *UserConfig) SetTimezone(timezone string) {
+	c.Upsert("platform.timezone", timezone)
+}
+
 func (c *UserConfig) Url(app string) string {
 	port := c.GetPublicPort()
 	domain := c.GetDeviceDomain()

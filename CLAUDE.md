@@ -114,28 +114,17 @@ curl -O "http://ci.syncloud.org:8081/files/platform/282-amd64/distro/desktop/scr
 
 # Visual Diff
 
-Tools in `visual-diff/` for comparing UI test screenshots between branches.
+Go tool at `visual-diff/cmd/main.go` for comparing UI test screenshots.
 
-## Download artifacts
+Build: `cd visual-diff && go build -o visual-diff ./cmd`
 
-Download screenshots and videos from a branch's latest CI build:
-```
-visual-diff/download-artifacts.sh [branch]
-```
-Defaults to current git branch. Downloads desktop and mobile screenshots + video to `visual-diff/output/{branch}/`. On Termux, also copies to `Pictures/syncloud-{branch}/` and `Movies/syncloud-{branch}/`.
+Commands:
+- `visual-diff branches <base-branch> <compare-branch>` — download both branches' screenshots from the latest successful CI build, pixel-diff them, write red-highlighted diff PNGs under `/tmp/visual-diff-cache/diff/`, and (on Termux) copy base/compare/diff sets into `~/storage/pictures/screenshot-diff/`.
+- `visual-diff diff <base-dir> <compare-dir> [diff-dir]` — compare two local dirs. Each accepts either `<dir>/<view>/*.png` or `<dir>/<view>/screenshot/*.png` layout.
+- `visual-diff download <branch> <output-dir>` — download screenshots only.
+- `visual-diff ci-diff <local-dir> [skip-build]` — used by the CI `visual-diff` pipeline step; compares the local `artifact/distro` against the latest `stable` build.
 
-## Screenshot diff
-
-Compare screenshots between two branches:
-```
-visual-diff/screenshot-diff.sh [base-branch] [compare-branch] [-f filter]
-```
-Defaults: base=master, compare=current branch. Downloads screenshots from both branches and compares them pixel-by-pixel.
-
-- Uses ImageMagick (`magick compare` or `compare`) with 5% fuzz tolerance when available, falls back to binary `cmp`
-- Filter with `-f` to compare only screenshots matching a substring (e.g. `-f settings_access`)
-- Output: `visual-diff/output/diff/` contains diff images with changed pixels highlighted in red
-- On Termux, copies base/compare/diff images to `Pictures/screenshot-diff/`
+Exit codes: 0 pass, 1 differences found, 2 nothing was compared (e.g. missing screenshots).
 
 # Running Drone builds locally
 

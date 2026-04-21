@@ -62,6 +62,7 @@ test('Activate free domain', async () => {
 
   await flushPromises()
 
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -87,10 +88,6 @@ test('Activate free domain', async () => {
 })
 
 test('Activate free domain error', async () => {
-  let error = ''
-  const showError = (err) => {
-    error = err.response.data.message
-  }
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
@@ -108,13 +105,6 @@ test('Activate free domain error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          Error: {
-            template: '<span/>',
-            methods: {
-              showAxios: showError
-            }
-          },
-          Dialog: true,
           'el-button': ElButton,
           'el-steps': ElSteps,
           'el-step': ElStep
@@ -127,6 +117,7 @@ test('Activate free domain error', async () => {
   )
 
   await flushPromises()
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -139,7 +130,7 @@ test('Activate free domain error', async () => {
 
   await flushPromises()
 
-  expect(error).toBe('not ok')
+  expect(wrapper.find('#txt_error').text()).toContain('not ok')
 
   wrapper.unmount()
 })
@@ -179,6 +170,7 @@ test('Activate free domain availability error', async () => {
   )
 
   await flushPromises()
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -235,6 +227,7 @@ test('Activate free domain availability generic error', async () => {
   )
 
   await flushPromises()
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -243,7 +236,7 @@ test('Activate free domain availability generic error', async () => {
 
   await flushPromises()
 
-  expect(error).toBe('authentication failed')
+  expect(wrapper.find('#txt_error').text()).toContain('authentication failed')
 
   wrapper.unmount()
 })
@@ -283,6 +276,7 @@ test('Activate free domain availability error email', async () => {
   )
 
   await flushPromises()
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_free_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -351,6 +345,7 @@ test('Activate premium domain', async () => {
 
   await flushPromises()
 
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_premium_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -430,6 +425,7 @@ test('Activated while page is open (mostly in local dev)', async () => {
 
   await flushPromises()
 
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_premium_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
@@ -498,6 +494,7 @@ test('No finish if device password confirmation is wrong', async () => {
 
   await flushPromises()
 
+  await wrapper.find('#btn_welcome_next').trigger('click')
   await wrapper.find('#btn_premium_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')

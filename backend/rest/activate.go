@@ -2,21 +2,25 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/syncloud/platform/activation"
-	"github.com/syncloud/platform/rest/model"
 	"net/http"
 	"strings"
+
+	"github.com/syncloud/platform/activation"
+	"github.com/syncloud/platform/rest/model"
+	"github.com/syncloud/platform/timezone"
 )
 
 type Activate struct {
-	managed activation.ManagedActivation
-	custom  activation.CustomActivation
+	managed  activation.ManagedActivation
+	custom   activation.CustomActivation
+	timezone *timezone.Applier
 }
 
-func NewActivateBackend(managed activation.ManagedActivation, custom activation.CustomActivation) *Activate {
+func NewActivateBackend(managed activation.ManagedActivation, custom activation.CustomActivation, timezone *timezone.Applier) *Activate {
 	return &Activate{
-		managed: managed,
-		custom:  custom,
+		managed:  managed,
+		custom:   custom,
+		timezone: timezone,
 	}
 }
 
@@ -28,6 +32,9 @@ func (a *Activate) Custom(req *http.Request) (interface{}, error) {
 	}
 	err = validate(request.DeviceUsername, request.DevicePassword)
 	if err != nil {
+		return nil, err
+	}
+	if err := a.applyOptionalTimezone(request.Timezone); err != nil {
 		return nil, err
 	}
 	return "ok", a.custom.Activate(request.Domain, request.DeviceUsername, request.DevicePassword)
@@ -43,7 +50,17 @@ func (a *Activate) Managed(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := a.applyOptionalTimezone(request.Timezone); err != nil {
+		return nil, err
+	}
 	return "ok", a.managed.Activate(request.RedirectEmail, request.RedirectPassword, request.Domain, request.DeviceUsername, request.DevicePassword)
+}
+
+func (a *Activate) applyOptionalTimezone(tz string) error {
+	if tz == "" {
+		return nil
+	}
+	return a.timezone.Apply(tz)
 }
 
 func validate(username string, password string) error {

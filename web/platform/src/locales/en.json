@@ -4,6 +4,13 @@
     "title": "Language",
     "select": "Language"
   },
+  "locale": {
+    "title": "Locale",
+    "language": "Language:",
+    "timezone": "Timezone:",
+    "currentTime": "Current time:",
+    "save": "Save"
+  },
   "common": {
     "cancel": "Cancel",
     "close": "Close",
@@ -46,7 +53,7 @@
     "logs": "Logs",
     "customProxy": "Custom Proxy",
     "system": "System",
-    "language": "Language"
+    "locale": "Locale"
   },
   "activation": {
     "title": "Activation",
@@ -224,7 +231,13 @@
   },
   "activate": {
     "title": "Activate",
-    "stepType": "Type",
+    "welcome": "Welcome",
+    "welcomeSub": "Let's set up your Syncloud device in a few quick steps.",
+    "continue": "Continue",
+    "chooseDomainSub": "Pick how you'd like your device to be found online.",
+    "accountSub": "Sign in to your Syncloud account and choose a device name.",
+    "credentialsSub": "Create the admin login you'll use to manage this device.",
+    "stepType": "Choose your domain",
     "stepName": "Name",
     "stepUser": "User",
     "premiumDescription": "Syncloud manages your domain (like example.com). Subscription is required today.",

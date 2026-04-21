@@ -491,6 +491,19 @@ input:disabled {
 .modal-title {
     font-size: 26px;
 }
+.el-dialog.syncloud-dialog {
+    padding: 10px !important;
+}
+.el-dialog.syncloud-dialog .el-dialog__body {
+    padding: 4px 0 !important;
+}
+.el-dialog.syncloud-dialog .el-dialog__header {
+    margin: 0 !important;
+    padding: 0 32px 4px 0 !important;
+}
+.el-dialog.syncloud-dialog .el-dialog__footer {
+    padding: 8px 0 0 0 !important;
+}
 .bodymod {
     padding: 15px;
     font-size: 18px;

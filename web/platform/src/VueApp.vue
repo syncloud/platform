@@ -1,8 +1,8 @@
 <template>
   <el-config-provider :locale="elementLocale">
-    <Menu v-bind:activeTab="currentPath"/>
+    <Menu v-if="!isStandalone" v-bind:activeTab="currentPath"/>
     <router-view/>
-    <Error ref="app_error"/>
+    <Error ref="app_error" v-if="!isStandalone"/>
   </el-config-provider>
 </template>
 <script>
@@ -16,6 +16,11 @@ export default {
     return {
       currentPath: '',
       elementLocale
+    }
+  },
+  computed: {
+    isStandalone () {
+      return this.currentPath === '/activate'
     }
   },
   name: 'VueApp',
@@ -33,7 +38,9 @@ export default {
     this.currentPath = this.$route.path
     const auth = useAuthStore()
     auth.checkUserSession(this.$router, (err) => {
-      this.$refs.app_error.showAxios(err)
+      if (this.$refs.app_error) {
+        this.$refs.app_error.showAxios(err)
+      }
     })
   }
 }

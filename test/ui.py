@@ -60,7 +60,7 @@ def test_fake_cert(selenium, device, device_host):
     device.run_ssh('snap restart platform')
     wait_for_rest(requests.session(), "https://{0}/rest/activation/status".format(device_host), 200, 10)
     selenium.driver.get("https://{0}".format(device_host))
-    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.find_by_id('btn_welcome_next')
     wait_for_loading(selenium.driver)
     selenium.screenshot('fake-cert')
 
@@ -96,14 +96,17 @@ def test_activate_languages(selenium, device_host):
     selenium.driver.execute_script(
         "localStorage.setItem('syncloud.locale', 'en'); window.location.reload();"
     )
-    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.find_by_id('btn_welcome_next')
     wait_for_loading(selenium.driver)
 
 
 def test_activate(selenium, device_host,
                   domain, device_user, device_password, redirect_user, redirect_password):
     selenium.driver.get("https://{0}".format(device_host))
-    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.find_by_id('btn_welcome_next')
+    selenium.screenshot('activate-welcome')
+    selenium.find_by_id('btn_welcome_next').click()
+    wait_for(selenium, lambda: selenium.find_by_id('btn_free_domain').is_displayed())
     selenium.screenshot('activate-empty')
     selenium.find_by_id('btn_free_domain').click()
     wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))
@@ -219,6 +222,25 @@ def test_settings_certificate(selenium):
     settings(selenium, 'certificate')
     selenium.find_by_xpath("//h1[text()='Certificate']")
     selenium.screenshot('settings_certificate')
+
+
+def test_settings_locale(selenium, device):
+    settings(selenium, 'locale')
+    selenium.find_by_xpath("//h1[text()='Locale']")
+    selenium.screenshot('settings_locale')
+    baseline = selenium.find_by_id('current_time').text
+    click_el_select(selenium, 'settings_timezone')
+    selenium.driver.switch_to.active_element.send_keys('Asia/Tokyo')
+    time.sleep(1)
+    selenium.clickable_by(By.ID, 'settings_tz_Asia_Tokyo').click()
+    selenium.find_by_id('btn_save_timezone').click()
+    wait_for_loading(selenium.driver)
+    tz = device.run_ssh('cat /etc/timezone').strip()
+    assert tz == 'Asia/Tokyo', 'expected system tz Asia/Tokyo, got: {0}'.format(tz)
+    time.sleep(2)
+    updated = selenium.find_by_id('current_time').text
+    assert updated != baseline, 'current_time did not change after tz switch: {0}'.format(updated)
+    selenium.screenshot('settings_locale_tokyo')
 
 
 def test_app_center(selenium):
@@ -543,7 +565,8 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     settings(selenium, 'activation')
     selenium.find_by_xpath("//h1[text()='Activation']")
     selenium.find_by_id('btn_reactivate').click()
-    selenium.find_by_xpath("//h1[text()='Activate']")
+    selenium.find_by_id('btn_welcome_next').click()
+    wait_for(selenium, lambda: selenium.find_by_id('btn_free_domain').is_displayed())
     selenium.screenshot('activate-empty')
     selenium.find_by_id('btn_free_domain').click()
     wait_for(selenium, lambda: selenium.find_by_id('email').send_keys(""))

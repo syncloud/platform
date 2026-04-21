@@ -30,6 +30,7 @@ import (
 	"github.com/syncloud/platform/storage/btrfs"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/timezone"
 	"github.com/syncloud/platform/version"
 	"github.com/syncloud/platform/hardware/lcd"
 	"go.uber.org/zap"
@@ -392,8 +393,14 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom) *rest.Activate {
-		return rest.NewActivateBackend(activationManaged, activationCustom)
+	err = c.Singleton(func(executor *cli.ShellExecutor, userConfig *config.UserConfig) *timezone.Applier {
+		return timezone.NewApplier(executor, userConfig)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(activationManaged *activation.Managed, activationCustom *activation.Custom, tz *timezone.Applier) *rest.Activate {
+		return rest.NewActivateBackend(activationManaged, activationCustom, tz)
 	})
 	if err != nil {
 		return nil, err

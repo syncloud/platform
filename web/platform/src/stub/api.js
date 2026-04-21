@@ -122,6 +122,26 @@ const deviceUrl = {
   success: true
 }
 
+let customProxies = [
+  { name: 'files', host: '192.168.1.10', port: 8080, https: false },
+  { name: 'music', host: '192.168.1.11', port: 8443, https: true }
+]
+
+let timezone = 'UTC'
+
+function validateDeviceCredentials (username, password) {
+  const errors = []
+  if (!username || username.length < 3) {
+    errors.push({ parameter: 'device_username', messages: ['less than 3 characters'] })
+  } else if (username.toLowerCase() !== username) {
+    errors.push({ parameter: 'device_username', messages: ['use lower case username'] })
+  }
+  if (!password || password.length < 7) {
+    errors.push({ parameter: 'device_password', messages: ['less than 7 characters'] })
+  }
+  return errors
+}
+
 let backups = [
   { path: '/data/platform/backup', file: 'files-2019-0515-123506.tar.gz' },
   { path: '/data/platform/backup', file: 'nextcloud-2019-0515-123506.tar.gz' },
@@ -512,17 +532,18 @@ export function mock () {
         // return new Response(200, {}, { success: true })
         return new Response(400, {}, { message: 'Cannot send logs' })
       })
-      this.post('/rest/activate/managed', function (_schema, _request) {
+      this.post('/rest/activate/managed', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const errors = validateDeviceCredentials(attrs.device_username, attrs.device_password)
+        if (errors.length > 0) {
+          return new Response(500, {}, { success: false, parameters_messages: errors })
+        }
+        if (attrs.timezone) {
+          timezone = attrs.timezone
+        }
         state.activated = true
         console.debug('activated: ' + state.activated)
-        // return new Response(200, {}, { success: true })
-        return new Response(500, {}, {
-          success: false,
-          parameters_messages: [
-            { parameter: 'device_username', messages: ['login is empty'] },
-            { parameter: 'device_password', messages: ['is too short', 'has no special symbol'] }
-          ]
-        })
+        return new Response(200, {}, { success: true })
       })
       this.post('/rest/redirect/domain/availability', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
@@ -572,6 +593,30 @@ export function mock () {
           'Dec 15 08:42:35 syncloud platform.backend[26230]: cert/generator.go:75 unable to generate certificate: acme: error: 429 :: POST :: https://acme-v02.api.letsencrypt.org/acme/new-acct :: urn:ietf:params:acme:error:rateLimited :: Error creating new account :: too many registrations for this IP: see https://letsencrypt.org/docs/rate-limits/ {"category": "certificate"}'
         ]
         return new Response(200, {}, { success: true, data: logs })
+      })
+      this.get('/rest/proxy_custom/list', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: customProxies })
+      })
+      this.post('/rest/proxy_custom/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        customProxies.push({ name: attrs.name, host: attrs.host, port: attrs.port, https: !!attrs.https })
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/proxy_custom/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        customProxies = customProxies.filter(p => p.name !== attrs.name)
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/settings/timezone', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: { timezone: timezone } })
+      })
+      this.post('/rest/settings/timezone', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        timezone = attrs.timezone
+        return new Response(200, {}, { success: true, data: 'OK' })
+      })
+      this.get('/rest/settings/time', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: { timezone: timezone, time: new Date().toISOString() } })
       })
       this.get('/rest/logs', function (_schema, _request) {
         const logs = [

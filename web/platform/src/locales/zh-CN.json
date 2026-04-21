@@ -46,7 +46,7 @@
     "logs": "日志",
     "customProxy": "自定义代理",
     "system": "系统",
-    "language": "语言"
+    "locale": "区域设置"
   },
   "activation": {
     "title": "激活",
@@ -224,7 +224,13 @@
   },
   "activate": {
     "title": "激活",
-    "stepType": "类型",
+    "welcome": "欢迎",
+    "welcomeSub": "让我们用几个简单的步骤来设置您的 Syncloud 设备。",
+    "continue": "继续",
+    "chooseDomainSub": "选择您的设备如何在网上被访问。",
+    "accountSub": "登录您的 Syncloud 账号并为设备命名。",
+    "credentialsSub": "创建用于管理此设备的管理员账号。",
+    "stepType": "选择您的域名",
     "stepName": "名称",
     "stepUser": "用户",
     "premiumDescription": "Syncloud 管理您的域名(如 example.com)。今天即需订阅。",
@@ -254,5 +260,12 @@
       "deviceCredentialsTitle": "设备凭据",
       "deviceCredentialsText": "设备凭据用于访问您的设备和所有应用(作为管理员用户)。它们存储在设备上,无人知晓。如果您忘记,需要重新激活设备。"
     }
+  },
+  "locale": {
+    "title": "区域设置",
+    "language": "语言:",
+    "timezone": "时区:",
+    "currentTime": "当前时间:",
+    "save": "保存"
   }
 }

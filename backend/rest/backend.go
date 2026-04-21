@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/syncloud/platform/access"
@@ -25,6 +26,7 @@ import (
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/timezone"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -57,6 +59,7 @@ type Backend struct {
 	cookies         *session.Cookies
 	oidc            *auth.OIDCService
 	authelia        *auth.Authelia
+	timezone        *timezone.Applier
 	network         string
 	address         string
 	logger          *zap.Logger
@@ -72,6 +75,7 @@ func NewBackend(
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
 	oidcService *auth.OIDCService, authelia *auth.Authelia,
+	timezone *timezone.Applier,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -100,6 +104,7 @@ func NewBackend(
 		cookies:         cookies,
 		oidc:            oidcService,
 		authelia:        authelia,
+		timezone:        timezone,
 		network:         network,
 		address:         address,
 		changesClient:   changesClient,
@@ -139,6 +144,9 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
 	r.HandleFunc("/rest/settings/2fa/totp", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GenerateTOTP))).Methods("POST")
+	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTimezone))).Methods("GET")
+	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTimezone))).Methods("POST")
+	r.HandleFunc("/rest/settings/time", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTime))).Methods("GET")
 	// /rest/totp/setup is handled by the login service, not the backend
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupList))).Methods("GET")
@@ -626,6 +634,38 @@ func (b *Backend) SetTwoFactorSettings(req *http.Request) (interface{}, error) {
 		return nil, fmt.Errorf("authelia not ready after 2FA settings change: %w", err)
 	}
 	return "OK", nil
+}
+
+func (b *Backend) GetTimezone(_ *http.Request) (interface{}, error) {
+	return map[string]interface{}{
+		"timezone": b.timezone.Current(),
+	}, nil
+}
+
+func (b *Backend) SetTimezone(req *http.Request) (interface{}, error) {
+	var request struct {
+		Timezone string `json:"timezone"`
+	}
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return nil, errors.New("bad request")
+	}
+	if err := b.timezone.Apply(request.Timezone); err != nil {
+		return nil, err
+	}
+	return "OK", nil
+}
+
+func (b *Backend) GetTime(_ *http.Request) (interface{}, error) {
+	tz := b.timezone.Current()
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		loc = time.UTC
+	}
+	return map[string]interface{}{
+		"timezone": tz,
+		"time":     time.Now().In(loc).Format(time.RFC3339),
+	}, nil
 }
 
 func (b *Backend) GenerateTOTP(req *http.Request) (interface{}, error) {

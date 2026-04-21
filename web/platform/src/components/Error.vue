@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" style="min-width: 300px; max-width: 500px">
+  <el-dialog class="syncloud-dialog" v-model="visible" style="min-width: 300px; max-width: 500px">
     <template #header>
       <h4 class="modal-title">
         <slot name="title">{{ $t('common.error') }}</slot>

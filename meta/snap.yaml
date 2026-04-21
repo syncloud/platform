@@ -34,6 +34,7 @@ apps:
     plugs:
     - network
     - network-bind
+    - timezone-control
     start-timeout: 2000s
     restart-condition: always
     restart-delay: 10s

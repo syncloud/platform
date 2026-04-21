@@ -20,6 +20,7 @@ import (
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
+	"github.com/syncloud/platform/timezone"
 	"github.com/syncloud/platform/hardware/lcd"
 )
 
@@ -37,12 +38,13 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		proxy *rest.Proxy, customProxy *rest.CustomProxy, middleware *rest.Middleware, ldapService *auth.Service, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
 		oidcService *auth.OIDCService, authelia *auth.Authelia,
+		tz *timezone.Applier,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, cert, externalAddress,
 			snapd, disks, journalCtl, executor, iface, sender, proxy, customProxy,
 			ldapService, middleware, cookies, net, address, changesClient,
-			oidcService, authelia, logger)
+			oidcService, authelia, tz, logger)
 	})
 	if err != nil {
 		return nil, err

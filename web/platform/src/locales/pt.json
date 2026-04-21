@@ -46,7 +46,7 @@
     "logs": "Registros",
     "customProxy": "Proxy personalizado",
     "system": "Sistema",
-    "language": "Idioma"
+    "locale": "Regional"
   },
   "activation": {
     "title": "Ativação",
@@ -224,7 +224,13 @@
   },
   "activate": {
     "title": "Ativar",
-    "stepType": "Tipo",
+    "welcome": "Bem-vindo",
+    "welcomeSub": "Vamos configurar o seu dispositivo Syncloud em poucos passos.",
+    "continue": "Continuar",
+    "chooseDomainSub": "Escolha como seu dispositivo será encontrado online.",
+    "accountSub": "Entre na sua conta Syncloud e escolha um nome para o dispositivo.",
+    "credentialsSub": "Crie o login de administrador para gerenciar este dispositivo.",
+    "stepType": "Escolha seu domínio",
     "stepName": "Nome",
     "stepUser": "Usuário",
     "premiumDescription": "Syncloud gerencia o seu domínio (como example.com). É necessário ter assinatura hoje.",
@@ -254,5 +260,12 @@
       "deviceCredentialsTitle": "Credenciais do dispositivo",
       "deviceCredentialsText": "As credenciais do dispositivo são usadas para acessar seu dispositivo e todas as aplicações (como usuário administrador). Elas são armazenadas no dispositivo e ninguém as conhece. Se esquecê-las, você precisará reativar o dispositivo."
     }
+  },
+  "locale": {
+    "title": "Regional",
+    "language": "Idioma:",
+    "timezone": "Fuso horário:",
+    "currentTime": "Hora atual:",
+    "save": "Salvar"
   }
 }

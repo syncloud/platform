@@ -46,7 +46,7 @@
     "logs": "ログ",
     "customProxy": "カスタムプロキシ",
     "system": "システム",
-    "language": "言語"
+    "locale": "ロケール"
   },
   "activation": {
     "title": "アクティベーション",
@@ -224,7 +224,13 @@
   },
   "activate": {
     "title": "アクティベート",
-    "stepType": "タイプ",
+    "welcome": "ようこそ",
+    "welcomeSub": "数ステップで Syncloud デバイスをセットアップしましょう。",
+    "continue": "続行",
+    "chooseDomainSub": "デバイスをオンラインでどのように見つけてもらうか選んでください。",
+    "accountSub": "Syncloud アカウントにサインインし、デバイス名を選んでください。",
+    "credentialsSub": "このデバイスを管理するための管理者ログインを作成します。",
+    "stepType": "ドメインを選択",
     "stepName": "名前",
     "stepUser": "ユーザー",
     "premiumDescription": "Syncloud があなたのドメイン(example.com など)を管理します。本日よりサブスクリプションが必要です。",
@@ -254,5 +260,12 @@
       "deviceCredentialsTitle": "デバイスの認証情報",
       "deviceCredentialsText": "デバイスの認証情報はデバイスとすべてのアプリ(管理者ユーザーとして)にアクセスするために使用されます。デバイスに保存されており、誰も知りません。忘れた場合はデバイスを再アクティベートする必要があります。"
     }
+  },
+  "locale": {
+    "title": "ロケール",
+    "language": "言語:",
+    "timezone": "タイムゾーン:",
+    "currentTime": "現在時刻:",
+    "save": "保存"
   }
 }
