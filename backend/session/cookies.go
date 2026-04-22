@@ -35,6 +35,13 @@ func (c *Cookies) Start() error {
 
 func (c *Cookies) Reset() {
 	c.store = sessions.NewCookieStore([]byte(c.config.GetWebSecretKey()))
+	c.store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 30,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
 }
 
 func (c *Cookies) getSession(r *http.Request) *sessions.Session {
