@@ -147,6 +147,7 @@ def test_login(selenium, full_domain, device_user, device_password):
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
     selenium.find_by(By.CLASS_NAME, "appimg")
+    wait_app_icons_loaded(selenium)
     selenium.screenshot('index')
 
 
@@ -601,6 +602,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
     selenium.find_by(By.CLASS_NAME, "appimg")
+    wait_app_icons_loaded(selenium)
     selenium.screenshot('reactivate-index')
 
 
@@ -709,3 +711,15 @@ def wait_stable(selenium, element_id, poll=0.1, max_wait=5.0):
         last = rect
         time.sleep(poll)
         elapsed += poll
+
+
+def wait_app_icons_loaded(selenium, timeout=10):
+    # Apps.vue's <img :src="app.icon"> @error handler swaps in
+    # /images/default-app.svg when the proxy image 404s. A screenshot
+    # taken before that swap captures a collapsed broken-image tile.
+    WebDriverWait(selenium.driver, timeout).until(
+        lambda d: all(
+            i.get_property('complete') and i.get_property('naturalWidth') > 0
+            for i in d.find_elements(By.CLASS_NAME, 'appimg')
+        )
+    )
