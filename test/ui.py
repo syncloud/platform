@@ -595,6 +595,7 @@ def test_settings_deactivate(selenium, device_host, full_domain,
     wait_for_loading(selenium.driver)
     selenium.find_by(By.ID, "username-textfield")
     defocus(selenium)
+    wait_style_stable(selenium.find_by(By.ID, "password-textfield"))
     selenium.screenshot('deactivate-login-page')
     selenium.find_by(By.ID, "username-textfield").send_keys(device_user)
     selenium.find_by(By.ID, "password-textfield").send_keys(device_password)
@@ -709,6 +710,18 @@ def wait_stable(selenium, element_id, poll=0.1, max_wait=5.0):
         if rect == last:
             return
         last = rect
+        time.sleep(poll)
+        elapsed += poll
+
+
+def wait_style_stable(element, prop='border-color', poll=0.1, max_wait=2.0):
+    last = None
+    elapsed = 0.0
+    while elapsed < max_wait:
+        cur = element.value_of_css_property(prop)
+        if cur == last:
+            return
+        last = cur
         time.sleep(poll)
         elapsed += poll
 

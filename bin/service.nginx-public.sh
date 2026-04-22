@@ -9,8 +9,11 @@ fi
 
 case $1 in
 start)
+    SOCKET=/var/snap/platform/current/authelia.socket
+    rm -f ${SOCKET}
     ${DIR}/nginx/bin/nginx.sh -t -c /var/snap/platform/current/nginx.conf -e stderr
-    exec $DIR/nginx/bin/nginx.sh -c /var/snap/platform/current/nginx.conf -e stderr
+    ${DIR}/nginx/bin/nginx.sh -c /var/snap/platform/current/nginx.conf -e stderr
+    chmod 0777 ${SOCKET}
     ;;
 reload)
     $DIR/nginx/bin/nginx.sh -c /var/snap/platform/current/nginx.conf -s reload -e stderr
