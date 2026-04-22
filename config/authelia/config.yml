@@ -39,7 +39,7 @@ default_2fa_method: ""
 ##
 server:
 
-  address: unix:///var/snap/platform/current/authelia.socket
+  address: unix:///var/snap/platform/current/authelia-internal.socket
   ## The address to listen on.
   #host: 0.0.0.0
 
