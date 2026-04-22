@@ -315,7 +315,7 @@ func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 
 	savedState, codeVerifier, err := b.cookies.GetOIDCState(req)
 	if err != nil {
-		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no OIDC session")))
+		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no OIDC session: %w", err)))
 		return
 	}
 
