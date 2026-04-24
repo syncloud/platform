@@ -235,15 +235,15 @@
     "welcomeSub": "Let's set up your Syncloud device in a few quick steps.",
     "continue": "Continue",
     "chooseDomainSub": "Pick how you'd like your device to be found online.",
-    "accountSub": "Sign in to your Syncloud account and choose a device name.",
+    "accountSub": "Sign in to your Syncloud account.",
     "credentialsSub": "Create the admin login you'll use to manage this device.",
     "stepType": "Choose your domain",
     "stepName": "Name",
     "stepUser": "User",
-    "premiumDescription": "Syncloud manages your domain (like example.com). Subscription is required today.",
-    "premiumButton": "Your name",
-    "freeDescription": "Syncloud manages [name].{domain} domain. Subscription is required in 30 days.",
-    "freeButton": "Our name",
+    "customDescription": "Syncloud manages your domain (like example.com). Subscription is required today.",
+    "customButton": "Your name",
+    "syncloudDescription": "Syncloud manages [name].{domain} domain. Subscription is required in 30 days.",
+    "syncloudButton": "Our name",
     "syncloudAccount": "Syncloud Account",
     "emailPlaceholder": "{domain} email",
     "passwordPlaceholder": "{domain} password",
@@ -251,7 +251,7 @@
     "register": "register",
     "deviceName": "Device Name",
     "domainNamePlaceholder": "Name",
-    "premiumDomainPlaceholder": "Top level domain like example.com",
+    "customDomainPlaceholder": "Top level domain like example.com",
     "deviceCredentials": "Device Credentials",
     "loginPlaceholder": "Login",
     "passwordInputPlaceholder": "Password",
@@ -266,6 +266,7 @@
       "premiumAccountText": "You need to register an account and have a valid Subscription. It is only used to maintain dns records of your device. Data transfer happens directly between your apps and device.",
       "deviceCredentialsTitle": "Device credentials",
       "deviceCredentialsText": "Device credentials are used to access your device and all the apps (as admin user). They are stored on device and no one knows them. If you forget them you will need to reactivate your device."
-    }
+    },
+    "deviceNameSub": "Choose the name your device will be reachable by."
   }
 }

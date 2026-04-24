@@ -7,7 +7,7 @@ import { ElButton, ElStep, ElSteps } from 'element-plus'
 
 jest.setTimeout(30000)
 
-test('Activate free domain', async () => {
+test('Activate syncloud domain', async () => {
   let redirectEmail = ''
   let redirectPassword = ''
   let domain = ''
@@ -63,11 +63,12 @@ test('Activate free domain', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#btn_syncloud_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#btn_account_next').trigger('click')
   await wrapper.find('#domain_input').setValue('domain')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_domain_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#device_password_confirm').setValue('password')
@@ -87,7 +88,7 @@ test('Activate free domain', async () => {
   wrapper.unmount()
 })
 
-test('Activate free domain error', async () => {
+test('Activate syncloud domain error', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
@@ -118,11 +119,12 @@ test('Activate free domain error', async () => {
 
   await flushPromises()
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#btn_syncloud_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#btn_account_next').trigger('click')
   await wrapper.find('#domain_input').setValue('domain')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_domain_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#device_password_confirm').setValue('password')
@@ -135,7 +137,7 @@ test('Activate free domain error', async () => {
   wrapper.unmount()
 })
 
-test('Activate free domain availability error', async () => {
+test('Activate syncloud domain availability error', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
@@ -171,11 +173,12 @@ test('Activate free domain availability error', async () => {
 
   await flushPromises()
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#btn_syncloud_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#btn_account_next').trigger('click')
   await wrapper.find('#domain_input').setValue('domain')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_domain_next').trigger('click')
 
   await flushPromises()
 
@@ -184,7 +187,7 @@ test('Activate free domain availability error', async () => {
   wrapper.unmount()
 })
 
-test('Activate free domain availability generic error', async () => {
+test('Activate syncloud domain availability generic error', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
@@ -228,11 +231,12 @@ test('Activate free domain availability generic error', async () => {
 
   await flushPromises()
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#btn_syncloud_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#btn_account_next').trigger('click')
   await wrapper.find('#domain_input').setValue('domain')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_domain_next').trigger('click')
 
   await flushPromises()
 
@@ -241,7 +245,7 @@ test('Activate free domain availability generic error', async () => {
   wrapper.unmount()
 })
 
-test('Activate free domain availability error email', async () => {
+test('Activate syncloud domain availability error email', async () => {
   const mockRouter = { push: jest.fn() }
 
   const mock = new MockAdapter(axios)
@@ -277,11 +281,12 @@ test('Activate free domain availability error email', async () => {
 
   await flushPromises()
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_free_domain').trigger('click')
+  await wrapper.find('#btn_syncloud_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
+  await wrapper.find('#btn_account_next').trigger('click')
   await wrapper.find('#domain_input').setValue('domain')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_domain_next').trigger('click')
 
   await flushPromises()
 
@@ -290,7 +295,7 @@ test('Activate free domain availability error email', async () => {
   wrapper.unmount()
 })
 
-test('Activate premium domain', async () => {
+test('Activate custom domain', async () => {
   let redirectEmail = ''
   let redirectPassword = ''
   let domain = ''
@@ -346,11 +351,12 @@ test('Activate premium domain', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_premium_domain').trigger('click')
+  await wrapper.find('#btn_custom_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#domain_premium').setValue('example.com')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_account_next').trigger('click')
+  await wrapper.find('#domain_custom').setValue('example.com')
+  await wrapper.find('#btn_domain_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#device_password_confirm').setValue('password')
@@ -426,11 +432,12 @@ test('Activated while page is open (mostly in local dev)', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_premium_domain').trigger('click')
+  await wrapper.find('#btn_custom_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#domain_premium').setValue('example.com')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_account_next').trigger('click')
+  await wrapper.find('#domain_custom').setValue('example.com')
+  await wrapper.find('#btn_domain_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password')
   await wrapper.find('#device_password_confirm').setValue('password')
@@ -495,11 +502,12 @@ test('No finish if device password confirmation is wrong', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_welcome_next').trigger('click')
-  await wrapper.find('#btn_premium_domain').trigger('click')
+  await wrapper.find('#btn_custom_domain').trigger('click')
   await wrapper.find('#email').setValue('r email')
   await wrapper.find('#redirect_password').setValue('r password')
-  await wrapper.find('#domain_premium').setValue('example.com')
-  await wrapper.find('#btn_next').trigger('click')
+  await wrapper.find('#btn_account_next').trigger('click')
+  await wrapper.find('#domain_custom').setValue('example.com')
+  await wrapper.find('#btn_domain_next').trigger('click')
   await wrapper.find('#device_username').setValue('user')
   await wrapper.find('#device_password').setValue('password 1')
   await wrapper.find('#device_password_confirm').setValue('password 2')
