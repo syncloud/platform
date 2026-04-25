@@ -3,8 +3,8 @@
     <div class="act-wordmark">SYNCLOUD</div>
 
     <div class="act-card">
-      <div class="act-progress" :aria-label="'step ' + (step+1) + ' of 4'">
-        <span v-for="i in 4" :key="i" class="act-dot" :class="{ active: i-1 === step, done: i-1 < step }"></span>
+      <div class="act-progress" :aria-label="'step ' + (step+1) + ' of 5'">
+        <span v-for="i in 5" :key="i" class="act-dot" :class="{ active: i-1 === step, done: i-1 < step }"></span>
       </div>
 
       <transition name="act-step" mode="out-in">
@@ -72,15 +72,15 @@
           <p class="act-lead">{{ $t('activate.chooseDomainSub') }}</p>
 
           <div class="act-cards">
-            <button id="btn_free_domain" class="act-choice" @click="selectFreeDomain">
+            <button id="btn_syncloud_domain" class="act-choice" @click="selectSyncloudDomain">
               <div class="act-choice-icon">🏠</div>
-              <div class="act-choice-title">{{ $t('activate.freeButton') }}</div>
-              <div class="act-choice-body">{{ $t('activate.freeDescription', { domain: redirect_domain }) }}</div>
+              <div class="act-choice-title">{{ $t('activate.syncloudButton') }}</div>
+              <div class="act-choice-body">{{ $t('activate.syncloudDescription', { domain: redirect_domain }) }}</div>
             </button>
-            <button id="btn_premium_domain" class="act-choice" @click="selectPremiumDomain">
+            <button id="btn_custom_domain" class="act-choice" @click="selectCustomDomain">
               <div class="act-choice-icon">🌐</div>
-              <div class="act-choice-title">{{ $t('activate.premiumButton') }}</div>
-              <div class="act-choice-body">{{ $t('activate.premiumDescription') }}</div>
+              <div class="act-choice-title">{{ $t('activate.customButton') }}</div>
+              <div class="act-choice-body">{{ $t('activate.customDescription') }}</div>
             </button>
           </div>
 
@@ -89,7 +89,7 @@
           </div>
         </section>
 
-        <section v-else-if="step === 2" key="details" class="act-step">
+        <section v-else-if="step === 2" key="account" class="act-step">
           <h1 class="act-title">{{ $t('activate.syncloudAccount') }}</h1>
           <p class="act-lead">{{ $t('activate.accountSub') }}</p>
 
@@ -106,28 +106,38 @@
                       :show-error="redirectPasswordAlertVisible" :error="redirectPasswordAlert"/>
           </div>
 
-          <div v-if="domainType === 'free'" class="act-hint">
+          <div class="act-hint">
             {{ $t('activate.noAccount') }}
-            <a :href="'https://' + redirect_domain" target="_blank" class="act-link">{{ $t('activate.register') }}</a>
-          </div>
-
-          <div class="act-field">
-            <label :for="domainType === 'free' ? 'domain_input' : 'domain_premium'">{{ $t('activate.deviceName') }}</label>
-            <div v-if="domainType === 'free'" class="act-domain">
-              <input id="domain_input" class="act-input act-input-flex" type="text" v-model="domain" :placeholder="$t('activate.domainNamePlaceholder')">
-              <span class="act-domain-suffix">.{{ redirect_domain }}</span>
-            </div>
-            <input v-else id="domain_premium" class="act-input" type="text" v-model="domain" :placeholder="$t('activate.premiumDomainPlaceholder')">
-            <div v-show="domainAlertVisible" id="domain_alert" class="act-error">{{ domainAlert }}</div>
+            <a id="link_register" :href="'https://' + redirect_domain" target="_blank" class="act-link">{{ $t('activate.register') }}</a>
           </div>
 
           <div class="act-actions">
             <button class="act-btn act-btn-ghost" @click="step = 1">{{ $t('common.previous') }}</button>
-            <button id="btn_next" class="act-btn act-btn-primary" @click="selectDeviceName">{{ $t('common.next') }}</button>
+            <button id="btn_account_next" class="act-btn act-btn-primary" @click="step = 3" :disabled="!validAccount()">{{ $t('common.next') }}</button>
           </div>
         </section>
 
-        <section v-else-if="step === 3" key="creds" class="act-step">
+        <section v-else-if="step === 3" key="domain" class="act-step">
+          <h1 class="act-title">{{ $t('activate.deviceName') }}</h1>
+          <p class="act-lead">{{ $t('activate.deviceNameSub') }}</p>
+
+          <div class="act-field">
+            <label :for="domainType === 'syncloud' ? 'domain_input' : 'domain_custom'">{{ $t('activate.deviceName') }}</label>
+            <div v-if="domainType === 'syncloud'" class="act-domain">
+              <input id="domain_input" class="act-input act-input-flex" type="text" v-model="domain" :placeholder="$t('activate.domainNamePlaceholder')">
+              <span class="act-domain-suffix">.{{ redirect_domain }}</span>
+            </div>
+            <input v-else id="domain_custom" class="act-input" type="text" v-model="domain" :placeholder="$t('activate.customDomainPlaceholder')">
+            <div v-show="domainAlertVisible" id="domain_alert" class="act-error">{{ domainAlert }}</div>
+          </div>
+
+          <div class="act-actions">
+            <button class="act-btn act-btn-ghost" @click="step = 2">{{ $t('common.previous') }}</button>
+            <button id="btn_domain_next" class="act-btn act-btn-primary" @click="selectDeviceName" :disabled="domain === ''">{{ $t('common.next') }}</button>
+          </div>
+        </section>
+
+        <section v-else-if="step === 4" key="creds" class="act-step">
           <h1 class="act-title">{{ $t('activate.deviceCredentials') }}</h1>
           <p class="act-lead">{{ $t('activate.credentialsSub') }}</p>
 
@@ -155,7 +165,7 @@
           </div>
 
           <div class="act-actions">
-            <button class="act-btn act-btn-ghost" @click="step = 2">{{ $t('common.previous') }}</button>
+            <button class="act-btn act-btn-ghost" @click="step = 3">{{ $t('common.previous') }}</button>
             <button id="btn_activate" class="act-btn act-btn-primary" @click="activate" :disabled="!validDeviceCredentials()">{{ $t('activate.finish') }}</button>
           </div>
         </section>
@@ -189,7 +199,7 @@ export default {
   },
   data () {
     return {
-      domainType: 'free',
+      domainType: 'syncloud',
       loading: false,
       redirectEmail: '',
       redirectPassword: '',
@@ -322,6 +332,11 @@ export default {
       }
       return body
     },
+    validAccount () {
+      if (this.redirectEmail === '') return false
+      if (this.redirectPassword === '') return false
+      return true
+    },
     validDeviceCredentials () {
       if (this.deviceUsername === '') return false
       if (this.devicePassword === '') return false
@@ -333,10 +348,10 @@ export default {
       if (event && event.preventDefault) event.preventDefault()
       this.loading = true
       this.hideAlerts()
-      if (this.domainType === 'premium') {
-        this.activatePremiumDomain()
+      if (this.domainType === 'custom') {
+        this.activateCustomDomain()
       } else {
-        this.activateFreeDomain()
+        this.activateSyncloudDomain()
       }
     },
     forceCertificateRecheck () {
@@ -366,20 +381,26 @@ export default {
       if (err.response && err.response.data) {
         const data = err.response.data
         if (data.parameters_messages) {
+          let backToAccount = false
           for (const pm of data.parameters_messages) {
             const message = pm.messages.join('\n')
             if (pm.parameter === 'redirect_password') {
               this.redirectPasswordAlertVisible = true
               this.redirectPasswordAlert = message
+              backToAccount = true
             }
             if (pm.parameter === 'email') {
               this.redirectEmailAlertVisible = true
               this.redirectEmailAlert = message
+              backToAccount = true
             }
             if (pm.parameter === 'domain') {
               this.domainAlertVisible = true
               this.domainAlert = message
             }
+          }
+          if (backToAccount) {
+            this.step = 2
           }
         } else {
           this.showBanner(err)
@@ -406,7 +427,7 @@ export default {
         }
       }
     },
-    activateFreeDomain () {
+    activateSyncloudDomain () {
       axios
         .post('/rest/activate/managed', this.activateRequestBody(this.fullDomain()))
         .then(this.forceCertificateRecheck)
@@ -415,7 +436,7 @@ export default {
           this.showActivateAlert(err)
         })
     },
-    activatePremiumDomain () {
+    activateCustomDomain () {
       axios
         .post('/rest/activate/managed', this.activateRequestBody(this.domain))
         .then(this.forceCertificateRecheck)
@@ -424,14 +445,14 @@ export default {
           this.showActivateAlert(err)
         })
     },
-    selectPremiumDomain () {
+    selectCustomDomain () {
       this.hideAlerts()
-      this.domainType = 'premium'
+      this.domainType = 'custom'
       this.step = 2
     },
-    selectFreeDomain () {
+    selectSyncloudDomain () {
       this.hideAlerts()
-      this.domainType = 'free'
+      this.domainType = 'syncloud'
       this.step = 2
     },
     selectDeviceName () {
@@ -439,7 +460,7 @@ export default {
       this.domainAvailability()
     },
     fullDomain () {
-      if (this.domainType === 'free') {
+      if (this.domainType === 'syncloud') {
         return this.domain + '.' + this.redirect_domain
       }
       return this.domain
@@ -454,7 +475,7 @@ export default {
             domain: this.fullDomain()
           })
         .then(() => {
-          this.step = 3
+          this.step = 4
           this.loading = false
         })
         .catch(err => {
