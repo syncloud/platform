@@ -166,7 +166,8 @@ func (c *UserConfig) addOidcClientTable() error {
 }
 
 func (c *UserConfig) open() *sql.DB {
-	db, err := sql.Open("sqlite", c.file)
+	dsn := fmt.Sprintf("file:%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)", c.file)
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}

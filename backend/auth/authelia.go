@@ -26,6 +26,10 @@ type Web interface {
 	WaitForReady() error
 }
 
+func autheliaDSN(sqlitePath string) string {
+	return fmt.Sprintf("file:%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)", sqlitePath)
+}
+
 type Variables struct {
 	Domain            string
 	AppUrl            string
@@ -367,7 +371,7 @@ func (w *Authelia) GenerateTOTP(username string) (string, error) {
 
 func (w *Authelia) HasTOTP(username string) (bool, error) {
 	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
-	db, err := sql.Open("sqlite", sqlitePath)
+	db, err := sql.Open("sqlite", autheliaDSN(sqlitePath))
 	if err != nil {
 		return false, fmt.Errorf("failed to open authelia db: %w", err)
 	}
@@ -382,7 +386,7 @@ func (w *Authelia) HasTOTP(username string) (bool, error) {
 
 func (w *Authelia) ResetAllTOTP() error {
 	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
-	db, err := sql.Open("sqlite", sqlitePath)
+	db, err := sql.Open("sqlite", autheliaDSN(sqlitePath))
 	if err != nil {
 		return fmt.Errorf("failed to open authelia db: %w", err)
 	}
