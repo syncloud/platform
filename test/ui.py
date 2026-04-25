@@ -187,7 +187,7 @@ def test_settings_storage(selenium):
     settings(selenium, 'storage')
     selenium.find_by_xpath("//h1[text()='Storage']")
     selenium.find_by_id('btn_save')
-    selenium.screenshot('settings_storage')
+    selenium.screenshot('settings_storage_unstable')
 
 
 def test_settings_updates(selenium):
