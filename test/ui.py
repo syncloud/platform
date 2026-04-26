@@ -462,6 +462,8 @@ def test_2fa_login(selenium, device, full_domain, device_user, device_password):
 
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
+    wait_app_icons_loaded(selenium)
     selenium.screenshot('2fa_login_success')
 
 
@@ -486,6 +488,8 @@ def test_2fa_login_returning(selenium, device, full_domain, device_user, device_
 
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
+    wait_app_icons_loaded(selenium)
     selenium.screenshot('2fa_login_success')
 
 
@@ -517,6 +521,8 @@ def test_2fa_regular_user_login(selenium, device, full_domain, device_user, devi
     # Regular user should see apps page
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
+    wait_app_icons_loaded(selenium)
     selenium.screenshot('2fa_regular_user_login')
 
     # Clean up — remove user and log back in as admin
@@ -562,6 +568,8 @@ def test_2fa_recovery_cli(device, selenium, full_domain, device_user, device_pas
     selenium.find_by(By.ID, "sign-in-button").click()
     selenium.find_by_xpath("//h1[text()='Applications']")
     wait_for_loading(selenium.driver)
+    selenium.find_by(By.CLASS_NAME, "appimg")
+    wait_app_icons_loaded(selenium)
     selenium.screenshot('2fa_recovery_cli')
  
 
