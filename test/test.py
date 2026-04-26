@@ -675,6 +675,19 @@ def test_cli_user_add_remove(device):
     device.run_ssh('snap run platform.cli user remove testuser')
 
 
+def test_cli_cert_fake(device):
+    cert_path = '/var/snap/platform/current/syncloud.crt'
+    ca_path = '/var/snap/platform/current/syncloud.ca.crt'
+    cert_serial_before = device.run_ssh('cat {} | openssl x509 -noout -serial'.format(cert_path)).strip()
+    ca_serial_before = device.run_ssh('cat {} | openssl x509 -noout -serial'.format(ca_path)).strip()
+    device.run_ssh('snap run platform.cli cert --fake')
+    cert_serial_after = device.run_ssh('cat {} | openssl x509 -noout -serial'.format(cert_path)).strip()
+    ca_serial_after = device.run_ssh('cat {} | openssl x509 -noout -serial'.format(ca_path)).strip()
+    assert cert_serial_before != cert_serial_after, 'cert was not regenerated: {}'.format(cert_serial_after)
+    assert ca_serial_before != ca_serial_after, 'CA was not regenerated: {}'.format(ca_serial_after)
+    device.run_ssh('openssl verify -CAfile {} {}'.format(ca_path, cert_path))
+
+
 def test_admin_api_secured(device, domain):
     # Unauthenticated requests to admin endpoints should return 401
     admin_endpoints = [

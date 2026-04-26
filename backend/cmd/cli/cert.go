@@ -6,6 +6,7 @@ import (
 )
 
 func certCmd(userConfig *string, systemConfig *string) *cobra.Command {
+	var fake bool
 	var cmdCert = &cobra.Command{
 		Use:   "cert",
 		Short: "Generate certificate",
@@ -14,10 +15,16 @@ func certCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if fake {
+				return c.Call(func(fakeGenerator *cert.Fake) error {
+					return fakeGenerator.Generate()
+				})
+			}
 			return c.Call(func(certGenerator *cert.CertificateGenerator) error {
 				return certGenerator.Generate()
 			})
 		},
 	}
+	cmdCert.Flags().BoolVar(&fake, "fake", false, "force fake (self-signed) CA + cert pair regeneration, bypassing the Subject==domain skip")
 	return cmdCert
 }
