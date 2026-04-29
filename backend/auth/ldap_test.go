@@ -54,6 +54,15 @@ func TestInit(t *testing.T) {
 	assert.Contains(t, executor.executions[0], "slapadd.sh")
 }
 
+func TestApplyConfig_NotInstalled(t *testing.T) {
+	executor := &ExecutorStub{}
+	missing := path.Join(t.TempDir(), "missing")
+	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, log.Default())
+	err := ldap.ApplyConfig()
+	assert.Nil(t, err)
+	assert.Len(t, executor.executions, 0)
+}
+
 func TestReset(t *testing.T) {
 	executor := &ExecutorStub{}
 	configDir := t.TempDir()

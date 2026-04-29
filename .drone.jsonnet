@@ -106,6 +106,8 @@ local build(arch, testUI) = [{
                '../build/snap/meta/hooks/install -h',
                "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                '../build/snap/meta/hooks/post-refresh -h',
+               "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/configure ./cmd/configure",
+               '../build/snap/meta/hooks/configure -h',
                "CGO_ENABLED=0 go build -o ../build/snap/bin/login ./cmd/login",
                'cd ../visual-diff',
                'CGO_ENABLED=0 go build -o visual-diff ./cmd',
