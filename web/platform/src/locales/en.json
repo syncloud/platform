@@ -73,7 +73,8 @@
     "appCenterLink": "App Center"
   },
   "appCenter": {
-    "title": "App Center"
+    "title": "App Center",
+    "filter": "Filter apps"
   },
   "app": {
     "version": "Version:",

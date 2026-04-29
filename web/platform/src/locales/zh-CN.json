@@ -66,7 +66,8 @@
     "appCenterLink": "应用中心"
   },
   "appCenter": {
-    "title": "应用中心"
+    "title": "应用中心",
+    "filter": "筛选应用"
   },
   "app": {
     "version": "版本:",

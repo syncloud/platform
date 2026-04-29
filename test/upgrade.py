@@ -66,6 +66,14 @@ def test_custom_proxy_migration(device):
     assert proxies[0]["https"] is False
 
 
+def test_slapd_quiet_after_refresh(device):
+    output = device.run_ssh(
+        "journalctl -u snap.platform.openldap --since '5 minutes ago' "
+        "| grep -c 'slapd.* BIND ' || true"
+    )
+    assert int(output.strip()) == 0, output
+
+
 def test_installer_upgrade(device, domain):
     session = device.login_v2()
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)

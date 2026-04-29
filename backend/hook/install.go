@@ -42,6 +42,11 @@ type DisksLinker interface {
 
 type Ldap interface {
 	Init() error
+	ApplyConfig() error
+}
+
+func (i *Install) Configure() error {
+	return i.ldap.ApplyConfig()
 }
 
 type Nginx interface {

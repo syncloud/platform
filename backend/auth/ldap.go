@@ -21,14 +21,15 @@ const Domain = "dc=syncloud,dc=org"
 const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
 
 type Service struct {
-	snapService     SnapService
-	userConfDir     string
-	userDataDir     string
-	ldapRoot        string
-	configDir       string
-	executor        cli.Executor
-	passwordChanger PasswordChanger
-	logger          *zap.Logger
+	snapService      SnapService
+	runtimeConfigDir string
+	userConfDir      string
+	userDataDir      string
+	ldapRoot         string
+	configDir        string
+	executor         cli.Executor
+	passwordChanger  PasswordChanger
+	logger           *zap.Logger
 }
 
 type SnapService interface {
@@ -39,14 +40,15 @@ type SnapService interface {
 func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, logger *zap.Logger) *Service {
 
 	return &Service{
-		snapService:     snapService,
-		userConfDir:     path.Join(runtimeConfigDir, ldapUserConfDir),
-		userDataDir:     path.Join(runtimeConfigDir, ldapUserDataDir),
-		ldapRoot:        path.Join(appDir, "openldap"),
-		configDir:       configDir,
-		executor:        executor,
-		passwordChanger: passwordChanger,
-		logger:          logger,
+		snapService:      snapService,
+		runtimeConfigDir: runtimeConfigDir,
+		userConfDir:      path.Join(runtimeConfigDir, ldapUserConfDir),
+		userDataDir:      path.Join(runtimeConfigDir, ldapUserDataDir),
+		ldapRoot:         path.Join(appDir, "openldap"),
+		configDir:        configDir,
+		executor:         executor,
+		passwordChanger:  passwordChanger,
+		logger:           logger,
 	}
 }
 
@@ -74,6 +76,41 @@ func (s *Service) Init() error {
 		return err
 	}
 	log.Println(string(output))
+	return nil
+}
+
+func (s *Service) ApplyConfig() error {
+	if !s.Installed() {
+		return nil
+	}
+	socket := path.Join(s.runtimeConfigDir, "openldap.socket")
+	uri := fmt.Sprintf("ldapi://%s", strings.ReplaceAll(socket, "/", "%2F"))
+	var err error
+	for i := 0; i < 10; i++ {
+		err = s.applyConfigOnce(uri)
+		if err == nil {
+			return nil
+		}
+		log.Printf("apply ldap config attempt %d failed: %s", i, err)
+		time.Sleep(time.Second * 1)
+	}
+	return err
+}
+
+func (s *Service) applyConfigOnce(uri string) error {
+	conn, err := ldap.DialURL(uri)
+	if err != nil {
+		return fmt.Errorf("ldapi connect: %w", err)
+	}
+	defer conn.Close()
+	if err := conn.ExternalBind(); err != nil {
+		return fmt.Errorf("ldapi external bind: %w", err)
+	}
+	req := ldap.NewModifyRequest("cn=config", nil)
+	req.Replace("olcLogLevel", []string{"none"})
+	if err := conn.Modify(req); err != nil {
+		return fmt.Errorf("ldap modify cn=config: %w", err)
+	}
 	return nil
 }
 

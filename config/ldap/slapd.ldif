@@ -11,6 +11,7 @@ cn: config
 #
 olcArgsFile: /var/snap/platform/current/openldap/slapd.args
 olcPidFile: /var/snap/platform/current/openldap/slapd.pid
+olcLogLevel: none
 #
 # Do not enable referrals until AFTER you have a working directory
 # service AND an understanding of referrals.
