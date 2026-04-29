@@ -253,6 +253,8 @@ def test_app_center(selenium):
     menu(selenium, 'appcenter')
     selenium.find_by_xpath("//h1[text()='App Center']")
     selenium.find_by_xpath("//span[text()='File browser']")
+    selenium.find_by_id('appcenter_filter').send_keys('nextcloud')
+    selenium.find_by_xpath("//span[text()='Nextcloud file sharing']")
     selenium.screenshot('appcenter')
 
 
