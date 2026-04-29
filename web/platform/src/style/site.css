@@ -443,6 +443,10 @@ input:disabled {
 .appcenterlist {
     margin-top: 25px;
 }
+.appcenterfilter {
+    max-width: 320px;
+    margin: 25px auto 0;
+}
 
 .app-link {
     display: inline-block;
@@ -631,7 +635,11 @@ footer .links a:hover {
         padding: 40px 0;
     }
     .block1 h1 {
-        font-size: 45px;
+        font-size: 28px;
+    }
+    .appcenterfilter .el-input__inner {
+        font-size: 18px;
+        height: 40px;
     }
     .buttonblock button {
         line-height: 40px;

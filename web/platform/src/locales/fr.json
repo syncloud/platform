@@ -66,7 +66,8 @@
     "appCenterLink": "Catalogue d'applications"
   },
   "appCenter": {
-    "title": "Catalogue d'applications"
+    "title": "Catalogue d'applications",
+    "filter": "Filtrer les applications"
   },
   "app": {
     "version": "Version :",

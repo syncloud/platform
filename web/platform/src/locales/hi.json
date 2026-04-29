@@ -66,7 +66,8 @@
     "appCenterLink": "ऐप सेंटर"
   },
   "appCenter": {
-    "title": "ऐप सेंटर"
+    "title": "ऐप सेंटर",
+    "filter": "ऐप्स फ़िल्टर करें"
   },
   "app": {
     "version": "संस्करण:",

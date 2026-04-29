@@ -11,7 +11,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '2716';
+local visual_diff_skip_build = '2721';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -106,6 +106,8 @@ local build(arch, testUI) = [{
                '../build/snap/meta/hooks/install -h',
                "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/post-refresh ./cmd/post-refresh",
                '../build/snap/meta/hooks/post-refresh -h',
+               "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/configure ./cmd/configure",
+               '../build/snap/meta/hooks/configure -h',
                "CGO_ENABLED=0 go build -o ../build/snap/bin/login ./cmd/login",
                'cd ../visual-diff',
                'CGO_ENABLED=0 go build -o visual-diff ./cmd',
