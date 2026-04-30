@@ -30,6 +30,23 @@ local build(arch, testUI) = [{
              ],
            },
            {
+             name: 'gptfdisk',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './gptfdisk/build.sh',
+             ],
+           },
+         ] + [
+           {
+             name: 'gptfdisk test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './gptfdisk/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
+           {
              name: 'nginx',
              image: 'nginx:' + nginx,
              commands: [
