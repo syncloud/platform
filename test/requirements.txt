@@ -1,4 +1,5 @@
 pytest==8.4.1
+selenium==4.35.0
 syncloud-lib==363
 pytest-retry==1.6.3
 retrying==1.4.2
