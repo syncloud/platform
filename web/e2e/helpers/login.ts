@@ -1,7 +1,10 @@
 import { Page, expect } from '@playwright/test'
+import { waitForLoading } from './ui'
 
 const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'syncloud'
 const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'syncloud'
+
+export { deviceUser, devicePassword, waitForLoading }
 
 export async function login(page: Page, opts: { user?: string; password?: string } = {}) {
   await page.goto('/')
@@ -13,11 +16,8 @@ export async function login(page: Page, opts: { user?: string; password?: string
 }
 
 export async function logout(page: Page) {
-  await page.goto('/rest/logout')
+  const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
+  const url = fullDomain ? `https://${fullDomain}/rest/logout` : '/rest/logout'
+  await page.goto(url)
   await expect(page.locator('#username-textfield')).toBeVisible()
-}
-
-export async function waitForLoading(page: Page) {
-  await page.waitForTimeout(500)
-  await expect(page.locator('.el-loading-mask').first()).toBeHidden({ timeout: 120_000 }).catch(() => {})
 }
