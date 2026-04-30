@@ -279,6 +279,7 @@ func (s *Server) Find(name string) (*model.SyncloudAppVersions, error) {
 
 	installedApp := foundInstalledApp.ToInstalledApp(s.userConfig.Url(foundInstalledApp.Name))
 	if storeApp == nil {
+		installedApp.LocalInstall = true
 		return &installedApp, nil
 	}
 
