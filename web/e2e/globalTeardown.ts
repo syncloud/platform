@@ -4,12 +4,11 @@ import * as fs from 'node:fs'
 import { execSync } from 'node:child_process'
 
 const TMP_DIR = '/tmp/syncloud/ui'
-const distro = process.env.PLAYWRIGHT_DISTRO ?? 'bookworm'
 const artifactRoot = process.env.PLAYWRIGHT_ARTIFACT_DIR ?? 'artifact'
 
 export default async function () {
   const project = process.env.PLAYWRIGHT_PROJECT ?? 'desktop'
-  const out = path.join(artifactRoot, distro, project)
+  const out = path.join(artifactRoot, 'distro', project)
   fs.mkdirSync(out, { recursive: true })
 
   ssh(`mkdir -p ${TMP_DIR}`, { throw: false })
