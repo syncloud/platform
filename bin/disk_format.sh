@@ -11,9 +11,9 @@ DEVICE=$1
 PARTITION=1
 
 dd if=/dev/zero of=${DEVICE} bs=512 count=1 conv=notrunc
-export LD_LIBRARY_PATH=${DIR}/gptfdisk/lib
-${DIR}/gptfdisk/bin/sgdisk -o ${DEVICE}
-${DIR}/gptfdisk/bin/sgdisk -n ${PARTITION} ${DEVICE}
-${DIR}/gptfdisk/bin/sgdisk -p ${DEVICE}
+${DIR}/gptfdisk/bin/sgdisk.sh -o ${DEVICE}
+${DIR}/gptfdisk/bin/sgdisk.sh -n ${PARTITION} ${DEVICE}
+${DIR}/gptfdisk/bin/sgdisk.sh -p ${DEVICE}
+partprobe ${DEVICE}
 PARTITION_DEVICE=$(lsblk -pl -o NAME,TYPE ${DEVICE} | grep part | awk '{print $1}')
 mkfs.ext4 -F ${PARTITION_DEVICE}
