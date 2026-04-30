@@ -37,7 +37,7 @@ Browse the top level for a build (returns distro subdirs + snap file):
 curl -s "http://ci.syncloud.org:8081/files/platform/{build}-{arch}/"
 ```
 
-Each distro dir contains `app/`, `platform/`, and for upgrade/UI tests also `desktop/`, `refresh.journalctl.log`, `video.mkv`:
+Each distro dir contains `app/`, `platform/`, and for upgrade/UI tests also `desktop/`, `mobile/`, `refresh.journalctl.log`:
 ```
 curl -s "http://ci.syncloud.org:8081/files/platform/{build}-{arch}/{distro}/"
 curl -s "http://ci.syncloud.org:8081/files/platform/{build}-{arch}/{distro}/app/"
@@ -53,13 +53,16 @@ Directory structure:
       ps.log, netstat.log     # process/network state at teardown
     platform/                 # platform logs
     refresh.journalctl.log    # full journal from upgrade test (pre/post-refresh)
-  distro/
-    desktop/                  # UI test artifacts (amd64 only)
+  {distro}/
+    desktop/                  # UI test artifacts (amd64 only, Playwright)
       journalctl.log
       screenshot/
         {test-name}-desktop.png
-        {test-name}-desktop.html.log
-    video.mkv                 # selenium recording
+    mobile/
+      journalctl.log
+      screenshot/
+        {test-name}-mobile.png
+  artifact/test-results/      # Playwright traces + videos for failed tests
 ```
 
 Download a file directly:

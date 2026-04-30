@@ -11,6 +11,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never', outputFolder: `${artifactDir}/playwright-report` }]],
   outputDir: `${artifactDir}/test-results`,
+  globalTeardown: './globalTeardown.ts',
   timeout: 120_000,
   expect: { timeout: 30_000 },
   use: {

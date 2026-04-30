@@ -1,6 +1,5 @@
 local name = 'platform';
-local browser = 'chrome';
-local selenium = '4.35.0-20250828';
+local playwright = 'v1.49.1-jammy';
 local go = '1.25.8';
 local node = '22.16.0';
 local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
@@ -179,62 +178,41 @@ local build(arch, testUI) = [{
            for distro in distros
          ] + (if testUI then [
                 {
-                  name: 'selenium',
-                  image: 'selenium/standalone-' + browser + ':' + selenium,
-                  detach: true,
-                  environment: {
-                    SE_NODE_SESSION_TIMEOUT: '999999',
-                    START_XVFB: 'true',
-                  },
-                  volumes: [{
-                    name: 'shm',
-                    path: '/dev/shm',
-                  }],
-                  commands: [
-                    'cat /etc/hosts',
-                    'DOMAIN="' + distro_default + '-' + arch + '"',
-                    'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
-                    'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
-                    'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
-                    'getent hosts $DOMAIN | sed "s/$DOMAIN/externalapp.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
-                    'getent hosts $DOMAIN | sed "s/$DOMAIN/testapp.$DOMAIN.redirect/g" | sudo tee -a /etc/hosts',
-                    'cat /etc/hosts',
-                    '/opt/bin/entry_point.sh',
-                  ],
-                },
-                {
-                  name: 'selenium-video',
-                  image: 'selenium/video:ffmpeg-4.3.1-20220208',
-                  detach: true,
-                  environment: {
-                    DISPLAY_CONTAINER_NAME: 'selenium',
-                    FILE_NAME: 'video.mkv',
-                  },
-                  volumes: [
-                    {
-                      name: 'shm',
-                      path: '/dev/shm',
-                    },
-                    {
-                      name: 'videos',
-                      path: '/videos',
-                    },
-                  ],
-                },
-              ] + [
-                {
                   name: 'test-ui-' + mode,
-                  image: 'python:' + python,
+                  image: 'mcr.microsoft.com/playwright:' + playwright,
+                  environment: {
+                    PLAYWRIGHT_APP: name,
+                    PLAYWRIGHT_DISTRO: distro_default,
+                    PLAYWRIGHT_DEVICE_HOST: distro_default + '-' + arch,
+                    PLAYWRIGHT_DOMAIN: distro_default + '-' + arch + '.redirect',
+                    PLAYWRIGHT_FULL_DOMAIN: distro_default + '-' + arch + '.redirect',
+                    PLAYWRIGHT_DOMAIN_SHORT: distro_default + '-' + arch,
+                    PLAYWRIGHT_MAIN_DOMAIN: 'redirect',
+                    PLAYWRIGHT_REDIRECT_USER: 'redirect',
+                    PLAYWRIGHT_REDIRECT_PASSWORD: 'redirect',
+                    PLAYWRIGHT_DEVICE_USER: 'syncloud',
+                    PLAYWRIGHT_DEVICE_PASSWORD: 'syncloud',
+                    PLAYWRIGHT_SSH_USER: 'root',
+                    PLAYWRIGHT_SSH_PASSWORD: 'syncloud',
+                    PLAYWRIGHT_TESTAPP_SNAP: '/test/testapp/testapp.snap',
+                    PLAYWRIGHT_PROJECT: mode,
+                    CI: 'true',
+                  },
                   commands: [
-                    'cd test',
-                    './deps.sh',
-                    'py.test -x -s ui.py --ui-mode=' + mode + ' --domain=' + distro_default + '-' + arch + '  --device-host=' + distro_default + '-' + arch + ' --redirect-user=redirect --redirect-password=redirect --app=' + name + ' --browser=' + browser,
+                    'apt-get update && apt-get install -y sshpass sudo',
+                    'DOMAIN="' + distro_default + '-' + arch + '"',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" >> /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" >> /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/unknown.$DOMAIN.redirect/g" >> /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/externalapp.$DOMAIN.redirect/g" >> /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/testapp.$DOMAIN.redirect/g" >> /etc/hosts',
+                    'getent hosts $DOMAIN | sed "s/$DOMAIN/files.$DOMAIN.redirect/g" >> /etc/hosts',
+                    'cat /etc/hosts',
+                    'cd web/e2e',
+                    'npm ci',
+                    'npx playwright test --project=' + mode,
                   ],
                   privileged: true,
-                  volumes: [{
-                    name: 'videos',
-                    path: '/videos',
-                  }],
                 }
                 for mode in ['desktop', 'mobile']
               ] + [
@@ -257,10 +235,6 @@ local build(arch, testUI) = [{
                'py.test -x -s upgrade.py --domain=' + distro_default + '-' + arch + ' --device-host=' + distro_default + '-' + arch + ' --app-archive-path=$APP_ARCHIVE_PATH --app=' + name,
              ],
              privileged: true,
-             volumes: [{
-               name: 'videos',
-               path: '/videos',
-             }],
            },
            {
              name: 'upload',
@@ -330,12 +304,6 @@ local build(arch, testUI) = [{
                source: 'artifact/*',
                privileged: true,
                strip_components: 1,
-               volumes: [
-                 {
-                   name: 'videos',
-                   path: '/drone/src/artifact/videos',
-                 },
-               ],
              },
              when: {
                status: [
@@ -395,10 +363,6 @@ local build(arch, testUI) = [{
       },
     },
     {
-      name: 'shm',
-      temp: {},
-    },
-    {
       name: 'docker',
       host: {
         path: '/usr/bin/docker',
@@ -409,10 +373,6 @@ local build(arch, testUI) = [{
       host: {
         path: '/var/run/docker.sock',
       },
-    },
-    {
-      name: 'videos',
-      temp: {},
     },
   ],
 }];
