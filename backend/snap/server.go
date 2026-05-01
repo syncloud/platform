@@ -228,6 +228,9 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	s.logger.Info("find", zap.String("query", query))
 	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
+		if errors.Is(err, NotFound) {
+			return make([]model.Snap, 0), nil
+		}
 		return nil, err
 	}
 	var response model.ServerResponse
