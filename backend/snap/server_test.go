@@ -365,7 +365,8 @@ func TestServer_FindInstalled_NotFound(t *testing.T) {
 }
 `
 
-	client := &ClientStub{snapJson: json, snapError: NotFound}
+	emptyList := `{"type":"sync","status-code":200,"status":"OK","result":[]}`
+	client := &ClientStub{snapJson: json, snapError: NotFound, snapsJson: emptyList}
 	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.FindInstalled("files")
 
@@ -407,7 +408,8 @@ func TestServer_Find_NotInstalled(t *testing.T) {
 	]
 }
 `
-	client := &ClientStub{snapJson: snapJson, snapError: NotFound, findJson: findJson}
+	emptyList := `{"type":"sync","status-code":200,"status":"OK","result":[]}`
+	client := &ClientStub{snapJson: snapJson, snapError: NotFound, findJson: findJson, snapsJson: emptyList}
 	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
 	found, err := snapd.Find("app")
 

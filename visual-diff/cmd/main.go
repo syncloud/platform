@@ -45,7 +45,7 @@ func usage() {
 	fmt.Println("Usage: visual-diff <command> [args]")
 	fmt.Println("Commands:")
 	fmt.Println("  diff <base-dir> <compare-dir> [diff-dir]    Compare two local screenshot dirs")
-	fmt.Println("  ci-diff <local-dir> [skip-build]            Compare local artifact/distro against stable")
+	fmt.Println("  ci-diff <local-dir> [skip-build]            Compare local artifact/playwright against stable")
 	fmt.Println("  download <branch> <output-dir>              Download screenshots from CI")
 	fmt.Println("  branches <base-branch> <compare-branch>     Download and compare two branches")
 }

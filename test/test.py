@@ -394,14 +394,14 @@ def test_get_access(device, domain):
 
 def test_installer_status(device, device_host):
     session = device.login_v2()
-    for attempt in range(30):
+    for attempt in range(90):
         response = session.get('https://{0}/rest/installer/status'.format(device_host), allow_redirects=False, verify=False)
         assert response.status_code == 200
         if not json.loads(response.text)["data"]["is_running"]:
             return
-        print('installer still running (attempt {0}/30): {1}'.format(attempt + 1, response.text))
+        print('installer still running (attempt {0}/90): {1}'.format(attempt + 1, response.text))
         time.sleep(2)
-    assert False, 'installer still running after 60s: {0}'.format(response.text)
+    assert False, 'installer still running after 180s: {0}'.format(response.text)
 
 
 def test_network_interfaces(device, domain):

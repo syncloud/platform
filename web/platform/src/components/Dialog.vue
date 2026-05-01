@@ -11,7 +11,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="close">{{ cancelText || $t('common.cancel') }}</el-button>
-        <el-button id="btn_confirm" type="primary" @click="yes" v-if="confirmEnabled">{{ $t('common.confirm') }}</el-button>
+        <el-button id="btn_confirm" data-testid="btn_confirm" type="primary" @click="yes" v-if="confirmEnabled">{{ $t('common.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>

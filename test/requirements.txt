@@ -4,4 +4,3 @@ syncloud-lib==363
 pytest-retry==1.6.3
 retrying==1.4.2
 responses==0.5.0
-pyotp==2.9.0

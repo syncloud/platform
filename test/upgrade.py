@@ -1,4 +1,6 @@
 import json
+import os
+from os.path import dirname, join
 from subprocess import run
 
 import pytest
@@ -12,12 +14,14 @@ DB_PATH = '/var/snap/platform/current/platform.db'
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, device, artifact_dir):
+def module_setup(request, device, project_dir):
+    upgrade_dir = join(project_dir, 'artifact', 'upgrade')
+    os.makedirs(upgrade_dir, exist_ok=True)
+
     def module_teardown():
         device.run_ssh('journalctl > {0}/upgrade.journalctl.log'.format(TMP_DIR), throw=False)
-        device.scp_from_device('{0}/*'.format(TMP_DIR), artifact_dir)
-        run('cp /videos/* {0}'.format(artifact_dir), shell=True)
-        run('chmod -R a+r {0}'.format(artifact_dir), shell=True)
+        device.scp_from_device('{0}/*'.format(TMP_DIR), upgrade_dir)
+        run('chmod -R a+r {0}'.format(upgrade_dir), shell=True)
 
     request.addfinalizer(module_teardown)
 
