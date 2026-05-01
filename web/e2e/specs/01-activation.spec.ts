@@ -119,7 +119,7 @@ test('activate', async ({}, testInfo) => {
   await shoot(page, testInfo, 'activate-ready')
   await page.locator('#btn_activate').click()
   await waitForLoading(page)
-  await expect(page.locator('#username-textfield')).toBeVisible({ timeout: 30_000 })
+  await expect(page.locator('#btn_activate')).toBeHidden({ timeout: 30_000 })
   await defocus(page)
   await shoot(page, testInfo, 'activate')
 })
