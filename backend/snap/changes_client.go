@@ -56,6 +56,10 @@ func (s *ChangesClient) Changes() (*model.InstallerStatus, error) {
 	}
 
 	for _, change := range changesResponse {
+		if change.Summary == "Initialize device" || change.Summary == "Initialize system state" {
+			s.logger.Debug("skipping snapd seed change", zap.String("id", change.Id), zap.String("summary", change.Summary))
+			continue
+		}
 		progress := change.InstallerProgress()
 		s.logger.Info("in-progress change",
 			zap.String("id", change.Id),
