@@ -8,7 +8,7 @@ const artifactRoot = process.env.PLAYWRIGHT_ARTIFACT_DIR ?? 'artifact'
 
 export default async function () {
   const project = process.env.PLAYWRIGHT_PROJECT ?? 'desktop'
-  const out = path.join(artifactRoot, 'distro', project)
+  const out = path.join(artifactRoot, 'playwright', project)
   fs.mkdirSync(out, { recursive: true })
 
   ssh(`mkdir -p ${TMP_DIR}`, { throw: false })

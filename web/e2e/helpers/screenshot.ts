@@ -10,7 +10,7 @@ function viewOf(testInfo: TestInfo): string {
 
 export async function shoot(page: Page, testInfo: TestInfo, name: string) {
   const view = viewOf(testInfo)
-  const dir = path.join(artifactRoot, 'distro', view, 'screenshot')
+  const dir = path.join(artifactRoot, 'playwright', view, 'screenshot')
   fs.mkdirSync(dir, { recursive: true })
   const file = path.join(dir, `${name}-${view}.png`)
   await page.screenshot({ path: file, fullPage: false })

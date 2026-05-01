@@ -221,7 +221,7 @@ local build(arch, testUI) = [{
                   name: 'visual-diff',
                   image: 'alpine:' + alpine,
                   commands: [
-                    './visual-diff/visual-diff ci-diff artifact/distro ' + visual_diff_skip_build,
+                    './visual-diff/visual-diff ci-diff artifact/playwright ' + visual_diff_skip_build,
                   ],
                 },
               ] else []) +
