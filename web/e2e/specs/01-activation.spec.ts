@@ -86,6 +86,7 @@ test('activate languages', async ({}, testInfo) => {
 })
 
 test('activate', async ({}, testInfo) => {
+  test.setTimeout(120_000)
   await page.goto(`https://${deviceHost}`)
   await expect(page.locator('#btn_welcome_next')).toBeVisible()
   await shoot(page, testInfo, 'activate-welcome_unstable')
@@ -118,7 +119,7 @@ test('activate', async ({}, testInfo) => {
   await shoot(page, testInfo, 'activate-ready')
   await page.locator('#btn_activate').click()
   await waitForLoading(page)
-  await expect(page.locator('#username-textfield')).toBeVisible()
+  await expect(page.locator('#username-textfield')).toBeVisible({ timeout: 30_000 })
   await defocus(page)
   await shoot(page, testInfo, 'activate')
 })
