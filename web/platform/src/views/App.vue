@@ -8,9 +8,12 @@
               <img :src="info.app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
             </div>
             <div class="appinfo">
-              <h1 id="app_name">{{ info.app.name }}</h1>
+              <h1 id="app_name" data-testid="app_name">{{ info.app.name }}</h1>
               <div v-if="info.installed_version !== null && !progress">
                 <b>{{ $t('app.version') }}</b> {{ info.installed_version }}<br>
+              </div>
+              <div v-if="info.local_install" id="local_install_badge" data-testid="local_install_badge">
+                <b>{{ $t('app.localInstall') }}</b>
               </div>
             </div>
           </div>
@@ -40,16 +43,16 @@
               <button id="btn_install" class="buttonblue bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing..."
                       @click="install"
-                      v-if="info.installed_version === null">
+                      v-if="info.installed_version === null && !info.local_install">
                 {{ $t('app.install', { version: info.current_version }) }}
               </button>
               <button id="btn_upgrade" class="buttongreen bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
                       @click="upgrade"
-                      v-if="info.installed_version !== null && info.installed_version !== info.current_version">
+                      v-if="info.installed_version !== null && !info.local_install && info.installed_version !== info.current_version">
                 {{ $t('app.upgrade', { version: info.current_version }) }}
               </button>
-              <button id="btn_remove" class="buttongrey bwidth smbutton"
+              <button id="btn_remove" data-testid="btn_remove" class="buttongrey bwidth smbutton"
                       data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
                       @click="remove"
                       v-if="info.installed_version !== null">

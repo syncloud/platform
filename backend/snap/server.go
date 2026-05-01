@@ -114,6 +114,15 @@ func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/snaps/%s", name))
 	if err != nil {
 		if errors.Is(err, NotFound) {
+			snaps, listErr := s.Snaps()
+			if listErr != nil {
+				return nil, listErr
+			}
+			for i := range snaps {
+				if snaps[i].Name == name {
+					return &snaps[i], nil
+				}
+			}
 			return nil, nil
 		}
 		return nil, err
@@ -219,6 +228,9 @@ func (s *Server) find(query string) ([]model.Snap, error) {
 	s.logger.Info("find", zap.String("query", query))
 	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/find?name=%s", query))
 	if err != nil {
+		if errors.Is(err, NotFound) {
+			return make([]model.Snap, 0), nil
+		}
 		return nil, err
 	}
 	var response model.ServerResponse
@@ -279,6 +291,7 @@ func (s *Server) Find(name string) (*model.SyncloudAppVersions, error) {
 
 	installedApp := foundInstalledApp.ToInstalledApp(s.userConfig.Url(foundInstalledApp.Name))
 	if storeApp == nil {
+		installedApp.LocalInstall = true
 		return &installedApp, nil
 	}
 

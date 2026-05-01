@@ -64,7 +64,7 @@ func (c *CIClient) DownloadBranch(branch, outDir string) error {
 func (c *CIClient) DownloadBuild(buildNum, outDir string) error {
 	os.RemoveAll(outDir)
 	for _, view := range []string{"desktop", "mobile"} {
-		url := fmt.Sprintf("%s/%s-%s/distro/%s/screenshot", c.filesURL, buildNum, c.arch, view)
+		url := fmt.Sprintf("%s/%s-%s/playwright/%s/screenshot", c.filesURL, buildNum, c.arch, view)
 		dir := filepath.Join(outDir, view)
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return err

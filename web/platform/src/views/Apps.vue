@@ -8,7 +8,8 @@
             <h2 class="bh2">{{ $t('apps.emptyHeading') }}</h2>
             <router-link to="/appcenter" class="appcenterh">{{ $t('apps.appCenterLink') }}</router-link>
           </div>
-          <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
+          <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app"
+                       :data-testid="'app-tile-' + app.id">
             <img :src="app.icon" class="appimg" :alt="app.name" @error="(e) => e.target.src = defaultIcon">
             <div class="appname"><span class="withline">{{ app.name }}</span></div>
             <div class="appdesc"></div>

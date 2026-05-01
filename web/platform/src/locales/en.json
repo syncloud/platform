@@ -78,6 +78,7 @@
   },
   "app": {
     "version": "Version:",
+    "localInstall": "Locally installed (not from store)",
     "open": "Open",
     "install": "Install v{version}",
     "upgrade": "Upgrade v{version}",
