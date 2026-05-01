@@ -41,7 +41,7 @@ test('deactivate', async () => {
   ssh('snap run platform.cli config set redirect.api_url http://api.redirect')
 
   const ctx = await loginV2()
-  const resp = await ctx.post(`https://${fullDomain}/rest/deactivate`)
+  const resp = await ctx.post(`https://${deviceHost}/rest/deactivate`)
   expect(resp.status()).toBe(200)
   expect(await resp.text()).toContain('"success":true')
   await ctx.dispose()

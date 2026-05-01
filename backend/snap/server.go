@@ -114,6 +114,15 @@ func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/snaps/%s", name))
 	if err != nil {
 		if errors.Is(err, NotFound) {
+			snaps, listErr := s.Snaps()
+			if listErr != nil {
+				return nil, listErr
+			}
+			for i := range snaps {
+				if snaps[i].Name == name {
+					return &snaps[i], nil
+				}
+			}
 			return nil, nil
 		}
 		return nil, err
