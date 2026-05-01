@@ -1,8 +1,8 @@
 import { Page, expect } from '@playwright/test'
 import { waitForLoading } from './ui'
 
-const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'syncloud'
-const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'syncloud'
+const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'user'
+const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
 
 export { deviceUser, devicePassword, waitForLoading }
 

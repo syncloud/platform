@@ -1,8 +1,8 @@
 import { request, APIRequestContext } from '@playwright/test'
 import { deviceHost } from './ssh'
 
-const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'syncloud'
-const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'syncloud'
+const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'user'
+const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
 
 export async function loginV2(): Promise<APIRequestContext> {
   const ctx = await request.newContext({

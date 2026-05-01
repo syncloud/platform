@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 
 export const deviceHost = process.env.PLAYWRIGHT_DEVICE_HOST ?? 'bookworm-amd64'
 export const sshUser = process.env.PLAYWRIGHT_SSH_USER ?? 'root'
-export const sshPassword = process.env.PLAYWRIGHT_SSH_PASSWORD ?? 'syncloud'
+export const sshPassword = process.env.PLAYWRIGHT_SSH_PASSWORD ?? 'Password1'
 
 const baseArgs = [
   '-o', 'StrictHostKeyChecking=no',
