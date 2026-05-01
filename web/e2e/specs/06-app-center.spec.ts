@@ -32,6 +32,7 @@ test('install app', async ({}, testInfo) => {
   test.setTimeout(900_000)
   await menu(page, 'appcenter', testInfo)
   await expect(page.getByRole('heading', { name: 'App Center' })).toBeVisible()
+  await page.locator('#appcenter_filter').fill('')
   await page.getByText('File browser').click()
   await expect(page.getByRole('heading', { name: 'File browser' })).toBeVisible()
   await page.locator('#btn_install').click()
