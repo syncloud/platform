@@ -16,6 +16,7 @@ test.describe('local app install', () => {
 
   test.afterAll(async () => {
     ssh(`snap remove ${APP_ID}`, { throw: false })
+    ssh(`snap install --devmode --dangerous ${APP_SNAP}`, { throw: false })
   })
 
   test('shows app page with local-install indicator and removes it', async ({ page }, testInfo) => {

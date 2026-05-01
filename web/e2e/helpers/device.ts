@@ -1,19 +1,19 @@
 import { request, APIRequestContext } from '@playwright/test'
-import { deviceHost } from './ssh'
+import { deviceHost, ssh } from './ssh'
 
 const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'user'
 const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
 
 export async function loginV2(): Promise<APIRequestContext> {
+  const token = ssh(`snap run platform.cli login ${deviceUser} ${devicePassword}`).trim()
   const ctx = await request.newContext({
     baseURL: `https://${deviceHost}`,
     ignoreHTTPSErrors: true,
   })
-  const resp = await ctx.post('/rest/login', {
-    data: { username: deviceUser, password: devicePassword },
-  })
+  const resp = await ctx.post('/rest/login/token', { data: { token } })
   if (!resp.ok()) {
-    throw new Error(`login failed: ${resp.status()} ${await resp.text()}`)
+    await ctx.dispose()
+    throw new Error(`token login failed: ${resp.status()} ${await resp.text()}`)
   }
   return ctx
 }

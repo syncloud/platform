@@ -194,8 +194,9 @@ local build(arch, testUI) = [{
                     PLAYWRIGHT_DEVICE_PASSWORD: 'Password1',
                     PLAYWRIGHT_SSH_USER: 'root',
                     PLAYWRIGHT_SSH_PASSWORD: 'Password1',
-                    PLAYWRIGHT_TESTAPP_SNAP: '/test/testapp/testapp.snap',
+                    PLAYWRIGHT_TESTAPP_SNAP: '/testapp.snap',
                     PLAYWRIGHT_PROJECT: mode,
+                    PLAYWRIGHT_ARTIFACT_DIR: '/drone/src/artifact',
                     CI: 'true',
                   },
                   commands: [
