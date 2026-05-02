@@ -13,11 +13,11 @@ type CustomProxyNginx interface {
 }
 
 type CustomProxy struct {
-	config *config.UserConfig
+	config *config.CustomProxy
 	nginx  CustomProxyNginx
 }
 
-func NewCustomProxy(config *config.UserConfig, nginx CustomProxyNginx) *CustomProxy {
+func NewCustomProxy(config *config.CustomProxy, nginx CustomProxyNginx) *CustomProxy {
 	return &CustomProxy{
 		config: config,
 		nginx:  nginx,
@@ -25,14 +25,15 @@ func NewCustomProxy(config *config.UserConfig, nginx CustomProxyNginx) *CustomPr
 }
 
 func (cp *CustomProxy) List(_ *http.Request) (interface{}, error) {
-	return cp.config.CustomProxies()
+	return cp.config.List()
 }
 
 type customProxyAddRequest struct {
-	Name  string `json:"name"`
-	Host  string `json:"host"`
-	Port  int    `json:"port"`
-	Https bool   `json:"https"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Https    bool   `json:"https"`
+	Authelia bool   `json:"authelia"`
 }
 
 func (cp *CustomProxy) Add(req *http.Request) (interface{}, error) {
@@ -45,7 +46,7 @@ func (cp *CustomProxy) Add(req *http.Request) (interface{}, error) {
 	if request.Name == "" || request.Host == "" || request.Port == 0 {
 		return nil, errors.New("name, host and port are required")
 	}
-	err = cp.config.AddCustomProxy(request.Name, request.Host, request.Port, request.Https)
+	err = cp.config.Add(request.Name, request.Host, request.Port, request.Https, request.Authelia)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func (cp *CustomProxy) Remove(req *http.Request) (interface{}, error) {
 	if request.Name == "" {
 		return nil, errors.New("name is required")
 	}
-	err = cp.config.RemoveCustomProxy(request.Name)
+	err = cp.config.Remove(request.Name)
 	if err != nil {
 		return nil, err
 	}

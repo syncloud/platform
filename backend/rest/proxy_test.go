@@ -11,7 +11,7 @@ import (
 type ConfigStub struct {
 }
 
-func (c *ConfigStub) GetRedirectApiUrl() string {
+func (c *ConfigStub) ApiUrl() string {
 	return "https://proxy"
 }
 

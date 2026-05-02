@@ -16,8 +16,8 @@ import (
 )
 
 type LoginService struct {
-	authelia *auth.Authelia
-	logger   *zap.Logger
+	totp   *auth.TOTP
+	logger *zap.Logger
 }
 
 type CredentialsRequest struct {
@@ -67,7 +67,7 @@ func (s *LoginService) handleTOTPStatus(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	configured, err := s.authelia.HasTOTP(req.Username)
+	configured, err := s.totp.Has(req.Username)
 	if err != nil {
 		s.logger.Error("TOTP status check failed", zap.Error(err))
 		writeError(w, "failed to check TOTP status", http.StatusInternalServerError)
@@ -83,7 +83,7 @@ func (s *LoginService) handleTOTPSetup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.logger.Info("generating TOTP", zap.String("username", req.Username))
-	uri, err := s.authelia.GenerateTOTP(req.Username)
+	uri, err := s.totp.Generate(req.Username)
 	if err != nil {
 		s.logger.Error("TOTP generation failed", zap.Error(err))
 		writeError(w, "failed to generate TOTP", http.StatusInternalServerError)
@@ -111,22 +111,12 @@ func main() {
 
 	logger := zaplog.Default()
 
-	appDir := "/snap/platform/current"
 	dataDir := "/var/snap/platform/current"
-	configDir := appDir + "/config"
 	executor := cli.New(logger)
 
-	autheliaService := auth.NewAuthelia(
-		configDir+"/authelia",
-		dataDir+"/config/authelia",
-		dataDir,
-		dataDir+"/authelia.socket",
-		nil, nil, nil, executor, nil, logger,
-	)
-
 	svc := &LoginService{
-		authelia: autheliaService,
-		logger:   logger,
+		totp:   auth.NewTOTP(executor, dataDir, logger),
+		logger: logger,
 	}
 
 	mux := http.NewServeMux()

@@ -37,7 +37,13 @@ test.describe('local app install', () => {
     await page.getByTestId('btn_confirm').click()
     await waitForLoading(page)
 
+    await expect.poll(
+      () => ssh(`snap list ${APP_ID} 2>/dev/null | grep -q ${APP_ID} && echo present || echo gone`, { throw: false }).trim(),
+      { timeout: 60_000 }
+    ).toBe('gone')
+
     await page.goto('/')
+    await waitForLoading(page)
     await expect(page.getByTestId(`app-tile-${APP_ID}`)).toHaveCount(0)
     await shoot(page, testInfo, 'local-app-removed')
   })

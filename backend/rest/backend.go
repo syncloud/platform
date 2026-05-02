@@ -43,6 +43,7 @@ type Backend struct {
 	identification  *identification.Parser
 	activate        *Activate
 	userConfig      *config.UserConfig
+	redirectConfig  *config.Redirect
 	certificate     *Certificate
 	externalAddress *access.ExternalAddress
 	snapd           *snap.Server
@@ -59,6 +60,7 @@ type Backend struct {
 	cookies         *session.Cookies
 	oidc            *auth.OIDCService
 	authelia        *auth.Authelia
+	totp            *auth.TOTP
 	timezone        *timezone.Applier
 	network         string
 	address         string
@@ -69,12 +71,13 @@ func NewBackend(
 	master *job.SingleJobMaster, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 	redirect *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
+	redirectConfig *config.Redirect,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
 	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
-	oidcService *auth.OIDCService, authelia *auth.Authelia,
+	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 	timezone *timezone.Applier,
 	logger *zap.Logger) *Backend {
 
@@ -89,6 +92,7 @@ func NewBackend(
 		identification:  identification,
 		activate:        activate,
 		userConfig:      userConfig,
+		redirectConfig:  redirectConfig,
 		certificate:     certificate,
 		externalAddress: externalAddress,
 		snapd:           snapd,
@@ -104,6 +108,7 @@ func NewBackend(
 		cookies:         cookies,
 		oidc:            oidcService,
 		authelia:        authelia,
+		totp:            totp,
 		timezone:        timezone,
 		network:         network,
 		address:         address,
@@ -275,7 +280,7 @@ func (b *Backend) EventTrigger(req *http.Request) (interface{}, error) {
 func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 	fmt.Printf("redirect info\n")
 	response := &model.RedirectInfoResponse{
-		Domain: b.userConfig.GetRedirectDomain(),
+		Domain: b.redirectConfig.Domain(),
 	}
 	return response, nil
 }
@@ -623,7 +628,7 @@ func (b *Backend) SetTwoFactorSettings(req *http.Request) (interface{}, error) {
 	}
 	b.userConfig.SetTwoFactorEnabled(request.Enabled)
 	if request.Enabled {
-		_ = b.authelia.ResetAllTOTP()
+		_ = b.totp.ResetAll()
 	}
 	err = b.authelia.InitConfig()
 	if err != nil {
@@ -674,7 +679,7 @@ func (b *Backend) GenerateTOTP(req *http.Request) (interface{}, error) {
 		return nil, fmt.Errorf("unable to get session user: %w", err)
 	}
 	b.logger.Info("generating TOTP", zap.String("username", username))
-	uri, err := b.authelia.GenerateTOTP(username)
+	uri, err := b.totp.Generate(username)
 	if err != nil {
 		return nil, fmt.Errorf("unable to generate TOTP: %w", err)
 	}

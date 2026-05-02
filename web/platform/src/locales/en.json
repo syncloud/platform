@@ -145,6 +145,8 @@
     "port": "Port:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
+    "authelia": "Authelia:",
+    "autheliaHint": "require login (SSO + 2FA) before reaching the upstream",
     "add": "Add",
     "proxies": "Proxies",
     "noProxies": "No custom proxies configured",

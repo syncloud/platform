@@ -15,14 +15,6 @@ import (
 type UserConfigStub struct {
 }
 
-func (u *UserConfigStub) GetUserUpdateToken() (string, error) {
-	return "token", nil
-}
-
-func (u *UserConfigStub) GetRedirectApiUrl() string {
-	return "url"
-}
-
 func (u *UserConfigStub) GetDomainUpdateToken() *string {
 	s := "token"
 	return &s
@@ -31,6 +23,16 @@ func (u *UserConfigStub) GetDomainUpdateToken() *string {
 func (u *UserConfigStub) GetDkimKey() *string {
 	key := "dkim"
 	return &key
+}
+
+type RedirectStub struct{}
+
+func (r *RedirectStub) ApiUrl() string {
+	return "url"
+}
+
+func (r *RedirectStub) UserUpdateToken() (string, error) {
+	return "token", nil
 }
 
 type IpParserStub struct {
@@ -88,7 +90,7 @@ func (v *VersionStub) Get() (string, error) {
 
 func TestUpdate_Ipv4And6Enabled(t *testing.T) {
 	client := &ClientStub{}
-	service := New(&UserConfigStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
+	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
 	port := 1
 	err := service.Update(&ipv4, &port, true, true, true)
@@ -98,7 +100,7 @@ func TestUpdate_Ipv4And6Enabled(t *testing.T) {
 
 func TestUpdate_Ipv4Disabled(t *testing.T) {
 	client := &ClientStub{}
-	service := New(&UserConfigStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
+	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
 	port := 1
 	err := service.Update(&ipv4, &port, false, true, true)
@@ -108,7 +110,7 @@ func TestUpdate_Ipv4Disabled(t *testing.T) {
 
 func TestUpdate_Ipv6Disabled(t *testing.T) {
 	client := &ClientStub{}
-	service := New(&UserConfigStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
+	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
 	port := 1
 	err := service.Update(&ipv4, &port, true, true, false)
@@ -119,7 +121,7 @@ func TestUpdate_Ipv6Disabled(t *testing.T) {
 func TestUpdate_Ipv4AutoDetect(t *testing.T) {
 	client := &ClientStub{}
 	netInfo := &NetInfoStub{publicIp: "2.2.2.2"}
-	service := New(&UserConfigStub{}, &IpParserStub{}, netInfo, client, &VersionStub{}, log.Default())
+	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, netInfo, client, &VersionStub{}, log.Default())
 	port := 1
 	err := service.Update(nil, &port, true, true, false)
 	assert.Nil(t, err)

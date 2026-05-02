@@ -14,14 +14,18 @@ import (
 )
 
 type UserConfig interface {
-	GetRedirectApiUrl() string
 	GetDomainUpdateToken() *string
 	GetDkimKey() *string
-	GetUserUpdateToken() (string, error)
+}
+
+type RedirectConfig interface {
+	ApiUrl() string
+	UserUpdateToken() (string, error)
 }
 
 type Service struct {
 	userConfig UserConfig
+	redirect   RedirectConfig
 	idParser   identification.IdParser
 	netInfo    network.Interfaces
 	client     http.Client
@@ -29,9 +33,10 @@ type Service struct {
 	logger     *zap.Logger
 }
 
-func New(userConfig UserConfig, idParser identification.IdParser, netInfo network.Interfaces, client http.Client, version version.Version, logger *zap.Logger) *Service {
+func New(userConfig UserConfig, redirect RedirectConfig, idParser identification.IdParser, netInfo network.Interfaces, client http.Client, version version.Version, logger *zap.Logger) *Service {
 	return &Service{
 		userConfig: userConfig,
+		redirect:   redirect,
 		idParser:   idParser,
 		netInfo:    netInfo,
 		client:     client,
@@ -42,7 +47,7 @@ func New(userConfig UserConfig, idParser identification.IdParser, netInfo networ
 
 func (r *Service) Authenticate(email string, password string) (*User, error) {
 	request := &UserCredentials{Email: email, Password: password}
-	url := fmt.Sprintf("%s/user", r.userConfig.GetRedirectApiUrl())
+	url := fmt.Sprintf("%s/user", r.redirect.ApiUrl())
 	body, err := r.postAndCheck(url, request)
 	if err != nil {
 		return nil, err
@@ -57,7 +62,7 @@ func (r *Service) Authenticate(email string, password string) (*User, error) {
 
 func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
 	request := &CertbotPresentRequest{Token: token, Fqdn: fqdn, Values: value}
-	url := fmt.Sprintf("%s/certbot/present", r.userConfig.GetRedirectApiUrl())
+	url := fmt.Sprintf("%s/certbot/present", r.redirect.ApiUrl())
 	r.logger.Info(fmt.Sprintf("dns present: %s", url))
 	_, err := r.postAndCheck(url, request)
 	return err
@@ -65,15 +70,15 @@ func (r *Service) CertbotPresent(token, fqdn string, value ...string) error {
 
 func (r *Service) CertbotCleanUp(token, fqdn string) error {
 	request := &CertbotCleanUpRequest{Token: token, Fqdn: fqdn}
-	url := fmt.Sprintf("%s/certbot/cleanup", r.userConfig.GetRedirectApiUrl())
+	url := fmt.Sprintf("%s/certbot/cleanup", r.redirect.ApiUrl())
 	r.logger.Info(fmt.Sprintf("dns cleanup: %s", url))
 	_, err := r.postAndCheck(url, request)
 	return err
 }
 
 func (r *Service) SendLogs(logs string, includeSupport bool) error {
-	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "user/log_v2")
-	token, err := r.userConfig.GetUserUpdateToken()
+	url := fmt.Sprintf("%s/%s", r.redirect.ApiUrl(), "user/log_v2")
+	token, err := r.redirect.UserUpdateToken()
 	if err != nil {
 		return err
 	}
@@ -100,7 +105,7 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 		DeviceMacAddress: deviceId.MacAddress,
 		DeviceName:       deviceId.Name,
 		DeviceTitle:      deviceId.Title}
-	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "domain/acquire_v2")
+	url := fmt.Sprintf("%s/%s", r.redirect.ApiUrl(), "domain/acquire_v2")
 
 	body, err := r.postAndCheck(url, request)
 	if err != nil {
@@ -173,7 +178,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 		request.DkimKey = dkimKey
 	}
 
-	url := fmt.Sprintf("%s/%s", r.userConfig.GetRedirectApiUrl(), "domain/update")
+	url := fmt.Sprintf("%s/%s", r.redirect.ApiUrl(), "domain/update")
 	_, err = r.postAndCheck(url, request)
 	return err
 }

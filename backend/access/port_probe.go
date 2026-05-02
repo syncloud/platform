@@ -10,19 +10,24 @@ import (
 )
 
 type ProbeUserConfig interface {
-	GetRedirectApiUrl() string
 	GetDomainUpdateToken() *string
+}
+
+type ProbeRedirect interface {
+	ApiUrl() string
 }
 
 type PortProbe struct {
 	userConfig ProbeUserConfig
+	redirect   ProbeRedirect
 	client     http.Client
 	logger     *zap.Logger
 }
 
-func NewProbe(userConfig ProbeUserConfig, client http.Client, logger *zap.Logger) *PortProbe {
+func NewProbe(userConfig ProbeUserConfig, redirect ProbeRedirect, client http.Client, logger *zap.Logger) *PortProbe {
 	return &PortProbe{
 		userConfig: userConfig,
+		redirect:   redirect,
 		client:     client,
 		logger:     logger,
 	}
@@ -31,7 +36,7 @@ func NewProbe(userConfig ProbeUserConfig, client http.Client, logger *zap.Logger
 func (p *PortProbe) Probe(ip string, port int) error {
 	p.logger.Info(fmt.Sprintf("probing port %v", port))
 
-	url := fmt.Sprintf("%s/%s", p.userConfig.GetRedirectApiUrl(), "probe/port_v3")
+	url := fmt.Sprintf("%s/%s", p.redirect.ApiUrl(), "probe/port_v3")
 	token := p.userConfig.GetDomainUpdateToken()
 	if token == nil {
 		return fmt.Errorf("token is not set")

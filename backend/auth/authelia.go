@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"database/sql"
 	"encoding/pem"
 	"fmt"
 	"github.com/google/uuid"
@@ -17,7 +16,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"sync"
 )
 
@@ -51,13 +49,13 @@ type Authelia struct {
 	mutex          *sync.Mutex
 	inputDir       string
 	outDir         string
-	dataDir        string
 	keyFile        string
 	secretFile     string
 	jwksKeyFile    string
 	hmacSecretFile string
 	socketPath     string
 	userConfig     UserConfig
+	oidc           OIDC
 	systemd        Systemd
 	generator      PasswordGenerator
 	executor       cli.Executor
@@ -69,10 +67,13 @@ type UserConfig interface {
 	GetDeviceDomain() string
 	DeviceUrl() string
 	Url(app string) string
-	OIDCClients() ([]config.OIDCClient, error)
-	AddOIDCClient(client config.OIDCClient) error
 	IsActivated() bool
 	IsTwoFactorEnabled() bool
+}
+
+type OIDC interface {
+	Clients() ([]config.OIDCClient, error)
+	AddClient(client config.OIDCClient) error
 }
 
 type Systemd interface {
@@ -96,6 +97,7 @@ func NewAuthelia(
 	outSecretDir string,
 	socketPath string,
 	userConfig UserConfig,
+	oidc OIDC,
 	systemd Systemd,
 	generator PasswordGenerator,
 	executor cli.Executor,
@@ -106,13 +108,13 @@ func NewAuthelia(
 		mutex:          &sync.Mutex{},
 		inputDir:       inputDir,
 		outDir:         outDir,
-		dataDir:        outSecretDir,
 		keyFile:        path.Join(outSecretDir, KeyFile),
 		secretFile:     path.Join(outSecretDir, SecretFile),
 		jwksKeyFile:    path.Join(outSecretDir, JwksKey),
 		hmacSecretFile: path.Join(outSecretDir, HmacSecret),
 		socketPath:     socketPath,
 		userConfig:     userConfig,
+		oidc:           oidc,
 		systemd:        systemd,
 		generator:      generator,
 		executor:       executor,
@@ -132,7 +134,7 @@ func (w *Authelia) RegisterOIDCClient(
 		return "", err
 	}
 
-	err = w.userConfig.AddOIDCClient(config.OIDCClient{
+	err = w.oidc.AddClient(config.OIDCClient{
 		ID:                      id,
 		Secret:                  secret.Hash,
 		RedirectURI:             redirectURI,
@@ -174,9 +176,12 @@ func (w *Authelia) InitConfig() error {
 		return err
 	}
 
-	clients, err := w.userConfig.OIDCClients()
+	clients, err := w.oidc.Clients()
 	if err != nil {
 		return err
+	}
+	for i := range clients {
+		clients[i].RedirectURI = w.userConfig.Url(clients[i].ID) + clients[i].RedirectURI
 	}
 	variables := Variables{
 		Domain:           w.userConfig.GetDeviceDomain(),
@@ -333,82 +338,6 @@ func copyAssetsDir(srcDir string, dstDir string) error {
 		if err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func (w *Authelia) GenerateTOTP(username string) (string, error) {
-	encryptionKey, err := os.ReadFile(w.keyFile)
-	if err != nil {
-		return "", fmt.Errorf("failed to read encryption key: %w", err)
-	}
-	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
-
-	output, err := w.executor.CombinedOutput(
-		"snap", "run", "platform.authelia-cli",
-		"storage", "user", "totp", "generate", username,
-		"--force",
-		"--issuer", "Syncloud",
-		"--sqlite.path", sqlitePath,
-		"--encryption-key", string(encryptionKey),
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate TOTP: %s", string(output))
-	}
-
-	// Parse the URI from output: "Successfully generated TOTP configuration for user 'X' with URI 'otpauth://...'"
-	outputStr := string(output)
-	uriStart := strings.Index(outputStr, "otpauth://")
-	if uriStart == -1 {
-		return "", fmt.Errorf("TOTP URI not found in output: %s", outputStr)
-	}
-	uri := outputStr[uriStart:]
-	if idx := strings.Index(uri, "'"); idx != -1 {
-		uri = uri[:idx]
-	}
-	return strings.TrimSpace(uri), nil
-}
-
-func (w *Authelia) HasTOTP(username string) (bool, error) {
-	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
-	db, err := sql.Open("sqlite", autheliaDSN(sqlitePath))
-	if err != nil {
-		return false, fmt.Errorf("failed to open authelia db: %w", err)
-	}
-	defer db.Close()
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM totp_configurations WHERE username = ?", username).Scan(&count)
-	if err != nil {
-		return false, nil
-	}
-	return count > 0, nil
-}
-
-func (w *Authelia) ResetAllTOTP() error {
-	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
-	db, err := sql.Open("sqlite", autheliaDSN(sqlitePath))
-	if err != nil {
-		return fmt.Errorf("failed to open authelia db: %w", err)
-	}
-	defer db.Close()
-	_, err = db.Exec("DELETE FROM totp_configurations")
-	return err
-}
-
-func (w *Authelia) ResetTOTP(username string) error {
-	encryptionKey, err := os.ReadFile(w.keyFile)
-	if err != nil {
-		return fmt.Errorf("failed to read encryption key: %w", err)
-	}
-	sqlitePath := path.Join(w.dataDir, "authelia.sqlite3")
-	output, err := w.executor.CombinedOutput(
-		"snap", "run", "platform.authelia-cli",
-		"storage", "user", "totp", "delete", username,
-		"--sqlite.path", sqlitePath,
-		"--encryption-key", string(encryptionKey),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to delete TOTP: %s", string(output))
 	}
 	return nil
 }

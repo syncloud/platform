@@ -8,21 +8,21 @@ import (
 )
 
 type Proxy struct {
-	userConfig Config
+	redirect Config
 }
 
 type Config interface {
-	GetRedirectApiUrl() string
+	ApiUrl() string
 }
 
-func NewProxy(userConfig Config) *Proxy {
+func NewProxy(redirect Config) *Proxy {
 	return &Proxy{
-		userConfig: userConfig,
+		redirect: redirect,
 	}
 }
 
 func (p *Proxy) ProxyRedirect() (*httputil.ReverseProxy, error) {
-	redirectApiUrl := p.userConfig.GetRedirectApiUrl()
+	redirectApiUrl := p.redirect.ApiUrl()
 	redirectUrl, err := url.Parse(redirectApiUrl)
 	if err != nil {
 		fmt.Printf("proxy url error: %v", err)

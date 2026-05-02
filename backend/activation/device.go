@@ -27,7 +27,6 @@ type Cookies interface {
 }
 
 type DevicePlatformUserConfig interface {
-	GetRedirectDomain() string
 	SetActivated()
 	SetWebSecretKey(key string)
 	SetIpv4Public(enabled bool)

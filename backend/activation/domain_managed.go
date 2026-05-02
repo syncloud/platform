@@ -19,11 +19,13 @@ type ManagedActivateRequest struct {
 
 type ManagedPlatformUserConfig interface {
 	SetRedirectEnabled(enabled bool)
-	SetUserUpdateToken(userUpdateToken string)
-	SetUserEmail(userEmail string)
 	SetDomain(domain string)
 	UpdateDomainToken(token string)
-	GetRedirectDomain() string
+}
+
+type ManagedRedirectConfig interface {
+	SetUserUpdateToken(token string)
+	SetUserEmail(email string)
 }
 
 type ManagedRedirect interface {
@@ -37,22 +39,24 @@ type ManagedActivation interface {
 }
 
 type Managed struct {
-	internet connection.InternetChecker
-	config   ManagedPlatformUserConfig
-	redirect ManagedRedirect
-	device   DeviceActivation
-	cert     cert.Generator
-	logger   *zap.Logger
+	internet       connection.InternetChecker
+	config         ManagedPlatformUserConfig
+	redirectConfig ManagedRedirectConfig
+	redirect       ManagedRedirect
+	device         DeviceActivation
+	cert           cert.Generator
+	logger         *zap.Logger
 }
 
-func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirect ManagedRedirect, device DeviceActivation, cert cert.Generator, logger *zap.Logger) *Managed {
+func NewManaged(internet connection.InternetChecker, config ManagedPlatformUserConfig, redirectConfig ManagedRedirectConfig, redirect ManagedRedirect, device DeviceActivation, cert cert.Generator, logger *zap.Logger) *Managed {
 	return &Managed{
-		internet: internet,
-		config:   config,
-		redirect: redirect,
-		device:   device,
-		cert:     cert,
-		logger:   logger,
+		internet:       internet,
+		config:         config,
+		redirectConfig: redirectConfig,
+		redirect:       redirect,
+		device:         device,
+		cert:           cert,
+		logger:         logger,
 	}
 }
 
@@ -65,13 +69,13 @@ func (f *Managed) Activate(redirectEmail string, redirectPassword string, reques
 		return err
 	}
 
-	f.config.SetUserEmail(redirectEmail)
+	f.redirectConfig.SetUserEmail(redirectEmail)
 	user, err := f.redirect.Authenticate(redirectEmail, redirectPassword)
 	if err != nil {
 		return err
 	}
 
-	f.config.SetUserUpdateToken(user.UpdateToken)
+	f.redirectConfig.SetUserUpdateToken(user.UpdateToken)
 	domain, err := f.redirect.Acquire(redirectEmail, redirectPassword, domainName)
 	if err != nil {
 		return err

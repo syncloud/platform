@@ -15,18 +15,22 @@ import (
 )
 
 type Certbot struct {
-	redirect      RedirectCertbot
-	userConfig    UserConfig
-	systemConfig  GeneratorSystemConfig
-	certbotLogger *zap.Logger
+	redirect       RedirectCertbot
+	userConfig     UserConfig
+	redirectConfig RedirectConfig
+	systemConfig   GeneratorSystemConfig
+	certbotLogger  *zap.Logger
 }
 
 type UserConfig interface {
 	IsCertbotStaging() bool
-	GetUserEmail() *string
 	GetDeviceDomain() string
 	GetDomainUpdateToken() *string
 	IsRedirectEnabled() bool
+}
+
+type RedirectConfig interface {
+	UserEmail() *string
 }
 
 type User struct {
@@ -49,12 +53,13 @@ type CertbotGenerator interface {
 	Generate() error
 }
 
-func NewCertbot(redirect RedirectCertbot, userConfig UserConfig, systemConfig GeneratorSystemConfig, certbotLogger *zap.Logger) *Certbot {
+func NewCertbot(redirect RedirectCertbot, userConfig UserConfig, redirectConfig RedirectConfig, systemConfig GeneratorSystemConfig, certbotLogger *zap.Logger) *Certbot {
 	return &Certbot{
-		redirect:      redirect,
-		userConfig:    userConfig,
-		systemConfig:  systemConfig,
-		certbotLogger: certbotLogger,
+		redirect:       redirect,
+		userConfig:     userConfig,
+		redirectConfig: redirectConfig,
+		systemConfig:   systemConfig,
+		certbotLogger:  certbotLogger,
 	}
 }
 
@@ -65,7 +70,7 @@ func (g *Certbot) Generate() error {
 		return err
 	}
 
-	email := g.userConfig.GetUserEmail()
+	email := g.redirectConfig.UserEmail()
 	if email == nil {
 		return fmt.Errorf("email is not set")
 	}
