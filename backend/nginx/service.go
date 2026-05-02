@@ -22,10 +22,11 @@ type UserConfig interface {
 }
 
 type ProxyEntry struct {
-	Name  string
-	Host  string
-	Port  int
-	Https bool
+	Name     string
+	Host     string
+	Port     int
+	Https    bool
+	Authelia bool
 }
 
 type ProxyConfig interface {
@@ -76,6 +77,7 @@ type customProxyServerEntry struct {
 	Host       string
 	Port       int
 	Scheme     string
+	Authelia   bool
 }
 
 func (n *Nginx) InitCustomProxyConfig() error {
@@ -116,6 +118,7 @@ func (n *Nginx) writeCustomProxyConfig() error {
 			Host:       e.Host,
 			Port:       e.Port,
 			Scheme:     scheme,
+			Authelia:   e.Authelia,
 		}
 	}
 

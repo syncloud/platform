@@ -29,10 +29,11 @@ func (cp *CustomProxy) List(_ *http.Request) (interface{}, error) {
 }
 
 type customProxyAddRequest struct {
-	Name  string `json:"name"`
-	Host  string `json:"host"`
-	Port  int    `json:"port"`
-	Https bool   `json:"https"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Https    bool   `json:"https"`
+	Authelia bool   `json:"authelia"`
 }
 
 func (cp *CustomProxy) Add(req *http.Request) (interface{}, error) {
@@ -45,7 +46,7 @@ func (cp *CustomProxy) Add(req *http.Request) (interface{}, error) {
 	if request.Name == "" || request.Host == "" || request.Port == 0 {
 		return nil, errors.New("name, host and port are required")
 	}
-	err = cp.config.AddCustomProxy(request.Name, request.Host, request.Port, request.Https)
+	err = cp.config.AddCustomProxy(request.Name, request.Host, request.Port, request.Https, request.Authelia)
 	if err != nil {
 		return nil, err
 	}

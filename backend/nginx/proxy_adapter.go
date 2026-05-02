@@ -17,7 +17,7 @@ func (a *ProxyConfigAdapter) Proxies() ([]ProxyEntry, error) {
 	}
 	result := make([]ProxyEntry, len(entries))
 	for i, e := range entries {
-		result[i] = ProxyEntry{Name: e.Name, Host: e.Host, Port: e.Port, Https: e.Https}
+		result[i] = ProxyEntry{Name: e.Name, Host: e.Host, Port: e.Port, Https: e.Https, Authelia: e.Authelia}
 	}
 	return result, nil
 }

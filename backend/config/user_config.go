@@ -90,6 +90,11 @@ func (c *UserConfig) ensureDb() error {
 		return err
 	}
 
+	err = c.migrateCustomProxyAuthelia()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -631,20 +636,25 @@ func (c *UserConfig) addCustomProxyTable() error {
 }
 
 type CustomProxyEntry struct {
-	Name  string `json:"name"`
-	Host  string `json:"host"`
-	Port  int    `json:"port"`
-	Https bool   `json:"https"`
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Https    bool   `json:"https"`
+	Authelia bool   `json:"authelia"`
 }
 
-func (c *UserConfig) AddCustomProxy(name string, host string, port int, https bool) error {
+func (c *UserConfig) AddCustomProxy(name string, host string, port int, https bool, authelia bool) error {
 	db := c.open()
 	defer db.Close()
 	httpsInt := 0
 	if https {
 		httpsInt = 1
 	}
-	_, err := db.Exec("INSERT OR REPLACE INTO custom_proxy VALUES (?, ?, ?, ?)", name, host, port, httpsInt)
+	autheliaInt := 0
+	if authelia {
+		autheliaInt = 1
+	}
+	_, err := db.Exec("INSERT OR REPLACE INTO custom_proxy VALUES (?, ?, ?, ?, ?)", name, host, port, httpsInt, autheliaInt)
 	return err
 }
 
@@ -658,7 +668,7 @@ func (c *UserConfig) RemoveCustomProxy(name string) error {
 func (c *UserConfig) CustomProxies() ([]CustomProxyEntry, error) {
 	db := c.open()
 	defer db.Close()
-	rows, err := db.Query("select name, host, port, https from custom_proxy")
+	rows, err := db.Query("select name, host, port, https, authelia from custom_proxy")
 	if err != nil {
 		return nil, err
 	}
@@ -667,10 +677,12 @@ func (c *UserConfig) CustomProxies() ([]CustomProxyEntry, error) {
 	for rows.Next() {
 		var entry CustomProxyEntry
 		var httpsInt int
-		if err := rows.Scan(&entry.Name, &entry.Host, &entry.Port, &httpsInt); err != nil {
+		var autheliaInt int
+		if err := rows.Scan(&entry.Name, &entry.Host, &entry.Port, &httpsInt, &autheliaInt); err != nil {
 			return entries, err
 		}
 		entry.Https = httpsInt != 0
+		entry.Authelia = autheliaInt != 0
 		entries = append(entries, entry)
 	}
 	return entries, rows.Err()
@@ -681,5 +693,12 @@ func (c *UserConfig) migrateCustomProxyHttps() error {
 	defer db.Close()
 	// silently ignore "duplicate column" error for already-migrated databases
 	_, _ = db.Exec("ALTER TABLE custom_proxy ADD COLUMN https integer not null default 0")
+	return nil
+}
+
+func (c *UserConfig) migrateCustomProxyAuthelia() error {
+	db := c.open()
+	defer db.Close()
+	_, _ = db.Exec("ALTER TABLE custom_proxy ADD COLUMN authelia integer not null default 0")
 	return nil
 }

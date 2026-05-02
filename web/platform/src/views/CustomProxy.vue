@@ -37,6 +37,12 @@
               <input id="proxy_https" type="checkbox" v-model="newHttps">
             </div>
 
+            <div class="setline" style='display: flex; align-items: center;'>
+              <label class="span proxy-label" for="proxy_authelia">{{ $t('customProxy.authelia') }}</label>
+              <input id="proxy_authelia" data-testid="proxy-authelia" type="checkbox" v-model="newAuthelia">
+              <span class="proxy-hint">{{ $t('customProxy.autheliaHint') }}</span>
+            </div>
+
             <div class="setline">
               <div class="spandiv">
                 <button class="submit buttongreen control" id="btn_add" type="button"
@@ -56,6 +62,8 @@
             <div v-for="proxy in proxies" :key="proxy.name" class="setline proxy-entry" style='display: flex; align-items: center;'>
               <a class="proxy-label" :href="'https://' + proxy.name + '.' + domain" target="_blank">{{ proxy.name }}</a>
               <span style="flex: 1">{{ proxy.https ? 'https' : 'http' }}://{{ proxy.host }}:{{ proxy.port }}</span>
+              <span v-if="proxy.authelia" class="proxy-badge"
+                    :data-testid="'proxy-row-' + proxy.name + '-authelia'">{{ $t('customProxy.authelia') }}</span>
               <button class="submit control btn_remove" type="button" :id="'btn_remove_' + proxy.name"
                       style="width: 80px; background-color: #d9534f; color: white;" @click="remove(proxy.name)">{{ $t('customProxy.remove') }}
               </button>
@@ -90,6 +98,7 @@ export default {
       newHost: '',
       newPort: null,
       newHttps: false,
+      newAuthelia: false,
       visibility: 'hidden',
       loading: undefined
     }
@@ -136,13 +145,15 @@ export default {
         name: this.newName,
         host: this.newHost,
         port: this.newPort,
-        https: this.newHttps
+        https: this.newHttps,
+        authelia: this.newAuthelia
       })
         .then(resp => Common.checkForServiceError(resp.data, () => {
           this.newName = ''
           this.newHost = ''
           this.newPort = null
           this.newHttps = false
+          this.newAuthelia = false
           this.reload()
         }, onError))
         .catch(onError)
@@ -195,5 +206,14 @@ export default {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
+}
+
+.proxy-badge {
+  background-color: #5cb85c;
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 10px;
 }
 </style>

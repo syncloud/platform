@@ -140,6 +140,83 @@ func TestCustomProxy_TwoEntries(t *testing.T) {
 	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
 }
 
+func TestCustomProxy_AutheliaDisabled_NoAuthDirectives(t *testing.T) {
+	outputDir := t.TempDir()
+	configDir := path.Join("..", "..", "config")
+	systemd := &SystemdMock{}
+	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
+	userConfig := &UserConfigMock{"example.com"}
+	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
+		{Name: "open", Host: "192.168.1.10", Port: 8080, Authelia: false},
+	}}
+	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
+
+	err := nginx.InitCustomProxyConfig()
+	assert.Nil(t, err)
+
+	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
+	assert.Nil(t, err)
+	text := string(contents)
+
+	assert.Contains(t, text, "server_name open.example.com;")
+	assert.Contains(t, text, "proxy_pass http://192.168.1.10:8080;")
+	assert.NotContains(t, text, "auth_request")
+	assert.NotContains(t, text, "/internal/authelia/authz")
+}
+
+func TestCustomProxy_AutheliaEnabled_EmitsAuthRequest(t *testing.T) {
+	outputDir := t.TempDir()
+	configDir := path.Join("..", "..", "config")
+	systemd := &SystemdMock{}
+	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
+	userConfig := &UserConfigMock{"example.com"}
+	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
+		{Name: "secret", Host: "192.168.1.20", Port: 9090, Authelia: true},
+	}}
+	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
+
+	err := nginx.InitCustomProxyConfig()
+	assert.Nil(t, err)
+
+	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
+	assert.Nil(t, err)
+	text := string(contents)
+
+	assert.Contains(t, text, "server_name secret.example.com;")
+	assert.Contains(t, text, "proxy_pass http://192.168.1.20:9090;")
+	assert.Contains(t, text, "auth_request /internal/authelia/authz;")
+	assert.Contains(t, text, "location /internal/authelia/authz")
+	assert.Contains(t, text, "/api/authz/auth-request")
+	assert.Contains(t, text, "error_page 401")
+}
+
+func TestCustomProxy_MixedModes_PerEntryToggle(t *testing.T) {
+	outputDir := t.TempDir()
+	configDir := path.Join("..", "..", "config")
+	systemd := &SystemdMock{}
+	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
+	userConfig := &UserConfigMock{"example.com"}
+	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
+		{Name: "open", Host: "192.168.1.10", Port: 8080, Authelia: false},
+		{Name: "secret", Host: "192.168.1.20", Port: 9090, Authelia: true},
+	}}
+	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
+
+	err := nginx.InitCustomProxyConfig()
+	assert.Nil(t, err)
+
+	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
+	assert.Nil(t, err)
+	text := string(contents)
+
+	openIdx := strings.Index(text, "server_name open.example.com;")
+	secretIdx := strings.Index(text, "server_name secret.example.com;")
+	assert.NotEqual(t, -1, openIdx, "open server block missing")
+	assert.NotEqual(t, -1, secretIdx, "secret server block missing")
+	assert.Equal(t, 1, strings.Count(text, "auth_request /internal/authelia/authz;"),
+		"auth_request must appear only in the protected entry's location")
+}
+
 func TestCustomProxy_ReloadCustomProxy(t *testing.T) {
 	outputDir := t.TempDir()
 	configDir := path.Join("..", "..", "config")

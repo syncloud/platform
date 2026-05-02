@@ -1,8 +1,11 @@
 package config
 
 import (
+	"database/sql"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
+	_ "modernc.org/sqlite"
 	"os"
 	"path"
 	"testing"
@@ -227,6 +230,65 @@ func TestDeviceUrl_NonStandardPort(t *testing.T) {
 	//device := New(userConfig)
 	url := config.Url("app1")
 	assert.Equal(t, "https://app1.domain.tld:10000", url)
+}
+
+func TestCustomProxy_AddAndList_DefaultAutheliaFalse(t *testing.T) {
+	db := path.Join(t.TempDir(), "db")
+	_ = os.Remove(db)
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
+	config.Load()
+
+	err := config.AddCustomProxy("legacy", "10.0.0.1", 8080, false, false)
+	assert.NoError(t, err)
+
+	entries, err := config.CustomProxies()
+	assert.NoError(t, err)
+	assert.Len(t, entries, 1)
+	assert.Equal(t, "legacy", entries[0].Name)
+	assert.False(t, entries[0].Authelia)
+}
+
+func TestCustomProxy_AddAndList_AutheliaTrue(t *testing.T) {
+	db := path.Join(t.TempDir(), "db")
+	_ = os.Remove(db)
+	config := NewUserConfig(db, path.Join(t.TempDir(), "old.db"), log.Default())
+	config.Load()
+
+	err := config.AddCustomProxy("guarded", "10.0.0.2", 9090, true, true)
+	assert.NoError(t, err)
+
+	entries, err := config.CustomProxies()
+	assert.NoError(t, err)
+	assert.Len(t, entries, 1)
+	assert.True(t, entries[0].Https)
+	assert.True(t, entries[0].Authelia)
+}
+
+func TestCustomProxy_MigratePreExistingProdRow(t *testing.T) {
+	dbFile := path.Join(t.TempDir(), "db")
+	_ = os.Remove(dbFile)
+
+	pre, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)", dbFile))
+	assert.NoError(t, err)
+	_, err = pre.Exec("create table config (key varchar primary key, value varchar)")
+	assert.NoError(t, err)
+	_, err = pre.Exec("create table custom_proxy (name varchar primary key, host varchar, port integer, https integer not null default 0)")
+	assert.NoError(t, err)
+	_, err = pre.Exec("INSERT INTO custom_proxy(name, host, port, https) VALUES ('prod-entry', '192.168.1.5', 8080, 1)")
+	assert.NoError(t, err)
+	assert.NoError(t, pre.Close())
+
+	config := NewUserConfig(dbFile, path.Join(t.TempDir(), "old.db"), log.Default())
+	config.Load()
+
+	entries, err := config.CustomProxies()
+	assert.NoError(t, err)
+	assert.Len(t, entries, 1)
+	assert.Equal(t, "prod-entry", entries[0].Name)
+	assert.Equal(t, "192.168.1.5", entries[0].Host)
+	assert.Equal(t, 8080, entries[0].Port)
+	assert.True(t, entries[0].Https)
+	assert.False(t, entries[0].Authelia, "existing prod rows must default to authelia=false after upgrade")
 }
 
 func TestUserConfig_OIDCClients(t *testing.T) {

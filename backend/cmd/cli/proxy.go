@@ -21,12 +21,13 @@ func proxyCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			host, _ := cmd.Flags().GetString("host")
 			port, _ := cmd.Flags().GetInt("port")
 			https, _ := cmd.Flags().GetBool("https")
+			authelia, _ := cmd.Flags().GetBool("authelia")
 			c, err := Init(*userConfig, *systemConfig)
 			if err != nil {
 				return err
 			}
 			return c.Call(func(configuration *config.UserConfig) {
-				err := configuration.AddCustomProxy(name, host, port, https)
+				err := configuration.AddCustomProxy(name, host, port, https, authelia)
 				if err != nil {
 					fmt.Printf("error: %s\n", err)
 				}
@@ -37,6 +38,7 @@ func proxyCmd(userConfig *string, systemConfig *string) *cobra.Command {
 	cmdProxyAdd.Flags().String("host", "", "backend host")
 	cmdProxyAdd.Flags().Int("port", 0, "backend port")
 	cmdProxyAdd.Flags().Bool("https", false, "use https for backend")
+	cmdProxyAdd.Flags().Bool("authelia", false, "protect with Authelia (SSO + 2FA)")
 	_ = cmdProxyAdd.MarkFlagRequired("name")
 	_ = cmdProxyAdd.MarkFlagRequired("host")
 	_ = cmdProxyAdd.MarkFlagRequired("port")
