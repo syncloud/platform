@@ -16,12 +16,13 @@ func InitInternalApi(userConfig string, systemConfig string, backupDir string, v
 	}
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
+		redirect *config.Redirect,
 		storage *storage.Storage,
 		systemd *systemd.Control,
 		middleware *rest.Middleware,
 		authelia *auth.Authelia,
 	) *rest.Api {
-		return rest.NewApi(userConfig, storage, systemd, middleware, network, address, authelia, logger)
+		return rest.NewApi(userConfig, redirect, storage, systemd, middleware, network, address, authelia, logger)
 	})
 	if err != nil {
 		return nil, err

@@ -3,7 +3,6 @@ package nginx
 import (
 	"os"
 	"path"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,117 +46,28 @@ func (p *ProxyConfigMock) Proxies() ([]ProxyEntry, error) {
 	return p.entries, nil
 }
 
-func TestSubstitution(t *testing.T) {
+func newTestNginx(t *testing.T, domain string, entries []ProxyEntry) (*Nginx, *SystemdMock, string) {
+	t.Helper()
 	outputDir := t.TempDir()
 	configDir := path.Join("..", "..", "config")
 	systemd := &SystemdMock{}
 	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
-	userConfig := &UserConfigMock{"example.com"}
-	proxyConfig := &ProxyConfigMock{}
-	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
-	err := nginx.InitConfig()
-	assert.Nil(t, err)
-
-	contents, err := os.ReadFile(path.Join(outputDir, "nginx.conf"))
-	assert.Nil(t, err)
-
-	assert.Contains(t, string(contents), "server_name example.com;")
-	assert.Contains(t, string(contents), "server_name ~^(.*\\.)?(?P<app>.*)\\.example\\.com$;")
-	assert.Contains(t, string(contents), "custom-proxy.socket")
+	userConfig := &UserConfigMock{domain}
+	proxyConfig := &ProxyConfigMock{entries: entries}
+	return New(systemd, systemConfig, userConfig, proxyConfig), systemd, outputDir
 }
 
-func TestCustomProxy_ZeroEntries(t *testing.T) {
-	outputDir := t.TempDir()
-	configDir := path.Join("..", "..", "config")
-	systemd := &SystemdMock{}
-	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
-	userConfig := &UserConfigMock{"example.com"}
-	proxyConfig := &ProxyConfigMock{}
-	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
-
-	err := nginx.InitCustomProxyConfig()
-	assert.Nil(t, err)
-
-	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
-	assert.Nil(t, err)
-	text := string(contents)
-
-	assert.Contains(t, text, "return 502")
-	assert.NotContains(t, text, "proxy_pass")
-	assert.Equal(t, 1, strings.Count(text, "listen unix:"), "should have only the default server block")
-	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
-}
-
-func TestCustomProxy_OneEntry(t *testing.T) {
-	outputDir := t.TempDir()
-	configDir := path.Join("..", "..", "config")
-	systemd := &SystemdMock{}
-	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
-	userConfig := &UserConfigMock{"example.com"}
-	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
-		{Name: "myapp", Host: "192.168.1.10", Port: 8080},
-	}}
-	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
-
-	err := nginx.InitCustomProxyConfig()
-	assert.Nil(t, err)
-
-	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
-	assert.Nil(t, err)
-	text := string(contents)
-
-	assert.Contains(t, text, "server_name myapp.example.com;")
-	assert.Contains(t, text, "proxy_pass http://192.168.1.10:8080;")
-	assert.Contains(t, text, "X-Syncloud-Custom-Proxy")
-	assert.Equal(t, 2, strings.Count(text, "listen unix:"), "should have default + 1 custom server block")
-	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
-}
-
-func TestCustomProxy_TwoEntries(t *testing.T) {
-	outputDir := t.TempDir()
-	configDir := path.Join("..", "..", "config")
-	systemd := &SystemdMock{}
-	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
-	userConfig := &UserConfigMock{"mydevice.syncloud.it"}
-	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
-		{Name: "nas", Host: "192.168.1.50", Port: 5000},
-		{Name: "camera", Host: "10.0.0.100", Port: 8443, Https: true},
-	}}
-	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
-
-	err := nginx.InitCustomProxyConfig()
-	assert.Nil(t, err)
-
-	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
-	assert.Nil(t, err)
-	text := string(contents)
-
-	assert.Contains(t, text, "server_name nas.mydevice.syncloud.it;")
-	assert.Contains(t, text, "proxy_pass http://192.168.1.50:5000;")
-	assert.Contains(t, text, "server_name camera.mydevice.syncloud.it;")
-	assert.Contains(t, text, "proxy_pass https://10.0.0.100:8443;")
-	assert.Equal(t, 3, strings.Count(text, "listen unix:"), "should have default + 2 custom server blocks")
-	assert.Equal(t, "", systemd.reloadedService, "InitCustomProxyConfig should not reload")
-}
-
-func TestCustomProxy_ReloadCustomProxy(t *testing.T) {
-	outputDir := t.TempDir()
-	configDir := path.Join("..", "..", "config")
-	systemd := &SystemdMock{}
-	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
-	userConfig := &UserConfigMock{"example.com"}
-	proxyConfig := &ProxyConfigMock{entries: []ProxyEntry{
-		{Name: "myapp", Host: "192.168.1.10", Port: 8080},
-	}}
-	nginx := New(systemd, systemConfig, userConfig, proxyConfig)
-
-	err := nginx.ReloadCustomProxy()
-	assert.Nil(t, err)
-
-	contents, err := os.ReadFile(path.Join(outputDir, "custom-proxy.conf"))
-	assert.Nil(t, err)
-	text := string(contents)
-
-	assert.Contains(t, text, "server_name myapp.example.com;")
-	assert.Equal(t, "platform.nginx-custom-proxy", systemd.reloadedService)
+func assertGolden(t *testing.T, generatedPath, goldenName string) {
+	t.Helper()
+	actual, err := os.ReadFile(generatedPath)
+	assert.NoError(t, err)
+	goldenPath := path.Join("testdata", goldenName)
+	if os.Getenv("UPDATE_GOLDENS") == "1" {
+		assert.NoError(t, os.MkdirAll("testdata", 0755))
+		assert.NoError(t, os.WriteFile(goldenPath, actual, 0644))
+		return
+	}
+	expected, err := os.ReadFile(goldenPath)
+	assert.NoError(t, err, "golden missing: run with UPDATE_GOLDENS=1 to create %s", goldenPath)
+	assert.Equal(t, string(expected), string(actual), "output differs from %s", goldenPath)
 }

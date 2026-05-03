@@ -3,21 +3,21 @@ package nginx
 import "github.com/syncloud/platform/config"
 
 type ProxyConfigAdapter struct {
-	userConfig *config.UserConfig
+	customProxy *config.CustomProxy
 }
 
-func NewProxyConfigAdapter(userConfig *config.UserConfig) *ProxyConfigAdapter {
-	return &ProxyConfigAdapter{userConfig: userConfig}
+func NewProxyConfigAdapter(customProxy *config.CustomProxy) *ProxyConfigAdapter {
+	return &ProxyConfigAdapter{customProxy: customProxy}
 }
 
 func (a *ProxyConfigAdapter) Proxies() ([]ProxyEntry, error) {
-	entries, err := a.userConfig.CustomProxies()
+	entries, err := a.customProxy.List()
 	if err != nil {
 		return nil, err
 	}
 	result := make([]ProxyEntry, len(entries))
 	for i, e := range entries {
-		result[i] = ProxyEntry{Name: e.Name, Host: e.Host, Port: e.Port, Https: e.Https}
+		result[i] = ProxyEntry{Name: e.Name, Host: e.Host, Port: e.Port, Https: e.Https, Authelia: e.Authelia}
 	}
 	return result, nil
 }

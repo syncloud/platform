@@ -12,9 +12,12 @@ type DeviceUserConfig interface {
 	GetDeviceDomain() string
 	GetDkimKey() *string
 	SetDkimKey(key *string)
-	GetUserEmail() *string
 	Url(app string) string
 	AppDomain(app string) string
+}
+
+type DeviceRedirect interface {
+	UserEmail() *string
 }
 
 type Storage interface {
@@ -32,6 +35,7 @@ type WebAuth interface {
 
 type Api struct {
 	userConfig DeviceUserConfig
+	redirect   DeviceRedirect
 	storage    Storage
 	systemd    Systemd
 	mw         *Middleware
@@ -41,11 +45,12 @@ type Api struct {
 	logger     *zap.Logger
 }
 
-func NewApi(userConfig DeviceUserConfig, storage Storage, systemd Systemd,
+func NewApi(userConfig DeviceUserConfig, redirect DeviceRedirect, storage Storage, systemd Systemd,
 	middleware *Middleware, network string, address string,
 	webAuth WebAuth, logger *zap.Logger) *Api {
 	return &Api{
 		userConfig: userConfig,
+		redirect:   redirect,
 		storage:    storage,
 		systemd:    systemd,
 		mw:         middleware,
@@ -174,5 +179,5 @@ func (a *Api) AppStorageDir(req *http.Request) (interface{}, error) {
 }
 
 func (a *Api) UserEmail(_ *http.Request) (interface{}, error) {
-	return a.userConfig.GetUserEmail(), nil
+	return a.redirect.UserEmail(), nil
 }

@@ -16,8 +16,11 @@ type CustomActivateRequest struct {
 
 type CustomPlatformUserConfig interface {
 	SetRedirectEnabled(enabled bool)
-	SetUserEmail(userEmail string)
 	SetCustomDomain(domain string)
+}
+
+type CustomRedirect interface {
+	SetUserEmail(email string)
 }
 
 type CustomActivation interface {
@@ -27,16 +30,18 @@ type CustomActivation interface {
 type Custom struct {
 	internet connection.InternetChecker
 	config   CustomPlatformUserConfig
+	redirect CustomRedirect
 	device   DeviceActivation
 	cert     cert.Generator
 	logger   *zap.Logger
 }
 
-func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, device DeviceActivation,
+func NewCustom(internet connection.InternetChecker, config CustomPlatformUserConfig, redirect CustomRedirect, device DeviceActivation,
 	cert cert.Generator, logger *zap.Logger) *Custom {
 	return &Custom{
 		internet: internet,
 		config:   config,
+		redirect: redirect,
 		device:   device,
 		cert:     cert,
 		logger:   logger,
@@ -55,7 +60,7 @@ func (c *Custom) Activate(requestDomain string, deviceUsername string, devicePas
 	c.config.SetRedirectEnabled(false)
 	c.config.SetCustomDomain(domain)
 	name, email := ParseUsername(deviceUsername, domain)
-	c.config.SetUserEmail(email)
+	c.redirect.SetUserEmail(email)
 
 	err = c.cert.Generate()
 	if err != nil {

@@ -137,6 +137,8 @@
     "port": "ポート:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
+    "authelia": "Authelia:",
+    "autheliaHint": "アップストリームに到達する前にログイン（SSO + 2FA）を要求する",
     "add": "追加",
     "proxies": "プロキシ",
     "noProxies": "カスタムプロキシが設定されていません",

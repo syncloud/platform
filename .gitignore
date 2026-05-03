@@ -14,7 +14,9 @@ _site
 .coin.cache
 ./version
 logs
+*.log
 *.snap
 .pytest_cache
 venv
 visual-diff/output
+.claude

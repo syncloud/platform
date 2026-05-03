@@ -16,8 +16,8 @@ func resetTotpCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return c.Call(func(authelia *auth.Authelia) {
-				err := authelia.ResetTOTP(args[0])
+			return c.Call(func(totp *auth.TOTP) {
+				err := totp.Reset(args[0])
 				if err != nil {
 					fmt.Printf("error: %v\n", err)
 				} else {

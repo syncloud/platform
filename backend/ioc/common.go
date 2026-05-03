@@ -46,10 +46,42 @@ var logger = log.Default()
 
 func Init(userConfig string, systemConfig string, backupDir string, varDir string) (container.Container, error) {
 	c := container.New()
-	err := c.Singleton(func() *config.UserConfig {
-		userConfig := config.NewUserConfig(userConfig, config.OldConfig, logger)
-		userConfig.Load()
-		return userConfig
+	err := c.Singleton(func() *config.Db {
+		return config.NewDb(userConfig, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(db *config.Db) (*config.Migrator, error) {
+		migrator := config.NewMigrator(db)
+		if err := migrator.Migrate(); err != nil {
+			return nil, err
+		}
+		return migrator, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(db *config.Db, _ *config.Migrator) *config.Redirect {
+		return config.NewRedirect(db)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(db *config.Db, _ *config.Migrator) *config.UserConfig {
+		return config.NewUserConfig(db, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(db *config.Db, _ *config.Migrator) *config.OIDC {
+		return config.NewOIDC(db)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(db *config.Db, _ *config.Migrator) *config.CustomProxy {
+		return config.NewCustomProxy(db)
 	})
 	if err != nil {
 		return nil, err
@@ -111,8 +143,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, control *systemd.Control) *nginx.Nginx {
-		return nginx.New(control, systemConfig, userConfig, nginx.NewProxyConfigAdapter(userConfig))
+	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, customProxy *config.CustomProxy, control *systemd.Control) *nginx.Nginx {
+		return nginx.New(control, systemConfig, userConfig, nginx.NewProxyConfigAdapter(customProxy))
 	})
 	if err != nil {
 		return nil, err
@@ -120,6 +152,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
+		redirectConfig *config.Redirect,
 		identification *identification.Parser,
 		iface *network.TcpInterfaces,
 		client *retryablehttp.Client,
@@ -132,6 +165,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		}
 		return redirect.New(
 			userConfig,
+			redirectConfig,
 			identification,
 			iface,
 			client,
@@ -146,13 +180,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, systemConfig *config.SystemConfig) (*cert.Certbot, error) {
+	err = c.Singleton(func(redirectService *redirect.Service, userConfig *config.UserConfig, redirectConfig *config.Redirect, systemConfig *config.SystemConfig) (*cert.Certbot, error) {
 		var certLogger *zap.Logger
 		err := c.NamedResolve(&certLogger, CertificateLogger)
 		if err != nil {
 			return nil, err
 		}
-		return cert.NewCertbot(redirectService, userConfig, systemConfig, certLogger), nil
+		return cert.NewCertbot(redirectService, userConfig, redirectConfig, systemConfig, certLogger), nil
 	})
 	if err != nil {
 		return nil, err
@@ -222,8 +256,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.PortProbe {
-		return access.NewProbe(userConfig, client, logger)
+	err = c.Singleton(func(userConfig *config.UserConfig, redirectConfig *config.Redirect, redirectService *redirect.Service, eventTrigger *event.Trigger, client *retryablehttp.Client, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.PortProbe {
+		return access.NewProbe(userConfig, redirectConfig, client, logger)
 	})
 
 	if err != nil {
@@ -331,8 +365,16 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func(executor *cli.ShellExecutor) *auth.TOTP {
+		return auth.NewTOTP(executor, hook.DataDir, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
+		oidc *config.OIDC,
 		systemd *systemd.Control,
 		secretGenerator *auth.SecretGenerator,
 		executor *cli.ShellExecutor,
@@ -344,6 +386,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			hook.DataDir,
 			path.Join(hook.DataDir, "authelia.socket"),
 			userConfig,
+			oidc,
 			systemd,
 			secretGenerator,
 			executor,
@@ -377,18 +420,18 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig,
+	err = c.Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectConfig *config.Redirect,
 		redirectService *redirect.Service, device *activation.Device, certGenerator *cert.CertificateGenerator,
 		logger *zap.Logger,
 	) *activation.Managed {
-		return activation.NewManaged(internetChecker, userConfig, redirectService, device, certGenerator, logger)
+		return activation.NewManaged(internetChecker, userConfig, redirectConfig, redirectService, device, certGenerator, logger)
 	})
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, device *activation.Device,
+	err = c.Singleton(func(internetChecker connection.InternetChecker, userConfig *config.UserConfig, redirectConfig *config.Redirect, device *activation.Device,
 		certGenerator *cert.CertificateGenerator, logger *zap.Logger) *activation.Custom {
-		return activation.NewCustom(internetChecker, userConfig, device, certGenerator, logger)
+		return activation.NewCustom(internetChecker, userConfig, redirectConfig, device, certGenerator, logger)
 	})
 	if err != nil {
 		return nil, err
@@ -472,15 +515,15 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(userConfig *config.UserConfig) *rest.Proxy {
-		return rest.NewProxy(userConfig)
+	err = c.Singleton(func(redirect *config.Redirect) *rest.Proxy {
+		return rest.NewProxy(redirect)
 	})
 
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(userConfig *config.UserConfig, nginxService *nginx.Nginx) *rest.CustomProxy {
-		return rest.NewCustomProxy(userConfig, nginxService)
+	err = c.Singleton(func(customProxy *config.CustomProxy, nginxService *nginx.Nginx) *rest.CustomProxy {
+		return rest.NewCustomProxy(customProxy, nginxService)
 	})
 
 	if err != nil {

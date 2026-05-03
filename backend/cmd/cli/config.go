@@ -23,10 +23,10 @@ func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return c.Call(func(configuration *config.UserConfig) {
+			return c.Call(func(db *config.Db) {
 				key := args[0]
 				value := args[1]
-				configuration.Upsert(key, value)
+				db.Upsert(key, value)
 				fmt.Printf("set config: %s, key: %s, value: %s\n", configFile, key, value)
 			})
 		},
@@ -42,8 +42,8 @@ func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return c.Call(func(configuration *config.UserConfig) {
-				fmt.Println(configuration.Get(args[0], ""))
+			return c.Call(func(db *config.Db) {
+				fmt.Println(db.Get(args[0], ""))
 			})
 		},
 	}
@@ -58,8 +58,8 @@ func configCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return c.Call(func(configuration *config.UserConfig) {
-				for key, value := range configuration.List() {
+			return c.Call(func(db *config.Db) {
+				for key, value := range db.List() {
 					fmt.Printf("%s:%s\n", key, value)
 				}
 			})

@@ -14,11 +14,6 @@ import (
 type UserConfigStub struct {
 	domain    string
 	activated bool
-	clients   []config.OIDCClient
-}
-
-func (u *UserConfigStub) AddOIDCClient(client config.OIDCClient) error {
-	return nil
 }
 
 func (u *UserConfigStub) IsTwoFactorEnabled() bool {
@@ -33,16 +28,24 @@ func (u *UserConfigStub) Url(app string) string {
 	return fmt.Sprintf("https://%s.%s", app, u.domain)
 }
 
-func (u *UserConfigStub) OIDCClients() ([]config.OIDCClient, error) {
-	return u.clients, nil
-}
-
 func (u *UserConfigStub) DeviceUrl() string {
 	return fmt.Sprintf("https://auth.%s", u.domain)
 }
 
 func (u *UserConfigStub) GetDeviceDomain() string {
 	return u.domain
+}
+
+type OIDCStub struct {
+	clients []config.OIDCClient
+}
+
+func (o *OIDCStub) AddClient(client config.OIDCClient) error {
+	return nil
+}
+
+func (o *OIDCStub) Clients() ([]config.OIDCClient, error) {
+	return o.clients, nil
 }
 
 type SystemdStub struct {
@@ -70,7 +73,7 @@ func TestAutheliaInit(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "www.localhost", activated: false}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &OIDCStub{}, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
 	err := a.InitConfig()
 	assert.NoError(t, err)
 
@@ -95,7 +98,7 @@ func TestAutheliaReInit(t *testing.T) {
 	err = os.WriteFile(secretFilePath, []byte("secret"), 0644)
 	assert.Nil(t, err)
 
-	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &OIDCStub{}, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
 	err = a.InitConfig()
 	assert.Nil(t, err)
 
@@ -117,10 +120,10 @@ type Config struct {
 }
 
 type IdentityProvider struct {
-	OIDC OIDC `yaml:"oidc"`
+	OIDC oidcSection `yaml:"oidc"`
 }
 
-type OIDC struct {
+type oidcSection struct {
 	Clients []Client `yaml:"clients"`
 }
 
@@ -131,13 +134,14 @@ type Client struct {
 }
 
 func TestAutheliaClients(t *testing.T) {
-	userConfig := &UserConfigStub{domain: "example.com", clients: []config.OIDCClient{
-		{ID: "app1", Secret: "app1secret", RedirectURI: "https://app1.example.com/callback1"},
-		{ID: "app2", Secret: "app2secret", RedirectURI: "https://app2.example.com/callback2"},
-	}, activated: false}
+	userConfig := &UserConfigStub{domain: "example.com", activated: false}
+	oidc := &OIDCStub{clients: []config.OIDCClient{
+		{ID: "app1", Secret: "app1secret", RedirectURI: "/callback1"},
+		{ID: "app2", Secret: "app2secret", RedirectURI: "/callback2"},
+	}}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
-	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
+	a := NewAuthelia("../../config/authelia", outDir, secretDir, "/tmp/authelia.socket", userConfig, oidc, &SystemdStub{}, &PasswordGeneratorStub{}, &ExecutorStub{}, &AutheliaHealthStub{}, log.Default())
 	err := a.InitConfig()
 	assert.NoError(t, err)
 

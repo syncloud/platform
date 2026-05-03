@@ -32,19 +32,19 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 
 	err = c.Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
-		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, cert *rest.Certificate,
+		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, redirectConfig *config.Redirect, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 		executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
 		proxy *rest.Proxy, customProxy *rest.CustomProxy, middleware *rest.Middleware, ldapService *auth.Service, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
-		oidcService *auth.OIDCService, authelia *auth.Authelia,
+		oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 		tz *timezone.Applier,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, cert, externalAddress,
+			installerService, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
 			snapd, disks, journalCtl, executor, iface, sender, proxy, customProxy,
 			ldapService, middleware, cookies, net, address, changesClient,
-			oidcService, authelia, tz, logger)
+			oidcService, authelia, totp, tz, logger)
 	})
 	if err != nil {
 		return nil, err

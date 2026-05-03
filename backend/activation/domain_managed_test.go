@@ -22,12 +22,6 @@ func (f *ManagedPlatformUserConfigStub) SetRedirectEnabled(enabled bool) {
 
 }
 
-func (f *ManagedPlatformUserConfigStub) SetUserUpdateToken(userUpdateToken string) {
-}
-
-func (f *ManagedPlatformUserConfigStub) SetUserEmail(userEmail string) {
-}
-
 func (f *ManagedPlatformUserConfigStub) SetDomain(domain string) {
 	f.domain = domain
 }
@@ -35,9 +29,10 @@ func (f *ManagedPlatformUserConfigStub) SetDomain(domain string) {
 func (f *ManagedPlatformUserConfigStub) UpdateDomainToken(token string) {
 }
 
-func (f *ManagedPlatformUserConfigStub) GetRedirectDomain() string {
-	return "syncloud.it"
-}
+type ManagedRedirectConfigStub struct{}
+
+func (r *ManagedRedirectConfigStub) SetUserUpdateToken(token string) {}
+func (r *ManagedRedirectConfigStub) SetUserEmail(email string)       {}
 
 type ManagedRedirectStub struct {
 	email    string
@@ -91,7 +86,7 @@ func TestManaged_Activate_Cert(t *testing.T) {
 	managedRedirect := &ManagedRedirectStub{}
 	realCert := &CertbotStub{}
 	config := &ManagedPlatformUserConfigStub{}
-	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, logger)
+	managed := NewManaged(&InternetCheckerStub{}, config, &ManagedRedirectConfigStub{}, managedRedirect, &DeviceActivationStub{}, realCert, logger)
 	err := managed.Activate("mail", "password", "test.syncloud.it", "username", "password")
 	assert.Nil(t, err)
 
@@ -105,7 +100,7 @@ func TestManaged_Activate_FixDomainName(t *testing.T) {
 	managedRedirect := &ManagedRedirectStub{}
 	realCert := &CertbotStub{}
 	config := &ManagedPlatformUserConfigStub{}
-	managed := NewManaged(&InternetCheckerStub{}, config, managedRedirect, &DeviceActivationStub{}, realCert, logger)
+	managed := NewManaged(&InternetCheckerStub{}, config, &ManagedRedirectConfigStub{}, managedRedirect, &DeviceActivationStub{}, realCert, logger)
 	err := managed.Activate("mail", "password", "TeSt.syncloud.it", "username", "password")
 	assert.Nil(t, err)
 
