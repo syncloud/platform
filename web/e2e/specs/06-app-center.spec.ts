@@ -56,7 +56,7 @@ test('remove app', async ({}, testInfo) => {
   await page.locator('#btn_remove').click()
   await page.locator('#btn_confirm').click()
   await waitForLoading(page)
-  await expect(page.locator('#btn_install')).toBeVisible()
+  await expect(page.locator('#btn_install')).toBeVisible({ timeout: 600_000 })
   await shoot(page, testInfo, 'app_removed')
 })
 

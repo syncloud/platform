@@ -1,13 +1,18 @@
 #!/bin/bash -xe
 
-VERSION=$(curl http://apps.syncloud.org/releases/stable/snapd2.version)
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  VERSION=$(curl -fsS http://apps.syncloud.org/releases/stable/snapd2.version) && break
+  echo "curl failed (attempt $i), retrying in 5s..."
+  sleep 5
+done
+[ -n "${VERSION}" ] || { echo "failed to resolve snapd version after retries"; exit 1; }
 ARCH=$(dpkg --print-architecture)
 SNAPD=snapd-${VERSION}-${ARCH}.tar.gz
 
 cd /tmp
 rm -rf "${SNAPD}"
 rm -rf snapd
-wget http://apps.syncloud.org/apps/"${SNAPD}" --progress=dot:giga
+wget --tries=10 --waitretry=5 --retry-connrefused http://apps.syncloud.org/apps/"${SNAPD}" --progress=dot:giga
 tar xzvf "${SNAPD}"
 mkdir -p /var/lib/snapd/snaps
 ./snapd/install.sh
