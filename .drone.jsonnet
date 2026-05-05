@@ -10,7 +10,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '2758';
+local visual_diff_skip_build = '2773';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -200,7 +200,7 @@ local build(arch, testUI) = [{
                     CI: 'true',
                   },
                   commands: [
-                    'apt-get update && apt-get install -y sshpass sudo',
+                    'apt-get -o Acquire::Retries=10 update && apt-get -o Acquire::Retries=10 install -y sshpass sudo',
                     'DOMAIN="' + distro_default + '-' + arch + '"',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" >> /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" >> /etc/hosts',
