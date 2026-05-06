@@ -48,7 +48,11 @@ export default {
       if (!this.apps) return []
       const q = this.filter.trim().toLowerCase()
       if (!q) return this.apps
-      return this.apps.filter(a => (a.name || '').toLowerCase().includes(q))
+      return this.apps.filter(a =>
+        (a.name || '').toLowerCase().includes(q) ||
+        (a.id || '').toLowerCase().includes(q) ||
+        (a.description || '').toLowerCase().includes(q)
+      )
     }
   },
   mounted () {
