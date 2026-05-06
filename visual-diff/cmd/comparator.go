@@ -126,16 +126,15 @@ func (c *Comparator) compareImages(path1, path2, diffPath string) (int, error) {
 	diffCount := 0
 	for y := b1.Min.Y; y < b1.Max.Y; y++ {
 		for x := b1.Min.X; x < b1.Max.X; x++ {
-			r1, g1, b1c, a1 := img1.At(x, y).RGBA()
-			r2, g2, b2c, a2 := img2.At(x, y).RGBA()
-			if colorDiff(r1, r2) > c.fuzz ||
-				colorDiff(g1, g2) > c.fuzz ||
-				colorDiff(b1c, b2c) > c.fuzz ||
-				colorDiff(a1, a2) > c.fuzz {
-				diffCount++
-				if mask != nil {
-					mask[(y-b1.Min.Y)*b1.Dx()+(x-b1.Min.X)] = true
-				}
+			if !c.pixelDiffers(img1, img2, x, y) {
+				continue
+			}
+			if c.isAntialiased(img1, img2, x, y, b1) {
+				continue
+			}
+			diffCount++
+			if mask != nil {
+				mask[(y-b1.Min.Y)*b1.Dx()+(x-b1.Min.X)] = true
 			}
 		}
 	}
@@ -147,6 +146,51 @@ func (c *Comparator) compareImages(path1, path2, diffPath string) (int, error) {
 
 func colorDiff(a, b uint32) float64 {
 	return math.Abs(float64(a) - float64(b))
+}
+
+func (c *Comparator) pixelDiffers(img1, img2 image.Image, x, y int) bool {
+	r1, g1, b1c, a1 := img1.At(x, y).RGBA()
+	r2, g2, b2c, a2 := img2.At(x, y).RGBA()
+	return colorDiff(r1, r2) > c.fuzz ||
+		colorDiff(g1, g2) > c.fuzz ||
+		colorDiff(b1c, b2c) > c.fuzz ||
+		colorDiff(a1, a2) > c.fuzz
+}
+
+func (c *Comparator) colorMatches(p color.Color, r, g, b, a uint32) bool {
+	pr, pg, pb, pa := p.RGBA()
+	return colorDiff(pr, r) <= c.fuzz &&
+		colorDiff(pg, g) <= c.fuzz &&
+		colorDiff(pb, b) <= c.fuzz &&
+		colorDiff(pa, a) <= c.fuzz
+}
+
+// isAntialiased returns true if the pixel difference at (x, y) is consistent
+// with sub-pixel anti-aliasing rather than a content change. A diff pixel is
+// considered AA if either image's color at (x, y) appears in the other image
+// within a 1-pixel radius — i.e. the difference is a 1-pixel rendering shift,
+// not new content.
+func (c *Comparator) isAntialiased(img1, img2 image.Image, x, y int, b image.Rectangle) bool {
+	r1, g1, b1, a1 := img1.At(x, y).RGBA()
+	r2, g2, b2, a2 := img2.At(x, y).RGBA()
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			if dx == 0 && dy == 0 {
+				continue
+			}
+			nx, ny := x+dx, y+dy
+			if nx < b.Min.X || nx >= b.Max.X || ny < b.Min.Y || ny >= b.Max.Y {
+				continue
+			}
+			if c.colorMatches(img1.At(nx, ny), r2, g2, b2, a2) {
+				return true
+			}
+			if c.colorMatches(img2.At(nx, ny), r1, g1, b1, a1) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func loadPNG(path string) (image.Image, error) {

@@ -23,8 +23,8 @@ test('app center', async ({}, testInfo) => {
   await menu(page, 'appcenter', testInfo)
   await expect(page.getByRole('heading', { name: 'App Center' })).toBeVisible()
   await expect(page.getByText('File browser')).toBeVisible()
-  await page.locator('#appcenter_filter').fill('nextcloud')
-  await expect(page.getByText('Nextcloud file sharing')).toBeVisible()
+  await page.locator('#appcenter_filter').fill('files')
+  await expect(page.getByText('File browser')).toBeVisible()
   await shoot(page, testInfo, 'appcenter')
 })
 
@@ -62,8 +62,8 @@ test('remove app', async ({}, testInfo) => {
 
 test('not installed app', async ({}, testInfo) => {
   await menu(page, 'appcenter', testInfo)
-  await page.getByText('Nextcloud file sharing').click()
-  await expect(page.getByRole('heading', { name: 'Nextcloud file sharing' })).toBeVisible()
+  await page.getByText('File browser').click()
+  await expect(page.getByRole('heading', { name: 'File browser' })).toBeVisible()
   await expect(page.locator('#btn_install')).toBeVisible()
   await shoot(page, testInfo, 'app_not_installed')
 })
