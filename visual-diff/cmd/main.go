@@ -20,7 +20,7 @@ func main() {
 		"amd64",
 		&http.Client{Timeout: 60 * time.Second},
 	)
-	comparator := NewComparator(100, 5.0, []string{"desktop", "mobile"})
+	comparator := NewComparator(250, 10.0, []string{"desktop", "mobile"})
 	pictures := NewPictures(picturesRoot())
 
 	app := &App{ci: ci, comparator: comparator, pictures: pictures}

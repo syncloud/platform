@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 const (
@@ -37,21 +39,87 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.cmd("lsblk", "-o", "+UUID")
 	log += a.cmd("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
 	log += a.cmd("ls", "-la", "/data")
-	log += a.cmd("sh", "-c", "du -sh /var/snap/*/current/database 2>/dev/null; du -sh /var/snap/*/current/database.dump 2>/dev/null")
 	log += a.cmd("uptime")
 	log += a.cmd("snap", "version")
 	log += a.cmd("snap", "list")
 	log += a.cmd("snap", "list", "--all")
 	log += a.cmd("snap", "changes")
-	log += a.cmd("sh", "-c", "for id in $(snap changes 2>/dev/null | awk 'NR>1 && $2!~/^Done$/ {print $1}' | head -5; snap changes 2>/dev/null | awk 'NR>1 {print $1}' | head -5); do echo === snap change $id ===; snap change \"$id\" 2>&1; done")
+	log += a.snapChangesDetail()
 	log += a.cmd("snap", "services")
 	log += a.cmd("snap", "run", "platform.cli", "ipv4", "public")
-	log += a.cmd("journalctl", "--since=-3h", "--no-pager")
+	log += a.cmd("journalctl", "-n", "1000", "--no-pager")
 	log += a.cmd("dmesg", "-T")
-	log += a.cmd("sh", "-c", "dmesg -T 2>&1 | grep -iE 'I/O error|EXT4-fs error|usb-storage|disconnect' | tail -50")
-	log += a.cmd("sh", "-c", "for d in /dev/sd? /dev/nvme?n? /dev/mmcblk?; do [ -b \"$d\" ] && smartctl -a \"$d\" 2>&1; done")
+	log += a.dmesgErrors()
 	log += a.cmd("cat", "/proc/diskstats")
 	return log
+}
+
+func (a *LogAggregator) snapChangesDetail() string {
+	result := "snap changes detail\n\n"
+	out, err := exec.Command("snap", "changes").CombinedOutput()
+	if err != nil {
+		a.logger.Warn("failed", zap.Error(err))
+		return result + string(out) + Separator
+	}
+	var pending, recent []string
+	for i, line := range strings.Split(strings.TrimSpace(string(out)), "\n") {
+		if i == 0 {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		id, status := fields[0], fields[1]
+		if status != "Done" && len(pending) < 5 {
+			pending = append(pending, id)
+		}
+		if len(recent) < 5 {
+			recent = append(recent, id)
+		}
+	}
+	seen := map[string]bool{}
+	for _, id := range append(pending, recent...) {
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+		result += fmt.Sprintf("=== snap change %s ===\n", id)
+		out, err := exec.Command("snap", "change", id).CombinedOutput()
+		if err != nil {
+			a.logger.Warn("failed", zap.Error(err))
+		}
+		result += tail(string(out), 100) + "\n"
+	}
+	return result + Separator
+}
+
+func (a *LogAggregator) dmesgErrors() string {
+	result := "dmesg errors\n\n"
+	out, err := exec.Command("dmesg", "-T").CombinedOutput()
+	if err != nil {
+		a.logger.Warn("failed", zap.Error(err))
+	}
+	re := regexp.MustCompile(`(?i)I/O error|EXT4-fs error|usb-storage|disconnect`)
+	var matches []string
+	for _, line := range strings.Split(string(out), "\n") {
+		if re.MatchString(line) {
+			matches = append(matches, line)
+		}
+	}
+	if len(matches) > 50 {
+		matches = matches[len(matches)-50:]
+	}
+	result += strings.Join(matches, "\n") + "\n"
+	return result + Separator
+}
+
+func tail(s string, n int) string {
+	lines := strings.Split(strings.TrimRight(s, "\n"), "\n")
+	if len(lines) > n {
+		lines = lines[len(lines)-n:]
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (a *LogAggregator) cmd(app string, args ...string) string {

@@ -6,6 +6,11 @@ import AppCenter from '../../src/views/AppCenter.vue'
 
 jest.setTimeout(30000)
 
+async function setFilter (wrapper, value) {
+  wrapper.vm.filter = value
+  await wrapper.vm.$nextTick()
+}
+
 test('Show apps', async () => {
   const mock = new MockAdapter(axios)
   mock.onGet('rest/apps/available').reply(200,
@@ -51,6 +56,54 @@ test('Show apps', async () => {
   expect(error).toBe('')
   expect(wrapper.text()).toContain('App1')
   expect(wrapper.text()).toContain('App2')
+
+  wrapper.unmount()
+})
+
+test('Filter searches id, name, and description', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('rest/apps/available').reply(200,
+    {
+      data: [
+        { id: 'files', name: 'File browser', description: 'Browse files', icon: '/images/files.png' },
+        { id: 'nextcloud', name: 'Nextcloud file sharing', description: 'Sync and share', icon: '/images/nc.png' },
+        { id: 'photoprism', name: 'PhotoPrism', description: 'Photos and videos', icon: '/images/pp.png' }
+      ]
+    }
+  )
+
+  const mockRouter = { push: jest.fn() }
+  const wrapper = mount(AppCenter,
+    {
+      attachTo: document.body,
+      global: {
+        components: { RouterLink: RouterLinkStub },
+        stubs: { Error: { template: '<span/>', methods: { showAxios: () => {} } } },
+        mocks: { $route: { path: '/appcenter' }, $router: mockRouter }
+      }
+    }
+  )
+  await flushPromises()
+
+  // matches by id (snap name)
+  await setFilter(wrapper,'files')
+  expect(wrapper.text()).toContain('File browser')
+  expect(wrapper.text()).not.toContain('PhotoPrism')
+
+  // matches by display name
+  await setFilter(wrapper,'browser')
+  expect(wrapper.text()).toContain('File browser')
+  expect(wrapper.text()).not.toContain('Nextcloud')
+  expect(wrapper.text()).not.toContain('PhotoPrism')
+
+  // matches by description
+  await setFilter(wrapper,'photos')
+  expect(wrapper.text()).toContain('PhotoPrism')
+  expect(wrapper.text()).not.toContain('File browser')
+
+  // case-insensitive
+  await setFilter(wrapper,'NEXTCLOUD')
+  expect(wrapper.text()).toContain('Nextcloud file sharing')
 
   wrapper.unmount()
 })
