@@ -64,6 +64,12 @@ apps:
     - network-bind
     restart-condition: always
     restart-delay: 10s
+  stability:
+    command: bin/service.stability.sh
+    daemon: simple
+    restart-condition: always
+    restart-delay: 10s
+    start-timeout: 30s
 
   cli:
     command: bin/cli

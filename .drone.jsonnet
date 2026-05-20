@@ -125,6 +125,7 @@ local build(arch, testUI) = [{
                "CGO_ENABLED=0 go build -o ../build/snap/meta/hooks/configure ./cmd/configure",
                '../build/snap/meta/hooks/configure -h',
                "CGO_ENABLED=0 go build -o ../build/snap/bin/login ./cmd/login",
+               "CGO_ENABLED=0 go build -o ../build/snap/bin/stability ./cmd/stability",
                'cd ../visual-diff',
                'CGO_ENABLED=0 go build -o visual-diff ./cmd',
              ],
