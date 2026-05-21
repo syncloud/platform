@@ -50,12 +50,15 @@
         <h2>{{ $t('health.events') }}</h2>
         <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
         <ul v-else class="event-list" data-testid="health-events-list">
-          <li v-for="(ev, i) in events" :key="i" class="event-item" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
-            <div class="event-head">
-              <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
-              <time class="event-time">{{ fmtTime(ev.time) }}</time>
+          <li v-for="(ev, i) in events" :key="i" class="event-card" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
+            <i class="material-icons event-icon">{{ kindIcon(ev.kind) }}</i>
+            <div class="event-body">
+              <div class="event-head">
+                <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
+                <time class="event-time" :title="fmtTime(ev.time)">{{ fmtRel(ev.time) }}</time>
+              </div>
+              <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
             </div>
-            <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
           </li>
         </ul>
       </div>
@@ -117,6 +120,30 @@ export default {
     },
     fmtTime (iso) {
       try { return new Date(iso).toLocaleString() } catch { return iso }
+    },
+    fmtRel (iso) {
+      const t = new Date(iso).getTime()
+      if (Number.isNaN(t)) return iso
+      const diff = Math.max(0, Date.now() - t)
+      const s = Math.floor(diff / 1000)
+      if (s < 60) return s + 's ago'
+      const m = Math.floor(s / 60)
+      if (m < 60) return m + 'm ago'
+      const h = Math.floor(m / 60)
+      if (h < 24) return h + 'h ago'
+      const d = Math.floor(h / 24)
+      if (d < 7) return d + 'd ago'
+      return new Date(iso).toLocaleDateString()
+    },
+    kindIcon (kind) {
+      switch (kind) {
+        case 'victim_sigkill': return 'cancel'
+        case 'victim_sigterm': return 'warning'
+        case 'pressure_detected': return 'priority_high'
+        case 'zram_enabled': return 'memory'
+        case 'swapoff_file': return 'swap_horiz'
+        default: return 'info'
+      }
     },
     fmtDetails (e) {
       const parts = []
@@ -218,24 +245,52 @@ h2 {
   margin: 0;
   padding: 0;
   max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.event-item {
-  border-left: 3px solid #d0d0d0;
-  background: #fafafa;
-  padding: 8px 12px;
-  margin: 6px 0;
-  border-radius: 0 4px 4px 0;
+.event-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #d0d0d0;
+  transition: box-shadow 120ms ease;
 }
-.event-victim_sigterm,
+.event-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+.event-icon {
+  font-size: 22px !important;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #9e9e9e;
+}
 .event-victim_sigkill {
   border-left-color: #e74c3c;
 }
+.event-victim_sigkill .event-icon { color: #e74c3c; }
+.event-victim_sigterm {
+  border-left-color: #ec7063;
+}
+.event-victim_sigterm .event-icon { color: #ec7063; }
 .event-pressure_detected {
   border-left-color: #f39c12;
 }
+.event-pressure_detected .event-icon { color: #f39c12; }
 .event-zram_enabled,
 .event-swapoff_file {
   border-left-color: #36ad40;
+}
+.event-zram_enabled .event-icon,
+.event-swapoff_file .event-icon { color: #36ad40; }
+.event-body {
+  flex: 1;
+  min-width: 0;
 }
 .event-head {
   display: flex;
@@ -246,25 +301,40 @@ h2 {
 }
 .event-kind {
   font-weight: 600;
+  font-size: 0.95em;
+  color: #2c3e50;
 }
 .event-time {
-  color: #888;
-  font-size: 0.85em;
+  color: #95a5a6;
+  font-size: 0.8em;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .event-details {
-  color: #555;
-  font-size: 0.9em;
-  margin-top: 4px;
+  color: #5d6d7e;
+  font-size: 0.85em;
+  margin-top: 6px;
   word-break: break-word;
-  font-family: monospace;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  line-height: 1.4;
 }
 @media (max-width: 600px) {
-  .event-item {
-    padding: 6px 10px;
+  .event-list {
+    gap: 8px;
+  }
+  .event-card {
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+  .event-icon {
+    font-size: 20px !important;
+  }
+  .event-kind {
+    font-size: 0.9em;
   }
   .event-details {
-    font-size: 0.85em;
+    font-size: 0.8em;
+    margin-top: 4px;
   }
 }
 </style>
