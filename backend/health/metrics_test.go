@@ -16,7 +16,8 @@ func writeProc(t *testing.T, dir, rel, contents string) {
 	require.NoError(t, os.WriteFile(p, []byte(contents), 0644))
 }
 
-func TestSnapshotEndToEnd(t *testing.T) {
+func newTestCollector(t *testing.T) (*Collector, string) {
+	t.Helper()
 	dir := t.TempDir()
 	writeProc(t, dir, "stat", "cpu  1000 50 200 5000 30 0 10 0\ncpu0 ...\n")
 	writeProc(t, dir, "meminfo", "MemTotal: 3700000 kB\nMemAvailable: 1500000 kB\nMemFree: 200000 kB\nBuffers: 50000 kB\nCached: 900000 kB\nSwapTotal: 2000000 kB\nSwapFree: 1500000 kB\n")
@@ -30,24 +31,56 @@ func TestSnapshotEndToEnd(t *testing.T) {
     lo: 1000      10    0    0    0     0          0         0     1000      10    0    0    0     0       0          0
   eth0: 5000      20    0    0    0     0          0         0     8000      30    0    0    0     0       0          0
 `)
-	s, err := NewCollector(dir).Snapshot()
-	require.NoError(t, err)
-	assert.Equal(t, uint64(1000), s.CPU.User)
-	assert.Equal(t, uint64(5000), s.CPU.Idle)
-	assert.Equal(t, uint64(3700000), s.Memory.TotalKB)
-	assert.Equal(t, uint64(1500000), s.Memory.AvailableKB)
-	assert.Equal(t, uint64(2000000), s.Memory.SwapTotalKB)
+	return NewCollector(dir), dir
+}
 
+func TestReadCPU(t *testing.T) {
+	c, _ := newTestCollector(t)
+	cpu, err := c.readCPU()
+	require.NoError(t, err)
+	assert.Equal(t, uint64(1000), cpu.User)
+	assert.Equal(t, uint64(5000), cpu.Idle)
+	assert.Equal(t, uint64(30), cpu.IOWait)
+}
+
+func TestReadMemory(t *testing.T) {
+	c, _ := newTestCollector(t)
+	mem, err := c.readMemory()
+	require.NoError(t, err)
+	assert.Equal(t, uint64(3700000), mem.TotalKB)
+	assert.Equal(t, uint64(1500000), mem.AvailableKB)
+	assert.Equal(t, uint64(2000000), mem.SwapTotalKB)
+}
+
+func TestReadDisksFiltersPartitionsAndLoops(t *testing.T) {
+	c, _ := newTestCollector(t)
+	disks, err := c.readDisks()
+	require.NoError(t, err)
 	names := []string{}
-	for _, d := range s.Disks {
+	for _, d := range disks {
 		names = append(names, d.Name)
 	}
 	assert.ElementsMatch(t, []string{"sda", "mmcblk0"}, names)
+}
 
+func TestReadNetSkipsLoopback(t *testing.T) {
+	c, _ := newTestCollector(t)
+	nets, err := c.readNet()
+	require.NoError(t, err)
+	require.Len(t, nets, 1)
+	assert.Equal(t, "eth0", nets[0].Name)
+	assert.Equal(t, uint64(5000), nets[0].RxBytes)
+	assert.Equal(t, uint64(8000), nets[0].TxBytes)
+}
+
+func TestSnapshotEndToEnd(t *testing.T) {
+	c, _ := newTestCollector(t)
+	s, err := c.Snapshot()
+	require.NoError(t, err)
+	assert.Equal(t, uint64(1000), s.CPU.User)
+	assert.Equal(t, uint64(3700000), s.Memory.TotalKB)
+	require.Len(t, s.Disks, 2)
 	require.Len(t, s.Net, 1)
-	assert.Equal(t, "eth0", s.Net[0].Name)
-	assert.Equal(t, uint64(5000), s.Net[0].RxBytes)
-	assert.Equal(t, uint64(8000), s.Net[0].TxBytes)
 }
 
 func TestIsPartition(t *testing.T) {

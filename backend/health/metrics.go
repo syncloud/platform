@@ -76,24 +76,24 @@ func NewCollector(procDir string) *Collector {
 
 func (c *Collector) Snapshot() (Snapshot, error) {
 	var s Snapshot
-	cpu, err := readCPU(filepath.Join(c.procDir, "stat"))
+	cpu, err := c.readCPU()
 	if err != nil {
 		return s, err
 	}
 	s.CPU = cpu
-	mem, err := readMemory(filepath.Join(c.procDir, "meminfo"))
+	mem, err := c.readMemory()
 	if err != nil {
 		return s, err
 	}
 	s.Memory = mem
-	s.Disks, _ = readDisks(filepath.Join(c.procDir, "diskstats"))
-	s.Net, _ = readNet(filepath.Join(c.procDir, "net/dev"))
+	s.Disks, _ = c.readDisks()
+	s.Net, _ = c.readNet()
 	s.Mounts = c.Mounts()
 	return s, nil
 }
 
-func readCPU(path string) (CPU, error) {
-	f, err := os.Open(path)
+func (c *Collector) readCPU() (CPU, error) {
+	f, err := os.Open(filepath.Join(c.procDir, "stat"))
 	if err != nil {
 		return CPU{}, err
 	}
@@ -118,8 +118,8 @@ func readCPU(path string) (CPU, error) {
 	return CPU{}, fmt.Errorf("cpu: 'cpu ' line missing")
 }
 
-func readMemory(path string) (Memory, error) {
-	f, err := os.Open(path)
+func (c *Collector) readMemory() (Memory, error) {
+	f, err := os.Open(filepath.Join(c.procDir, "meminfo"))
 	if err != nil {
 		return Memory{}, err
 	}
@@ -155,8 +155,8 @@ func readMemory(path string) (Memory, error) {
 	return m, sc.Err()
 }
 
-func readDisks(path string) ([]Disk, error) {
-	f, err := os.Open(path)
+func (c *Collector) readDisks() ([]Disk, error) {
+	f, err := os.Open(filepath.Join(c.procDir, "diskstats"))
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +204,8 @@ func isPartition(name string) bool {
 	return true
 }
 
-func readNet(path string) ([]Net, error) {
-	f, err := os.Open(path)
+func (c *Collector) readNet() ([]Net, error) {
+	f, err := os.Open(filepath.Join(c.procDir, "net/dev"))
 	if err != nil {
 		return nil, err
 	}
