@@ -17,6 +17,7 @@ type Watcher struct {
 	scan     *ProcScanner
 	protect  Protect
 	kill     KillFn
+	events   *EventLog
 	log      *zap.Logger
 	interval time.Duration
 	availMin float64
@@ -25,12 +26,13 @@ type Watcher struct {
 	selfPID  int
 }
 
-func NewWatcher(mem *MemInfo, scan *ProcScanner, kill KillFn, log *zap.Logger) *Watcher {
+func NewWatcher(mem *MemInfo, scan *ProcScanner, kill KillFn, events *EventLog, log *zap.Logger) *Watcher {
 	return &Watcher{
 		mem:      mem,
 		scan:     scan,
 		protect:  DefaultProtect(),
 		kill:     kill,
+		events:   events,
 		log:      log,
 		interval: 2 * time.Second,
 		availMin: 0.08,
@@ -82,6 +84,9 @@ func (w *Watcher) tick() error {
 		zap.Float64("psi_avg10", psi),
 		zap.Bool("psi_ok", psiOK),
 	)
+	if w.events != nil {
+		_ = w.events.Append(Event{Kind: EventKindPressure, AvailRatio: avail, PSIavg10: psi})
+	}
 	return w.killWorst()
 }
 
@@ -110,6 +115,9 @@ func (w *Watcher) killWorst() error {
 		zap.Uint64("rss_kb", v.RSSkB),
 		zap.String("cgroup", v.Cgroup),
 	)
+	if w.events != nil {
+		_ = w.events.Append(Event{Kind: EventKindVictimSigterm, PID: v.PID, Comm: v.Comm, RSSkb: v.RSSkB, Cgroup: v.Cgroup})
+	}
 	if err := w.kill(v.PID, syscall.SIGTERM); err != nil {
 		if errors.Is(err, syscall.ESRCH) {
 			return nil
@@ -124,6 +132,9 @@ func (w *Watcher) killWorst() error {
 		time.Sleep(200 * time.Millisecond)
 	}
 	w.log.Warn("oom-watcher: SIGKILL victim", zap.Int("pid", v.PID), zap.String("comm", v.Comm))
+	if w.events != nil {
+		_ = w.events.Append(Event{Kind: EventKindVictimSigkill, PID: v.PID, Comm: v.Comm, RSSkb: v.RSSkB, Cgroup: v.Cgroup})
+	}
 	if err := w.kill(v.PID, syscall.SIGKILL); err != nil && !errors.Is(err, syscall.ESRCH) {
 		return err
 	}

@@ -103,6 +103,13 @@
             </router-link>
           </div>
 
+          <div class="colapp app">
+            <router-link to="/health" id="health" data-testid="nav-health" class="app-link">
+              <i class="material-icons settings-icon">favorite</i>
+              <div class="setting-name"><span class="withline">{{ $t('settings.health') }}</span></div>
+            </router-link>
+          </div>
+
         </div>
       </div>
     </div>
