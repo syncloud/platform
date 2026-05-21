@@ -573,7 +573,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	}
 
 	err = c.Singleton(func() *stability.EventLog {
-		return stability.NewEventLog("/var/snap/platform/common/stability-events.jsonl")
+		return stability.NewEventLog("/var/snap/platform/current/stability-events.jsonl")
 	})
 	if err != nil {
 		return nil, err

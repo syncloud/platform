@@ -16,11 +16,17 @@ func main() {
 	defer cancel()
 
 	mem := stability.NewMemInfo("/proc")
+	dataDir := os.Getenv("SNAP_DATA")
+	if dataDir == "" {
+		dataDir = "/var/snap/platform/current"
+	}
 	commonDir := os.Getenv("SNAP_COMMON")
 	if commonDir == "" {
 		commonDir = "/var/snap/platform/common"
 	}
-	events := stability.NewEventLog(commonDir + "/stability-events.jsonl")
+	eventsPath := dataDir + "/stability-events.jsonl"
+	stability.MigrateEventLog(commonDir+"/stability-events.jsonl", eventsPath, logger)
+	events := stability.NewEventLog(eventsPath)
 	z := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, events, logger)
 	if err := z.EnsureConfigured(); err != nil {
 		logger.Sugar().Warnf("stability: zram setup failed (continuing): %v", err)
