@@ -118,7 +118,7 @@ export default {
       return kind.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')
     },
     fmtTime (iso) {
-      try { return new Date(iso).toLocaleString() } catch (e) { return iso }
+      try { return new Date(iso).toLocaleString() } catch { return iso }
     },
     fmtDetails (e) {
       const parts = []
