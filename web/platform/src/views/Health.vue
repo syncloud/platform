@@ -49,17 +49,15 @@
 
         <h2>{{ $t('health.events') }}</h2>
         <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
-        <el-table v-else :data="events" data-testid="health-events-table">
-          <el-table-column prop="time" :label="$t('health.colTime')" width="200">
-            <template #default="scope">{{ fmtTime(scope.row.time) }}</template>
-          </el-table-column>
-          <el-table-column prop="kind" :label="$t('health.colKind')" width="240">
-            <template #default="scope">{{ $t('health.kind' + kindCamel(scope.row.kind)) }}</template>
-          </el-table-column>
-          <el-table-column :label="$t('health.colDetails')">
-            <template #default="scope">{{ fmtDetails(scope.row) }}</template>
-          </el-table-column>
-        </el-table>
+        <ul v-else class="event-list" data-testid="health-events-list">
+          <li v-for="(ev, i) in events" :key="i" class="event-item" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
+            <div class="event-head">
+              <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
+              <time class="event-time">{{ fmtTime(ev.time) }}</time>
+            </div>
+            <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -214,5 +212,59 @@ export default {
 }
 h2 {
   margin-top: 24px;
+}
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 720px;
+}
+.event-item {
+  border-left: 3px solid #d0d0d0;
+  background: #fafafa;
+  padding: 8px 12px;
+  margin: 6px 0;
+  border-radius: 0 4px 4px 0;
+}
+.event-victim_sigterm,
+.event-victim_sigkill {
+  border-left-color: #e74c3c;
+}
+.event-pressure_detected {
+  border-left-color: #f39c12;
+}
+.event-zram_enabled,
+.event-swapoff_file {
+  border-left-color: #36ad40;
+}
+.event-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.event-kind {
+  font-weight: 600;
+}
+.event-time {
+  color: #888;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.event-details {
+  color: #555;
+  font-size: 0.9em;
+  margin-top: 4px;
+  word-break: break-word;
+  font-family: monospace;
+}
+@media (max-width: 600px) {
+  .event-item {
+    padding: 6px 10px;
+  }
+  .event-details {
+    font-size: 0.85em;
+  }
 }
 </style>
