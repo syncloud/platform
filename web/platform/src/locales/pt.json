@@ -46,7 +46,8 @@
     "logs": "Registros",
     "customProxy": "Proxy personalizado",
     "system": "Sistema",
-    "locale": "Regional"
+    "locale": "Regional",
+    "health": "Saúde"
   },
   "activation": {
     "title": "Ativação",
@@ -271,5 +272,30 @@
     "timezone": "Fuso horário:",
     "currentTime": "Hora atual:",
     "save": "Salvar"
+  },
+  "health": {
+    "title": "Saúde",
+    "cpu": "CPU",
+    "memory": "Memória",
+    "swap": "Swap",
+    "disks": "Discos",
+    "network": "Rede",
+    "events": "Eventos de estabilidade",
+    "noEvents": "Nenhum evento registrado ainda.",
+    "colTime": "Hora",
+    "colKind": "Tipo",
+    "colDetails": "Detalhes",
+    "used": "usado",
+    "total": "total",
+    "available": "disponível",
+    "ioRead": "leitura",
+    "ioWrite": "escrita",
+    "netRx": "recebido",
+    "netTx": "enviado",
+    "kindZramEnabled": "zram ativado",
+    "kindSwapoffFile": "arquivo de swap desativado",
+    "kindPressure": "pressão de memória detectada",
+    "kindVictimSigterm": "processo encerrado (SIGTERM)",
+    "kindVictimSigkill": "processo morto (SIGKILL)"
   }
 }

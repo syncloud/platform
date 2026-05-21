@@ -8,6 +8,12 @@ import (
 	"time"
 )
 
+const (
+	maxLogFileBytes = 256 * 1024
+	keepEvents      = 1000
+	defaultLimit    = 100
+)
+
 type EventKind string
 
 const (
@@ -51,17 +57,31 @@ func (l *EventLog) Append(e Event) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	enc := json.NewEncoder(f)
-	return enc.Encode(e)
+	if err := json.NewEncoder(f).Encode(e); err != nil {
+		f.Close()
+		return err
+	}
+	size := int64(0)
+	if st, err := f.Stat(); err == nil {
+		size = st.Size()
+	}
+	f.Close()
+	if size > maxLogFileBytes {
+		return l.rotateLocked(keepEvents)
+	}
+	return nil
 }
 
 func (l *EventLog) Recent(limit int) ([]Event, error) {
 	if limit <= 0 {
-		limit = 100
+		limit = defaultLimit
 	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	return l.readLastLocked(limit, true)
+}
+
+func (l *EventLog) readLastLocked(limit int, reverse bool) ([]Event, error) {
 	f, err := os.Open(l.path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -70,20 +90,59 @@ func (l *EventLog) Recent(limit int) ([]Event, error) {
 		return nil, err
 	}
 	defer f.Close()
+	ring := make([]Event, limit)
+	n := 0
 	dec := json.NewDecoder(f)
-	var all []Event
 	for {
 		var e Event
 		if err := dec.Decode(&e); err != nil {
 			break
 		}
-		all = append(all, e)
+		ring[n%limit] = e
+		n++
 	}
-	if len(all) > limit {
-		all = all[len(all)-limit:]
+	count := n
+	if count > limit {
+		count = limit
 	}
-	for i, j := 0, len(all)-1; i < j; i, j = i+1, j-1 {
-		all[i], all[j] = all[j], all[i]
+	out := make([]Event, count)
+	for i := 0; i < count; i++ {
+		var idx int
+		if reverse {
+			idx = ((n - 1 - i) % limit + limit) % limit
+		} else {
+			start := 0
+			if n > limit {
+				start = n % limit
+			}
+			idx = (start + i) % limit
+		}
+		out[i] = ring[idx]
 	}
-	return all, nil
+	return out, nil
+}
+
+func (l *EventLog) rotateLocked(keep int) error {
+	events, err := l.readLastLocked(keep, false)
+	if err != nil {
+		return err
+	}
+	tmp := l.path + ".tmp"
+	f, err := os.OpenFile(tmp, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	enc := json.NewEncoder(f)
+	for _, e := range events {
+		if err := enc.Encode(e); err != nil {
+			f.Close()
+			os.Remove(tmp)
+			return err
+		}
+	}
+	if err := f.Close(); err != nil {
+		os.Remove(tmp)
+		return err
+	}
+	return os.Rename(tmp, l.path)
 }

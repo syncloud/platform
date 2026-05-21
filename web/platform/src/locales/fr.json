@@ -46,7 +46,8 @@
     "logs": "Journaux",
     "customProxy": "Proxy personnalisé",
     "system": "Système",
-    "locale": "Régional"
+    "locale": "Régional",
+    "health": "Santé"
   },
   "activation": {
     "title": "Activation",
@@ -271,5 +272,30 @@
     "timezone": "Fuseau horaire:",
     "currentTime": "Heure actuelle:",
     "save": "Enregistrer"
+  },
+  "health": {
+    "title": "Santé",
+    "cpu": "CPU",
+    "memory": "Mémoire",
+    "swap": "Swap",
+    "disks": "Disques",
+    "network": "Réseau",
+    "events": "Événements de stabilité",
+    "noEvents": "Aucun événement enregistré pour le moment.",
+    "colTime": "Heure",
+    "colKind": "Type",
+    "colDetails": "Détails",
+    "used": "utilisé",
+    "total": "total",
+    "available": "disponible",
+    "ioRead": "lecture",
+    "ioWrite": "écriture",
+    "netRx": "reçu",
+    "netTx": "envoyé",
+    "kindZramEnabled": "zram activé",
+    "kindSwapoffFile": "fichier swap désactivé",
+    "kindPressure": "pression mémoire détectée",
+    "kindVictimSigterm": "processus terminé (SIGTERM)",
+    "kindVictimSigkill": "processus tué (SIGKILL)"
   }
 }

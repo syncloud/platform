@@ -46,7 +46,8 @@
     "logs": "Protokolle",
     "customProxy": "Benutzerdefinierter Proxy",
     "system": "System",
-    "locale": "Regional"
+    "locale": "Regional",
+    "health": "Gesundheit"
   },
   "activation": {
     "title": "Aktivierung",
@@ -271,5 +272,30 @@
     "timezone": "Zeitzone:",
     "currentTime": "Aktuelle Zeit:",
     "save": "Speichern"
+  },
+  "health": {
+    "title": "Gesundheit",
+    "cpu": "CPU",
+    "memory": "Speicher",
+    "swap": "Auslagerung",
+    "disks": "Datenträger",
+    "network": "Netzwerk",
+    "events": "Stabilitätsereignisse",
+    "noEvents": "Keine Ereignisse aufgezeichnet.",
+    "colTime": "Zeit",
+    "colKind": "Art",
+    "colDetails": "Details",
+    "used": "belegt",
+    "total": "gesamt",
+    "available": "verfügbar",
+    "ioRead": "lesen",
+    "ioWrite": "schreiben",
+    "netRx": "Empfang",
+    "netTx": "Senden",
+    "kindZramEnabled": "zram aktiviert",
+    "kindSwapoffFile": "Auslagerungsdatei deaktiviert",
+    "kindPressure": "Speicherengpass erkannt",
+    "kindVictimSigterm": "Prozess beendet (SIGTERM)",
+    "kindVictimSigkill": "Prozess gekillt (SIGKILL)"
   }
 }

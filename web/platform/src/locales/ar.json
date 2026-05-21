@@ -46,7 +46,8 @@
     "logs": "السجلات",
     "customProxy": "وكيل مخصص",
     "system": "النظام",
-    "locale": "الإعدادات الإقليمية"
+    "locale": "الإعدادات الإقليمية",
+    "health": "الصحة"
   },
   "activation": {
     "title": "التفعيل",
@@ -271,5 +272,30 @@
     "timezone": "المنطقة الزمنية:",
     "currentTime": "الوقت الحالي:",
     "save": "حفظ"
+  },
+  "health": {
+    "title": "الصحة",
+    "cpu": "المعالج",
+    "memory": "الذاكرة",
+    "swap": "التبديل",
+    "disks": "الأقراص",
+    "network": "الشبكة",
+    "events": "أحداث الاستقرار",
+    "noEvents": "لم تُسجَّل أي أحداث بعد.",
+    "colTime": "الوقت",
+    "colKind": "النوع",
+    "colDetails": "التفاصيل",
+    "used": "مستخدم",
+    "total": "الإجمالي",
+    "available": "متاح",
+    "ioRead": "قراءة",
+    "ioWrite": "كتابة",
+    "netRx": "استقبال",
+    "netTx": "إرسال",
+    "kindZramEnabled": "تم تمكين zram",
+    "kindSwapoffFile": "تم تعطيل ملف التبديل",
+    "kindPressure": "تم اكتشاف ضغط على الذاكرة",
+    "kindVictimSigterm": "تم إنهاء العملية (SIGTERM)",
+    "kindVictimSigkill": "تم قتل العملية (SIGKILL)"
   }
 }

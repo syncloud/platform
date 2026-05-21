@@ -1,6 +1,7 @@
 package stability
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -42,4 +43,34 @@ func TestRecentCapsLimit(t *testing.T) {
 	require.Len(t, evs, 5)
 	assert.Equal(t, 19, evs[0].PID)
 	assert.Equal(t, 15, evs[4].PID)
+}
+
+func TestAppendRotatesWhenFileExceedsMax(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "events.jsonl")
+	log := NewEventLog(path)
+	for i := 0; i < 5000; i++ {
+		require.NoError(t, log.Append(Event{Kind: EventKindPressure, PID: i, Comm: "memhog"}))
+	}
+	st, err := os.Stat(path)
+	require.NoError(t, err)
+	assert.LessOrEqual(t, st.Size(), int64(maxLogFileBytes*2), "file should stay bounded by rotation")
+
+	evs, err := log.Recent(10)
+	require.NoError(t, err)
+	require.Len(t, evs, 10)
+	assert.Equal(t, 4999, evs[0].PID, "newest event preserved across rotation")
+	assert.Equal(t, 4990, evs[9].PID)
+}
+
+func TestRecentUsesBoundedMemory(t *testing.T) {
+	dir := t.TempDir()
+	log := NewEventLog(filepath.Join(dir, "events.jsonl"))
+	for i := 0; i < 2000; i++ {
+		require.NoError(t, log.Append(Event{Kind: EventKindPressure, PID: i}))
+	}
+	evs, err := log.Recent(5)
+	require.NoError(t, err)
+	require.Len(t, evs, 5)
+	assert.Equal(t, 1999, evs[0].PID)
 }

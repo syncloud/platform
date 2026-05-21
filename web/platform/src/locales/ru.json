@@ -46,7 +46,8 @@
     "logs": "Журналы",
     "customProxy": "Свой прокси",
     "system": "Система",
-    "locale": "Регион"
+    "locale": "Регион",
+    "health": "Здоровье"
   },
   "activation": {
     "title": "Активация",
@@ -271,5 +272,30 @@
     "timezone": "Часовой пояс:",
     "currentTime": "Текущее время:",
     "save": "Сохранить"
+  },
+  "health": {
+    "title": "Здоровье",
+    "cpu": "ЦП",
+    "memory": "Память",
+    "swap": "Подкачка",
+    "disks": "Диски",
+    "network": "Сеть",
+    "events": "События стабильности",
+    "noEvents": "События ещё не зарегистрированы.",
+    "colTime": "Время",
+    "colKind": "Тип",
+    "colDetails": "Детали",
+    "used": "использовано",
+    "total": "всего",
+    "available": "доступно",
+    "ioRead": "чтение",
+    "ioWrite": "запись",
+    "netRx": "приём",
+    "netTx": "передача",
+    "kindZramEnabled": "zram включён",
+    "kindSwapoffFile": "файл подкачки отключён",
+    "kindPressure": "обнаружена нехватка памяти",
+    "kindVictimSigterm": "процесс завершён (SIGTERM)",
+    "kindVictimSigkill": "процесс убит (SIGKILL)"
   }
 }
