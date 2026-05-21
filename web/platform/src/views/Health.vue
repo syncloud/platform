@@ -4,8 +4,8 @@
       <div class="block1 wd12" id="block1" data-testid="health-page">
         <h1>{{ $t('health.title') }}</h1>
 
-        <div class="row-no-gutters settingsblock">
-          <div class="col2">
+        <div class="row-no-gutters settingsblock health-row">
+          <div class="col2 health-col">
             <div class="setline">
               <h3>{{ $t('health.cpu') }} — {{ cpuPct.toFixed(0) }}%</h3>
               <el-progress :percentage="cpuPct" :stroke-width="14" :show-text="false" :status="pctStatus(cpuPct)" data-testid="health-cpu-bar" />
@@ -23,7 +23,7 @@
             </div>
           </div>
 
-          <div class="col2">
+          <div class="col2 health-col">
             <div class="setline">
               <h3>{{ $t('health.disks') }}</h3>
               <div v-for="m in metrics.mounts" :key="m.path" class="metric-row" :data-testid="'health-mount-' + m.path">
@@ -261,13 +261,23 @@ export default {
 h2 {
   margin-top: 24px;
 }
-.events-block {
-  margin-top: 24px;
-  text-align: left;
+.health-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: flex-start;
   padding: 0 16px;
 }
-@media (min-width: 1024px) {
-  .events-block { padding: 0; }
+.health-row .health-col {
+  flex: 1 1 320px;
+  min-width: 280px;
+  margin: 0 !important;
+}
+.events-block {
+  margin: 24px auto 0;
+  max-width: 720px;
+  text-align: left;
+  padding: 0 16px;
 }
 .event-list {
   list-style: none;
