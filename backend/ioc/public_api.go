@@ -9,6 +9,7 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
@@ -39,12 +40,13 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		changesClient *snap.ChangesClient,
 		oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 		tz *timezone.Applier,
+		healthService *health.Health,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
 			snapd, disks, journalCtl, executor, iface, sender, proxy, customProxy,
 			ldapService, middleware, cookies, net, address, changesClient,
-			oidcService, authelia, totp, tz, logger)
+			oidcService, authelia, totp, tz, healthService, logger)
 	})
 	if err != nil {
 		return nil, err

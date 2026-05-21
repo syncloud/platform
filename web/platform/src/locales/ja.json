@@ -46,7 +46,8 @@
     "logs": "ログ",
     "customProxy": "カスタムプロキシ",
     "system": "システム",
-    "locale": "ロケール"
+    "locale": "ロケール",
+    "health": "ヘルス"
   },
   "activation": {
     "title": "アクティベーション",
@@ -271,5 +272,30 @@
     "timezone": "タイムゾーン:",
     "currentTime": "現在時刻:",
     "save": "保存"
+  },
+  "health": {
+    "title": "ヘルス",
+    "cpu": "CPU",
+    "memory": "メモリー",
+    "swap": "スワップ",
+    "disks": "ディスク",
+    "network": "ネットワーク",
+    "events": "安定性イベント",
+    "noEvents": "まだイベントは記録されていません。",
+    "colTime": "時刻",
+    "colKind": "種類",
+    "colDetails": "詳細",
+    "used": "使用中",
+    "total": "合計",
+    "available": "利用可能",
+    "ioRead": "読み込み",
+    "ioWrite": "書き込み",
+    "netRx": "受信",
+    "netTx": "送信",
+    "kindZramEnabled": "zram を有効化",
+    "kindSwapoffFile": "ファイルスワップを無効化",
+    "kindPressure": "メモリ圧迫を検出",
+    "kindVictimSigterm": "プロセス終了 (SIGTERM)",
+    "kindVictimSigkill": "プロセス強制終了 (SIGKILL)"
   }
 }

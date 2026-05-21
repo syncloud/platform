@@ -15,6 +15,7 @@ import (
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
@@ -26,6 +27,7 @@ import (
 	"github.com/syncloud/platform/rest"
 	"github.com/syncloud/platform/session"
 	"github.com/syncloud/platform/snap"
+	"github.com/syncloud/platform/stability"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/storage/btrfs"
 	"github.com/syncloud/platform/support"
@@ -565,6 +567,25 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 
 	err = c.Singleton(func() *lcd.Display {
 		return lcd.NewDisplay()
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Singleton(func() *stability.EventLog {
+		return stability.NewEventLog("/var/snap/platform/common/stability-events.jsonl")
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func() *health.Collector {
+		return health.NewCollector("/proc")
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(events *stability.EventLog, collector *health.Collector) *health.Health {
+		return health.NewHealth(events, collector)
 	})
 	if err != nil {
 		return nil, err

@@ -1,0 +1,378 @@
+<template>
+  <div class="wrapper">
+    <div class="content">
+      <div class="block1 wd12" id="block1" data-testid="health-page">
+        <h1>{{ $t('health.title') }}</h1>
+
+        <div class="row-no-gutters settingsblock health-row">
+          <div class="col2 health-col">
+            <div class="setline">
+              <h3>{{ $t('health.cpu') }} — {{ cpuPct.toFixed(0) }}%</h3>
+              <el-progress :percentage="cpuPct" :stroke-width="14" :show-text="false" :status="pctStatus(cpuPct)" data-testid="health-cpu-bar" />
+            </div>
+
+            <div class="setline">
+              <h3>{{ $t('health.memory') }} — {{ memUsedMb }} / {{ memTotalMb }} MB</h3>
+              <el-progress :percentage="memPct" :stroke-width="14" :show-text="false" :status="pctStatus(memPct)" data-testid="health-mem-bar" />
+              <div class="muted">{{ memAvailMb }} MB {{ $t('health.available') }}</div>
+            </div>
+
+            <div class="setline" v-if="swapTotalMb > 0">
+              <h3>{{ $t('health.swap') }} — {{ swapUsedMb }} / {{ swapTotalMb }} MB</h3>
+              <el-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
+            </div>
+          </div>
+
+          <div class="col2 health-col">
+            <div class="setline">
+              <h3>{{ $t('health.disks') }}</h3>
+              <div v-for="m in metrics.mounts" :key="m.path" class="metric-row" :data-testid="'health-mount-' + m.path">
+                <div class="metric-row-head">
+                  <span class="metric-name">{{ m.path }}</span>
+                  <span class="metric-value">{{ mb(m.used_kb) }} / {{ mb(m.total_kb) }} MB</span>
+                </div>
+                <el-progress :percentage="mountPct(m)" :stroke-width="6" :show-text="false" :status="pctStatus(mountPct(m))" />
+              </div>
+              <div v-for="d in diskRates" :key="d.name" class="metric-row" :data-testid="'health-disk-' + d.name">
+                <div class="metric-row-head">
+                  <span class="metric-name">{{ d.name }}</span>
+                  <span class="metric-value">↓ {{ d.readKBs }} · ↑ {{ d.writeKBs }} KB/s</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="setline">
+              <h3>{{ $t('health.network') }}</h3>
+              <div v-for="n in netRates" :key="n.name" class="metric-row" :data-testid="'health-net-' + n.name">
+                <div class="metric-row-head">
+                  <span class="metric-name">{{ n.name }}</span>
+                  <span class="metric-value">↓ {{ n.rxKBs }} · ↑ {{ n.txKBs }} KB/s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settingsblock events-block">
+          <h2>{{ $t('health.events') }}</h2>
+          <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
+          <ul v-else class="event-list" data-testid="health-events-list">
+            <li v-for="(ev, i) in events" :key="i" class="event-card" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
+              <i class="material-icons event-icon">{{ kindIcon(ev.kind) }}</i>
+              <div class="event-body">
+                <div class="event-head">
+                  <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
+                  <time class="event-time" :title="fmtTime(ev.time)">{{ fmtRel(ev.time) }}</time>
+                </div>
+                <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+
+const METRICS_INTERVAL_MS = 2000
+const EVENTS_INTERVAL_MS = 10000
+
+export default {
+  name: 'Health',
+  data () {
+    return {
+      metrics: { cpu: {}, memory: {}, disks: [], mounts: [], net: [] },
+      prevMetrics: null,
+      events: [],
+      cpuPct: 0,
+      diskRates: [],
+      netRates: [],
+      metricsTimer: null,
+      eventsTimer: null
+    }
+  },
+  computed: {
+    memTotalMb () { return this.kbToMb(this.metrics.memory.total_kb) },
+    memUsedMb () { return this.kbToMb((this.metrics.memory.total_kb || 0) - (this.metrics.memory.available_kb || 0)) },
+    memAvailMb () { return this.kbToMb(this.metrics.memory.available_kb) },
+    memPct () {
+      const t = this.metrics.memory.total_kb || 0
+      if (!t) return 0
+      return ((t - (this.metrics.memory.available_kb || 0)) / t) * 100
+    },
+    swapTotalMb () { return this.kbToMb(this.metrics.memory.swap_total_kb) },
+    swapUsedMb () { return this.kbToMb((this.metrics.memory.swap_total_kb || 0) - (this.metrics.memory.swap_free_kb || 0)) },
+    swapPct () {
+      const t = this.metrics.memory.swap_total_kb || 0
+      if (!t) return 0
+      return ((t - (this.metrics.memory.swap_free_kb || 0)) / t) * 100
+    }
+  },
+  methods: {
+    kbToMb (kb) { return Math.round((kb || 0) / 1024) },
+    mb (kb) { return Math.round((kb || 0) / 1024) },
+    mountPct (m) {
+      if (!m.total_kb) return 0
+      return (m.used_kb / m.total_kb) * 100
+    },
+    pctStatus (pct) {
+      if (pct >= 90) return 'exception'
+      if (pct >= 75) return 'warning'
+      return 'success'
+    },
+    kindCamel (kind) {
+      return kind.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')
+    },
+    fmtTime (iso) {
+      try { return new Date(iso).toLocaleString() } catch { return iso }
+    },
+    fmtRel (iso) {
+      const t = new Date(iso).getTime()
+      if (Number.isNaN(t)) return iso
+      const diff = Math.max(0, Date.now() - t)
+      const s = Math.floor(diff / 1000)
+      if (s < 60) return s + 's ago'
+      const m = Math.floor(s / 60)
+      if (m < 60) return m + 'm ago'
+      const h = Math.floor(m / 60)
+      if (h < 24) return h + 'h ago'
+      const d = Math.floor(h / 24)
+      if (d < 7) return d + 'd ago'
+      return new Date(iso).toLocaleDateString()
+    },
+    kindIcon (kind) {
+      switch (kind) {
+        case 'victim_sigkill': return 'cancel'
+        case 'victim_sigterm': return 'warning'
+        case 'pressure_detected': return 'priority_high'
+        case 'zram_enabled': return 'memory'
+        case 'swapoff_file': return 'swap_horiz'
+        default: return 'info'
+      }
+    },
+    fmtDetails (e) {
+      const parts = []
+      if (e.comm) parts.push(e.comm)
+      if (e.pid) parts.push('pid=' + e.pid)
+      if (e.rss_kb) parts.push('rss=' + this.kbToMb(e.rss_kb) + 'MB')
+      if (e.avail_ratio) parts.push('avail=' + (e.avail_ratio * 100).toFixed(1) + '%')
+      if (e.psi_avg10) parts.push('psi=' + e.psi_avg10.toFixed(1))
+      if (e.path) parts.push(e.path)
+      if (e.size_bytes) parts.push(Math.round(e.size_bytes / (1024 * 1024)) + ' MB')
+      return parts.join(' · ')
+    },
+    fetchMetrics () {
+      axios.get('/rest/settings/health/metrics')
+        .then(resp => {
+          const next = resp.data.data
+          this.computeDeltas(this.prevMetrics, next)
+          this.prevMetrics = this.metrics.cpu && this.metrics.cpu.user ? this.metrics : null
+          this.metrics = next
+        })
+        .catch(() => {})
+    },
+    computeDeltas (prev, next) {
+      if (!prev) {
+        this.cpuPct = 0
+        this.diskRates = (next.disks || []).map(d => ({ name: d.name, readKBs: 0, writeKBs: 0 }))
+        this.netRates = (next.net || []).map(n => ({ name: n.name, rxKBs: 0, txKBs: 0 }))
+        return
+      }
+      const totalDelta = (next.cpu.user + next.cpu.nice + next.cpu.system + next.cpu.idle + next.cpu.iowait + next.cpu.irq + next.cpu.softirq + next.cpu.steal) -
+                        (prev.cpu.user + prev.cpu.nice + prev.cpu.system + prev.cpu.idle + prev.cpu.iowait + prev.cpu.irq + prev.cpu.softirq + prev.cpu.steal)
+      const idleDelta = (next.cpu.idle + next.cpu.iowait) - (prev.cpu.idle + prev.cpu.iowait)
+      this.cpuPct = totalDelta > 0 ? Math.max(0, Math.min(100, ((totalDelta - idleDelta) / totalDelta) * 100)) : 0
+
+      const secs = METRICS_INTERVAL_MS / 1000
+      const prevDisks = {}
+      ;(prev.disks || []).forEach(d => { prevDisks[d.name] = d })
+      this.diskRates = (next.disks || []).map(d => {
+        const p = prevDisks[d.name]
+        if (!p) return { name: d.name, readKBs: 0, writeKBs: 0 }
+        return {
+          name: d.name,
+          readKBs: Math.round(((d.sectors_read - p.sectors_read) * 512 / 1024) / secs),
+          writeKBs: Math.round(((d.sectors_written - p.sectors_written) * 512 / 1024) / secs)
+        }
+      })
+
+      const prevNet = {}
+      ;(prev.net || []).forEach(n => { prevNet[n.name] = n })
+      this.netRates = (next.net || []).map(n => {
+        const p = prevNet[n.name]
+        if (!p) return { name: n.name, rxKBs: 0, txKBs: 0 }
+        return {
+          name: n.name,
+          rxKBs: Math.round((n.rx_bytes - p.rx_bytes) / 1024 / secs),
+          txKBs: Math.round((n.tx_bytes - p.tx_bytes) / 1024 / secs)
+        }
+      })
+    },
+    fetchEvents () {
+      axios.get('/rest/settings/health/events?limit=100')
+        .then(resp => { this.events = resp.data.data || [] })
+        .catch(() => {})
+    }
+  },
+  mounted () {
+    this.fetchMetrics()
+    this.fetchEvents()
+    this.metricsTimer = setInterval(this.fetchMetrics, METRICS_INTERVAL_MS)
+    this.eventsTimer = setInterval(this.fetchEvents, EVENTS_INTERVAL_MS)
+  },
+  beforeUnmount () {
+    if (this.metricsTimer) clearInterval(this.metricsTimer)
+    if (this.eventsTimer) clearInterval(this.eventsTimer)
+  }
+}
+</script>
+
+<style>
+@import '../style/site.css';
+@import 'material-icons/iconfont/material-icons.css';
+
+.metric-row {
+  padding: 6px 0;
+}
+.metric-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.metric-name {
+  font-weight: 500;
+  word-break: break-all;
+}
+.metric-value {
+  color: #888;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.muted {
+  color: #888;
+  font-size: 0.9em;
+  margin-left: 8px;
+}
+h2 {
+  margin-top: 24px;
+}
+.health-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: flex-start;
+  padding: 0 16px;
+}
+.health-row .health-col {
+  flex: 1 1 320px;
+  min-width: 280px;
+  margin: 0 !important;
+}
+.events-block {
+  margin: 24px auto 0;
+  max-width: 720px;
+  text-align: left;
+  padding: 0 16px;
+}
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.event-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #d0d0d0;
+  transition: box-shadow 120ms ease;
+}
+.event-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+.event-icon {
+  font-size: 22px !important;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #9e9e9e;
+}
+.event-victim_sigkill {
+  border-left-color: #e74c3c;
+}
+.event-victim_sigkill .event-icon { color: #e74c3c; }
+.event-victim_sigterm {
+  border-left-color: #ec7063;
+}
+.event-victim_sigterm .event-icon { color: #ec7063; }
+.event-pressure_detected {
+  border-left-color: #f39c12;
+}
+.event-pressure_detected .event-icon { color: #f39c12; }
+.event-zram_enabled,
+.event-swapoff_file {
+  border-left-color: #36ad40;
+}
+.event-zram_enabled .event-icon,
+.event-swapoff_file .event-icon { color: #36ad40; }
+.event-body {
+  flex: 1;
+  min-width: 0;
+}
+.event-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.event-kind {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: #2c3e50;
+}
+.event-time {
+  color: #95a5a6;
+  font-size: 0.8em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.event-details {
+  color: #5d6d7e;
+  font-size: 0.85em;
+  margin-top: 6px;
+  word-break: break-word;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  line-height: 1.4;
+}
+@media (max-width: 600px) {
+  .event-list {
+    gap: 8px;
+  }
+  .event-card {
+    padding: 12px 14px;
+    border-radius: 8px;
+  }
+  .event-icon {
+    font-size: 20px !important;
+  }
+  .event-kind {
+    font-size: 0.9em;
+  }
+  .event-details {
+    font-size: 0.8em;
+    margin-top: 4px;
+  }
+}
+</style>

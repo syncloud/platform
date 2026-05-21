@@ -35,7 +35,7 @@ func newWatcherWithProc(t *testing.T, memTotal, memAvail uint64, procDir string)
 	root := t.TempDir()
 	procRoot := root
 	writeProcFile(t, procRoot, "meminfo", "MemTotal: "+strconvUint(memTotal)+" kB\nMemAvailable: "+strconvUint(memAvail)+" kB\n")
-	return NewWatcher(NewMemInfo(procRoot), NewProcScanner(procDir), nil, zap.NewNop())
+	return NewWatcher(NewMemInfo(procRoot), NewProcScanner(procDir), nil, nil, zap.NewNop())
 }
 
 func TestTickNoActionWhenHealthy(t *testing.T) {
@@ -85,7 +85,7 @@ func TestKillWorstReturnsErrNoVictim(t *testing.T) {
 }
 
 func TestPressureExceededByAvailOrPSI(t *testing.T) {
-	w := NewWatcher(NewMemInfo(t.TempDir()), nil, nil, zap.NewNop())
+	w := NewWatcher(NewMemInfo(t.TempDir()), nil, nil, nil, zap.NewNop())
 	assert.True(t, w.pressureExceeded(0.05, 0, false))
 	assert.False(t, w.pressureExceeded(0.30, 0, false))
 	assert.True(t, w.pressureExceeded(0.30, 50, true))

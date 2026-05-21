@@ -33,10 +33,11 @@ type Zram struct {
 	mem       *MemInfo
 	swapon    SwaponFn
 	swapoff   SwapoffFn
+	events    *EventLog
 	log       *zap.Logger
 }
 
-func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, log *zap.Logger) *Zram {
+func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, events *EventLog, log *zap.Logger) *Zram {
 	return &Zram{
 		sysBlock:  zramSysBlockDefault,
 		hotAdd:    zramHotAddDefault,
@@ -45,6 +46,7 @@ func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, log *zap.Logger) 
 		mem:       mem,
 		swapon:    swapon,
 		swapoff:   swapoff,
+		events:    events,
 		log:       log,
 	}
 }
@@ -83,6 +85,9 @@ func (z *Zram) EnsureConfigured() error {
 		return fmt.Errorf("zram: swapon: %w", err)
 	}
 	z.log.Info("zram: enabled", zap.Uint64("size_bytes", size), zap.Int("priority", zramPriority))
+	if z.events != nil {
+		_ = z.events.Append(Event{Kind: EventKindZramEnabled, SizeBytes: size})
+	}
 	if err := z.disableFileSwaps(); err != nil {
 		z.log.Warn("zram: file-swap disable failed", zap.Error(err))
 	}
@@ -107,6 +112,9 @@ func (z *Zram) disableFileSwaps() error {
 			continue
 		}
 		z.log.Info("zram: swapoff file swap", zap.String("path", fields[0]))
+		if z.events != nil {
+			_ = z.events.Append(Event{Kind: EventKindSwapoffFile, Path: fields[0]})
+		}
 	}
 	return nil
 }

@@ -16,7 +16,12 @@ func main() {
 	defer cancel()
 
 	mem := stability.NewMemInfo("/proc")
-	z := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, logger)
+	commonDir := os.Getenv("SNAP_COMMON")
+	if commonDir == "" {
+		commonDir = "/var/snap/platform/common"
+	}
+	events := stability.NewEventLog(commonDir + "/stability-events.jsonl")
+	z := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, events, logger)
 	if err := z.EnsureConfigured(); err != nil {
 		logger.Sugar().Warnf("stability: zram setup failed (continuing): %v", err)
 	}
@@ -24,7 +29,7 @@ func main() {
 	scan := stability.NewProcScanner("/proc")
 	w := stability.NewWatcher(mem, scan, func(pid int, sig syscall.Signal) error {
 		return syscall.Kill(pid, sig)
-	}, logger)
+	}, events, logger)
 
 	if err := w.Run(ctx); err != nil && err != context.Canceled {
 		logger.Sugar().Errorf("stability: watcher exited: %v", err)

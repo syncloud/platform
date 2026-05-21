@@ -46,7 +46,8 @@
     "logs": "日志",
     "customProxy": "自定义代理",
     "system": "系统",
-    "locale": "区域设置"
+    "locale": "区域设置",
+    "health": "健康"
   },
   "activation": {
     "title": "激活",
@@ -271,5 +272,30 @@
     "timezone": "时区:",
     "currentTime": "当前时间:",
     "save": "保存"
+  },
+  "health": {
+    "title": "健康",
+    "cpu": "CPU",
+    "memory": "内存",
+    "swap": "交换",
+    "disks": "磁盘",
+    "network": "网络",
+    "events": "稳定性事件",
+    "noEvents": "尚未记录事件。",
+    "colTime": "时间",
+    "colKind": "类型",
+    "colDetails": "详情",
+    "used": "已用",
+    "total": "总计",
+    "available": "可用",
+    "ioRead": "读取",
+    "ioWrite": "写入",
+    "netRx": "下载",
+    "netTx": "上传",
+    "kindZramEnabled": "已启用 zram",
+    "kindSwapoffFile": "已禁用文件交换",
+    "kindPressure": "检测到内存压力",
+    "kindVictimSigterm": "进程已终止 (SIGTERM)",
+    "kindVictimSigkill": "进程被强制结束 (SIGKILL)"
   }
 }
