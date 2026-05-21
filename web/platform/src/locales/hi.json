@@ -46,7 +46,8 @@
     "logs": "लॉग",
     "customProxy": "कस्टम प्रॉक्सी",
     "system": "सिस्टम",
-    "locale": "क्षेत्रीय"
+    "locale": "क्षेत्रीय",
+    "health": "स्वास्थ्य"
   },
   "activation": {
     "title": "सक्रियण",
@@ -271,5 +272,30 @@
     "timezone": "समय क्षेत्र:",
     "currentTime": "वर्तमान समय:",
     "save": "सहेजें"
+  },
+  "health": {
+    "title": "स्वास्थ्य",
+    "cpu": "CPU",
+    "memory": "मेमोरी",
+    "swap": "स्वैप",
+    "disks": "डिस्क",
+    "network": "नेटवर्क",
+    "events": "स्थिरता घटनाएँ",
+    "noEvents": "अभी तक कोई घटना दर्ज नहीं हुई है।",
+    "colTime": "समय",
+    "colKind": "प्रकार",
+    "colDetails": "विवरण",
+    "used": "उपयोग में",
+    "total": "कुल",
+    "available": "उपलब्ध",
+    "ioRead": "पढ़ना",
+    "ioWrite": "लिखना",
+    "netRx": "डाउनलोड",
+    "netTx": "अपलोड",
+    "kindZramEnabled": "zram सक्षम",
+    "kindSwapoffFile": "फ़ाइल स्वैप अक्षम",
+    "kindPressure": "मेमोरी दबाव का पता चला",
+    "kindVictimSigterm": "प्रक्रिया समाप्त (SIGTERM)",
+    "kindVictimSigkill": "प्रक्रिया मार दी गई (SIGKILL)"
   }
 }

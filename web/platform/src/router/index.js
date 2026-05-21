@@ -22,6 +22,7 @@ const routes = [
   { path: '/customproxy', name: 'CustomProxy', component: () => import('../views/CustomProxy.vue') },
   { path: '/system', name: 'System', component: () => import('../views/System.vue') },
   { path: '/locale', name: 'Locale', component: () => import('../views/Locale.vue') },
+  { path: '/health', name: 'Health', component: () => import('../views/Health.vue') },
   { path: '/:catchAll(.*)', redirect: '/' }
 ]
 

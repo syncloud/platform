@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
@@ -62,6 +64,7 @@ type Backend struct {
 	authelia        *auth.Authelia
 	totp            *auth.TOTP
 	timezone        *timezone.Applier
+	health          *health.Health
 	network         string
 	address         string
 	logger          *zap.Logger
@@ -79,6 +82,7 @@ func NewBackend(
 	changesClient *snap.ChangesClient,
 	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 	timezone *timezone.Applier,
+	healthService *health.Health,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -110,6 +114,7 @@ func NewBackend(
 		authelia:        authelia,
 		totp:            totp,
 		timezone:        timezone,
+		health:          healthService,
 		network:         network,
 		address:         address,
 		changesClient:   changesClient,
@@ -152,6 +157,8 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTimezone))).Methods("GET")
 	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTimezone))).Methods("POST")
 	r.HandleFunc("/rest/settings/time", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTime))).Methods("GET")
+	r.HandleFunc("/rest/settings/health/events", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.HealthEvents))).Methods("GET")
+	r.HandleFunc("/rest/settings/health/metrics", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.HealthMetrics))).Methods("GET")
 	// /rest/totp/setup is handled by the login service, not the backend
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupList))).Methods("GET")
@@ -609,6 +616,20 @@ func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
 	}
 	autheliaLogout := fmt.Sprintf("%s/logout", b.userConfig.Url("auth"))
 	http.Redirect(w, req, autheliaLogout, http.StatusFound)
+}
+
+func (b *Backend) HealthEvents(req *http.Request) (interface{}, error) {
+	limit := 100
+	if v := req.URL.Query().Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 1000 {
+			limit = n
+		}
+	}
+	return b.health.Events(limit)
+}
+
+func (b *Backend) HealthMetrics(_ *http.Request) (interface{}, error) {
+	return b.health.Metrics()
 }
 
 func (b *Backend) GetTwoFactorSettings(_ *http.Request) (interface{}, error) {

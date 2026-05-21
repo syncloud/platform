@@ -1,0 +1,76 @@
+package stability
+
+import (
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestAppendAndRecentReverseOrder(t *testing.T) {
+	dir := t.TempDir()
+	log := NewEventLog(filepath.Join(dir, "events.jsonl"))
+	require.NoError(t, log.Append(Event{Kind: EventKindZramEnabled, SizeBytes: 1 << 30}))
+	require.NoError(t, log.Append(Event{Kind: EventKindPressure, AvailRatio: 0.05}))
+	require.NoError(t, log.Append(Event{Kind: EventKindVictimSigterm, PID: 1234, Comm: "python3", RSSkb: 2000000}))
+
+	evs, err := log.Recent(10)
+	require.NoError(t, err)
+	require.Len(t, evs, 3)
+	assert.Equal(t, EventKindVictimSigterm, evs[0].Kind)
+	assert.Equal(t, "python3", evs[0].Comm)
+	assert.Equal(t, EventKindPressure, evs[1].Kind)
+	assert.Equal(t, EventKindZramEnabled, evs[2].Kind)
+}
+
+func TestRecentMissingFileReturnsEmpty(t *testing.T) {
+	dir := t.TempDir()
+	evs, err := NewEventLog(filepath.Join(dir, "nope.jsonl")).Recent(10)
+	require.NoError(t, err)
+	assert.Empty(t, evs)
+}
+
+func TestRecentCapsLimit(t *testing.T) {
+	dir := t.TempDir()
+	log := NewEventLog(filepath.Join(dir, "events.jsonl"))
+	for i := 0; i < 20; i++ {
+		require.NoError(t, log.Append(Event{Kind: EventKindPressure, PID: i}))
+	}
+	evs, err := log.Recent(5)
+	require.NoError(t, err)
+	require.Len(t, evs, 5)
+	assert.Equal(t, 19, evs[0].PID)
+	assert.Equal(t, 15, evs[4].PID)
+}
+
+func TestAppendRotatesWhenFileExceedsMax(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "events.jsonl")
+	log := NewEventLog(path)
+	for i := 0; i < 5000; i++ {
+		require.NoError(t, log.Append(Event{Kind: EventKindPressure, PID: i, Comm: "memhog"}))
+	}
+	st, err := os.Stat(path)
+	require.NoError(t, err)
+	assert.LessOrEqual(t, st.Size(), int64(maxLogFileBytes*2), "file should stay bounded by rotation")
+
+	evs, err := log.Recent(10)
+	require.NoError(t, err)
+	require.Len(t, evs, 10)
+	assert.Equal(t, 4999, evs[0].PID, "newest event preserved across rotation")
+	assert.Equal(t, 4990, evs[9].PID)
+}
+
+func TestRecentUsesBoundedMemory(t *testing.T) {
+	dir := t.TempDir()
+	log := NewEventLog(filepath.Join(dir, "events.jsonl"))
+	for i := 0; i < 2000; i++ {
+		require.NoError(t, log.Append(Event{Kind: EventKindPressure, PID: i}))
+	}
+	evs, err := log.Recent(5)
+	require.NoError(t, err)
+	require.Len(t, evs, 5)
+	assert.Equal(t, 1999, evs[0].PID)
+}
