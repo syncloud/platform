@@ -26,22 +26,28 @@
           <div class="col2">
             <div class="setline">
               <h3>{{ $t('health.disks') }}</h3>
-              <div v-for="m in metrics.mounts" :key="m.path" class="setline-sub" :data-testid="'health-mount-' + m.path">
-                <span class="span">{{ m.path }}</span>
-                <span class="muted">{{ mb(m.used_kb) }} / {{ mb(m.total_kb) }} MB</span>
-                <el-progress :percentage="mountPct(m)" :stroke-width="8" :show-text="false" :status="pctStatus(mountPct(m))" />
+              <div v-for="m in metrics.mounts" :key="m.path" class="metric-row" :data-testid="'health-mount-' + m.path">
+                <div class="metric-row-head">
+                  <span class="metric-name">{{ m.path }}</span>
+                  <span class="metric-value">{{ mb(m.used_kb) }} / {{ mb(m.total_kb) }} MB</span>
+                </div>
+                <el-progress :percentage="mountPct(m)" :stroke-width="6" :show-text="false" :status="pctStatus(mountPct(m))" />
               </div>
-              <div v-for="d in diskRates" :key="d.name" class="setline-sub" :data-testid="'health-disk-' + d.name">
-                <span class="span">{{ d.name }}</span>
-                <span class="muted">{{ $t('health.ioRead') }} {{ d.readKBs }} KB/s · {{ $t('health.ioWrite') }} {{ d.writeKBs }} KB/s</span>
+              <div v-for="d in diskRates" :key="d.name" class="metric-row" :data-testid="'health-disk-' + d.name">
+                <div class="metric-row-head">
+                  <span class="metric-name">{{ d.name }}</span>
+                  <span class="metric-value">↓ {{ d.readKBs }} · ↑ {{ d.writeKBs }} KB/s</span>
+                </div>
               </div>
             </div>
 
             <div class="setline">
               <h3>{{ $t('health.network') }}</h3>
-              <div v-for="n in netRates" :key="n.name" class="setline-sub" :data-testid="'health-net-' + n.name">
-                <span class="span">{{ n.name }}</span>
-                <span class="muted">{{ $t('health.netRx') }} {{ n.rxKBs }} KB/s · {{ $t('health.netTx') }} {{ n.txKBs }} KB/s</span>
+              <div v-for="n in netRates" :key="n.name" class="metric-row" :data-testid="'health-net-' + n.name">
+                <div class="metric-row-head">
+                  <span class="metric-name">{{ n.name }}</span>
+                  <span class="metric-value">↓ {{ n.rxKBs }} · ↑ {{ n.txKBs }} KB/s</span>
+                </div>
               </div>
             </div>
           </div>
@@ -224,18 +230,28 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 @import '../style/site.css';
 @import 'material-icons/iconfont/material-icons.css';
 
-.setline-sub {
-  display: block;
-  padding: 4px 0;
+.metric-row {
+  padding: 6px 0;
 }
-.setline-sub .span {
-  display: inline-block;
-  min-width: 110px;
+.metric-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.metric-name {
   font-weight: 500;
+  word-break: break-all;
+}
+.metric-value {
+  color: #888;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .muted {
   color: #888;
@@ -248,6 +264,10 @@ h2 {
 .events-block {
   margin-top: 24px;
   text-align: left;
+  padding: 0 16px;
+}
+@media (min-width: 1024px) {
+  .events-block { padding: 0; }
 }
 .event-list {
   list-style: none;
