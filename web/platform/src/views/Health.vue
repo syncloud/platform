@@ -47,20 +47,22 @@
           </div>
         </div>
 
-        <h2>{{ $t('health.events') }}</h2>
-        <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
-        <ul v-else class="event-list" data-testid="health-events-list">
-          <li v-for="(ev, i) in events" :key="i" class="event-card" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
-            <i class="material-icons event-icon">{{ kindIcon(ev.kind) }}</i>
-            <div class="event-body">
-              <div class="event-head">
-                <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
-                <time class="event-time" :title="fmtTime(ev.time)">{{ fmtRel(ev.time) }}</time>
+        <div class="settingsblock events-block">
+          <h2>{{ $t('health.events') }}</h2>
+          <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
+          <ul v-else class="event-list" data-testid="health-events-list">
+            <li v-for="(ev, i) in events" :key="i" class="event-card" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
+              <i class="material-icons event-icon">{{ kindIcon(ev.kind) }}</i>
+              <div class="event-body">
+                <div class="event-head">
+                  <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
+                  <time class="event-time" :title="fmtTime(ev.time)">{{ fmtRel(ev.time) }}</time>
+                </div>
+                <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
               </div>
-              <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -240,11 +242,14 @@ export default {
 h2 {
   margin-top: 24px;
 }
+.events-block {
+  margin-top: 24px;
+  text-align: left;
+}
 .event-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: 720px;
   display: flex;
   flex-direction: column;
   gap: 10px;
