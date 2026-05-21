@@ -225,6 +225,9 @@ export default {
 </script>
 
 <style scoped>
+@import '../style/site.css';
+@import 'material-icons/iconfont/material-icons.css';
+
 .setline-sub {
   display: block;
   padding: 4px 0;
