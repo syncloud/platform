@@ -23,6 +23,7 @@ const (
 )
 
 type SwaponFn func(path string, flags int) error
+type SwapoffFn func(path string) error
 
 type Zram struct {
 	sysBlock  string
@@ -31,10 +32,11 @@ type Zram struct {
 	devPath   string
 	mem       *MemInfo
 	swapon    SwaponFn
+	swapoff   SwapoffFn
 	log       *zap.Logger
 }
 
-func NewZram(mem *MemInfo, swapon SwaponFn, log *zap.Logger) *Zram {
+func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, log *zap.Logger) *Zram {
 	return &Zram{
 		sysBlock:  zramSysBlockDefault,
 		hotAdd:    zramHotAddDefault,
@@ -42,6 +44,7 @@ func NewZram(mem *MemInfo, swapon SwaponFn, log *zap.Logger) *Zram {
 		devPath:   zramDevice,
 		mem:       mem,
 		swapon:    swapon,
+		swapoff:   swapoff,
 		log:       log,
 	}
 }
@@ -77,6 +80,31 @@ func (z *Zram) EnsureConfigured() error {
 		return fmt.Errorf("zram: swapon: %w", err)
 	}
 	z.log.Info("zram: enabled", zap.Uint64("size_bytes", size), zap.Int("priority", zramPriority))
+	if err := z.disableFileSwaps(); err != nil {
+		z.log.Warn("zram: file-swap disable failed", zap.Error(err))
+	}
+	return nil
+}
+
+func (z *Zram) disableFileSwaps() error {
+	b, err := os.ReadFile(z.procSwaps)
+	if err != nil {
+		return err
+	}
+	for _, line := range strings.Split(string(b), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 2 || fields[0] == "Filename" {
+			continue
+		}
+		if fields[1] != "file" {
+			continue
+		}
+		if err := z.swapoff(fields[0]); err != nil {
+			z.log.Warn("zram: swapoff failed", zap.String("path", fields[0]), zap.Error(err))
+			continue
+		}
+		z.log.Info("zram: swapoff file swap", zap.String("path", fields[0]))
+	}
 	return nil
 }
 

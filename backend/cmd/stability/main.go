@@ -16,7 +16,7 @@ func main() {
 	defer cancel()
 
 	mem := stability.NewMemInfo("/proc")
-	z := stability.NewZram(mem, stability.SwaponSyscall, logger)
+	z := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, logger)
 	if err := z.EnsureConfigured(); err != nil {
 		logger.Sugar().Warnf("stability: zram setup failed (continuing): %v", err)
 	}

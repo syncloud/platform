@@ -31,6 +31,18 @@ func SwaponSyscall(path string, flags int) error {
 	return nil
 }
 
+func SwapoffSyscall(path string) error {
+	p, err := syscall.BytePtrFromString(path)
+	if err != nil {
+		return err
+	}
+	_, _, errno := syscall.Syscall(unix.SYS_SWAPOFF, uintptr(unsafe.Pointer(p)), 0, 0)
+	if errno != 0 {
+		return errno
+	}
+	return nil
+}
+
 func deviceSize(f *os.File, statSize uint64) (uint64, error) {
 	fi, err := f.Stat()
 	if err != nil {

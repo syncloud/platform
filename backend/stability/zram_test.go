@@ -25,6 +25,16 @@ func (f *fakeSwapon) fn(path string, flags int) error {
 	return f.err
 }
 
+type fakeSwapoff struct {
+	paths []string
+	err   error
+}
+
+func (f *fakeSwapoff) fn(path string) error {
+	f.paths = append(f.paths, path)
+	return f.err
+}
+
 func newTestZram(t *testing.T, memTotalKB uint64, swapsContent string) (*Zram, *fakeSwapon, string) {
 	t.Helper()
 	root := t.TempDir()
@@ -42,6 +52,7 @@ func newTestZram(t *testing.T, memTotalKB uint64, swapsContent string) (*Zram, *
 	require.NoError(t, os.WriteFile(filepath.Join(sysBlock, "disksize"), []byte("0"), 0644))
 
 	sw := &fakeSwapon{}
+	swoff := &fakeSwapoff{}
 	z := &Zram{
 		sysBlock:  sysBlock,
 		hotAdd:    filepath.Join(root, "hot_add"),
@@ -49,6 +60,7 @@ func newTestZram(t *testing.T, memTotalKB uint64, swapsContent string) (*Zram, *
 		devPath:   devFile,
 		mem:       NewMemInfo(procDir),
 		swapon:    sw.fn,
+		swapoff:   swoff.fn,
 		log:       zap.NewNop(),
 	}
 	return z, sw, sysBlock
@@ -83,6 +95,15 @@ func TestEnsureSkipsIfAlreadyOn(t *testing.T) {
 	require.NoError(t, os.WriteFile(z.procSwaps, []byte(string(sc)+z.devPath+" partition 2097148 0 100\n"), 0644))
 	require.NoError(t, z.EnsureConfigured())
 	assert.False(t, sw.called)
+}
+
+func TestDisableFileSwapsSkipsZramAndNonFile(t *testing.T) {
+	z, _, _ := newTestZram(t, 4*1024*1024, "")
+	calls := []string{}
+	z.swapoff = func(p string) error { calls = append(calls, p); return nil }
+	require.NoError(t, os.WriteFile(z.procSwaps, []byte("Filename\t\tType\tSize\tUsed\tPriority\n/swapfile\tfile\t2097148\t100000\t-2\n"+z.devPath+"\tpartition\t1000000\t0\t10\n/dev/sda2\tpartition\t1000\t0\t5\n"), 0644))
+	require.NoError(t, z.disableFileSwaps())
+	assert.Equal(t, []string{"/swapfile"}, calls)
 }
 
 func TestEnsureConfiguresAndSwapons(t *testing.T) {
