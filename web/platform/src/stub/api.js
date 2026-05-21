@@ -631,6 +631,68 @@ export function mock () {
         ]
         return new Response(200, {}, { success: true, data: logs })
       })
+      const stubHealth = {
+        tick: 0,
+        cpu: { user: 1000000, nice: 100, system: 200000, idle: 5000000, iowait: 30000, irq: 0, softirq: 10000, steal: 0 },
+        net: [
+          { name: 'eth0', rx_bytes: 50000000, tx_bytes: 20000000 },
+          { name: 'wlan0', rx_bytes: 1000000, tx_bytes: 500000 }
+        ],
+        disks: [
+          { name: 'sda', reads_total: 100000, sectors_read: 800000000, writes_total: 50000, sectors_written: 200000000 },
+          { name: 'mmcblk0', reads_total: 500000, sectors_read: 4000000000, writes_total: 200000, sectors_written: 1500000000 }
+        ]
+      }
+      this.get('/rest/settings/health/metrics', function (_schema, _request) {
+        stubHealth.tick++
+        // simulate variable CPU activity (sine-ish pattern)
+        const busyMs = Math.round(800 + 600 * Math.sin(stubHealth.tick / 8))
+        stubHealth.cpu.user += busyMs * 0.6
+        stubHealth.cpu.system += busyMs * 0.3
+        stubHealth.cpu.iowait += busyMs * 0.1
+        stubHealth.cpu.idle += 2000 - busyMs
+        stubHealth.net.forEach((n, i) => {
+          n.rx_bytes += Math.round(50000 + 200000 * Math.random()) * (i === 0 ? 1 : 0.05)
+          n.tx_bytes += Math.round(20000 + 100000 * Math.random()) * (i === 0 ? 1 : 0.05)
+        })
+        stubHealth.disks.forEach(d => {
+          d.sectors_read += Math.round(500 + 8000 * Math.random())
+          d.sectors_written += Math.round(200 + 4000 * Math.random())
+        })
+        const memUsed = 1500000 + Math.round(800000 * Math.sin(stubHealth.tick / 12))
+        const data = {
+          cpu: { ...stubHealth.cpu },
+          memory: {
+            total_kb: 3789348,
+            available_kb: 3789348 - memUsed,
+            free_kb: 200000,
+            buffers_kb: 50000,
+            cached_kb: 900000,
+            swap_total_kb: 2097148,
+            swap_free_kb: 2097148 - 600000 - Math.round(300000 * Math.sin(stubHealth.tick / 7))
+          },
+          disks: stubHealth.disks.map(d => ({ ...d })),
+          mounts: [
+            { path: '/', total_kb: 30 * 1024 * 1024, used_kb: 24 * 1024 * 1024 },
+            { path: '/opt/disk/external', total_kb: 1.9 * 1024 * 1024 * 1024, used_kb: 0.235 * 1024 * 1024 * 1024 }
+          ],
+          net: stubHealth.net.map(n => ({ ...n }))
+        }
+        return new Response(200, {}, { success: true, data })
+      })
+      this.get('/rest/settings/health/events', function (_schema, _request) {
+        const now = Date.now()
+        const events = [
+          { time: new Date(now - 30 * 1000).toISOString(), kind: 'victim_sigterm', pid: 3325956, comm: 'python3', rss_kb: 1943228, cgroup: '0::/user.slice/user-0.slice/session-61617.scope' },
+          { time: new Date(now - 30 * 1000 - 1500).toISOString(), kind: 'pressure_detected', avail_ratio: 0.058 },
+          { time: new Date(now - 17 * 60 * 1000).toISOString(), kind: 'victim_sigkill', pid: 4421, comm: 'photoprism', rss_kb: 1102456, cgroup: '0::/system.slice/snap.photoprism.web.service' },
+          { time: new Date(now - 17 * 60 * 1000 - 4500).toISOString(), kind: 'victim_sigterm', pid: 4421, comm: 'photoprism', rss_kb: 1102456, cgroup: '0::/system.slice/snap.photoprism.web.service' },
+          { time: new Date(now - 17 * 60 * 1000 - 6500).toISOString(), kind: 'pressure_detected', avail_ratio: 0.041, psi_avg10: 62.4 },
+          { time: new Date(now - 3 * 3600 * 1000).toISOString(), kind: 'swapoff_file', path: '/swapfile' },
+          { time: new Date(now - 3 * 3600 * 1000 - 200).toISOString(), kind: 'zram_enabled', size_bytes: 1939916800 }
+        ]
+        return new Response(200, {}, { success: true, data: events })
+      })
     }
   })
 }
