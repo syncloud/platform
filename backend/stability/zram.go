@@ -64,6 +64,9 @@ func (z *Zram) EnsureConfigured() error {
 	}
 	if on {
 		z.log.Info("zram: already swap-on", zap.String("dev", z.devPath))
+		if err := z.disableFileSwaps(); err != nil {
+			z.log.Warn("zram: file-swap disable failed", zap.Error(err))
+		}
 		return nil
 	}
 	if err := z.ensureDevice(); err != nil {
