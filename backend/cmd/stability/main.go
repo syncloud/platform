@@ -21,17 +21,17 @@ func main() {
 	eventsPath := path.Join(hook.DataDir, "stability-events.jsonl")
 	stability.MigrateEventLog(path.Join(hook.CommonDir, "stability-events.jsonl"), eventsPath, logger)
 	events := stability.NewEventLog(eventsPath)
-	z := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, events, logger)
-	if err := z.EnsureConfigured(); err != nil {
+	zram := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, events, logger)
+	if err := zram.EnsureConfigured(); err != nil {
 		logger.Sugar().Warnf("stability: zram setup failed (continuing): %v", err)
 	}
 
-	scan := stability.NewProcScanner("/proc")
-	w := stability.NewWatcher(mem, scan, func(pid int, sig syscall.Signal) error {
+	scanner := stability.NewProcScanner("/proc")
+	watcher := stability.NewWatcher(mem, scanner, func(pid int, sig syscall.Signal) error {
 		return syscall.Kill(pid, sig)
 	}, events, logger)
 
-	if err := w.Run(ctx); err != nil && err != context.Canceled {
+	if err := watcher.Run(ctx); err != nil && err != context.Canceled {
 		logger.Sugar().Errorf("stability: watcher exited: %v", err)
 		os.Exit(1)
 	}
