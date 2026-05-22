@@ -1,9 +1,6 @@
 package main
 
 import (
-	"context"
-	"os"
-	"os/signal"
 	"path"
 	"syscall"
 
@@ -14,9 +11,6 @@ import (
 
 func main() {
 	logger := log.Default()
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
-
 	mem := stability.NewMemInfo("/proc")
 	eventsPath := path.Join(hook.DataDir, "stability-events.jsonl")
 	stability.MigrateEventLog(path.Join(hook.CommonDir, "stability-events.jsonl"), eventsPath, logger)
@@ -31,8 +25,5 @@ func main() {
 		return syscall.Kill(pid, sig)
 	}, events, logger)
 
-	if err := watcher.Run(ctx); err != nil && err != context.Canceled {
-		logger.Sugar().Errorf("stability: watcher exited: %v", err)
-		os.Exit(1)
-	}
+	watcher.Run()
 }
