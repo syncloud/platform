@@ -18,11 +18,11 @@ func main() {
 	mem := stability.NewMemInfo("/proc")
 	dataDir := os.Getenv("SNAP_DATA")
 	if dataDir == "" {
-		dataDir = "/var/snap/platform/current"
+		logger.Fatal("stability: SNAP_DATA not set")
 	}
 	commonDir := os.Getenv("SNAP_COMMON")
 	if commonDir == "" {
-		commonDir = "/var/snap/platform/common"
+		logger.Fatal("stability: SNAP_COMMON not set")
 	}
 	eventsPath := dataDir + "/stability-events.jsonl"
 	stability.MigrateEventLog(commonDir+"/stability-events.jsonl", eventsPath, logger)
