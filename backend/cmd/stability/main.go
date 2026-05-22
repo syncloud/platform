@@ -4,8 +4,10 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"path"
 	"syscall"
 
+	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/stability"
 )
@@ -16,16 +18,8 @@ func main() {
 	defer cancel()
 
 	mem := stability.NewMemInfo("/proc")
-	dataDir := os.Getenv("SNAP_DATA")
-	if dataDir == "" {
-		logger.Fatal("stability: SNAP_DATA not set")
-	}
-	commonDir := os.Getenv("SNAP_COMMON")
-	if commonDir == "" {
-		logger.Fatal("stability: SNAP_COMMON not set")
-	}
-	eventsPath := dataDir + "/stability-events.jsonl"
-	stability.MigrateEventLog(commonDir+"/stability-events.jsonl", eventsPath, logger)
+	eventsPath := path.Join(hook.DataDir, "stability-events.jsonl")
+	stability.MigrateEventLog(path.Join(hook.CommonDir, "stability-events.jsonl"), eventsPath, logger)
 	events := stability.NewEventLog(eventsPath)
 	z := stability.NewZram(mem, stability.SwaponSyscall, stability.SwapoffSyscall, events, logger)
 	if err := z.EnsureConfigured(); err != nil {

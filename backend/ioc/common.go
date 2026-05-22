@@ -36,7 +36,6 @@ import (
 	"github.com/syncloud/platform/version"
 	"github.com/syncloud/platform/hardware/lcd"
 	"go.uber.org/zap"
-	"os"
 	"path"
 	"time"
 )
@@ -573,12 +572,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func() *stability.EventLog {
-		dataDir := os.Getenv("SNAP_DATA")
-		if dataDir == "" {
-			logger.Fatal("ioc: SNAP_DATA not set")
-		}
-		return stability.NewEventLog(dataDir + "/stability-events.jsonl")
+	err = c.Singleton(func(systemConfig *config.SystemConfig) *stability.EventLog {
+		return stability.NewEventLog(path.Join(systemConfig.DataDir(), "stability-events.jsonl"))
 	})
 	if err != nil {
 		return nil, err
