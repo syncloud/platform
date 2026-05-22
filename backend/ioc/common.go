@@ -572,8 +572,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func() *stability.EventLog {
-		return stability.NewEventLog("/var/snap/platform/common/stability-events.jsonl")
+	err = c.Singleton(func(systemConfig *config.SystemConfig) *stability.EventLog {
+		return stability.NewEventLog(path.Join(systemConfig.DataDir(), "stability-events.jsonl"))
 	})
 	if err != nil {
 		return nil, err

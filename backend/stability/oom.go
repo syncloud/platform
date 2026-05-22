@@ -1,7 +1,6 @@
 package stability
 
 import (
-	"context"
 	"errors"
 	"os"
 	"syscall"
@@ -42,7 +41,7 @@ func NewWatcher(mem *MemInfo, scan *ProcScanner, kill KillFn, events *EventLog, 
 	}
 }
 
-func (w *Watcher) Run(ctx context.Context) error {
+func (w *Watcher) Run() {
 	t := time.NewTicker(w.interval)
 	defer t.Stop()
 	w.log.Info("oom-watcher: started",
@@ -50,14 +49,9 @@ func (w *Watcher) Run(ctx context.Context) error {
 		zap.Float64("avail_min", w.availMin),
 		zap.Float64("psi_max", w.psiMax),
 	)
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-t.C:
-			if err := w.tick(); err != nil {
-				w.log.Warn("oom-watcher: tick error", zap.Error(err))
-			}
+	for range t.C {
+		if err := w.tick(); err != nil {
+			w.log.Warn("oom-watcher: tick error", zap.Error(err))
 		}
 	}
 }
