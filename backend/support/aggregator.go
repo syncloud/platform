@@ -47,11 +47,35 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.snapChangesDetail()
 	log += a.cmd("snap", "services")
 	log += a.cmd("snap", "run", "platform.cli", "ipv4", "public")
-	log += a.cmd("journalctl", "-n", "1000", "--no-pager")
+	log += a.journalNoDhcp()
+	log += a.cmd("journalctl", "-t", "dhclient", "-n", "10", "--no-pager")
 	log += a.cmd("dmesg", "-T")
 	log += a.dmesgErrors()
 	log += a.cmd("cat", "/proc/diskstats")
 	return log
+}
+
+func (a *LogAggregator) journalNoDhcp() string {
+	command := exec.Command("journalctl", "-n", "2000", "--no-pager")
+	out, err := command.CombinedOutput()
+	if err != nil {
+		a.logger.Warn("failed", zap.Error(err))
+	}
+	return command.String() + " (dhclient excluded)\n\n" +
+		filterAndTail(string(out), "dhclient[", 1000) + Separator
+}
+
+func filterAndTail(input string, exclude string, n int) string {
+	var kept []string
+	for _, line := range strings.Split(input, "\n") {
+		if !strings.Contains(line, exclude) {
+			kept = append(kept, line)
+		}
+	}
+	if len(kept) > n {
+		kept = kept[len(kept)-n:]
+	}
+	return strings.Join(kept, "\n")
 }
 
 func (a *LogAggregator) snapChangesDetail() string {
