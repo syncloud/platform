@@ -29,6 +29,8 @@ export async function shoot(page: Page, testInfo: TestInfo, name: string) {
   fs.mkdirSync(dir, { recursive: true })
   const file = path.join(dir, `${name}-${view}.png`)
   await page.addStyleTag({ content: freezeCss })
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+  await page.mouse.move(0, 0)
   await waitForImages(page)
   await page.screenshot({ path: file, fullPage: false })
 }
