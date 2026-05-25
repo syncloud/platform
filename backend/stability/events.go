@@ -30,6 +30,7 @@ type Event struct {
 	Message    string    `json:"message,omitempty"`
 	PID        int       `json:"pid,omitempty"`
 	Comm       string    `json:"comm,omitempty"`
+	App        string    `json:"app,omitempty"`
 	RSSkb      uint64    `json:"rss_kb,omitempty"`
 	Cgroup     string    `json:"cgroup,omitempty"`
 	AvailRatio float64   `json:"avail_ratio,omitempty"`

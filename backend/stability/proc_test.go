@@ -58,6 +58,29 @@ func TestCandidatesScoreFavoursHighAdj(t *testing.T) {
 	assert.Equal(t, "small_high_adj", cands[0].Comm)
 }
 
+func TestParseSnapApp(t *testing.T) {
+	assert.Equal(t, "photoprism", parseSnapApp("0::/system.slice/snap.photoprism.web.service"))
+	assert.Equal(t, "photoprism", parseSnapApp("0::/system.slice/snap.photoprism.mariadb.service"))
+	assert.Equal(t, "platform", parseSnapApp("12:devices:/system.slice/snap.platform.backend.service\n0::/system.slice/snap.platform.backend.service"))
+	assert.Equal(t, "", parseSnapApp("0::/system.slice/ssh.service"))
+	assert.Equal(t, "", parseSnapApp("0::/"))
+}
+
+func TestCandidatesPopulatesApp(t *testing.T) {
+	dir := t.TempDir()
+	writeFakeProc(t, dir, fakeProc{pid: 400, name: "ld.so", rssKB: 250000, cgroup: "0::/system.slice/snap.photoprism.web.service"})
+	writeFakeProc(t, dir, fakeProc{pid: 500, name: "stuff", rssKB: 100000, cgroup: "0::/system.slice/some.other.service"})
+	cands, err := NewProcScanner(dir).Candidates(DefaultProtect(), 999)
+	require.NoError(t, err)
+	require.Len(t, cands, 2)
+	byPID := map[int]Victim{}
+	for _, c := range cands {
+		byPID[c.PID] = c
+	}
+	assert.Equal(t, "photoprism", byPID[400].App)
+	assert.Equal(t, "", byPID[500].App)
+}
+
 func TestScoreFormula(t *testing.T) {
 	assert.Equal(t, 100000.0, score(100000, 0))
 	assert.Equal(t, 150000.0, score(100000, 500))

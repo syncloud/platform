@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ import (
 type Victim struct {
 	PID    int
 	Comm   string
+	App    string
 	Cgroup string
 	RSSkB  uint64
 	OOMAdj int
@@ -73,8 +75,19 @@ func (s *ProcScanner) readVictim(pid int) (Victim, error) {
 	}
 	if cg, err := os.ReadFile(filepath.Join(base, "cgroup")); err == nil {
 		v.Cgroup = strings.TrimSpace(string(cg))
+		v.App = parseSnapApp(v.Cgroup)
 	}
 	return v, nil
+}
+
+var snapAppRe = regexp.MustCompile(`snap\.([^.]+)\.`)
+
+func parseSnapApp(cgroup string) string {
+	m := snapAppRe.FindStringSubmatch(cgroup)
+	if len(m) < 2 {
+		return ""
+	}
+	return m[1]
 }
 
 func readStatus(path string, v *Victim) error {
