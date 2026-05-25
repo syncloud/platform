@@ -80,7 +80,7 @@ func (s *ProcScanner) readVictim(pid int) (Victim, error) {
 	return v, nil
 }
 
-var snapAppRe = regexp.MustCompile(`snap\.([^.]+)\.`)
+var snapAppRe = regexp.MustCompile(`snap\.([^/]+?)\.(service|scope)`)
 
 func parseSnapApp(cgroup string) string {
 	m := snapAppRe.FindStringSubmatch(cgroup)

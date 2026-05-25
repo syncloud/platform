@@ -59,9 +59,10 @@ func TestCandidatesScoreFavoursHighAdj(t *testing.T) {
 }
 
 func TestParseSnapApp(t *testing.T) {
-	assert.Equal(t, "photoprism", parseSnapApp("0::/system.slice/snap.photoprism.web.service"))
-	assert.Equal(t, "photoprism", parseSnapApp("0::/system.slice/snap.photoprism.mariadb.service"))
-	assert.Equal(t, "platform", parseSnapApp("12:devices:/system.slice/snap.platform.backend.service\n0::/system.slice/snap.platform.backend.service"))
+	assert.Equal(t, "photoprism.web", parseSnapApp("0::/system.slice/snap.photoprism.web.service"))
+	assert.Equal(t, "photoprism.mariadb", parseSnapApp("0::/system.slice/snap.photoprism.mariadb.service"))
+	assert.Equal(t, "platform.backend", parseSnapApp("12:devices:/system.slice/snap.platform.backend.service\n0::/system.slice/snap.platform.backend.service"))
+	assert.Equal(t, "photoprism.hook.configure", parseSnapApp("0::/system.slice/snap.photoprism.hook.configure.scope"))
 	assert.Equal(t, "", parseSnapApp("0::/system.slice/ssh.service"))
 	assert.Equal(t, "", parseSnapApp("0::/"))
 }
@@ -77,7 +78,7 @@ func TestCandidatesPopulatesApp(t *testing.T) {
 	for _, c := range cands {
 		byPID[c.PID] = c
 	}
-	assert.Equal(t, "photoprism", byPID[400].App)
+	assert.Equal(t, "photoprism.web", byPID[400].App)
 	assert.Equal(t, "", byPID[500].App)
 }
 
