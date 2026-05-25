@@ -587,9 +587,7 @@ def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, a
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
 
 
-def test_public_settings_partition_add_remove(loop_device, device, domain, artifact_dir, distro):
-    if distro == 'buster':
-        pytest.skip('buster udev v241 + loop.max_part=0 on CI host: kernel partition rescan inside container does not surface /dev/loopXp1 to the snap-confined backend; works on bookworm')
+def test_public_settings_partition_add_remove(loop_device, device, domain, artifact_dir):
     device.run_ssh('/snap/platform/current/bin/disk_format.sh {0}'.format(loop_device), retries=3)
     partition = device.run_ssh('lsblk -pl -o NAME,TYPE {0} | grep part | head -1'.format(loop_device)).split()[0]
     session = device.login_v2()
