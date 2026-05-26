@@ -21,6 +21,13 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    launchOptions: {
+      args: [
+        '--font-render-hinting=none',
+        '--disable-skia-runtime-opts',
+        '--force-color-profile=srgb',
+      ],
+    },
   },
   projects: [
     {

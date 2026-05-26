@@ -110,7 +110,7 @@ func (w *Watcher) killWorst() error {
 		zap.String("cgroup", v.Cgroup),
 	)
 	if w.events != nil {
-		_ = w.events.Append(Event{Kind: EventKindVictimSigterm, PID: v.PID, Comm: v.Comm, RSSkb: v.RSSkB, Cgroup: v.Cgroup})
+		_ = w.events.Append(Event{Kind: EventKindVictimSigterm, PID: v.PID, Comm: v.Comm, App: v.App, RSSkb: v.RSSkB, Cgroup: v.Cgroup})
 	}
 	if err := w.kill(v.PID, syscall.SIGTERM); err != nil {
 		if errors.Is(err, syscall.ESRCH) {
@@ -127,7 +127,7 @@ func (w *Watcher) killWorst() error {
 	}
 	w.log.Warn("oom-watcher: SIGKILL victim", zap.Int("pid", v.PID), zap.String("comm", v.Comm))
 	if w.events != nil {
-		_ = w.events.Append(Event{Kind: EventKindVictimSigkill, PID: v.PID, Comm: v.Comm, RSSkb: v.RSSkB, Cgroup: v.Cgroup})
+		_ = w.events.Append(Event{Kind: EventKindVictimSigkill, PID: v.PID, Comm: v.Comm, App: v.App, RSSkb: v.RSSkB, Cgroup: v.Cgroup})
 	}
 	if err := w.kill(v.PID, syscall.SIGKILL); err != nil && !errors.Is(err, syscall.ESRCH) {
 		return err
