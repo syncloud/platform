@@ -58,6 +58,36 @@ func TestCandidatesScoreFavoursHighAdj(t *testing.T) {
 	assert.Equal(t, "small_high_adj", cands[0].Comm)
 }
 
+func TestParseAppLabel(t *testing.T) {
+	assert.Equal(t, "photoprism.web", parseAppLabel("0::/system.slice/snap.photoprism.web.service"))
+	assert.Equal(t, "photoprism.mariadb", parseAppLabel("0::/system.slice/snap.photoprism.mariadb.service"))
+	assert.Equal(t, "platform.backend", parseAppLabel("12:devices:/system.slice/snap.platform.backend.service\n0::/system.slice/snap.platform.backend.service"))
+	assert.Equal(t, "photoprism.hook.configure", parseAppLabel("0::/system.slice/snap.photoprism.hook.configure.scope"))
+	assert.Equal(t, "sshd", parseAppLabel("0::/system.slice/sshd.service"))
+	assert.Equal(t, "ssh", parseAppLabel("0::/system.slice/ssh.service"))
+	assert.Equal(t, "init", parseAppLabel("0::/init.scope"))
+	assert.Equal(t, "nginx", parseAppLabel("11:devices:/system.slice/nginx.service\n0::/system.slice/nginx.service"))
+	assert.Equal(t, "", parseAppLabel("0::/"))
+	assert.Equal(t, "", parseAppLabel(""))
+}
+
+func TestCandidatesPopulatesApp(t *testing.T) {
+	dir := t.TempDir()
+	writeFakeProc(t, dir, fakeProc{pid: 400, name: "ld.so", rssKB: 250000, cgroup: "0::/system.slice/snap.photoprism.web.service"})
+	writeFakeProc(t, dir, fakeProc{pid: 500, name: "nginx", rssKB: 100000, cgroup: "0::/system.slice/nginx.service"})
+	writeFakeProc(t, dir, fakeProc{pid: 600, name: "free", rssKB: 50000, cgroup: "0::/"})
+	cands, err := NewProcScanner(dir).Candidates(DefaultProtect(), 999)
+	require.NoError(t, err)
+	require.Len(t, cands, 3)
+	byPID := map[int]Victim{}
+	for _, c := range cands {
+		byPID[c.PID] = c
+	}
+	assert.Equal(t, "photoprism.web", byPID[400].App)
+	assert.Equal(t, "nginx", byPID[500].App)
+	assert.Equal(t, "", byPID[600].App)
+}
+
 func TestScoreFormula(t *testing.T) {
 	assert.Equal(t, 100000.0, score(100000, 0))
 	assert.Equal(t, 150000.0, score(100000, 500))

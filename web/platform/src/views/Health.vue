@@ -155,7 +155,9 @@ export default {
     },
     fmtDetails (e) {
       const parts = []
-      if (e.comm) parts.push(e.comm)
+      if (e.app && e.comm && e.app !== e.comm) parts.push(e.app + ' (' + e.comm + ')')
+      else if (e.app) parts.push(e.app)
+      else if (e.comm) parts.push(e.comm)
       if (e.pid) parts.push('pid=' + e.pid)
       if (e.rss_kb) parts.push('rss=' + this.kbToMb(e.rss_kb) + 'MB')
       if (e.avail_ratio) parts.push('avail=' + (e.avail_ratio * 100).toFixed(1) + '%')

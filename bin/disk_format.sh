@@ -15,5 +15,6 @@ ${DIR}/gptfdisk/bin/sgdisk.sh -o ${DEVICE}
 ${DIR}/gptfdisk/bin/sgdisk.sh -n ${PARTITION} ${DEVICE}
 ${DIR}/gptfdisk/bin/sgdisk.sh -p ${DEVICE}
 partprobe ${DEVICE}
+udevadm settle
 PARTITION_DEVICE=$(lsblk -pl -o NAME,TYPE ${DEVICE} | grep part | awk '{print $1}')
 mkfs.ext4 -F ${PARTITION_DEVICE}

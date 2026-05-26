@@ -560,7 +560,7 @@ def loop_device(device_host):
     run_ssh(device_host, 'dd if=/dev/zero bs=20M count=10 of={0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'sync', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'ls -la {0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
-    loop = run_ssh(device_host, 'losetup -f --show {0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
+    loop = run_ssh(device_host, 'losetup -fP --show {0}'.format(dev_file), password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'losetup', password=LOGS_SSH_PASSWORD)
     run_ssh(device_host, 'losetup -j {0} | grep {0}'.format(dev_file), password=LOGS_SSH_PASSWORD, retries=3)
     # run_ssh(device_host, 'file -s {0}'.format(loop), password=LOGS_SSH_PASSWORD)
