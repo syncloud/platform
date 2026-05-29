@@ -48,6 +48,7 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.cmd("snap", "services")
 	log += a.cmd("snap", "run", "platform.cli", "ipv4", "public")
 	log += a.journalNoDhcp()
+	log += a.previousBootTail()
 	log += a.cmd("journalctl", "-t", "dhclient", "-n", "10", "--no-pager")
 	log += a.cmd("dmesg", "-T")
 	log += a.dmesgErrors()
@@ -76,6 +77,15 @@ func filterAndTail(input string, exclude string, n int) string {
 		kept = kept[len(kept)-n:]
 	}
 	return strings.Join(kept, "\n")
+}
+
+func (a *LogAggregator) previousBootTail() string {
+	command := exec.Command("journalctl", "-b", "-1", "-n", "100", "--no-pager")
+	out, err := command.CombinedOutput()
+	if err != nil {
+		a.logger.Warn("failed", zap.Error(err))
+	}
+	return command.String() + " (tail before last reboot)\n\n" + string(out) + Separator
 }
 
 func (a *LogAggregator) snapChangesDetail() string {
