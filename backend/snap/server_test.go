@@ -122,6 +122,38 @@ func TestStoreSnaps_OK(t *testing.T) {
 	assert.Equal(t, apps[0].Apps[0].Name, "test")
 }
 
+func TestAppImageUrl_OK(t *testing.T) {
+	json := `
+{
+	"status": "OK",
+	"result": [
+		{
+			"name": "test",
+			"summary": "test summary",
+			"channel": "stable",
+			"version": "1",
+			"media": [
+				{ "type": "icon", "url": "http://store/v2/apps/stable/test/icon.png" }
+			]
+		}
+	]
+}
+`
+	snapd := NewServer(&ClientStub{findJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
+	url, err := snapd.AppImageUrl("test")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "http://store/v2/apps/stable/test/icon.png", url)
+}
+
+func TestAppImageUrl_NoIcon(t *testing.T) {
+	json := `{ "status": "OK", "result": [ { "name": "test", "summary": "s", "channel": "stable", "version": "1" } ] }`
+	snapd := NewServer(&ClientStub{findJson: json}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
+	_, err := snapd.AppImageUrl("test")
+
+	assert.NotNil(t, err)
+}
+
 func TestInstaller_OK(t *testing.T) {
 	installed := `
 { 
