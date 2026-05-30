@@ -32,5 +32,6 @@ export async function shoot(page: Page, testInfo: TestInfo, name: string) {
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
   await page.mouse.move(0, 0)
   await waitForImages(page)
+  await page.evaluate(() => document.getAnimations().forEach(a => a.finish()))
   await page.screenshot({ path: file, fullPage: false })
 }
