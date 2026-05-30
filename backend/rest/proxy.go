@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -9,15 +10,23 @@ import (
 
 type Proxy struct {
 	redirect Config
+	icons    IconResolver
+	client   *http.Client
 }
 
 type Config interface {
 	ApiUrl() string
 }
 
-func NewProxy(redirect Config) *Proxy {
+type IconResolver interface {
+	AppImageUrl(app string) (string, error)
+}
+
+func NewProxy(redirect Config, icons IconResolver) *Proxy {
 	return &Proxy{
 		redirect: redirect,
+		icons:    icons,
+		client:   http.DefaultClient,
 	}
 }
 
@@ -36,28 +45,28 @@ func (p *Proxy) ProxyRedirect() (*httputil.ReverseProxy, error) {
 	return &httputil.ReverseProxy{Director: director}, nil
 }
 
-func (p *Proxy) ProxyImage() *httputil.ReverseProxy {
-	host := "apps.syncloud.org"
-	director := func(req *http.Request) {
-		query := req.URL.Query()
-		if !query.Has("channel") {
-			return
-		}
-		if !query.Has("app") {
-			return
-		}
-		req.URL.Scheme = "http"
-		req.URL.RawQuery = ""
-		req.URL.Host = host
-		req.URL.Path = fmt.Sprintf("/releases/%s/images/%s-128.png", query.Get("channel"), query.Get("app"))
-		req.Host = host
-	}
-	return &httputil.ReverseProxy{Director: director}
-}
-
 func (p *Proxy) ProxyImageFunc() func(http.ResponseWriter, *http.Request) {
-	proxy := p.ProxyImage()
 	return func(w http.ResponseWriter, r *http.Request) {
-		proxy.ServeHTTP(w, r)
+		app := r.URL.Query().Get("app")
+		if app == "" {
+			http.Error(w, "app is required", http.StatusBadRequest)
+			return
+		}
+		imageUrl, err := p.icons.AppImageUrl(app)
+		if err != nil {
+			http.Error(w, "icon not found", http.StatusNotFound)
+			return
+		}
+		resp, err := p.client.Get(imageUrl)
+		if err != nil {
+			http.Error(w, "icon unavailable", http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+		if contentType := resp.Header.Get("Content-Type"); contentType != "" {
+			w.Header().Set("Content-Type", contentType)
+		}
+		w.WriteHeader(resp.StatusCode)
+		_, _ = io.Copy(w, resp.Body)
 	}
 }

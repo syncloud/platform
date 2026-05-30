@@ -6,12 +6,27 @@ import (
 )
 
 type Snap struct {
-	Name    string `json:"name"`
-	Summary string `json:"summary"`
-	Channel string `json:"channel"`
-	Version string `json:"version"`
-	Type    string `json:"type"`
-	Apps    []App  `json:"apps"`
+	Name    string      `json:"name"`
+	Summary string      `json:"summary"`
+	Channel string      `json:"channel"`
+	Version string      `json:"version"`
+	Type    string      `json:"type"`
+	Apps    []App       `json:"apps"`
+	Media   []SnapMedia `json:"media,omitempty"`
+}
+
+type SnapMedia struct {
+	Type string `json:"type"`
+	Url  string `json:"url"`
+}
+
+func (s *Snap) IconUrl() string {
+	for _, m := range s.Media {
+		if m.Type == "icon" {
+			return m.Url
+		}
+	}
+	return ""
 }
 
 func (s *Snap) ToStoreApp(url string) SyncloudAppVersions {

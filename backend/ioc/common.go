@@ -517,8 +517,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(redirect *config.Redirect) *rest.Proxy {
-		return rest.NewProxy(redirect)
+	err = c.Singleton(func(redirect *config.Redirect, snapServer *snap.Server) *rest.Proxy {
+		return rest.NewProxy(redirect, snapServer)
 	})
 
 	if err != nil {

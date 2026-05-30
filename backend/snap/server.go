@@ -224,6 +224,19 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 	}, nil
 }
 
+func (s *Server) AppImageUrl(app string) (string, error) {
+	snaps, err := s.find(app)
+	if err != nil {
+		return "", err
+	}
+	for _, snap := range snaps {
+		if url := snap.IconUrl(); url != "" {
+			return url, nil
+		}
+	}
+	return "", fmt.Errorf("no icon url for app: %s", app)
+}
+
 func (s *Server) find(query string) ([]model.Snap, error) {
 	s.logger.Info("find", zap.String("query", query))
 	bodyBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/find?name=%s", query))
