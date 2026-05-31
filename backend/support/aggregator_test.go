@@ -1,6 +1,7 @@
 package support
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
 	"strings"
@@ -13,41 +14,43 @@ func TestLogAggregator_GetLogs(t *testing.T) {
 	assert.NotEmpty(t, logs)
 }
 
-func TestFilterAndTail_ExcludesMatchingLines(t *testing.T) {
+func TestSplitNoise_SeparatesDhcpRegardlessOfTag(t *testing.T) {
 	input := "May 22 20:51:49 syncloud dhclient[2301]: XMT: Solicit on eth0\n" +
-		"May 22 20:51:49 syncloud dhclient[2301]: RCV: Advertise message on eth0\n" +
+		"May 22 20:51:49 syncloud sh[2611]: RCV: Advertise message on eth0\n" +
+		"May 22 20:51:49 syncloud sh[2611]: RCV:  | X-- t2 - rebind +0\n" +
+		"May 22 20:51:49 syncloud sh[2611]: PRC: Lease failed to satisfy.\n" +
 		"May 22 20:52:00 syncloud snapd[123]: snap install ok\n" +
 		"May 22 20:53:00 syncloud kernel: usb device connected\n"
-	out := filterAndTail(input, "dhclient[", 1000)
-	assert.NotContains(t, out, "dhclient[")
-	assert.Contains(t, out, "snapd[123]")
-	assert.Contains(t, out, "kernel: usb device connected")
+	signal, noisy := splitNoise(input)
+	assert.NotContains(t, signal, "dhclient[")
+	assert.NotContains(t, signal, "Advertise")
+	assert.NotContains(t, signal, "rebind")
+	assert.NotContains(t, signal, "Lease failed")
+	assert.Contains(t, signal, "snapd[123]")
+	assert.Contains(t, signal, "kernel: usb device connected")
+	assert.Contains(t, noisy, "Lease failed")
+	assert.Contains(t, noisy, "Advertise")
+	assert.Contains(t, noisy, "rebind")
+	assert.NotContains(t, noisy, "snapd[123]")
 }
 
-func TestFilterAndTail_KeepsLastNAfterFilter(t *testing.T) {
+func TestSplitNoise_EmptyInput(t *testing.T) {
+	signal, noisy := splitNoise("")
+	assert.Equal(t, "", signal)
+	assert.Equal(t, "", noisy)
+}
+
+func TestTail_KeepsLastN(t *testing.T) {
 	var lines []string
 	for i := 0; i < 1500; i++ {
-		if i%3 == 0 {
-			lines = append(lines, "dhclient[1]: noise")
-		} else {
-			lines = append(lines, "keeper line")
-		}
+		lines = append(lines, fmt.Sprintf("line %d", i))
 	}
-	out := filterAndTail(strings.Join(lines, "\n"), "dhclient[", 1000)
-	resultLines := strings.Split(out, "\n")
-	assert.Equal(t, 1000, len(resultLines))
-	for _, l := range resultLines {
-		assert.Equal(t, "keeper line", l)
-	}
+	result := strings.Split(tail(strings.Join(lines, "\n"), 1000), "\n")
+	assert.Equal(t, 1000, len(result))
+	assert.Equal(t, "line 500", result[0])
+	assert.Equal(t, "line 1499", result[999])
 }
 
-func TestFilterAndTail_NoTruncationWhenUnderLimit(t *testing.T) {
-	input := "a\nb\nc"
-	out := filterAndTail(input, "x", 1000)
-	assert.Equal(t, "a\nb\nc", out)
-}
-
-func TestFilterAndTail_EmptyInput(t *testing.T) {
-	out := filterAndTail("", "dhclient[", 1000)
-	assert.Equal(t, "", out)
+func TestTail_NoTruncationWhenUnderLimit(t *testing.T) {
+	assert.Equal(t, "a\nb\nc", tail("a\nb\nc", 1000))
 }

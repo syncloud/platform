@@ -47,36 +47,37 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.snapChangesDetail()
 	log += a.cmd("snap", "services")
 	log += a.cmd("snap", "run", "platform.cli", "ipv4", "public")
-	log += a.journalNoDhcp()
+	log += a.journal()
 	log += a.previousBootTail()
-	log += a.cmd("journalctl", "-t", "dhclient", "-n", "10", "--no-pager")
 	log += a.cmd("dmesg", "-T")
 	log += a.dmesgErrors()
 	log += a.cmd("cat", "/proc/diskstats")
 	return log
 }
 
-func (a *LogAggregator) journalNoDhcp() string {
-	command := exec.Command("journalctl", "-n", "2000", "--no-pager")
+var noise = regexp.MustCompile(`dhclient\[|]: (XMT|RCV|PRC):`)
+
+func (a *LogAggregator) journal() string {
+	command := exec.Command("journalctl", "-n", "5000", "--no-pager")
 	out, err := command.CombinedOutput()
 	if err != nil {
 		a.logger.Warn("failed", zap.Error(err))
 	}
-	return command.String() + " (dhclient excluded)\n\n" +
-		filterAndTail(string(out), "dhclient[", 1000) + Separator
+	signal, noisy := splitNoise(string(out))
+	return command.String() + "\n\n" + tail(signal, 1000) + Separator +
+		"journal noise tail (filtered out above)\n\n" + tail(noisy, 100) + Separator
 }
 
-func filterAndTail(input string, exclude string, n int) string {
-	var kept []string
+func splitNoise(input string) (string, string) {
+	var signal, noisy []string
 	for _, line := range strings.Split(input, "\n") {
-		if !strings.Contains(line, exclude) {
-			kept = append(kept, line)
+		if noise.MatchString(line) {
+			noisy = append(noisy, line)
+		} else {
+			signal = append(signal, line)
 		}
 	}
-	if len(kept) > n {
-		kept = kept[len(kept)-n:]
-	}
-	return strings.Join(kept, "\n")
+	return strings.Join(signal, "\n"), strings.Join(noisy, "\n")
 }
 
 func (a *LogAggregator) previousBootTail() string {
