@@ -25,15 +25,15 @@
               >
                 {{ $t('updates.upgradeTo', { version: platformVersionAvailable }) }}
               </el-button>
-            </div>
-            <div class="update-progress" id="platform_progress" v-if="platform.progress">
-              <span class="update-progress-summary" id="platform_progress_summary">{{ platform.summary }}</span>
-              <el-progress
-                :percentage="platform.percentage"
-                :indeterminate="platform.indeterminate"
-                :show-text="false"
-                :stroke-width="10"
-              />
+              <div class="update-progress" id="platform_progress" v-if="platform.progress">
+                <span class="update-progress-summary" id="platform_progress_summary">{{ platform.summary }}</span>
+                <el-progress
+                  :percentage="platform.percentage"
+                  :indeterminate="platform.indeterminate"
+                  :show-text="false"
+                  :stroke-width="6"
+                />
+              </div>
             </div>
 
             <div class="setline update-line">
@@ -47,15 +47,15 @@
               >
                 {{ $t('updates.upgradeTo', { version: installerVersionAvailable }) }}
               </el-button>
-            </div>
-            <div class="update-progress" id="installer_progress" v-if="installer.progress">
-              <span class="update-progress-summary" id="installer_progress_summary">{{ installer.summary }}</span>
-              <el-progress
-                :percentage="installer.percentage"
-                :indeterminate="installer.indeterminate"
-                :show-text="false"
-                :stroke-width="10"
-              />
+              <div class="update-progress" id="installer_progress" v-if="installer.progress">
+                <span class="update-progress-summary" id="installer_progress_summary">{{ installer.summary }}</span>
+                <el-progress
+                  :percentage="installer.percentage"
+                  :indeterminate="installer.indeterminate"
+                  :show-text="false"
+                  :stroke-width="6"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -234,17 +234,20 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 40px;
 }
 .update-line .el-button {
   min-width: 120px;
 }
 .update-progress {
-  padding: 4px 0 14px 0;
+  flex: 0 0 auto;
+  width: 120px;
 }
 .update-progress-summary {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: #606266;
-  font-size: 13px;
+  font-size: 12px;
+  text-align: center;
 }
 </style>
