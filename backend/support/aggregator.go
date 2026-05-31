@@ -56,20 +56,22 @@ func (a *LogAggregator) GetLogs() string {
 	return log
 }
 
+var dhcpNoise = regexp.MustCompile(`dhclient\[|]: (XMT|RCV|PRC):`)
+
 func (a *LogAggregator) journalNoDhcp() string {
-	command := exec.Command("journalctl", "-n", "2000", "--no-pager")
+	command := exec.Command("journalctl", "-n", "5000", "--no-pager")
 	out, err := command.CombinedOutput()
 	if err != nil {
 		a.logger.Warn("failed", zap.Error(err))
 	}
-	return command.String() + " (dhclient excluded)\n\n" +
-		filterAndTail(string(out), "dhclient[", 1000) + Separator
+	return command.String() + " (dhcp noise excluded)\n\n" +
+		filterAndTail(string(out), dhcpNoise, 1000) + Separator
 }
 
-func filterAndTail(input string, exclude string, n int) string {
+func filterAndTail(input string, exclude *regexp.Regexp, n int) string {
 	var kept []string
 	for _, line := range strings.Split(input, "\n") {
-		if !strings.Contains(line, exclude) {
+		if !exclude.MatchString(line) {
 			kept = append(kept, line)
 		}
 	}

@@ -3,6 +3,7 @@ package support
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -13,13 +14,18 @@ func TestLogAggregator_GetLogs(t *testing.T) {
 	assert.NotEmpty(t, logs)
 }
 
-func TestFilterAndTail_ExcludesMatchingLines(t *testing.T) {
+func TestFilterAndTail_ExcludesDhcpRegardlessOfTag(t *testing.T) {
 	input := "May 22 20:51:49 syncloud dhclient[2301]: XMT: Solicit on eth0\n" +
-		"May 22 20:51:49 syncloud dhclient[2301]: RCV: Advertise message on eth0\n" +
+		"May 22 20:51:49 syncloud sh[2611]: RCV: Advertise message on eth0\n" +
+		"May 22 20:51:49 syncloud sh[2611]: RCV:  | X-- t2 - rebind +0\n" +
+		"May 22 20:51:49 syncloud sh[2611]: PRC: Lease failed to satisfy.\n" +
 		"May 22 20:52:00 syncloud snapd[123]: snap install ok\n" +
 		"May 22 20:53:00 syncloud kernel: usb device connected\n"
-	out := filterAndTail(input, "dhclient[", 1000)
+	out := filterAndTail(input, dhcpNoise, 1000)
 	assert.NotContains(t, out, "dhclient[")
+	assert.NotContains(t, out, "Advertise")
+	assert.NotContains(t, out, "rebind")
+	assert.NotContains(t, out, "Lease failed")
 	assert.Contains(t, out, "snapd[123]")
 	assert.Contains(t, out, "kernel: usb device connected")
 }
@@ -33,7 +39,7 @@ func TestFilterAndTail_KeepsLastNAfterFilter(t *testing.T) {
 			lines = append(lines, "keeper line")
 		}
 	}
-	out := filterAndTail(strings.Join(lines, "\n"), "dhclient[", 1000)
+	out := filterAndTail(strings.Join(lines, "\n"), dhcpNoise, 1000)
 	resultLines := strings.Split(out, "\n")
 	assert.Equal(t, 1000, len(resultLines))
 	for _, l := range resultLines {
@@ -43,11 +49,11 @@ func TestFilterAndTail_KeepsLastNAfterFilter(t *testing.T) {
 
 func TestFilterAndTail_NoTruncationWhenUnderLimit(t *testing.T) {
 	input := "a\nb\nc"
-	out := filterAndTail(input, "x", 1000)
+	out := filterAndTail(input, regexp.MustCompile("x"), 1000)
 	assert.Equal(t, "a\nb\nc", out)
 }
 
 func TestFilterAndTail_EmptyInput(t *testing.T) {
-	out := filterAndTail("", "dhclient[", 1000)
+	out := filterAndTail("", dhcpNoise, 1000)
 	assert.Equal(t, "", out)
 }
