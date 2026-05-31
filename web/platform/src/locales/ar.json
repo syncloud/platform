@@ -72,6 +72,7 @@
   },
   "app": {
     "version": "الإصدار:",
+    "localInstall": "مثبّت محليًا (ليس من المتجر)",
     "open": "فتح",
     "install": "تثبيت v{version}",
     "upgrade": "ترقية إلى v{version}",
@@ -179,7 +180,8 @@
     "note": "ملاحظة: قم بترقية النظام أولًا إن توفر قبل ترقية المثبت.",
     "system": "النظام:",
     "installer": "المثبت:",
-    "upgradeTo": "الترقية إلى {version}"
+    "upgradeTo": "الترقية إلى {version}",
+    "upgrading": "جارٍ الترقية"
   },
   "internalMemory": {
     "title": "الذاكرة الداخلية",

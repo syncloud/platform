@@ -72,6 +72,7 @@
   },
   "app": {
     "version": "バージョン:",
+    "localInstall": "ローカルにインストール済み(ストアからではない)",
     "open": "開く",
     "install": "v{version} をインストール",
     "upgrade": "v{version} にアップグレード",
@@ -179,7 +180,8 @@
     "note": "注: 利用可能な場合はインストーラーより先にシステムをアップグレードしてください。",
     "system": "システム:",
     "installer": "インストーラー:",
-    "upgradeTo": "{version} にアップグレード"
+    "upgradeTo": "{version} にアップグレード",
+    "upgrading": "アップグレード中"
   },
   "internalMemory": {
     "title": "内部ストレージ",

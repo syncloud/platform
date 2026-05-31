@@ -8,6 +8,7 @@ const state = {
   },
   jobStatusRunning: false,
   installerIsRunning: true,
+  installerUpgradeCounter: 0,
   availableAppsSuccess: true,
   activated: true,
   accessSuccess: true,
@@ -236,13 +237,19 @@ const bootDiskData = {
 }
 
 const installerProgress = {
-  counter: 0,
   success: true,
   data: {
     progress: {
       wordpress: {
         app: 'wordpress',
         action: 'Install',
+        summary: 'Downloading',
+        indeterminate: false,
+        percentage: 10
+      },
+      platform: {
+        app: 'platform',
+        action: 'Upgrade',
         summary: 'Downloading',
         indeterminate: false,
         percentage: 10
@@ -312,18 +319,15 @@ export function mock () {
         return new Response(200, {}, installer)
       })
       this.post('/rest/app/upgrade', function (_schema, request) {
-        installerProgress.counter = 0
         state.installerIsRunning = true
         const attrs = JSON.parse(request.requestBody)
         installerProgress.data.progress[attrs.app_id] = {
           app: attrs.app_id,
           action: 'Upgrade'
         }
-        installerProgress.data.progress.app = attrs.app_id
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/install', function (_schema, request) {
-        installerProgress.counter = 0
         state.installerIsRunning = true
         const attrs = JSON.parse(request.requestBody)
         installedApps.add(attrs.app_id)
@@ -334,7 +338,6 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/app/remove', function (_schema, request) {
-        installerProgress.counter = 0
         state.installerIsRunning = true
         const attrs = JSON.parse(request.requestBody)
         installedApps.delete(attrs.app_id)
@@ -351,13 +354,12 @@ export function mock () {
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/installer/status', function (_schema, _request) {
-        console.debug('counter: ' + installerProgress.counter)
-        installerProgress.counter += 1
         for (const [app, progress] of Object.entries(installerProgress.data.progress)) {
-          if (installerProgress.counter <= 5 && progress.action !== 'Remove') {
+          progress.tick = (progress.tick || 0) + 1
+          if (progress.tick <= 5 && progress.action !== 'Remove') {
             progress.indeterminate = false
             progress.summary = 'Downloading'
-            progress.percentage = installerProgress.counter * 20
+            progress.percentage = progress.tick * 20
           } else {
             progress.indeterminate = true
             if (progress.action === 'Upgrade') {
@@ -370,8 +372,7 @@ export function mock () {
               progress.summary = 'Installing'
             }
           }
-          if (installerProgress.counter > 7) {
-            installerProgress.counter = 0
+          if (progress.tick > 7) {
             delete installerProgress.data.progress[app]
           }
         }
@@ -381,6 +382,10 @@ export function mock () {
         return new Response(200, {}, {})
       })
       this.get('/rest/job/status', function (_schema, _request) {
+        if (state.installerUpgradeCounter > 0) {
+          state.installerUpgradeCounter -= 1
+          return new Response(200, {}, { success: true, data: { status: 'Busy', name: 'installer.upgrade' } })
+        }
         state.jobStatusRunning = !state.jobStatusRunning
         return new Response(200, {}, { success: true, data: { status: state.jobStatusRunning ? 'Busy' : 'Idle', name: 'storage.activate.disks' } })
       })
@@ -450,6 +455,7 @@ export function mock () {
       })
 
       this.post('/rest/installer/upgrade', function (_schema, _request) {
+        state.installerUpgradeCounter = 4
         return new Response(200, {}, { success: true })
       })
 
