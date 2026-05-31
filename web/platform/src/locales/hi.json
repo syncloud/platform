@@ -72,6 +72,7 @@
   },
   "app": {
     "version": "संस्करण:",
+    "localInstall": "स्थानीय रूप से इंस्टॉल किया गया (स्टोर से नहीं)",
     "open": "खोलें",
     "install": "v{version} इंस्टॉल करें",
     "upgrade": "v{version} में अपग्रेड करें",
@@ -179,7 +180,8 @@
     "note": "नोट: Installer को अपग्रेड करने से पहले यदि उपलब्ध हो तो पहले System को अपग्रेड करें।",
     "system": "सिस्टम:",
     "installer": "इंस्टॉलर:",
-    "upgradeTo": "{version} में अपग्रेड करें"
+    "upgradeTo": "{version} में अपग्रेड करें",
+    "upgrading": "अपग्रेड हो रहा है"
   },
   "internalMemory": {
     "title": "आंतरिक मेमोरी",

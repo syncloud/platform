@@ -212,7 +212,8 @@
     "note": "Note: upgrade System first if available before upgrading Installer.",
     "system": "System:",
     "installer": "Installer:",
-    "upgradeTo": "Upgrade to {version}"
+    "upgradeTo": "Upgrade to {version}",
+    "upgrading": "Upgrading"
   },
   "internalMemory": {
     "title": "Internal Memory",

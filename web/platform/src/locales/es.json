@@ -72,6 +72,7 @@
   },
   "app": {
     "version": "Versión:",
+    "localInstall": "Instalado localmente (no desde la tienda)",
     "open": "Abrir",
     "install": "Instalar v{version}",
     "upgrade": "Actualizar v{version}",
@@ -179,7 +180,8 @@
     "note": "Nota: actualiza el Sistema primero si está disponible antes de actualizar el Instalador.",
     "system": "Sistema:",
     "installer": "Instalador:",
-    "upgradeTo": "Actualizar a {version}"
+    "upgradeTo": "Actualizar a {version}",
+    "upgrading": "Actualizando"
   },
   "internalMemory": {
     "title": "Memoria interna",
