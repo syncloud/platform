@@ -18,17 +18,33 @@ BUILD_DIR=${DIR}/build/snap
 apt update
 apt install -y wget squashfs-tools dpkg-dev
 
+# wget treats DNS resolution failures as fatal and never retries them
+download() {
+    local url=$1
+    local out=$2
+    local attempt
+    for attempt in $(seq 1 10); do
+        if wget --tries=3 --timeout=60 --retry-connrefused --retry-on-http-error=503,429 --progress=dot:giga -O "${out}" "${url}"; then
+            return 0
+        fi
+        echo "download attempt ${attempt} failed for ${url}, retrying in $((attempt * 5))s"
+        sleep $((attempt * 5))
+    done
+    echo "download failed after 10 attempts: ${url}"
+    return 1
+}
+
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
 
-wget http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb
+download http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb
 dpkg -x ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb .
 mv usr/share/ca-certificates/mozilla ${BUILD_DIR}/certs
 
-wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz
+download https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
-wget --retry-on-http-error=503 --progress=dot:giga https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz
+download https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz btrfs-${ARCH}.tar.gz
 tar xf btrfs-${ARCH}.tar.gz
 mv btrfs ${BUILD_DIR}
 

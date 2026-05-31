@@ -8,32 +8,54 @@
           <div class="col2">
             <div class="setline update-line">
               <span class="span">{{ $t('updates.check') }}</span>
-              <el-button id="btn_check_updates" type="primary" @click="check">{{ $t('updates.checkButton') }}</el-button>
+              <el-button id="btn_check_updates" type="primary" :disabled="busy" @click="check">{{ $t('updates.checkButton') }}</el-button>
             </div>
             <div class="setline">
               <span class="span">{{ $t('updates.note') }}</span>
             </div>
+
             <div class="setline update-line">
               <span class="span">{{ $t('updates.system') }} <span id="txt_platform_version">{{ platformVersion }}</span></span>
               <el-button
-                v-if="platformVersion !== platformVersionAvailable"
+                v-if="!platform.progress && platformVersion !== platformVersionAvailable"
                 id="btn_platform_upgrade"
                 type="success"
+                :disabled="busy"
                 @click="upgradePlatform"
               >
                 {{ $t('updates.upgradeTo', { version: platformVersionAvailable }) }}
               </el-button>
+              <div class="update-progress" id="platform_progress" v-if="platform.progress">
+                <span class="update-progress-summary" id="platform_progress_summary">{{ platform.summary }}</span>
+                <el-progress
+                  :percentage="platform.percentage"
+                  :indeterminate="platform.indeterminate"
+                  :show-text="false"
+                  :stroke-width="6"
+                />
+              </div>
             </div>
+
             <div class="setline update-line">
               <span class="span">{{ $t('updates.installer') }} <span id="txt_installer_version">{{ installerVersion }}</span></span>
               <el-button
-                v-if="installerVersion !== installerVersionAvailable"
+                v-if="!installer.progress && installerVersion !== installerVersionAvailable"
                 id="btn_installer_upgrade"
                 type="success"
+                :disabled="busy"
                 @click="upgradeInstaller"
               >
                 {{ $t('updates.upgradeTo', { version: installerVersionAvailable }) }}
               </el-button>
+              <div class="update-progress" id="installer_progress" v-if="installer.progress">
+                <span class="update-progress-summary" id="installer_progress_summary">{{ installer.summary }}</span>
+                <el-progress
+                  :percentage="installer.percentage"
+                  :indeterminate="installer.indeterminate"
+                  :show-text="false"
+                  :stroke-width="6"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -62,12 +84,19 @@ export default {
       platformVersionAvailable: undefined,
       installerVersion: undefined,
       installerVersionAvailable: undefined,
+      platform: { progress: false, summary: '', percentage: 0, indeterminate: true },
+      installer: { progress: false, summary: '', percentage: 0, indeterminate: true },
       loading: undefined
+    }
+  },
+  computed: {
+    busy () {
+      return this.platform.progress || this.installer.progress
     }
   },
   mounted () {
     this.progressShow()
-    this.versions()
+    this.versions(() => this.resume())
   },
   methods: {
     progressShow () {
@@ -78,53 +107,104 @@ export default {
         this.loading.close()
       }
     },
+    onError (err) {
+      this.platform.progress = false
+      this.installer.progress = false
+      this.progressHide()
+      this.$refs.error.showAxios(err)
+    },
+    resume () {
+      axios.get(Common.INSTALLER_STATUS_URL)
+        .then(resp => {
+          const progress = resp.data.data.progress
+          if (progress && progress.platform) {
+            this.trackPlatform()
+          }
+        })
+        .catch(() => {})
+      axios.get(Common.JOB_STATUS_URL)
+        .then(resp => {
+          const job = resp.data.data
+          if (job.status !== 'Idle' && job.name === 'installer.upgrade') {
+            this.trackInstaller()
+          }
+        })
+        .catch(() => {})
+    },
+    trackPlatform () {
+      this.platform.progress = true
+      Common.runAfterJobIsComplete(
+        setTimeout,
+        () => { this.platform.progress = false; this.versions() },
+        this.onError,
+        Common.INSTALLER_STATUS_URL,
+        (response) => {
+          const all = response.data.data.progress
+          const progress = all ? all.platform : undefined
+          if (!progress) {
+            return false
+          }
+          this.platform.progress = true
+          this.platform.summary = progress.summary
+          if (progress.indeterminate) {
+            this.platform.indeterminate = true
+            this.platform.percentage = 20
+          } else {
+            this.platform.indeterminate = false
+            this.platform.percentage = progress.percentage
+          }
+          return true
+        }
+      )
+    },
+    trackInstaller () {
+      this.installer.progress = true
+      this.installer.indeterminate = true
+      this.installer.summary = this.$t('updates.upgrading')
+      Common.runAfterJobIsComplete(
+        setTimeout,
+        () => { this.installer.progress = false; this.versions() },
+        this.onError,
+        Common.JOB_STATUS_URL,
+        (response) => {
+          const job = response.data.data
+          if (job.status !== 'Idle' && job.name === 'installer.upgrade') {
+            this.installer.progress = true
+            this.installer.indeterminate = true
+            this.installer.summary = this.$t('updates.upgrading')
+            return true
+          }
+          return false
+        }
+      )
+    },
     upgradePlatform () {
-      this.progressShow()
-      const that = this
-      const onError = (err) => {
-        that.$refs.error.showAxios(err)
-        this.progressHide()
-      }
-
+      this.platform.progress = true
+      this.platform.indeterminate = true
+      this.platform.percentage = 0
+      this.platform.summary = this.$t('updates.upgrading')
       axios.post('/rest/app/upgrade', { app_id: 'platform' })
         .then((resp) => {
-          Common.checkForServiceError(resp.data, () => {
-            Common.runAfterJobIsComplete(
-              setTimeout,
-              this.versions,
-              onError,
-              Common.INSTALLER_STATUS_URL,
-              Common.DEFAULT_STATUS_PREDICATE)
-          }, onError)
+          Common.checkForServiceError(resp.data, this.trackPlatform, this.onError)
         })
-        .catch(onError)
+        .catch(this.onError)
     },
     upgradeInstaller () {
-      this.progressShow()
-      const that = this
-      const onError = err => {
-        that.$refs.error.showAxios(err)
-        this.progressHide()
-      }
-
+      this.installer.progress = true
+      this.installer.indeterminate = true
+      this.installer.percentage = 0
+      this.installer.summary = this.$t('updates.upgrading')
       axios.post('/rest/installer/upgrade')
         .then((resp) => {
-          Common.checkForServiceError(resp.data, () => {
-            Common.runAfterJobIsComplete(
-              setTimeout,
-              this.versions,
-              onError,
-              Common.JOB_STATUS_URL,
-              Common.JOB_STATUS_PREDICATE)
-          }, onError)
+          Common.checkForServiceError(resp.data, this.trackInstaller, this.onError)
         })
-        .catch(onError)
+        .catch(this.onError)
     },
     check () {
       this.progressShow()
       this.versions()
     },
-    versions () {
+    versions (onComplete) {
       Promise.all([
         axios.get('/rest/app', { params: { app_id: 'platform' } }),
         axios.get('/rest/installer/version')]
@@ -135,6 +215,9 @@ export default {
           this.installerVersion = results[1].data.data.installed_version
           this.installerVersionAvailable = results[1].data.data.store_version
           this.progressHide()
+          if (onComplete) {
+            onComplete()
+          }
         })
         .catch(err => {
           this.progressHide()
@@ -151,8 +234,20 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 40px;
 }
 .update-line .el-button {
   min-width: 120px;
+}
+.update-progress {
+  flex: 0 0 auto;
+  width: 120px;
+}
+.update-progress-summary {
+  display: block;
+  margin-bottom: 4px;
+  color: #606266;
+  font-size: 12px;
+  text-align: center;
 }
 </style>
