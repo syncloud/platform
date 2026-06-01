@@ -22,13 +22,13 @@
       <div v-if="!progress">
         <div class="backup-auto">
           <div class="backup-auto-controls">
-            <el-select id="auto" v-model="auto" style="width: 140px"
+            <el-select id="auto" v-model="auto" class="bk-sel bk-auto"
                        :placeholder="$t('backup.select')">
               <el-option id="auto-no" :label="$t('backup.autoNo')" value="no"/>
               <el-option id="auto-backup" :label="$t('backup.autoBackup')" value="backup"/>
               <el-option id="auto-restore" :label="$t('backup.autoRestore')" value="restore"/>
             </el-select>
-            <el-select id="auto-day" v-model="autoDay" style="width: 100px"
+            <el-select id="auto-day" v-model="autoDay" class="bk-sel bk-day"
                        :placeholder="$t('backup.select')" :disabled="auto === 'no'">
               <el-option id="auto-day-every" :label="$t('backup.daily')" :value="0"/>
               <el-option id="auto-day-monday" :label="$t('backup.mon')" :value="1"/>
@@ -39,7 +39,7 @@
               <el-option :label="$t('backup.sat')" :value="6"/>
               <el-option :label="$t('backup.sun')" :value="7"/>
             </el-select>
-            <el-select id="auto-hour" v-model="autoHour" style="width: 90px"
+            <el-select id="auto-hour" v-model="autoHour" class="bk-sel bk-hour"
                        :placeholder="$t('backup.select')" :disabled="auto === 'no'">
               <el-option v-for="hour in 24" :id="'auto-hour-' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'"
                          :value="(hour-1)"/>
@@ -49,7 +49,7 @@
             {{ $t('backup.save') }}
           </el-button>
         </div>
-        <el-table :data="filteredData" style="width: 100%" table-layout="fixed">
+        <el-table class="backup-table" :data="filteredData" style="width: 100%" table-layout="fixed">
           <el-table-column :label="$t('backup.name')" prop="file" :sortable="true"/>
           <el-table-column align="right" width="200px">
             <template #header>
@@ -249,5 +249,48 @@ export default {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+.bk-auto { width: 150px; }
+.bk-day { width: 112px; }
+.bk-hour { width: 96px; }
+
+@media (max-width: 600px) {
+  .backup-auto {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .backup-auto-controls {
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 8px;
+  }
+  .bk-sel {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+  #save {
+    align-self: flex-end;
+  }
+
+  /* stack each backup entry: filename full row, actions right-aligned below */
+  .backup-table :deep(.el-table__cell) {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  .backup-table :deep(.el-table__row) {
+    display: block;
+    padding: 6px 0;
+    border-bottom: 1px solid #eef3f9;
+  }
+  .backup-table :deep(.cell) {
+    white-space: normal;
+    word-break: break-all;
+  }
+  .backup-table :deep(.el-table__row td.el-table__cell:last-child .cell) {
+    text-align: right;
+  }
 }
 </style>
