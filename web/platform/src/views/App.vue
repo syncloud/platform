@@ -6,39 +6,44 @@
 
         <div class="app-actions" v-if="!progress">
           <button id="btn_open" :data-url="info.app.url" class="app-btn app-btn-primary"
-                  @click="open"
+                  @click="open" :title="$t('app.open')" :aria-label="$t('app.open')"
                   v-if="info.installed_version !== null">
-            {{ $t('app.open') }}
+            <i class="material-icons app-btn-glyph">launch</i><span class="app-btn-label">{{ $t('app.open') }}</span>
           </button>
           <button id="btn_install" class="app-btn app-btn-primary"
                   data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing..."
-                  @click="install"
+                  @click="install" :title="$t('app.install', { version: info.current_version })" :aria-label="$t('app.install', { version: info.current_version })"
                   v-if="info.installed_version === null && !info.local_install">
-            {{ $t('app.install', { version: info.current_version }) }}
+            <i class="material-icons app-btn-glyph">download</i><span class="app-btn-label">{{ $t('app.install', { version: info.current_version }) }}</span>
           </button>
           <button id="btn_upgrade" class="app-btn app-btn-upgrade"
                   data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
-                  @click="upgrade"
+                  @click="upgrade" :title="$t('app.upgrade', { version: info.current_version })" :aria-label="$t('app.upgrade', { version: info.current_version })"
                   v-if="info.installed_version !== null && !info.local_install && info.installed_version !== info.current_version">
-            {{ $t('app.upgrade', { version: info.current_version }) }}
+            <i class="material-icons app-btn-glyph">upgrade</i><span class="app-btn-label">{{ $t('app.upgrade', { version: info.current_version }) }}</span>
           </button>
           <button id="btn_remove" data-testid="btn_remove" class="app-btn app-btn-danger"
                   data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
-                  @click="remove"
+                  @click="remove" :title="$t('app.remove')" :aria-label="$t('app.remove')"
                   v-if="info.installed_version !== null">
-            {{ $t('app.remove') }}
+            <i class="material-icons app-btn-glyph">delete</i><span class="app-btn-label">{{ $t('app.remove') }}</span>
           </button>
           <button id="btn_backup" class="app-btn app-btn-tonal"
                   data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup..."
-                  @click="backupConfirm"
+                  @click="backupConfirm" :title="$t('app.backup')" :aria-label="$t('app.backup')"
                   v-if="info.installed_version !== null">
-            {{ $t('app.backup') }}
+            <i class="material-icons app-btn-glyph">backup</i><span class="app-btn-label">{{ $t('app.backup') }}</span>
           </button>
         </div>
 
-        <div v-if="progress" id="progress" class="app-progress">
-          <div id="progress_summary" class="app-progress-summary">{{ progressSummary }}</div>
-          <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate" :stroke-width="8"/>
+        <div v-if="progress" id="progress" class="app-progress" :title="progressSummary">
+          <svg class="app-ring" :class="{ spin: progressIndeterminate }" viewBox="0 0 44 44">
+            <circle class="app-ring-track" cx="22" cy="22" r="19"/>
+            <circle class="app-ring-fill" cx="22" cy="22" r="19"
+                    :stroke-dasharray="ringCircumference"
+                    :stroke-dashoffset="progressIndeterminate ? ringCircumference * 0.72 : ringCircumference * (1 - progressPercentage / 100)"/>
+          </svg>
+          <span id="progress_summary" class="sr-only">{{ progressSummary }}</span>
         </div>
       </div>
 
@@ -111,6 +116,9 @@ export default {
     Error
   },
   computed: {
+    ringCircumference () {
+      return 2 * Math.PI * 19
+    },
     showDescription () {
       const d = (this.info && this.info.app && this.info.app.description ? this.info.app.description : '').trim()
       const name = (this.info && this.info.app && this.info.app.name ? this.info.app.name : '').trim()
@@ -297,20 +305,58 @@ export default {
   flex: 1;
   min-width: 0;
   align-self: center;
-}
-.app-progress-summary {
-  text-align: left;
-  font-size: 13px;
-  color: var(--sc-muted);
-  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* modern app-store style pill buttons */
+/* round (circular) progress, no words */
+.app-ring {
+  width: 56px;
+  height: 56px;
+}
+.app-ring.spin {
+  animation: app-ring-rotate 0.9s linear infinite;
+}
+.app-ring-track {
+  fill: none;
+  stroke: var(--sc-primary-soft);
+  stroke-width: 4;
+}
+.app-ring-fill {
+  fill: none;
+  stroke: var(--sc-primary);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.3s ease;
+}
+@keyframes app-ring-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* modern app-store style buttons: glyph + label pills, icon-only on mobile */
 .app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--sc-font);
   font-weight: 600;
   font-size: 14px;
-  padding: 9px 22px;
+  padding: 9px 20px;
   border-radius: 999px;
   border: none;
   cursor: pointer;
@@ -319,6 +365,7 @@ export default {
 }
 .app-btn:active { transform: translateY(1px); }
 .app-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.app-btn-glyph { font-size: 18px; line-height: 1; }
 .app-btn-primary {
   background: linear-gradient(135deg, var(--sc-primary) 0%, var(--sc-primary-dark) 100%);
   color: #fff;
@@ -344,6 +391,16 @@ export default {
 
 @media (max-width: 600px) {
   .appimg { width: 72px; height: 72px; border-radius: 18px; }
-  .app-btn { padding: 8px 16px; font-size: 13px; }
+  .app-actions { gap: 12px; }
+  .app-btn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .app-btn-label { display: none; }
+  .app-btn-glyph { font-size: 22px; }
+  .app-ring { width: 48px; height: 48px; }
 }
 </style>
