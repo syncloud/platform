@@ -49,7 +49,7 @@
 
       <h1 id="app_name" data-testid="app_name" class="app-name">{{ info.app.name }}</h1>
       <div class="app-meta">
-        <span v-if="info.installed_version !== null && !progress" class="app-version">{{ $t('app.version') }} {{ info.installed_version }}</span>
+        <span v-if="displayVersion && !progress" class="app-version">{{ $t('app.version') }} {{ displayVersion }}</span>
         <span v-if="info.local_install" id="local_install_badge" data-testid="local_install_badge" class="app-badge">{{ $t('app.localInstall') }}</span>
       </div>
 
@@ -118,6 +118,13 @@ export default {
   computed: {
     ringCircumference () {
       return 2 * Math.PI * 19
+    },
+    displayVersion () {
+      if (!this.info) return ''
+      if (this.info.installed_version !== null && this.info.installed_version !== undefined) {
+        return this.info.installed_version
+      }
+      return this.info.current_version || ''
     },
     showDescription () {
       const d = (this.info && this.info.app && this.info.app.description ? this.info.app.description : '').trim()
@@ -245,7 +252,7 @@ export default {
 <style scoped>
 .app-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -379,15 +386,15 @@ export default {
 }
 .app-btn-upgrade:hover { filter: brightness(1.04); }
 .app-btn-tonal {
-  background: var(--sc-primary-soft);
-  color: var(--sc-primary);
+  background: #eef2f7;
+  color: var(--sc-ink-2);
 }
-.app-btn-tonal:hover { background: #d9e9fb; }
+.app-btn-tonal:hover { background: #e3e9f1; }
 .app-btn-danger {
-  background: #fdeced;
+  background: #eef2f7;
   color: var(--sc-danger);
 }
-.app-btn-danger:hover { background: #fbdcde; }
+.app-btn-danger:hover { background: #fbe6e7; }
 
 @media (max-width: 600px) {
   .appimg { width: 64px; height: 64px; border-radius: 16px; }
