@@ -286,6 +286,7 @@ export default {
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 14px;
+  min-height: 22px;
 }
 .app-version {
   font-size: 14px;
