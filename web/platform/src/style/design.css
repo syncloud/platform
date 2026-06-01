@@ -193,7 +193,7 @@ body {
 
 .sc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 18px;
   margin-top: 4px;
 }
@@ -293,7 +293,7 @@ body {
   box-shadow: none;
   max-width: 1000px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 18px;
   padding: 0;
 }
@@ -324,7 +324,7 @@ body {
   box-shadow: var(--sc-shadow-soft);
   transform: translateY(-2px);
 }
-.appimg { width: 96px; height: 96px; border-radius: 24px; }
+.appimg { width: 115px; height: 115px; border-radius: 30px; }
 .appname, .setting-name { font-size: 14px; font-weight: 600; margin: 0; }
 .withline { border-bottom: none; }
 .appcenterh {
@@ -381,5 +381,5 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
   }
   .sc-tile, .colapp, .app-link { padding: 14px 6px; }
   .sc-tile-icon { font-size: 52px !important; }
-  .appimg { width: 76px; height: 76px; border-radius: 20px; }
+  .appimg { width: 96px; height: 96px; border-radius: 24px; }
 }
