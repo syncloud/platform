@@ -179,6 +179,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 		{ 
 			"name": "app",
 			"summary": "app summary",
+			"description": "app description",
 			"channel": "stable",
 			"version": "1",
 			"type": "app",
@@ -212,6 +213,7 @@ func TestInstalledUserApps_OK(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(apps), 1)
 	assert.Equal(t, apps[0].Id, "app")
+	assert.Equal(t, "app description", apps[0].Description)
 }
 
 func TestInstalledUserApps_Sorted(t *testing.T) {
@@ -264,6 +266,7 @@ func TestStoreUserApps_OK(t *testing.T) {
 		{ 
 			"name": "app",
 			"summary": "app summary",
+			"description": "app description",
 			"channel": "stable",
 			"version": "1",
 			"type": "app",
@@ -307,6 +310,7 @@ func TestServer_FindInStore_Found(t *testing.T) {
 		{ 
 			"name": "app",
 			"summary": "app summary",
+			"description": "app description",
 			"channel": "stable",
 			"version": "1",
 			"type": "app",
@@ -427,6 +431,7 @@ func TestServer_Find_NotInstalled(t *testing.T) {
 		{ 
 			"name": "app",
 			"summary": "app summary",
+			"description": "app description",
 			"channel": "stable",
 			"version": "1",
 			"type": "app",
@@ -480,6 +485,7 @@ func TestServer_Find_Installed(t *testing.T) {
 		{ 
 			"name": "app",
 			"summary": "app summary",
+			"description": "app description",
 			"channel": "stable",
 			"version": "2",
 			"type": "app",

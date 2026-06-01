@@ -6,13 +6,14 @@ import (
 )
 
 type Snap struct {
-	Name    string      `json:"name"`
-	Summary string      `json:"summary"`
-	Channel string      `json:"channel"`
-	Version string      `json:"version"`
-	Type    string      `json:"type"`
-	Apps    []App       `json:"apps"`
-	Media   []SnapMedia `json:"media,omitempty"`
+	Name        string      `json:"name"`
+	Summary     string      `json:"summary"`
+	Description string      `json:"description"`
+	Channel     string      `json:"channel"`
+	Version     string      `json:"version"`
+	Type        string      `json:"type"`
+	Apps        []App       `json:"apps"`
+	Media       []SnapMedia `json:"media,omitempty"`
 }
 
 type SnapMedia struct {
@@ -45,10 +46,11 @@ func (s *Snap) toSyncloudApp(url string) SyncloudAppVersions {
 	icon := strings.TrimPrefix(s.Channel, "latest/")
 	return SyncloudAppVersions{
 		App: SyncloudApp{
-			Id:   s.Name,
-			Name: s.Summary,
-			Url:  url,
-			Icon: fmt.Sprintf("/rest/proxy/image?channel=%s&app=%s", icon, s.Name),
+			Id:          s.Name,
+			Name:        s.Summary,
+			Description: s.Description,
+			Url:         url,
+			Icon:        fmt.Sprintf("/rest/proxy/image?channel=%s&app=%s", icon, s.Name),
 		},
 	}
 }
