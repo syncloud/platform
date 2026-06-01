@@ -193,7 +193,8 @@ body {
 
 .sc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, 150px);
+  justify-content: center;
   gap: 18px;
   margin-top: 4px;
 }
@@ -293,7 +294,8 @@ body {
   box-shadow: none;
   max-width: 1000px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, 150px);
+  justify-content: center;
   gap: 18px;
   padding: 0;
 }
