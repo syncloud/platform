@@ -5,7 +5,7 @@
         <img :src="info.app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
 
         <div class="app-actions" v-if="!progress">
-          <button id="btn_open" :data-url="info.app.url" class="app-btn app-btn-primary"
+          <button id="btn_open" :data-url="info.app.url" class="app-btn app-btn-primary app-btn-labeled"
                   @click="open" :title="$t('app.open')" :aria-label="$t('app.open')"
                   v-if="info.installed_version !== null">
             <i class="material-icons app-btn-glyph">launch</i><span class="app-btn-label">{{ $t('app.open') }}</span>
@@ -400,7 +400,7 @@ export default {
 @media (max-width: 600px) {
   .appimg { width: 96px; height: 96px; border-radius: 24px; }
   .app-head { gap: 12px; }
-  .app-actions { gap: 8px; flex-wrap: nowrap; }
+  .app-actions { gap: 8px; flex-wrap: wrap; }
   .app-btn {
     width: 38px;
     height: 38px;
