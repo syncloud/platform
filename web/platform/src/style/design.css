@@ -372,4 +372,14 @@ body {
 h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12px; }
 
 #txt_device_domain { font-size: 16px; color: var(--sc-primary); font-weight: 600; }
-</content>
+
+@media (max-width: 600px) {
+  .sc-card { padding: 22px 16px 24px; }
+  .sc-grid, .appcenterlist {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .sc-tile, .colapp, .app-link { padding: 14px 6px; }
+  .sc-tile-icon { font-size: 52px !important; }
+  .appimg { width: 76px; height: 76px; border-radius: 20px; }
+}
