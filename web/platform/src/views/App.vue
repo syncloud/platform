@@ -399,11 +399,11 @@ export default {
 
 @media (max-width: 600px) {
   .appimg { width: 96px; height: 96px; border-radius: 24px; }
-  .app-head { gap: 12px; }
-  .app-actions { gap: 8px; flex-wrap: wrap; }
+  .app-head { gap: 10px; }
+  .app-actions { gap: 6px; flex-wrap: wrap; }
   .app-btn {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     justify-content: center;
     border-radius: 50%;
@@ -414,8 +414,9 @@ export default {
   .app-ring { width: 42px; height: 42px; }
   .app-btn.app-btn-labeled {
     width: auto;
-    height: auto;
-    padding: 9px 22px;
+    height: 36px;
+    padding: 0 13px;
+    gap: 6px;
     border-radius: 999px;
   }
   .app-btn.app-btn-labeled .app-btn-label { display: inline; }
