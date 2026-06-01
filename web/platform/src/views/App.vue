@@ -16,24 +16,32 @@
                   v-if="info.installed_version === null && !info.local_install">
             <i class="material-icons app-btn-glyph">download</i><span class="app-btn-label">{{ $t('app.install') }}</span>
           </button>
-          <button id="btn_upgrade" class="app-btn app-btn-upgrade"
-                  data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
-                  @click="upgrade" :title="$t('app.upgrade', { version: info.current_version })" :aria-label="$t('app.upgrade', { version: info.current_version })"
-                  v-if="info.installed_version !== null && !info.local_install && info.installed_version !== info.current_version">
-            <i class="material-icons app-btn-glyph">upgrade</i><span class="app-btn-label">{{ $t('app.upgrade', { version: info.current_version }) }}</span>
-          </button>
-          <button id="btn_remove" data-testid="btn_remove" class="app-btn app-btn-danger"
-                  data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
-                  @click="remove" :title="$t('app.remove')" :aria-label="$t('app.remove')"
-                  v-if="info.installed_version !== null">
-            <i class="material-icons app-btn-glyph">delete</i><span class="app-btn-label">{{ $t('app.remove') }}</span>
-          </button>
-          <button id="btn_backup" class="app-btn app-btn-tonal"
-                  data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup..."
-                  @click="backupConfirm" :title="$t('app.backup')" :aria-label="$t('app.backup')"
-                  v-if="info.installed_version !== null">
-            <i class="material-icons app-btn-glyph">backup</i><span class="app-btn-label">{{ $t('app.backup') }}</span>
-          </button>
+
+          <div class="app-more-wrap" v-if="info.installed_version !== null">
+            <button type="button" id="app_more_toggle" data-testid="app_more" class="app-btn app-btn-tonal app-more-toggle"
+                    @click="moreOpen = !moreOpen" aria-label="More" aria-haspopup="true" :aria-expanded="moreOpen ? 'true' : 'false'">
+              <i class="material-icons app-btn-glyph">more_vert</i>
+            </button>
+            <div class="app-more-backdrop" v-if="moreOpen" @click="moreOpen = false"></div>
+            <div class="app-more" :class="{ open: moreOpen }">
+              <button id="btn_upgrade" class="app-btn app-btn-upgrade"
+                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
+                      @click="moreOpen = false; upgrade()" :title="$t('app.upgrade', { version: info.current_version })" :aria-label="$t('app.upgrade', { version: info.current_version })"
+                      v-if="!info.local_install && info.installed_version !== info.current_version">
+                <i class="material-icons app-btn-glyph">upgrade</i><span class="app-btn-label">{{ $t('app.upgrade', { version: info.current_version }) }}</span>
+              </button>
+              <button id="btn_remove" data-testid="btn_remove" class="app-btn app-btn-danger"
+                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
+                      @click="moreOpen = false; remove()" :title="$t('app.remove')" :aria-label="$t('app.remove')">
+                <i class="material-icons app-btn-glyph">delete</i><span class="app-btn-label">{{ $t('app.remove') }}</span>
+              </button>
+              <button id="btn_backup" class="app-btn app-btn-tonal"
+                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup..."
+                      @click="moreOpen = false; backupConfirm()" :title="$t('app.backup')" :aria-label="$t('app.backup')">
+                <i class="material-icons app-btn-glyph">backup</i><span class="app-btn-label">{{ $t('app.backup') }}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div v-if="progress" id="progress" class="app-progress" :title="progressSummary">
@@ -108,7 +116,8 @@ export default {
       progressSummary: '',
       progressIndeterminate: true,
       appActionConfirmationVisible: false,
-      backupConfirmationVisible: false
+      backupConfirmationVisible: false,
+      moreOpen: false
     }
   },
   components: {
@@ -397,6 +406,12 @@ export default {
 }
 .app-btn-danger:hover { background: #fbe6e7; }
 
+/* desktop: secondary actions render inline, no overflow menu */
+.app-more-wrap { display: contents; }
+.app-more { display: contents; }
+.app-more-toggle { display: none; }
+.app-more-backdrop { display: none; }
+
 @media (max-width: 600px) {
   .appimg { width: 96px; height: 96px; border-radius: 24px; }
   .app-head { gap: 10px; }
@@ -420,5 +435,40 @@ export default {
     border-radius: 999px;
   }
   .app-btn.app-btn-labeled .app-btn-label { display: inline; }
+
+  /* mobile: collapse secondary actions into a three-dots overflow menu */
+  .app-more-wrap { display: inline-flex; position: relative; }
+  .app-more-toggle { display: inline-flex; }
+  .app-more {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    flex-direction: column;
+    gap: 4px;
+    background: #fff;
+    border: 1px solid var(--sc-border);
+    border-radius: 14px;
+    box-shadow: 0 14px 30px -12px rgba(22, 50, 92, 0.28);
+    padding: 6px;
+    min-width: 180px;
+    z-index: 30;
+  }
+  .app-more.open { display: flex; }
+  .app-more .app-btn {
+    width: 100%;
+    height: auto;
+    padding: 11px 14px;
+    border-radius: 10px;
+    justify-content: flex-start;
+    background: transparent;
+    box-shadow: none;
+    color: var(--sc-ink-2);
+  }
+  .app-more .app-btn-glyph { font-size: 20px; }
+  .app-more .app-btn .app-btn-label { display: inline; }
+  .app-more .app-btn-upgrade { color: var(--sc-success); }
+  .app-more .app-btn-danger { color: var(--sc-danger); }
+  .app-more-backdrop { display: block; position: fixed; inset: 0; z-index: 29; }
 }
 </style>

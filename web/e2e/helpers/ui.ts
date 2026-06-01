@@ -45,6 +45,15 @@ export async function settings(page: Page, key: string, testInfo: TestInfo) {
   await waitForLoading(page)
 }
 
+export async function openAppMenu(page: Page, testInfo: TestInfo) {
+  if (uiMode(testInfo) !== 'mobile') return
+  const toggle = page.locator('#app_more_toggle')
+  if (await toggle.isVisible().catch(() => false)) {
+    await toggle.click()
+    await page.waitForTimeout(200)
+  }
+}
+
 export async function clickElSelect(page: Page, selectId: string) {
   const wrapper = page.locator(`xpath=//*[@id='${selectId}']/ancestor::div[contains(@class, 'el-select__wrapper')]`)
   await wrapper.click()

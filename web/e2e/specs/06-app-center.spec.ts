@@ -1,6 +1,6 @@
 import { test, expect, request, Page } from '@playwright/test'
 import { login } from '../helpers/login'
-import { menu, waitForLoading } from '../helpers/ui'
+import { menu, waitForLoading, openAppMenu } from '../helpers/ui'
 import { ssh } from '../helpers/ssh'
 import { shoot } from '../helpers/screenshot'
 
@@ -37,7 +37,7 @@ test('install app', async ({}, testInfo) => {
   await expect(page.getByRole('heading', { name: 'File browser' })).toBeVisible()
   await page.locator('#btn_install').click()
   await page.locator('#btn_confirm').click()
-  await expect(page.locator('#btn_remove')).toBeVisible({ timeout: 600_000 })
+  await expect(page.locator('#btn_open')).toBeVisible({ timeout: 600_000 })
   await shoot(page, testInfo, 'app_installed')
 
   ssh('ls -la /var/snap/files/common/', { throw: false })
@@ -53,6 +53,7 @@ test('install app', async ({}, testInfo) => {
 })
 
 test('remove app', async ({}, testInfo) => {
+  await openAppMenu(page, testInfo)
   await page.locator('#btn_remove').click()
   await page.locator('#btn_confirm').click()
   await waitForLoading(page)
