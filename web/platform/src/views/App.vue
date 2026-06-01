@@ -267,7 +267,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   min-width: 0;
 }
