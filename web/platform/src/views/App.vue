@@ -257,9 +257,9 @@ export default {
   margin-bottom: 18px;
 }
 .appimg {
-  width: 88px;
-  height: 88px;
-  border-radius: 22px;
+  width: 115px;
+  height: 115px;
+  border-radius: 30px;
   flex-shrink: 0;
 }
 .app-actions {
@@ -398,7 +398,7 @@ export default {
 .app-btn-danger:hover { background: #fbe6e7; }
 
 @media (max-width: 600px) {
-  .appimg { width: 64px; height: 64px; border-radius: 16px; }
+  .appimg { width: 96px; height: 96px; border-radius: 24px; }
   .app-head { gap: 12px; }
   .app-actions { gap: 8px; flex-wrap: nowrap; }
   .app-btn {
