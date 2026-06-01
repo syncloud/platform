@@ -139,7 +139,7 @@
     "port": "पोर्ट:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "प्रमाणीकरण",
     "autheliaHint": "अपस्ट्रीम तक पहुँचने से पहले लॉगिन (SSO + 2FA) आवश्यक करें",
     "add": "जोड़ें",
     "proxies": "प्रॉक्सी",

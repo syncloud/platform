@@ -139,7 +139,7 @@
     "port": "المنفذ:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "المصادقة",
     "autheliaHint": "تطلب تسجيل الدخول (SSO + 2FA) قبل الوصول إلى الخادم",
     "add": "إضافة",
     "proxies": "الوكلاء",

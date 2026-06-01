@@ -139,7 +139,7 @@
     "port": "端口:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "身份验证",
     "autheliaHint": "在到达上游之前需要登录（SSO + 2FA）",
     "add": "添加",
     "proxies": "代理",

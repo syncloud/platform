@@ -139,7 +139,7 @@
     "port": "Puerto:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "Autenticación",
     "autheliaHint": "requerir inicio de sesión (SSO + 2FA) antes de llegar al upstream",
     "add": "Añadir",
     "proxies": "Proxies",

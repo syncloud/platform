@@ -34,7 +34,9 @@
       <div class="setline" style='display: flex; align-items: center;'>
         <label class="span proxy-label" for="proxy_authelia">{{ $t('customProxy.authelia') }}</label>
         <input id="proxy_authelia" data-testid="proxy-authelia" type="checkbox" v-model="newAuthelia">
-        <span class="proxy-hint">{{ $t('customProxy.autheliaHint') }}</span>
+        <button type="button" class="proxy-help" @click="autheliaInfoVisible = true" aria-label="?">
+          <i class="fa fa-question-circle fa-lg"></i>
+        </button>
       </div>
 
       <div class="sc-actions" style="justify-content: flex-start">
@@ -47,17 +49,22 @@
         <span>{{ $t('customProxy.noProxies') }}</span>
       </div>
 
-      <div v-for="proxy in proxies" :key="proxy.name" class="setline proxy-entry" style='display: flex; align-items: center;'>
-        <a class="proxy-label sc-link" :href="'https://' + proxy.name + '.' + domain" target="_blank" :data-testid="'proxy-link-' + proxy.name">{{ proxy.name }}</a>
-        <span style="flex: 1">{{ proxy.https ? 'https' : 'http' }}://{{ proxy.host }}:{{ proxy.port }}</span>
+      <div v-for="proxy in proxies" :key="proxy.name" class="proxy-entry">
+        <a class="proxy-link sc-link" :href="'https://' + proxy.name + '.' + domain" target="_blank" :data-testid="'proxy-link-' + proxy.name">{{ proxy.name }}</a>
+        <span class="proxy-url">{{ proxy.https ? 'https' : 'http' }}://{{ proxy.host }}:{{ proxy.port }}</span>
         <span v-if="proxy.authelia" class="proxy-badge"
               :data-testid="'proxy-row-' + proxy.name + '-authelia'">{{ $t('customProxy.authelia') }}</span>
-        <button class="btn_remove sc-btn sc-btn-danger" type="button" :id="'btn_remove_' + proxy.name"
-                style="min-width: 80px; padding: 8px 14px;" @click="remove(proxy.name)">{{ $t('customProxy.remove') }}
+        <button class="btn_remove sc-btn sc-btn-danger proxy-remove" type="button" :id="'btn_remove_' + proxy.name"
+                @click="remove(proxy.name)">{{ $t('customProxy.remove') }}
         </button>
       </div>
     </div>
   </div>
+
+  <Dialog :visible="autheliaInfoVisible" @cancel="autheliaInfoVisible = false" :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('customProxy.authelia') }}</template>
+    <template v-slot:text>{{ $t('customProxy.autheliaHint') }}</template>
+  </Dialog>
 
   <Error ref="error"/>
 
@@ -65,6 +72,7 @@
 
 <script>
 import Error from '../components/Error.vue'
+import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
 import { ElLoading } from 'element-plus'
@@ -84,11 +92,13 @@ export default {
       newHttps: false,
       newAuthelia: false,
       visibility: 'hidden',
-      loading: undefined
+      loading: undefined,
+      autheliaInfoVisible: false
     }
   },
   components: {
-    Error
+    Error,
+    Dialog
   },
   computed: {
     domain () {
@@ -170,9 +180,31 @@ export default {
 }
 
 .proxy-entry {
-  padding: 8px 0;
-  gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef3f9;
 }
+.proxy-link { font-weight: 600; flex: 0 0 auto; }
+.proxy-url {
+  flex: 1;
+  color: var(--sc-muted);
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
+}
+.proxy-remove { min-width: 80px; padding: 8px 14px; flex: 0 0 auto; }
+
+.proxy-help {
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--sc-faint);
+  padding: 0;
+  line-height: 1;
+}
+.proxy-help:hover { color: var(--sc-primary); }
 
 .proxy-warning {
   color: var(--sc-danger);
@@ -195,6 +227,21 @@ export default {
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 10px;
-  margin-right: 10px;
+}
+
+@media (max-width: 600px) {
+  .proxy-entry {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--sc-border);
+    border-radius: 12px;
+    background: var(--sc-field-bg);
+    margin-bottom: 10px;
+  }
+  .proxy-link { width: 100%; }
+  .proxy-url { flex: 1 1 100%; width: 100%; }
+  .proxy-remove { margin-left: auto; }
 }
 </style>

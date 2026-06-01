@@ -139,7 +139,7 @@
     "port": "ポート:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "認証",
     "autheliaHint": "アップストリームに到達する前にログイン（SSO + 2FA）を要求する",
     "add": "追加",
     "proxies": "プロキシ",
