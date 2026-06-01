@@ -2,7 +2,7 @@ local name = 'platform';
 local playwright = 'v1.49.1-jammy';
 local go = '1.25.8';
 local node = '22.16.0';
-local deployer = 'https://github.com/syncloud/store/releases/download/4/syncloud-release';
+local publisher_image = 'syncloud/store-publisher:stable-297';
 local authelia = '4.39.15';
 local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
@@ -10,7 +10,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '2864';
+local visual_diff_skip_build = '2884';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -239,53 +239,16 @@ local build(arch, testUI) = [{
              privileged: true,
            },
            {
-             name: 'upload',
-             image: 'debian:bookworm-slim',
+             name: 'publish',
+             image: publisher_image,
              environment: {
-               AWS_ACCESS_KEY_ID: {
-                 from_secret: 'AWS_ACCESS_KEY_ID',
-               },
-               AWS_SECRET_ACCESS_KEY: {
-                 from_secret: 'AWS_SECRET_ACCESS_KEY',
-               },
                SYNCLOUD_TOKEN: {
                  from_secret: 'SYNCLOUD_TOKEN',
                },
              },
-             commands: [
-               'PACKAGE=$(cat package.name)',
-               'apt update && apt install -y wget',
-               'wget ' + deployer + '-' + arch + ' -O release --progress=dot:giga',
-               'chmod +x release',
-               './release publish -f $PACKAGE -b $DRONE_BRANCH',
-             ],
+             command: ['snap', '-c', '${DRONE_BRANCH}'],
              when: {
-               branch: ['stable', 'master'],
-               event: ['push'],
-             },
-           },
-           {
-             name: 'promote',
-             image: 'debian:bookworm-slim',
-             environment: {
-               AWS_ACCESS_KEY_ID: {
-                 from_secret: 'AWS_ACCESS_KEY_ID',
-               },
-               AWS_SECRET_ACCESS_KEY: {
-                 from_secret: 'AWS_SECRET_ACCESS_KEY',
-               },
-               SYNCLOUD_TOKEN: {
-                 from_secret: 'SYNCLOUD_TOKEN',
-               },
-             },
-             commands: [
-               'apt update && apt install -y wget',
-               'wget ' + deployer + '-' + arch + ' -O release --progress=dot:giga',
-               'chmod +x release',
-               './release promote -n ' + name + ' -a $(dpkg --print-architecture)',
-             ],
-             when: {
-               branch: ['stable'],
+               branch: ['master', 'stable'],
                event: ['push'],
              },
            },
