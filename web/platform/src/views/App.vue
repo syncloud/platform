@@ -390,17 +390,19 @@ export default {
 .app-btn-danger:hover { background: #fbdcde; }
 
 @media (max-width: 600px) {
-  .appimg { width: 72px; height: 72px; border-radius: 18px; }
-  .app-actions { gap: 12px; }
+  .appimg { width: 64px; height: 64px; border-radius: 16px; }
+  .app-head { gap: 12px; }
+  .app-actions { gap: 8px; flex-wrap: nowrap; }
   .app-btn {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     padding: 0;
     justify-content: center;
     border-radius: 50%;
+    flex: 0 0 auto;
   }
   .app-btn-label { display: none; }
-  .app-btn-glyph { font-size: 22px; }
-  .app-ring { width: 48px; height: 48px; }
+  .app-btn-glyph { font-size: 19px; }
+  .app-ring { width: 42px; height: 42px; }
 }
 </style>
