@@ -74,7 +74,7 @@
     "version": "Версия:",
     "localInstall": "Установлено локально (не из магазина)",
     "open": "Открыть",
-    "install": "Установить v{version}",
+    "install": "Установить",
     "upgrade": "Обновить v{version}",
     "remove": "Удалить",
     "backup": "Резервная копия",

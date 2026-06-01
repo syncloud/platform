@@ -74,7 +74,7 @@
     "version": "संस्करण:",
     "localInstall": "स्थानीय रूप से इंस्टॉल किया गया (स्टोर से नहीं)",
     "open": "खोलें",
-    "install": "v{version} इंस्टॉल करें",
+    "install": "इंस्टॉल करें",
     "upgrade": "v{version} में अपग्रेड करें",
     "remove": "हटाएं",
     "backup": "बैकअप",

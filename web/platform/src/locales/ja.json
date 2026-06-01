@@ -74,7 +74,7 @@
     "version": "バージョン:",
     "localInstall": "ローカルにインストール済み(ストアからではない)",
     "open": "開く",
-    "install": "v{version} をインストール",
+    "install": "インストール",
     "upgrade": "v{version} にアップグレード",
     "remove": "削除",
     "backup": "バックアップ",

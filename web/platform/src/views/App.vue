@@ -10,11 +10,11 @@
                   v-if="info.installed_version !== null">
             <i class="material-icons app-btn-glyph">launch</i><span class="app-btn-label">{{ $t('app.open') }}</span>
           </button>
-          <button id="btn_install" class="app-btn app-btn-primary"
+          <button id="btn_install" class="app-btn app-btn-primary app-btn-labeled"
                   data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing..."
-                  @click="install" :title="$t('app.install', { version: info.current_version })" :aria-label="$t('app.install', { version: info.current_version })"
+                  @click="install" :title="$t('app.install')" :aria-label="$t('app.install')"
                   v-if="info.installed_version === null && !info.local_install">
-            <i class="material-icons app-btn-glyph">download</i><span class="app-btn-label">{{ $t('app.install', { version: info.current_version }) }}</span>
+            <i class="material-icons app-btn-glyph">download</i><span class="app-btn-label">{{ $t('app.install') }}</span>
           </button>
           <button id="btn_upgrade" class="app-btn app-btn-upgrade"
                   data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
@@ -412,5 +412,12 @@ export default {
   .app-btn-label { display: none; }
   .app-btn-glyph { font-size: 19px; }
   .app-ring { width: 42px; height: 42px; }
+  .app-btn.app-btn-labeled {
+    width: auto;
+    height: auto;
+    padding: 9px 22px;
+    border-radius: 999px;
+  }
+  .app-btn.app-btn-labeled .app-btn-label { display: inline; }
 }
 </style>

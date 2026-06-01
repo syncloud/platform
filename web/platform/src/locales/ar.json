@@ -74,7 +74,7 @@
     "version": "الإصدار:",
     "localInstall": "مثبّت محليًا (ليس من المتجر)",
     "open": "فتح",
-    "install": "تثبيت v{version}",
+    "install": "تثبيت",
     "upgrade": "ترقية إلى v{version}",
     "remove": "إزالة",
     "backup": "نسخة احتياطية",

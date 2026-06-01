@@ -106,7 +106,7 @@
     "version": "Version:",
     "localInstall": "Locally installed (not from store)",
     "open": "Open",
-    "install": "Install v{version}",
+    "install": "Install",
     "upgrade": "Upgrade v{version}",
     "remove": "Remove",
     "backup": "Backup",

@@ -74,7 +74,7 @@
     "version": "Versión:",
     "localInstall": "Instalado localmente (no desde la tienda)",
     "open": "Abrir",
-    "install": "Instalar v{version}",
+    "install": "Instalar",
     "upgrade": "Actualizar v{version}",
     "remove": "Eliminar",
     "backup": "Copia de seguridad",
