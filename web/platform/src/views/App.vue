@@ -35,17 +35,17 @@
             {{ $t('app.backup') }}
           </button>
         </div>
+
+        <div v-if="progress" id="progress" class="app-progress">
+          <div id="progress_summary" class="app-progress-summary">{{ progressSummary }}</div>
+          <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate" :stroke-width="8"/>
+        </div>
       </div>
 
       <h1 id="app_name" data-testid="app_name" class="app-name">{{ info.app.name }}</h1>
       <div class="app-meta">
         <span v-if="info.installed_version !== null && !progress" class="app-version">{{ $t('app.version') }} {{ info.installed_version }}</span>
         <span v-if="info.local_install" id="local_install_badge" data-testid="local_install_badge" class="app-badge">{{ $t('app.localInstall') }}</span>
-      </div>
-
-      <div v-if="progress" id="progress" class="app-progress">
-        <div id="progress_summary" class="app-progress-summary">{{ progressSummary }}</div>
-        <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate" :stroke-width="8"/>
       </div>
 
       <p class="app-description" v-if="showDescription">{{ info.app.description }}</p>
@@ -294,10 +294,12 @@ export default {
   white-space: pre-line;
 }
 .app-progress {
-  margin: 6px 0 18px;
+  flex: 1;
+  min-width: 0;
+  align-self: center;
 }
 .app-progress-summary {
-  text-align: center;
+  text-align: left;
   font-size: 13px;
   color: var(--sc-muted);
   margin-bottom: 8px;
