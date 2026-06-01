@@ -1,38 +1,27 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('certificate.title') }}</h1>
-        <div class="row-no-gutters settingsblock">
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('certificate.title') }}</h1>
 
-          <div class="col2">
-            <div class="setline">
-              <span class="span">{{ $t('certificate.valid') }} </span>
-              <i v-if="valid" class="material-icons icon-good" id="valid_good">check_circle</i>
-              <i v-if="!valid" class="material-icons icon-bad" id="valid_bad">error</i>
-            </div>
-            <div class="setline">
-              <span class="span">{{ $t('certificate.validDays') }} </span>
-              <span class="span" id="valid_days">{{ validDays }}</span>
-            </div>
-            <div class="setline">
-              <span class="span">{{ $t('certificate.real') }} </span>
-              <i v-if="real" class="material-icons icon-good" id="real_good">check_circle</i>
-              <i v-if="!real" class="material-icons icon-bad" id="real_bad">error</i>
-            </div>
-
-            <div class="setline">
-              <span class="span">{{ $t('certificate.moreDetails') }}</span>
-              <div class="spandiv">
-                <router-link to="/certificate/log" class="apps hlink">
-                  <button class="buttonblue bwidth smbutton">{{ $t('certificate.log') }}</button>
-                </router-link>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('certificate.valid') }}</span>
+        <i v-if="valid" class="material-icons icon-good" id="valid_good">check_circle</i>
+        <i v-if="!valid" class="material-icons icon-bad" id="valid_bad">error</i>
+      </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('certificate.validDays') }}</span>
+        <span id="valid_days">{{ validDays }}</span>
+      </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('certificate.real') }}</span>
+        <i v-if="real" class="material-icons icon-good" id="real_good">check_circle</i>
+        <i v-if="!real" class="material-icons icon-bad" id="real_bad">error</i>
+      </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('certificate.moreDetails') }}</span>
+        <router-link to="/certificate/log">
+          <button class="sc-btn sc-btn-primary">{{ $t('certificate.log') }}</button>
+        </router-link>
       </div>
     </div>
   </div>
@@ -86,17 +75,8 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-.icon-good {
-  font-size: 20px;
-  vertical-align: -15%;
-  color: green;
-}
-.icon-bad {
-  font-size: 20px;
-  vertical-align: -15%;
-  color: tomato;
-}
+
+<style scoped>
+.icon-good { font-size: 22px; color: var(--sc-success); }
+.icon-bad { font-size: 22px; color: var(--sc-danger); }
 </style>

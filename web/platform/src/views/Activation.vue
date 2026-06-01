@@ -1,25 +1,19 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('activation.title') }}</h1>
-        <div class="row-no-gutters settingsblock">
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('activation.title') }}</h1>
 
-          <div class="col2">
-            <div class="setline">
-              <span class="span">{{ $t('activation.activatedAt') }} </span><a id="txt_device_domain" :href="url">{{ url }}</a>
-            </div>
+      <div class="sc-field">
+        <span class="sc-label">{{ $t('activation.activatedAt') }}</span>
+        <a id="txt_device_domain" :href="url">{{ url }}</a>
+      </div>
 
-            <div class="setline">
-              <span class="span" style="white-space: pre-line">{{ $t('activation.reassign') }}</span>
-              <div class="spandiv">
-                <button class="buttongreen bwidth smbutton" id="btn_reactivate" @click="reactivate">{{ $t('activation.reactivate') }}</button>
-              </div>
-            </div>
+      <div class="sc-field">
+        <span class="sc-label" style="white-space: pre-line; font-weight: 400; color: var(--sc-muted)">{{ $t('activation.reassign') }}</span>
+      </div>
 
-          </div>
-
-        </div>
+      <div class="sc-actions">
+        <button class="sc-btn sc-btn-success" id="btn_reactivate" @click="reactivate">{{ $t('activation.reactivate') }}</button>
       </div>
     </div>
   </div>
@@ -80,7 +74,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

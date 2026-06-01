@@ -44,12 +44,21 @@ export default {
 <style scoped>
 .password {
   width: 100%;
-  height: 40px;
-  padding: 0 50px 0 20px;
-  border-radius: 3px;
-  border: 1px solid #dcdee0;
-  background-color: #fff!important;
-  background-size: 14px 14px;
-  transition: all .3s ease-out;
+  height: 46px;
+  padding: 0 50px 0 16px;
+  border-radius: var(--sc-control-radius, 12px);
+  border: 1px solid var(--sc-border, #d5dde8);
+  background: var(--sc-field-bg, #f6f9fd);
+  font-size: 16px;
+  color: var(--sc-ink, #1a2a3a);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
+.password:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--sc-primary, #2b7bd6);
+  box-shadow: 0 0 0 4px rgba(43, 123, 214, 0.12);
+}
+.fa-eye, .fa-eye-slash { color: var(--sc-faint, #8796a8); }
 </style>

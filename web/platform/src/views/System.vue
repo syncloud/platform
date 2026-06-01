@@ -1,20 +1,14 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('system.title') }}</h1>
-        <div class="row-no-gutters settingsblock">
-          <div class="col2">
-            <div class="setline system-action">
-              <span class="span">{{ $t('system.restartLabel') }}</span>
-              <el-button id="restart" type="primary" @click="restartConfirmVisible = true">{{ $t('system.restart') }}</el-button>
-            </div>
-            <div class="setline system-action">
-              <span class="span">{{ $t('system.shutdownLabel') }}</span>
-              <el-button id="shutdown" type="danger" @click="shutdownConfirmVisible = true">{{ $t('system.shutdown') }}</el-button>
-            </div>
-          </div>
-        </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('system.title') }}</h1>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('system.restartLabel') }}</span>
+        <el-button id="restart" type="primary" @click="restartConfirmVisible = true">{{ $t('system.restart') }}</el-button>
+      </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('system.shutdownLabel') }}</span>
+        <el-button id="shutdown" type="danger" @click="shutdownConfirmVisible = true">{{ $t('system.shutdown') }}</el-button>
       </div>
     </div>
   </div>
@@ -63,15 +57,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-.system-action {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.system-action .el-button {
-  min-width: 120px;
-}
-</style>

@@ -1,74 +1,68 @@
 <template>
-  <div class="wrapper" id="block_app">
-    <div class="content">
-      <div class="block1 wd12">
-        <div class="appblock" v-if="info !== undefined">
-          <div>
-            <div>
-              <img :src="info.app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
-            </div>
-            <div class="appinfo">
-              <h1 id="app_name" data-testid="app_name">{{ info.app.name }}</h1>
-              <div v-if="info.installed_version !== null && !progress">
-                <b>{{ $t('app.version') }}</b> {{ info.installed_version }}<br>
-              </div>
-              <div v-if="info.local_install" id="local_install_badge" data-testid="local_install_badge">
-                <b>{{ $t('app.localInstall') }}</b>
-              </div>
-            </div>
+  <div class="sc-page" id="block_app">
+    <div class="sc-card" v-if="info !== undefined">
+      <div class="app-head">
+        <img :src="info.app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
+        <div class="appinfo">
+          <h1 id="app_name" data-testid="app_name" class="sc-title" style="text-align: left; margin: 0 0 6px">{{ info.app.name }}</h1>
+          <div v-if="info.installed_version !== null && !progress" class="app-meta">
+            <b>{{ $t('app.version') }}</b> {{ info.installed_version }}
           </div>
-          <div>
-            <div v-if="progress" id="progress">
-            <el-row >
-              <el-col :span="8"></el-col>
-              <el-col :span="8" style="min-height: 30px " id="progress_summary" >
-                {{ progressSummary }}
-              </el-col>
-              <el-col :span="8"></el-col>
-            </el-row>
-            <el-row >
-              <el-col :span="8"></el-col>
-              <el-col :span="8">
-                <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate"/>
-              </el-col>
-              <el-col :span="8"></el-col>
-            </el-row>
-            </div>
-            <div class="buttonblock" v-if="!progress">
-              <button id="btn_open" :data-url="info.app.url" class="buttonblue bwidth smbutton"
-                      @click="open"
-                      v-if="info.installed_version !== null">
-                {{ $t('app.open') }}
-              </button>
-              <button id="btn_install" class="buttonblue bwidth smbutton"
-                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing..."
-                      @click="install"
-                      v-if="info.installed_version === null && !info.local_install">
-                {{ $t('app.install', { version: info.current_version }) }}
-              </button>
-              <button id="btn_upgrade" class="buttongreen bwidth smbutton"
-                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
-                      @click="upgrade"
-                      v-if="info.installed_version !== null && !info.local_install && info.installed_version !== info.current_version">
-                {{ $t('app.upgrade', { version: info.current_version }) }}
-              </button>
-              <button id="btn_remove" data-testid="btn_remove" class="buttongrey bwidth smbutton"
-                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
-                      @click="remove"
-                      v-if="info.installed_version !== null">
-                {{ $t('app.remove') }}
-              </button>
-              <button id="btn_backup" class="buttonblue bwidth smbutton"
-                      data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup..."
-                      @click="backupConfirm"
-                      v-if="info.installed_version !== null">
-                {{ $t('app.backup') }}
-              </button>
-            </div>
-            <div class="btext">{{ info.app.description }}</div>
+          <div v-if="info.local_install" id="local_install_badge" data-testid="local_install_badge" class="app-meta">
+            <b>{{ $t('app.localInstall') }}</b>
           </div>
         </div>
       </div>
+
+      <div v-if="progress" id="progress">
+        <el-row>
+          <el-col :span="8"></el-col>
+          <el-col :span="8" style="min-height: 30px " id="progress_summary">
+            {{ progressSummary }}
+          </el-col>
+          <el-col :span="8"></el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8"></el-col>
+          <el-col :span="8">
+            <el-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate"/>
+          </el-col>
+          <el-col :span="8"></el-col>
+        </el-row>
+      </div>
+
+      <div class="app-actions" v-if="!progress">
+        <button id="btn_open" :data-url="info.app.url" class="sc-btn sc-btn-primary"
+                @click="open"
+                v-if="info.installed_version !== null">
+          {{ $t('app.open') }}
+        </button>
+        <button id="btn_install" class="sc-btn sc-btn-primary"
+                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Installing..."
+                @click="install"
+                v-if="info.installed_version === null && !info.local_install">
+          {{ $t('app.install', { version: info.current_version }) }}
+        </button>
+        <button id="btn_upgrade" class="sc-btn sc-btn-success"
+                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Upgrading..."
+                @click="upgrade"
+                v-if="info.installed_version !== null && !info.local_install && info.installed_version !== info.current_version">
+          {{ $t('app.upgrade', { version: info.current_version }) }}
+        </button>
+        <button id="btn_remove" data-testid="btn_remove" class="sc-btn sc-btn-ghost"
+                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Removing..."
+                @click="remove"
+                v-if="info.installed_version !== null">
+          {{ $t('app.remove') }}
+        </button>
+        <button id="btn_backup" class="sc-btn sc-btn-primary"
+                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating backup..."
+                @click="backupConfirm"
+                v-if="info.installed_version !== null">
+          {{ $t('app.backup') }}
+        </button>
+      </div>
+      <div class="btext app-desc">{{ info.app.description }}</div>
     </div>
   </div>
 
@@ -189,7 +183,6 @@ export default {
           Common.checkForServiceError(resp.data, () => {
             Common.runAfterJobIsComplete(
               setTimeout,
-              // this.loadApp,
               () => { this.loadApp().then(() => this.progressHide()) },
               onError,
               Common.JOB_STATUS_URL,
@@ -248,7 +241,34 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
+<style scoped>
+.app-head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.appimg {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  flex-shrink: 0;
+}
+.appinfo {
+  text-align: left;
+}
+.app-meta {
+  font-size: 15px;
+  color: var(--sc-muted);
+}
+.app-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.app-desc {
+  text-align: left;
+  line-height: 1.55;
+}
 </style>

@@ -1,74 +1,72 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1" data-testid="health-page">
-        <h1>{{ $t('health.title') }}</h1>
+  <div class="sc-page">
+    <div class="sc-card sc-card-wide" id="block1" data-testid="health-page">
+      <h1 class="sc-title">{{ $t('health.title') }}</h1>
 
-        <div class="row-no-gutters settingsblock health-row">
-          <div class="col2 health-col">
-            <div class="setline">
-              <h3>{{ $t('health.cpu') }} — {{ cpuPct.toFixed(0) }}%</h3>
-              <el-progress :percentage="cpuPct" :stroke-width="14" :show-text="false" :status="pctStatus(cpuPct)" data-testid="health-cpu-bar" />
+      <div class="health-row">
+        <div class="health-col">
+          <div class="setline">
+            <h3>{{ $t('health.cpu') }} — {{ cpuPct.toFixed(0) }}%</h3>
+            <el-progress :percentage="cpuPct" :stroke-width="14" :show-text="false" :status="pctStatus(cpuPct)" data-testid="health-cpu-bar" />
+          </div>
+
+          <div class="setline">
+            <h3>{{ $t('health.memory') }} — {{ memUsedMb }} / {{ memTotalMb }} MB</h3>
+            <el-progress :percentage="memPct" :stroke-width="14" :show-text="false" :status="pctStatus(memPct)" data-testid="health-mem-bar" />
+            <div class="muted">{{ memAvailMb }} MB {{ $t('health.available') }}</div>
+          </div>
+
+          <div class="setline" v-if="swapTotalMb > 0">
+            <h3>{{ $t('health.swap') }} — {{ swapUsedMb }} / {{ swapTotalMb }} MB</h3>
+            <el-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
+          </div>
+        </div>
+
+        <div class="health-col">
+          <div class="setline">
+            <h3>{{ $t('health.disks') }}</h3>
+            <div v-for="m in metrics.mounts" :key="m.path" class="metric-row" :data-testid="'health-mount-' + m.path">
+              <div class="metric-row-head">
+                <span class="metric-name">{{ m.path }}</span>
+                <span class="metric-value">{{ mb(m.used_kb) }} / {{ mb(m.total_kb) }} MB</span>
+              </div>
+              <el-progress :percentage="mountPct(m)" :stroke-width="6" :show-text="false" :status="pctStatus(mountPct(m))" />
             </div>
-
-            <div class="setline">
-              <h3>{{ $t('health.memory') }} — {{ memUsedMb }} / {{ memTotalMb }} MB</h3>
-              <el-progress :percentage="memPct" :stroke-width="14" :show-text="false" :status="pctStatus(memPct)" data-testid="health-mem-bar" />
-              <div class="muted">{{ memAvailMb }} MB {{ $t('health.available') }}</div>
-            </div>
-
-            <div class="setline" v-if="swapTotalMb > 0">
-              <h3>{{ $t('health.swap') }} — {{ swapUsedMb }} / {{ swapTotalMb }} MB</h3>
-              <el-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
+            <div v-for="d in diskRates" :key="d.name" class="metric-row" :data-testid="'health-disk-' + d.name">
+              <div class="metric-row-head">
+                <span class="metric-name">{{ d.name }}</span>
+                <span class="metric-value">↓ {{ d.readKBs }} · ↑ {{ d.writeKBs }} KB/s</span>
+              </div>
             </div>
           </div>
 
-          <div class="col2 health-col">
-            <div class="setline">
-              <h3>{{ $t('health.disks') }}</h3>
-              <div v-for="m in metrics.mounts" :key="m.path" class="metric-row" :data-testid="'health-mount-' + m.path">
-                <div class="metric-row-head">
-                  <span class="metric-name">{{ m.path }}</span>
-                  <span class="metric-value">{{ mb(m.used_kb) }} / {{ mb(m.total_kb) }} MB</span>
-                </div>
-                <el-progress :percentage="mountPct(m)" :stroke-width="6" :show-text="false" :status="pctStatus(mountPct(m))" />
-              </div>
-              <div v-for="d in diskRates" :key="d.name" class="metric-row" :data-testid="'health-disk-' + d.name">
-                <div class="metric-row-head">
-                  <span class="metric-name">{{ d.name }}</span>
-                  <span class="metric-value">↓ {{ d.readKBs }} · ↑ {{ d.writeKBs }} KB/s</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="setline">
-              <h3>{{ $t('health.network') }}</h3>
-              <div v-for="n in netRates" :key="n.name" class="metric-row" :data-testid="'health-net-' + n.name">
-                <div class="metric-row-head">
-                  <span class="metric-name">{{ n.name }}</span>
-                  <span class="metric-value">↓ {{ n.rxKBs }} · ↑ {{ n.txKBs }} KB/s</span>
-                </div>
+          <div class="setline">
+            <h3>{{ $t('health.network') }}</h3>
+            <div v-for="n in netRates" :key="n.name" class="metric-row" :data-testid="'health-net-' + n.name">
+              <div class="metric-row-head">
+                <span class="metric-name">{{ n.name }}</span>
+                <span class="metric-value">↓ {{ n.rxKBs }} · ↑ {{ n.txKBs }} KB/s</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="settingsblock events-block">
-          <h2>{{ $t('health.events') }}</h2>
-          <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
-          <ul v-else class="event-list" data-testid="health-events-list">
-            <li v-for="(ev, i) in events" :key="i" class="event-card" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
-              <i class="material-icons event-icon">{{ kindIcon(ev.kind) }}</i>
-              <div class="event-body">
-                <div class="event-head">
-                  <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
-                  <time class="event-time" :title="fmtTime(ev.time)">{{ fmtRel(ev.time) }}</time>
-                </div>
-                <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
+      <div class="events-block">
+        <h2>{{ $t('health.events') }}</h2>
+        <div v-if="events.length === 0" class="muted" data-testid="health-events-empty">{{ $t('health.noEvents') }}</div>
+        <ul v-else class="event-list" data-testid="health-events-list">
+          <li v-for="(ev, i) in events" :key="i" class="event-card" :class="'event-' + ev.kind" :data-testid="'health-event-' + i">
+            <i class="material-icons event-icon">{{ kindIcon(ev.kind) }}</i>
+            <div class="event-body">
+              <div class="event-head">
+                <span class="event-kind">{{ $t('health.kind' + kindCamel(ev.kind)) }}</span>
+                <time class="event-time" :title="fmtTime(ev.time)">{{ fmtRel(ev.time) }}</time>
               </div>
-            </li>
-          </ul>
-        </div>
+              <div v-if="fmtDetails(ev)" class="event-details">{{ fmtDetails(ev) }}</div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -233,9 +231,6 @@ export default {
 </script>
 
 <style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-
 .metric-row {
   padding: 6px 0;
 }
@@ -268,7 +263,7 @@ h2 {
   flex-wrap: wrap;
   gap: 40px;
   align-items: flex-start;
-  padding: 0 16px;
+  text-align: left;
 }
 .health-row .health-col {
   flex: 1 1 320px;
@@ -279,7 +274,6 @@ h2 {
   margin: 24px auto 0;
   max-width: 720px;
   text-align: left;
-  padding: 0 16px;
 }
 .event-list {
   list-style: none;

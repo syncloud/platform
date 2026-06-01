@@ -42,6 +42,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-</style>

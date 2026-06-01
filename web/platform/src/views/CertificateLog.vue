@@ -1,18 +1,11 @@
 <template>
-
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1">
-        <h1>{{ $t('certificateLog.title') }}</h1>
-        <div class="row-no-gutters">
-          <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
-            <div id="logs">
-              <p v-for="(log, index) in logs" :key="index" style="margin: 0">
-                {{ log }}
-              </p>
-            </div>
-          </div>
-        </div>
+  <div class="sc-page">
+    <div class="sc-card sc-card-wide" id="block1">
+      <h1 class="sc-title">{{ $t('certificateLog.title') }}</h1>
+      <div class="sc-console" id="logs">
+        <p v-for="(log, index) in logs" :key="index" style="margin: 0">
+          {{ log }}
+        </p>
       </div>
     </div>
   </div>
@@ -62,7 +55,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

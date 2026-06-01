@@ -1,18 +1,17 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1 class="bigh1">{{ $t('apps.title') }}</h1>
-        <div class="row-no-gutters appcenterlist" id="block_apps">
-          <div v-if="apps.length === 0">
-            <h2 class="bh2">{{ $t('apps.emptyHeading') }}</h2>
-            <router-link to="/appcenter" class="appcenterh">{{ $t('apps.appCenterLink') }}</router-link>
-          </div>
-          <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="colapp app"
+  <div class="sc-page">
+    <div class="sc-card sc-card-wide" id="block1">
+      <h1 class="sc-title">{{ $t('apps.title') }}</h1>
+      <div id="block_apps">
+        <div v-if="apps.length === 0" class="sc-empty">
+          <p class="sc-lead">{{ $t('apps.emptyHeading') }}</p>
+          <router-link to="/appcenter" class="sc-link">{{ $t('apps.appCenterLink') }}</router-link>
+        </div>
+        <div v-else class="sc-grid">
+          <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="sc-tile"
                        :data-testid="'app-tile-' + app.id">
             <img :src="app.icon" class="appimg" :alt="app.name" @error="(e) => e.target.src = defaultIcon">
-            <div class="appname"><span class="withline">{{ app.name }}</span></div>
-            <div class="appdesc"></div>
+            <div class="sc-tile-name">{{ app.name }}</div>
           </router-link>
         </div>
       </div>
@@ -67,7 +66,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

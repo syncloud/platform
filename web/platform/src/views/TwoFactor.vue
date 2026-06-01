@@ -1,37 +1,33 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('twoFactor.title') }}</h1>
-        <div class="setblock">
-          <div class="setline">
-            <span class="setname">{{ $t('twoFactor.status') }} </span>
-            <span class="setvalue" id="twofa_status">{{ enabled ? $t('twoFactor.enabled') : $t('twoFactor.disabled') }}</span>
-          </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('twoFactor.title') }}</h1>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('twoFactor.status') }}</span>
+        <span id="twofa_status" style="font-weight: 600">{{ enabled ? $t('twoFactor.enabled') : $t('twoFactor.disabled') }}</span>
+      </div>
 
-          <div class="setline">
-            <el-button
-              v-if="!enabled"
-              id="btn_enable_2fa"
-              type="success"
-              :loading="loading"
-              @click="enableTwoFactor"
-            >{{ $t('twoFactor.enable') }}</el-button>
-            <el-button
-              v-else
-              id="btn_disable_2fa"
-              type="danger"
-              :loading="loading"
-              @click="disableTwoFactor"
-            >{{ $t('twoFactor.disable') }}</el-button>
-          </div>
+      <div class="sc-actions">
+        <el-button
+          v-if="!enabled"
+          id="btn_enable_2fa"
+          type="success"
+          :loading="loading"
+          @click="enableTwoFactor"
+        >{{ $t('twoFactor.enable') }}</el-button>
+        <el-button
+          v-else
+          id="btn_disable_2fa"
+          type="danger"
+          :loading="loading"
+          @click="disableTwoFactor"
+        >{{ $t('twoFactor.disable') }}</el-button>
+      </div>
 
-          <div v-if="enabled" class="setline" style="max-width: 500px; margin: 10px auto">
-            <el-alert type="info" :closable="false" show-icon>
-              {{ $t('twoFactor.enabledNote') }}
-            </el-alert>
-          </div>
-        </div>
+      <div v-if="enabled" style="margin-top: 16px">
+        <el-alert type="info" :closable="false" show-icon>
+          {{ $t('twoFactor.enabledNote') }}
+        </el-alert>
       </div>
     </div>
   </div>
@@ -98,7 +94,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

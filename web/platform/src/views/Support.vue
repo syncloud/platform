@@ -1,27 +1,21 @@
 <template>
 
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('support.title') }}</h1>
-        <div class="row-no-gutters settingsblock">
-          <div class="col2">
-            <div class="setline">
-              <span class="span">{{ $t('support.copyToSupport') }}</span>
-              <el-switch id="switch" size="large" v-model="includeSupport" style="--el-switch-on-color: #36ad40;"
-                         :active-text="$t('support.yes')" :inactive-text="$t('support.no')" inline-prompt/>
-            </div>
-            <div class="setline">
-              <span class="span">{{ $t('support.reportIssue') }}</span>
-              <el-button id="send"
-                         :loading="loading"
-                         type="primary"
-                         @click="sendLogs">
-                {{ $t('support.sendLogs') }}
-              </el-button>
-            </div>
-          </div>
-        </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('support.title') }}</h1>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('support.copyToSupport') }}</span>
+        <el-switch id="switch" size="large" v-model="includeSupport"
+                   :active-text="$t('support.yes')" :inactive-text="$t('support.no')" inline-prompt/>
+      </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('support.reportIssue') }}</span>
+        <el-button id="send"
+                   :loading="loading"
+                   type="primary"
+                   @click="sendLogs">
+          {{ $t('support.sendLogs') }}
+        </el-button>
       </div>
     </div>
   </div>
@@ -63,7 +57,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

@@ -1,23 +1,17 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12">
-        <h1>{{ $t('internalMemory.title') }}</h1>
-        <div class="row-no-gutters settingsblock" id="wrapper">
-          <div class="col2">
-            <div class="setline" style="margin-top: 20px;">
-              <span class="span" style="font-weight: bold;">{{ $t('internalMemory.boot') }}</span>
-            </div>
-            <div class="setline memory-line" id="block_boot_disk" v-if="boot !== undefined">
-              <span class="span">{{ $t('internalMemory.partition', { size: boot.size }) }}</span>
-              <el-button
-                v-if="boot.extendable"
-                id="btn_boot_extend"
-                type="primary"
-                @click="extend"
-              >{{ $t('internalMemory.extend') }}</el-button>
-            </div>
-          </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('internalMemory.title') }}</h1>
+      <div id="wrapper">
+        <h3>{{ $t('internalMemory.boot') }}</h3>
+        <div class="sc-row memory-line" id="block_boot_disk" v-if="boot !== undefined">
+          <span class="sc-row-label">{{ $t('internalMemory.partition', { size: boot.size }) }}</span>
+          <el-button
+            v-if="boot.extendable"
+            id="btn_boot_extend"
+            type="primary"
+            @click="extend"
+          >{{ $t('internalMemory.extend') }}</el-button>
         </div>
       </div>
     </div>
@@ -93,14 +87,7 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-.memory-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+<style scoped>
 .memory-line .el-button {
   min-width: 120px;
 }
