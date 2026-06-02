@@ -384,4 +384,9 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
   .sc-tile, .colapp, .app-link { padding: 14px 6px; }
   .sc-tile-icon { font-size: 52px !important; }
   .appimg { width: 96px; height: 96px; border-radius: 24px; }
+  .sc-btn {
+    min-width: 0;
+    padding: 9px 18px;
+    font-size: 14px;
+  }
 }
