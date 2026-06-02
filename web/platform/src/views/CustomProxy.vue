@@ -26,12 +26,12 @@
         <input class="proxy-input sc-input" id="proxy_port" type="number" v-model.number="newPort" :placeholder="$t('customProxy.portPlaceholder')">
       </div>
 
-      <div class="setline" style='display: flex; align-items: center;'>
+      <div class="setline proxy-toggle">
         <label class="span proxy-label" for="proxy_https">{{ $t('customProxy.https') }}</label>
         <input id="proxy_https" type="checkbox" v-model="newHttps" class="proxy-check">
       </div>
 
-      <div class="setline" style='display: flex; align-items: center;'>
+      <div class="setline proxy-toggle">
         <label class="span proxy-label" for="proxy_authelia">{{ $t('customProxy.authelia') }}:</label>
         <input id="proxy_authelia" data-testid="proxy-authelia" type="checkbox" v-model="newAuthelia" class="proxy-check">
         <button type="button" class="proxy-help" @click="autheliaInfoVisible = true" aria-label="?">
@@ -169,8 +169,15 @@ export default {
 </script>
 <style scoped>
 .proxy-label {
-  min-width: 80px;
+  width: 132px;
+  min-width: 132px;
+  flex-shrink: 0;
   display: inline-flex;
+  align-items: center;
+}
+
+.proxy-toggle {
+  display: flex;
   align-items: center;
 }
 
@@ -196,7 +203,7 @@ export default {
 .proxy-remove { min-width: 80px; padding: 8px 14px; flex: 0 0 auto; }
 
 .proxy-check {
-  margin-left: 12px;
+  margin: 0;
   width: 18px;
   height: 18px;
 }
@@ -236,6 +243,9 @@ export default {
 }
 
 @media (max-width: 600px) {
+  .proxy-label { width: 104px; min-width: 104px; }
+  .proxy-input { flex: 1 1 auto; width: auto; min-width: 0; }
+
   .proxy-entry {
     flex-wrap: wrap;
     align-items: center;
