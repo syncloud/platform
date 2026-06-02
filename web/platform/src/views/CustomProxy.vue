@@ -248,15 +248,13 @@ export default {
 }
 
 @media (max-width: 600px) {
-  .proxy-label { width: auto; min-width: 0; }
   .proxy-field {
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
   }
-  .proxy-field .proxy-label { font-weight: 600; }
+  .proxy-field .proxy-label { width: auto; min-width: 0; font-weight: 600; }
   .proxy-input { width: 100%; }
-  .proxy-toggle { justify-content: space-between; }
 
   .proxy-entry {
     flex-wrap: wrap;
