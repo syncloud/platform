@@ -98,7 +98,8 @@
     "title": "Registro del certificado"
   },
   "logs": {
-    "title": "Registros"
+    "title": "Registros",
+    "wordWrap": "Ajuste de línea"
   },
   "support": {
     "title": "Soporte",

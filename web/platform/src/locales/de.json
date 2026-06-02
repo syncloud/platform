@@ -98,7 +98,8 @@
     "title": "Zertifikatsprotokoll"
   },
   "logs": {
-    "title": "Protokolle"
+    "title": "Protokolle",
+    "wordWrap": "Zeilenumbruch"
   },
   "support": {
     "title": "Support",

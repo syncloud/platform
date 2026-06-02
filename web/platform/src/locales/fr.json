@@ -98,7 +98,8 @@
     "title": "Journal du certificat"
   },
   "logs": {
-    "title": "Journaux"
+    "title": "Journaux",
+    "wordWrap": "Retour à la ligne"
   },
   "support": {
     "title": "Assistance",

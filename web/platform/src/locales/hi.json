@@ -98,7 +98,8 @@
     "title": "प्रमाणपत्र लॉग"
   },
   "logs": {
-    "title": "लॉग"
+    "title": "लॉग",
+    "wordWrap": "वर्ड रैप"
   },
   "support": {
     "title": "सहायता",

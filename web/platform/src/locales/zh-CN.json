@@ -98,7 +98,8 @@
     "title": "证书日志"
   },
   "logs": {
-    "title": "日志"
+    "title": "日志",
+    "wordWrap": "自动换行"
   },
   "support": {
     "title": "支持",

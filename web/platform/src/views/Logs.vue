@@ -2,8 +2,12 @@
   <div class="sc-page">
     <div class="sc-card sc-card-wide" id="block1">
       <h1 class="sc-title">{{ $t('logs.title') }}</h1>
-      <div class="sc-console" id="logs">
-        <p v-for="(log, index) in logs" :key="index" style="margin: 0; overflow-wrap: break-word">
+      <label class="logs-wrap">
+        <input type="checkbox" id="logs_wrap" data-testid="logs-wrap" v-model="wrap">
+        {{ $t('logs.wordWrap') }}
+      </label>
+      <div class="sc-console" id="logs" :class="{ nowrap: !wrap }">
+        <p v-for="(log, index) in logs" :key="index" class="logs-line">
           {{ log }}
         </p>
       </div>
@@ -27,7 +31,8 @@ export default {
   data () {
     return {
       logs: Array,
-      loading: undefined
+      loading: undefined,
+      wrap: true
     }
   },
   mounted () {
@@ -55,3 +60,26 @@ export default {
   }
 }
 </script>
+<style scoped>
+.logs-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--sc-muted);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.logs-line {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.sc-console.nowrap .logs-line {
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+</style>

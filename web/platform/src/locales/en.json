@@ -130,7 +130,8 @@
     "title": "Certificate Log"
   },
   "logs": {
-    "title": "Logs"
+    "title": "Logs",
+    "wordWrap": "Word wrap"
   },
   "support": {
     "title": "Support",

@@ -98,7 +98,8 @@
     "title": "証明書ログ"
   },
   "logs": {
-    "title": "ログ"
+    "title": "ログ",
+    "wordWrap": "折り返し"
   },
   "support": {
     "title": "サポート",
