@@ -45,9 +45,9 @@
                          :value="(hour-1)"/>
             </el-select>
           </div>
-          <el-button id="save" type="success" @click="this.saveAuto">
+          <button id="save" class="sc-btn sc-btn-success" type="button" @click="saveAuto">
             {{ $t('backup.save') }}
-          </el-button>
+          </button>
         </div>
         <div class="bk-search">
           <el-input v-model="search" size="small" :placeholder="$t('backup.typeToSearch')"/>
