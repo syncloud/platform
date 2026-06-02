@@ -1,3 +1,7 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 :root {
   --sc-primary: #2b7bd6;
   --sc-primary-dark: #1d6ec7;

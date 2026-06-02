@@ -10,7 +10,7 @@
        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"
        @click="toggleVisibility"></i>
   </div>
-  <div class="alert alert-danger alert90" v-show="showError">
+  <div class="password-error" v-show="showError">
     {{ error }}
   </div>
 </template>
@@ -61,4 +61,10 @@ export default {
   box-shadow: 0 0 0 4px rgba(43, 123, 214, 0.12);
 }
 .fa-eye, .fa-eye-slash { color: var(--sc-faint, #8796a8); }
+.password-error {
+  margin-top: 6px;
+  color: var(--sc-danger, #d9363e);
+  font-size: 13px;
+  white-space: pre-line;
+}
 </style>
