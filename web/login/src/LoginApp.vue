@@ -1,119 +1,97 @@
 <template>
-  <div class="login-container">
+  <div class="login-root">
+    <div class="login-wordmark">SYNCLOUD</div>
+
     <div class="login-card">
-      <div class="login-header">
-        <img class="login-logo" src="/logo.png" alt="Syncloud" />
-        <h2>Syncloud</h2>
-      </div>
+      <img class="login-logo" src="/logo.png" alt="Syncloud" />
 
       <!-- Credentials form -->
-      <div v-if="step === 'credentials'">
-        <el-form @submit.prevent="submitCredentials">
-          <el-form-item>
-            <el-input
-              id="username-textfield"
-              v-model="username"
-              placeholder="Username"
-              :disabled="loading"
-              autocomplete="username"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-input
+      <form v-if="step === 'credentials'" class="login-form" @submit.prevent="submitCredentials">
+        <div class="field">
+          <label for="username-textfield">Username</label>
+          <input
+            id="username-textfield"
+            class="input"
+            v-model="username"
+            placeholder="Username"
+            :disabled="loading"
+            autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password-textfield">Password</label>
+          <div class="password-wrap">
+            <input
               id="password-textfield"
+              class="input"
+              :type="showPassword ? 'text' : 'password'"
               v-model="password"
-              type="password"
               placeholder="Password"
               :disabled="loading"
-              show-password
               autocomplete="current-password"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-checkbox v-model="keepMeLoggedIn">Remember me</el-checkbox>
-          </el-form-item>
-          <el-form-item>
-            <el-button
-              id="sign-in-button"
-              type="primary"
-              :loading="loading"
-              @click="submitCredentials"
-              style="width: 100%"
-            >SIGN IN</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
+              @keyup.enter="submitCredentials">
+            <button type="button" class="pw-toggle" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
+          </div>
+        </div>
+        <label class="remember">
+          <input type="checkbox" v-model="keepMeLoggedIn"> Remember me
+        </label>
+        <button id="sign-in-button" type="submit" class="btn btn-primary" :disabled="loading">
+          <span v-if="loading" class="spinner"></span><span v-else>Sign in</span>
+        </button>
+      </form>
 
       <!-- TOTP setup (first time) -->
       <div v-if="step === 'totp_setup'">
-        <el-alert type="info" :closable="false" show-icon style="margin-bottom: 16px">
+        <div class="alert alert-info">
           Two-factor authentication is required. Scan this QR code with your authenticator app.
-        </el-alert>
+        </div>
         <div class="totp-qr">
           <img id="totp_qr" :src="totpQr" alt="TOTP QR Code" />
         </div>
-        <p style="text-align: center; margin: 8px 0">Or enter this secret manually:</p>
-        <div style="text-align: center; margin-bottom: 16px">
-          <code id="totp_secret" style="word-break: break-all">{{ totpSecret }}</code>
-        </div>
-        <el-form @submit.prevent="submitTotp">
-          <el-form-item>
-            <el-input
+        <p class="muted center">Or enter this secret manually:</p>
+        <div class="center secret"><code id="totp_secret">{{ totpSecret }}</code></div>
+        <form class="login-form" @submit.prevent="submitTotp">
+          <div class="field">
+            <input
               id="otp-input"
+              class="input"
               v-model="totpCode"
               placeholder="Enter code from authenticator"
               :disabled="loading"
               autocomplete="one-time-code"
-              @keyup.enter="submitTotp"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-button
-              type="primary"
-              :loading="loading"
-              @click="submitTotp"
-              style="width: 100%"
-            >VERIFY</el-button>
-          </el-form-item>
-        </el-form>
+              @keyup.enter="submitTotp">
+          </div>
+          <button type="submit" class="btn btn-primary" :disabled="loading">
+            <span v-if="loading" class="spinner"></span><span v-else>Verify</span>
+          </button>
+        </form>
       </div>
 
       <!-- TOTP verify (returning user) -->
       <div v-if="step === 'totp_verify'">
-        <p style="text-align: center; margin-bottom: 16px">Enter the code from your authenticator app</p>
-        <el-form @submit.prevent="submitTotp">
-          <el-form-item>
-            <el-input
+        <p class="muted center">Enter the code from your authenticator app</p>
+        <form class="login-form" @submit.prevent="submitTotp">
+          <div class="field">
+            <input
               id="otp-input"
+              class="input"
               v-model="totpCode"
               placeholder="Authentication code"
               :disabled="loading"
               autocomplete="one-time-code"
-              @keyup.enter="submitTotp"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-button
-              type="primary"
-              :loading="loading"
-              @click="submitTotp"
-              style="width: 100%"
-            >VERIFY</el-button>
-          </el-form-item>
-        </el-form>
+              @keyup.enter="submitTotp">
+          </div>
+          <button type="submit" class="btn btn-primary" :disabled="loading">
+            <span v-if="loading" class="spinner"></span><span v-else>Verify</span>
+          </button>
+        </form>
       </div>
 
       <!-- Error display -->
-      <el-alert
-        v-if="errorMessage"
-        class="notification"
-        :title="errorMessage"
-        type="error"
-        show-icon
-        :closable="true"
-        @close="errorMessage = ''"
-        style="margin-top: 8px"
-      />
+      <div v-if="errorMessage" class="alert alert-error notification" id="login_error">
+        {{ errorMessage }}
+        <button type="button" class="alert-close" @click="errorMessage = ''">✕</button>
+      </div>
     </div>
   </div>
 </template>
@@ -129,6 +107,7 @@ export default {
       step: 'credentials',
       username: '',
       password: '',
+      showPassword: false,
       keepMeLoggedIn: false,
       totpCode: '',
       totpQr: null,
@@ -327,43 +306,166 @@ export default {
 </script>
 
 <style>
+:root {
+  --lg-primary: #2b7bd6;
+  --lg-primary-dark: #1d6ec7;
+  --lg-ink: #1a2a3a;
+  --lg-ink-2: #3c5373;
+  --lg-muted: #5a6b80;
+  --lg-faint: #8796a8;
+  --lg-field-bg: #f6f9fd;
+  --lg-border: #d5dde8;
+  --lg-danger: #d9363e;
+}
+* { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: #f5f5f5;
-}
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--lg-ink);
+  background: linear-gradient(140deg, #f7fafe 0%, #eaf2fb 55%, #dbe7f4 100%);
   min-height: 100vh;
 }
-.login-card {
-  background: white;
-  border-radius: 8px;
-  padding: 32px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+.login-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
 }
-.login-header {
-  text-align: center;
+.login-wordmark {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--lg-primary);
   margin-bottom: 24px;
 }
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 24px 60px -20px rgba(22, 50, 92, 0.18), 0 2px 6px rgba(22, 50, 92, 0.04);
+  padding: 34px 32px 36px;
+}
 .login-logo {
-  width: 48px;
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 22px;
+}
+.login-form { display: block; }
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lg-ink-2);
+  margin-bottom: 6px;
+}
+.input {
+  width: 100%;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--lg-border);
+  background: var(--lg-field-bg);
+  font-size: 16px;
+  color: var(--lg-ink);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--lg-primary);
+  box-shadow: 0 0 0 4px rgba(43, 123, 214, 0.12);
+}
+.password-wrap { position: relative; }
+.pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--lg-faint);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 8px;
+}
+.pw-toggle:hover { color: var(--lg-primary); }
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--lg-muted);
+  margin-bottom: 18px;
+  cursor: pointer;
+}
+.remember input { width: 16px; height: 16px; }
+.btn {
+  width: 100%;
   height: 48px;
-  margin-bottom: 8px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.15s ease;
 }
-.login-header h2 {
-  margin: 0;
-  color: #333;
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--lg-primary) 0%, var(--lg-primary-dark) 100%);
+  color: #fff;
+  box-shadow: 0 6px 16px -6px rgba(43, 123, 214, 0.5);
 }
-.totp-qr {
-  text-align: center;
-  margin: 16px 0;
+.btn-primary:hover:not(:disabled) { filter: brightness(1.05); }
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: lg-spin 0.8s linear infinite;
 }
-.totp-qr img {
-  max-width: 200px;
+@keyframes lg-spin { to { transform: rotate(360deg); } }
+.muted { color: var(--lg-muted); font-size: 14px; }
+.center { text-align: center; }
+.secret { margin-bottom: 16px; }
+.secret code { word-break: break-all; font-size: 14px; color: var(--lg-ink-2); }
+.totp-qr { text-align: center; margin: 16px 0; }
+.totp-qr img { max-width: 200px; border-radius: 12px; }
+.alert {
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.alert-info {
+  background: #e7f1fc;
+  color: var(--lg-primary-dark);
+  margin-bottom: 16px;
+}
+.alert-error {
+  position: relative;
+  background: #fdeced;
+  color: var(--lg-danger);
+  margin-top: 14px;
+  padding-right: 34px;
+}
+.alert-close {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--lg-danger);
+  cursor: pointer;
+  font-size: 13px;
 }
 </style>
