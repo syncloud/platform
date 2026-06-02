@@ -49,22 +49,22 @@
             {{ $t('backup.save') }}
           </el-button>
         </div>
-        <el-table class="backup-table" :data="filteredData" style="width: 100%" table-layout="fixed">
-          <el-table-column :label="$t('backup.name')" prop="file" :sortable="true"/>
-          <el-table-column align="right" width="200px">
-            <template #header>
-              <el-input v-model="search" size="small" :placeholder="$t('backup.typeToSearch')"/>
-            </template>
-            <template #default="scope">
-              <el-button size="small" type="primary" @click="this.restoreConfirm(scope.row.file)">
+        <div class="bk-search">
+          <el-input v-model="search" size="small" :placeholder="$t('backup.typeToSearch')"/>
+        </div>
+        <div class="bk-list">
+          <div v-for="row in filteredData" :key="row.file" class="bk-row" :data-testid="'backup-row-' + row.file">
+            <span class="bk-file">{{ row.file }}</span>
+            <div class="bk-actions">
+              <el-button size="small" type="primary" @click="restoreConfirm(row.file)">
                 {{ $t('backup.restore') }}
               </el-button>
-              <el-button size="small" type="danger" @click="this.removeConfirm(scope.row.file)">
+              <el-button size="small" type="danger" @click="removeConfirm(row.file)">
                 {{ $t('backup.delete') }}
               </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -254,6 +254,19 @@ export default {
 .bk-day { width: 112px; }
 .bk-hour { width: 96px; }
 
+.bk-search { max-width: 320px; margin-bottom: 12px; }
+.bk-list { border-top: 1px solid #eef3f9; }
+.bk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 6px;
+  border-bottom: 1px solid #eef3f9;
+}
+.bk-file { word-break: break-all; text-align: left; }
+.bk-actions { flex: 0 0 auto; display: flex; gap: 8px; }
+
 @media (max-width: 600px) {
   .backup-auto {
     flex-direction: column;
@@ -274,23 +287,18 @@ export default {
     align-self: flex-end;
   }
 
-  /* stack each backup entry: filename full row, actions right-aligned below */
-  .backup-table :deep(.el-table__cell) {
-    display: block !important;
-    width: 100% !important;
-    box-sizing: border-box;
+  .bk-search { max-width: none; }
+  .bk-list { border-top: none; }
+  .bk-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--sc-border);
+    border-radius: 12px;
+    background: var(--sc-field-bg);
+    margin-bottom: 10px;
   }
-  .backup-table :deep(.el-table__row) {
-    display: block;
-    padding: 6px 0;
-    border-bottom: 1px solid #eef3f9;
-  }
-  .backup-table :deep(.cell) {
-    white-space: normal;
-    word-break: break-all;
-  }
-  .backup-table :deep(.el-table__row td.el-table__cell:last-child .cell) {
-    text-align: right;
-  }
+  .bk-actions { justify-content: flex-end; }
 }
 </style>
