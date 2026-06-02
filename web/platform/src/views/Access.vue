@@ -7,7 +7,7 @@
         <div class="setline" style='display: flex'>
           <span class="span name-alignment">{{ $t('access.support') }}</span>
           <div class="value-alignment">
-            <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #2faa5d; float: right" />
+            <s-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #2faa5d; float: right" />
           </div>
           <button type=button @click="showIpv4Info" class="control" style="order: 3; background:transparent; border: none; cursor: pointer;">
             <i class='fa fa-question-circle fa-lg' style="color: var(--sc-faint)"></i>
@@ -19,7 +19,7 @@
           <div class="setline" style='display: flex'>
               <span class="span name-alignment">{{ $t('access.public') }}</span>
               <div class="value-alignment">
-                <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #2faa5d; float: right" />
+                <s-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #2faa5d; float: right" />
               </div>
           </div>
 
@@ -28,7 +28,7 @@
             <div class="setline" style='display: flex'>
                 <span class="span name-alignment">{{ $t('access.detectIp') }}</span>
                 <div class="value-alignment">
-                  <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #2faa5d; float: right" />
+                  <s-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #2faa5d; float: right" />
                 </div>
             </div>
 
@@ -67,7 +67,7 @@
         <div class="setline" style='display: flex'>
           <span class="span name-alignment">{{ $t('access.support') }}</span>
           <div class="value-alignment">
-            <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #2faa5d; float: right" />
+            <s-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #2faa5d; float: right" />
           </div>
           <button type=button @click="showIpv6Info" class="control" style="order: 3; background:transparent; border: none; cursor: pointer;">
             <i class='fa fa-question-circle fa-lg' style="color: var(--sc-faint)"></i>
@@ -118,7 +118,7 @@ import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 function isValidPort (port) {
   return !(Number.isNaN(port) || port < 1 || port > 65535)
@@ -171,7 +171,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       this.visibility = 'visible'

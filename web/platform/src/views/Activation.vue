@@ -25,7 +25,7 @@
 <script>
 import axios from 'axios'
 import Error from '../components/Error.vue'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 import { useAuthStore } from '../stores/auth'
 
 export default {
@@ -64,7 +64,7 @@ export default {
         })
     },
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

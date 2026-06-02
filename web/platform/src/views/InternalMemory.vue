@@ -6,12 +6,12 @@
         <h3>{{ $t('internalMemory.boot') }}</h3>
         <div class="sc-row memory-line" id="block_boot_disk" v-if="boot !== undefined">
           <span class="sc-row-label">{{ $t('internalMemory.partition', { size: boot.size }) }}</span>
-          <el-button
+          <s-button
             v-if="boot.extendable"
             id="btn_boot_extend"
             type="primary"
             @click="extend"
-          >{{ $t('internalMemory.extend') }}</el-button>
+          >{{ $t('internalMemory.extend') }}</s-button>
         </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 export default {
   name: 'InternalMemory',
@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

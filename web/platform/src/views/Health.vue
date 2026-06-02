@@ -7,18 +7,18 @@
         <div class="health-col">
           <div class="setline">
             <h3>{{ $t('health.cpu') }} — {{ cpuPct.toFixed(0) }}%</h3>
-            <el-progress :percentage="cpuPct" :stroke-width="14" :show-text="false" :status="pctStatus(cpuPct)" data-testid="health-cpu-bar" />
+            <s-progress :percentage="cpuPct" :stroke-width="14" :show-text="false" :status="pctStatus(cpuPct)" data-testid="health-cpu-bar" />
           </div>
 
           <div class="setline">
             <h3>{{ $t('health.memory') }} — {{ memUsedMb }} / {{ memTotalMb }} MB</h3>
-            <el-progress :percentage="memPct" :stroke-width="14" :show-text="false" :status="pctStatus(memPct)" data-testid="health-mem-bar" />
+            <s-progress :percentage="memPct" :stroke-width="14" :show-text="false" :status="pctStatus(memPct)" data-testid="health-mem-bar" />
             <div class="muted">{{ memAvailMb }} MB {{ $t('health.available') }}</div>
           </div>
 
           <div class="setline" v-if="swapTotalMb > 0">
             <h3>{{ $t('health.swap') }} — {{ swapUsedMb }} / {{ swapTotalMb }} MB</h3>
-            <el-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
+            <s-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
           </div>
         </div>
 
@@ -30,7 +30,7 @@
                 <span class="metric-name">{{ m.path }}</span>
                 <span class="metric-value">{{ mb(m.used_kb) }} / {{ mb(m.total_kb) }} MB</span>
               </div>
-              <el-progress :percentage="mountPct(m)" :stroke-width="6" :show-text="false" :status="pctStatus(mountPct(m))" />
+              <s-progress :percentage="mountPct(m)" :stroke-width="6" :show-text="false" :status="pctStatus(mountPct(m))" />
             </div>
             <div v-for="d in diskRates" :key="d.name" class="metric-row" :data-testid="'health-disk-' + d.name">
               <div class="metric-row-head">

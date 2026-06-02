@@ -13,7 +13,6 @@
     "axios": "^1.6.0",
     "browserslist": "^4.21.9",
     "caniuse-lite": "^1.0.30001517",
-    "element-plus": "^2.13.7",
     "font-awesome": "^4.7.0",
     "material-icons": "^1.12.0",
     "pinia": "^3.0.4",
@@ -54,8 +53,6 @@
     "ts-jest": "^29.0.3",
     "typescript": "5.8.3",
     "typescript-eslint": "^8.35.0",
-    "unplugin-auto-import": "^0.11.2",
-    "unplugin-vue-components": "^0.22.7",
     "vite": "^2.5.4"
   }
 }

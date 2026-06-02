@@ -3,7 +3,6 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Support from '../../src/views/Support.vue'
-import { ElButton, ElSwitch } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -29,8 +28,6 @@ test('Send logs to the owner', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-button': ElButton
         }
       }
     }
@@ -68,8 +65,6 @@ test('Send logs to support', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-button': ElButton
         }
       }
     }

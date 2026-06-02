@@ -5,17 +5,17 @@
       <h1 class="sc-title">{{ $t('support.title') }}</h1>
       <div class="sc-row">
         <span class="sc-row-label">{{ $t('support.copyToSupport') }}</span>
-        <el-switch id="switch" size="large" v-model="includeSupport"
+        <s-switch id="switch" size="large" v-model="includeSupport"
                    :active-text="$t('support.yes')" :inactive-text="$t('support.no')" inline-prompt/>
       </div>
       <div class="sc-row">
         <span class="sc-row-label">{{ $t('support.reportIssue') }}</span>
-        <el-button id="send"
+        <s-button id="send"
                    :loading="loading"
                    type="primary"
                    @click="sendLogs">
           {{ $t('support.sendLogs') }}
-        </el-button>
+        </s-button>
       </div>
     </div>
   </div>

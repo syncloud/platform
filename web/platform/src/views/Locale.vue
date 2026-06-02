@@ -5,16 +5,16 @@
       <div class="locale-form">
         <div class="locale-row">
           <span class="locale-label">{{ $t('locale.language') }}</span>
-          <el-select id="settings_language" v-model="language" size="default" class="locale-field">
-            <el-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'settings_lang_' + l.code"/>
-          </el-select>
+          <s-select id="settings_language" v-model="language" size="default" class="locale-field">
+            <s-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'settings_lang_' + l.code"/>
+          </s-select>
         </div>
 
         <div class="locale-row">
           <span class="locale-label">{{ $t('locale.timezone') }}</span>
-          <el-select id="settings_timezone" v-model="timezone" filterable size="default" class="locale-field">
-            <el-option v-for="tz in timezones" :key="tz" :label="tz" :value="tz" :id="'settings_tz_' + tz.replace(/[^a-zA-Z0-9]/g, '_')"/>
-          </el-select>
+          <s-select id="settings_timezone" v-model="timezone" filterable size="default" class="locale-field">
+            <s-option v-for="tz in timezones" :key="tz" :label="tz" :value="tz" :id="'settings_tz_' + tz.replace(/[^a-zA-Z0-9]/g, '_')"/>
+          </s-select>
         </div>
 
         <div class="locale-row">
@@ -23,7 +23,7 @@
         </div>
 
         <div class="locale-actions">
-          <el-button id="btn_save_timezone" type="primary" :loading="saving" @click="saveTimezone">{{ $t('locale.save') }}</el-button>
+          <s-button id="btn_save_timezone" type="primary" :loading="saving" @click="saveTimezone">{{ $t('locale.save') }}</s-button>
         </div>
       </div>
     </div>

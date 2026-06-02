@@ -1,20 +1,18 @@
 <template>
-  <el-dialog class="syncloud-dialog" v-model="visible" style="min-width: 300px; max-width: 500px">
-    <template #header>
-      <h4 class="modal-title">
-        <slot name="title">{{ $t('common.error') }}</slot>
-      </h4>
-    </template>
-    <slot name="text">
-      <div class="bodymod">
-        <div class="btext" id="txt_error">{{ message }}</div>
+  <div v-if="visible" class="s-modal-overlay" @click.self="close">
+    <div class="s-modal syncloud-dialog" role="dialog">
+      <h4 class="modal-title"><slot name="title">{{ $t('common.error') }}</slot></h4>
+      <slot name="text">
+        <div class="bodymod">
+          <div class="btext" id="txt_error">{{ message }}</div>
+        </div>
+      </slot>
+      <div class="s-modal-footer">
+        <button class="sc-btn sc-btn-ghost" type="button" @click="close">{{ $t('common.close') }}</button>
+        <button v-if="enableLogs" id="btn_error_send_logs" class="sc-btn sc-btn-ghost" type="button" @click="sendLogs">{{ $t('error.sendLogs') }}</button>
       </div>
-    </slot>
-    <template #footer>
-      <el-button @click="close">{{ $t('common.close') }}</el-button>
-      <el-button v-if="enableLogs" id="btn_error_send_logs" @click="sendLogs">{{ $t('error.sendLogs') }}</el-button>
-    </template>
-  </el-dialog>
+    </div>
+  </div>
 </template>
 <script>
 import axios from 'axios'

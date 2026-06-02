@@ -3,7 +3,7 @@
     <div class="sc-card" id="block1">
       <h1 class="sc-title">{{ $t('storage.title') }}</h1>
       <div class="sc-row" style="border: none; justify-content: flex-start; gap: 14px;">
-        <el-switch size="large" id="multi" :active-text="$t('storage.disks')" :inactive-text="$t('storage.partitions')" v-model="multiMode"/>
+        <s-switch size="large" id="multi" :active-text="$t('storage.disks')" :inactive-text="$t('storage.partitions')" v-model="multiMode"/>
         <button @click="helpVisible = true" type=button class="control" style="background:transparent; border: none; cursor: pointer;">
           <i class='fa fa-question-circle fa-lg' style="color: var(--sc-faint)"></i>
         </button>
@@ -13,36 +13,36 @@
 
       <!--Single disk-->
       <div v-if="!multiMode">
-        <el-radio-group v-model="activeSinglePartition" style="display: table;">
+        <s-radio-group v-model="activeSinglePartition" style="display: table;">
           <div v-for="(disk, index) in disks" :key="index">
             <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
-              <el-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large"
+              <s-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large"
                         border class="disk">
               <span style="white-space: normal;">
                 {{ disk.name }}  - {{ partition.size }}
               </span>
-              </el-radio>
+              </s-radio>
             </div>
           </div>
-          <el-radio id="none" label="none" size="large" border class="disk" v-if="disks.length !== 0">
+          <s-radio id="none" label="none" size="large" border class="disk" v-if="disks.length !== 0">
             <span>{{ $t('storage.none') }}</span>
-          </el-radio>
-        </el-radio-group>
+          </s-radio>
+        </s-radio-group>
       </div>
 
       <!--Multi disk-->
       <div v-if="multiMode">
-        <el-checkbox-group v-model="activeMultiDisks" size="large">
+        <s-checkbox-group v-model="activeMultiDisks" size="large">
           <div v-for="(disk, index) in disks" :key="index" style="display: flex">
-            <el-checkbox :id="'disk_' + index" class="disk" size="large" border :label="disk.device">
+            <s-checkbox :id="'disk_' + index" class="disk" size="large" border :label="disk.device">
               <span style="white-space: normal;">
                 {{ disk.name }} - {{ disk.size }}
                 <span v-if="disk.raid">({{ disk.raid }})</span>
               </span>
-            </el-checkbox>
+            </s-checkbox>
             <i v-if="disk.has_errors" class="material-icons-outlined" style="color: red; padding-top: 8px; font-size: 20px !important;">error</i>
           </div>
-        </el-checkbox-group>
+        </s-checkbox-group>
       </div>
 
       <!--Save-->
@@ -74,29 +74,19 @@
         <span style="font-weight: bold;" v-for="(device, index) in activeMultiDisks" :key="index">
           {{ descriptionByDisk(device) }}
         </span>
-        <el-row v-show="activeMultiDisks.length !== 0" style="align-items: center;">
-          <el-col :span="24" style="min-height: 20px"></el-col>
-          <el-col :span="20" style="padding-right: 10px">
-            {{ $t('storage.initializeQuestion') }}
-          </el-col>
-          <el-col :span="4" style="text-align: right;">
-            <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
-          </el-col>
-        </el-row>
+        <div v-show="activeMultiDisks.length !== 0" class="format-row">
+          <span>{{ $t('storage.initializeQuestion') }}</span>
+          <s-switch size="large" id="format" v-model="format"/>
+        </div>
       </div>
       <div style="display: grid" v-if="!multiMode">
         <span v-if="activeSinglePartition !== 'none'" style="font-weight: bold;">
           {{ descriptionByPartition(activeSinglePartition) }}
         </span>
-        <el-row v-show="activeSinglePartition !== 'none'" style="align-items: center;">
-          <el-col :span="24" style="min-height: 20px"></el-col>
-          <el-col :span="20" style="padding-right: 10px">
-            {{ $t('storage.initializeQuestion') }}
-          </el-col>
-          <el-col :span="4" style="text-align: right;">
-            <el-switch size="large" id="format" v-model="format" style="--el-switch-on-color: Tomato;"/>
-          </el-col>
-        </el-row>
+        <div v-show="activeSinglePartition !== 'none'" class="format-row">
+          <span>{{ $t('storage.initializeQuestion') }}</span>
+          <s-switch size="large" id="format" v-model="format"/>
+        </div>
       </div>
     </template>
   </Dialog>
@@ -116,7 +106,8 @@ import axios from 'axios'
 import Error from '../components/Error.vue'
 import * as Common from '../js/common.js'
 import Dialog from '../components/Dialog.vue'
-import { ElLoading, ElNotification } from 'element-plus'
+import Loading from '../util/loading'
+import notify from '../util/notify'
 
 export default {
   name: 'Storage',
@@ -142,7 +133,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
@@ -181,7 +172,7 @@ export default {
       axios.get('/rest/job/status')
         .then(resp => {
           if (resp.data.data.name.startsWith('storage.')) {
-            ElNotification({
+            notify({
               title: this.$t('storage.currentChange'),
               message: this.$t('storage.inProgress'),
               type: 'warning'
@@ -196,7 +187,7 @@ export default {
     checkError () {
       axios.get('/rest/storage/error/last')
         .catch(err => {
-          ElNotification({
+          notify({
             title: this.$t('storage.previousChange'),
             message: err.response.data.message,
             type: 'error',
@@ -270,5 +261,12 @@ export default {
 .disk {
   min-width: 300px;
   max-width: 300px
+}
+.format-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
 }
 </style>

@@ -2,66 +2,53 @@
   <div class="sc-page">
     <div class="sc-card" id="block1">
       <h1 class="sc-title">{{ $t('backup.title') }}</h1>
-      <div v-if="progress" id="progress">
-        <el-row>
-          <el-col :span="4"></el-col>
-          <el-col :span="16" style="min-height: 30px " id="progress_summary">
-            {{ progressSummary }}
-          </el-col>
-          <el-col :span="4"></el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="4"></el-col>
-          <el-col :span="16">
-            <el-progress :show-text="false" :percentage="progressPercentage"
-                         :indeterminate="progressIndeterminate"/>
-          </el-col>
-          <el-col :span="4"></el-col>
-        </el-row>
+      <div v-if="progress" id="progress" class="bk-progress">
+        <div id="progress_summary" class="bk-progress-summary">{{ progressSummary }}</div>
+        <s-progress :show-text="false" :percentage="progressPercentage" :indeterminate="progressIndeterminate"/>
       </div>
       <div v-if="!progress">
         <div class="backup-auto">
           <div class="backup-auto-controls">
-            <el-select id="auto" v-model="auto" class="bk-sel bk-auto"
+            <s-select id="auto" v-model="auto" class="bk-sel bk-auto"
                        :placeholder="$t('backup.select')">
-              <el-option id="auto-no" :label="$t('backup.autoNo')" value="no"/>
-              <el-option id="auto-backup" :label="$t('backup.autoBackup')" value="backup"/>
-              <el-option id="auto-restore" :label="$t('backup.autoRestore')" value="restore"/>
-            </el-select>
-            <el-select id="auto-day" v-model="autoDay" class="bk-sel bk-day"
+              <s-option id="auto-no" :label="$t('backup.autoNo')" value="no"/>
+              <s-option id="auto-backup" :label="$t('backup.autoBackup')" value="backup"/>
+              <s-option id="auto-restore" :label="$t('backup.autoRestore')" value="restore"/>
+            </s-select>
+            <s-select id="auto-day" v-model="autoDay" class="bk-sel bk-day"
                        :placeholder="$t('backup.select')" :disabled="auto === 'no'">
-              <el-option id="auto-day-every" :label="$t('backup.daily')" :value="0"/>
-              <el-option id="auto-day-monday" :label="$t('backup.mon')" :value="1"/>
-              <el-option :label="$t('backup.tue')" :value="2"/>
-              <el-option :label="$t('backup.wed')" :value="3"/>
-              <el-option :label="$t('backup.thu')" :value="4"/>
-              <el-option :label="$t('backup.fri')" :value="5"/>
-              <el-option :label="$t('backup.sat')" :value="6"/>
-              <el-option :label="$t('backup.sun')" :value="7"/>
-            </el-select>
-            <el-select id="auto-hour" v-model="autoHour" class="bk-sel bk-hour"
+              <s-option id="auto-day-every" :label="$t('backup.daily')" :value="0"/>
+              <s-option id="auto-day-monday" :label="$t('backup.mon')" :value="1"/>
+              <s-option :label="$t('backup.tue')" :value="2"/>
+              <s-option :label="$t('backup.wed')" :value="3"/>
+              <s-option :label="$t('backup.thu')" :value="4"/>
+              <s-option :label="$t('backup.fri')" :value="5"/>
+              <s-option :label="$t('backup.sat')" :value="6"/>
+              <s-option :label="$t('backup.sun')" :value="7"/>
+            </s-select>
+            <s-select id="auto-hour" v-model="autoHour" class="bk-sel bk-hour"
                        :placeholder="$t('backup.select')" :disabled="auto === 'no'">
-              <el-option v-for="hour in 24" :id="'auto-hour-' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'"
+              <s-option v-for="hour in 24" :id="'auto-hour-' + (hour - 1)" :key="hour-1" :label="hour-1 + ':00'"
                          :value="(hour-1)"/>
-            </el-select>
+            </s-select>
           </div>
           <button id="save" class="sc-btn sc-btn-success" type="button" @click="saveAuto">
             {{ $t('backup.save') }}
           </button>
         </div>
         <div class="bk-search">
-          <el-input v-model="search" size="small" :placeholder="$t('backup.typeToSearch')"/>
+          <s-input v-model="search" size="small" :placeholder="$t('backup.typeToSearch')"/>
         </div>
         <div class="bk-list">
           <div v-for="row in filteredData" :key="row.file" class="bk-row" :data-testid="'backup-row-' + row.file">
             <span class="bk-file">{{ row.file }}</span>
             <div class="bk-actions">
-              <el-button size="small" type="primary" @click="restoreConfirm(row.file)">
+              <s-button size="small" type="primary" @click="restoreConfirm(row.file)">
                 {{ $t('backup.restore') }}
-              </el-button>
-              <el-button size="small" type="danger" @click="removeConfirm(row.file)">
+              </s-button>
+              <s-button size="small" type="danger" @click="removeConfirm(row.file)">
                 {{ $t('backup.delete') }}
-              </el-button>
+              </s-button>
             </div>
           </div>
         </div>
@@ -254,6 +241,8 @@ export default {
 .bk-day { width: 112px; }
 .bk-hour { width: 96px; }
 
+.bk-progress { max-width: 480px; margin: 10px auto; }
+.bk-progress-summary { text-align: center; color: var(--sc-muted); margin-bottom: 8px; min-height: 20px; }
 .bk-search { max-width: 320px; margin-bottom: 12px; }
 .bk-list { border-top: 1px solid #eef3f9; }
 .bk-row {

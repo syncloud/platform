@@ -6,7 +6,7 @@
       <div id="block_updates">
         <div class="setline update-line">
           <span class="sc-row-label">{{ $t('updates.check') }}</span>
-          <el-button id="btn_check_updates" type="primary" :disabled="busy" @click="check">{{ $t('updates.checkButton') }}</el-button>
+          <s-button id="btn_check_updates" type="primary" :disabled="busy" @click="check">{{ $t('updates.checkButton') }}</s-button>
         </div>
         <div class="setline">
           <span class="sc-row-label">{{ $t('updates.note') }}</span>
@@ -14,7 +14,7 @@
 
         <div class="setline update-line">
           <span class="sc-row-label">{{ $t('updates.system') }} <span id="txt_platform_version">{{ platformVersion }}</span></span>
-          <el-button
+          <s-button
             v-if="!platform.progress && platformVersion !== platformVersionAvailable"
             id="btn_platform_upgrade"
             type="success"
@@ -22,10 +22,10 @@
             @click="upgradePlatform"
           >
             {{ $t('updates.upgradeTo', { version: platformVersionAvailable }) }}
-          </el-button>
+          </s-button>
           <div class="update-progress" id="platform_progress" v-if="platform.progress">
             <span class="update-progress-summary" id="platform_progress_summary">{{ platform.summary }}</span>
-            <el-progress
+            <s-progress
               :percentage="platform.percentage"
               :indeterminate="platform.indeterminate"
               :show-text="false"
@@ -36,7 +36,7 @@
 
         <div class="setline update-line">
           <span class="sc-row-label">{{ $t('updates.installer') }} <span id="txt_installer_version">{{ installerVersion }}</span></span>
-          <el-button
+          <s-button
             v-if="!installer.progress && installerVersion !== installerVersionAvailable"
             id="btn_installer_upgrade"
             type="success"
@@ -44,10 +44,10 @@
             @click="upgradeInstaller"
           >
             {{ $t('updates.upgradeTo', { version: installerVersionAvailable }) }}
-          </el-button>
+          </s-button>
           <div class="update-progress" id="installer_progress" v-if="installer.progress">
             <span class="update-progress-summary" id="installer_progress_summary">{{ installer.summary }}</span>
-            <el-progress
+            <s-progress
               :percentage="installer.percentage"
               :indeterminate="installer.indeterminate"
               :show-text="false"
@@ -67,7 +67,7 @@
 import axios from 'axios'
 import * as Common from '../js/common.js'
 import Error from '../components/Error.vue'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 export default {
   name: 'Updates',
@@ -96,7 +96,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

@@ -4,11 +4,11 @@
       <h1 class="sc-title">{{ $t('system.title') }}</h1>
       <div class="sc-row">
         <span class="sc-row-label">{{ $t('system.restartLabel') }}</span>
-        <el-button id="restart" type="primary" @click="restartConfirmVisible = true">{{ $t('system.restart') }}</el-button>
+        <s-button id="restart" type="primary" @click="restartConfirmVisible = true">{{ $t('system.restart') }}</s-button>
       </div>
       <div class="sc-row">
         <span class="sc-row-label">{{ $t('system.shutdownLabel') }}</span>
-        <el-button id="shutdown" type="danger" @click="shutdownConfirmVisible = true">{{ $t('system.shutdown') }}</el-button>
+        <s-button id="shutdown" type="danger" @click="shutdownConfirmVisible = true">{{ $t('system.shutdown') }}</s-button>
       </div>
     </div>
   </div>

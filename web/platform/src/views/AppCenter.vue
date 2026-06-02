@@ -3,7 +3,7 @@
     <div class="sc-card sc-card-wide" id="block1">
       <h1 class="sc-title">{{ $t('appCenter.title') }}</h1>
       <div class="appcenterfilter">
-        <el-input
+        <s-input
           v-model="filter"
           id="appcenter_filter"
           data-testid="appcenter_filter"
@@ -25,7 +25,7 @@
 import axios from 'axios'
 import * as Common from '../js/common.js'
 import Error from '../components/Error.vue'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 export default {
   name: 'AppCenter',
@@ -75,7 +75,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {

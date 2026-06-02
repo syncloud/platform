@@ -1,20 +1,14 @@
 <template>
-  <el-dialog class="syncloud-dialog" :modelValue="visible" style="min-width: 300px; max-width: 500px" :before-close="close" align-center>
-    <template #header>
-      <h4 class="modal-title">
-        <slot name="title"></slot>
-      </h4>
-    </template>
-    <div style="font-size: 18px">
-      <slot name="text" ></slot>
+  <div v-if="visible" class="s-modal-overlay" @click.self="close">
+    <div class="s-modal syncloud-dialog" role="dialog">
+      <h4 class="modal-title"><slot name="title"></slot></h4>
+      <div class="s-modal-body"><slot name="text"></slot></div>
+      <div class="s-modal-footer">
+        <button class="sc-btn sc-btn-ghost" type="button" @click="close">{{ cancelText || $t('common.cancel') }}</button>
+        <button v-if="confirmEnabled" id="btn_confirm" data-testid="btn_confirm" class="sc-btn sc-btn-primary" type="button" @click="yes">{{ $t('common.confirm') }}</button>
+      </div>
     </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="close">{{ cancelText || $t('common.cancel') }}</el-button>
-        <el-button id="btn_confirm" data-testid="btn_confirm" type="primary" @click="yes" v-if="confirmEnabled">{{ $t('common.confirm') }}</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  </div>
 </template>
 
 <script>

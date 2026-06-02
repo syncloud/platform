@@ -8,26 +8,26 @@
       </div>
 
       <div class="sc-actions">
-        <el-button
+        <s-button
           v-if="!enabled"
           id="btn_enable_2fa"
           type="success"
           :loading="loading"
           @click="enableTwoFactor"
-        >{{ $t('twoFactor.enable') }}</el-button>
-        <el-button
+        >{{ $t('twoFactor.enable') }}</s-button>
+        <s-button
           v-else
           id="btn_disable_2fa"
           type="danger"
           :loading="loading"
           @click="disableTwoFactor"
-        >{{ $t('twoFactor.disable') }}</el-button>
+        >{{ $t('twoFactor.disable') }}</s-button>
       </div>
 
       <div v-if="enabled" style="margin-top: 16px">
-        <el-alert type="info" :closable="false" show-icon>
+        <s-alert type="info" :closable="false" show-icon>
           {{ $t('twoFactor.enabledNote') }}
-        </el-alert>
+        </s-alert>
       </div>
     </div>
   </div>

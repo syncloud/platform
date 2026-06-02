@@ -3,7 +3,6 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Activate from '../../src/views/Activate.vue'
-import { ElButton, ElStep, ElSteps } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -49,9 +48,6 @@ test('Activate syncloud domain', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -106,9 +102,6 @@ test('Activate syncloud domain error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -160,9 +153,6 @@ test('Activate syncloud domain availability error', async () => {
         stubs: {
           Error: true,
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -218,9 +208,6 @@ test('Activate syncloud domain availability generic error', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -268,9 +255,6 @@ test('Activate syncloud domain availability error email', async () => {
         stubs: {
           Error: true,
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -337,9 +321,6 @@ test('Activate custom domain', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -418,9 +399,6 @@ test('Activated while page is open (mostly in local dev)', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
@@ -488,9 +466,6 @@ test('No finish if device password confirmation is wrong', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
-          'el-steps': ElSteps,
-          'el-step': ElStep
         },
         mocks: {
           $router: mockRouter
