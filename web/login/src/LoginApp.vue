@@ -61,7 +61,7 @@
               autocomplete="one-time-code"
               @keyup.enter="submitTotp">
           </div>
-          <button type="submit" class="btn btn-primary" :disabled="loading">
+          <button id="verify-button" type="submit" class="btn btn-primary" :disabled="loading">
             <span v-if="loading" class="spinner"></span><span v-else>Verify</span>
           </button>
         </form>
@@ -81,7 +81,7 @@
               autocomplete="one-time-code"
               @keyup.enter="submitTotp">
           </div>
-          <button type="submit" class="btn btn-primary" :disabled="loading">
+          <button id="verify-button" type="submit" class="btn btn-primary" :disabled="loading">
             <span v-if="loading" class="spinner"></span><span v-else>Verify</span>
           </button>
         </form>
