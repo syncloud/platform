@@ -196,14 +196,16 @@ body {
 }
 
 .sc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 150px);
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 18px;
   margin-top: 4px;
 }
 
 .sc-tile {
+  width: 150px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -601,10 +603,8 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
 
 @media (max-width: 600px) {
   .sc-card { padding: 22px 16px 24px; }
-  .sc-grid, .appcenterlist {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
+  .sc-grid, .appcenterlist { gap: 12px; }
+  .sc-tile { width: calc(50% - 6px); }
   .sc-tile, .colapp, .app-link { padding: 14px 6px; }
   .sc-tile-icon { font-size: 52px !important; }
   .appimg { width: 96px; height: 96px; border-radius: 24px; }
