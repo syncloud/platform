@@ -28,12 +28,12 @@
 
       <div class="setline" style='display: flex; align-items: center;'>
         <label class="span proxy-label" for="proxy_https">{{ $t('customProxy.https') }}</label>
-        <input id="proxy_https" type="checkbox" v-model="newHttps">
+        <input id="proxy_https" type="checkbox" v-model="newHttps" class="proxy-check">
       </div>
 
       <div class="setline" style='display: flex; align-items: center;'>
-        <label class="span proxy-label" for="proxy_authelia">{{ $t('customProxy.authelia') }}</label>
-        <input id="proxy_authelia" data-testid="proxy-authelia" type="checkbox" v-model="newAuthelia">
+        <label class="span proxy-label" for="proxy_authelia">{{ $t('customProxy.authelia') }}:</label>
+        <input id="proxy_authelia" data-testid="proxy-authelia" type="checkbox" v-model="newAuthelia" class="proxy-check">
         <button type="button" class="proxy-help" @click="autheliaInfoVisible = true" aria-label="?">
           <i class="fa fa-question-circle fa-lg"></i>
         </button>
@@ -194,6 +194,12 @@ export default {
   font-variant-numeric: tabular-nums;
 }
 .proxy-remove { min-width: 80px; padding: 8px 14px; flex: 0 0 auto; }
+
+.proxy-check {
+  margin-left: 12px;
+  width: 18px;
+  height: 18px;
+}
 
 .proxy-help {
   margin-left: 8px;
