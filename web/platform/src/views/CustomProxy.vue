@@ -8,7 +8,7 @@
         <span class="proxy-warning">{{ $t('customProxy.warning') }}</span>
       </div>
 
-      <div class="setline" style='display: flex'>
+      <div class="setline proxy-field">
         <label class="span proxy-label" for="proxy_name">{{ $t('customProxy.name') }}</label>
         <input class="proxy-input sc-input" id="proxy_name" type="text" v-model="newName" :placeholder="$t('customProxy.namePlaceholder')">
       </div>
@@ -16,12 +16,12 @@
         <span class="proxy-hint">{{ $t('customProxy.urlPreview') }} {{ newName || $t('customProxy.nameFallback') }}.{{ domain }}</span>
       </div>
 
-      <div class="setline" style='display: flex'>
+      <div class="setline proxy-field">
         <label class="span proxy-label" for="proxy_host">{{ $t('customProxy.host') }}</label>
         <input class="proxy-input sc-input" id="proxy_host" type="text" v-model="newHost" :placeholder="$t('customProxy.hostPlaceholder')">
       </div>
 
-      <div class="setline" style='display: flex'>
+      <div class="setline proxy-field">
         <label class="span proxy-label" for="proxy_port">{{ $t('customProxy.port') }}</label>
         <input class="proxy-input sc-input" id="proxy_port" type="number" v-model.number="newPort" :placeholder="$t('customProxy.portPlaceholder')">
       </div>
@@ -39,7 +39,7 @@
         </button>
       </div>
 
-      <div class="sc-actions" style="justify-content: flex-start">
+      <div class="sc-actions">
         <button class="sc-btn sc-btn-success" id="btn_add" type="button" @click="add">{{ $t('customProxy.add') }}</button>
       </div>
 
@@ -176,6 +176,11 @@ export default {
   align-items: center;
 }
 
+.proxy-field {
+  display: flex;
+  align-items: center;
+}
+
 .proxy-toggle {
   display: flex;
   align-items: center;
@@ -243,8 +248,15 @@ export default {
 }
 
 @media (max-width: 600px) {
-  .proxy-label { width: 104px; min-width: 104px; }
-  .proxy-input { flex: 1 1 auto; width: auto; min-width: 0; }
+  .proxy-label { width: auto; min-width: 0; }
+  .proxy-field {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .proxy-field .proxy-label { font-weight: 600; }
+  .proxy-input { width: 100%; }
+  .proxy-toggle { justify-content: space-between; }
 
   .proxy-entry {
     flex-wrap: wrap;
