@@ -313,6 +313,9 @@ export function mock () {
         } else {
           info.installed_version = '1'
         }
+        if (!info.app.description) {
+          info.app.description = 'Self-hosted ' + info.app.name + ' running on your Syncloud device. Manage, back up and access it securely from anywhere.'
+        }
         return new Response(200, {}, { data: info })
       })
       this.get('/rest/installer/version', function (_schema, _request) {

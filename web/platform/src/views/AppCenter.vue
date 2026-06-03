@@ -1,23 +1,20 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1 class="bigh1">{{ $t('appCenter.title') }}</h1>
-        <div class="appcenterfilter">
-          <el-input
-            v-model="filter"
-            id="appcenter_filter"
-            data-testid="appcenter_filter"
-            size="small"
-            :placeholder="$t('appCenter.filter')"/>
-        </div>
-        <div class="row-no-gutters appcenterlist" id="block_apps" style="min-height: 200px">
-          <router-link v-for="(app, index) in filteredApps" :key="index" :to="'/app?id=' + app.id" class="colapp app">
-            <img :src="app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
-            <div class="appname"><span class="withline">{{ app.name }}</span></div>
-            <div class="appdesc"></div>
-          </router-link>
-        </div>
+  <div class="sc-page">
+    <div class="sc-card sc-card-wide" id="block1">
+      <h1 class="sc-title">{{ $t('appCenter.title') }}</h1>
+      <div class="appcenterfilter">
+        <s-input
+          v-model="filter"
+          id="appcenter_filter"
+          data-testid="appcenter_filter"
+          size="large"
+          :placeholder="$t('appCenter.filter')"/>
+      </div>
+      <div class="sc-grid" id="block_apps" style="min-height: 200px">
+        <router-link v-for="(app, index) in filteredApps" :key="index" :to="'/app?id=' + app.id" class="sc-tile">
+          <img :src="app.icon" class="appimg" alt="" @error="(e) => e.target.src = defaultIcon">
+          <div class="sc-tile-name">{{ app.name }}</div>
+        </router-link>
       </div>
     </div>
   </div>
@@ -28,7 +25,7 @@
 import axios from 'axios'
 import * as Common from '../js/common.js'
 import Error from '../components/Error.vue'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 export default {
   name: 'AppCenter',
@@ -78,7 +75,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
@@ -88,7 +85,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

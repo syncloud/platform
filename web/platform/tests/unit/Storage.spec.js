@@ -3,7 +3,6 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Storage from '../../src/views/Storage.vue'
-import { ElSwitch, ElRadio, ElRadioGroup, ElCheckbox, ElCheckboxGroup, ElRow, ElCol } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -58,13 +57,6 @@ test('Activate partition', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -133,13 +125,6 @@ test('Deactivate partition', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -212,19 +197,12 @@ test('Activate partition error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-row': ElRow,
-          'el-col': ElCol,
           Error: {
             template: '<span/>',
             methods: {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
           Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -298,19 +276,12 @@ test('Activate partition service error', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-row': ElRow,
-          'el-col': ElCol,
           Error: {
             template: '<span/>',
             methods: {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
           Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -390,13 +361,6 @@ test('Activate disks', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -479,13 +443,6 @@ test('Activate disks error', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -501,14 +458,14 @@ test('Activate disks error', async () => {
 
   await flushPromises()
 
-  expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).toContain('is-checked')
+  expect(wrapper.find('#disk_0').classes()).toContain('is-selected')
   await wrapper.find('#btn_save').trigger('click')
   await wrapper.find('#confirmation').trigger('confirm')
 
   await flushPromises()
 
   expect(error).toBe('not ok')
-  expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).not.toContain('is-checked')
+  expect(wrapper.find('#disk_0').classes()).not.toContain('is-selected')
   wrapper.unmount()
 })
 
@@ -556,13 +513,6 @@ test('Deactivate disks', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -637,13 +587,6 @@ test('Show single partition', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -659,7 +602,7 @@ test('Show single partition', async () => {
 
   await flushPromises()
 
-  await expect(wrapper.find('#partition_0_0').classes()).toContain('is-checked')
+  await expect(wrapper.find('#partition_0_0').classes()).toContain('is-selected')
 
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
@@ -711,13 +654,6 @@ test('Show single partition none', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -734,7 +670,7 @@ test('Show single partition none', async () => {
   await flushPromises()
 
   await wrapper.find('#multi').trigger('click')
-  await expect(wrapper.find('#none').classes()).toContain('is-checked')
+  await expect(wrapper.find('#none').classes()).toContain('is-selected')
 
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
@@ -786,13 +722,6 @@ test('Show multi disk', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<button :id="id" />',
             props: { id: String },
@@ -809,8 +738,8 @@ test('Show multi disk', async () => {
   await flushPromises()
 
   await expect(wrapper.find('#multi').attributes('aria-checked')).toBe('true')
-  await expect(wrapper.find('#disk_0').element.parentElement.getAttribute('class')).toContain('is-checked')
-  await expect(wrapper.find('#disk_1').element.parentElement.getAttribute('class')).not.toContain('is-checked')
+  await expect(wrapper.find('#disk_0').classes()).toContain('is-selected')
+  await expect(wrapper.find('#disk_1').classes()).not.toContain('is-selected')
 
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
@@ -843,13 +772,6 @@ test('Show null disk', async () => {
               showAxios: showError
             }
           },
-          'el-switch': ElSwitch,
-          'el-radio': ElRadio,
-          'el-radio-group': ElRadioGroup,
-          'el-checkbox': ElCheckbox,
-          'el-checkbox-group': ElCheckboxGroup,
-          'el-row': ElRow,
-          'el-col': ElCol,
           Dialog: {
             template: '<button :id="id" />',
             props: { id: String },

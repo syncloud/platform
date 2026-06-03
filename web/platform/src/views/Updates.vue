@@ -1,62 +1,58 @@
 <template>
 
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('updates.title') }}</h1>
-        <div class="row-no-gutters settingsblock" id="block_updates">
-          <div class="col2">
-            <div class="setline update-line">
-              <span class="span">{{ $t('updates.check') }}</span>
-              <el-button id="btn_check_updates" type="primary" :disabled="busy" @click="check">{{ $t('updates.checkButton') }}</el-button>
-            </div>
-            <div class="setline">
-              <span class="span">{{ $t('updates.note') }}</span>
-            </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('updates.title') }}</h1>
+      <div id="block_updates">
+        <div class="setline update-line">
+          <span class="sc-row-label">{{ $t('updates.check') }}</span>
+          <s-button id="btn_check_updates" type="primary" :disabled="busy" @click="check">{{ $t('updates.checkButton') }}</s-button>
+        </div>
+        <div class="setline">
+          <span class="sc-row-label">{{ $t('updates.note') }}</span>
+        </div>
 
-            <div class="setline update-line">
-              <span class="span">{{ $t('updates.system') }} <span id="txt_platform_version">{{ platformVersion }}</span></span>
-              <el-button
-                v-if="!platform.progress && platformVersion !== platformVersionAvailable"
-                id="btn_platform_upgrade"
-                type="success"
-                :disabled="busy"
-                @click="upgradePlatform"
-              >
-                {{ $t('updates.upgradeTo', { version: platformVersionAvailable }) }}
-              </el-button>
-              <div class="update-progress" id="platform_progress" v-if="platform.progress">
-                <span class="update-progress-summary" id="platform_progress_summary">{{ platform.summary }}</span>
-                <el-progress
-                  :percentage="platform.percentage"
-                  :indeterminate="platform.indeterminate"
-                  :show-text="false"
-                  :stroke-width="6"
-                />
-              </div>
-            </div>
+        <div class="setline update-line">
+          <span class="sc-row-label">{{ $t('updates.system') }} <span id="txt_platform_version">{{ platformVersion }}</span></span>
+          <s-button
+            v-if="!platform.progress && platformVersion !== platformVersionAvailable"
+            id="btn_platform_upgrade"
+            type="success"
+            :disabled="busy"
+            @click="upgradePlatform"
+          >
+            {{ $t('updates.upgradeTo', { version: platformVersionAvailable }) }}
+          </s-button>
+          <div class="update-progress" id="platform_progress" v-if="platform.progress">
+            <span class="update-progress-summary" id="platform_progress_summary">{{ platform.summary }}</span>
+            <s-progress
+              :percentage="platform.percentage"
+              :indeterminate="platform.indeterminate"
+              :show-text="false"
+              :stroke-width="6"
+            />
+          </div>
+        </div>
 
-            <div class="setline update-line">
-              <span class="span">{{ $t('updates.installer') }} <span id="txt_installer_version">{{ installerVersion }}</span></span>
-              <el-button
-                v-if="!installer.progress && installerVersion !== installerVersionAvailable"
-                id="btn_installer_upgrade"
-                type="success"
-                :disabled="busy"
-                @click="upgradeInstaller"
-              >
-                {{ $t('updates.upgradeTo', { version: installerVersionAvailable }) }}
-              </el-button>
-              <div class="update-progress" id="installer_progress" v-if="installer.progress">
-                <span class="update-progress-summary" id="installer_progress_summary">{{ installer.summary }}</span>
-                <el-progress
-                  :percentage="installer.percentage"
-                  :indeterminate="installer.indeterminate"
-                  :show-text="false"
-                  :stroke-width="6"
-                />
-              </div>
-            </div>
+        <div class="setline update-line">
+          <span class="sc-row-label">{{ $t('updates.installer') }} <span id="txt_installer_version">{{ installerVersion }}</span></span>
+          <s-button
+            v-if="!installer.progress && installerVersion !== installerVersionAvailable"
+            id="btn_installer_upgrade"
+            type="success"
+            :disabled="busy"
+            @click="upgradeInstaller"
+          >
+            {{ $t('updates.upgradeTo', { version: installerVersionAvailable }) }}
+          </s-button>
+          <div class="update-progress" id="installer_progress" v-if="installer.progress">
+            <span class="update-progress-summary" id="installer_progress_summary">{{ installer.summary }}</span>
+            <s-progress
+              :percentage="installer.percentage"
+              :indeterminate="installer.indeterminate"
+              :show-text="false"
+              :stroke-width="6"
+            />
           </div>
         </div>
       </div>
@@ -71,7 +67,7 @@
 import axios from 'axios'
 import * as Common from '../js/common.js'
 import Error from '../components/Error.vue'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 export default {
   name: 'Updates',
@@ -100,7 +96,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
@@ -227,9 +223,7 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
+<style scoped>
 .update-line {
   display: flex;
   justify-content: space-between;
@@ -246,7 +240,7 @@ export default {
 .update-progress-summary {
   display: block;
   margin-bottom: 4px;
-  color: #606266;
+  color: var(--sc-muted);
   font-size: 12px;
   text-align: center;
 }

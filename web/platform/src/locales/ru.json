@@ -74,7 +74,7 @@
     "version": "Версия:",
     "localInstall": "Установлено локально (не из магазина)",
     "open": "Открыть",
-    "install": "Установить v{version}",
+    "install": "Установить",
     "upgrade": "Обновить v{version}",
     "remove": "Удалить",
     "backup": "Резервная копия",
@@ -98,7 +98,8 @@
     "title": "Журнал сертификата"
   },
   "logs": {
-    "title": "Журналы"
+    "title": "Журналы",
+    "wordWrap": "Перенос строк"
   },
   "support": {
     "title": "Поддержка",
@@ -139,7 +140,7 @@
     "port": "Порт:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "Аутентификация",
     "autheliaHint": "требовать вход (SSO + 2FA) до доступа к серверу",
     "add": "Добавить",
     "proxies": "Прокси",

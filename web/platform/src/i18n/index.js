@@ -1,7 +1,5 @@
 import { createI18n } from 'vue-i18n'
-import { ref } from 'vue'
 import en from '../locales/en.json'
-import enLocale from 'element-plus/dist/locale/en.mjs'
 
 export const SUPPORTED_LOCALES = [
   { code: 'en', name: 'English' },
@@ -17,19 +15,6 @@ export const SUPPORTED_LOCALES = [
 ]
 
 const RTL_LOCALES = ['ar']
-
-const ELEMENT_LOCALE_FILES = {
-  en: () => import('element-plus/dist/locale/en.mjs'),
-  'zh-CN': () => import('element-plus/dist/locale/zh-cn.mjs'),
-  es: () => import('element-plus/dist/locale/es.mjs'),
-  hi: () => import('element-plus/dist/locale/hi.mjs'),
-  ar: () => import('element-plus/dist/locale/ar.mjs'),
-  pt: () => import('element-plus/dist/locale/pt.mjs'),
-  ru: () => import('element-plus/dist/locale/ru.mjs'),
-  ja: () => import('element-plus/dist/locale/ja.mjs'),
-  de: () => import('element-plus/dist/locale/de.mjs'),
-  fr: () => import('element-plus/dist/locale/fr.mjs')
-}
 
 const APP_LOCALE_FILES = {
   en: () => Promise.resolve({ default: en }),
@@ -63,8 +48,6 @@ export function detectLocale () {
   return match || 'en'
 }
 
-export const elementLocale = ref(enLocale)
-
 const i18n = createI18n({
   legacy: false,
   globalInjection: true,
@@ -81,9 +64,6 @@ export async function setLocale (code) {
     i18n.global.setLocaleMessage(code, mod.default || mod)
   }
   i18n.global.locale.value = code
-
-  const elMod = await ELEMENT_LOCALE_FILES[code]()
-  elementLocale.value = elMod.default || elMod
 
   try { localStorage.setItem(STORAGE_KEY, code) } catch { /* ignore */ }
 

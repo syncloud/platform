@@ -74,7 +74,7 @@
     "version": "Versão:",
     "localInstall": "Instalado localmente (não da loja)",
     "open": "Abrir",
-    "install": "Instalar v{version}",
+    "install": "Instalar",
     "upgrade": "Atualizar v{version}",
     "remove": "Remover",
     "backup": "Cópia de segurança",
@@ -98,7 +98,8 @@
     "title": "Registro do certificado"
   },
   "logs": {
-    "title": "Registros"
+    "title": "Registros",
+    "wordWrap": "Quebra de linha"
   },
   "support": {
     "title": "Suporte",
@@ -139,7 +140,7 @@
     "port": "Porta:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "Autenticação",
     "autheliaHint": "exigir login (SSO + 2FA) antes de alcançar o upstream",
     "add": "Adicionar",
     "proxies": "Proxies",

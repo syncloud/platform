@@ -74,7 +74,7 @@
     "version": "版本:",
     "localInstall": "本地安装(非来自商店)",
     "open": "打开",
-    "install": "安装 v{version}",
+    "install": "安装",
     "upgrade": "升级 v{version}",
     "remove": "卸载",
     "backup": "备份",
@@ -98,7 +98,8 @@
     "title": "证书日志"
   },
   "logs": {
-    "title": "日志"
+    "title": "日志",
+    "wordWrap": "自动换行"
   },
   "support": {
     "title": "支持",
@@ -139,7 +140,7 @@
     "port": "端口:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "身份验证",
     "autheliaHint": "在到达上游之前需要登录（SSO + 2FA）",
     "add": "添加",
     "proxies": "代理",

@@ -3,7 +3,6 @@ import Backup from '../../src/views/Backup.vue'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
-import {ElOption, ElSelect, ElTable, ElInput, ElTableColumn, ElButton, ElCol, ElRow, ElProgress} from 'element-plus'
 
 test('show list of backups', async () => {
   const mock = new MockAdapter(axios)
@@ -34,15 +33,6 @@ test('show list of backups', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-option': ElOption,
-          'el-select': ElSelect,
-          'el-table': ElTable,
-          'el-table-column': ElTableColumn,
-          'el-input': ElInput,
-          'el-button': ElButton,
-          'el-col': ElCol,
-          'el-row': ElRow,
-          'el-progress': ElProgress,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -92,15 +82,6 @@ test('show empty list of backups', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-option': ElOption,
-          'el-select': ElSelect,
-          'el-table': ElTable,
-          'el-table-column': ElTableColumn,
-          'el-input': ElInput,
-          'el-button': ElButton,
-          'el-col': ElCol,
-          'el-row': ElRow,
-          'el-progress': ElProgress,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },
@@ -162,15 +143,6 @@ test('save auto mode', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-option': ElOption,
-          'el-select': ElSelect,
-          'el-table': ElTable,
-          'el-table-column': ElTableColumn,
-          'el-input': ElInput,
-          'el-button': ElButton,
-          'el-col': ElCol,
-          'el-row': ElRow,
-          'el-progress': ElProgress,
           Dialog: {
             template: '<span :id="id"><slot name="text"></slot></span>',
             props: { id: String },

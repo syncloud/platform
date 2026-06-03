@@ -1,31 +1,29 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('locale.title') }}</h1>
-        <div class="locale-form">
-          <div class="locale-row">
-            <span class="locale-label">{{ $t('locale.language') }}</span>
-            <el-select id="settings_language" v-model="language" size="default" class="locale-field">
-              <el-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'settings_lang_' + l.code"/>
-            </el-select>
-          </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('locale.title') }}</h1>
+      <div class="locale-form">
+        <div class="locale-row">
+          <span class="locale-label">{{ $t('locale.language') }}</span>
+          <s-select id="settings_language" v-model="language" size="default" class="locale-field">
+            <s-option v-for="l in locales" :key="l.code" :label="l.name" :value="l.code" :id="'settings_lang_' + l.code"/>
+          </s-select>
+        </div>
 
-          <div class="locale-row">
-            <span class="locale-label">{{ $t('locale.timezone') }}</span>
-            <el-select id="settings_timezone" v-model="timezone" filterable size="default" class="locale-field">
-              <el-option v-for="tz in timezones" :key="tz" :label="tz" :value="tz" :id="'settings_tz_' + tz.replace(/[^a-zA-Z0-9]/g, '_')"/>
-            </el-select>
-          </div>
+        <div class="locale-row">
+          <span class="locale-label">{{ $t('locale.timezone') }}</span>
+          <s-select id="settings_timezone" v-model="timezone" filterable size="default" class="locale-field">
+            <s-option v-for="tz in timezones" :key="tz" :label="tz" :value="tz" :id="'settings_tz_' + tz.replace(/[^a-zA-Z0-9]/g, '_')"/>
+          </s-select>
+        </div>
 
-          <div class="locale-row">
-            <span class="locale-label">{{ $t('locale.currentTime') }}</span>
-            <span class="locale-value" id="current_time">{{ displayTime }}</span>
-          </div>
+        <div class="locale-row">
+          <span class="locale-label">{{ $t('locale.currentTime') }}</span>
+          <span class="locale-value" id="current_time">{{ displayTime }}</span>
+        </div>
 
-          <div class="locale-actions">
-            <el-button id="btn_save_timezone" type="primary" :loading="saving" @click="saveTimezone">{{ $t('locale.save') }}</el-button>
-          </div>
+        <div class="locale-actions">
+          <s-button id="btn_save_timezone" type="primary" :loading="saving" @click="saveTimezone">{{ $t('locale.save') }}</s-button>
         </div>
       </div>
     </div>
@@ -138,7 +136,6 @@ export default {
 .locale-form {
   max-width: 520px;
   margin: 0 auto;
-  padding: 24px 16px 0;
   box-sizing: border-box;
 }
 .locale-row {
@@ -151,14 +148,15 @@ export default {
   flex: 0 0 160px;
   text-align: right;
   padding-right: 14px;
-  font-size: 16px;
+  font-size: 15px;
+  color: var(--sc-ink-2);
 }
 .locale-field {
   width: 320px;
   max-width: 100%;
 }
 .locale-value {
-  font-size: 16px;
+  font-size: 15px;
 }
 .locale-actions {
   display: flex;
@@ -174,7 +172,4 @@ export default {
     width: 180px;
   }
 }
-</style>
-<style>
-@import '../style/site.css';
 </style>

@@ -52,7 +52,7 @@ test('2FA login (first time, captures TOTP secret)', async ({}, testInfo) => {
   const code = await waitForFreshTotp(storedTotpSecret)
   await page.locator('#otp-input').fill(code)
   await shoot(page, testInfo, '2fa_login_totp_unstable')
-  await page.locator("button[type='button']").click()
+  await page.locator('#verify-button').click()
   await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
   await waitForLoading(page)
   await expect(page.locator('.appimg').first()).toBeVisible()
@@ -70,7 +70,7 @@ test('2FA login returning user (TOTP only)', async ({}, testInfo) => {
   await shoot(page, testInfo, '2fa_returning')
   const code = await waitForFreshTotp(storedTotpSecret)
   await page.locator('#otp-input').fill(code)
-  await page.locator("button[type='button']").click()
+  await page.locator('#verify-button').click()
   await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
   await waitForLoading(page)
   await waitAppIconsLoaded(page)
@@ -90,7 +90,7 @@ test('2FA regular user login (own QR)', async ({}, testInfo) => {
     const userSecret = (await page.locator('#totp_secret').textContent())?.trim() ?? ''
     const code = await waitForFreshTotp(userSecret)
     await page.locator('#otp-input').fill(code)
-    await page.locator("button[type='button']").click()
+    await page.locator('#verify-button').click()
 
     await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
     await waitForLoading(page)
@@ -106,7 +106,7 @@ test('2FA regular user login (own QR)', async ({}, testInfo) => {
     await expect(page.locator('#otp-input')).toBeVisible()
     const code = await waitForFreshTotp(storedTotpSecret)
     await page.locator('#otp-input').fill(code)
-    await page.locator("button[type='button']").click()
+    await page.locator('#verify-button').click()
     await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
     await waitForLoading(page)
   }

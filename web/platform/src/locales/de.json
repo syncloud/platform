@@ -74,7 +74,7 @@
     "version": "Version:",
     "localInstall": "Lokal installiert (nicht aus dem Store)",
     "open": "Öffnen",
-    "install": "Installieren v{version}",
+    "install": "Installieren",
     "upgrade": "Aktualisieren v{version}",
     "remove": "Entfernen",
     "backup": "Sichern",
@@ -98,7 +98,8 @@
     "title": "Zertifikatsprotokoll"
   },
   "logs": {
-    "title": "Protokolle"
+    "title": "Protokolle",
+    "wordWrap": "Zeilenumbruch"
   },
   "support": {
     "title": "Support",
@@ -139,7 +140,7 @@
     "port": "Port:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "Authentifizierung",
     "autheliaHint": "Login (SSO + 2FA) vor Erreichen des Upstreams erforderlich",
     "add": "Hinzufügen",
     "proxies": "Proxys",

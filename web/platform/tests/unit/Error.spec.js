@@ -3,7 +3,6 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Error from '../../src/components/Error.vue'
-import { ElButton, ElDialog } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -21,8 +20,6 @@ test('Send', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         },
         mocks: {
           $route: { path: '/' },
@@ -48,8 +45,6 @@ test('Unauthorised', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         },
         mocks: {
           $route: { path: '/app' },
@@ -72,8 +67,6 @@ test('Not activated', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         },
         mocks: {
           $route: { path: '/' },
@@ -96,8 +89,6 @@ test('No data', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         }
       }
     }
@@ -118,8 +109,6 @@ test('No response', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         }
       }
     })
@@ -139,8 +128,6 @@ test('No message', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         }
       }
     })
@@ -160,8 +147,6 @@ test('Message', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         }
       }
     })
@@ -181,8 +166,6 @@ test('Show send logs by default', async () => {
       attachTo: document.body,
       global: {
         stubs: {
-          'el-dialog': ElDialog,
-          'el-button': ElButton
         }
       }
     })
@@ -202,8 +185,6 @@ test('Disable send logs', async () => {
     attachTo: document.body,
     global: {
       stubs: {
-        'el-dialog': ElDialog,
-        'el-button': ElButton
       }
     },
     propsData: {

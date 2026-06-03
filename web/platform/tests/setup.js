@@ -1,6 +1,7 @@
 const { config } = require('@vue/test-utils')
 const { createI18n } = require('vue-i18n')
 const en = require('../src/locales/en.json')
+const ui = require('../src/ui').default
 
 const i18n = createI18n({
   legacy: false,
@@ -10,4 +11,4 @@ const i18n = createI18n({
   messages: { en }
 })
 
-config.global.plugins = [i18n]
+config.global.plugins = [i18n, ui]

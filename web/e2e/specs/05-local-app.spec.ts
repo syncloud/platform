@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { login, waitForLoading } from '../helpers/login'
 import { ssh } from '../helpers/ssh'
 import { shoot } from '../helpers/screenshot'
+import { openAppMenu } from '../helpers/ui'
 
 const APP_ID = 'testapp'
 const APP_SNAP = process.env.PLAYWRIGHT_TESTAPP_SNAP ?? '/test/testapp/testapp.snap'
@@ -29,10 +30,11 @@ test.describe('local app install', () => {
 
     await expect(page.getByTestId('app_name')).toBeVisible()
     await expect(page.getByTestId('local_install_badge')).toBeVisible()
-    await expect(page.getByTestId('btn_remove')).toBeVisible()
     await waitForLoading(page)
     await shoot(page, testInfo, 'local-app-page')
 
+    await openAppMenu(page, testInfo)
+    await expect(page.getByTestId('btn_remove')).toBeVisible()
     await page.getByTestId('btn_remove').click()
     await page.getByTestId('btn_confirm').click()
     await waitForLoading(page)
