@@ -74,7 +74,7 @@
     "version": "Version :",
     "localInstall": "Installé localement (pas depuis le store)",
     "open": "Ouvrir",
-    "install": "Installer v{version}",
+    "install": "Installer",
     "upgrade": "Mettre à jour v{version}",
     "remove": "Supprimer",
     "backup": "Sauvegarder",
@@ -98,7 +98,8 @@
     "title": "Journal du certificat"
   },
   "logs": {
-    "title": "Journaux"
+    "title": "Journaux",
+    "wordWrap": "Retour à la ligne"
   },
   "support": {
     "title": "Assistance",
@@ -139,7 +140,7 @@
     "port": "Port :",
     "portPlaceholder": "8080",
     "https": "HTTPS :",
-    "authelia": "Authelia :",
+    "authelia": "Authentification",
     "autheliaHint": "exiger une connexion (SSO + 2FA) avant d'atteindre l'upstream",
     "add": "Ajouter",
     "proxies": "Proxies",

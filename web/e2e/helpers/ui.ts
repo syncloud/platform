@@ -8,7 +8,7 @@ export function uiMode(testInfo: TestInfo): UiMode {
 
 export async function waitForLoading(page: Page) {
   await page.waitForTimeout(500)
-  const mask = page.locator('.el-loading-mask').first()
+  const mask = page.locator('.sc-loading-mask').first()
   await mask.waitFor({ state: 'hidden', timeout: 120_000 }).catch(() => {})
 }
 
@@ -45,9 +45,17 @@ export async function settings(page: Page, key: string, testInfo: TestInfo) {
   await waitForLoading(page)
 }
 
+export async function openAppMenu(page: Page, testInfo: TestInfo) {
+  if (uiMode(testInfo) !== 'mobile') return
+  const toggle = page.locator('#app_more_toggle')
+  if (await toggle.isVisible().catch(() => false)) {
+    await toggle.click()
+    await page.waitForTimeout(200)
+  }
+}
+
 export async function clickElSelect(page: Page, selectId: string) {
-  const wrapper = page.locator(`xpath=//*[@id='${selectId}']/ancestor::div[contains(@class, 'el-select__wrapper')]`)
-  await wrapper.click()
+  await page.locator(`#${selectId} .s-select__control`).click()
 }
 
 export async function waitAppIconsLoaded(page: Page, timeoutMs = 10_000) {

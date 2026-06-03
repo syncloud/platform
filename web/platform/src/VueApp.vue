@@ -1,21 +1,17 @@
 <template>
-  <el-config-provider :locale="elementLocale">
-    <Menu v-if="!isStandalone" v-bind:activeTab="currentPath"/>
-    <router-view/>
-    <Error ref="app_error" v-if="!isStandalone"/>
-  </el-config-provider>
+  <Menu v-if="!isStandalone" v-bind:activeTab="currentPath"/>
+  <router-view/>
+  <Error ref="app_error" v-if="!isStandalone"/>
 </template>
 <script>
 import Menu from './components/Menu.vue'
 import Error from './components/Error.vue'
 import { useAuthStore } from './stores/auth'
-import { elementLocale } from './i18n'
 
 export default {
   data () {
     return {
-      currentPath: '',
-      elementLocale
+      currentPath: ''
     }
   },
   computed: {
@@ -45,8 +41,3 @@ export default {
   }
 }
 </script>
-<style>
-@import 'bootstrap/dist/css/bootstrap.css';
-@import 'font-awesome/css/font-awesome.css';
-@import 'roboto-fontface/css/roboto/roboto-fontface.css';
-</style>

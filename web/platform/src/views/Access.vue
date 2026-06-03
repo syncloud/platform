@@ -1,96 +1,84 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12">
-        <h1>{{ $t('access.title') }}</h1>
-        <div class="row-no-gutters settingsblock">
-          <div class="col2" :style="{ visibility: visibility }">
-            <div class="setline">
-              <h3>{{ $t('access.ipv4') }}</h3>
-            </div>
-            <div class="setline" style='display: flex'>
-              <span class="span name-alignment">{{ $t('access.support') }}</span>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('access.title') }}</h1>
+      <div :style="{ visibility: visibility }">
+        <h3>{{ $t('access.ipv4') }}</h3>
+        <div class="setline" style='display: flex'>
+          <span class="span name-alignment">{{ $t('access.support') }}</span>
+          <div class="value-alignment">
+            <s-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #2faa5d; float: right" />
+          </div>
+          <button type=button @click="showIpv4Info" class="control" style="order: 3; background:transparent; border: none; cursor: pointer;">
+            <i class='fa fa-question-circle fa-lg' style="color: var(--sc-faint)"></i>
+          </button>
+        </div>
+
+        <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
+        <div id="ipv4_mode_block" v-if="ipv4Enabled">
+          <div class="setline" style='display: flex'>
+              <span class="span name-alignment">{{ $t('access.public') }}</span>
               <div class="value-alignment">
-                <el-switch id="tgl_ipv4_enabled" size="large" v-model="ipv4Enabled" style="--el-switch-on-color: #36ad40; float: right" />
+                <s-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #2faa5d; float: right" />
               </div>
-              <button type=button @click="showIpv4Info" class="control" style="order: 3; background:transparent;">
-                <i class='fa fa-question-circle fa-lg'></i>
-              </button>
+          </div>
+
+          <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
+          <div id="ipv4_public_block" v-if="ipv4Public">
+            <div class="setline" style='display: flex'>
+                <span class="span name-alignment">{{ $t('access.detectIp') }}</span>
+                <div class="value-alignment">
+                  <s-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #2faa5d; float: right" />
+                </div>
             </div>
 
-            <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
-            <div id="ipv4_mode_block" v-if="ipv4Enabled">
-              <div class="setline" style='display: flex'>
-                  <span class="span name-alignment">{{ $t('access.public') }}</span>
-                  <div class="value-alignment">
-                    <el-switch id="tgl_ipv4_public" size="large" v-model="ipv4Public" style="--el-switch-on-color: #36ad40; float: right" />
-                  </div>
-              </div>
-
-              <Transition @after-enter="(el) => el.setAttribute('data-ready', 'true')">
-              <div id="ipv4_public_block" v-if="ipv4Public">
-                <div class="setline" style='display: flex'>
-                    <span class="span name-alignment">{{ $t('access.detectIp') }}</span>
-                    <div class="value-alignment">
-                      <el-switch id="tgl_ip_autodetect" size="large" v-model="ipAutoDetect" style="--el-switch-on-color: #36ad40; float: right" />
-                    </div>
-                </div>
-
-                <Transition>
-                <div class="setline" id="ipv4_block" style='display: flex' v-if="!ipAutoDetect">
-                  <label class="span name-alignment" for="ipv4" style="font-weight: 300">{{ $t('access.publicIp') }}</label>
-                  <input class="value-alignment" id="ipv4" type="text"
-                         style="width: 130px; height: 30px; padding: 0 10px 0 10px"
-                         :disabled="ipAutoDetect" v-model="ipv4">
-                </div>
-                </Transition>
-
-                <div class="setline" style='display: flex'>
-                    <label for="access_port" class="span name-alignment" style="font-weight: 300">{{ $t('access.publicPort') }}</label>
-                    <input class="value-alignment" id="access_port" type="number"
-                           style="width: 100px; height: 30px; padding: 0 10px 0 10px"
-                           v-model.number="accessPort"
-                    />
-                    <button type=button @click="showPortInfo" class="control" style="order: 3; background:transparent;">
-                      <i class='fa fa-question-circle fa-lg'></i>
-                    </button>
-                    <button id="access_port_warning" type=button @click="showAccessPortWarning"
-                            class="control" style="order: 4; background:transparent;" v-show="accessPort!==443">
-                      <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
-                    </button>
-
-                </div>
-              </div>
-              </Transition>
-
+            <Transition>
+            <div class="setline" id="ipv4_block" style='display: flex' v-if="!ipAutoDetect">
+              <label class="span name-alignment" for="ipv4" style="font-weight: 300">{{ $t('access.publicIp') }}</label>
+              <input class="value-alignment sc-input" id="ipv4" type="text"
+                     style="width: 130px; height: 38px;"
+                     :disabled="ipAutoDetect" v-model="ipv4">
             </div>
             </Transition>
 
-            <div class="setline">
-              <h3>{{ $t('access.ipv6') }}</h3>
-            </div>
-
             <div class="setline" style='display: flex'>
-              <span class="span name-alignment">{{ $t('access.support') }}</span>
-              <div class="value-alignment">
-                <el-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #36ad40; float: right" />
-              </div>
-              <button type=button @click="showIpv6Info" class="control" style="order: 3; background:transparent;">
-                <i class='fa fa-question-circle fa-lg'></i>
-              </button>
-            </div>
-
-            <div class="setline">
-              <div class="spandiv">
-                <button class="submit buttongreen control" id="btn_save" type="submit"
-                        data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."
-                        style="width: 150px" @click="save">{{ $t('access.save') }}
+                <label for="access_port" class="span name-alignment" style="font-weight: 300">{{ $t('access.publicPort') }}</label>
+                <input class="value-alignment sc-input" id="access_port" type="number"
+                       style="width: 110px; height: 38px;"
+                       v-model.number="accessPort"
+                />
+                <button type=button @click="showPortInfo" class="control" style="order: 3; background:transparent; border: none; cursor: pointer;">
+                  <i class='fa fa-question-circle fa-lg' style="color: var(--sc-faint)"></i>
                 </button>
-              </div>
+                <button id="access_port_warning" type=button @click="showAccessPortWarning"
+                        class="control" style="order: 4; background:transparent; border: none; cursor: pointer;" v-show="accessPort!==443">
+                  <i class='fa fa-exclamation-circle fa-lg' style='color: red;'></i>
+                </button>
+
             </div>
-
           </div>
+          </Transition>
 
+        </div>
+        </Transition>
+
+        <h3>{{ $t('access.ipv6') }}</h3>
+
+        <div class="setline" style='display: flex'>
+          <span class="span name-alignment">{{ $t('access.support') }}</span>
+          <div class="value-alignment">
+            <s-switch id="tgl_ipv6_enabled" size="large" v-model="ipv6Enabled" style="--el-switch-on-color: #2faa5d; float: right" />
+          </div>
+          <button type=button @click="showIpv6Info" class="control" style="order: 3; background:transparent; border: none; cursor: pointer;">
+            <i class='fa fa-question-circle fa-lg' style="color: var(--sc-faint)"></i>
+          </button>
+        </div>
+
+        <div class="sc-actions">
+          <button class="sc-btn sc-btn-success" id="btn_save" type="submit"
+                  data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Working..."
+                  @click="save">{{ $t('access.save') }}
+          </button>
         </div>
       </div>
     </div>
@@ -130,7 +118,7 @@ import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 function isValidPort (port) {
   return !(Number.isNaN(port) || port < 1 || port > 65535)
@@ -183,7 +171,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       this.visibility = 'visible'
@@ -267,10 +255,7 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-
+<style scoped>
 .name-alignment {
   min-width: 100px;
   display: inline-flex;

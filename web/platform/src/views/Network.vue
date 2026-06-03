@@ -1,23 +1,12 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('network.title') }}</h1>
-        <div class="row-no-gutters settingsblock">
-          <div>
-            <div class="setline" style="display: flex; flex-wrap: wrap; justify-content: center;">
-              <span v-if="interfaces === undefined || interfaces.length === 0" class="span">{{ $t('network.noNetworks') }}</span>
-              <div style="font-size: 18px; margin: 10px; min-width: 300px;" v-for="(iface, index) in interfaces" :key="index">
-                <div>
-                <span style="font-weight: bold">{{ $t('network.interface') }} {{ iface.name }}</span>
-                </div>
-                <div v-for="(name, index) in iface.addresses" :key="index">
-                  {{ name }}
-                </div>
-
-              </div>
-            </div>
-          </div>
+  <div class="sc-page">
+    <div class="sc-card" id="block1">
+      <h1 class="sc-title">{{ $t('network.title') }}</h1>
+      <span v-if="interfaces === undefined || interfaces.length === 0" class="sc-lead">{{ $t('network.noNetworks') }}</span>
+      <div v-else class="net-grid">
+        <div class="net-card" v-for="(iface, index) in interfaces" :key="index">
+          <div class="net-name">{{ $t('network.interface') }} {{ iface.name }}</div>
+          <div class="net-addr" v-for="(name, idx) in iface.addresses" :key="idx">{{ name }}</div>
         </div>
       </div>
     </div>
@@ -43,7 +32,29 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
+
+<style scoped>
+.net-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.net-card {
+  background: var(--sc-field-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  text-align: left;
+}
+.net-name {
+  font-weight: 700;
+  color: var(--sc-ink);
+  margin-bottom: 8px;
+}
+.net-addr {
+  font-size: 14px;
+  color: var(--sc-muted);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
 </style>

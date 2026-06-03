@@ -3,7 +3,6 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Activation from '../../src/views/Activation.vue'
-import { ElButton } from 'element-plus'
 import { createPinia } from 'pinia'
 
 jest.setTimeout(30000)
@@ -40,7 +39,6 @@ test('Activation url', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
         },
         mocks: {
           $router: mockRouter
@@ -86,7 +84,6 @@ test('Activation reactivate', async () => {
             }
           },
           Dialog: true,
-          'el-button': ElButton,
         },
         mocks: {
           $router: mockRouter

@@ -1,12 +1,8 @@
 <template>
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1 wd12" id="block1">
-        <h1>{{ $t('login.title') }}</h1>
-        <div class="formblock">
-          <p>{{ $t('login.redirecting') }}</p>
-        </div>
-      </div>
+  <div class="sc-page">
+    <div class="sc-card sc-card-narrow" id="block1">
+      <h1 class="sc-title">{{ $t('login.title') }}</h1>
+      <p class="sc-lead">{{ $t('login.redirecting') }}</p>
     </div>
   </div>
 
@@ -27,7 +23,3 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
-</style>

@@ -74,7 +74,7 @@
     "version": "الإصدار:",
     "localInstall": "مثبّت محليًا (ليس من المتجر)",
     "open": "فتح",
-    "install": "تثبيت v{version}",
+    "install": "تثبيت",
     "upgrade": "ترقية إلى v{version}",
     "remove": "إزالة",
     "backup": "نسخة احتياطية",
@@ -98,7 +98,8 @@
     "title": "سجل الشهادة"
   },
   "logs": {
-    "title": "السجلات"
+    "title": "السجلات",
+    "wordWrap": "التفاف النص"
   },
   "support": {
     "title": "الدعم",
@@ -139,7 +140,7 @@
     "port": "المنفذ:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "المصادقة",
     "autheliaHint": "تطلب تسجيل الدخول (SSO + 2FA) قبل الوصول إلى الخادم",
     "add": "إضافة",
     "proxies": "الوكلاء",

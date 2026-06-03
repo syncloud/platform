@@ -1,5 +1,5 @@
 <script>
-import { ElNotification } from 'element-plus'
+import notify from '../util/notify'
 import i18n from '../i18n'
 
 function t (key) {
@@ -20,7 +20,7 @@ function error (error) {
       }
     }
   }
-  ElNotification({
+  notify({
     title: t('common.error'),
     message: message,
     type: 'error'
@@ -28,7 +28,7 @@ function error (error) {
 }
 
 function info (message) {
-  ElNotification({
+  notify({
     title: t('common.info'),
     message: message,
     type: 'info'
@@ -36,7 +36,7 @@ function info (message) {
 }
 
 function success (message) {
-  ElNotification({
+  notify({
     title: t('common.success'),
     message: message,
     type: 'success'

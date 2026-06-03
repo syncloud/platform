@@ -3,7 +3,6 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Updates from '../../src/views/Updates.vue'
-import { ElProgress } from 'element-plus'
 
 jest.setTimeout(30000)
 
@@ -243,7 +242,6 @@ test('Platform upgrade in progress on open', async () => {
     attachTo: document.body,
     global: {
       stubs: {
-        'el-progress': ElProgress,
         Error: { template: '<span/>', methods: { showAxios: showError } },
         Switch: true,
         Dialog: true
@@ -281,7 +279,6 @@ test('Installer upgrade in progress on open', async () => {
     attachTo: document.body,
     global: {
       stubs: {
-        'el-progress': ElProgress,
         Error: { template: '<span/>', methods: { showAxios: showError } },
         Switch: true,
         Dialog: true

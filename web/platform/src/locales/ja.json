@@ -74,7 +74,7 @@
     "version": "バージョン:",
     "localInstall": "ローカルにインストール済み(ストアからではない)",
     "open": "開く",
-    "install": "v{version} をインストール",
+    "install": "インストール",
     "upgrade": "v{version} にアップグレード",
     "remove": "削除",
     "backup": "バックアップ",
@@ -98,7 +98,8 @@
     "title": "証明書ログ"
   },
   "logs": {
-    "title": "ログ"
+    "title": "ログ",
+    "wordWrap": "折り返し"
   },
   "support": {
     "title": "サポート",
@@ -139,7 +140,7 @@
     "port": "ポート:",
     "portPlaceholder": "8080",
     "https": "HTTPS:",
-    "authelia": "Authelia:",
+    "authelia": "認証",
     "autheliaHint": "アップストリームに到達する前にログイン（SSO + 2FA）を要求する",
     "add": "追加",
     "proxies": "プロキシ",

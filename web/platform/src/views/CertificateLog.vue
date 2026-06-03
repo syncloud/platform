@@ -1,18 +1,15 @@
 <template>
-
-  <div class="wrapper">
-    <div class="content">
-      <div class="block1">
-        <h1>{{ $t('certificateLog.title') }}</h1>
-        <div class="row-no-gutters">
-          <div style="text-align: left;background-color: #3e454e; color: white; padding: 10px;max-width: 90%;margin: auto">
-            <div id="logs">
-              <p v-for="(log, index) in logs" :key="index" style="margin: 0">
-                {{ log }}
-              </p>
-            </div>
-          </div>
-        </div>
+  <div class="sc-page">
+    <div class="sc-card sc-card-wide" id="block1">
+      <h1 class="sc-title">{{ $t('certificateLog.title') }}</h1>
+      <label class="logs-wrap">
+        <input type="checkbox" id="logs_wrap" data-testid="logs-wrap" v-model="wrap">
+        {{ $t('logs.wordWrap') }}
+      </label>
+      <div class="sc-console" id="logs" :class="{ nowrap: !wrap }">
+        <p v-for="(log, index) in logs" :key="index" class="logs-line">
+          {{ log }}
+        </p>
       </div>
     </div>
   </div>
@@ -24,7 +21,7 @@
 <script>
 import axios from 'axios'
 import Error from '../components/Error.vue'
-import { ElLoading } from 'element-plus'
+import Loading from '../util/loading'
 
 export default {
   name: 'CertificateLog',
@@ -34,7 +31,8 @@ export default {
   data () {
     return {
       logs: Array,
-      loading: undefined
+      loading: undefined,
+      wrap: true
     }
   },
   mounted () {
@@ -52,7 +50,7 @@ export default {
   },
   methods: {
     progressShow () {
-      this.loading = ElLoading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },
     progressHide () {
       if (this.loading) {
@@ -62,7 +60,26 @@ export default {
   }
 }
 </script>
-<style>
-@import '../style/site.css';
-@import 'material-icons/iconfont/material-icons.css';
+<style scoped>
+.logs-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--sc-muted);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.logs-line {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.sc-console.nowrap .logs-line {
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
 </style>
