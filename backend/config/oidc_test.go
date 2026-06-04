@@ -73,6 +73,22 @@ func TestOIDC_AddAndList_MultipleRedirectURIs(t *testing.T) {
 	assert.Equal(t, "/auth/openid/callback", clients[0].RedirectURI)
 }
 
+func TestOIDC_RedirectURIContainingCommaIsNotSplit(t *testing.T) {
+	o := newTestOIDC(t)
+
+	err := o.AddClient(OIDCClient{
+		ID:           "app1",
+		Secret:       "secret",
+		RedirectURIs: []string{"/cb?ids=1,2,3", "/mobile"},
+	})
+	assert.NoError(t, err)
+
+	clients, err := o.Clients()
+	assert.NoError(t, err)
+	assert.Len(t, clients, 1)
+	assert.Equal(t, []string{"/cb?ids=1,2,3", "/mobile"}, clients[0].RedirectURIs)
+}
+
 func TestOIDC_LegacySingleRedirectRowSurvivesMigration(t *testing.T) {
 	db := NewDb(path.Join(t.TempDir(), "db"), log.Default())
 	assert.NoError(t, db.Init())

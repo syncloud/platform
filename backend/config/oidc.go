@@ -65,14 +65,14 @@ func (o *OIDC) AddClient(client OIDCClient) error {
 	}
 	_, err := o.db.Exec(
 		"INSERT OR REPLACE INTO oidc_client(id, secret, redirect_uri, require_pkce, token_endpoint_auth_method, redirect_uris) VALUES (?, ?, ?, ?, ?, ?)",
-		client.ID, client.Secret, first, requirePkce, client.TokenEndpointAuthMethod, strings.Join(uris, ","),
+		client.ID, client.Secret, first, requirePkce, client.TokenEndpointAuthMethod, strings.Join(uris, " "),
 	)
 	return err
 }
 
 func splitRedirectURIs(redirectURIs, redirectURI string) []string {
-	if redirectURIs != "" {
-		return strings.Split(redirectURIs, ",")
+	if fields := strings.Fields(redirectURIs); len(fields) > 0 {
+		return fields
 	}
 	if redirectURI != "" {
 		return []string{redirectURI}

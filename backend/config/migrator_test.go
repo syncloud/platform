@@ -18,7 +18,7 @@ func TestMigrator_CreatesSchemaFromScratch(t *testing.T) {
 
 	_, err := db.Exec("INSERT INTO custom_proxy(name, host, port, https, authelia) VALUES ('p', 'h', 1, 0, 1)")
 	assert.NoError(t, err)
-	_, err = db.Exec("INSERT INTO oidc_client(id, secret, redirect_uri, require_pkce, token_endpoint_auth_method, redirect_uris) VALUES ('id', 's', '/cb', 0, 'm', '/cb,/cb2')")
+	_, err = db.Exec("INSERT INTO oidc_client(id, secret, redirect_uri, require_pkce, token_endpoint_auth_method, redirect_uris) VALUES ('id', 's', '/cb', 0, 'm', '/cb /cb2')")
 	assert.NoError(t, err)
 }
 
