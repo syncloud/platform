@@ -182,14 +182,9 @@ func (w *Authelia) InitConfig() error {
 	}
 	for i := range clients {
 		appUrl := w.userConfig.Url(clients[i].ID)
-		uris := clients[i].RedirectURIs
-		if len(uris) == 0 && clients[i].RedirectURI != "" {
-			uris = []string{clients[i].RedirectURI}
+		for j := range clients[i].RedirectURIs {
+			clients[i].RedirectURIs[j] = appUrl + clients[i].RedirectURIs[j]
 		}
-		for j := range uris {
-			uris[j] = appUrl + uris[j]
-		}
-		clients[i].RedirectURIs = uris
 	}
 	variables := Variables{
 		Domain:           w.userConfig.GetDeviceDomain(),

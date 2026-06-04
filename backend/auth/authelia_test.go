@@ -136,7 +136,7 @@ type Client struct {
 func TestAutheliaClients(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "example.com", activated: false}
 	oidc := &OIDCStub{clients: []config.OIDCClient{
-		{ID: "app1", Secret: "app1secret", RedirectURI: "/callback1"},
+		{ID: "app1", Secret: "app1secret", RedirectURIs: []string{"/callback1"}},
 		{ID: "app2", Secret: "app2secret", RedirectURIs: []string{"/callback2", "/mobile2"}},
 	}}
 	outDir := t.TempDir()
