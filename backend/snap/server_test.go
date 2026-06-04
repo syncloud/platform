@@ -302,6 +302,32 @@ func TestStoreUserApps_OK(t *testing.T) {
 	assert.Equal(t, apps[0].Id, "app")
 }
 
+func TestStoreUserApps_DescriptionFromCatalog(t *testing.T) {
+	findJson := `
+{
+	"result": [
+		{
+			"name": "app",
+			"summary": "app summary",
+			"description": "",
+			"channel": "stable",
+			"version": "1",
+			"type": "app",
+			"apps": [ { "name": "app", "snap": "app" } ]
+		}
+	]
+}
+`
+	catalog := `{ "apps": [ { "id": "app", "description": "catalog description" } ] }`
+
+	snapd := NewServer(&ClientStub{findJson: findJson}, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{response: catalog, status: 200}, log.Default())
+	apps, err := snapd.StoreUserApps()
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(apps))
+	assert.Equal(t, "catalog description", apps[0].Description)
+}
+
 func TestServer_FindInStore_Found(t *testing.T) {
 	json := `
 { 

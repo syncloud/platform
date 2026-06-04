@@ -85,14 +85,45 @@ func (s *Server) StoreUserApps() ([]model.SyncloudApp, error) {
 	if err != nil {
 		return nil, err
 	}
+	descriptions := s.storeDescriptions()
 	var apps []model.SyncloudApp
 	for _, snap := range snaps {
 		if snap.IsApp() {
 			app := snap.ToStoreApp(s.userConfig.Url(snap.Name))
+			if app.App.Description == "" {
+				app.App.Description = descriptions[snap.Name]
+			}
 			apps = append(apps, app.App)
 		}
 	}
 	return apps, nil
+}
+
+func (s *Server) storeDescriptions() map[string]string {
+	descriptions := map[string]string{}
+	channel := s.systemConfig.Channel()
+	resp, err := s.httpClient.Get(fmt.Sprintf("http://apps.syncloud.org/releases/%s/index-v2", channel))
+	if err != nil {
+		s.logger.Warn("cannot fetch store catalog", zap.Error(err))
+		return descriptions
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		s.logger.Warn("cannot read store catalog", zap.Error(err))
+		return descriptions
+	}
+	var catalog model.StoreCatalog
+	if err := json.Unmarshal(body, &catalog); err != nil {
+		s.logger.Warn("cannot parse store catalog", zap.Error(err))
+		return descriptions
+	}
+	for _, app := range catalog.Apps {
+		if app.Description != "" {
+			descriptions[app.Id] = app.Description
+		}
+	}
+	return descriptions
 }
 
 func (s *Server) Snaps() ([]model.Snap, error) {
@@ -281,8 +312,11 @@ func (s *Server) FindInStore(name string) (*model.SyncloudAppVersions, error) {
 		s.logger.Warn("More than one app found")
 	}
 	snap := found[0]
-	installedApp := snap.ToStoreApp(s.userConfig.Url(snap.Name))
-	return &installedApp, nil
+	storeApp := snap.ToStoreApp(s.userConfig.Url(snap.Name))
+	if storeApp.App.Description == "" {
+		storeApp.App.Description = s.storeDescriptions()[snap.Name]
+	}
+	return &storeApp, nil
 }
 
 func (s *Server) Find(name string) (*model.SyncloudAppVersions, error) {
