@@ -66,6 +66,7 @@ test('not installed app', async ({}, testInfo) => {
   await page.getByText('File browser').click()
   await expect(page.getByRole('heading', { name: 'File browser' })).toBeVisible()
   await expect(page.locator('#btn_install')).toBeVisible()
+  await expect(page.getByTestId('app_description')).toHaveText('Simple device files browser')
   await shoot(page, testInfo, 'app_not_installed')
 })
 

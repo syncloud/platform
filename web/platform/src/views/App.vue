@@ -61,7 +61,7 @@
         <span v-if="info.local_install" id="local_install_badge" data-testid="local_install_badge" class="app-badge">{{ $t('app.localInstall') }}</span>
       </div>
 
-      <p class="app-description" v-if="showDescription">{{ info.app.description }}</p>
+      <p class="app-description" data-testid="app_description" v-if="showDescription">{{ info.app.description }}</p>
     </div>
   </div>
 
