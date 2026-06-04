@@ -33,6 +33,14 @@ func (m *Migrator) Migrate() error {
 	if err := m.migrateCustomProxyAuthelia(); err != nil {
 		return err
 	}
+	if err := m.migrateOidcRedirectUris(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Migrator) migrateOidcRedirectUris() error {
+	_, _ = m.db.Exec("ALTER TABLE oidc_client ADD COLUMN redirect_uris varchar not null default ''")
 	return nil
 }
 

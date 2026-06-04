@@ -137,7 +137,7 @@ func TestAutheliaClients(t *testing.T) {
 	userConfig := &UserConfigStub{domain: "example.com", activated: false}
 	oidc := &OIDCStub{clients: []config.OIDCClient{
 		{ID: "app1", Secret: "app1secret", RedirectURI: "/callback1"},
-		{ID: "app2", Secret: "app2secret", RedirectURI: "/callback2"},
+		{ID: "app2", Secret: "app2secret", RedirectURIs: []string{"/callback2", "/mobile2"}},
 	}}
 	outDir := t.TempDir()
 	secretDir := t.TempDir()
@@ -162,5 +162,7 @@ func TestAutheliaClients(t *testing.T) {
 
 	assert.Equal(t, "app2", gen.IdentityProviders.OIDC.Clients[2].ClientID)
 	assert.Equal(t, "app2secret", gen.IdentityProviders.OIDC.Clients[2].ClientSecret)
+	assert.Len(t, gen.IdentityProviders.OIDC.Clients[2].RedirectUris, 2)
 	assert.Equal(t, "https://app2.example.com/callback2", gen.IdentityProviders.OIDC.Clients[2].RedirectUris[0])
+	assert.Equal(t, "https://app2.example.com/mobile2", gen.IdentityProviders.OIDC.Clients[2].RedirectUris[1])
 }

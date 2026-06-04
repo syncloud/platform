@@ -30,7 +30,7 @@ type Systemd interface {
 }
 
 type WebAuth interface {
-	RegisterOIDCClient(id string, redirectURI string, requirePkce bool, tokenEndpointAuthMethod string) (string, error)
+	RegisterOIDCClient(id string, redirectURIs []string, requirePkce bool, tokenEndpointAuthMethod string) (string, error)
 }
 
 type Api struct {
@@ -138,9 +138,10 @@ func (a *Api) RegisterOIDCClient(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	redirectURIs := req.Form["redirect_uri"]
 	password, err := a.webAuth.RegisterOIDCClient(
 		req.FormValue("id"),
-		req.FormValue("redirect_uri"),
+		redirectURIs,
 		req.FormValue("require_pkce") == "true",
 		req.FormValue("token_endpoint_auth_method"),
 	)
