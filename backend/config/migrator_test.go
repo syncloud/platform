@@ -18,8 +18,67 @@ func TestMigrator_CreatesSchemaFromScratch(t *testing.T) {
 
 	_, err := db.Exec("INSERT INTO custom_proxy(name, host, port, https, authelia) VALUES ('p', 'h', 1, 0, 1)")
 	assert.NoError(t, err)
-	_, err = db.Exec("INSERT INTO oidc_client VALUES ('id', 's', '/cb', 0, 'm')")
+	_, err = db.Exec("INSERT INTO oidc_client(id, secret, require_pkce, token_endpoint_auth_method) VALUES ('id', 's', 0, 'm')")
 	assert.NoError(t, err)
+	_, err = db.Exec("INSERT INTO oidc_redirect_uri(client_id, redirect_uri) VALUES ('id', '/cb')")
+	assert.NoError(t, err)
+}
+
+func TestMigrator_UpgradesPreGooseDbWithoutVersionTable(t *testing.T) {
+	dbFile := path.Join(t.TempDir(), "db")
+
+	pre, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)", dbFile))
+	assert.NoError(t, err)
+	_, err = pre.Exec("create table config (key varchar primary key, value varchar)")
+	assert.NoError(t, err)
+	_, err = pre.Exec(`create table oidc_client
+		(id varchar primary key, secret varchar, redirect_uri varchar, require_pkce integer, token_endpoint_auth_method varchar)`)
+	assert.NoError(t, err)
+	_, err = pre.Exec("INSERT INTO oidc_client VALUES ('legacy', 's', '/old/callback', 1, 'client_secret_basic')")
+	assert.NoError(t, err)
+	_, err = pre.Exec("create table custom_proxy (name varchar primary key, host varchar, port integer, https integer not null default 0, authelia integer not null default 0)")
+	assert.NoError(t, err)
+	assert.NoError(t, pre.Close())
+
+	assert.NoError(t, NewMigrator(NewDb(dbFile, log.Default())).Migrate())
+
+	db := NewDb(dbFile, log.Default())
+	clients, err := NewOIDC(db).Clients()
+	assert.NoError(t, err)
+	assert.Len(t, clients, 1)
+	assert.Equal(t, []string{"/old/callback"}, clients[0].RedirectURIs)
+
+	conn := db.Open()
+	defer conn.Close()
+	_, err = conn.Query("select redirect_uri from oidc_client")
+	assert.Error(t, err, "legacy redirect_uri column must be dropped on a pre-goose db")
+}
+
+func TestMigrator_MigratesLegacyRedirectUriIntoTableAndDropsColumn(t *testing.T) {
+	db := NewDb(path.Join(t.TempDir(), "db"), log.Default())
+	m := NewMigrator(db)
+
+	assert.NoError(t, m.MigrateTo(5))
+	_, err := db.Exec("INSERT INTO oidc_client(id, secret, redirect_uri, require_pkce, token_endpoint_auth_method) VALUES ('app', 's', '/old/callback', 1, 'client_secret_basic')")
+	assert.NoError(t, err)
+
+	assert.NoError(t, m.Migrate())
+
+	conn := db.Open()
+	defer conn.Close()
+
+	rows, err := conn.Query("select client_id, redirect_uri from oidc_redirect_uri")
+	assert.NoError(t, err)
+	defer rows.Close()
+	assert.True(t, rows.Next())
+	var clientID, redirectURI string
+	assert.NoError(t, rows.Scan(&clientID, &redirectURI))
+	assert.Equal(t, "app", clientID)
+	assert.Equal(t, "/old/callback", redirectURI)
+	assert.False(t, rows.Next())
+
+	_, err = conn.Query("select redirect_uri from oidc_client")
+	assert.Error(t, err, "legacy redirect_uri column must be dropped from oidc_client")
 }
 
 func TestMigrator_IsIdempotent(t *testing.T) {

@@ -125,7 +125,7 @@ func NewAuthelia(
 
 func (w *Authelia) RegisterOIDCClient(
 	id string,
-	redirectURI string,
+	redirectURIs []string,
 	requirePkce bool,
 	tokenEndpointAuthMethod string,
 ) (string, error) {
@@ -137,7 +137,7 @@ func (w *Authelia) RegisterOIDCClient(
 	err = w.oidc.AddClient(config.OIDCClient{
 		ID:                      id,
 		Secret:                  secret.Hash,
-		RedirectURI:             redirectURI,
+		RedirectURIs:            redirectURIs,
 		RequirePkce:             requirePkce,
 		TokenEndpointAuthMethod: tokenEndpointAuthMethod,
 	})
@@ -181,7 +181,10 @@ func (w *Authelia) InitConfig() error {
 		return err
 	}
 	for i := range clients {
-		clients[i].RedirectURI = w.userConfig.Url(clients[i].ID) + clients[i].RedirectURI
+		appUrl := w.userConfig.Url(clients[i].ID)
+		for j, redirectURI := range clients[i].RedirectURIs {
+			clients[i].RedirectURIs[j] = appUrl + redirectURI
+		}
 	}
 	variables := Variables{
 		Domain:           w.userConfig.GetDeviceDomain(),
