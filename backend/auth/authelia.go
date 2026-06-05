@@ -182,8 +182,8 @@ func (w *Authelia) InitConfig() error {
 	}
 	for i := range clients {
 		appUrl := w.userConfig.Url(clients[i].ID)
-		for j := range clients[i].RedirectURIs {
-			clients[i].RedirectURIs[j] = appUrl + clients[i].RedirectURIs[j]
+		for j, redirectURI := range clients[i].RedirectURIs {
+			clients[i].RedirectURIs[j] = appUrl + redirectURI
 		}
 	}
 	variables := Variables{

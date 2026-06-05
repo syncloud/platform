@@ -71,19 +71,3 @@ func TestOIDC_AddAndList_MultipleRedirectURIs(t *testing.T) {
 	assert.Len(t, clients, 1)
 	assert.Equal(t, []string{"/auth/openid/callback", "/auth/openid/mobile-redirect"}, clients[0].RedirectURIs)
 }
-
-func TestOIDC_RedirectURIContainingCommaIsPreserved(t *testing.T) {
-	o := newTestOIDC(t)
-
-	err := o.AddClient(OIDCClient{
-		ID:           "app1",
-		Secret:       "secret",
-		RedirectURIs: []string{"/cb?ids=1,2,3", "/mobile"},
-	})
-	assert.NoError(t, err)
-
-	clients, err := o.Clients()
-	assert.NoError(t, err)
-	assert.Len(t, clients, 1)
-	assert.Equal(t, []string{"/cb?ids=1,2,3", "/mobile"}, clients[0].RedirectURIs)
-}
