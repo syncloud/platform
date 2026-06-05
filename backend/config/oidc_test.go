@@ -13,13 +13,13 @@ func newTestOIDC(t *testing.T) *OIDC {
 	return NewOIDC(db)
 }
 
-func TestOIDC_AddAndList_RoundTripsRawRedirectURI(t *testing.T) {
+func TestOIDC_AddAndList_RoundTripsRedirectURI(t *testing.T) {
 	o := newTestOIDC(t)
 
 	err := o.AddClient(OIDCClient{
 		ID:                      "app1",
 		Secret:                  "secret",
-		RedirectURI:             "/callback",
+		RedirectURIs:            []string{"/callback"},
 		RequirePkce:             true,
 		TokenEndpointAuthMethod: "client_secret_post",
 	})
@@ -30,7 +30,7 @@ func TestOIDC_AddAndList_RoundTripsRawRedirectURI(t *testing.T) {
 	assert.Len(t, clients, 1)
 	assert.Equal(t, "app1", clients[0].ID)
 	assert.Equal(t, "secret", clients[0].Secret)
-	assert.Equal(t, "/callback", clients[0].RedirectURI)
+	assert.Equal(t, []string{"/callback"}, clients[0].RedirectURIs)
 	assert.True(t, clients[0].RequirePkce)
 	assert.Equal(t, "client_secret_post", clients[0].TokenEndpointAuthMethod)
 }
@@ -38,14 +38,14 @@ func TestOIDC_AddAndList_RoundTripsRawRedirectURI(t *testing.T) {
 func TestOIDC_AddClient_OverwritesExistingByID(t *testing.T) {
 	o := newTestOIDC(t)
 
-	assert.NoError(t, o.AddClient(OIDCClient{ID: "app1", Secret: "first", RedirectURI: "/a"}))
-	assert.NoError(t, o.AddClient(OIDCClient{ID: "app1", Secret: "second", RedirectURI: "/b"}))
+	assert.NoError(t, o.AddClient(OIDCClient{ID: "app1", Secret: "first", RedirectURIs: []string{"/a"}}))
+	assert.NoError(t, o.AddClient(OIDCClient{ID: "app1", Secret: "second", RedirectURIs: []string{"/b", "/c"}}))
 
 	clients, err := o.Clients()
 	assert.NoError(t, err)
 	assert.Len(t, clients, 1)
 	assert.Equal(t, "second", clients[0].Secret)
-	assert.Equal(t, "/b", clients[0].RedirectURI)
+	assert.Equal(t, []string{"/b", "/c"}, clients[0].RedirectURIs)
 }
 
 func TestOIDC_Clients_EmptyByDefault(t *testing.T) {
@@ -53,4 +53,21 @@ func TestOIDC_Clients_EmptyByDefault(t *testing.T) {
 	clients, err := o.Clients()
 	assert.NoError(t, err)
 	assert.Empty(t, clients)
+}
+
+func TestOIDC_AddAndList_MultipleRedirectURIs(t *testing.T) {
+	o := newTestOIDC(t)
+
+	err := o.AddClient(OIDCClient{
+		ID:           "app1",
+		Secret:       "secret",
+		RedirectURIs: []string{"/auth/openid/callback", "/auth/openid/mobile-redirect"},
+		RequirePkce:  true,
+	})
+	assert.NoError(t, err)
+
+	clients, err := o.Clients()
+	assert.NoError(t, err)
+	assert.Len(t, clients, 1)
+	assert.Equal(t, []string{"/auth/openid/callback", "/auth/openid/mobile-redirect"}, clients[0].RedirectURIs)
 }

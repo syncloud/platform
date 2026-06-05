@@ -816,7 +816,9 @@ identity_providers:
         public: false
         authorization_policy: '{{ if $.TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
         redirect_uris:
-          - '{{ .RedirectURI }}'
+{{- range .RedirectURIs }}
+          - '{{ . }}'
+{{- end }}
         scopes:
           - 'openid'
           - 'email'
