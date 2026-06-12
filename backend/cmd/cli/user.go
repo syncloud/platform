@@ -28,12 +28,13 @@ func userAddCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if password == "" {
 				return fmt.Errorf("--password is required")
 			}
+			email, _ := cmd.Flags().GetString("email")
 			c, err := Init(*userConfig, *systemConfig)
 			if err != nil {
 				return err
 			}
 			return c.Call(func(ldapService *auth.Service) {
-				err := ldapService.AddUser(args[0], password)
+				err := ldapService.AddUser(args[0], password, email)
 				if err != nil {
 					fmt.Printf("error: %v\n", err)
 				} else {
@@ -43,6 +44,7 @@ func userAddCmd(userConfig *string, systemConfig *string) *cobra.Command {
 		},
 	}
 	cmd.Flags().String("password", "", "User password")
+	cmd.Flags().String("email", "", "User email (defaults to <username>@<device domain>)")
 	return cmd
 }
 

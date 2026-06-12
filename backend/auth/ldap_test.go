@@ -40,14 +40,58 @@ func (p *PasswordChangerStub) Change(_ string) error {
 	return nil
 }
 
+type DomainProviderStub struct {
+	domain string
+}
+
+func (d DomainProviderStub) GetDeviceDomain() string {
+	return d.domain
+}
+
 func TestMakeSecret(t *testing.T) {
 	secret := makeSecret("syncloud")
 	assert.Greater(t, len(secret), 1)
 }
 
+func newTestService(domain string) *Service {
+	return New(&SnapServiceStub{}, t1TempDir(), t1TempDir(), t1TempDir(), &ExecutorStub{}, &PasswordChangerStub{}, DomainProviderStub{domain: domain}, log.Default())
+}
+
+func t1TempDir() string {
+	dir, _ := os.MkdirTemp("", "")
+	return dir
+}
+
+func TestResolveEmail_EmptyDefaultsToDomain(t *testing.T) {
+	service := newTestService("example.com")
+	email, err := service.ResolveEmail("bob", "")
+	assert.Nil(t, err)
+	assert.Equal(t, "bob@example.com", email)
+}
+
+func TestResolveEmail_BlankDefaultsToDomain(t *testing.T) {
+	service := newTestService("example.com")
+	email, err := service.ResolveEmail("bob", "   ")
+	assert.Nil(t, err)
+	assert.Equal(t, "bob@example.com", email)
+}
+
+func TestResolveEmail_ValidKept(t *testing.T) {
+	service := newTestService("example.com")
+	email, err := service.ResolveEmail("bob", "bob@other.org")
+	assert.Nil(t, err)
+	assert.Equal(t, "bob@other.org", email)
+}
+
+func TestResolveEmail_InvalidRejected(t *testing.T) {
+	service := newTestService("example.com")
+	_, err := service.ResolveEmail("bob", "not-an-email")
+	assert.NotNil(t, err)
+}
+
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, log.Default())
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, DomainProviderStub{domain: "example.com"}, log.Default())
 	err := ldap.Init()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 1)
@@ -57,7 +101,7 @@ func TestInit(t *testing.T) {
 func TestApplyConfig_NotInstalled(t *testing.T) {
 	executor := &ExecutorStub{}
 	missing := path.Join(t.TempDir(), "missing")
-	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, log.Default())
+	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, DomainProviderStub{domain: "example.com"}, log.Default())
 	err := ldap.ApplyConfig()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 0)
@@ -72,7 +116,7 @@ func TestReset(t *testing.T) {
 	assert.Nil(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger, log.Default())
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger, DomainProviderStub{domain: "example.com"}, log.Default())
 	err = ldap.Reset("name", "user", "password", "email")
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 2)

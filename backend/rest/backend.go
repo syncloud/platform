@@ -150,6 +150,15 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
 	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
+	r.HandleFunc("/rest/users", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Users))).Methods("GET")
+	r.HandleFunc("/rest/users/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserAdd))).Methods("POST")
+	r.HandleFunc("/rest/users/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserRemove))).Methods("POST")
+	r.HandleFunc("/rest/users/email", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetEmail))).Methods("POST")
+	r.HandleFunc("/rest/users/admin", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetAdmin))).Methods("POST")
+	r.HandleFunc("/rest/groups", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Groups))).Methods("GET")
+	r.HandleFunc("/rest/groups/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupAdd))).Methods("POST")
+	r.HandleFunc("/rest/groups/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupRemove))).Methods("POST")
+	r.HandleFunc("/rest/groups/member", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupSetMember))).Methods("POST")
 	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.UserLogout)).Methods("POST", "GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
@@ -616,6 +625,99 @@ func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
 	}
 	autheliaLogout := fmt.Sprintf("%s/logout", b.userConfig.Url("auth"))
 	http.Redirect(w, req, autheliaLogout, http.StatusFound)
+}
+
+func (b *Backend) Users(_ *http.Request) (interface{}, error) {
+	return b.auth.ListUsers()
+}
+
+func (b *Backend) UserAdd(req *http.Request) (interface{}, error) {
+	var request struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+		Admin    bool   `json:"admin"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	if err := b.auth.AddUser(request.Username, request.Password, request.Email); err != nil {
+		return nil, err
+	}
+	if request.Admin {
+		if err := b.auth.SetAdmin(request.Username, true); err != nil {
+			return nil, err
+		}
+	}
+	return "ok", nil
+}
+
+func (b *Backend) UserRemove(req *http.Request) (interface{}, error) {
+	var request struct {
+		Username string `json:"username"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.RemoveUser(request.Username)
+}
+
+func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
+	var request struct {
+		Username string `json:"username"`
+		Email    string `json:"email"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.SetUserEmail(request.Username, request.Email)
+}
+
+func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {
+	var request struct {
+		Username string `json:"username"`
+		Admin    bool   `json:"admin"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.SetAdmin(request.Username, request.Admin)
+}
+
+func (b *Backend) Groups(_ *http.Request) (interface{}, error) {
+	return b.auth.ListGroups()
+}
+
+func (b *Backend) GroupAdd(req *http.Request) (interface{}, error) {
+	var request struct {
+		Name string `json:"name"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.AddGroup(request.Name)
+}
+
+func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
+	var request struct {
+		Name string `json:"name"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.RemoveGroup(request.Name)
+}
+
+func (b *Backend) GroupSetMember(req *http.Request) (interface{}, error) {
+	var request struct {
+		Group    string `json:"group"`
+		Username string `json:"username"`
+		Member   bool   `json:"member"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.SetGroupMember(request.Group, request.Username, request.Member)
 }
 
 func (b *Backend) HealthEvents(req *http.Request) (interface{}, error) {

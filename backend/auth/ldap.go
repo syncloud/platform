@@ -11,6 +11,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -18,7 +20,29 @@ import (
 const ldapUserConfDir = "slapd.d"
 const ldapUserDataDir = "openldap-data"
 const Domain = "dc=syncloud,dc=org"
+const UsersDn = "ou=users,dc=syncloud,dc=org"
+const GroupsDn = "ou=groups,dc=syncloud,dc=org"
+const AdminGroup = "syncloud"
 const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
+
+var emailRegexp = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
+var groupNameRegexp = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
+
+type User struct {
+	Username string   `json:"username"`
+	Email    string   `json:"email"`
+	Admin    bool     `json:"admin"`
+	Groups   []string `json:"groups"`
+}
+
+type Group struct {
+	Name    string   `json:"name"`
+	Members []string `json:"members"`
+}
+
+type DomainProvider interface {
+	GetDeviceDomain() string
+}
 
 type Service struct {
 	snapService      SnapService
@@ -29,6 +53,7 @@ type Service struct {
 	configDir        string
 	executor         cli.Executor
 	passwordChanger  PasswordChanger
+	domain           DomainProvider
 	logger           *zap.Logger
 }
 
@@ -37,7 +62,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, logger *zap.Logger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, domain DomainProvider, logger *zap.Logger) *Service {
 
 	return &Service{
 		snapService:      snapService,
@@ -48,6 +73,7 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		configDir:        configDir,
 		executor:         executor,
 		passwordChanger:  passwordChanger,
+		domain:           domain,
 		logger:           logger,
 	}
 }
@@ -263,16 +289,40 @@ func (s *Service) IsAdmin(username string) (bool, error) {
 	return len(sr.Entries) > 0, nil
 }
 
-func (s *Service) AddUser(username string, password string) error {
+func (s *Service) adminBind() (*ldap.Conn, error) {
 	conn, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
-		return fmt.Errorf("ldap connect: %w", err)
+		return nil, fmt.Errorf("ldap connect: %w", err)
 	}
-	defer conn.Close()
 	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
 	if err != nil {
-		return fmt.Errorf("ldap bind: %w", err)
+		conn.Close()
+		return nil, fmt.Errorf("ldap bind: %w", err)
 	}
+	return conn, nil
+}
+
+func (s *Service) ResolveEmail(username string, email string) (string, error) {
+	email = strings.TrimSpace(email)
+	if email == "" {
+		return fmt.Sprintf("%s@%s", username, s.domain.GetDeviceDomain()), nil
+	}
+	if !emailRegexp.MatchString(email) {
+		return "", fmt.Errorf("invalid email address: %s", email)
+	}
+	return email, nil
+}
+
+func (s *Service) AddUser(username string, password string, email string) error {
+	resolvedEmail, err := s.ResolveEmail(username, email)
+	if err != nil {
+		return err
+	}
+	conn, err := s.adminBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	addReq := ldap.NewAddRequest(userDn, nil)
@@ -285,13 +335,255 @@ func (s *Service) AddUser(username string, password string) error {
 	addReq.Attribute("gidNumber", []string{"10"})
 	addReq.Attribute("homeDirectory", []string{username})
 	addReq.Attribute("userPassword", []string{makeSecret(password)})
-	addReq.Attribute("mail", []string{fmt.Sprintf("%s@localhost", username)})
+	addReq.Attribute("mail", []string{resolvedEmail})
 
 	err = conn.Add(addReq)
 	if err != nil {
 		return fmt.Errorf("ldap add user: %w", err)
 	}
 	return nil
+}
+
+func (s *Service) SetUserEmail(username string, email string) error {
+	resolvedEmail, err := s.ResolveEmail(username, email)
+	if err != nil {
+		return err
+	}
+	conn, err := s.adminBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
+	modReq := ldap.NewModifyRequest(userDn, nil)
+	modReq.Replace("mail", []string{resolvedEmail})
+	if err := conn.Modify(modReq); err != nil {
+		return fmt.Errorf("ldap set email: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) ListUsers() ([]User, error) {
+	conn, err := s.adminBind()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	groups, err := s.listGroups(conn)
+	if err != nil {
+		return nil, err
+	}
+	membership := map[string][]string{}
+	for _, group := range groups {
+		for _, member := range group.Members {
+			membership[member] = append(membership[member], group.Name)
+		}
+	}
+
+	searchRequest := ldap.NewSearchRequest(
+		UsersDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		"(objectClass=inetOrgPerson)",
+		[]string{"uid", "mail"},
+		nil)
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("ldap list users: %w", err)
+	}
+
+	users := make([]User, 0, len(sr.Entries))
+	for _, entry := range sr.Entries {
+		username := entry.GetAttributeValue("uid")
+		userGroups := membership[username]
+		admin := false
+		other := make([]string, 0, len(userGroups))
+		for _, group := range userGroups {
+			if group == AdminGroup {
+				admin = true
+			} else {
+				other = append(other, group)
+			}
+		}
+		users = append(users, User{
+			Username: username,
+			Email:    entry.GetAttributeValue("mail"),
+			Admin:    admin,
+			Groups:   other,
+		})
+	}
+	return users, nil
+}
+
+func (s *Service) listGroups(conn *ldap.Conn) ([]Group, error) {
+	searchRequest := ldap.NewSearchRequest(
+		GroupsDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		"(objectClass=posixGroup)",
+		[]string{"cn", "memberUid", "gidNumber"},
+		nil)
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("ldap list groups: %w", err)
+	}
+	groups := make([]Group, 0, len(sr.Entries))
+	for _, entry := range sr.Entries {
+		groups = append(groups, Group{
+			Name:    entry.GetAttributeValue("cn"),
+			Members: entry.GetAttributeValues("memberUid"),
+		})
+	}
+	return groups, nil
+}
+
+func (s *Service) ListGroups() ([]Group, error) {
+	conn, err := s.adminBind()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	return s.listGroups(conn)
+}
+
+func (s *Service) AddGroup(name string) error {
+	if !groupNameRegexp.MatchString(name) {
+		return fmt.Errorf("invalid group name: %s", name)
+	}
+	conn, err := s.adminBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	gid, err := s.nextGid(conn)
+	if err != nil {
+		return err
+	}
+
+	groupDn := fmt.Sprintf("cn=%s,%s", name, GroupsDn)
+	addReq := ldap.NewAddRequest(groupDn, nil)
+	addReq.Attribute("objectClass", []string{"posixGroup", "top"})
+	addReq.Attribute("cn", []string{name})
+	addReq.Attribute("gidNumber", []string{strconv.Itoa(gid)})
+	if err := conn.Add(addReq); err != nil {
+		return fmt.Errorf("ldap add group: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) nextGid(conn *ldap.Conn) (int, error) {
+	searchRequest := ldap.NewSearchRequest(
+		GroupsDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		"(objectClass=posixGroup)",
+		[]string{"gidNumber"},
+		nil)
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return 0, fmt.Errorf("ldap gid scan: %w", err)
+	}
+	max := 1000
+	for _, entry := range sr.Entries {
+		gid, err := strconv.Atoi(entry.GetAttributeValue("gidNumber"))
+		if err == nil && gid >= max {
+			max = gid + 1
+		}
+	}
+	return max, nil
+}
+
+func (s *Service) RemoveGroup(name string) error {
+	if name == AdminGroup {
+		return fmt.Errorf("cannot remove admin group")
+	}
+	conn, err := s.adminBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	groupDn := fmt.Sprintf("cn=%s,%s", name, GroupsDn)
+	if err := conn.Del(ldap.NewDelRequest(groupDn, nil)); err != nil {
+		return fmt.Errorf("ldap remove group: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) SetAdmin(username string, admin bool) error {
+	if !admin {
+		conn, err := s.adminBind()
+		if err != nil {
+			return err
+		}
+		defer conn.Close()
+		members, err := s.groupMembers(conn, AdminGroup)
+		if err != nil {
+			return err
+		}
+		if len(members) <= 1 && contains(members, username) {
+			return fmt.Errorf("cannot remove the last admin")
+		}
+		return s.modifyMember(conn, AdminGroup, username, false)
+	}
+	return s.SetGroupMember(AdminGroup, username, true)
+}
+
+func (s *Service) SetGroupMember(group string, username string, member bool) error {
+	conn, err := s.adminBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return s.modifyMember(conn, group, username, member)
+}
+
+func (s *Service) groupMembers(conn *ldap.Conn, group string) ([]string, error) {
+	searchRequest := ldap.NewSearchRequest(
+		fmt.Sprintf("cn=%s,%s", group, GroupsDn),
+		ldap.ScopeBaseObject, ldap.DerefAlways, 0, 0, false,
+		"(objectClass=posixGroup)",
+		[]string{"memberUid"},
+		nil)
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("ldap group members: %w", err)
+	}
+	if len(sr.Entries) < 1 {
+		return nil, fmt.Errorf("group not found: %s", group)
+	}
+	return sr.Entries[0].GetAttributeValues("memberUid"), nil
+}
+
+func (s *Service) modifyMember(conn *ldap.Conn, group string, username string, member bool) error {
+	members, err := s.groupMembers(conn, group)
+	if err != nil {
+		return err
+	}
+	present := contains(members, username)
+	if member == present {
+		return nil
+	}
+	groupDn := fmt.Sprintf("cn=%s,%s", group, GroupsDn)
+	modReq := ldap.NewModifyRequest(groupDn, nil)
+	if member {
+		modReq.Add("memberUid", []string{username})
+	} else {
+		modReq.Delete("memberUid", []string{username})
+	}
+	if err := conn.Modify(modReq); err != nil {
+		return fmt.Errorf("ldap modify group member: %w", err)
+	}
+	return nil
+}
+
+func contains(values []string, value string) bool {
+	for _, v := range values {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Service) RemoveUser(username string) error {
