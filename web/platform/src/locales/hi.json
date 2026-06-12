@@ -34,6 +34,7 @@
   "settings": {
     "title": "सेटिंग्स",
     "activation": "सक्रियण",
+    "users": "उपयोगकर्ता",
     "network": "नेटवर्क",
     "access": "एक्सेस",
     "internalMemory": "आंतरिक मेमोरी",
@@ -146,6 +147,26 @@
     "proxies": "प्रॉक्सी",
     "noProxies": "कोई कस्टम प्रॉक्सी कॉन्फ़िगर नहीं",
     "remove": "हटाएं"
+  },
+  "users": {
+    "title": "उपयोगकर्ता",
+    "addUser": "उपयोगकर्ता जोड़ें",
+    "username": "उपयोगकर्ता नाम:",
+    "usernamePlaceholder": "alice",
+    "usernameFallback": "उपयोगकर्ता",
+    "password": "पासवर्ड:",
+    "email": "ईमेल:",
+    "admin": "एडमिन",
+    "add": "जोड़ें",
+    "save": "सहेजें",
+    "remove": "हटाएं",
+    "users": "उपयोगकर्ता",
+    "noUsers": "कोई उपयोगकर्ता नहीं",
+    "groups": "समूह:",
+    "groupsManage": "समूह",
+    "groupName": "नाम:",
+    "groupPlaceholder": "परिवार",
+    "noGroups": "कोई समूह नहीं"
   },
   "backup": {
     "title": "बैकअप",

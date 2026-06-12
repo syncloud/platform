@@ -34,6 +34,7 @@
   "settings": {
     "title": "Configurações",
     "activation": "Ativação",
+    "users": "Usuários",
     "network": "Rede",
     "access": "Acesso",
     "internalMemory": "Memória interna",
@@ -146,6 +147,26 @@
     "proxies": "Proxies",
     "noProxies": "Nenhum proxy personalizado configurado",
     "remove": "Remover"
+  },
+  "users": {
+    "title": "Usuários",
+    "addUser": "Adicionar usuário",
+    "username": "Usuário:",
+    "usernamePlaceholder": "alice",
+    "usernameFallback": "usuário",
+    "password": "Senha:",
+    "email": "E-mail:",
+    "admin": "Admin",
+    "add": "Adicionar",
+    "save": "Salvar",
+    "remove": "Remover",
+    "users": "Usuários",
+    "noUsers": "Sem usuários",
+    "groups": "Grupos:",
+    "groupsManage": "Grupos",
+    "groupName": "Nome:",
+    "groupPlaceholder": "família",
+    "noGroups": "Sem grupos"
   },
   "backup": {
     "title": "Cópia de segurança",

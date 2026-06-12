@@ -34,6 +34,7 @@
   "settings": {
     "title": "设置",
     "activation": "激活",
+    "users": "用户",
     "network": "网络",
     "access": "访问",
     "internalMemory": "内部存储",
@@ -146,6 +147,26 @@
     "proxies": "代理",
     "noProxies": "未配置自定义代理",
     "remove": "移除"
+  },
+  "users": {
+    "title": "用户",
+    "addUser": "添加用户",
+    "username": "用户名：",
+    "usernamePlaceholder": "alice",
+    "usernameFallback": "用户名",
+    "password": "密码：",
+    "email": "邮箱：",
+    "admin": "管理员",
+    "add": "添加",
+    "save": "保存",
+    "remove": "删除",
+    "users": "用户",
+    "noUsers": "暂无用户",
+    "groups": "群组：",
+    "groupsManage": "群组",
+    "groupName": "名称：",
+    "groupPlaceholder": "家庭",
+    "noGroups": "暂无群组"
   },
   "backup": {
     "title": "备份",

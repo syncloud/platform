@@ -7,6 +7,10 @@
           <i class="material-icons sc-tile-icon">perm_identity</i>
           <div class="sc-tile-name">{{ $t('settings.activation') }}</div>
         </router-link>
+        <router-link to="/users" id="users" class="sc-tile">
+          <i class="material-icons sc-tile-icon">people</i>
+          <div class="sc-tile-name">{{ $t('settings.users') }}</div>
+        </router-link>
         <router-link to="/network" id="network" class="sc-tile">
           <i class="material-icons sc-tile-icon">router</i>
           <div class="sc-tile-name">{{ $t('settings.network') }}</div>

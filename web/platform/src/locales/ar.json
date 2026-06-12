@@ -34,6 +34,7 @@
   "settings": {
     "title": "الإعدادات",
     "activation": "التفعيل",
+    "users": "المستخدمون",
     "network": "الشبكة",
     "access": "الوصول",
     "internalMemory": "الذاكرة الداخلية",
@@ -146,6 +147,26 @@
     "proxies": "الوكلاء",
     "noProxies": "لم يتم تكوين أي وكيل مخصص",
     "remove": "إزالة"
+  },
+  "users": {
+    "title": "المستخدمون",
+    "addUser": "إضافة مستخدم",
+    "username": "اسم المستخدم:",
+    "usernamePlaceholder": "alice",
+    "usernameFallback": "المستخدم",
+    "password": "كلمة المرور:",
+    "email": "البريد الإلكتروني:",
+    "admin": "مسؤول",
+    "add": "إضافة",
+    "save": "حفظ",
+    "remove": "إزالة",
+    "users": "المستخدمون",
+    "noUsers": "لا يوجد مستخدمون",
+    "groups": "المجموعات:",
+    "groupsManage": "المجموعات",
+    "groupName": "الاسم:",
+    "groupPlaceholder": "العائلة",
+    "noGroups": "لا توجد مجموعات"
   },
   "backup": {
     "title": "النسخ الاحتياطي",

@@ -34,6 +34,7 @@
   "settings": {
     "title": "Настройки",
     "activation": "Активация",
+    "users": "Пользователи",
     "network": "Сеть",
     "access": "Доступ",
     "internalMemory": "Внутренняя память",
@@ -146,6 +147,26 @@
     "proxies": "Прокси",
     "noProxies": "Свои прокси не настроены",
     "remove": "Удалить"
+  },
+  "users": {
+    "title": "Пользователи",
+    "addUser": "Добавить пользователя",
+    "username": "Имя пользователя:",
+    "usernamePlaceholder": "alice",
+    "usernameFallback": "пользователь",
+    "password": "Пароль:",
+    "email": "Эл. почта:",
+    "admin": "Админ",
+    "add": "Добавить",
+    "save": "Сохранить",
+    "remove": "Удалить",
+    "users": "Пользователи",
+    "noUsers": "Нет пользователей",
+    "groups": "Группы:",
+    "groupsManage": "Группы",
+    "groupName": "Название:",
+    "groupPlaceholder": "семья",
+    "noGroups": "Нет групп"
   },
   "backup": {
     "title": "Резервная копия",

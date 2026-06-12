@@ -20,6 +20,7 @@ const routes = [
   { path: '/twofactor', name: 'TwoFactor', component: () => import('../views/TwoFactor.vue') },
   { path: '/logs', name: 'Logs', component: () => import('../views/Logs.vue') },
   { path: '/customproxy', name: 'CustomProxy', component: () => import('../views/CustomProxy.vue') },
+  { path: '/users', name: 'Users', component: () => import('../views/Users.vue') },
   { path: '/system', name: 'System', component: () => import('../views/System.vue') },
   { path: '/locale', name: 'Locale', component: () => import('../views/Locale.vue') },
   { path: '/health', name: 'Health', component: () => import('../views/Health.vue') },

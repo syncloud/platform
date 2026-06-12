@@ -34,6 +34,7 @@
   "settings": {
     "title": "設定",
     "activation": "アクティベーション",
+    "users": "ユーザー",
     "network": "ネットワーク",
     "access": "アクセス",
     "internalMemory": "内部ストレージ",
@@ -146,6 +147,26 @@
     "proxies": "プロキシ",
     "noProxies": "カスタムプロキシが設定されていません",
     "remove": "削除"
+  },
+  "users": {
+    "title": "ユーザー",
+    "addUser": "ユーザーを追加",
+    "username": "ユーザー名：",
+    "usernamePlaceholder": "alice",
+    "usernameFallback": "ユーザー名",
+    "password": "パスワード：",
+    "email": "メール：",
+    "admin": "管理者",
+    "add": "追加",
+    "save": "保存",
+    "remove": "削除",
+    "users": "ユーザー",
+    "noUsers": "ユーザーがいません",
+    "groups": "グループ：",
+    "groupsManage": "グループ",
+    "groupName": "名前：",
+    "groupPlaceholder": "家族",
+    "noGroups": "グループがありません"
   },
   "backup": {
     "title": "バックアップ",

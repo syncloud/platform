@@ -130,6 +130,27 @@ let customProxies = [
 
 let timezone = 'UTC'
 
+let stubUsers = [
+  { username: 'admin', email: 'admin@' + domain, admin: true, groups: [] },
+  { username: 'alice', email: 'alice@' + domain, admin: false, groups: ['family'] },
+  { username: 'bob', email: 'bob@example.com', admin: false, groups: [] }
+]
+
+let stubGroups = [
+  { name: 'syncloud', members: ['admin'] },
+  { name: 'family', members: ['alice'] }
+]
+
+function syncGroupMembers () {
+  stubGroups.forEach(group => {
+    if (group.name === 'syncloud') {
+      group.members = stubUsers.filter(u => u.admin).map(u => u.username)
+    } else {
+      group.members = stubUsers.filter(u => u.groups.includes(group.name)).map(u => u.username)
+    }
+  })
+}
+
 function validateDeviceCredentials (username, password) {
   const errors = []
   if (!username || username.length < 3) {
@@ -614,6 +635,75 @@ export function mock () {
       this.post('/rest/proxy_custom/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         customProxies = customProxies.filter(p => p.name !== attrs.name)
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/users', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: stubUsers })
+      })
+      this.post('/rest/users/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + domain
+        stubUsers.push({ username: attrs.username, email: email, admin: !!attrs.admin, groups: [] })
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        stubUsers = stubUsers.filter(u => u.username !== attrs.username)
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/email', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user) {
+          user.email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + domain
+        }
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/admin', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const admins = stubUsers.filter(u => u.admin).map(u => u.username)
+        if (!attrs.admin && admins.length <= 1 && admins.includes(attrs.username)) {
+          return new Response(500, {}, { success: false, message: 'cannot remove the last admin' })
+        }
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user) {
+          user.admin = !!attrs.admin
+        }
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/groups', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: stubGroups })
+      })
+      this.post('/rest/groups/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (!stubGroups.find(g => g.name === attrs.name)) {
+          stubGroups.push({ name: attrs.name, members: [] })
+        }
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/groups/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (attrs.name === 'syncloud') {
+          return new Response(500, {}, { success: false, message: 'cannot remove admin group' })
+        }
+        stubGroups = stubGroups.filter(g => g.name !== attrs.name)
+        stubUsers.forEach(u => { u.groups = u.groups.filter(g => g !== attrs.name) })
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/groups/member', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user) {
+          if (attrs.member && !user.groups.includes(attrs.group)) {
+            user.groups.push(attrs.group)
+          } else if (!attrs.member) {
+            user.groups = user.groups.filter(g => g !== attrs.group)
+          }
+        }
+        syncGroupMembers()
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/settings/timezone', function (_schema, _request) {
