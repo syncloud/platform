@@ -7,7 +7,7 @@
           <i class="material-icons sc-tile-icon">perm_identity</i>
           <div class="sc-tile-name">{{ $t('settings.activation') }}</div>
         </router-link>
-        <router-link to="/users" id="users" class="sc-tile">
+        <router-link v-if="isAdmin" to="/users" id="users" class="sc-tile">
           <i class="material-icons sc-tile-icon">people</i>
           <div class="sc-tile-name">{{ $t('settings.users') }}</div>
         </router-link>
@@ -74,7 +74,14 @@
 </template>
 
 <script>
+import { useAuthStore } from '../stores/auth'
+
 export default {
-  name: 'Settings'
+  name: 'Settings',
+  computed: {
+    isAdmin () {
+      return useAuthStore().admin
+    }
+  }
 }
 </script>

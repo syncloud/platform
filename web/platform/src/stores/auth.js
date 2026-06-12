@@ -9,13 +9,15 @@ const publicRoutes = [
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     loggedIn: undefined,
-    activated: true
+    activated: true,
+    admin: false
   }),
   actions: {
     checkUserSession (router, onError) {
       axios.get('/rest/user')
-        .then(() => {
+        .then((response) => {
           this.loggedIn = true
+          this.admin = !!(response.data && response.data.data && response.data.data.admin)
           const path = router.currentRoute.value.path
           if (path === '/login' || path === '/activate') {
             router.push('/')

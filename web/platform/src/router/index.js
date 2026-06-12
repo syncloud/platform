@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 const routes = [
   { path: '/', name: 'Apps', component: () => import('../views/Apps.vue') },
@@ -20,7 +21,7 @@ const routes = [
   { path: '/twofactor', name: 'TwoFactor', component: () => import('../views/TwoFactor.vue') },
   { path: '/logs', name: 'Logs', component: () => import('../views/Logs.vue') },
   { path: '/customproxy', name: 'CustomProxy', component: () => import('../views/CustomProxy.vue') },
-  { path: '/users', name: 'Users', component: () => import('../views/Users.vue') },
+  { path: '/users', name: 'Users', component: () => import('../views/Users.vue'), meta: { admin: true } },
   { path: '/system', name: 'System', component: () => import('../views/System.vue') },
   { path: '/locale', name: 'Locale', component: () => import('../views/Locale.vue') },
   { path: '/health', name: 'Health', component: () => import('../views/Health.vue') },
@@ -30,6 +31,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+})
+
+router.beforeEach((to) => {
+  if (to.meta.admin) {
+    const auth = useAuthStore()
+    if (auth.loggedIn && !auth.admin) {
+      return '/'
+    }
+  }
 })
 
 export default router

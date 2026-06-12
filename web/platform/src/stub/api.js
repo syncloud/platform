@@ -6,6 +6,7 @@ const state = {
     username: '11',
     password: '2'
   },
+  admin: true,
   jobStatusRunning: false,
   installerIsRunning: true,
   installerUpgradeCounter: 0,
@@ -302,7 +303,7 @@ export function mock () {
           return new Response(501, {}, { message: 'Not activated' })
         } else {
           if (state.loggedIn) {
-            return new Response(200, {}, { message: 'OK' })
+            return new Response(200, {}, { success: true, data: { admin: state.admin, username: state.credentials.username } })
           } else {
             return new Response(401, {}, { message: 'Authentication failed' })
           }
