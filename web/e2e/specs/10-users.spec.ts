@@ -1,5 +1,5 @@
-import { test, expect, Page } from '@playwright/test'
-import { login } from '../helpers/login'
+import { test, expect, Page, TestInfo } from '@playwright/test'
+import { login, deviceUser } from '../helpers/login'
 import { settings, waitForLoading, defocus } from '../helpers/ui'
 import { shoot } from '../helpers/screenshot'
 
@@ -16,69 +16,98 @@ test.afterAll(async () => {
   await page.close()
 })
 
-test('users page', async ({}, testInfo) => {
+async function openUsers (testInfo: TestInfo) {
   await settings(page, 'users', testInfo)
   await expect(page.getByTestId('users-title')).toBeVisible()
   await waitForLoading(page)
+}
+
+async function openUser (username: string) {
+  await page.getByTestId('user-row-' + username).click()
+  await expect(page.getByTestId('user-edit-title')).toBeVisible()
+  await waitForLoading(page)
+}
+
+test('users list', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await expect(page.getByTestId('users-add')).toBeVisible()
   await defocus(page)
   await shoot(page, testInfo, 'settings_users')
 })
 
-test('add user with default email', async ({}, testInfo) => {
-  await settings(page, 'users', testInfo)
-  await page.locator('#user_username').fill('testuser')
-  await page.locator('#user_password').fill('testpassword')
-  await shoot(page, testInfo, 'settings_users_filled')
-  await page.locator('#btn_add_user').click()
-  await waitForLoading(page)
-  await expect(page.getByTestId('user-row-testuser')).toBeVisible()
-
-  const email = await page.getByTestId('user-email-testuser').inputValue()
-  expect(email.startsWith('testuser@')).toBeTruthy()
-  await defocus(page)
-  await shoot(page, testInfo, 'settings_users_added')
+test('last admin cannot be demoted', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await openUser(deviceUser)
+  await expect(page.getByTestId('user-admin-last')).toBeVisible()
+  await expect(page.locator('#user_admin')).toBeDisabled()
+  await shoot(page, testInfo, 'settings_users_last_admin')
+  await page.locator('#btn_cancel').click()
 })
 
-test('change user email', async ({}, testInfo) => {
-  await settings(page, 'users', testInfo)
-  await page.getByTestId('user-email-testuser').fill('testuser@custom.org')
-  await page.locator('#btn_email_testuser').click()
+test('add user with default email', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await page.getByTestId('users-add').click()
+  await expect(page.getByTestId('user-edit-title')).toBeVisible()
+  await page.locator('#user_username').fill('e2euser')
+  await page.locator('#user_password').fill('e2epassword')
+  await shoot(page, testInfo, 'settings_users_create')
+  await page.locator('#btn_save').click()
   await waitForLoading(page)
-  await expect(page.getByTestId('user-email-testuser')).toHaveValue('testuser@custom.org')
+  await expect(page.getByTestId('user-row-e2euser')).toBeVisible()
+
+  await openUser('e2euser')
+  const email = await page.locator('#user_email').inputValue()
+  expect(email.startsWith('e2euser@')).toBeTruthy()
+  await page.locator('#btn_cancel').click()
+})
+
+test('change email and password', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await openUser('e2euser')
+  await page.locator('#user_email').fill('e2euser@custom.org')
+  await page.locator('#user_password').fill('changedpass1')
+  await page.locator('#btn_save').click()
+  await waitForLoading(page)
+
+  await openUser('e2euser')
+  await expect(page.locator('#user_email')).toHaveValue('e2euser@custom.org')
+  await page.locator('#btn_cancel').click()
 })
 
 test('make user admin', async ({}, testInfo) => {
-  await settings(page, 'users', testInfo)
-  await expect(page.locator('#user_admin_testuser')).not.toBeChecked()
-  await page.locator('xpath=//input[@id="user_admin_testuser"]/../span').click()
+  await openUsers(testInfo)
+  await openUser('e2euser')
+  await expect(page.locator('#user_admin')).not.toBeChecked()
+  await page.locator('xpath=//input[@id="user_admin"]/../span').click()
+  await page.locator('#btn_save').click()
   await waitForLoading(page)
-  await expect(page.locator('#user_admin_testuser')).toBeChecked()
+  await expect(page.getByTestId('user-admin-badge-e2euser')).toBeVisible()
   await defocus(page)
   await shoot(page, testInfo, 'settings_users_admin')
 })
 
-test('add group and membership', async ({}, testInfo) => {
-  await settings(page, 'users', testInfo)
-  await page.locator('#group_name').fill('team')
-  await page.locator('#btn_add_group').click()
+test('groups: syncloud hidden, create and assign inline', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await openUser('e2euser')
+  await expect(page.getByTestId('user-group-syncloud')).toHaveCount(0)
+  await page.locator('#new_group').fill('e2eteam')
+  await page.getByTestId('group-create').click()
   await waitForLoading(page)
-  await expect(page.getByTestId('group-row-team')).toBeVisible()
+  await expect(page.getByTestId('user-group-e2eteam')).toHaveClass(/is-on/)
+  await shoot(page, testInfo, 'settings_users_groups')
+  await page.locator('#btn_save').click()
+  await waitForLoading(page)
 
-  await page.getByTestId('user-group-testuser-team').check()
-  await waitForLoading(page)
-  await expect(page.getByTestId('user-group-testuser-team')).toBeChecked()
-  await defocus(page)
-  await shoot(page, testInfo, 'settings_users_group')
+  await openUser('e2euser')
+  await expect(page.getByTestId('user-group-e2eteam')).toHaveClass(/is-on/)
+  await page.locator('#btn_cancel').click()
 })
 
-test('remove group and user', async ({}, testInfo) => {
-  await settings(page, 'users', testInfo)
-  await page.locator('#btn_remove_group_team').click()
+test('delete user', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await openUser('e2euser')
+  await page.locator('#btn_delete').click()
   await waitForLoading(page)
-  await expect(page.getByTestId('group-row-team')).toHaveCount(0)
-
-  await page.locator('#btn_remove_user_testuser').click()
-  await waitForLoading(page)
-  await expect(page.getByTestId('user-row-testuser')).toHaveCount(0)
+  await expect(page.getByTestId('user-row-e2euser')).toHaveCount(0)
   await shoot(page, testInfo, 'settings_users_removed')
 })
