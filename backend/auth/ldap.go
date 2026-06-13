@@ -303,6 +303,19 @@ func (s *Service) adminBind() (*ldap.Conn, error) {
 	return conn, nil
 }
 
+func (s *Service) rootBind() (*ldap.Conn, error) {
+	conn, err := ldap.DialURL("ldap://localhost:389")
+	if err != nil {
+		return nil, fmt.Errorf("ldap connect: %w", err)
+	}
+	err = conn.Bind(Domain, "syncloud")
+	if err != nil {
+		conn.Close()
+		return nil, fmt.Errorf("ldap root bind: %w", err)
+	}
+	return conn, nil
+}
+
 func (s *Service) ResolveEmail(username string, email string) (string, error) {
 	email = strings.TrimSpace(email)
 	if email == "" {
@@ -382,7 +395,7 @@ func (s *Service) SetUserEmail(username string, email string) error {
 }
 
 func (s *Service) SetPassword(username string, password string) error {
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
