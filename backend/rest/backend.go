@@ -154,6 +154,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/users/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserAdd))).Methods("POST")
 	r.HandleFunc("/rest/users/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserRemove))).Methods("POST")
 	r.HandleFunc("/rest/users/email", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetEmail))).Methods("POST")
+	r.HandleFunc("/rest/users/password", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetPassword))).Methods("POST")
 	r.HandleFunc("/rest/users/admin", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetAdmin))).Methods("POST")
 	r.HandleFunc("/rest/groups", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Groups))).Methods("GET")
 	r.HandleFunc("/rest/groups/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupAdd))).Methods("POST")
@@ -671,6 +672,17 @@ func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
 		return nil, errors.New("wrong request")
 	}
 	return "ok", b.auth.SetUserEmail(request.Username, request.Email)
+}
+
+func (b *Backend) UserSetPassword(req *http.Request) (interface{}, error) {
+	var request struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.SetPassword(request.Username, request.Password)
 }
 
 func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {

@@ -381,6 +381,22 @@ func (s *Service) SetUserEmail(username string, email string) error {
 	return nil
 }
 
+func (s *Service) SetPassword(username string, password string) error {
+	conn, err := s.adminBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
+	modReq := ldap.NewModifyRequest(userDn, nil)
+	modReq.Replace("userPassword", []string{makeSecret(password)})
+	if err := conn.Modify(modReq); err != nil {
+		return fmt.Errorf("ldap set password: %w", err)
+	}
+	return nil
+}
+
 func (s *Service) ListUsers() ([]User, error) {
 	conn, err := s.adminBind()
 	if err != nil {
@@ -403,7 +419,7 @@ func (s *Service) ListUsers() ([]User, error) {
 		UsersDn,
 		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
 		"(objectClass=inetOrgPerson)",
-		[]string{"uid", "mail"},
+		[]string{"cn", "mail"},
 		nil)
 	sr, err := conn.Search(searchRequest)
 	if err != nil {
@@ -412,7 +428,7 @@ func (s *Service) ListUsers() ([]User, error) {
 
 	users := make([]User, 0, len(sr.Entries))
 	for _, entry := range sr.Entries {
-		username := entry.GetAttributeValue("uid")
+		username := entry.GetAttributeValue("cn")
 		userGroups := membership[username]
 		admin := false
 		other := make([]string, 0, len(userGroups))
