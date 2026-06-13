@@ -24,6 +24,7 @@ const UsersDn = "ou=users,dc=syncloud,dc=org"
 const GroupsDn = "ou=groups,dc=syncloud,dc=org"
 const AdminGroup = "syncloud"
 const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
+const posixIdStart = 2000
 
 var emailRegexp = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 var groupNameRegexp = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
@@ -313,6 +314,23 @@ func (s *Service) ResolveEmail(username string, email string) (string, error) {
 	return email, nil
 }
 
+func userAttributes(username string, email string, id int) map[string][]string {
+	idStr := strconv.Itoa(id)
+	return map[string][]string{
+		"objectClass":   {"person", "inetOrgPerson", "posixAccount", "simpleSecurityObject"},
+		"cn":            {username},
+		"sn":            {username},
+		"givenName":     {username},
+		"displayName":   {username},
+		"uid":           {username},
+		"uidNumber":     {idStr},
+		"gidNumber":     {idStr},
+		"homeDirectory": {"/home/" + username},
+		"loginShell":    {"/bin/bash"},
+		"mail":          {email},
+	}
+}
+
 func (s *Service) AddUser(username string, password string, email string) error {
 	resolvedEmail, err := s.ResolveEmail(username, email)
 	if err != nil {
@@ -324,18 +342,17 @@ func (s *Service) AddUser(username string, password string, email string) error 
 	}
 	defer conn.Close()
 
+	id, err := s.nextUid(conn)
+	if err != nil {
+		return err
+	}
+
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	addReq := ldap.NewAddRequest(userDn, nil)
-	addReq.Attribute("objectClass", []string{"simpleSecurityObject", "Person", "inetOrgPerson", "posixAccount"})
-	addReq.Attribute("cn", []string{username})
-	addReq.Attribute("sn", []string{username})
-	addReq.Attribute("uid", []string{username})
-	addReq.Attribute("displayName", []string{username})
-	addReq.Attribute("uidNumber", []string{"10"})
-	addReq.Attribute("gidNumber", []string{"10"})
-	addReq.Attribute("homeDirectory", []string{username})
+	for name, values := range userAttributes(username, resolvedEmail, id) {
+		addReq.Attribute(name, values)
+	}
 	addReq.Attribute("userPassword", []string{makeSecret(password)})
-	addReq.Attribute("mail", []string{resolvedEmail})
 
 	err = conn.Add(addReq)
 	if err != nil {
@@ -472,6 +489,27 @@ func (s *Service) AddGroup(name string) error {
 	return nil
 }
 
+func (s *Service) nextUid(conn *ldap.Conn) (int, error) {
+	searchRequest := ldap.NewSearchRequest(
+		UsersDn,
+		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
+		"(objectClass=posixAccount)",
+		[]string{"uidNumber"},
+		nil)
+	sr, err := conn.Search(searchRequest)
+	if err != nil {
+		return 0, fmt.Errorf("ldap uid scan: %w", err)
+	}
+	next := posixIdStart
+	for _, entry := range sr.Entries {
+		uid, err := strconv.Atoi(entry.GetAttributeValue("uidNumber"))
+		if err == nil && uid >= next {
+			next = uid + 1
+		}
+	}
+	return next, nil
+}
+
 func (s *Service) nextGid(conn *ldap.Conn) (int, error) {
 	searchRequest := ldap.NewSearchRequest(
 		GroupsDn,
@@ -483,14 +521,14 @@ func (s *Service) nextGid(conn *ldap.Conn) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("ldap gid scan: %w", err)
 	}
-	max := 1000
+	next := posixIdStart
 	for _, entry := range sr.Entries {
 		gid, err := strconv.Atoi(entry.GetAttributeValue("gidNumber"))
-		if err == nil && gid >= max {
-			max = gid + 1
+		if err == nil && gid >= next {
+			next = gid + 1
 		}
 	}
-	return max, nil
+	return next, nil
 }
 
 func (s *Service) RemoveGroup(name string) error {

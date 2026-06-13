@@ -89,6 +89,24 @@ func TestResolveEmail_InvalidRejected(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestUserAttributes_MatchUsersApp(t *testing.T) {
+	attrs := userAttributes("bob", "bob@example.com", 2001)
+	assert.Equal(t, []string{"bob"}, attrs["cn"])
+	assert.Equal(t, []string{"bob"}, attrs["sn"])
+	assert.Equal(t, []string{"bob"}, attrs["givenName"])
+	assert.Equal(t, []string{"bob"}, attrs["displayName"])
+	assert.Equal(t, []string{"bob"}, attrs["uid"])
+	assert.Equal(t, []string{"bob@example.com"}, attrs["mail"])
+	assert.Equal(t, []string{"/home/bob"}, attrs["homeDirectory"])
+	assert.Equal(t, []string{"/bin/bash"}, attrs["loginShell"])
+	assert.Equal(t, []string{"2001"}, attrs["uidNumber"])
+	assert.Equal(t, []string{"2001"}, attrs["gidNumber"])
+	assert.Contains(t, attrs["objectClass"], "posixAccount")
+	assert.Contains(t, attrs["objectClass"], "inetOrgPerson")
+	assert.Contains(t, attrs["objectClass"], "person")
+	assert.Contains(t, attrs["objectClass"], "simpleSecurityObject")
+}
+
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
 	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, DomainProviderStub{domain: "example.com"}, log.Default())
