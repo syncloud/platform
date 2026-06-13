@@ -89,6 +89,12 @@ func TestResolveEmail_InvalidRejected(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestAddUser_EmptyUsernameRejected(t *testing.T) {
+	service := newTestService("example.com")
+	err := service.AddUser("   ", "password", "")
+	assert.NotNil(t, err)
+}
+
 func TestUserAttributes_MatchUsersApp(t *testing.T) {
 	attrs := userAttributes("bob", "bob@example.com", 2001)
 	assert.Equal(t, []string{"bob"}, attrs["cn"])

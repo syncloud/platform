@@ -643,6 +643,9 @@ export function mock () {
       })
       this.post('/rest/users/add', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
+        if (!attrs.username || !attrs.username.trim()) {
+          return new Response(400, {}, { success: false, message: 'username is required' })
+        }
         const email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + domain
         stubUsers.push({ username: attrs.username, email: email, admin: !!attrs.admin, groups: [] })
         syncGroupMembers()

@@ -345,6 +345,9 @@ func userAttributes(username string, email string, id int) map[string][]string {
 }
 
 func (s *Service) AddUser(username string, password string, email string) error {
+	if strings.TrimSpace(username) == "" {
+		return fmt.Errorf("username is required")
+	}
 	resolvedEmail, err := s.ResolveEmail(username, email)
 	if err != nil {
 		return err

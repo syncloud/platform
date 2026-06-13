@@ -48,7 +48,7 @@
       </div>
 
       <div class="sc-actions user-edit-actions">
-        <button class="sc-btn sc-btn-success" id="btn_save" type="button" @click="save">{{ $t('users.save') }}</button>
+        <button class="sc-btn sc-btn-success" id="btn_save" type="button" :disabled="saveDisabled" @click="save">{{ $t('users.save') }}</button>
         <button class="sc-btn" id="btn_cancel" type="button" @click="cancel">{{ $t('users.cancel') }}</button>
         <button v-if="!isNew" class="sc-btn sc-btn-danger user-delete" id="btn_delete" type="button" @click="remove">
           {{ $t('users.remove') }}
@@ -101,6 +101,9 @@ export default {
     },
     adminLocked () {
       return !this.isNew && this.originalAdmin && this.adminCount <= 1
+    },
+    saveDisabled () {
+      return this.isNew && (this.username.trim() === '' || this.password === '')
     }
   },
   mounted () {

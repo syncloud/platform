@@ -44,6 +44,21 @@ test('last admin cannot be demoted', async ({}, testInfo) => {
   await page.locator('#btn_cancel').click()
 })
 
+test('create requires username and password', async ({}, testInfo) => {
+  await openUsers(testInfo)
+  await page.getByTestId('users-add').click()
+  await expect(page.getByTestId('user-edit-title')).toBeVisible()
+  await expect(page.locator('#btn_save')).toBeDisabled()
+  await page.locator('#user_username').fill('temp')
+  await expect(page.locator('#btn_save')).toBeDisabled()
+  await page.locator('#user_password').fill('temppass1')
+  await expect(page.locator('#btn_save')).toBeEnabled()
+  await page.locator('#user_username').fill('')
+  await expect(page.locator('#btn_save')).toBeDisabled()
+  await page.locator('#btn_cancel').click()
+  await waitForLoading(page)
+})
+
 test('add user with default email', async ({}, testInfo) => {
   await openUsers(testInfo)
   await page.getByTestId('users-add').click()
