@@ -662,6 +662,9 @@ export function mock () {
         }
         return new Response(200, {}, { success: true })
       })
+      this.post('/rest/users/password', function (_schema, _request) {
+        return new Response(200, {}, { success: true })
+      })
       this.post('/rest/users/admin', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         const admins = stubUsers.filter(u => u.admin).map(u => u.username)

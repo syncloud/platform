@@ -14,6 +14,16 @@ export function checkForServiceError (data, onComplete, onError) {
   }
 }
 
+export async function post (url, body) {
+  const resp = await axios.post(url, body)
+  if (resp.data && 'success' in resp.data && !resp.data.success) {
+    const err = new Error('service error')
+    err.response = { status: 200, data: resp.data }
+    throw err
+  }
+  return resp.data
+}
+
 export const INSTALLER_STATUS_URL = '/rest/installer/status'
 export const DEFAULT_STATUS_PREDICATE = (response) => {
   return response.data.data.is_running
