@@ -108,8 +108,18 @@ export default {
 .user-chevron { color: var(--sc-faint); flex: 0 0 auto; }
 
 @media (max-width: 600px) {
-  .user-entry { flex-wrap: wrap; }
-  .user-name { flex: 1 1 100%; }
-  .user-email { flex: 1 1 100%; }
+  .user-entry {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    padding: 14px;
+    border: 1px solid var(--sc-border);
+    border-radius: 12px;
+    background: var(--sc-field-bg);
+    margin-bottom: 10px;
+  }
+  .user-name { order: 1; flex: 1 1 auto; font-size: 16px; }
+  .user-chevron { order: 2; }
+  .user-email { order: 3; flex: 1 1 100%; }
+  .user-tags { order: 4; flex: 1 1 100%; }
 }
 </style>
