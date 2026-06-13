@@ -77,6 +77,10 @@ export default {
 }
 </script>
 <style scoped>
+.sc-actions {
+  margin-bottom: 16px;
+}
+
 .user-entry {
   display: flex;
   align-items: center;
