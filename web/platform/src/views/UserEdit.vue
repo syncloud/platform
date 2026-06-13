@@ -14,6 +14,15 @@
         <input class="user-input sc-input" id="user_password" type="password" v-model="password"
                :placeholder="isNew ? '' : $t('users.passwordKeep')">
       </div>
+      <div class="setline password-rules" v-if="isNew || password" data-testid="password-rules">
+        <ul class="pw-rules">
+          <li v-for="rule in passwordRules" :key="rule.key" :data-testid="'pwrule-' + rule.key"
+              class="pw-rule" :class="{ 'pw-ok': rule.ok }">
+            <i class="material-icons pw-rule-icon">{{ rule.ok ? 'check_circle' : 'radio_button_unchecked' }}</i>
+            <span>{{ $t(rule.label) }}</span>
+          </li>
+        </ul>
+      </div>
 
       <div class="setline user-field">
         <label class="span user-label" for="user_email">{{ $t('users.email') }}</label>
@@ -102,8 +111,22 @@ export default {
     adminLocked () {
       return !this.isNew && this.originalAdmin && this.adminCount <= 1
     },
+    passwordRules () {
+      const p = this.password
+      return [
+        { key: 'length', label: 'users.ruleLength', ok: p.length >= 8 },
+        { key: 'letter', label: 'users.ruleLetter', ok: /[a-zA-Z]/.test(p) },
+        { key: 'number', label: 'users.ruleNumber', ok: /[0-9]/.test(p) }
+      ]
+    },
+    passwordValid () {
+      return this.passwordRules.every(rule => rule.ok)
+    },
     saveDisabled () {
-      return this.isNew && (this.username.trim() === '' || this.password === '')
+      if (this.isNew) {
+        return this.username.trim() === '' || !this.passwordValid
+      }
+      return this.password !== '' && !this.passwordValid
     }
   },
   mounted () {
@@ -233,6 +256,19 @@ export default {
 .user-input { width: 260px; height: 38px; }
 .user-hint { color: var(--sc-faint); margin-left: 132px; }
 
+.password-rules { margin-left: 132px; }
+.pw-rules { list-style: none; margin: 0; padding: 0; }
+.pw-rule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sc-faint);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.pw-rule.pw-ok { color: var(--sc-success); }
+.pw-rule-icon { font-size: 16px; }
+
 .user-groups-line { display: flex; align-items: flex-start; }
 .user-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .user-chip {
@@ -260,5 +296,6 @@ export default {
   .user-input { width: 100%; }
   .user-groups-line { flex-direction: column; gap: 8px; }
   .user-hint { margin-left: 0; }
+  .password-rules { margin-left: 0; }
 }
 </style>

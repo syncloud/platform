@@ -166,7 +166,10 @@
     "save": "保存",
     "cancel": "キャンセル",
     "remove": "削除",
-    "noUsers": "ユーザーがまだいません"
+    "noUsers": "ユーザーがまだいません",
+    "ruleLength": "8文字以上",
+    "ruleLetter": "文字を含む",
+    "ruleNumber": "数字を含む"
   },
   "backup": {
     "title": "バックアップ",

@@ -142,6 +142,10 @@ let stubGroups = [
   { name: 'family', members: ['alice'] }
 ]
 
+function weakPassword (password) {
+  return !password || password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)
+}
+
 function syncGroupMembers () {
   stubGroups.forEach(group => {
     if (group.name === 'syncloud') {
@@ -646,6 +650,9 @@ export function mock () {
         if (!attrs.username || !attrs.username.trim()) {
           return new Response(400, {}, { success: false, message: 'username is required' })
         }
+        if (weakPassword(attrs.password)) {
+          return new Response(400, {}, { success: false, message: 'password too weak' })
+        }
         const email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + domain
         stubUsers.push({ username: attrs.username, email: email, admin: !!attrs.admin, groups: [] })
         syncGroupMembers()
@@ -665,7 +672,11 @@ export function mock () {
         }
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/users/password', function (_schema, _request) {
+      this.post('/rest/users/password', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (weakPassword(attrs.password)) {
+          return new Response(400, {}, { success: false, message: 'password too weak' })
+        }
         return new Response(200, {}, { success: true })
       })
       this.post('/rest/users/admin', function (_schema, request) {

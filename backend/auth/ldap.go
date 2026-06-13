@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const ldapUserConfDir = "slapd.d"
@@ -316,6 +317,31 @@ func (s *Service) rootBind() (*ldap.Conn, error) {
 	return conn, nil
 }
 
+const passwordMinLength = 8
+
+func ValidatePassword(password string) error {
+	if len(password) < passwordMinLength {
+		return fmt.Errorf("password must be at least %d characters", passwordMinLength)
+	}
+	hasLetter := false
+	hasDigit := false
+	for _, r := range password {
+		switch {
+		case unicode.IsLetter(r):
+			hasLetter = true
+		case unicode.IsDigit(r):
+			hasDigit = true
+		}
+	}
+	if !hasLetter {
+		return fmt.Errorf("password must contain a letter")
+	}
+	if !hasDigit {
+		return fmt.Errorf("password must contain a number")
+	}
+	return nil
+}
+
 func (s *Service) ResolveEmail(username string, email string) (string, error) {
 	email = strings.TrimSpace(email)
 	if email == "" {
@@ -347,6 +373,9 @@ func userAttributes(username string, email string, id int) map[string][]string {
 func (s *Service) AddUser(username string, password string, email string) error {
 	if strings.TrimSpace(username) == "" {
 		return fmt.Errorf("username is required")
+	}
+	if err := ValidatePassword(password); err != nil {
+		return err
 	}
 	resolvedEmail, err := s.ResolveEmail(username, email)
 	if err != nil {
@@ -398,6 +427,9 @@ func (s *Service) SetUserEmail(username string, email string) error {
 }
 
 func (s *Service) SetPassword(username string, password string) error {
+	if err := ValidatePassword(password); err != nil {
+		return err
+	}
 	conn, err := s.rootBind()
 	if err != nil {
 		return err

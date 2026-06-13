@@ -166,7 +166,10 @@
     "save": "保存",
     "cancel": "取消",
     "remove": "删除",
-    "noUsers": "暂无用户"
+    "noUsers": "暂无用户",
+    "ruleLength": "至少 8 个字符",
+    "ruleLetter": "包含字母",
+    "ruleNumber": "包含数字"
   },
   "backup": {
     "title": "备份",

@@ -44,15 +44,28 @@ test('last admin cannot be demoted', async ({}, testInfo) => {
   await page.locator('#btn_cancel').click()
 })
 
-test('create requires username and password', async ({}, testInfo) => {
+test('create requires username and a strong password', async ({}, testInfo) => {
   await openUsers(testInfo)
   await page.getByTestId('users-add').click()
   await expect(page.getByTestId('user-edit-title')).toBeVisible()
   await expect(page.locator('#btn_save')).toBeDisabled()
+
   await page.locator('#user_username').fill('temp')
   await expect(page.locator('#btn_save')).toBeDisabled()
+
+  await page.locator('#user_password').fill('short')
+  await expect(page.getByTestId('pwrule-length')).not.toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('pwrule-number')).not.toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('pwrule-letter')).toHaveClass(/pw-ok/)
+  await expect(page.locator('#btn_save')).toBeDisabled()
+  await shoot(page, testInfo, 'settings_users_password_rules')
+
   await page.locator('#user_password').fill('temppass1')
+  await expect(page.getByTestId('pwrule-length')).toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('pwrule-letter')).toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('pwrule-number')).toHaveClass(/pw-ok/)
   await expect(page.locator('#btn_save')).toBeEnabled()
+
   await page.locator('#user_username').fill('')
   await expect(page.locator('#btn_save')).toBeDisabled()
   await page.locator('#btn_cancel').click()
@@ -64,7 +77,7 @@ test('add user with default email', async ({}, testInfo) => {
   await page.getByTestId('users-add').click()
   await expect(page.getByTestId('user-edit-title')).toBeVisible()
   await page.locator('#user_username').fill('e2euser')
-  await page.locator('#user_password').fill('e2epassword')
+  await page.locator('#user_password').fill('e2epassword1')
   await shoot(page, testInfo, 'settings_users_create')
   await page.locator('#btn_save').click()
   await waitForLoading(page)

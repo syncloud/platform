@@ -89,6 +89,20 @@ func TestResolveEmail_InvalidRejected(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestValidatePassword(t *testing.T) {
+	assert.Nil(t, ValidatePassword("Password1"))
+	assert.Nil(t, ValidatePassword("regularpass123"))
+	assert.NotNil(t, ValidatePassword("short1"))
+	assert.NotNil(t, ValidatePassword("alllettersonly"))
+	assert.NotNil(t, ValidatePassword("12345678"))
+}
+
+func TestAddUser_WeakPasswordRejected(t *testing.T) {
+	service := newTestService("example.com")
+	err := service.AddUser("bob", "weak", "")
+	assert.NotNil(t, err)
+}
+
 func TestAddUser_EmptyUsernameRejected(t *testing.T) {
 	service := newTestService("example.com")
 	err := service.AddUser("   ", "password", "")

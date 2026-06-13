@@ -198,7 +198,10 @@
     "save": "Save",
     "cancel": "Cancel",
     "remove": "Delete",
-    "noUsers": "No users yet"
+    "noUsers": "No users yet",
+    "ruleLength": "At least 8 characters",
+    "ruleLetter": "Contains a letter",
+    "ruleNumber": "Contains a number"
   },
   "backup": {
     "title": "Backup",

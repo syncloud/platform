@@ -166,7 +166,10 @@
     "save": "Salvar",
     "cancel": "Cancelar",
     "remove": "Remover",
-    "noUsers": "Ainda não há usuários"
+    "noUsers": "Ainda não há usuários",
+    "ruleLength": "Pelo menos 8 caracteres",
+    "ruleLetter": "Contém uma letra",
+    "ruleNumber": "Contém um número"
   },
   "backup": {
     "title": "Cópia de segurança",
