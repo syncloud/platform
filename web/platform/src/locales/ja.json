@@ -153,7 +153,7 @@
     "add": "ユーザーを追加",
     "edit": "ユーザーを編集",
     "username": "ユーザー名：",
-    "usernamePlaceholder": "alice",
+    "usernamePlaceholder": "ユーザー名",
     "usernameFallback": "ユーザー名",
     "password": "パスワード：",
     "passwordKeep": "現在のパスワードを保持するには空欄のままにします",

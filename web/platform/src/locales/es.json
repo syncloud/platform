@@ -153,7 +153,7 @@
     "add": "Añadir usuario",
     "edit": "Editar usuario",
     "username": "Usuario:",
-    "usernamePlaceholder": "alice",
+    "usernamePlaceholder": "usuario",
     "usernameFallback": "usuario",
     "password": "Contraseña:",
     "passwordKeep": "Déjelo en blanco para mantener la contraseña actual",

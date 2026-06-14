@@ -153,7 +153,7 @@
     "add": "उपयोगकर्ता जोड़ें",
     "edit": "उपयोगकर्ता संपादित करें",
     "username": "उपयोगकर्ता नाम:",
-    "usernamePlaceholder": "alice",
+    "usernamePlaceholder": "उपयोगकर्ता",
     "usernameFallback": "उपयोगकर्ता",
     "password": "पासवर्ड:",
     "passwordKeep": "वर्तमान पासवर्ड रखने के लिए खाली छोड़ें",

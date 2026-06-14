@@ -185,7 +185,7 @@
     "add": "Add user",
     "edit": "Edit user",
     "username": "Username:",
-    "usernamePlaceholder": "alice",
+    "usernamePlaceholder": "username",
     "usernameFallback": "username",
     "password": "Password:",
     "passwordKeep": "Leave blank to keep the current password",

@@ -153,7 +153,7 @@
     "add": "添加用户",
     "edit": "编辑用户",
     "username": "用户名：",
-    "usernamePlaceholder": "alice",
+    "usernamePlaceholder": "用户名",
     "usernameFallback": "用户名",
     "password": "密码：",
     "passwordKeep": "留空以保留当前密码",
