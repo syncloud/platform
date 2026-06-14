@@ -4,9 +4,9 @@
       <h1 class="sc-title" data-testid="users-title">{{ $t('users.title') }}</h1>
 
       <div class="sc-actions">
-        <router-link class="sc-btn sc-btn-success" to="/useredit" id="btn_add_user" data-testid="users-add">
+        <button class="sc-btn sc-btn-success" id="btn_add_user" data-testid="users-add" type="button" @click="add">
           {{ $t('users.add') }}
-        </router-link>
+        </button>
       </div>
 
       <div v-if="users.length === 0" class="setline">
@@ -54,6 +54,9 @@ export default {
     this.reload()
   },
   methods: {
+    add () {
+      this.$router.push('/useredit')
+    },
     progressShow () {
       this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
     },

@@ -4,9 +4,10 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 
-function mountList () {
+function mountList (push = jest.fn()) {
   return mount(UsersList, {
     global: {
+      mocks: { $router: { push } },
       stubs: {
         'router-link': { template: '<a :data-testid="$attrs[\'data-testid\']"><slot/></a>' }
       }
@@ -35,7 +36,7 @@ test('renders users with email, admin badge and groups', async () => {
   expect(wrapper.text()).toContain('family')
 })
 
-test('shows add user link', async () => {
+test('shows add user button', async () => {
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/users').reply(200, { success: true, data: [] })
 
@@ -43,6 +44,18 @@ test('shows add user link', async () => {
   await flushPromises()
 
   expect(wrapper.find('[data-testid="users-add"]').exists()).toBe(true)
+})
+
+test('add button navigates to create screen', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/users').reply(200, { success: true, data: [] })
+
+  const push = jest.fn()
+  const wrapper = mountList(push)
+  await flushPromises()
+
+  await wrapper.find('[data-testid="users-add"]').trigger('click')
+  expect(push).toHaveBeenCalledWith('/useredit')
 })
 
 test('shows empty state when there are no users', async () => {
