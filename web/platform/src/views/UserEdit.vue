@@ -38,8 +38,8 @@
         <span class="user-hint" data-testid="user-admin-last">{{ $t('users.adminLast') }}</span>
       </div>
 
-      <div class="setline user-groups-line">
-        <label class="span user-label">{{ $t('users.groups') }}</label>
+      <div class="user-groups-section">
+        <h3 class="user-groups-heading">{{ $t('users.groups') }}</h3>
         <div class="user-chips">
           <button v-for="group in customGroups" :key="group.name" type="button"
                   class="user-chip" :class="{ 'is-on': selectedGroups.includes(group.name) }"
@@ -51,7 +51,7 @@
             <input class="sc-input user-newgroup-input" id="new_group" type="text" v-model="newGroup"
                    :placeholder="$t('users.newGroup')" @keyup.enter="createGroup">
             <button type="button" class="sc-btn sc-btn-primary" id="btn_add_group" data-testid="group-create"
-                    @click="createGroup">{{ $t('users.create') }}</button>
+                    @click="createGroup">{{ $t('users.addGroup') }}</button>
           </span>
         </div>
       </div>
@@ -59,12 +59,17 @@
       <div class="sc-actions user-edit-actions">
         <button class="sc-btn sc-btn-success" id="btn_save" type="button" :disabled="saveDisabled" @click="save">{{ $t('users.save') }}</button>
         <button class="sc-btn" id="btn_cancel" type="button" @click="cancel">{{ $t('users.cancel') }}</button>
-        <button v-if="!isNew" class="sc-btn sc-btn-danger user-delete" id="btn_delete" type="button" @click="remove">
+        <button v-if="!isNew" class="sc-btn sc-btn-danger user-delete" id="btn_delete" type="button" @click="deleteVisible = true">
           {{ $t('users.remove') }}
         </button>
       </div>
     </div>
   </div>
+
+  <Dialog :visible="deleteVisible" @cancel="deleteVisible = false" @confirm="remove" :cancel-text="$t('users.cancel')">
+    <template v-slot:title>{{ $t('users.remove') }}</template>
+    <template v-slot:text>{{ $t('users.confirmDelete') }}</template>
+  </Dialog>
 
   <Error ref="error"/>
 
@@ -72,6 +77,7 @@
 
 <script>
 import Error from '../components/Error.vue'
+import Dialog from '../components/Dialog.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
 import Loading from '../util/loading'
@@ -91,12 +97,14 @@ export default {
       originalAdmin: false,
       originalGroups: [],
       adminCount: 0,
+      deleteVisible: false,
       visibility: 'hidden',
       loading: undefined
     }
   },
   components: {
-    Error
+    Error,
+    Dialog
   },
   computed: {
     isNew () {
@@ -228,6 +236,7 @@ export default {
       }
     },
     async remove () {
+      this.deleteVisible = false
       this.progressShow()
       try {
         await Common.post('/rest/users/remove', { username: this.username })
@@ -269,7 +278,18 @@ export default {
 .pw-rule.pw-ok { color: var(--sc-success); }
 .pw-rule-icon { font-size: 16px; }
 
-.user-groups-line { display: flex; align-items: flex-start; }
+.user-groups-section {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--sc-border);
+  border-radius: 12px;
+  background: var(--sc-field-bg);
+}
+.user-groups-heading {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--sc-text);
+}
 .user-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .user-chip {
   display: inline-flex;
@@ -294,7 +314,6 @@ export default {
   .user-field { flex-direction: column; align-items: stretch; gap: 6px; }
   .user-field .user-label { width: auto; min-width: 0; font-weight: 600; }
   .user-input { width: 100%; }
-  .user-groups-line { flex-direction: column; gap: 8px; }
   .user-hint { margin-left: 0; }
   .password-rules { margin-left: 0; }
 }

@@ -162,14 +162,15 @@
     "adminLast": "Este é o único administrador e não pode ser rebaixado.",
     "groups": "Grupos:",
     "newGroup": "novo grupo",
-    "create": "Criar",
     "save": "Salvar",
     "cancel": "Cancelar",
     "remove": "Remover",
     "noUsers": "Ainda não há usuários",
     "ruleLength": "Pelo menos 8 caracteres",
     "ruleLetter": "Contém uma letra",
-    "ruleNumber": "Contém um número"
+    "ruleNumber": "Contém um número",
+    "addGroup": "Adicionar",
+    "confirmDelete": "Tem certeza de que deseja remover este usuário?"
   },
   "backup": {
     "title": "Cópia de segurança",

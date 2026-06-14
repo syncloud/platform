@@ -194,14 +194,15 @@
     "adminLast": "This is the only admin and cannot be demoted.",
     "groups": "Groups:",
     "newGroup": "new group",
-    "create": "Create",
     "save": "Save",
     "cancel": "Cancel",
     "remove": "Delete",
     "noUsers": "No users yet",
     "ruleLength": "At least 8 characters",
     "ruleLetter": "Contains a letter",
-    "ruleNumber": "Contains a number"
+    "ruleNumber": "Contains a number",
+    "addGroup": "Add",
+    "confirmDelete": "Are you sure you want to delete this user?"
   },
   "backup": {
     "title": "Backup",

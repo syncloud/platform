@@ -131,10 +131,13 @@ test('groups: syncloud hidden, create and assign inline', async ({}, testInfo) =
   await page.locator('#btn_cancel').click()
 })
 
-test('delete user', async ({}, testInfo) => {
+test('delete user asks for confirmation', async ({}, testInfo) => {
   await openUsers(testInfo)
   await openUser('e2euser')
   await page.locator('#btn_delete').click()
+  await expect(page.getByTestId('btn_confirm')).toBeVisible()
+  await shoot(page, testInfo, 'settings_users_delete_confirm')
+  await page.getByTestId('btn_confirm').click()
   await waitForLoading(page)
   await expect(page.getByTestId('user-row-e2euser')).toHaveCount(0)
   await shoot(page, testInfo, 'settings_users_removed')

@@ -162,14 +162,15 @@
     "adminLast": "Este es el único administrador y no se puede degradar.",
     "groups": "Grupos:",
     "newGroup": "nuevo grupo",
-    "create": "Crear",
     "save": "Guardar",
     "cancel": "Cancelar",
     "remove": "Eliminar",
     "noUsers": "Aún no hay usuarios",
     "ruleLength": "Al menos 8 caracteres",
     "ruleLetter": "Contiene una letra",
-    "ruleNumber": "Contiene un número"
+    "ruleNumber": "Contiene un número",
+    "addGroup": "Añadir",
+    "confirmDelete": "¿Seguro que quiere eliminar este usuario?"
   },
   "backup": {
     "title": "Copia de seguridad",

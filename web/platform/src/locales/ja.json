@@ -162,14 +162,15 @@
     "adminLast": "これは唯一の管理者であり、降格できません。",
     "groups": "グループ：",
     "newGroup": "新しいグループ",
-    "create": "作成",
     "save": "保存",
     "cancel": "キャンセル",
     "remove": "削除",
     "noUsers": "ユーザーがまだいません",
     "ruleLength": "8文字以上",
     "ruleLetter": "文字を含む",
-    "ruleNumber": "数字を含む"
+    "ruleNumber": "数字を含む",
+    "addGroup": "追加",
+    "confirmDelete": "このユーザーを削除してもよろしいですか？"
   },
   "backup": {
     "title": "バックアップ",

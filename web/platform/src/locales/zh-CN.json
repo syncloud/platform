@@ -162,14 +162,15 @@
     "adminLast": "这是唯一的管理员，无法降级。",
     "groups": "群组：",
     "newGroup": "新群组",
-    "create": "创建",
     "save": "保存",
     "cancel": "取消",
     "remove": "删除",
     "noUsers": "暂无用户",
     "ruleLength": "至少 8 个字符",
     "ruleLetter": "包含字母",
-    "ruleNumber": "包含数字"
+    "ruleNumber": "包含数字",
+    "addGroup": "添加",
+    "confirmDelete": "确定要删除此用户吗？"
   },
   "backup": {
     "title": "备份",

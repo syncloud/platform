@@ -162,14 +162,15 @@
     "adminLast": "C'est le seul administrateur et il ne peut pas être rétrogradé.",
     "groups": "Groupes :",
     "newGroup": "nouveau groupe",
-    "create": "Créer",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "remove": "Supprimer",
     "noUsers": "Aucun utilisateur pour l'instant",
     "ruleLength": "Au moins 8 caractères",
     "ruleLetter": "Contient une lettre",
-    "ruleNumber": "Contient un chiffre"
+    "ruleNumber": "Contient un chiffre",
+    "addGroup": "Ajouter",
+    "confirmDelete": "Voulez-vous vraiment supprimer cet utilisateur ?"
   },
   "backup": {
     "title": "Sauvegarde",

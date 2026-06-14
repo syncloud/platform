@@ -189,8 +189,7 @@ test('edit: applies email, password, admin and group diffs', async () => {
   expect(push).toHaveBeenCalledWith('/users')
 })
 
-test('edit: delete posts remove and navigates', async () => {
-  const mock = new MockAdapter(axios)
+function mockAliceEdit (mock) {
   mockGroups(mock, [{ name: 'syncloud', members: ['admin', 'alice'] }])
   mock.onGet('/rest/users').reply(200, {
     success: true,
@@ -199,6 +198,27 @@ test('edit: delete posts remove and navigates', async () => {
       { username: 'alice', email: 'alice@example.com', admin: false, groups: [] }
     ]
   })
+}
+
+test('edit: delete asks for confirmation before removing', async () => {
+  const mock = new MockAdapter(axios)
+  mockAliceEdit(mock)
+  let removeCalled = false
+  mock.onPost('/rest/users/remove').reply(() => { removeCalled = true; return [200, { success: true }] })
+
+  const push = jest.fn()
+  const wrapper = mountEdit({ username: 'alice' }, push)
+  await flushPromises()
+
+  expect(wrapper.find('[data-testid="btn_confirm"]').exists()).toBe(false)
+  await wrapper.find('#btn_delete').trigger('click')
+  expect(wrapper.find('[data-testid="btn_confirm"]').exists()).toBe(true)
+  expect(removeCalled).toBe(false)
+})
+
+test('edit: confirming delete posts remove and navigates', async () => {
+  const mock = new MockAdapter(axios)
+  mockAliceEdit(mock)
   let removeBody = null
   mock.onPost('/rest/users/remove').reply(c => { removeBody = JSON.parse(c.data); return [200, { success: true }] })
 
@@ -207,6 +227,7 @@ test('edit: delete posts remove and navigates', async () => {
   await flushPromises()
 
   await wrapper.find('#btn_delete').trigger('click')
+  await wrapper.find('[data-testid="btn_confirm"]').trigger('click')
   await flushPromises()
 
   expect(removeBody).toEqual({ username: 'alice' })
