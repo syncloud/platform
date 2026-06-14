@@ -15,19 +15,19 @@
           <i class="material-icons sc-tile-icon">router</i>
           <div class="sc-tile-name">{{ $t('settings.network') }}</div>
         </router-link>
-        <router-link to="/access" id="access" class="sc-tile">
+        <router-link v-if="isAdmin" to="/access" id="access" class="sc-tile">
           <i class="material-icons sc-tile-icon">cloud_queue</i>
           <div class="sc-tile-name">{{ $t('settings.access') }}</div>
         </router-link>
-        <router-link to="/internalmemory" id="internalmemory" class="sc-tile">
+        <router-link v-if="isAdmin" to="/internalmemory" id="internalmemory" class="sc-tile">
           <i class="material-icons sc-tile-icon">memory</i>
           <div class="sc-tile-name">{{ $t('settings.internalMemory') }}</div>
         </router-link>
-        <router-link to="/storage" id="storage" class="sc-tile">
+        <router-link v-if="isAdmin" to="/storage" id="storage" class="sc-tile">
           <i class="material-icons sc-tile-icon">storage</i>
           <div class="sc-tile-name">{{ $t('settings.storage') }}</div>
         </router-link>
-        <router-link to="/updates" id="updates" class="sc-tile">
+        <router-link v-if="isAdmin" to="/updates" id="updates" class="sc-tile">
           <i class="material-icons sc-tile-icon">update</i>
           <div class="sc-tile-name">{{ $t('settings.updates') }}</div>
         </router-link>
@@ -35,11 +35,11 @@
           <i class="material-icons sc-tile-icon">help_outline</i>
           <div class="sc-tile-name">{{ $t('settings.support') }}</div>
         </router-link>
-        <router-link to="/backup" id="backup" class="sc-tile">
+        <router-link v-if="isAdmin" to="/backup" id="backup" class="sc-tile">
           <i class="material-icons sc-tile-icon">archive</i>
           <div class="sc-tile-name">{{ $t('settings.backup') }}</div>
         </router-link>
-        <router-link to="/certificate" id="certificate" class="sc-tile">
+        <router-link v-if="isAdmin" to="/certificate" id="certificate" class="sc-tile">
           <i class="material-icons sc-tile-icon">security</i>
           <div class="sc-tile-name">{{ $t('settings.certificate') }}</div>
         </router-link>
@@ -63,7 +63,7 @@
           <i class="material-icons sc-tile-icon">translate</i>
           <div class="sc-tile-name">{{ $t('settings.locale') }}</div>
         </router-link>
-        <router-link to="/health" id="health" data-testid="nav-health" class="sc-tile">
+        <router-link v-if="isAdmin" to="/health" id="health" data-testid="nav-health" class="sc-tile">
           <i class="material-icons sc-tile-icon">favorite</i>
           <div class="sc-tile-name">{{ $t('settings.health') }}</div>
         </router-link>
