@@ -653,7 +653,7 @@ export function mock () {
         if (weakPassword(attrs.password)) {
           return new Response(400, {}, { success: false, message: 'password too weak' })
         }
-        const email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + domain
+        const email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + window.location.hostname
         stubUsers.push({ username: attrs.username, email: email, admin: !!attrs.admin, groups: [] })
         syncGroupMembers()
         return new Response(200, {}, { success: true })
@@ -668,7 +668,7 @@ export function mock () {
         const attrs = JSON.parse(request.requestBody)
         const user = stubUsers.find(u => u.username === attrs.username)
         if (user) {
-          user.email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + domain
+          user.email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + window.location.hostname
         }
         return new Response(200, {}, { success: true })
       })
