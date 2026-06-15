@@ -267,15 +267,11 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 }
 
 func (s *Service) IsAdmin(username string) (bool, error) {
-	conn, err := ldap.DialURL("ldap://localhost:389")
+	conn, err := s.rootBind()
 	if err != nil {
-		return false, fmt.Errorf("ldap connect: %w", err)
+		return false, err
 	}
 	defer conn.Close()
-	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
-	if err != nil {
-		return false, fmt.Errorf("ldap bind: %w", err)
-	}
 
 	searchRequest := ldap.NewSearchRequest(
 		AdminGroupDn,
@@ -289,19 +285,6 @@ func (s *Service) IsAdmin(username string) (bool, error) {
 		return false, fmt.Errorf("ldap search: %w", err)
 	}
 	return len(sr.Entries) > 0, nil
-}
-
-func (s *Service) adminBind() (*ldap.Conn, error) {
-	conn, err := ldap.DialURL("ldap://localhost:389")
-	if err != nil {
-		return nil, fmt.Errorf("ldap connect: %w", err)
-	}
-	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
-	if err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("ldap bind: %w", err)
-	}
-	return conn, nil
 }
 
 func (s *Service) rootBind() (*ldap.Conn, error) {
@@ -381,7 +364,7 @@ func (s *Service) AddUser(username string, password string, email string) error 
 	if err != nil {
 		return err
 	}
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
@@ -411,7 +394,7 @@ func (s *Service) SetUserEmail(username string, email string) error {
 	if err != nil {
 		return err
 	}
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
@@ -446,7 +429,7 @@ func (s *Service) SetPassword(username string, password string) error {
 }
 
 func (s *Service) ListUsers() ([]User, error) {
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +502,7 @@ func (s *Service) listGroups(conn *ldap.Conn) ([]Group, error) {
 }
 
 func (s *Service) ListGroups() ([]Group, error) {
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return nil, err
 	}
@@ -531,7 +514,7 @@ func (s *Service) AddGroup(name string) error {
 	if !groupNameRegexp.MatchString(name) {
 		return fmt.Errorf("invalid group name: %s", name)
 	}
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
@@ -599,7 +582,7 @@ func (s *Service) RemoveGroup(name string) error {
 	if name == AdminGroup {
 		return fmt.Errorf("cannot remove admin group")
 	}
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
@@ -614,7 +597,7 @@ func (s *Service) RemoveGroup(name string) error {
 
 func (s *Service) SetAdmin(username string, admin bool) error {
 	if !admin {
-		conn, err := s.adminBind()
+		conn, err := s.rootBind()
 		if err != nil {
 			return err
 		}
@@ -632,7 +615,7 @@ func (s *Service) SetAdmin(username string, admin bool) error {
 }
 
 func (s *Service) SetGroupMember(group string, username string, member bool) error {
-	conn, err := s.adminBind()
+	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
@@ -689,15 +672,11 @@ func contains(values []string, value string) bool {
 }
 
 func (s *Service) RemoveUser(username string) error {
-	conn, err := ldap.DialURL("ldap://localhost:389")
+	conn, err := s.rootBind()
 	if err != nil {
-		return fmt.Errorf("ldap connect: %w", err)
+		return err
 	}
 	defer conn.Close()
-	err = conn.Bind(fmt.Sprintf("cn=admin,%s", Domain), "syncloud")
-	if err != nil {
-		return fmt.Errorf("ldap bind: %w", err)
-	}
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	delReq := ldap.NewDelRequest(userDn, nil)
