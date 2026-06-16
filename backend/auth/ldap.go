@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -544,7 +545,7 @@ func (s *Service) SetAdmin(username string, admin bool) error {
 		if err != nil {
 			return err
 		}
-		if len(members) <= 1 && contains(members, username) {
+		if len(members) <= 1 && slices.Contains(members, username) {
 			return fmt.Errorf("cannot remove the last admin")
 		}
 		return s.modifyMember(conn, AdminGroup, username, false)
@@ -583,7 +584,7 @@ func (s *Service) modifyMember(conn *ldap.Conn, group string, username string, m
 	if err != nil {
 		return err
 	}
-	present := contains(members, username)
+	present := slices.Contains(members, username)
 	if member == present {
 		return nil
 	}
@@ -598,15 +599,6 @@ func (s *Service) modifyMember(conn *ldap.Conn, group string, username string, m
 		return fmt.Errorf("ldap modify group member: %w", err)
 	}
 	return nil
-}
-
-func contains(values []string, value string) bool {
-	for _, v := range values {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }
 
 func (s *Service) RemoveUser(username string) error {
