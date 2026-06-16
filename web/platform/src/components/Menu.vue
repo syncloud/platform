@@ -5,7 +5,7 @@
 
       <nav class="sc-nav" v-if="auth.loggedIn">
         <router-link to="/" id="apps" class="sc-nav-link" :class="{ active: activeTab === '/' }">{{ $t('menu.apps') }}</router-link>
-        <router-link to="/appcenter" id="appcenter" class="sc-nav-link" :class="{ active: activeTab === '/appcenter' }">{{ $t('menu.appCenter') }}</router-link>
+        <router-link v-if="auth.admin" to="/appcenter" id="appcenter" class="sc-nav-link" :class="{ active: activeTab === '/appcenter' }">{{ $t('menu.appCenter') }}</router-link>
         <router-link to="/settings" id="settings" class="sc-nav-link" :class="{ active: activeTab === '/settings' }">{{ $t('menu.settings') }}</router-link>
       </nav>
 
@@ -21,7 +21,7 @@
 
     <div id="menu" class="sc-mobile-nav" v-if="auth.loggedIn" :class="{ naviopen: menuOpen }">
       <router-link to="/" id="apps_mobile" @click="close">{{ $t('menu.apps') }}</router-link>
-      <router-link to="/appcenter" id="appcenter_mobile" @click="close">{{ $t('menu.appCenter') }}</router-link>
+      <router-link v-if="auth.admin" to="/appcenter" id="appcenter_mobile" @click="close">{{ $t('menu.appCenter') }}</router-link>
       <router-link to="/settings" id="settings_mobile" @click="close">{{ $t('menu.settings') }}</router-link>
       <a href="#" id="logout_mobile" class="sc-mobile-logout" @click="logout(); close()">{{ $t('menu.logout') }}</a>
     </div>

@@ -203,13 +203,13 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/logs", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Logs))).Methods("GET")
 	r.HandleFunc("/rest/logs/send", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SendLogs))).Methods("POST")
 	r.HandleFunc("/rest/device/url", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.DeviceUrl))).Methods("GET")
-	r.HandleFunc("/rest/restart", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Restart))).Methods("POST")
-	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Shutdown))).Methods("POST")
+	r.HandleFunc("/rest/restart", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Restart))).Methods("POST")
+	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Shutdown))).Methods("POST")
 	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.NetworkInterfaces))).Methods("GET")
 	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.mw.FailIfNotActivated(b.mw.Secured(b.proxy.ProxyImageFunc())))
-	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.List))).Methods("GET")
-	r.HandleFunc("/rest/proxy_custom/add", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Add))).Methods("POST")
-	r.HandleFunc("/rest/proxy_custom/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Remove))).Methods("POST")
+	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.List))).Methods("GET")
+	r.HandleFunc("/rest/proxy_custom/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.Add))).Methods("POST")
+	r.HandleFunc("/rest/proxy_custom/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.Remove))).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(b.mw.NotFoundHandler)
 

@@ -17,8 +17,8 @@ function mountSettings (admin) {
   })
 }
 
-const adminTiles = ['users', 'access', 'internalmemory', 'storage', 'updates', 'backup', 'certificate', 'health']
-const userTiles = ['activation', 'network', 'support', 'twofactor', 'logs', 'customproxy', 'system', 'locale']
+const adminTiles = ['users', 'access', 'internalmemory', 'storage', 'updates', 'backup', 'certificate', 'health', 'customproxy', 'system']
+const userTiles = ['activation', 'network', 'support', 'twofactor', 'logs', 'locale']
 
 test('regular user sees locale and two-factor tiles', () => {
   const wrapper = mountSettings(false)

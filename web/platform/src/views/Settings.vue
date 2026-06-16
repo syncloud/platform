@@ -51,11 +51,11 @@
           <i class="material-icons-outlined sc-tile-icon">feed</i>
           <div class="sc-tile-name">{{ $t('settings.logs') }}</div>
         </router-link>
-        <router-link to="/customproxy" id="customproxy" class="sc-tile">
+        <router-link v-if="isAdmin" to="/customproxy" id="customproxy" class="sc-tile">
           <i class="material-icons sc-tile-icon">swap_horiz</i>
           <div class="sc-tile-name">{{ $t('settings.customProxy') }}</div>
         </router-link>
-        <router-link to="/system" id="system" class="sc-tile">
+        <router-link v-if="isAdmin" to="/system" id="system" class="sc-tile">
           <i class="material-icons sc-tile-icon">settings_power</i>
           <div class="sc-tile-name">{{ $t('settings.system') }}</div>
         </router-link>

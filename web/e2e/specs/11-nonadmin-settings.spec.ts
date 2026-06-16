@@ -31,7 +31,13 @@ test('settings hides admin tiles from a regular user', async ({}, testInfo) => {
   await expect(page.locator('#twofactor')).toBeVisible()
   await expect(page.locator('#storage')).toHaveCount(0)
   await expect(page.locator('#users')).toHaveCount(0)
+  await expect(page.locator('#customproxy')).toHaveCount(0)
+  await expect(page.locator('#system')).toHaveCount(0)
   await shoot(page, testInfo, 'settings_nonadmin')
+})
+
+test('app center link hidden from a regular user', async ({}, testInfo) => {
+  await expect(page.locator('#appcenter')).toHaveCount(0)
 })
 
 test('regular user can open locale', async ({}, testInfo) => {
