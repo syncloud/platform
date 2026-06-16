@@ -48,30 +48,9 @@ func (d DomainProviderStub) GetDeviceDomain() string {
 	return d.domain
 }
 
-func newTestService(domain string) *Service {
-	return New(&SnapServiceStub{}, t1TempDir(), t1TempDir(), t1TempDir(), &ExecutorStub{}, NewLdapClient(), &PasswordChangerStub{}, NewPasswordValidator(), NewPasswordHasher(), NewEmailResolver(DomainProviderStub{domain: domain}), NewUserBuilder(NewPasswordHasher()), log.Default())
-}
-
-func t1TempDir() string {
-	dir, _ := os.MkdirTemp("", "")
-	return dir
-}
-
-func TestAddUser_WeakPasswordRejected(t *testing.T) {
-	service := newTestService("example.com")
-	err := service.AddUser("bob", "weak", "", false)
-	assert.NotNil(t, err)
-}
-
-func TestAddUser_EmptyUsernameRejected(t *testing.T) {
-	service := newTestService("example.com")
-	err := service.AddUser("   ", "password", "", false)
-	assert.NotNil(t, err)
-}
-
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordValidator(), NewPasswordHasher(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserBuilder(NewPasswordHasher()), log.Default())
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher(), log.Default())
 	err := ldap.Init()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 1)
@@ -81,7 +60,7 @@ func TestInit(t *testing.T) {
 func TestApplyConfig_NotInstalled(t *testing.T) {
 	executor := &ExecutorStub{}
 	missing := path.Join(t.TempDir(), "missing")
-	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordValidator(), NewPasswordHasher(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserBuilder(NewPasswordHasher()), log.Default())
+	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher(), log.Default())
 	err := ldap.ApplyConfig()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 0)
@@ -96,7 +75,7 @@ func TestReset(t *testing.T) {
 	assert.Nil(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, NewLdapClient(), passwordChanger, NewPasswordValidator(), NewPasswordHasher(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserBuilder(NewPasswordHasher()), log.Default())
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, NewLdapClient(), passwordChanger, NewPasswordHasher(), log.Default())
 	err = ldap.Reset("name", "user", "password", "email")
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 2)

@@ -57,7 +57,8 @@ type Backend struct {
 	support         *support.Sender
 	proxy           *Proxy
 	customProxy     *CustomProxy
-	auth            *auth.Service
+	userManager     *auth.UserManager
+	groupManager    *auth.GroupManager
 	mw              *Middleware
 	cookies         *session.Cookies
 	oidc            *auth.OIDCService
@@ -78,7 +79,7 @@ func NewBackend(
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
-	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
+	userManager *auth.UserManager, groupManager *auth.GroupManager, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
 	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 	timezone *timezone.Applier,
@@ -107,7 +108,8 @@ func NewBackend(
 		support:         support,
 		proxy:           proxy,
 		customProxy:     customProxy,
-		auth:            auth,
+		userManager:     userManager,
+		groupManager:    groupManager,
 		mw:              middleware,
 		cookies:         cookies,
 		oidc:            oidcService,
@@ -609,7 +611,7 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 
 func (b *Backend) User(req *http.Request) (interface{}, error) {
 	username, _ := b.cookies.GetSessionUser(req)
-	isAdmin, err := b.auth.IsAdmin(username)
+	isAdmin, err := b.userManager.IsAdmin(username)
 	if err != nil {
 		b.logger.Warn("unable to check admin status", zap.Error(err))
 	}
@@ -630,7 +632,7 @@ func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
 }
 
 func (b *Backend) Users(_ *http.Request) (interface{}, error) {
-	return b.auth.ListUsers()
+	return b.userManager.ListUsers()
 }
 
 func (b *Backend) UserAdd(req *http.Request) (interface{}, error) {
@@ -638,7 +640,7 @@ func (b *Backend) UserAdd(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.AddUser(request.Username, request.Password, request.Email, request.Admin)
+	return "ok", b.userManager.AddUser(request.Username, request.Password, request.Email, request.Admin)
 }
 
 func (b *Backend) UserRemove(req *http.Request) (interface{}, error) {
@@ -646,7 +648,7 @@ func (b *Backend) UserRemove(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.RemoveUser(request.Username)
+	return "ok", b.userManager.RemoveUser(request.Username)
 }
 
 func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
@@ -654,7 +656,7 @@ func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.SetUserEmail(request.Username, request.Email)
+	return "ok", b.userManager.SetUserEmail(request.Username, request.Email)
 }
 
 func (b *Backend) UserSetPassword(req *http.Request) (interface{}, error) {
@@ -662,7 +664,7 @@ func (b *Backend) UserSetPassword(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.SetPassword(request.Username, request.Password)
+	return "ok", b.userManager.SetPassword(request.Username, request.Password)
 }
 
 func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {
@@ -670,11 +672,11 @@ func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.SetAdmin(request.Username, request.Admin)
+	return "ok", b.userManager.SetAdmin(request.Username, request.Admin)
 }
 
 func (b *Backend) Groups(_ *http.Request) (interface{}, error) {
-	return b.auth.ListGroups()
+	return b.groupManager.ListGroups()
 }
 
 func (b *Backend) GroupAdd(req *http.Request) (interface{}, error) {
@@ -682,7 +684,7 @@ func (b *Backend) GroupAdd(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.AddGroup(request.Name)
+	return "ok", b.groupManager.AddGroup(request.Name)
 }
 
 func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
@@ -690,7 +692,7 @@ func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.RemoveGroup(request.Name)
+	return "ok", b.groupManager.RemoveGroup(request.Name)
 }
 
 func (b *Backend) GroupMemberAdd(req *http.Request) (interface{}, error) {
@@ -698,7 +700,7 @@ func (b *Backend) GroupMemberAdd(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.AddGroupMember(request.Group, request.Username)
+	return "ok", b.groupManager.AddGroupMember(request.Group, request.Username)
 }
 
 func (b *Backend) GroupMemberRemove(req *http.Request) (interface{}, error) {
@@ -706,7 +708,7 @@ func (b *Backend) GroupMemberRemove(req *http.Request) (interface{}, error) {
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.RemoveGroupMember(request.Group, request.Username)
+	return "ok", b.groupManager.RemoveGroupMember(request.Group, request.Username)
 }
 
 func (b *Backend) HealthEvents(req *http.Request) (interface{}, error) {
@@ -799,4 +801,3 @@ func (b *Backend) GenerateTOTP(req *http.Request) (interface{}, error) {
 		"uri": uri,
 	}, nil
 }
-

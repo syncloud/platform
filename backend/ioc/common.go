@@ -354,8 +354,20 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, ldapClient *auth.LdapClient, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, ldapClient, passwordChanger, passwordValidator, passwordHasher, emailResolver, userBuilder, logger)
+	err = c.Singleton(func(ldapClient *auth.LdapClient) *auth.GroupManager {
+		return auth.NewGroupManager(ldapClient)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(ldapClient *auth.LdapClient, groups *auth.GroupManager, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.UserManager {
+		return auth.NewUserManager(ldapClient, groups, passwordValidator, passwordHasher, emailResolver, userBuilder)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, ldapClient *auth.LdapClient, passwordChanger *auth.SystemPasswordChanger, passwordHasher *auth.PasswordHasher) *auth.Service {
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, ldapClient, passwordChanger, passwordHasher, logger)
 	})
 
 	if err != nil {
@@ -553,8 +565,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(cookies *session.Cookies, authService *auth.Service, userConfig *config.UserConfig) *rest.Middleware {
-		return rest.NewMiddleware(cookies, authService, userConfig, logger)
+	err = c.Singleton(func(cookies *session.Cookies, userManager *auth.UserManager, userConfig *config.UserConfig) *rest.Middleware {
+		return rest.NewMiddleware(cookies, userManager, userConfig, logger)
 	})
 	if err != nil {
 		return nil, err

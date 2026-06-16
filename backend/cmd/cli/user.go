@@ -34,8 +34,8 @@ func userAddCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return c.Call(func(ldapService *auth.Service) {
-				err := ldapService.AddUser(args[0], password, email, admin)
+			return c.Call(func(userManager *auth.UserManager) {
+				err := userManager.AddUser(args[0], password, email, admin)
 				if err != nil {
 					fmt.Printf("error: %v\n", err)
 				} else {
@@ -60,8 +60,8 @@ func userRemoveCmd(userConfig *string, systemConfig *string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return c.Call(func(ldapService *auth.Service) {
-				err := ldapService.RemoveUser(args[0])
+			return c.Call(func(userManager *auth.UserManager) {
+				err := userManager.RemoveUser(args[0])
 				if err != nil {
 					fmt.Printf("error: %v\n", err)
 				} else {
