@@ -15,7 +15,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 )
 
 const ldapUserConfDir = "slapd.d"
@@ -27,36 +26,21 @@ const AdminGroup = "syncloud"
 const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
 const posixIdStart = 2000
 
-var emailRegexp = regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
 var groupNameRegexp = regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
 
-type User struct {
-	Username string   `json:"username"`
-	Email    string   `json:"email"`
-	Admin    bool     `json:"admin"`
-	Groups   []string `json:"groups"`
-}
-
-type Group struct {
-	Name    string   `json:"name"`
-	Members []string `json:"members"`
-}
-
-type DomainProvider interface {
-	GetDeviceDomain() string
-}
-
 type Service struct {
-	snapService      SnapService
-	runtimeConfigDir string
-	userConfDir      string
-	userDataDir      string
-	ldapRoot         string
-	configDir        string
-	executor         cli.Executor
-	passwordChanger  PasswordChanger
-	domain           DomainProvider
-	logger           *zap.Logger
+	snapService       SnapService
+	runtimeConfigDir  string
+	userConfDir       string
+	userDataDir       string
+	ldapRoot          string
+	configDir         string
+	executor          cli.Executor
+	passwordChanger   PasswordChanger
+	passwordValidator *PasswordValidator
+	emailResolver     *EmailResolver
+	userAttributes    *UserAttributes
+	logger            *zap.Logger
 }
 
 type SnapService interface {
@@ -64,19 +48,21 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, domain DomainProvider, logger *zap.Logger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, emailResolver *EmailResolver, userAttributes *UserAttributes, logger *zap.Logger) *Service {
 
 	return &Service{
-		snapService:      snapService,
-		runtimeConfigDir: runtimeConfigDir,
-		userConfDir:      path.Join(runtimeConfigDir, ldapUserConfDir),
-		userDataDir:      path.Join(runtimeConfigDir, ldapUserDataDir),
-		ldapRoot:         path.Join(appDir, "openldap"),
-		configDir:        configDir,
-		executor:         executor,
-		passwordChanger:  passwordChanger,
-		domain:           domain,
-		logger:           logger,
+		snapService:       snapService,
+		runtimeConfigDir:  runtimeConfigDir,
+		userConfDir:       path.Join(runtimeConfigDir, ldapUserConfDir),
+		userDataDir:       path.Join(runtimeConfigDir, ldapUserDataDir),
+		ldapRoot:          path.Join(appDir, "openldap"),
+		configDir:         configDir,
+		executor:          executor,
+		passwordChanger:   passwordChanger,
+		passwordValidator: passwordValidator,
+		emailResolver:     emailResolver,
+		userAttributes:    userAttributes,
+		logger:            logger,
 	}
 }
 
@@ -300,67 +286,14 @@ func (s *Service) rootBind() (*ldap.Conn, error) {
 	return conn, nil
 }
 
-const passwordMinLength = 8
-
-func ValidatePassword(password string) error {
-	if len(password) < passwordMinLength {
-		return fmt.Errorf("password must be at least %d characters", passwordMinLength)
-	}
-	hasLetter := false
-	hasDigit := false
-	for _, r := range password {
-		switch {
-		case unicode.IsLetter(r):
-			hasLetter = true
-		case unicode.IsDigit(r):
-			hasDigit = true
-		}
-	}
-	if !hasLetter {
-		return fmt.Errorf("password must contain a letter")
-	}
-	if !hasDigit {
-		return fmt.Errorf("password must contain a number")
-	}
-	return nil
-}
-
-func (s *Service) ResolveEmail(username string, email string) (string, error) {
-	email = strings.TrimSpace(email)
-	if email == "" {
-		return fmt.Sprintf("%s@%s", username, s.domain.GetDeviceDomain()), nil
-	}
-	if !emailRegexp.MatchString(email) {
-		return "", fmt.Errorf("invalid email address: %s", email)
-	}
-	return email, nil
-}
-
-func userAttributes(username string, email string, id int) map[string][]string {
-	idStr := strconv.Itoa(id)
-	return map[string][]string{
-		"objectClass":   {"person", "inetOrgPerson", "posixAccount", "simpleSecurityObject"},
-		"cn":            {username},
-		"sn":            {username},
-		"givenName":     {username},
-		"displayName":   {username},
-		"uid":           {username},
-		"uidNumber":     {idStr},
-		"gidNumber":     {idStr},
-		"homeDirectory": {"/home/" + username},
-		"loginShell":    {"/bin/bash"},
-		"mail":          {email},
-	}
-}
-
-func (s *Service) AddUser(username string, password string, email string) error {
+func (s *Service) AddUser(username string, password string, email string, admin bool) error {
 	if strings.TrimSpace(username) == "" {
 		return fmt.Errorf("username is required")
 	}
-	if err := ValidatePassword(password); err != nil {
+	if err := s.passwordValidator.Validate(password); err != nil {
 		return err
 	}
-	resolvedEmail, err := s.ResolveEmail(username, email)
+	resolvedEmail, err := s.emailResolver.Resolve(username, email)
 	if err != nil {
 		return err
 	}
@@ -377,7 +310,7 @@ func (s *Service) AddUser(username string, password string, email string) error 
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	addReq := ldap.NewAddRequest(userDn, nil)
-	for name, values := range userAttributes(username, resolvedEmail, id) {
+	for name, values := range s.userAttributes.Build(username, resolvedEmail, id) {
 		addReq.Attribute(name, values)
 	}
 	addReq.Attribute("userPassword", []string{makeSecret(password)})
@@ -386,11 +319,16 @@ func (s *Service) AddUser(username string, password string, email string) error 
 	if err != nil {
 		return fmt.Errorf("ldap add user: %w", err)
 	}
+	if admin {
+		if err := s.modifyMember(conn, AdminGroup, username, true); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func (s *Service) SetUserEmail(username string, email string) error {
-	resolvedEmail, err := s.ResolveEmail(username, email)
+	resolvedEmail, err := s.emailResolver.Resolve(username, email)
 	if err != nil {
 		return err
 	}
@@ -410,7 +348,7 @@ func (s *Service) SetUserEmail(username string, email string) error {
 }
 
 func (s *Service) SetPassword(username string, password string) error {
-	if err := ValidatePassword(password); err != nil {
+	if err := s.passwordValidator.Validate(password); err != nil {
 		return err
 	}
 	conn, err := s.rootBind()

@@ -15,6 +15,7 @@ import (
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/hardware/lcd"
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/identification"
@@ -34,7 +35,6 @@ import (
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/timezone"
 	"github.com/syncloud/platform/version"
-	"github.com/syncloud/platform/hardware/lcd"
 	"go.uber.org/zap"
 	"path"
 	"time"
@@ -332,8 +332,20 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, userConfig *config.UserConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, userConfig, logger)
+	err = c.Singleton(func() *auth.PasswordValidator { return auth.NewPasswordValidator() })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(userConfig *config.UserConfig) *auth.EmailResolver { return auth.NewEmailResolver(userConfig) })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func() *auth.UserAttributes { return auth.NewUserAttributes() })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, emailResolver *auth.EmailResolver, userAttributes *auth.UserAttributes) *auth.Service {
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, passwordValidator, emailResolver, userAttributes, logger)
 	})
 
 	if err != nil {

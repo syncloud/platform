@@ -633,30 +633,15 @@ func (b *Backend) Users(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) UserAdd(req *http.Request) (interface{}, error) {
-	var request struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Email    string `json:"email"`
-		Admin    bool   `json:"admin"`
-	}
+	var request UserAddRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	if err := b.auth.AddUser(request.Username, request.Password, request.Email); err != nil {
-		return nil, err
-	}
-	if request.Admin {
-		if err := b.auth.SetAdmin(request.Username, true); err != nil {
-			return nil, err
-		}
-	}
-	return "ok", nil
+	return "ok", b.auth.AddUser(request.Username, request.Password, request.Email, request.Admin)
 }
 
 func (b *Backend) UserRemove(req *http.Request) (interface{}, error) {
-	var request struct {
-		Username string `json:"username"`
-	}
+	var request UserRemoveRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
@@ -664,10 +649,7 @@ func (b *Backend) UserRemove(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
-	var request struct {
-		Username string `json:"username"`
-		Email    string `json:"email"`
-	}
+	var request UserSetEmailRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
@@ -675,10 +657,7 @@ func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) UserSetPassword(req *http.Request) (interface{}, error) {
-	var request struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var request UserSetPasswordRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
@@ -686,10 +665,7 @@ func (b *Backend) UserSetPassword(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {
-	var request struct {
-		Username string `json:"username"`
-		Admin    bool   `json:"admin"`
-	}
+	var request UserSetAdminRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
@@ -701,9 +677,7 @@ func (b *Backend) Groups(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) GroupAdd(req *http.Request) (interface{}, error) {
-	var request struct {
-		Name string `json:"name"`
-	}
+	var request GroupAddRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
@@ -711,9 +685,7 @@ func (b *Backend) GroupAdd(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
-	var request struct {
-		Name string `json:"name"`
-	}
+	var request GroupRemoveRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
@@ -721,11 +693,7 @@ func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) GroupSetMember(req *http.Request) (interface{}, error) {
-	var request struct {
-		Group    string `json:"group"`
-		Username string `json:"username"`
-		Member   bool   `json:"member"`
-	}
+	var request GroupSetMemberRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
