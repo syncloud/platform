@@ -14,7 +14,7 @@ import (
 type Device struct {
 	config               DevicePlatformUserConfig
 	certificateGenerator *cert.Generator
-	auth                 *auth.Service
+	auth                 *auth.Initializer
 	nginx                *nginx.Nginx
 	web                  auth.Web
 	trigger              *event.Trigger
@@ -44,7 +44,7 @@ type InternalMemory interface {
 
 func NewDevice(
 	config DevicePlatformUserConfig,
-	auth *auth.Service,
+	auth *auth.Initializer,
 	nginx *nginx.Nginx,
 	trigger *event.Trigger,
 	cookies Cookies,

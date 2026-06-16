@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
 	"github.com/syncloud/platform/cli"
-	"go.uber.org/zap"
 	"log"
 	"os"
 	"path"
@@ -21,7 +20,7 @@ const AdminGroup = "syncloud"
 const AdminGroupDn = "cn=syncloud,ou=groups,dc=syncloud,dc=org"
 const posixIdStart = 2000
 
-type Service struct {
+type Initializer struct {
 	snapService      SnapService
 	runtimeConfigDir string
 	userConfDir      string
@@ -32,7 +31,6 @@ type Service struct {
 	ldapClient       *LdapClient
 	passwordChanger  PasswordChanger
 	passwordHasher   *PasswordHasher
-	logger           *zap.Logger
 }
 
 type SnapService interface {
@@ -40,9 +38,9 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, ldapClient *LdapClient, passwordChanger PasswordChanger, passwordHasher *PasswordHasher, logger *zap.Logger) *Service {
+func NewInitializer(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, ldapClient *LdapClient, passwordChanger PasswordChanger, passwordHasher *PasswordHasher) *Initializer {
 
-	return &Service{
+	return &Initializer{
 		snapService:      snapService,
 		runtimeConfigDir: runtimeConfigDir,
 		userConfDir:      path.Join(runtimeConfigDir, ldapUserConfDir),
@@ -53,16 +51,15 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		ldapClient:       ldapClient,
 		passwordChanger:  passwordChanger,
 		passwordHasher:   passwordHasher,
-		logger:           logger,
 	}
 }
 
-func (s *Service) Installed() bool {
+func (s *Initializer) Installed() bool {
 	_, err := os.Stat(s.userConfDir)
 	return err == nil
 }
 
-func (s *Service) Init() error {
+func (s *Initializer) Init() error {
 	if s.Installed() {
 		log.Println("ldap config already initialized")
 		return nil
@@ -84,7 +81,7 @@ func (s *Service) Init() error {
 	return nil
 }
 
-func (s *Service) ApplyConfig() error {
+func (s *Initializer) ApplyConfig() error {
 	if !s.Installed() {
 		return nil
 	}
@@ -102,7 +99,7 @@ func (s *Service) ApplyConfig() error {
 	return err
 }
 
-func (s *Service) applyConfigOnce(uri string) error {
+func (s *Initializer) applyConfigOnce(uri string) error {
 	conn, err := ldap.DialURL(uri)
 	if err != nil {
 		return fmt.Errorf("ldapi connect: %w", err)
@@ -119,7 +116,7 @@ func (s *Service) applyConfigOnce(uri string) error {
 	return nil
 }
 
-func (s *Service) Reset(name string, user string, password string, email string) error {
+func (s *Initializer) Reset(name string, user string, password string, email string) error {
 	log.Println("resetting ldap")
 
 	err := s.snapService.Stop("platform.openldap")
@@ -179,7 +176,7 @@ func (s *Service) Reset(name string, user string, password string, email string)
 	return err
 }
 
-func (s *Service) initDb(filename string) error {
+func (s *Initializer) initDb(filename string) error {
 	var err error
 	for i := 0; i < 10; i++ {
 		err = s.ldapAdd(filename, Domain)
@@ -193,39 +190,9 @@ func (s *Service) initDb(filename string) error {
 	return err
 }
 
-func (s *Service) ldapAdd(filename string, bindDn string) error {
+func (s *Initializer) ldapAdd(filename string, bindDn string) error {
 	cmd := path.Join(s.ldapRoot, "bin", "ldapadd.sh")
 	output, err := s.executor.CombinedOutput(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename)
 	log.Printf("ldapadd output: %s", output)
 	return err
-}
-
-func (s *Service) Authenticate(username string, password string) (bool, error) {
-	conn, err := ldap.DialURL("ldap://localhost:389")
-	if err != nil {
-		return false, err
-	}
-	defer s.ldapClient.Disconnect(conn)
-	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username), password)
-	if err != nil {
-		s.logger.Error("ldap error", zap.Error(err))
-		return false, err
-	}
-
-	searchRequest := ldap.NewSearchRequest(
-		AdminGroupDn,
-		ldap.ScopeWholeSubtree, ldap.DerefAlways, 0, 0, false,
-		fmt.Sprintf("(memberUid=%s)", username),
-		[]string{"memberUid"},
-		nil)
-
-	sr, err := conn.Search(searchRequest)
-	if err != nil {
-		return false, err
-	}
-
-	if len(sr.Entries) < 1 {
-		return false, fmt.Errorf("not admin (must be part of syncloud group)")
-	}
-	return true, nil
 }

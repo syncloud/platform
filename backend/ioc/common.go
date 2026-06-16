@@ -366,8 +366,14 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, ldapClient *auth.LdapClient, passwordChanger *auth.SystemPasswordChanger, passwordHasher *auth.PasswordHasher) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, ldapClient, passwordChanger, passwordHasher, logger)
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, ldapClient *auth.LdapClient, passwordChanger *auth.SystemPasswordChanger, passwordHasher *auth.PasswordHasher) *auth.Initializer {
+		return auth.NewInitializer(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, ldapClient, passwordChanger, passwordHasher)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(ldapClient *auth.LdapClient) *auth.Authenticator {
+		return auth.NewAuthenticator(ldapClient, logger)
 	})
 
 	if err != nil {
@@ -434,7 +440,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
+	err = c.Singleton(func(ldapService *auth.Initializer, nginxService *nginx.Nginx, userConfig *config.UserConfig,
 		eventTrigger *event.Trigger, cookies *session.Cookies,
 		storage *storage.Storage, web *auth.Authelia,
 	) *activation.Device {
@@ -578,7 +584,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		systemConfig *config.SystemConfig,
 		userConfig *config.UserConfig,
 		certGenerator *cert.CertificateGenerator,
-		ldapService *auth.Service,
+		ldapService *auth.Initializer,
 		nginxService *nginx.Nginx,
 		web *auth.Authelia,
 		systemdControl *systemd.Control,

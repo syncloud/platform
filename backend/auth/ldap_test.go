@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"github.com/syncloud/platform/log"
 	"os"
 	"path"
 	"strings"
@@ -50,7 +49,7 @@ func (d DomainProviderStub) GetDeviceDomain() string {
 
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher(), log.Default())
+	ldap := NewInitializer(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher())
 	err := ldap.Init()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 1)
@@ -60,7 +59,7 @@ func TestInit(t *testing.T) {
 func TestApplyConfig_NotInstalled(t *testing.T) {
 	executor := &ExecutorStub{}
 	missing := path.Join(t.TempDir(), "missing")
-	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher(), log.Default())
+	ldap := NewInitializer(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher())
 	err := ldap.ApplyConfig()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 0)
@@ -75,7 +74,7 @@ func TestReset(t *testing.T) {
 	assert.Nil(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, NewLdapClient(), passwordChanger, NewPasswordHasher(), log.Default())
+	ldap := NewInitializer(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, NewLdapClient(), passwordChanger, NewPasswordHasher())
 	err = ldap.Reset("name", "user", "password", "email")
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 2)
