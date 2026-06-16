@@ -34,6 +34,7 @@ type Service struct {
 	ldapRoot          string
 	configDir         string
 	executor          cli.Executor
+	ldapClient        *LdapClient
 	passwordChanger   PasswordChanger
 	passwordValidator *PasswordValidator
 	passwordHasher    *PasswordHasher
@@ -47,7 +48,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, passwordHasher *PasswordHasher, emailResolver *EmailResolver, userBuilder *UserBuilder, logger *zap.Logger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, ldapClient *LdapClient, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, passwordHasher *PasswordHasher, emailResolver *EmailResolver, userBuilder *UserBuilder, logger *zap.Logger) *Service {
 
 	return &Service{
 		snapService:       snapService,
@@ -57,6 +58,7 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		ldapRoot:          path.Join(appDir, "openldap"),
 		configDir:         configDir,
 		executor:          executor,
+		ldapClient:        ldapClient,
 		passwordChanger:   passwordChanger,
 		passwordValidator: passwordValidator,
 		passwordHasher:    passwordHasher,
@@ -116,7 +118,7 @@ func (s *Service) applyConfigOnce(uri string) error {
 	if err != nil {
 		return fmt.Errorf("ldapi connect: %w", err)
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 	if err := conn.ExternalBind(); err != nil {
 		return fmt.Errorf("ldapi external bind: %w", err)
 	}
@@ -214,7 +216,7 @@ func (s *Service) AuthenticateUser(username string, password string) error {
 	if err != nil {
 		return fmt.Errorf("ldap connect: %w", err)
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,%s", username, Domain), password)
 	if err != nil {
 		return fmt.Errorf("invalid credentials")
@@ -227,7 +229,7 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,dc=syncloud,dc=org", username), password)
 	if err != nil {
 		s.logger.Error("ldap error", zap.Error(err))
@@ -253,11 +255,11 @@ func (s *Service) Authenticate(username string, password string) (bool, error) {
 }
 
 func (s *Service) IsAdmin(username string) (bool, error) {
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return false, err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	searchRequest := ldap.NewSearchRequest(
 		AdminGroupDn,
@@ -273,19 +275,6 @@ func (s *Service) IsAdmin(username string) (bool, error) {
 	return len(sr.Entries) > 0, nil
 }
 
-func (s *Service) rootBind() (*ldap.Conn, error) {
-	conn, err := ldap.DialURL("ldap://localhost:389")
-	if err != nil {
-		return nil, fmt.Errorf("ldap connect: %w", err)
-	}
-	err = conn.Bind(Domain, "syncloud")
-	if err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("ldap root bind: %w", err)
-	}
-	return conn, nil
-}
-
 func (s *Service) AddUser(username string, password string, email string, admin bool) error {
 	if strings.TrimSpace(username) == "" {
 		return fmt.Errorf("username is required")
@@ -297,11 +286,11 @@ func (s *Service) AddUser(username string, password string, email string, admin 
 	if err != nil {
 		return err
 	}
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	id, err := s.nextUid(conn)
 	if err != nil {
@@ -324,11 +313,11 @@ func (s *Service) SetUserEmail(username string, email string) error {
 	if err != nil {
 		return err
 	}
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	modReq := ldap.NewModifyRequest(userDn, nil)
@@ -343,11 +332,11 @@ func (s *Service) SetPassword(username string, password string) error {
 	if err := s.passwordValidator.Validate(password); err != nil {
 		return err
 	}
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	modReq := ldap.NewModifyRequest(userDn, nil)
@@ -359,11 +348,11 @@ func (s *Service) SetPassword(username string, password string) error {
 }
 
 func (s *Service) ListUsers() ([]User, error) {
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	groups, err := s.listGroups(conn)
 	if err != nil {
@@ -432,11 +421,11 @@ func (s *Service) listGroups(conn *ldap.Conn) ([]Group, error) {
 }
 
 func (s *Service) ListGroups() ([]Group, error) {
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 	return s.listGroups(conn)
 }
 
@@ -444,11 +433,11 @@ func (s *Service) AddGroup(name string) error {
 	if !groupNameRegexp.MatchString(name) {
 		return fmt.Errorf("invalid group name: %s", name)
 	}
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	gid, err := s.nextGid(conn)
 	if err != nil {
@@ -512,11 +501,11 @@ func (s *Service) RemoveGroup(name string) error {
 	if name == AdminGroup {
 		return fmt.Errorf("cannot remove admin group")
 	}
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	groupDn := fmt.Sprintf("cn=%s,%s", name, GroupsDn)
 	if err := conn.Del(ldap.NewDelRequest(groupDn, nil)); err != nil {
@@ -527,11 +516,11 @@ func (s *Service) RemoveGroup(name string) error {
 
 func (s *Service) SetAdmin(username string, admin bool) error {
 	if !admin {
-		conn, err := s.rootBind()
+		conn, err := s.ldapClient.Connect()
 		if err != nil {
 			return err
 		}
-		defer conn.Close()
+		defer s.ldapClient.Disconnect(conn)
 		members, err := s.groupMembers(conn, AdminGroup)
 		if err != nil {
 			return err
@@ -545,20 +534,20 @@ func (s *Service) SetAdmin(username string, admin bool) error {
 }
 
 func (s *Service) AddGroupMember(group string, username string) error {
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 	return s.addMember(conn, group, username)
 }
 
 func (s *Service) RemoveGroupMember(group string, username string) error {
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 	return s.removeMember(conn, group, username)
 }
 
@@ -612,11 +601,11 @@ func (s *Service) removeMember(conn *ldap.Conn, group string, username string) e
 }
 
 func (s *Service) RemoveUser(username string) error {
-	conn, err := s.rootBind()
+	conn, err := s.ldapClient.Connect()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer s.ldapClient.Disconnect(conn)
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	delReq := ldap.NewDelRequest(userDn, nil)

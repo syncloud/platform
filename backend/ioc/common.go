@@ -332,6 +332,10 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func() *auth.LdapClient { return auth.NewLdapClient() })
+	if err != nil {
+		return nil, err
+	}
 	err = c.Singleton(func() *auth.PasswordValidator { return auth.NewPasswordValidator() })
 	if err != nil {
 		return nil, err
@@ -350,8 +354,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, passwordValidator, passwordHasher, emailResolver, userBuilder, logger)
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, ldapClient *auth.LdapClient, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.Service {
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, ldapClient, passwordChanger, passwordValidator, passwordHasher, emailResolver, userBuilder, logger)
 	})
 
 	if err != nil {
