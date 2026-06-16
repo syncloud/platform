@@ -24,8 +24,10 @@ test.afterAll(async () => {
 })
 
 test('regular user sees apps but no admin navigation', async ({}, testInfo) => {
-  await expect(page.locator('#apps')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
   await expect(page.locator('#settings')).toHaveCount(0)
+  await expect(page.locator('#settings_mobile')).toHaveCount(0)
   await expect(page.locator('#appcenter')).toHaveCount(0)
+  await expect(page.locator('#appcenter_mobile')).toHaveCount(0)
   await shoot(page, testInfo, 'nav_nonadmin')
 })
