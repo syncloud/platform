@@ -294,10 +294,10 @@ export function mock () {
         state.loggedIn = true
         return new Response(200, {}, { message: 'OK' })
       })
-      this.get('/rest/settings/2fa', function (_schema, _request) {
+      this.get('/rest/2fa', function (_schema, _request) {
         return new Response(200, {}, { success: true, data: { enabled: state.twoFactorEnabled || false, authelia_url: 'https://auth.test.' + domain } })
       })
-      this.post('/rest/settings/2fa', function (_schema, request) {
+      this.post('/rest/2fa', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         state.twoFactorEnabled = attrs.enabled
         return new Response(200, {}, { success: true, data: 'OK' })
@@ -729,15 +729,15 @@ export function mock () {
         syncGroupMembers()
         return new Response(200, {}, { success: true })
       })
-      this.get('/rest/settings/timezone', function (_schema, _request) {
+      this.get('/rest/timezone', function (_schema, _request) {
         return new Response(200, {}, { success: true, data: { timezone: timezone } })
       })
-      this.post('/rest/settings/timezone', function (_schema, request) {
+      this.post('/rest/timezone', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         timezone = attrs.timezone
         return new Response(200, {}, { success: true, data: 'OK' })
       })
-      this.get('/rest/settings/time', function (_schema, _request) {
+      this.get('/rest/time', function (_schema, _request) {
         return new Response(200, {}, { success: true, data: { timezone: timezone, time: new Date().toISOString() } })
       })
       this.get('/rest/logs', function (_schema, _request) {
@@ -765,7 +765,7 @@ export function mock () {
           { name: 'mmcblk0', reads_total: 500000, sectors_read: 4000000000, writes_total: 200000, sectors_written: 1500000000 }
         ]
       }
-      this.get('/rest/settings/health/metrics', function (_schema, _request) {
+      this.get('/rest/health/metrics', function (_schema, _request) {
         stubHealth.tick++
         // simulate variable CPU activity (sine-ish pattern)
         const busyMs = Math.round(800 + 600 * Math.sin(stubHealth.tick / 8))
@@ -802,7 +802,7 @@ export function mock () {
         }
         return new Response(200, {}, { success: true, data })
       })
-      this.get('/rest/settings/health/events', function (_schema, _request) {
+      this.get('/rest/health/events', function (_schema, _request) {
         const now = Date.now()
         const events = [
           { time: new Date(now - 30 * 1000).toISOString(), kind: 'victim_sigterm', pid: 3325956, comm: 'python3', rss_kb: 1943228, cgroup: '0::/user.slice/user-0.slice/session-61617.scope' },

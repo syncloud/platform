@@ -165,7 +165,7 @@ export default {
       return parts.join(' · ')
     },
     fetchMetrics () {
-      axios.get('/rest/settings/health/metrics')
+      axios.get('/rest/health/metrics')
         .then(resp => {
           const next = resp.data.data
           this.computeDeltas(this.prevMetrics, next)
@@ -212,7 +212,7 @@ export default {
       })
     },
     fetchEvents () {
-      axios.get('/rest/settings/health/events?limit=100')
+      axios.get('/rest/health/events?limit=100')
         .then(resp => { this.events = resp.data.data || [] })
         .catch(() => {})
     }
