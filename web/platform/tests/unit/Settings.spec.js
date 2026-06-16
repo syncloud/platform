@@ -17,12 +17,11 @@ function mountSettings (admin) {
   })
 }
 
-const adminTiles = ['users', 'access', 'internalmemory', 'storage', 'updates', 'backup', 'certificate', 'health', 'customproxy', 'system']
-const userTiles = ['activation', 'network', 'support', 'twofactor', 'logs', 'locale']
+const adminTiles = ['users', 'access', 'internalmemory', 'storage', 'updates', 'backup', 'certificate', 'health', 'customproxy', 'system', 'activation', 'network', 'support', 'logs', 'locale']
+const userTiles = ['twofactor']
 
-test('regular user sees locale and two-factor tiles', () => {
+test('regular user sees the two-factor tile', () => {
   const wrapper = mountSettings(false)
-  expect(wrapper.find('#locale').exists()).toBe(true)
   expect(wrapper.find('#twofactor').exists()).toBe(true)
 })
 

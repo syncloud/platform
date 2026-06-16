@@ -3,7 +3,7 @@
     <div class="sc-card sc-card-wide" id="block1">
       <h1 class="sc-title">{{ $t('settings.title') }}</h1>
       <div class="sc-grid">
-        <router-link to="/activation" id="activation" class="sc-tile">
+        <router-link v-if="isAdmin" to="/activation" id="activation" class="sc-tile">
           <i class="material-icons sc-tile-icon">perm_identity</i>
           <div class="sc-tile-name">{{ $t('settings.activation') }}</div>
         </router-link>
@@ -11,7 +11,7 @@
           <i class="material-icons sc-tile-icon">people</i>
           <div class="sc-tile-name">{{ $t('settings.users') }}</div>
         </router-link>
-        <router-link to="/network" id="network" class="sc-tile">
+        <router-link v-if="isAdmin" to="/network" id="network" class="sc-tile">
           <i class="material-icons sc-tile-icon">router</i>
           <div class="sc-tile-name">{{ $t('settings.network') }}</div>
         </router-link>
@@ -31,7 +31,7 @@
           <i class="material-icons sc-tile-icon">update</i>
           <div class="sc-tile-name">{{ $t('settings.updates') }}</div>
         </router-link>
-        <router-link to="/support" id="support" class="sc-tile">
+        <router-link v-if="isAdmin" to="/support" id="support" class="sc-tile">
           <i class="material-icons sc-tile-icon">help_outline</i>
           <div class="sc-tile-name">{{ $t('settings.support') }}</div>
         </router-link>
@@ -47,7 +47,7 @@
           <i class="material-icons sc-tile-icon">verified_user</i>
           <div class="sc-tile-name">{{ $t('settings.twoFactor') }}</div>
         </router-link>
-        <router-link to="/logs" id="logs" class="sc-tile">
+        <router-link v-if="isAdmin" to="/logs" id="logs" class="sc-tile">
           <i class="material-icons-outlined sc-tile-icon">feed</i>
           <div class="sc-tile-name">{{ $t('settings.logs') }}</div>
         </router-link>
@@ -59,7 +59,7 @@
           <i class="material-icons sc-tile-icon">settings_power</i>
           <div class="sc-tile-name">{{ $t('settings.system') }}</div>
         </router-link>
-        <router-link to="/locale" id="locale" class="sc-tile">
+        <router-link v-if="isAdmin" to="/locale" id="locale" class="sc-tile">
           <i class="material-icons sc-tile-icon">translate</i>
           <div class="sc-tile-name">{{ $t('settings.locale') }}</div>
         </router-link>

@@ -24,26 +24,18 @@ test.afterAll(async () => {
   await page.close()
 })
 
-test('settings hides admin tiles from a regular user', async ({}, testInfo) => {
+test('settings shows only two-factor to a regular user', async ({}, testInfo) => {
   await menu(page, 'settings', testInfo)
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
-  await expect(page.locator('#locale')).toBeVisible()
   await expect(page.locator('#twofactor')).toBeVisible()
-  await expect(page.locator('#storage')).toHaveCount(0)
-  await expect(page.locator('#users')).toHaveCount(0)
-  await expect(page.locator('#customproxy')).toHaveCount(0)
-  await expect(page.locator('#system')).toHaveCount(0)
+  for (const tile of ['storage', 'users', 'customproxy', 'system', 'locale', 'activation', 'network', 'support', 'logs']) {
+    await expect(page.locator('#' + tile)).toHaveCount(0)
+  }
   await shoot(page, testInfo, 'settings_nonadmin')
 })
 
 test('app center link hidden from a regular user', async ({}, testInfo) => {
   await expect(page.locator('#appcenter')).toHaveCount(0)
-})
-
-test('regular user can open locale', async ({}, testInfo) => {
-  await settings(page, 'locale', testInfo)
-  await expect(page.getByRole('heading', { name: 'Locale' })).toBeVisible()
-  await shoot(page, testInfo, 'settings_locale_nonadmin')
 })
 
 test('regular user can open two-factor', async ({}, testInfo) => {
