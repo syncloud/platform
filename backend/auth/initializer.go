@@ -54,26 +54,26 @@ func NewInitializer(snapService SnapService, runtimeConfigDir string, appDir str
 	}
 }
 
-func (s *Initializer) Installed() bool {
-	_, err := os.Stat(s.userConfDir)
+func (i *Initializer) Installed() bool {
+	_, err := os.Stat(i.userConfDir)
 	return err == nil
 }
 
-func (s *Initializer) Init() error {
-	if s.Installed() {
+func (i *Initializer) Init() error {
+	if i.Installed() {
 		log.Println("ldap config already initialized")
 		return nil
 	}
 	log.Println("initializing ldap config")
-	err := os.MkdirAll(s.userConfDir, 755)
+	err := os.MkdirAll(i.userConfDir, 755)
 	if err != nil {
 		return err
 	}
 
-	initScript := path.Join(s.configDir, "ldap", "slapd.ldif")
+	initScript := path.Join(i.configDir, "ldap", "slapd.ldif")
 
-	cmd := path.Join(s.ldapRoot, "sbin", "slapadd.sh")
-	output, err := s.executor.CombinedOutput(cmd, "-F", s.userConfDir, "-b", "cn=config", "-l", initScript)
+	cmd := path.Join(i.ldapRoot, "sbin", "slapadd.sh")
+	output, err := i.executor.CombinedOutput(cmd, "-F", i.userConfDir, "-b", "cn=config", "-l", initScript)
 	if err != nil {
 		return err
 	}
@@ -81,30 +81,30 @@ func (s *Initializer) Init() error {
 	return nil
 }
 
-func (s *Initializer) ApplyConfig() error {
-	if !s.Installed() {
+func (i *Initializer) ApplyConfig() error {
+	if !i.Installed() {
 		return nil
 	}
-	socket := path.Join(s.runtimeConfigDir, "openldap.socket")
+	socket := path.Join(i.runtimeConfigDir, "openldap.socket")
 	uri := fmt.Sprintf("ldapi://%s", strings.ReplaceAll(socket, "/", "%2F"))
 	var err error
-	for i := 0; i < 10; i++ {
-		err = s.applyConfigOnce(uri)
+	for attempt := 0; attempt < 10; attempt++ {
+		err = i.applyConfigOnce(uri)
 		if err == nil {
 			return nil
 		}
-		log.Printf("apply ldap config attempt %d failed: %s", i, err)
+		log.Printf("apply ldap config attempt %d failed: %s", attempt, err)
 		time.Sleep(time.Second * 1)
 	}
 	return err
 }
 
-func (s *Initializer) applyConfigOnce(uri string) error {
+func (i *Initializer) applyConfigOnce(uri string) error {
 	conn, err := ldap.DialURL(uri)
 	if err != nil {
 		return fmt.Errorf("ldapi connect: %w", err)
 	}
-	defer s.ldapClient.Disconnect(conn)
+	defer i.ldapClient.Disconnect(conn)
 	if err := conn.ExternalBind(); err != nil {
 		return fmt.Errorf("ldapi external bind: %w", err)
 	}
@@ -116,44 +116,44 @@ func (s *Initializer) applyConfigOnce(uri string) error {
 	return nil
 }
 
-func (s *Initializer) Reset(name string, user string, password string, email string) error {
+func (i *Initializer) Reset(name string, user string, password string, email string) error {
 	log.Println("resetting ldap")
 
-	err := s.snapService.Stop("platform.openldap")
+	err := i.snapService.Stop("platform.openldap")
 	if err != nil {
 		return err
 	}
-	err = os.RemoveAll(s.userConfDir)
-	if err != nil {
-		return err
-	}
-
-	err = os.RemoveAll(s.userDataDir)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(s.userDataDir, 755)
+	err = os.RemoveAll(i.userConfDir)
 	if err != nil {
 		return err
 	}
 
-	err = s.Init()
+	err = os.RemoveAll(i.userDataDir)
 	if err != nil {
 		return err
 	}
-	err = s.snapService.Start("platform.openldap")
+	err = os.MkdirAll(i.userDataDir, 755)
 	if err != nil {
 		return err
 	}
 
-	passwordHash := s.passwordHasher.Hash(password)
+	err = i.Init()
+	if err != nil {
+		return err
+	}
+	err = i.snapService.Start("platform.openldap")
+	if err != nil {
+		return err
+	}
+
+	passwordHash := i.passwordHasher.Hash(password)
 
 	tmpFile, err := os.CreateTemp("", "")
 	if err != nil {
 		return err
 	}
 	defer func() { _ = os.Remove(tmpFile.Name()) }()
-	file, err := os.ReadFile(path.Join(s.configDir, "ldap", "init.ldif"))
+	file, err := os.ReadFile(path.Join(i.configDir, "ldap", "init.ldif"))
 	if err != nil {
 		return err
 	}
@@ -167,32 +167,32 @@ func (s *Initializer) Reset(name string, user string, password string, email str
 		return err
 	}
 
-	err = s.initDb(tmpFile.Name())
+	err = i.initDb(tmpFile.Name())
 	if err != nil {
 		return err
 	}
 
-	err = s.passwordChanger.Change(password)
+	err = i.passwordChanger.Change(password)
 	return err
 }
 
-func (s *Initializer) initDb(filename string) error {
+func (i *Initializer) initDb(filename string) error {
 	var err error
-	for i := 0; i < 10; i++ {
-		err = s.ldapAdd(filename, Domain)
+	for attempt := 0; attempt < 10; attempt++ {
+		err = i.ldapAdd(filename, Domain)
 		if err == nil {
 			break
 		}
 		log.Println(err)
-		log.Printf("probably ldap is still starting, will retry %d\n", i)
+		log.Printf("probably ldap is still starting, will retry %d\n", attempt)
 		time.Sleep(time.Second * 1)
 	}
 	return err
 }
 
-func (s *Initializer) ldapAdd(filename string, bindDn string) error {
-	cmd := path.Join(s.ldapRoot, "bin", "ldapadd.sh")
-	output, err := s.executor.CombinedOutput(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename)
+func (i *Initializer) ldapAdd(filename string, bindDn string) error {
+	cmd := path.Join(i.ldapRoot, "bin", "ldapadd.sh")
+	output, err := i.executor.CombinedOutput(cmd, "-x", "-w", "syncloud", "-D", bindDn, "-f", filename)
 	log.Printf("ldapadd output: %s", output)
 	return err
 }

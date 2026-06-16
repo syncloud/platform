@@ -22,11 +22,11 @@ func newTestUserManager(domain string) *UserManager {
 func TestAddUser_WeakPasswordRejected(t *testing.T) {
 	users := newTestUserManager("example.com")
 	err := users.AddUser("bob", "weak", "", false)
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 }
 
 func TestAddUser_EmptyUsernameRejected(t *testing.T) {
 	users := newTestUserManager("example.com")
 	err := users.AddUser("   ", "password", "", false)
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 }

@@ -8,9 +8,9 @@ import (
 
 func TestPasswordValidator_Validate(t *testing.T) {
 	validator := NewPasswordValidator()
-	assert.Nil(t, validator.Validate("Password1"))
-	assert.Nil(t, validator.Validate("regularpass123"))
-	assert.NotNil(t, validator.Validate("short1"))
-	assert.NotNil(t, validator.Validate("alllettersonly"))
-	assert.NotNil(t, validator.Validate("12345678"))
+	assert.NoError(t, validator.Validate("Password1"))
+	assert.NoError(t, validator.Validate("regularpass123"))
+	assert.Error(t, validator.Validate("short1"))
+	assert.Error(t, validator.Validate("alllettersonly"))
+	assert.Error(t, validator.Validate("12345678"))
 }
