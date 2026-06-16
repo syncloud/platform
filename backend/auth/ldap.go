@@ -200,19 +200,6 @@ func (s *Service) ldapAdd(filename string, bindDn string) error {
 	return err
 }
 
-func (s *Service) AuthenticateUser(username string, password string) error {
-	conn, err := ldap.DialURL("ldap://localhost:389")
-	if err != nil {
-		return fmt.Errorf("ldap connect: %w", err)
-	}
-	defer s.ldapClient.Disconnect(conn)
-	err = conn.Bind(fmt.Sprintf("cn=%s,ou=users,%s", username, Domain), password)
-	if err != nil {
-		return fmt.Errorf("invalid credentials")
-	}
-	return nil
-}
-
 func (s *Service) Authenticate(username string, password string) (bool, error) {
 	conn, err := ldap.DialURL("ldap://localhost:389")
 	if err != nil {
