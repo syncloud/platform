@@ -1,6 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
 import { login, logout } from '../helpers/login'
-import { menu, settings } from '../helpers/ui'
 import { ssh } from '../helpers/ssh'
 import { shoot } from '../helpers/screenshot'
 
@@ -24,22 +23,9 @@ test.afterAll(async () => {
   await page.close()
 })
 
-test('settings shows only two-factor to a regular user', async ({}, testInfo) => {
-  await menu(page, 'settings', testInfo)
-  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
-  await expect(page.locator('#twofactor')).toBeVisible()
-  for (const tile of ['storage', 'users', 'customproxy', 'system', 'locale', 'activation', 'network', 'support', 'logs']) {
-    await expect(page.locator('#' + tile)).toHaveCount(0)
-  }
-  await shoot(page, testInfo, 'settings_nonadmin')
-})
-
-test('app center link hidden from a regular user', async ({}, testInfo) => {
+test('regular user sees apps but no admin navigation', async ({}, testInfo) => {
+  await expect(page.locator('#apps')).toBeVisible()
+  await expect(page.locator('#settings')).toHaveCount(0)
   await expect(page.locator('#appcenter')).toHaveCount(0)
-})
-
-test('regular user can open two-factor', async ({}, testInfo) => {
-  await settings(page, 'twofactor', testInfo)
-  await expect(page.getByRole('heading', { name: 'Two-Factor Authentication' })).toBeVisible()
-  await shoot(page, testInfo, 'settings_twofactor_nonadmin')
+  await shoot(page, testInfo, 'nav_nonadmin')
 })

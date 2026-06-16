@@ -161,7 +161,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/groups/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupRemove))).Methods("POST")
 	r.HandleFunc("/rest/groups/member", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupSetMember))).Methods("POST")
 	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.UserLogout)).Methods("POST", "GET")
-	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
+	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
 	r.HandleFunc("/rest/settings/2fa/totp", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GenerateTOTP))).Methods("POST")
 	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetTimezone))).Methods("GET")

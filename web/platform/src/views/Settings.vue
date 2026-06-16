@@ -43,7 +43,7 @@
           <i class="material-icons sc-tile-icon">security</i>
           <div class="sc-tile-name">{{ $t('settings.certificate') }}</div>
         </router-link>
-        <router-link to="/twofactor" id="twofactor" class="sc-tile">
+        <router-link v-if="isAdmin" to="/twofactor" id="twofactor" class="sc-tile">
           <i class="material-icons sc-tile-icon">verified_user</i>
           <div class="sc-tile-name">{{ $t('settings.twoFactor') }}</div>
         </router-link>

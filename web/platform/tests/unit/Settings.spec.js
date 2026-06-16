@@ -17,31 +17,18 @@ function mountSettings (admin) {
   })
 }
 
-const adminTiles = ['users', 'access', 'internalmemory', 'storage', 'updates', 'backup', 'certificate', 'health', 'customproxy', 'system', 'activation', 'network', 'support', 'logs', 'locale']
-const userTiles = ['twofactor']
+const tiles = ['users', 'access', 'internalmemory', 'storage', 'updates', 'backup', 'certificate', 'health', 'customproxy', 'system', 'activation', 'network', 'support', 'logs', 'locale', 'twofactor']
 
-test('regular user sees the two-factor tile', () => {
+test('non-admin sees no settings tiles', () => {
   const wrapper = mountSettings(false)
-  expect(wrapper.find('#twofactor').exists()).toBe(true)
-})
-
-test('regular user does not see admin-only tiles', () => {
-  const wrapper = mountSettings(false)
-  for (const tile of adminTiles) {
+  for (const tile of tiles) {
     expect(wrapper.find('#' + tile).exists()).toBe(false)
   }
 })
 
-test('regular user still sees all user-facing tiles', () => {
-  const wrapper = mountSettings(false)
-  for (const tile of userTiles) {
-    expect(wrapper.find('#' + tile).exists()).toBe(true)
-  }
-})
-
-test('admin sees every tile', () => {
+test('admin sees every settings tile', () => {
   const wrapper = mountSettings(true)
-  for (const tile of [...adminTiles, ...userTiles]) {
+  for (const tile of tiles) {
     expect(wrapper.find('#' + tile).exists()).toBe(true)
   }
 })
