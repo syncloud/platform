@@ -6,7 +6,7 @@ const state = {
     username: '11',
     password: '2'
   },
-  admin: true,
+  admin: false,
   jobStatusRunning: false,
   installerIsRunning: true,
   installerUpgradeCounter: 0,
