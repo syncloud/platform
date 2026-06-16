@@ -340,12 +340,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *auth.UserAttributes { return auth.NewUserAttributes() })
+	err = c.Singleton(func() *auth.UserBuilder { return auth.NewUserBuilder() })
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, emailResolver *auth.EmailResolver, userAttributes *auth.UserAttributes) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, passwordValidator, emailResolver, userAttributes, logger)
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.Service {
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, passwordValidator, emailResolver, userBuilder, logger)
 	})
 
 	if err != nil {

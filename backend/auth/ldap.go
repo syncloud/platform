@@ -40,7 +40,7 @@ type Service struct {
 	passwordChanger   PasswordChanger
 	passwordValidator *PasswordValidator
 	emailResolver     *EmailResolver
-	userAttributes    *UserAttributes
+	userBuilder       *UserBuilder
 	logger            *zap.Logger
 }
 
@@ -49,7 +49,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, emailResolver *EmailResolver, userAttributes *UserAttributes, logger *zap.Logger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, emailResolver *EmailResolver, userBuilder *UserBuilder, logger *zap.Logger) *Service {
 
 	return &Service{
 		snapService:       snapService,
@@ -62,7 +62,7 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		passwordChanger:   passwordChanger,
 		passwordValidator: passwordValidator,
 		emailResolver:     emailResolver,
-		userAttributes:    userAttributes,
+		userBuilder:       userBuilder,
 		logger:            logger,
 	}
 }
@@ -309,15 +309,7 @@ func (s *Service) AddUser(username string, password string, email string, admin 
 		return err
 	}
 
-	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
-	addReq := ldap.NewAddRequest(userDn, nil)
-	for name, values := range s.userAttributes.Build(username, resolvedEmail, id) {
-		addReq.Attribute(name, values)
-	}
-	addReq.Attribute("userPassword", []string{makeSecret(password)})
-
-	err = conn.Add(addReq)
-	if err != nil {
+	if err := conn.Add(s.userBuilder.Build(username, resolvedEmail, id, password)); err != nil {
 		return fmt.Errorf("ldap add user: %w", err)
 	}
 	if admin {

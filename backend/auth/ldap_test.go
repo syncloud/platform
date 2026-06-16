@@ -54,7 +54,7 @@ func TestMakeSecret(t *testing.T) {
 }
 
 func newTestService(domain string) *Service {
-	return New(&SnapServiceStub{}, t1TempDir(), t1TempDir(), t1TempDir(), &ExecutorStub{}, &PasswordChangerStub{}, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: domain}), NewUserAttributes(), log.Default())
+	return New(&SnapServiceStub{}, t1TempDir(), t1TempDir(), t1TempDir(), &ExecutorStub{}, &PasswordChangerStub{}, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: domain}), NewUserBuilder(), log.Default())
 }
 
 func t1TempDir() string {
@@ -76,7 +76,7 @@ func TestAddUser_EmptyUsernameRejected(t *testing.T) {
 
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserAttributes(), log.Default())
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserBuilder(), log.Default())
 	err := ldap.Init()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 1)
@@ -86,7 +86,7 @@ func TestInit(t *testing.T) {
 func TestApplyConfig_NotInstalled(t *testing.T) {
 	executor := &ExecutorStub{}
 	missing := path.Join(t.TempDir(), "missing")
-	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserAttributes(), log.Default())
+	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserBuilder(), log.Default())
 	err := ldap.ApplyConfig()
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 0)
@@ -101,7 +101,7 @@ func TestReset(t *testing.T) {
 	assert.Nil(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserAttributes(), log.Default())
+	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger, NewPasswordValidator(), NewEmailResolver(DomainProviderStub{domain: "example.com"}), NewUserBuilder(), log.Default())
 	err = ldap.Reset("name", "user", "password", "email")
 	assert.Nil(t, err)
 	assert.Len(t, executor.executions, 2)
