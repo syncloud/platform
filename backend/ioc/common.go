@@ -336,16 +336,22 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func() *auth.PasswordHasher { return auth.NewPasswordHasher() })
+	if err != nil {
+		return nil, err
+	}
 	err = c.Singleton(func(userConfig *config.UserConfig) *auth.EmailResolver { return auth.NewEmailResolver(userConfig) })
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *auth.UserBuilder { return auth.NewUserBuilder() })
+	err = c.Singleton(func(passwordHasher *auth.PasswordHasher) *auth.UserBuilder {
+		return auth.NewUserBuilder(passwordHasher)
+	})
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, passwordValidator, emailResolver, userBuilder, logger)
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.Service {
+		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, passwordValidator, passwordHasher, emailResolver, userBuilder, logger)
 	})
 
 	if err != nil {

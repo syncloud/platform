@@ -1,7 +1,6 @@
 package rest
 
-type GroupSetMemberRequest struct {
+type GroupMemberRequest struct {
 	Group    string `json:"group"`
 	Username string `json:"username"`
-	Member   bool   `json:"member"`
 }

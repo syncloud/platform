@@ -69,7 +69,7 @@ test('create: saves user then assigns selected groups and navigates', async () =
   let added = null
   let member = null
   mock.onPost('/rest/users/add').reply(c => { added = JSON.parse(c.data); return [200, { success: true }] })
-  mock.onPost('/rest/groups/member').reply(c => { member = JSON.parse(c.data); return [200, { success: true }] })
+  mock.onPost('/rest/groups/member/add').reply(c => { member = JSON.parse(c.data); return [200, { success: true }] })
 
   const push = jest.fn()
   const wrapper = mountEdit({}, push)
@@ -82,7 +82,7 @@ test('create: saves user then assigns selected groups and navigates', async () =
   await flushPromises()
 
   expect(added).toEqual({ username: 'bob', password: 'strongpass1', email: '', admin: false })
-  expect(member).toEqual({ group: 'family', username: 'bob', member: true })
+  expect(member).toEqual({ group: 'family', username: 'bob' })
   expect(push).toHaveBeenCalledWith('/users')
 })
 
@@ -163,11 +163,13 @@ test('edit: applies email, password, admin and group diffs', async () => {
   let emailBody = null
   let passwordBody = null
   let adminBody = null
-  const members = []
+  const added = []
+  const removed = []
   mock.onPost('/rest/users/email').reply(c => { emailBody = JSON.parse(c.data); return [200, { success: true }] })
   mock.onPost('/rest/users/password').reply(c => { passwordBody = JSON.parse(c.data); return [200, { success: true }] })
   mock.onPost('/rest/users/admin').reply(c => { adminBody = JSON.parse(c.data); return [200, { success: true }] })
-  mock.onPost('/rest/groups/member').reply(c => { members.push(JSON.parse(c.data)); return [200, { success: true }] })
+  mock.onPost('/rest/groups/member/add').reply(c => { added.push(JSON.parse(c.data)); return [200, { success: true }] })
+  mock.onPost('/rest/groups/member/remove').reply(c => { removed.push(JSON.parse(c.data)); return [200, { success: true }] })
 
   const push = jest.fn()
   const wrapper = mountEdit({ username: 'alice' }, push)
@@ -184,8 +186,8 @@ test('edit: applies email, password, admin and group diffs', async () => {
   expect(emailBody).toEqual({ username: 'alice', email: 'alice@new.org' })
   expect(passwordBody).toEqual({ username: 'alice', password: 'newpass123' })
   expect(adminBody).toEqual({ username: 'alice', admin: true })
-  expect(members).toContainEqual({ group: 'family', username: 'alice', member: true })
-  expect(members).toContainEqual({ group: 'work', username: 'alice', member: false })
+  expect(added).toContainEqual({ group: 'family', username: 'alice' })
+  expect(removed).toContainEqual({ group: 'work', username: 'alice' })
   expect(push).toHaveBeenCalledWith('/users')
 })
 

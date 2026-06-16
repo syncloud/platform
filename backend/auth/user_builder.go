@@ -7,10 +7,12 @@ import (
 	"github.com/go-ldap/ldap/v3"
 )
 
-type UserBuilder struct{}
+type UserBuilder struct {
+	passwordHasher *PasswordHasher
+}
 
-func NewUserBuilder() *UserBuilder {
-	return &UserBuilder{}
+func NewUserBuilder(passwordHasher *PasswordHasher) *UserBuilder {
+	return &UserBuilder{passwordHasher: passwordHasher}
 }
 
 func (b *UserBuilder) Build(username string, email string, id int, password string) *ldap.AddRequest {
@@ -27,6 +29,6 @@ func (b *UserBuilder) Build(username string, email string, id int, password stri
 	req.Attribute("homeDirectory", []string{"/home/" + username})
 	req.Attribute("loginShell", []string{"/bin/bash"})
 	req.Attribute("mail", []string{email})
-	req.Attribute("userPassword", []string{makeSecret(password)})
+	req.Attribute("userPassword", []string{b.passwordHasher.Hash(password)})
 	return req
 }

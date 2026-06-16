@@ -159,7 +159,8 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/groups", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Groups))).Methods("GET")
 	r.HandleFunc("/rest/groups/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupAdd))).Methods("POST")
 	r.HandleFunc("/rest/groups/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupRemove))).Methods("POST")
-	r.HandleFunc("/rest/groups/member", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupSetMember))).Methods("POST")
+	r.HandleFunc("/rest/groups/member/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupMemberAdd))).Methods("POST")
+	r.HandleFunc("/rest/groups/member/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupMemberRemove))).Methods("POST")
 	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.UserLogout)).Methods("POST", "GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
 	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
@@ -692,12 +693,20 @@ func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
 	return "ok", b.auth.RemoveGroup(request.Name)
 }
 
-func (b *Backend) GroupSetMember(req *http.Request) (interface{}, error) {
-	var request GroupSetMemberRequest
+func (b *Backend) GroupMemberAdd(req *http.Request) (interface{}, error) {
+	var request GroupMemberRequest
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
 		return nil, errors.New("wrong request")
 	}
-	return "ok", b.auth.SetGroupMember(request.Group, request.Username, request.Member)
+	return "ok", b.auth.AddGroupMember(request.Group, request.Username)
+}
+
+func (b *Backend) GroupMemberRemove(req *http.Request) (interface{}, error) {
+	var request GroupMemberRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.auth.RemoveGroupMember(request.Group, request.Username)
 }
 
 func (b *Backend) HealthEvents(req *http.Request) (interface{}, error) {

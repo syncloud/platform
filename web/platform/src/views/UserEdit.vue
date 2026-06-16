@@ -210,7 +210,7 @@ export default {
             admin: this.admin
           })
           for (const group of this.selectedGroups) {
-            await Common.post('/rest/groups/member', { group: group, username: this.username, member: true })
+            await Common.post('/rest/groups/member/add', { group: group, username: this.username })
           }
         } else {
           if (this.password) {
@@ -223,10 +223,10 @@ export default {
             await Common.post('/rest/users/admin', { username: this.username, admin: this.admin })
           }
           for (const group of this.selectedGroups.filter(g => !this.originalGroups.includes(g))) {
-            await Common.post('/rest/groups/member', { group: group, username: this.username, member: true })
+            await Common.post('/rest/groups/member/add', { group: group, username: this.username })
           }
           for (const group of this.originalGroups.filter(g => !this.selectedGroups.includes(g))) {
-            await Common.post('/rest/groups/member', { group: group, username: this.username, member: false })
+            await Common.post('/rest/groups/member/remove', { group: group, username: this.username })
           }
         }
         this.progressHide()

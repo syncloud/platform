@@ -711,15 +711,20 @@ export function mock () {
         stubUsers.forEach(u => { u.groups = u.groups.filter(g => g !== attrs.name) })
         return new Response(200, {}, { success: true })
       })
-      this.post('/rest/groups/member', function (_schema, request) {
+      this.post('/rest/groups/member/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user && !user.groups.includes(attrs.group)) {
+          user.groups.push(attrs.group)
+        }
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/groups/member/remove', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         const user = stubUsers.find(u => u.username === attrs.username)
         if (user) {
-          if (attrs.member && !user.groups.includes(attrs.group)) {
-            user.groups.push(attrs.group)
-          } else if (!attrs.member) {
-            user.groups = user.groups.filter(g => g !== attrs.group)
-          }
+          user.groups = user.groups.filter(g => g !== attrs.group)
         }
         syncGroupMembers()
         return new Response(200, {}, { success: true })

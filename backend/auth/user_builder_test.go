@@ -18,7 +18,7 @@ func attr(req *ldap.AddRequest, name string) []string {
 }
 
 func TestUserBuilder_MatchUsersApp(t *testing.T) {
-	req := NewUserBuilder().Build("bob", "bob@example.com", 2001, "Password1")
+	req := NewUserBuilder(NewPasswordHasher()).Build("bob", "bob@example.com", 2001, "Password1")
 	assert.Equal(t, "cn=bob,ou=users,dc=syncloud,dc=org", req.DN)
 	assert.Equal(t, []string{"bob"}, attr(req, "cn"))
 	assert.Equal(t, []string{"bob"}, attr(req, "sn"))

@@ -1,9 +1,6 @@
 package auth
 
 import (
-	"crypto/rand"
-	"crypto/sha1"
-	"encoding/base64"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
 	"github.com/syncloud/platform/cli"
@@ -39,6 +36,7 @@ type Service struct {
 	executor          cli.Executor
 	passwordChanger   PasswordChanger
 	passwordValidator *PasswordValidator
+	passwordHasher    *PasswordHasher
 	emailResolver     *EmailResolver
 	userBuilder       *UserBuilder
 	logger            *zap.Logger
@@ -49,7 +47,7 @@ type SnapService interface {
 	Start(name string) error
 }
 
-func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, emailResolver *EmailResolver, userBuilder *UserBuilder, logger *zap.Logger) *Service {
+func New(snapService SnapService, runtimeConfigDir string, appDir string, configDir string, executor cli.Executor, passwordChanger PasswordChanger, passwordValidator *PasswordValidator, passwordHasher *PasswordHasher, emailResolver *EmailResolver, userBuilder *UserBuilder, logger *zap.Logger) *Service {
 
 	return &Service{
 		snapService:       snapService,
@@ -61,6 +59,7 @@ func New(snapService SnapService, runtimeConfigDir string, appDir string, config
 		executor:          executor,
 		passwordChanger:   passwordChanger,
 		passwordValidator: passwordValidator,
+		passwordHasher:    passwordHasher,
 		emailResolver:     emailResolver,
 		userBuilder:       userBuilder,
 		logger:            logger,
@@ -159,7 +158,7 @@ func (s *Service) Reset(name string, user string, password string, email string)
 		return err
 	}
 
-	passwordHash := makeSecret(password)
+	passwordHash := s.passwordHasher.Hash(password)
 
 	tmpFile, err := os.CreateTemp("", "")
 	if err != nil {
@@ -313,7 +312,7 @@ func (s *Service) AddUser(username string, password string, email string, admin 
 		return fmt.Errorf("ldap add user: %w", err)
 	}
 	if admin {
-		if err := s.modifyMember(conn, AdminGroup, username, true); err != nil {
+		if err := s.addMember(conn, AdminGroup, username); err != nil {
 			return err
 		}
 	}
@@ -352,7 +351,7 @@ func (s *Service) SetPassword(username string, password string) error {
 
 	userDn := fmt.Sprintf("cn=%s,ou=users,%s", username, Domain)
 	modReq := ldap.NewModifyRequest(userDn, nil)
-	modReq.Replace("userPassword", []string{makeSecret(password)})
+	modReq.Replace("userPassword", []string{s.passwordHasher.Hash(password)})
 	if err := conn.Modify(modReq); err != nil {
 		return fmt.Errorf("ldap set password: %w", err)
 	}
@@ -540,18 +539,27 @@ func (s *Service) SetAdmin(username string, admin bool) error {
 		if len(members) <= 1 && slices.Contains(members, username) {
 			return fmt.Errorf("cannot remove the last admin")
 		}
-		return s.modifyMember(conn, AdminGroup, username, false)
+		return s.removeMember(conn, AdminGroup, username)
 	}
-	return s.SetGroupMember(AdminGroup, username, true)
+	return s.AddGroupMember(AdminGroup, username)
 }
 
-func (s *Service) SetGroupMember(group string, username string, member bool) error {
+func (s *Service) AddGroupMember(group string, username string) error {
 	conn, err := s.rootBind()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	return s.modifyMember(conn, group, username, member)
+	return s.addMember(conn, group, username)
+}
+
+func (s *Service) RemoveGroupMember(group string, username string) error {
+	conn, err := s.rootBind()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return s.removeMember(conn, group, username)
 }
 
 func (s *Service) groupMembers(conn *ldap.Conn, group string) ([]string, error) {
@@ -571,24 +579,34 @@ func (s *Service) groupMembers(conn *ldap.Conn, group string) ([]string, error) 
 	return sr.Entries[0].GetAttributeValues("memberUid"), nil
 }
 
-func (s *Service) modifyMember(conn *ldap.Conn, group string, username string, member bool) error {
+func (s *Service) addMember(conn *ldap.Conn, group string, username string) error {
 	members, err := s.groupMembers(conn, group)
 	if err != nil {
 		return err
 	}
-	present := slices.Contains(members, username)
-	if member == present {
+	if slices.Contains(members, username) {
 		return nil
 	}
-	groupDn := fmt.Sprintf("cn=%s,%s", group, GroupsDn)
-	modReq := ldap.NewModifyRequest(groupDn, nil)
-	if member {
-		modReq.Add("memberUid", []string{username})
-	} else {
-		modReq.Delete("memberUid", []string{username})
-	}
+	modReq := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,%s", group, GroupsDn), nil)
+	modReq.Add("memberUid", []string{username})
 	if err := conn.Modify(modReq); err != nil {
-		return fmt.Errorf("ldap modify group member: %w", err)
+		return fmt.Errorf("ldap add group member: %w", err)
+	}
+	return nil
+}
+
+func (s *Service) removeMember(conn *ldap.Conn, group string, username string) error {
+	members, err := s.groupMembers(conn, group)
+	if err != nil {
+		return err
+	}
+	if !slices.Contains(members, username) {
+		return nil
+	}
+	modReq := ldap.NewModifyRequest(fmt.Sprintf("cn=%s,%s", group, GroupsDn), nil)
+	modReq.Delete("memberUid", []string{username})
+	if err := conn.Modify(modReq); err != nil {
+		return fmt.Errorf("ldap remove group member: %w", err)
 	}
 	return nil
 }
@@ -607,20 +625,4 @@ func (s *Service) RemoveUser(username string) error {
 		return fmt.Errorf("ldap delete user: %w", err)
 	}
 	return nil
-}
-
-func makeSecret(password string) string {
-	hasher := sha1.New()
-	hasher.Write([]byte(password))
-	salt := make([]byte, 4)
-	_, err := rand.Read(salt)
-	if err != nil {
-		log.Printf("unable to generate password salt: %s", err)
-		salt = []byte("salt")
-	}
-	hasher.Write(salt)
-	hash := hasher.Sum(nil)
-	hashWithSalt := append(hash, salt...)
-	encodedHash := base64.StdEncoding.EncodeToString(hashWithSalt)
-	return fmt.Sprintf("{SSHA}%s", encodedHash)
 }
