@@ -9,6 +9,7 @@ import (
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/cron"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/hardware/lcd"
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/identification"
 	"github.com/syncloud/platform/installer"
@@ -22,7 +23,6 @@ import (
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/timezone"
-	"github.com/syncloud/platform/hardware/lcd"
 )
 
 func InitPublicApi(userConfig string, systemConfig string, backupDir string, varDir string, net string, address string) (container.Container, error) {
@@ -36,7 +36,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, redirectConfig *config.Redirect, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 		executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
-		proxy *rest.Proxy, customProxy *rest.CustomProxy, middleware *rest.Middleware, ldapService *auth.Service, cookies *session.Cookies,
+		proxy *rest.Proxy, customProxy *rest.CustomProxy, middleware *rest.Middleware, userManager *auth.UserManager, groupManager *auth.GroupManager, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
 		oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 		tz *timezone.Applier,
@@ -45,7 +45,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			installerService, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
 			snapd, disks, journalCtl, executor, iface, sender, proxy, customProxy,
-			ldapService, middleware, cookies, net, address, changesClient,
+			userManager, groupManager, middleware, cookies, net, address, changesClient,
 			oidcService, authelia, totp, tz, healthService, logger)
 	})
 	if err != nil {

@@ -15,6 +15,7 @@ import (
 	"github.com/syncloud/platform/date"
 	"github.com/syncloud/platform/du"
 	"github.com/syncloud/platform/event"
+	"github.com/syncloud/platform/hardware/lcd"
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/identification"
@@ -34,7 +35,6 @@ import (
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/timezone"
 	"github.com/syncloud/platform/version"
-	"github.com/syncloud/platform/hardware/lcd"
 	"go.uber.org/zap"
 	"path"
 	"time"
@@ -332,8 +332,48 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, passwordChanger *auth.SystemPasswordChanger) *auth.Service {
-		return auth.New(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, passwordChanger, logger)
+	err = c.Singleton(func() *auth.LdapClient { return auth.NewLdapClient() })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func() *auth.PasswordValidator { return auth.NewPasswordValidator() })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func() *auth.PasswordHasher { return auth.NewPasswordHasher() })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(userConfig *config.UserConfig) *auth.EmailResolver { return auth.NewEmailResolver(userConfig) })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(passwordHasher *auth.PasswordHasher) *auth.UserBuilder {
+		return auth.NewUserBuilder(passwordHasher)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(ldapClient *auth.LdapClient) *auth.GroupManager {
+		return auth.NewGroupManager(ldapClient)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(ldapClient *auth.LdapClient, groups *auth.GroupManager, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.UserManager {
+		return auth.NewUserManager(ldapClient, groups, passwordValidator, passwordHasher, emailResolver, userBuilder)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(snapService *snap.Cli, systemConfig *config.SystemConfig, executor *cli.ShellExecutor, ldapClient *auth.LdapClient, passwordChanger *auth.SystemPasswordChanger, passwordHasher *auth.PasswordHasher) *auth.Initializer {
+		return auth.NewInitializer(snapService, systemConfig.DataDir(), systemConfig.AppDir(), systemConfig.ConfigDir(), executor, ldapClient, passwordChanger, passwordHasher)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(ldapClient *auth.LdapClient) *auth.Authenticator {
+		return auth.NewAuthenticator(ldapClient, logger)
 	})
 
 	if err != nil {
@@ -400,7 +440,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(ldapService *auth.Service, nginxService *nginx.Nginx, userConfig *config.UserConfig,
+	err = c.Singleton(func(ldapService *auth.Initializer, nginxService *nginx.Nginx, userConfig *config.UserConfig,
 		eventTrigger *event.Trigger, cookies *session.Cookies,
 		storage *storage.Storage, web *auth.Authelia,
 	) *activation.Device {
@@ -531,8 +571,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(cookies *session.Cookies, authService *auth.Service, userConfig *config.UserConfig) *rest.Middleware {
-		return rest.NewMiddleware(cookies, authService, userConfig, logger)
+	err = c.Singleton(func(cookies *session.Cookies, userManager *auth.UserManager, userConfig *config.UserConfig) *rest.Middleware {
+		return rest.NewMiddleware(cookies, userManager, userConfig, logger)
 	})
 	if err != nil {
 		return nil, err
@@ -544,7 +584,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		systemConfig *config.SystemConfig,
 		userConfig *config.UserConfig,
 		certGenerator *cert.CertificateGenerator,
-		ldapService *auth.Service,
+		ldapService *auth.Initializer,
 		nginxService *nginx.Nginx,
 		web *auth.Authelia,
 		systemdControl *systemd.Control,

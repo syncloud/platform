@@ -341,7 +341,7 @@ authentication_backend:
     attributes:
       username: cn
       group_name: cn
-      # mail: mail
+      mail: mail
       # display_name: displayName
 
     ## The additional_users_dn is prefixed to base_dn and delimited by a comma when searching for users.

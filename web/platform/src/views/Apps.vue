@@ -5,7 +5,7 @@
       <div id="block_apps">
         <div v-if="apps.length === 0" class="sc-empty">
           <p class="sc-lead">{{ $t('apps.emptyHeading') }}</p>
-          <router-link to="/appcenter" class="sc-link">{{ $t('apps.appCenterLink') }}</router-link>
+          <router-link v-if="auth.admin" to="/appcenter" class="sc-link">{{ $t('apps.appCenterLink') }}</router-link>
         </div>
         <div v-else class="sc-grid">
           <router-link v-for="(app, index) in apps" :key="index" :to="'/app?id=' + app.id" class="sc-tile"
@@ -25,6 +25,7 @@
 import axios from 'axios'
 import Error from '../components/Error.vue'
 import Loading from '../util/loading'
+import { useAuthStore } from '../stores/auth'
 
 export default {
   name: 'Apps',
@@ -35,7 +36,8 @@ export default {
     return {
       apps: Array,
       loading: undefined,
-      defaultIcon: '/images/default-app.svg'
+      defaultIcon: '/images/default-app.svg',
+      auth: useAuthStore()
     }
   },
   mounted () {

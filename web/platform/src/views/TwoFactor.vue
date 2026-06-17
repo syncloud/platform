@@ -57,7 +57,7 @@ export default {
   methods: {
     load () {
       const error = this.$refs.error
-      axios.get('/rest/settings/2fa')
+      axios.get('/rest/2fa')
         .then(resp => {
           this.enabled = resp.data.data.enabled
         })
@@ -68,7 +68,7 @@ export default {
     enableTwoFactor () {
       this.loading = true
       const error = this.$refs.error
-      axios.post('/rest/settings/2fa', { enabled: true })
+      axios.post('/rest/2fa', { enabled: true })
         .then(() => {
           this.loading = false
           this.enabled = true
@@ -81,7 +81,7 @@ export default {
     disableTwoFactor () {
       this.loading = true
       const error = this.$refs.error
-      axios.post('/rest/settings/2fa', { enabled: false })
+      axios.post('/rest/2fa', { enabled: false })
         .then(() => {
           this.loading = false
           this.enabled = false

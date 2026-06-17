@@ -34,6 +34,7 @@
   "settings": {
     "title": "Paramètres",
     "activation": "Activation",
+    "users": "Utilisateurs",
     "network": "Réseau",
     "access": "Accès",
     "internalMemory": "Mémoire interne",
@@ -146,6 +147,30 @@
     "proxies": "Proxies",
     "noProxies": "Aucun proxy personnalisé configuré",
     "remove": "Supprimer"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "add": "Ajouter un utilisateur",
+    "edit": "Modifier l'utilisateur",
+    "username": "Nom d'utilisateur :",
+    "usernamePlaceholder": "utilisateur",
+    "usernameFallback": "utilisateur",
+    "password": "Mot de passe :",
+    "passwordKeep": "Laisser vide pour conserver le mot de passe actuel",
+    "email": "E-mail :",
+    "admin": "Admin",
+    "adminLast": "C'est le seul administrateur et il ne peut pas être rétrogradé.",
+    "groups": "Groupes :",
+    "newGroup": "nouveau groupe",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "remove": "Supprimer",
+    "noUsers": "Aucun utilisateur pour l'instant",
+    "ruleLength": "Au moins 8 caractères",
+    "ruleLetter": "Contient une lettre",
+    "ruleNumber": "Contient un chiffre",
+    "addGroup": "Ajouter",
+    "confirmDelete": "Voulez-vous vraiment supprimer cet utilisateur ?"
   },
   "backup": {
     "title": "Sauvegarde",

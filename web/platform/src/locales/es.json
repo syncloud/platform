@@ -34,6 +34,7 @@
   "settings": {
     "title": "Configuración",
     "activation": "Activación",
+    "users": "Usuarios",
     "network": "Red",
     "access": "Acceso",
     "internalMemory": "Memoria interna",
@@ -146,6 +147,30 @@
     "proxies": "Proxies",
     "noProxies": "No hay proxies personalizados configurados",
     "remove": "Eliminar"
+  },
+  "users": {
+    "title": "Usuarios",
+    "add": "Añadir usuario",
+    "edit": "Editar usuario",
+    "username": "Usuario:",
+    "usernamePlaceholder": "usuario",
+    "usernameFallback": "usuario",
+    "password": "Contraseña:",
+    "passwordKeep": "Déjelo en blanco para mantener la contraseña actual",
+    "email": "Correo:",
+    "admin": "Admin",
+    "adminLast": "Este es el único administrador y no se puede degradar.",
+    "groups": "Grupos:",
+    "newGroup": "nuevo grupo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "remove": "Eliminar",
+    "noUsers": "Aún no hay usuarios",
+    "ruleLength": "Al menos 8 caracteres",
+    "ruleLetter": "Contiene una letra",
+    "ruleNumber": "Contiene un número",
+    "addGroup": "Añadir",
+    "confirmDelete": "¿Seguro que quiere eliminar este usuario?"
   },
   "backup": {
     "title": "Copia de seguridad",

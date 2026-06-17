@@ -57,7 +57,8 @@ type Backend struct {
 	support         *support.Sender
 	proxy           *Proxy
 	customProxy     *CustomProxy
-	auth            *auth.Service
+	userManager     *auth.UserManager
+	groupManager    *auth.GroupManager
 	mw              *Middleware
 	cookies         *session.Cookies
 	oidc            *auth.OIDCService
@@ -78,7 +79,7 @@ func NewBackend(
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
 	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
-	auth *auth.Service, middleware *Middleware, cookies *session.Cookies, network string, address string,
+	userManager *auth.UserManager, groupManager *auth.GroupManager, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
 	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 	timezone *timezone.Applier,
@@ -107,7 +108,8 @@ func NewBackend(
 		support:         support,
 		proxy:           proxy,
 		customProxy:     customProxy,
-		auth:            auth,
+		userManager:     userManager,
+		groupManager:    groupManager,
 		mw:              middleware,
 		cookies:         cookies,
 		oidc:            oidcService,
@@ -150,16 +152,26 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/activate/custom", b.mw.FailIfActivated(b.mw.Handle(b.activate.Custom))).Methods("POST")
 
 	r.HandleFunc("/rest/user", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.User))).Methods("GET")
+	r.HandleFunc("/rest/users", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Users))).Methods("GET")
+	r.HandleFunc("/rest/users/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserAdd))).Methods("POST")
+	r.HandleFunc("/rest/users/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserRemove))).Methods("POST")
+	r.HandleFunc("/rest/users/email", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetEmail))).Methods("POST")
+	r.HandleFunc("/rest/users/password", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetPassword))).Methods("POST")
+	r.HandleFunc("/rest/users/admin", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetAdmin))).Methods("POST")
+	r.HandleFunc("/rest/groups", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Groups))).Methods("GET")
+	r.HandleFunc("/rest/groups/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupAdd))).Methods("POST")
+	r.HandleFunc("/rest/groups/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupRemove))).Methods("POST")
+	r.HandleFunc("/rest/groups/member/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupMemberAdd))).Methods("POST")
+	r.HandleFunc("/rest/groups/member/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupMemberRemove))).Methods("POST")
 	r.HandleFunc("/rest/logout", b.mw.FailIfNotActivated(b.UserLogout)).Methods("POST", "GET")
-	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
-	r.HandleFunc("/rest/settings/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
-	r.HandleFunc("/rest/settings/2fa/totp", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GenerateTOTP))).Methods("POST")
-	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTimezone))).Methods("GET")
-	r.HandleFunc("/rest/settings/timezone", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTimezone))).Methods("POST")
-	r.HandleFunc("/rest/settings/time", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.GetTime))).Methods("GET")
-	r.HandleFunc("/rest/settings/health/events", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.HealthEvents))).Methods("GET")
-	r.HandleFunc("/rest/settings/health/metrics", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.HealthMetrics))).Methods("GET")
-	// /rest/totp/setup is handled by the login service, not the backend
+	r.HandleFunc("/rest/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetTwoFactorSettings))).Methods("GET")
+	r.HandleFunc("/rest/2fa", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTwoFactorSettings))).Methods("POST")
+	r.HandleFunc("/rest/2fa/totp", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GenerateTOTP))).Methods("POST")
+	r.HandleFunc("/rest/timezone", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetTimezone))).Methods("GET")
+	r.HandleFunc("/rest/timezone", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetTimezone))).Methods("POST")
+	r.HandleFunc("/rest/time", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetTime))).Methods("GET")
+	r.HandleFunc("/rest/health/events", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.HealthEvents))).Methods("GET")
+	r.HandleFunc("/rest/health/metrics", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.HealthMetrics))).Methods("GET")
 	r.HandleFunc("/rest/job/status", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.JobStatus))).Methods("GET")
 	r.HandleFunc("/rest/backup/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.BackupList))).Methods("GET")
 	r.HandleFunc("/rest/backup/auto", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetBackupAuto))).Methods("GET")
@@ -190,16 +202,16 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/app/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppRemove))).Methods("POST")
 	r.HandleFunc("/rest/app/upgrade", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppUpgrade))).Methods("POST")
 	r.HandleFunc("/rest/app", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.App))).Methods("GET")
-	r.HandleFunc("/rest/logs", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Logs))).Methods("GET")
-	r.HandleFunc("/rest/logs/send", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.SendLogs))).Methods("POST")
-	r.HandleFunc("/rest/device/url", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.DeviceUrl))).Methods("GET")
-	r.HandleFunc("/rest/restart", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Restart))).Methods("POST")
-	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Shutdown))).Methods("POST")
-	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.NetworkInterfaces))).Methods("GET")
+	r.HandleFunc("/rest/logs", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Logs))).Methods("GET")
+	r.HandleFunc("/rest/logs/send", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SendLogs))).Methods("POST")
+	r.HandleFunc("/rest/device/url", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.DeviceUrl))).Methods("GET")
+	r.HandleFunc("/rest/restart", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Restart))).Methods("POST")
+	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Shutdown))).Methods("POST")
+	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.NetworkInterfaces))).Methods("GET")
 	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.mw.FailIfNotActivated(b.mw.Secured(b.proxy.ProxyImageFunc())))
-	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.List))).Methods("GET")
-	r.HandleFunc("/rest/proxy_custom/add", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Add))).Methods("POST")
-	r.HandleFunc("/rest/proxy_custom/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.customProxy.Remove))).Methods("POST")
+	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.List))).Methods("GET")
+	r.HandleFunc("/rest/proxy_custom/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.Add))).Methods("POST")
+	r.HandleFunc("/rest/proxy_custom/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.Remove))).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(b.mw.NotFoundHandler)
 
@@ -598,7 +610,7 @@ func (b *Backend) SendLogs(req *http.Request) (interface{}, error) {
 
 func (b *Backend) User(req *http.Request) (interface{}, error) {
 	username, _ := b.cookies.GetSessionUser(req)
-	isAdmin, err := b.auth.IsAdmin(username)
+	isAdmin, err := b.userManager.IsAdmin(username)
 	if err != nil {
 		b.logger.Warn("unable to check admin status", zap.Error(err))
 	}
@@ -616,6 +628,86 @@ func (b *Backend) UserLogout(w http.ResponseWriter, req *http.Request) {
 	}
 	autheliaLogout := fmt.Sprintf("%s/logout", b.userConfig.Url("auth"))
 	http.Redirect(w, req, autheliaLogout, http.StatusFound)
+}
+
+func (b *Backend) Users(_ *http.Request) (interface{}, error) {
+	return b.userManager.ListUsers()
+}
+
+func (b *Backend) UserAdd(req *http.Request) (interface{}, error) {
+	var request UserAddRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.userManager.AddUser(request.Username, request.Password, request.Email, request.Admin)
+}
+
+func (b *Backend) UserRemove(req *http.Request) (interface{}, error) {
+	var request UserRemoveRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.userManager.RemoveUser(request.Username)
+}
+
+func (b *Backend) UserSetEmail(req *http.Request) (interface{}, error) {
+	var request UserSetEmailRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.userManager.SetUserEmail(request.Username, request.Email)
+}
+
+func (b *Backend) UserSetPassword(req *http.Request) (interface{}, error) {
+	var request UserSetPasswordRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.userManager.SetPassword(request.Username, request.Password)
+}
+
+func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {
+	var request UserSetAdminRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.userManager.SetAdmin(request.Username, request.Admin)
+}
+
+func (b *Backend) Groups(_ *http.Request) (interface{}, error) {
+	return b.groupManager.ListGroups()
+}
+
+func (b *Backend) GroupAdd(req *http.Request) (interface{}, error) {
+	var request GroupAddRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.groupManager.AddGroup(request.Name)
+}
+
+func (b *Backend) GroupRemove(req *http.Request) (interface{}, error) {
+	var request GroupRemoveRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.groupManager.RemoveGroup(request.Name)
+}
+
+func (b *Backend) GroupMemberAdd(req *http.Request) (interface{}, error) {
+	var request GroupMemberRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.groupManager.AddGroupMember(request.Group, request.Username)
+}
+
+func (b *Backend) GroupMemberRemove(req *http.Request) (interface{}, error) {
+	var request GroupMemberRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.groupManager.RemoveGroupMember(request.Group, request.Username)
 }
 
 func (b *Backend) HealthEvents(req *http.Request) (interface{}, error) {
@@ -708,4 +800,3 @@ func (b *Backend) GenerateTOTP(req *http.Request) (interface{}, error) {
 		"uri": uri,
 	}, nil
 }
-

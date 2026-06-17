@@ -41,6 +41,7 @@
   "settings": {
     "title": "Settings",
     "activation": "Activation",
+    "users": "Users",
     "network": "Network",
     "access": "Access",
     "internalMemory": "Internal Memory",
@@ -178,6 +179,30 @@
     "proxies": "Proxies",
     "noProxies": "No custom proxies configured",
     "remove": "Remove"
+  },
+  "users": {
+    "title": "Users",
+    "add": "Add user",
+    "edit": "Edit user",
+    "username": "Username:",
+    "usernamePlaceholder": "username",
+    "usernameFallback": "username",
+    "password": "Password:",
+    "passwordKeep": "Leave blank to keep the current password",
+    "email": "Email:",
+    "admin": "Admin",
+    "adminLast": "This is the only admin and cannot be demoted.",
+    "groups": "Groups:",
+    "newGroup": "new group",
+    "save": "Save",
+    "cancel": "Cancel",
+    "remove": "Delete",
+    "noUsers": "No users yet",
+    "ruleLength": "At least 8 characters",
+    "ruleLetter": "Contains a letter",
+    "ruleNumber": "Contains a number",
+    "addGroup": "Add",
+    "confirmDelete": "Are you sure you want to delete this user?"
   },
   "backup": {
     "title": "Backup",

@@ -704,7 +704,7 @@ def test_cli_cert_fake(device):
 def test_admin_api_secured(device, domain):
     # Unauthenticated requests to admin endpoints should return 401
     admin_endpoints = [
-        '/rest/settings/2fa',
+        '/rest/2fa',
         '/rest/backup/list',
         '/rest/storage/disks',
         '/rest/certificate',
