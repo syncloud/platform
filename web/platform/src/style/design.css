@@ -12,7 +12,14 @@
   --sc-faint: #8796a8;
   --sc-field-bg: #f6f9fd;
   --sc-border: #d5dde8;
+  --sc-border-soft: #eef3f9;
+  --sc-surface: #ffffff;
+  --sc-surface-2: #eef2f7;
+  --sc-surface-3: #e3e9f1;
+  --sc-header-bg: rgba(255, 255, 255, 0.82);
+  --sc-option-hover: #f0f6fe;
   --sc-danger: #d9363e;
+  --sc-danger-soft: #fbe6e7;
   --sc-success: #2faa5d;
   --sc-card-radius: 22px;
   --sc-control-radius: 12px;
@@ -32,6 +39,34 @@
   --el-color-danger: #d9363e;
   --el-border-radius-base: 10px;
   --el-font-family: var(--sc-font);
+}
+
+:root[data-theme="dark"] {
+  --sc-primary: #4d96e6;
+  --sc-primary-dark: #2b7bd6;
+  --sc-primary-soft: rgba(77, 150, 230, 0.16);
+  --sc-ink: #e7edf4;
+  --sc-ink-2: #bcc9d8;
+  --sc-muted: #8b9bb0;
+  --sc-faint: #6c7c91;
+  --sc-field-bg: #1b2531;
+  --sc-border: #2d3b4d;
+  --sc-border-soft: #243040;
+  --sc-surface: #141c27;
+  --sc-surface-2: #1d2735;
+  --sc-surface-3: #26323f;
+  --sc-header-bg: rgba(15, 22, 31, 0.82);
+  --sc-option-hover: #1e2a38;
+  --sc-danger: #f06a70;
+  --sc-danger-soft: rgba(240, 106, 112, 0.16);
+  --sc-success: #43c073;
+  --sc-shadow-card: 0 24px 60px -20px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --sc-shadow-soft: 0 10px 24px -12px rgba(0, 0, 0, 0.5);
+  --sc-bg: linear-gradient(140deg, #0d141d 0%, #111a25 55%, #0b121a 100%);
+
+  --el-color-primary: #4d96e6;
+  --el-color-primary-dark-2: #2b7bd6;
+  --el-color-primary-light-9: rgba(77, 150, 230, 0.16);
 }
 
 html, body {
@@ -64,7 +99,7 @@ body {
 .sc-card {
   width: 100%;
   max-width: 640px;
-  background: #fff;
+  background: var(--sc-surface);
   border-radius: var(--sc-card-radius);
   box-shadow: var(--sc-shadow-card);
   padding: 30px 34px 32px;
@@ -125,7 +160,7 @@ body {
 
 .sc-input:focus {
   outline: none;
-  background: #fff;
+  background: var(--sc-surface);
   border-color: var(--sc-primary);
   box-shadow: 0 0 0 4px rgba(43, 123, 214, 0.12);
 }
@@ -183,7 +218,7 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 14px 0;
-  border-bottom: 1px solid #eef3f9;
+  border-bottom: 1px solid var(--sc-border-soft);
 }
 .sc-row:last-child { border-bottom: none; }
 .sc-row-label { font-size: 15px; color: var(--sc-ink-2); }
@@ -220,7 +255,7 @@ body {
 }
 .sc-tile:hover {
   border-color: var(--sc-border);
-  background: #fff;
+  background: var(--sc-surface);
   box-shadow: var(--sc-shadow-soft);
   transform: translateY(-2px);
 }
@@ -287,7 +322,7 @@ body {
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--sc-surface);
   border-radius: var(--sc-card-radius);
   box-shadow: var(--sc-shadow-card);
   padding: 24px 28px;
@@ -328,7 +363,7 @@ body {
 }
 .colapp:hover, .app-link:hover {
   border-color: var(--sc-border);
-  background: #fff;
+  background: var(--sc-surface);
   box-shadow: var(--sc-shadow-soft);
   transform: translateY(-2px);
 }
@@ -422,7 +457,7 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
 }
 .sc-toast {
   position: relative;
-  background: #fff;
+  background: var(--sc-surface);
   border-radius: 12px;
   border-left: 4px solid var(--sc-faint);
   box-shadow: 0 12px 32px -10px rgba(10, 20, 40, 0.25);
@@ -509,7 +544,7 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
   left: 0; right: 0;
   max-height: 240px;
   overflow-y: auto;
-  background: #fff;
+  background: var(--sc-surface);
   border: 1px solid var(--sc-border);
   border-radius: 12px;
   box-shadow: 0 12px 24px -8px rgba(22, 50, 92, 0.18);
@@ -524,7 +559,7 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
   cursor: pointer;
   white-space: nowrap;
 }
-.s-option:hover { background: #f0f6fe; }
+.s-option:hover { background: var(--sc-option-hover); }
 .s-option.is-selected { background: var(--sc-primary-soft); color: var(--sc-primary-dark); font-weight: 600; }
 
 /* radio / checkbox choice cards */
@@ -592,7 +627,7 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
 .s-modal {
   width: 100%;
   max-width: 460px;
-  background: #fff;
+  background: var(--sc-surface);
   border-radius: 18px;
   box-shadow: 0 24px 60px -20px rgba(22, 50, 92, 0.35);
   padding: 22px 24px;
@@ -614,3 +649,15 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
     font-size: 14px;
   }
 }
+
+/* ============================================================
+   Dark theme: overrides for elements not driven by --sc-* vars
+   ============================================================ */
+:root[data-theme="dark"] .appimg {
+  background: #ffffff;
+}
+:root[data-theme="dark"] .s-progress-track { background: var(--sc-surface-2); }
+:root[data-theme="dark"] .s-alert-info { background: rgba(77, 150, 230, 0.16); color: #9cc4f1; }
+:root[data-theme="dark"] .s-alert-success { background: rgba(67, 192, 115, 0.16); color: #74d39b; }
+:root[data-theme="dark"] .s-alert-warning { background: rgba(240, 160, 32, 0.16); color: #e6b85c; }
+:root[data-theme="dark"] .s-alert-error { background: rgba(240, 106, 112, 0.16); color: #f0959a; }

@@ -21,7 +21,9 @@
     "apps": "Aplicaciones",
     "appCenter": "Centro de aplicaciones",
     "settings": "Configuración",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "darkMode": "Modo oscuro",
+    "lightMode": "Modo claro"
   },
   "error": {
     "sendLogs": "Enviar registros",

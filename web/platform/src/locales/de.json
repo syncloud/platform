@@ -21,7 +21,9 @@
     "apps": "Apps",
     "appCenter": "App-Center",
     "settings": "Einstellungen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "darkMode": "Dunkler Modus",
+    "lightMode": "Heller Modus"
   },
   "error": {
     "sendLogs": "Protokolle senden",

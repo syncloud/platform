@@ -396,15 +396,15 @@ export default {
 }
 .app-btn-upgrade:hover { filter: brightness(1.04); }
 .app-btn-tonal {
-  background: #eef2f7;
+  background: var(--sc-surface-2);
   color: var(--sc-ink-2);
 }
-.app-btn-tonal:hover { background: #e3e9f1; }
+.app-btn-tonal:hover { background: var(--sc-surface-3); }
 .app-btn-danger {
-  background: #eef2f7;
+  background: var(--sc-surface-2);
   color: var(--sc-danger);
 }
-.app-btn-danger:hover { background: #fbe6e7; }
+.app-btn-danger:hover { background: var(--sc-danger-soft); }
 
 /* desktop: secondary actions render inline, no overflow menu */
 .app-more-wrap { display: contents; }
@@ -446,7 +446,7 @@ export default {
     right: 0;
     flex-direction: column;
     gap: 4px;
-    background: #fff;
+    background: var(--sc-surface);
     border: 1px solid var(--sc-border);
     border-radius: 14px;
     box-shadow: 0 14px 30px -12px rgba(22, 50, 92, 0.28);
