@@ -34,6 +34,7 @@
   "settings": {
     "title": "设置",
     "activation": "激活",
+    "users": "用户",
     "network": "网络",
     "access": "访问",
     "internalMemory": "内部存储",
@@ -146,6 +147,30 @@
     "proxies": "代理",
     "noProxies": "未配置自定义代理",
     "remove": "移除"
+  },
+  "users": {
+    "title": "用户",
+    "add": "添加用户",
+    "edit": "编辑用户",
+    "username": "用户名：",
+    "usernamePlaceholder": "用户名",
+    "usernameFallback": "用户名",
+    "password": "密码：",
+    "passwordKeep": "留空以保留当前密码",
+    "email": "邮箱：",
+    "admin": "管理员",
+    "adminLast": "这是唯一的管理员，无法降级。",
+    "groups": "群组：",
+    "newGroup": "新群组",
+    "save": "保存",
+    "cancel": "取消",
+    "remove": "删除",
+    "noUsers": "暂无用户",
+    "ruleLength": "至少 8 个字符",
+    "ruleLetter": "包含字母",
+    "ruleNumber": "包含数字",
+    "addGroup": "添加",
+    "confirmDelete": "确定要删除此用户吗？"
   },
   "backup": {
     "title": "备份",

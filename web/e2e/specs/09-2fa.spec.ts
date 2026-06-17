@@ -121,7 +121,7 @@ test('2FA disable', async ({}, testInfo) => {
 
 test('2FA recovery via CLI', async ({}, testInfo) => {
   const ctx = await loginV2()
-  await ctx.post(`https://${fullDomain}/rest/settings/2fa`, {
+  await ctx.post(`https://${fullDomain}/rest/2fa`, {
     data: { enabled: true },
   })
   await ctx.dispose()

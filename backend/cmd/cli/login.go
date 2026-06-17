@@ -26,8 +26,8 @@ func loginCmd(userConfig *string, systemConfig *string) *cobra.Command {
 				return err
 			}
 			var authErr error
-			err = c.Call(func(authService *auth.Service) {
-				ok, err := authService.Authenticate(username, password)
+			err = c.Call(func(authenticator *auth.Authenticator) {
+				ok, err := authenticator.Authenticate(username, password)
 				if err != nil {
 					authErr = fmt.Errorf("authentication failed: %w", err)
 					return

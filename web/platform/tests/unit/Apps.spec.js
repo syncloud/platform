@@ -1,10 +1,15 @@
 import { mount, RouterLinkStub } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Apps from '../../src/views/Apps.vue'
 
 jest.setTimeout(30000)
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+})
 
 test('Show apps', async () => {
   const showError = jest.fn()

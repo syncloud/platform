@@ -6,6 +6,7 @@ const state = {
     username: '11',
     password: '2'
   },
+  admin: false,
   jobStatusRunning: false,
   installerIsRunning: true,
   installerUpgradeCounter: 0,
@@ -129,6 +130,31 @@ let customProxies = [
 ]
 
 let timezone = 'UTC'
+
+let stubUsers = [
+  { username: 'admin', email: 'admin@' + domain, admin: true, groups: [] },
+  { username: 'alice', email: 'alice@' + domain, admin: false, groups: ['family'] },
+  { username: 'bob', email: 'bob@example.com', admin: false, groups: [] }
+]
+
+let stubGroups = [
+  { name: 'syncloud', members: ['admin'] },
+  { name: 'family', members: ['alice'] }
+]
+
+function weakPassword (password) {
+  return !password || password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)
+}
+
+function syncGroupMembers () {
+  stubGroups.forEach(group => {
+    if (group.name === 'syncloud') {
+      group.members = stubUsers.filter(u => u.admin).map(u => u.username)
+    } else {
+      group.members = stubUsers.filter(u => u.groups.includes(group.name)).map(u => u.username)
+    }
+  })
+}
 
 function validateDeviceCredentials (username, password) {
   const errors = []
@@ -268,10 +294,10 @@ export function mock () {
         state.loggedIn = true
         return new Response(200, {}, { message: 'OK' })
       })
-      this.get('/rest/settings/2fa', function (_schema, _request) {
+      this.get('/rest/2fa', function (_schema, _request) {
         return new Response(200, {}, { success: true, data: { enabled: state.twoFactorEnabled || false, authelia_url: 'https://auth.test.' + domain } })
       })
-      this.post('/rest/settings/2fa', function (_schema, request) {
+      this.post('/rest/2fa', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         state.twoFactorEnabled = attrs.enabled
         return new Response(200, {}, { success: true, data: 'OK' })
@@ -281,7 +307,7 @@ export function mock () {
           return new Response(501, {}, { message: 'Not activated' })
         } else {
           if (state.loggedIn) {
-            return new Response(200, {}, { message: 'OK' })
+            return new Response(200, {}, { success: true, data: { admin: state.admin, username: state.credentials.username } })
           } else {
             return new Response(401, {}, { message: 'Authentication failed' })
           }
@@ -616,15 +642,102 @@ export function mock () {
         customProxies = customProxies.filter(p => p.name !== attrs.name)
         return new Response(200, {}, { success: true })
       })
-      this.get('/rest/settings/timezone', function (_schema, _request) {
+      this.get('/rest/users', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: stubUsers })
+      })
+      this.post('/rest/users/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (!attrs.username || !attrs.username.trim()) {
+          return new Response(400, {}, { success: false, message: 'username is required' })
+        }
+        if (weakPassword(attrs.password)) {
+          return new Response(400, {}, { success: false, message: 'password too weak' })
+        }
+        const email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + window.location.hostname
+        stubUsers.push({ username: attrs.username, email: email, admin: !!attrs.admin, groups: [] })
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        stubUsers = stubUsers.filter(u => u.username !== attrs.username)
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/email', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user) {
+          user.email = (attrs.email && attrs.email.trim()) ? attrs.email.trim() : attrs.username + '@' + window.location.hostname
+        }
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/password', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (weakPassword(attrs.password)) {
+          return new Response(400, {}, { success: false, message: 'password too weak' })
+        }
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/admin', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const admins = stubUsers.filter(u => u.admin).map(u => u.username)
+        if (!attrs.admin && admins.length <= 1 && admins.includes(attrs.username)) {
+          return new Response(500, {}, { success: false, message: 'cannot remove the last admin' })
+        }
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user) {
+          user.admin = !!attrs.admin
+        }
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/groups', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: stubGroups })
+      })
+      this.post('/rest/groups/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (!stubGroups.find(g => g.name === attrs.name)) {
+          stubGroups.push({ name: attrs.name, members: [] })
+        }
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/groups/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        if (attrs.name === 'syncloud') {
+          return new Response(500, {}, { success: false, message: 'cannot remove admin group' })
+        }
+        stubGroups = stubGroups.filter(g => g.name !== attrs.name)
+        stubUsers.forEach(u => { u.groups = u.groups.filter(g => g !== attrs.name) })
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/groups/member/add', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user && !user.groups.includes(attrs.group)) {
+          user.groups.push(attrs.group)
+        }
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/groups/member/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        const user = stubUsers.find(u => u.username === attrs.username)
+        if (user) {
+          user.groups = user.groups.filter(g => g !== attrs.group)
+        }
+        syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/timezone', function (_schema, _request) {
         return new Response(200, {}, { success: true, data: { timezone: timezone } })
       })
-      this.post('/rest/settings/timezone', function (_schema, request) {
+      this.post('/rest/timezone', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
         timezone = attrs.timezone
         return new Response(200, {}, { success: true, data: 'OK' })
       })
-      this.get('/rest/settings/time', function (_schema, _request) {
+      this.get('/rest/time', function (_schema, _request) {
         return new Response(200, {}, { success: true, data: { timezone: timezone, time: new Date().toISOString() } })
       })
       this.get('/rest/logs', function (_schema, _request) {
@@ -652,7 +765,7 @@ export function mock () {
           { name: 'mmcblk0', reads_total: 500000, sectors_read: 4000000000, writes_total: 200000, sectors_written: 1500000000 }
         ]
       }
-      this.get('/rest/settings/health/metrics', function (_schema, _request) {
+      this.get('/rest/health/metrics', function (_schema, _request) {
         stubHealth.tick++
         // simulate variable CPU activity (sine-ish pattern)
         const busyMs = Math.round(800 + 600 * Math.sin(stubHealth.tick / 8))
@@ -689,7 +802,7 @@ export function mock () {
         }
         return new Response(200, {}, { success: true, data })
       })
-      this.get('/rest/settings/health/events', function (_schema, _request) {
+      this.get('/rest/health/events', function (_schema, _request) {
         const now = Date.now()
         const events = [
           { time: new Date(now - 30 * 1000).toISOString(), kind: 'victim_sigterm', pid: 3325956, comm: 'python3', rss_kb: 1943228, cgroup: '0::/user.slice/user-0.slice/session-61617.scope' },

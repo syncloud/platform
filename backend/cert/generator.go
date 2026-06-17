@@ -5,6 +5,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/syncloud/platform/date"
@@ -169,16 +170,7 @@ func (g *CertificateGenerator) ReadCertificateInfo() *Info {
 		IsValid:      validFor > Month,
 		Subject:      subject,
 		ValidForDays: int(validFor.Hours() / 24),
-		IsReal:       !contains(certificateData.Subject.Organization, SubjectOrganization),
+		IsReal:       !slices.Contains(certificateData.Subject.Organization, SubjectOrganization),
 	}
 
-}
-
-func contains(list []string, element string) bool {
-	for _, v := range list {
-		if v == element {
-			return true
-		}
-	}
-	return false
 }

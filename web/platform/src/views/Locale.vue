@@ -97,7 +97,7 @@ export default {
       return FALLBACK_TIMEZONES
     },
     loadTimezone () {
-      axios.get('/rest/settings/timezone')
+      axios.get('/rest/timezone')
         .then(resp => {
           this.timezone = resp.data.data.timezone
         })
@@ -106,7 +106,7 @@ export default {
         })
     },
     loadTime () {
-      axios.get('/rest/settings/time')
+      axios.get('/rest/time')
         .then(resp => {
           const d = new Date(resp.data.data.time)
           this.serverTime = { baseMs: d.getTime(), syncedAt: Date.now() }
@@ -119,7 +119,7 @@ export default {
     },
     saveTimezone () {
       this.saving = true
-      axios.post('/rest/settings/timezone', { timezone: this.timezone })
+      axios.post('/rest/timezone', { timezone: this.timezone })
         .then(() => {
           this.saving = false
           this.loadTime()

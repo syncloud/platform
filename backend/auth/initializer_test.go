@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"github.com/syncloud/platform/log"
 	"os"
 	"path"
 	"strings"
@@ -40,16 +39,19 @@ func (p *PasswordChangerStub) Change(_ string) error {
 	return nil
 }
 
-func TestMakeSecret(t *testing.T) {
-	secret := makeSecret("syncloud")
-	assert.Greater(t, len(secret), 1)
+type DomainProviderStub struct {
+	domain string
+}
+
+func (d DomainProviderStub) GetDeviceDomain() string {
+	return d.domain
 }
 
 func TestInit(t *testing.T) {
 	executor := &ExecutorStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, log.Default())
+	ldap := NewInitializer(&SnapServiceStub{}, t.TempDir(), t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher())
 	err := ldap.Init()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, executor.executions, 1)
 	assert.Contains(t, executor.executions[0], "slapadd.sh")
 }
@@ -57,9 +59,9 @@ func TestInit(t *testing.T) {
 func TestApplyConfig_NotInstalled(t *testing.T) {
 	executor := &ExecutorStub{}
 	missing := path.Join(t.TempDir(), "missing")
-	ldap := New(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, &PasswordChangerStub{}, log.Default())
+	ldap := NewInitializer(&SnapServiceStub{}, missing, t.TempDir(), t.TempDir(), executor, NewLdapClient(), &PasswordChangerStub{}, NewPasswordHasher())
 	err := ldap.ApplyConfig()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, executor.executions, 0)
 }
 
@@ -67,14 +69,14 @@ func TestReset(t *testing.T) {
 	executor := &ExecutorStub{}
 	configDir := t.TempDir()
 	err := os.MkdirAll(path.Join(configDir, "ldap"), os.ModePerm)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	err = os.WriteFile(path.Join(configDir, "ldap", "init.ldif"), []byte("template"), 0644)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	passwordChanger := &PasswordChangerStub{}
-	ldap := New(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, passwordChanger, log.Default())
+	ldap := NewInitializer(&SnapServiceStub{}, t.TempDir(), t.TempDir(), configDir, executor, NewLdapClient(), passwordChanger, NewPasswordHasher())
 	err = ldap.Reset("name", "user", "password", "email")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, executor.executions, 2)
 	assert.Contains(t, executor.executions[0], "slapadd.sh")
 	assert.Contains(t, executor.executions[1], "ldapadd.sh")
