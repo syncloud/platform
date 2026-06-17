@@ -21,7 +21,9 @@
     "apps": "应用",
     "appCenter": "应用中心",
     "settings": "设置",
-    "logout": "退出"
+    "logout": "退出",
+    "darkMode": "深色模式",
+    "lightMode": "浅色模式"
   },
   "error": {
     "sendLogs": "发送日志",

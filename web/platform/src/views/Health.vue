@@ -287,11 +287,11 @@ h2 {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  background: #ffffff;
+  background: var(--sc-surface);
   border-radius: 10px;
   padding: 14px 16px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.06);
-  border-left: 4px solid #d0d0d0;
+  border-left: 4px solid var(--sc-border);
   transition: box-shadow 120ms ease;
 }
 .event-card:hover {
@@ -336,7 +336,7 @@ h2 {
 .event-kind {
   font-weight: 600;
   font-size: 0.95em;
-  color: #2c3e50;
+  color: var(--sc-ink);
 }
 .event-time {
   color: #95a5a6;
@@ -345,7 +345,7 @@ h2 {
   font-variant-numeric: tabular-nums;
 }
 .event-details {
-  color: #5d6d7e;
+  color: var(--sc-ink-2);
   font-size: 0.85em;
   margin-top: 6px;
   word-break: break-word;

@@ -9,6 +9,7 @@ import './style/design.css'
 import ui from './ui'
 import { mock } from './stub/api'
 import i18n, { detectLocale, setLocale } from './i18n'
+import { useThemeStore } from './stores/theme'
 
 if (import.meta.env.DEV) {
   mock()
@@ -16,9 +17,13 @@ if (import.meta.env.DEV) {
 
 setLocale(detectLocale())
 
+const pinia = createPinia()
+
 createApp(VueApp)
-  .use(createPinia())
+  .use(pinia)
   .use(router)
   .use(i18n)
   .use(ui)
   .mount('#app')
+
+useThemeStore(pinia).init()
