@@ -21,7 +21,9 @@
     "apps": "ऐप्स",
     "appCenter": "ऐप सेंटर",
     "settings": "सेटिंग्स",
-    "logout": "लॉग आउट"
+    "logout": "लॉग आउट",
+    "darkMode": "डार्क मोड",
+    "lightMode": "लाइट मोड"
   },
   "error": {
     "sendLogs": "लॉग भेजें",

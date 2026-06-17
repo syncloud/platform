@@ -2,7 +2,7 @@ local name = 'platform';
 local playwright = 'v1.49.1-jammy';
 local go = '1.25.8';
 local node = '22.16.0';
-local publisher_image = 'syncloud/store-publisher:stable-297';
+local publisher_image = 'syncloud/store-publisher:stable-303';
 local authelia = '4.39.15';
 local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
@@ -10,7 +10,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '2923';
+local visual_diff_skip_build = '2955';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',

@@ -56,7 +56,7 @@ export default {
 }
 .password:focus {
   outline: none;
-  background: #fff;
+  background: var(--sc-surface);
   border-color: var(--sc-primary, #2b7bd6);
   box-shadow: 0 0 0 4px rgba(43, 123, 214, 0.12);
 }

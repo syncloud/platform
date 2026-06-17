@@ -14,6 +14,17 @@
         <span class="button_label">{{ $t('menu.logout') }}</span>
       </a>
 
+      <button
+        type="button"
+        id="theme_toggle"
+        data-testid="theme-toggle"
+        class="sc-theme-toggle"
+        :title="theme.isDark ? $t('menu.lightMode') : $t('menu.darkMode')"
+        :aria-label="theme.isDark ? $t('menu.lightMode') : $t('menu.darkMode')"
+        @click="theme.toggle()">
+        <i class="material-icons">{{ theme.isDark ? 'light_mode' : 'dark_mode' }}</i>
+      </button>
+
       <div id="menubutton" class="sc-burger" v-if="auth.loggedIn" @click="toggle" :class="{ menuopen: menuOpen }">
         <span></span><span></span><span></span><span></span>
       </div>
@@ -30,6 +41,7 @@
 
 <script>
 import { useAuthStore } from '../stores/auth'
+import { useThemeStore } from '../stores/theme'
 
 export default {
   props: {
@@ -38,7 +50,8 @@ export default {
   data () {
     return {
       menuOpen: false,
-      auth: useAuthStore()
+      auth: useAuthStore(),
+      theme: useThemeStore()
     }
   },
   methods: {
@@ -58,9 +71,9 @@ export default {
 <style scoped>
 .sc-header {
   position: relative;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--sc-header-bg);
   backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid rgba(22, 50, 92, 0.08);
+  border-bottom: 1px solid var(--sc-border-soft);
   z-index: 30;
 }
 .sc-header-inner {
@@ -108,6 +121,24 @@ export default {
 .sc-logout:hover { color: var(--sc-primary); }
 .sc-logout .material-icons { font-size: 20px; vertical-align: middle; }
 
+.sc-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--sc-border);
+  border-radius: 50%;
+  background: var(--sc-surface);
+  color: var(--sc-muted);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.sc-theme-toggle:hover { color: var(--sc-primary); border-color: var(--sc-primary); }
+.sc-theme-toggle .material-icons { font-size: 20px; }
+
 .sc-burger {
   display: none;
   position: relative;
@@ -139,7 +170,7 @@ export default {
   top: 64px;
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--sc-surface);
   box-shadow: 0 12px 24px -8px rgba(22, 50, 92, 0.18);
   opacity: 0;
   visibility: hidden;
@@ -155,7 +186,7 @@ export default {
   color: var(--sc-ink-2);
   text-decoration: none;
   font-weight: 600;
-  border-top: 1px solid #eef3f9;
+  border-top: 1px solid var(--sc-border-soft);
 }
 .sc-mobile-nav a:hover { background: var(--sc-primary-soft); color: var(--sc-primary); }
 .sc-mobile-logout { color: var(--sc-muted) !important; }

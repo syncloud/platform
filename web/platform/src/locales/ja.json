@@ -21,7 +21,9 @@
     "apps": "アプリ",
     "appCenter": "アプリセンター",
     "settings": "設定",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "darkMode": "ダークモード",
+    "lightMode": "ライトモード"
   },
   "error": {
     "sendLogs": "ログを送信",

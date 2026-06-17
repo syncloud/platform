@@ -9,6 +9,16 @@
     <meta name="author" content="syncloud.org">
     <meta name="description" content="Your Personal Server">
     <meta name="keywords" content="Your Personal Server">
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('syncloud-theme')
+          var dark = saved === 'dark' || (!saved && window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <noscript>

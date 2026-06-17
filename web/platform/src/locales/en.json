@@ -28,7 +28,9 @@
     "apps": "Apps",
     "appCenter": "App Center",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode"
   },
   "error": {
     "sendLogs": "Send logs",

@@ -21,7 +21,9 @@
     "apps": "Applications",
     "appCenter": "Catalogue d'applications",
     "settings": "Paramètres",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "darkMode": "Mode sombre",
+    "lightMode": "Mode clair"
   },
   "error": {
     "sendLogs": "Envoyer les journaux",
