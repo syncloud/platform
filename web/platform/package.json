@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:stub": "VITE_STUB=1 vite",
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint --fix src",

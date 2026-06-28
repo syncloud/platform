@@ -33,36 +33,72 @@ const store = {
     },
     {
       app: {
-        id: 'diaspora',
-        name: 'Diaspora',
-        icon: '/images/penguin.png',
+        id: 'bitwarden',
+        name: 'Bitwarden',
+        icon: '/images/bitwarden-128.png',
         required: false,
         ui: true,
-        url: 'https://diaspora.odroid-c2.' + domain
+        url: 'https://bitwarden.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
     },
     {
       app: {
-        id: 'mail',
-        name: 'Mail',
-        icon: '/images/penguin.png',
+        id: 'paperless',
+        name: 'Paperless',
+        icon: '/images/paperless-128.png',
         required: false,
         ui: true,
-        url: 'https://mail.odroid-c2.' + domain
+        url: 'https://paperless.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
     },
     {
       app: {
-        id: 'talk',
-        name: 'Talk',
-        icon: '/images/penguin.png',
+        id: 'nextcloud',
+        name: 'Nextcloud',
+        icon: '/images/nextcloud-128.png',
         required: false,
         ui: true,
-        url: 'https://talk.odroid-c2.' + domain
+        url: 'https://nextcloud.odroid-c2.' + domain
+      },
+      current_version: '1',
+      installed_version: '2'
+    },
+    {
+      app: {
+        id: 'jellyfin',
+        name: 'Jellyfin',
+        icon: '/images/jellyfin-128.png',
+        required: false,
+        ui: true,
+        url: 'https://jellyfin.odroid-c2.' + domain
+      },
+      current_version: '1',
+      installed_version: '2'
+    },
+    {
+      app: {
+        id: 'photoprism',
+        name: 'PhotoPrism',
+        icon: '/images/photoprism-128.png',
+        required: false,
+        ui: true,
+        url: 'https://photoprism.odroid-c2.' + domain
+      },
+      current_version: '1',
+      installed_version: '2'
+    },
+    {
+      app: {
+        id: 'gogs',
+        name: 'Gogs',
+        icon: '/images/gogs-128.png',
+        required: false,
+        ui: true,
+        url: 'https://gogs.odroid-c2.' + domain
       },
       current_version: '1',
       installed_version: '2'
@@ -70,8 +106,8 @@ const store = {
     {
       app: {
         id: 'files',
-        name: 'Files Browser',
-        icon: '/images/penguin.png',
+        name: 'Files',
+        icon: '/images/files-128.png',
         required: false,
         ui: true,
         url: 'https://files.odroid-c2.' + domain

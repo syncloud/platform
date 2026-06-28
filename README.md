@@ -31,7 +31,7 @@ Install [Node.js](https://nodejs.org/en/download)
 ````
 cd web/platform
 npm i
-npm run dev
+npm run dev:stub
 ````
 
 ### Building a package locally
