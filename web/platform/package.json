@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "stub": "vite",
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint --fix src",
