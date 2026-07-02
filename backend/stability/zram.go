@@ -5,25 +5,27 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"unsafe"
 
 	"go.uber.org/zap"
+	"golang.org/x/sys/unix"
 )
 
 const (
-	zramDevice           = "/dev/zram0"
-	zramSysBlockDefault  = "/sys/block/zram0"
-	zramHotAddDefault    = "/sys/class/zram-control/hot_add"
-	procSwapsDefault     = "/proc/swaps"
-	memThresholdKB       = 6 * 1024 * 1024
-	zramMaxSizeBytes     = uint64(2 * 1024 * 1024 * 1024)
-	zramPriority         = 10
-	swapMagicV1          = "SWAPSPACE2"
+	zramDevice          = "/dev/zram0"
+	zramModuleName      = "zram"
+	zramSysBlockDefault = "/sys/block/zram0"
+	zramHotAddDefault   = "/sys/class/zram-control/hot_add"
+	procSwapsDefault    = "/proc/swaps"
+	memThresholdKB      = 6 * 1024 * 1024
+	zramMaxSizeBytes    = uint64(2 * 1024 * 1024 * 1024)
+	zramPriority        = 10
+	swapMagicV1         = "SWAPSPACE2"
 )
-
-type SwaponFn func(path string, flags int) error
-type SwapoffFn func(path string) error
 
 type Zram struct {
 	sysBlock  string
@@ -31,21 +33,17 @@ type Zram struct {
 	procSwaps string
 	devPath   string
 	mem       *MemInfo
-	swapon    SwaponFn
-	swapoff   SwapoffFn
 	events    *EventLog
 	log       *zap.Logger
 }
 
-func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, events *EventLog, log *zap.Logger) *Zram {
+func NewZram(mem *MemInfo, events *EventLog, log *zap.Logger) *Zram {
 	return &Zram{
 		sysBlock:  zramSysBlockDefault,
 		hotAdd:    zramHotAddDefault,
 		procSwaps: procSwapsDefault,
 		devPath:   zramDevice,
 		mem:       mem,
-		swapon:    swapon,
-		swapoff:   swapoff,
 		events:    events,
 		log:       log,
 	}
@@ -94,12 +92,9 @@ func (z *Zram) EnsureConfigured() error {
 	return nil
 }
 
-func (z *Zram) disableFileSwaps() error {
-	b, err := os.ReadFile(z.procSwaps)
-	if err != nil {
-		return err
-	}
-	for _, line := range strings.Split(string(b), "\n") {
+func fileSwaps(content string) []string {
+	var paths []string
+	for _, line := range strings.Split(content, "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 2 || fields[0] == "Filename" {
 			continue
@@ -107,13 +102,24 @@ func (z *Zram) disableFileSwaps() error {
 		if fields[1] != "file" {
 			continue
 		}
-		if err := z.swapoff(fields[0]); err != nil {
-			z.log.Warn("zram: swapoff failed", zap.String("path", fields[0]), zap.Error(err))
+		paths = append(paths, fields[0])
+	}
+	return paths
+}
+
+func (z *Zram) disableFileSwaps() error {
+	b, err := os.ReadFile(z.procSwaps)
+	if err != nil {
+		return err
+	}
+	for _, path := range fileSwaps(string(b)) {
+		if err := z.swapoff(path); err != nil {
+			z.log.Warn("zram: swapoff failed", zap.String("path", path), zap.Error(err))
 			continue
 		}
-		z.log.Info("zram: swapoff file swap", zap.String("path", fields[0]))
+		z.log.Info("zram: swapoff file swap", zap.String("path", path))
 		if z.events != nil {
-			_ = z.events.Append(Event{Kind: EventKindSwapoffFile, Path: fields[0]})
+			_ = z.events.Append(Event{Kind: EventKindSwapoffFile, Path: path})
 		}
 	}
 	return nil
@@ -134,6 +140,19 @@ func (z *Zram) alreadyOn() (bool, error) {
 }
 
 func (z *Zram) ensureDevice() error {
+	if _, err := os.Stat(z.sysBlock); err == nil {
+		return nil
+	}
+	if _, err := os.Stat(z.hotAdd); err != nil {
+		if err := z.loadModule(zramModuleName); err != nil {
+			z.log.Warn("zram: module load failed", zap.Error(err))
+		} else {
+			z.log.Info("zram: module loaded", zap.String("name", zramModuleName))
+			if z.events != nil {
+				_ = z.events.Append(Event{Kind: EventKindZramModuleLoad})
+			}
+		}
+	}
 	if _, err := os.Stat(z.sysBlock); err == nil {
 		return nil
 	}
@@ -195,4 +214,61 @@ func mkswapInPlace(path string) error {
 		return err
 	}
 	return f.Sync()
+}
+
+const (
+	swapFlagPrefer   = 0x8000
+	swapFlagPrioMask = 0x7fff
+)
+
+func swaponFlags(priority int) int {
+	return swapFlagPrefer | (priority & swapFlagPrioMask)
+}
+
+func (z *Zram) loadModule(name string) error {
+	out, err := exec.Command("modprobe", name).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("modprobe %s: %w: %s", name, err, strings.TrimSpace(string(out)))
+	}
+	return nil
+}
+
+func (z *Zram) swapon(path string, flags int) error {
+	p, err := syscall.BytePtrFromString(path)
+	if err != nil {
+		return err
+	}
+	_, _, errno := syscall.Syscall(unix.SYS_SWAPON, uintptr(unsafe.Pointer(p)), uintptr(flags), 0)
+	if errno != 0 {
+		return errno
+	}
+	return nil
+}
+
+func (z *Zram) swapoff(path string) error {
+	p, err := syscall.BytePtrFromString(path)
+	if err != nil {
+		return err
+	}
+	_, _, errno := syscall.Syscall(unix.SYS_SWAPOFF, uintptr(unsafe.Pointer(p)), 0, 0)
+	if errno != 0 {
+		return errno
+	}
+	return nil
+}
+
+func deviceSize(f *os.File, statSize uint64) (uint64, error) {
+	fi, err := f.Stat()
+	if err != nil {
+		return 0, err
+	}
+	if fi.Mode()&os.ModeDevice == 0 {
+		return statSize, nil
+	}
+	var n uint64
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), unix.BLKGETSIZE64, uintptr(unsafe.Pointer(&n)))
+	if errno != 0 {
+		return 0, errno
+	}
+	return n, nil
 }
