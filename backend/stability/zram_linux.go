@@ -3,12 +3,23 @@
 package stability
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
+
+func ModprobeLoad(name string) error {
+	out, err := exec.Command("modprobe", name).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("modprobe %s: %w: %s", name, err, strings.TrimSpace(string(out)))
+	}
+	return nil
+}
 
 const (
 	swapFlagPrefer   = 0x8000

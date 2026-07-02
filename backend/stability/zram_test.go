@@ -2,6 +2,7 @@ package stability
 
 import (
 	"encoding/binary"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -54,14 +55,15 @@ func newTestZram(t *testing.T, memTotalKB uint64, swapsContent string) (*Zram, *
 	sw := &fakeSwapon{}
 	swoff := &fakeSwapoff{}
 	z := &Zram{
-		sysBlock:  sysBlock,
-		hotAdd:    filepath.Join(root, "hot_add"),
-		procSwaps: swapsPath,
-		devPath:   devFile,
-		mem:       NewMemInfo(procDir),
-		swapon:    sw.fn,
-		swapoff:   swoff.fn,
-		log:       zap.NewNop(),
+		sysBlock:   sysBlock,
+		hotAdd:     filepath.Join(root, "hot_add"),
+		procSwaps:  swapsPath,
+		devPath:    devFile,
+		mem:        NewMemInfo(procDir),
+		swapon:     sw.fn,
+		swapoff:    swoff.fn,
+		loadModule: func(string) error { return nil },
+		log:        zap.NewNop(),
 	}
 	return z, sw, sysBlock
 }
@@ -124,6 +126,30 @@ func TestEnsureConfiguresAndSwapons(t *testing.T) {
 	assert.Equal(t, swapMagicV1, string(dev[pageSize-10:pageSize]))
 	version := binary.LittleEndian.Uint32(dev[1024:1028])
 	assert.Equal(t, uint32(1), version)
+}
+
+func TestEnsureLoadsModuleWhenDeviceMissing(t *testing.T) {
+	z, sw, sysBlock := newTestZram(t, 4*1024*1024, "Filename\n")
+	require.NoError(t, os.RemoveAll(sysBlock))
+	loaded := ""
+	z.loadModule = func(name string) error {
+		loaded = name
+		require.NoError(t, os.MkdirAll(sysBlock, 0755))
+		require.NoError(t, os.WriteFile(filepath.Join(sysBlock, "comp_algorithm"), []byte("[lzo]"), 0644))
+		require.NoError(t, os.WriteFile(filepath.Join(sysBlock, "disksize"), []byte("0"), 0644))
+		return nil
+	}
+	require.NoError(t, z.EnsureConfigured())
+	assert.Equal(t, "zram", loaded)
+	assert.True(t, sw.called)
+}
+
+func TestEnsureErrorsWhenModuleLoadFailsAndNoDevice(t *testing.T) {
+	z, sw, sysBlock := newTestZram(t, 4*1024*1024, "Filename\n")
+	require.NoError(t, os.RemoveAll(sysBlock))
+	z.loadModule = func(name string) error { return fmt.Errorf("module not found") }
+	require.Error(t, z.EnsureConfigured())
+	assert.False(t, sw.called)
 }
 
 func TestSizeBytesCapped(t *testing.T) {

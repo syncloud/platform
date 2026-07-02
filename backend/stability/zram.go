@@ -12,42 +12,46 @@ import (
 )
 
 const (
-	zramDevice           = "/dev/zram0"
-	zramSysBlockDefault  = "/sys/block/zram0"
-	zramHotAddDefault    = "/sys/class/zram-control/hot_add"
-	procSwapsDefault     = "/proc/swaps"
-	memThresholdKB       = 6 * 1024 * 1024
-	zramMaxSizeBytes     = uint64(2 * 1024 * 1024 * 1024)
-	zramPriority         = 10
-	swapMagicV1          = "SWAPSPACE2"
+	zramDevice          = "/dev/zram0"
+	zramModuleName      = "zram"
+	zramSysBlockDefault = "/sys/block/zram0"
+	zramHotAddDefault   = "/sys/class/zram-control/hot_add"
+	procSwapsDefault    = "/proc/swaps"
+	memThresholdKB      = 6 * 1024 * 1024
+	zramMaxSizeBytes    = uint64(2 * 1024 * 1024 * 1024)
+	zramPriority        = 10
+	swapMagicV1         = "SWAPSPACE2"
 )
 
 type SwaponFn func(path string, flags int) error
 type SwapoffFn func(path string) error
+type LoadModuleFn func(name string) error
 
 type Zram struct {
-	sysBlock  string
-	hotAdd    string
-	procSwaps string
-	devPath   string
-	mem       *MemInfo
-	swapon    SwaponFn
-	swapoff   SwapoffFn
-	events    *EventLog
-	log       *zap.Logger
+	sysBlock   string
+	hotAdd     string
+	procSwaps  string
+	devPath    string
+	mem        *MemInfo
+	swapon     SwaponFn
+	swapoff    SwapoffFn
+	loadModule LoadModuleFn
+	events     *EventLog
+	log        *zap.Logger
 }
 
-func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, events *EventLog, log *zap.Logger) *Zram {
+func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, loadModule LoadModuleFn, events *EventLog, log *zap.Logger) *Zram {
 	return &Zram{
-		sysBlock:  zramSysBlockDefault,
-		hotAdd:    zramHotAddDefault,
-		procSwaps: procSwapsDefault,
-		devPath:   zramDevice,
-		mem:       mem,
-		swapon:    swapon,
-		swapoff:   swapoff,
-		events:    events,
-		log:       log,
+		sysBlock:   zramSysBlockDefault,
+		hotAdd:     zramHotAddDefault,
+		procSwaps:  procSwapsDefault,
+		devPath:    zramDevice,
+		mem:        mem,
+		swapon:     swapon,
+		swapoff:    swapoff,
+		loadModule: loadModule,
+		events:     events,
+		log:        log,
 	}
 }
 
@@ -134,6 +138,19 @@ func (z *Zram) alreadyOn() (bool, error) {
 }
 
 func (z *Zram) ensureDevice() error {
+	if _, err := os.Stat(z.sysBlock); err == nil {
+		return nil
+	}
+	if _, err := os.Stat(z.hotAdd); err != nil && z.loadModule != nil {
+		if err := z.loadModule(zramModuleName); err != nil {
+			z.log.Warn("zram: module load failed", zap.Error(err))
+		} else {
+			z.log.Info("zram: module loaded", zap.String("name", zramModuleName))
+			if z.events != nil {
+				_ = z.events.Append(Event{Kind: EventKindZramModuleLoad})
+			}
+		}
+	}
 	if _, err := os.Stat(z.sysBlock); err == nil {
 		return nil
 	}

@@ -18,6 +18,7 @@ type EventKind string
 
 const (
 	EventKindZramEnabled    EventKind = "zram_enabled"
+	EventKindZramModuleLoad EventKind = "zram_module_loaded"
 	EventKindSwapoffFile    EventKind = "swapoff_file"
 	EventKindPressure       EventKind = "pressure_detected"
 	EventKindVictimSigterm  EventKind = "victim_sigterm"
