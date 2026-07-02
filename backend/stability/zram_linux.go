@@ -13,7 +13,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func ModprobeLoad(name string) error {
+func (z *Zram) loadModule(name string) error {
 	out, err := exec.Command("modprobe", name).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("modprobe %s: %w: %s", name, err, strings.TrimSpace(string(out)))
@@ -30,7 +30,7 @@ func swaponFlags(priority int) int {
 	return swapFlagPrefer | (priority & swapFlagPrioMask)
 }
 
-func SwaponSyscall(path string, flags int) error {
+func (z *Zram) swapon(path string, flags int) error {
 	p, err := syscall.BytePtrFromString(path)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func SwaponSyscall(path string, flags int) error {
 	return nil
 }
 
-func SwapoffSyscall(path string) error {
+func (z *Zram) swapoff(path string) error {
 	p, err := syscall.BytePtrFromString(path)
 	if err != nil {
 		return err

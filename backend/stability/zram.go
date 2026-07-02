@@ -23,35 +23,25 @@ const (
 	swapMagicV1         = "SWAPSPACE2"
 )
 
-type SwaponFn func(path string, flags int) error
-type SwapoffFn func(path string) error
-type LoadModuleFn func(name string) error
-
 type Zram struct {
-	sysBlock   string
-	hotAdd     string
-	procSwaps  string
-	devPath    string
-	mem        *MemInfo
-	swapon     SwaponFn
-	swapoff    SwapoffFn
-	loadModule LoadModuleFn
-	events     *EventLog
-	log        *zap.Logger
+	sysBlock  string
+	hotAdd    string
+	procSwaps string
+	devPath   string
+	mem       *MemInfo
+	events    *EventLog
+	log       *zap.Logger
 }
 
-func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, events *EventLog, log *zap.Logger) *Zram {
+func NewZram(mem *MemInfo, events *EventLog, log *zap.Logger) *Zram {
 	return &Zram{
-		sysBlock:   zramSysBlockDefault,
-		hotAdd:     zramHotAddDefault,
-		procSwaps:  procSwapsDefault,
-		devPath:    zramDevice,
-		mem:        mem,
-		swapon:     swapon,
-		swapoff:    swapoff,
-		loadModule: ModprobeLoad,
-		events:     events,
-		log:        log,
+		sysBlock:  zramSysBlockDefault,
+		hotAdd:    zramHotAddDefault,
+		procSwaps: procSwapsDefault,
+		devPath:   zramDevice,
+		mem:       mem,
+		events:    events,
+		log:       log,
 	}
 }
 
@@ -98,12 +88,9 @@ func (z *Zram) EnsureConfigured() error {
 	return nil
 }
 
-func (z *Zram) disableFileSwaps() error {
-	b, err := os.ReadFile(z.procSwaps)
-	if err != nil {
-		return err
-	}
-	for _, line := range strings.Split(string(b), "\n") {
+func fileSwaps(content string) []string {
+	var paths []string
+	for _, line := range strings.Split(content, "\n") {
 		fields := strings.Fields(line)
 		if len(fields) < 2 || fields[0] == "Filename" {
 			continue
@@ -111,13 +98,24 @@ func (z *Zram) disableFileSwaps() error {
 		if fields[1] != "file" {
 			continue
 		}
-		if err := z.swapoff(fields[0]); err != nil {
-			z.log.Warn("zram: swapoff failed", zap.String("path", fields[0]), zap.Error(err))
+		paths = append(paths, fields[0])
+	}
+	return paths
+}
+
+func (z *Zram) disableFileSwaps() error {
+	b, err := os.ReadFile(z.procSwaps)
+	if err != nil {
+		return err
+	}
+	for _, path := range fileSwaps(string(b)) {
+		if err := z.swapoff(path); err != nil {
+			z.log.Warn("zram: swapoff failed", zap.String("path", path), zap.Error(err))
 			continue
 		}
-		z.log.Info("zram: swapoff file swap", zap.String("path", fields[0]))
+		z.log.Info("zram: swapoff file swap", zap.String("path", path))
 		if z.events != nil {
-			_ = z.events.Append(Event{Kind: EventKindSwapoffFile, Path: fields[0]})
+			_ = z.events.Append(Event{Kind: EventKindSwapoffFile, Path: path})
 		}
 	}
 	return nil
@@ -141,7 +139,7 @@ func (z *Zram) ensureDevice() error {
 	if _, err := os.Stat(z.sysBlock); err == nil {
 		return nil
 	}
-	if _, err := os.Stat(z.hotAdd); err != nil && z.loadModule != nil {
+	if _, err := os.Stat(z.hotAdd); err != nil {
 		if err := z.loadModule(zramModuleName); err != nil {
 			z.log.Warn("zram: module load failed", zap.Error(err))
 		} else {
