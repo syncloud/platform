@@ -40,7 +40,7 @@ type Zram struct {
 	log        *zap.Logger
 }
 
-func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, loadModule LoadModuleFn, events *EventLog, log *zap.Logger) *Zram {
+func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, events *EventLog, log *zap.Logger) *Zram {
 	return &Zram{
 		sysBlock:   zramSysBlockDefault,
 		hotAdd:     zramHotAddDefault,
@@ -49,7 +49,7 @@ func NewZram(mem *MemInfo, swapon SwaponFn, swapoff SwapoffFn, loadModule LoadMo
 		mem:        mem,
 		swapon:     swapon,
 		swapoff:    swapoff,
-		loadModule: loadModule,
+		loadModule: ModprobeLoad,
 		events:     events,
 		log:        log,
 	}
