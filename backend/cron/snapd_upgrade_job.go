@@ -12,7 +12,7 @@ import (
 
 const (
 	SnapdUpgradeEveryDay = 0
-	SnapdUpgradeHour     = 11
+	SnapdUpgradeHour     = 5
 )
 
 type SnapdInstallerInfo interface {
