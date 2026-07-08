@@ -20,11 +20,13 @@ func (s *InstallerInfoStub) Installer() (*model.InstallerInfo, error) {
 }
 
 type UpgraderStub struct {
-	called int
+	called  int
+	version string
 }
 
-func (u *UpgraderStub) Upgrade() error {
+func (u *UpgraderStub) Upgrade(version string) error {
 	u.called++
+	u.version = version
 	return nil
 }
 
@@ -62,6 +64,7 @@ func TestSnapdUpgradeJob_UpgradesWhenVersionsDiffer(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, 1, upgrader.called)
+	assert.Equal(t, "2.60.0", upgrader.version)
 	assert.Equal(t, []string{"installer.upgrade"}, master.offered)
 }
 

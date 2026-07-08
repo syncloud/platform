@@ -1,5 +1,5 @@
 package installer
 
 type AppInstaller interface {
-	Upgrade() error
+	Upgrade(version string) error
 }

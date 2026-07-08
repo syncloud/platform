@@ -20,7 +20,7 @@ type SnapdInstallerInfo interface {
 }
 
 type SnapdUpgrader interface {
-	Upgrade() error
+	Upgrade(version string) error
 }
 
 type JobMaster interface {
@@ -65,7 +65,8 @@ func (j *SnapdUpgradeJob) Run() error {
 	j.logger.Info("upgrading snapd",
 		zap.String("from", strings.TrimSpace(info.InstalledVersion)),
 		zap.String("to", strings.TrimSpace(info.StoreVersion)))
-	err = j.jobMaster.Offer("installer.upgrade", func() error { return j.upgrader.Upgrade() })
+	storeVersion := strings.TrimSpace(info.StoreVersion)
+	err = j.jobMaster.Offer("installer.upgrade", func() error { return j.upgrader.Upgrade(storeVersion) })
 	if err != nil {
 		return err
 	}

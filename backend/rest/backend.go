@@ -278,7 +278,12 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	err := b.JobMaster.Offer("installer.upgrade", func() error { return b.installer.Upgrade() })
+	info, err := b.snapd.Installer()
+	if err != nil {
+		return nil, err
+	}
+	version := info.StoreVersion
+	err = b.JobMaster.Offer("installer.upgrade", func() error { return b.installer.Upgrade(version) })
 	return "submitted", err
 }
 

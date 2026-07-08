@@ -316,7 +316,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *installer.Installer { return installer.New() })
+	err = c.Singleton(func(snapd *snap.Server) *installer.Installer { return installer.New(snapd, logger) })
 	if err != nil {
 		return nil, err
 	}
