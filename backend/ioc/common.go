@@ -315,7 +315,9 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapd *snap.Server) *snap.Snapd { return snap.NewSnapd(snapd, logger) })
+	err = c.Singleton(func(snapd *snap.Server, client *retryablehttp.Client) *snap.Snapd {
+		return snap.NewSnapd(snapd, client, logger)
+	})
 	if err != nil {
 		return nil, err
 	}

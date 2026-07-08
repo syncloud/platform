@@ -1,8 +1,6 @@
 package snap
 
 import (
-	"archive/tar"
-	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
@@ -37,16 +35,18 @@ type InstalledVersionProvider interface {
 }
 
 type Snapd struct {
-	version InstalledVersionProvider
-	sleep   func(time.Duration)
-	logger  *zap.Logger
+	version    InstalledVersionProvider
+	httpClient ExternalHttpClient
+	sleep      func(time.Duration)
+	logger     *zap.Logger
 }
 
-func NewSnapd(version InstalledVersionProvider, logger *zap.Logger) *Snapd {
+func NewSnapd(version InstalledVersionProvider, httpClient ExternalHttpClient, logger *zap.Logger) *Snapd {
 	return &Snapd{
-		version: version,
-		sleep:   time.Sleep,
-		logger:  logger,
+		version:    version,
+		httpClient: httpClient,
+		sleep:      time.Sleep,
+		logger:     logger,
 	}
 }
 
@@ -145,7 +145,7 @@ func (s *Snapd) arch() (string, error) {
 }
 
 func (s *Snapd) download(url, dst string) error {
-	resp, err := http.Get(url)
+	resp, err := s.httpClient.Get(url)
 	if err != nil {
 		return err
 	}
@@ -163,45 +163,10 @@ func (s *Snapd) download(url, dst string) error {
 }
 
 func (s *Snapd) extract(archive, dst string) error {
-	file, err := os.Open(archive)
+	cmd := exec.Command("tar", "-xzf", archive, "-C", dst)
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
-	}
-	defer file.Close()
-	gr, err := gzip.NewReader(file)
-	if err != nil {
-		return err
-	}
-	defer gr.Close()
-	tr := tar.NewReader(gr)
-	for {
-		header, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dst, header.Name)
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
-				return err
-			}
-		case tar.TypeReg:
-			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
-				return err
-			}
-			out, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(header.Mode))
-			if err != nil {
-				return err
-			}
-			if _, err := io.Copy(out, tr); err != nil {
-				out.Close()
-				return err
-			}
-			out.Close()
-		}
+		return fmt.Errorf("extract %s failed: %s: %w", archive, string(out), err)
 	}
 	return nil
 }

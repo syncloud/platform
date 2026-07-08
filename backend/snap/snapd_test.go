@@ -29,7 +29,7 @@ func (s *InstalledVersionStub) InstalledVersion() (string, error) {
 }
 
 func newSnapd(version InstalledVersionProvider) *Snapd {
-	s := NewSnapd(version, zap.NewNop())
+	s := NewSnapd(version, nil, zap.NewNop())
 	s.sleep = func(time.Duration) {}
 	return s
 }
