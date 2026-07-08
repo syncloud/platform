@@ -1,4 +1,4 @@
-package installer
+package snap
 
 import (
 	"archive/tar"
@@ -18,89 +18,89 @@ import (
 )
 
 const (
-	AppsUrl        = "http://apps.syncloud.org/apps"
-	WorkDir        = "/tmp"
-	UpgradeScript  = "snapd/upgrade.sh"
-	KeepArchives   = 2
-	VerifyAttempts = 10
-	VerifyDelay    = 3 * time.Second
+	SnapdAppsUrl        = "http://apps.syncloud.org/apps"
+	SnapdWorkDir        = "/tmp"
+	SnapdUpgradeScript  = "snapd/upgrade.sh"
+	SnapdKeepArchives   = 2
+	SnapdVerifyAttempts = 10
+	SnapdVerifyDelay    = 3 * time.Second
 )
 
-var archByGoArch = map[string]string{
+var snapdArchByGoArch = map[string]string{
 	"amd64": "amd64",
 	"arm64": "arm64",
 	"arm":   "armhf",
 }
 
-type SnapdVersion interface {
+type InstalledVersionProvider interface {
 	InstalledVersion() (string, error)
 }
 
-type Installer struct {
-	snapd  SnapdVersion
-	sleep  func(time.Duration)
-	logger *zap.Logger
+type Snapd struct {
+	version InstalledVersionProvider
+	sleep   func(time.Duration)
+	logger  *zap.Logger
 }
 
-func New(snapd SnapdVersion, logger *zap.Logger) *Installer {
-	return &Installer{
-		snapd:  snapd,
-		sleep:  time.Sleep,
-		logger: logger,
+func NewSnapd(version InstalledVersionProvider, logger *zap.Logger) *Snapd {
+	return &Snapd{
+		version: version,
+		sleep:   time.Sleep,
+		logger:  logger,
 	}
 }
 
-func (i *Installer) Upgrade(version string) error {
+func (s *Snapd) Upgrade(version string) error {
 	version = strings.TrimSpace(version)
-	arch, err := i.arch()
+	arch, err := s.arch()
 	if err != nil {
 		return err
 	}
 	name := fmt.Sprintf("snapd-%s-%s.tar.gz", version, arch)
-	url := fmt.Sprintf("%s/%s", AppsUrl, name)
-	archive := filepath.Join(WorkDir, name)
-	i.logger.Info("downloading snapd", zap.String("url", url))
-	err = i.download(url, archive)
+	url := fmt.Sprintf("%s/%s", SnapdAppsUrl, name)
+	archive := filepath.Join(SnapdWorkDir, name)
+	s.logger.Info("downloading snapd", zap.String("url", url))
+	err = s.download(url, archive)
 	if err != nil {
 		return err
 	}
-	i.prune(WorkDir, KeepArchives)
+	s.prune(SnapdWorkDir, SnapdKeepArchives)
 
-	err = os.RemoveAll(filepath.Join(WorkDir, "snapd"))
+	err = os.RemoveAll(filepath.Join(SnapdWorkDir, "snapd"))
 	if err != nil {
 		return err
 	}
-	err = i.extract(archive, WorkDir)
+	err = s.extract(archive, SnapdWorkDir)
 	if err != nil {
 		return err
 	}
 
-	cmd := exec.Command("./" + UpgradeScript)
-	cmd.Dir = WorkDir
-	i.logger.Info("running snapd upgrade", zap.String("script", UpgradeScript))
+	cmd := exec.Command("./" + SnapdUpgradeScript)
+	cmd.Dir = SnapdWorkDir
+	s.logger.Info("running snapd upgrade", zap.String("script", SnapdUpgradeScript))
 	out, err := cmd.CombinedOutput()
-	i.logger.Info("snapd upgrade output", zap.String("output", string(out)))
+	s.logger.Info("snapd upgrade output", zap.String("output", string(out)))
 	if err != nil {
 		return err
 	}
 
-	return i.verify(version)
+	return s.verify(version)
 }
 
-func (i *Installer) verify(expected string) error {
+func (s *Snapd) verify(expected string) error {
 	var last string
-	for attempt := 0; attempt < VerifyAttempts; attempt++ {
+	for attempt := 0; attempt < SnapdVerifyAttempts; attempt++ {
 		if attempt > 0 {
-			i.sleep(VerifyDelay)
+			s.sleep(SnapdVerifyDelay)
 		}
-		installed, err := i.snapd.InstalledVersion()
+		installed, err := s.version.InstalledVersion()
 		if err != nil {
 			last = err.Error()
 			continue
 		}
 		installed = strings.TrimSpace(installed)
 		if installed == expected {
-			i.logger.Info("snapd upgrade verified", zap.String("version", installed))
+			s.logger.Info("snapd upgrade verified", zap.String("version", installed))
 			return nil
 		}
 		last = fmt.Sprintf("installed %s, expected %s", installed, expected)
@@ -108,10 +108,10 @@ func (i *Installer) verify(expected string) error {
 	return fmt.Errorf("snapd upgrade verification failed: %s", last)
 }
 
-func (i *Installer) prune(dir string, keep int) {
+func (s *Snapd) prune(dir string, keep int) {
 	matches, err := filepath.Glob(filepath.Join(dir, "snapd-*.tar.gz"))
 	if err != nil {
-		i.logger.Warn("cannot list snapd archives", zap.Error(err))
+		s.logger.Warn("cannot list snapd archives", zap.Error(err))
 		return
 	}
 	type entry struct {
@@ -128,23 +128,23 @@ func (i *Installer) prune(dir string, keep int) {
 	}
 	sort.Slice(entries, func(a, b int) bool { return entries[a].mod.After(entries[b].mod) })
 	for idx := keep; idx < len(entries); idx++ {
-		i.logger.Info("removing old snapd archive", zap.String("path", entries[idx].path))
+		s.logger.Info("removing old snapd archive", zap.String("path", entries[idx].path))
 		err = os.Remove(entries[idx].path)
 		if err != nil {
-			i.logger.Warn("cannot remove old snapd archive", zap.String("path", entries[idx].path), zap.Error(err))
+			s.logger.Warn("cannot remove old snapd archive", zap.String("path", entries[idx].path), zap.Error(err))
 		}
 	}
 }
 
-func (i *Installer) arch() (string, error) {
-	arch, ok := archByGoArch[runtime.GOARCH]
+func (s *Snapd) arch() (string, error) {
+	arch, ok := snapdArchByGoArch[runtime.GOARCH]
 	if !ok {
 		return "", fmt.Errorf("unsupported architecture: %s", runtime.GOARCH)
 	}
 	return arch, nil
 }
 
-func (i *Installer) download(url, dst string) error {
+func (s *Snapd) download(url, dst string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -162,7 +162,7 @@ func (i *Installer) download(url, dst string) error {
 	return err
 }
 
-func (i *Installer) extract(archive, dst string) error {
+func (s *Snapd) extract(archive, dst string) error {
 	file, err := os.Open(archive)
 	if err != nil {
 		return err

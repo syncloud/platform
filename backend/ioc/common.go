@@ -19,7 +19,6 @@ import (
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/network"
@@ -316,11 +315,11 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapd *snap.Server) *installer.Installer { return installer.New(snapd, logger) })
+	err = c.Singleton(func(snapd *snap.Server) *snap.Snapd { return snap.NewSnapd(snapd, logger) })
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(snapd *snap.Server, upgrader *installer.Installer, master *job.SingleJobMaster, scheduler *cron.SimpleScheduler, provider *date.RealProvider) *cron.SnapdUpgradeJob {
+	err = c.Singleton(func(snapd *snap.Server, upgrader *snap.Snapd, master *job.SingleJobMaster, scheduler *cron.SimpleScheduler, provider *date.RealProvider) *cron.SnapdUpgradeJob {
 		return cron.NewSnapdUpgradeJob(snapd, upgrader, master, scheduler, provider, logger)
 	})
 	if err != nil {

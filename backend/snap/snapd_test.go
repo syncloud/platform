@@ -1,4 +1,4 @@
-package installer
+package snap
 
 import (
 	"fmt"
@@ -11,13 +11,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type SnapdStub struct {
+type InstalledVersionStub struct {
 	versions []string
 	index    int
 	err      error
 }
 
-func (s *SnapdStub) InstalledVersion() (string, error) {
+func (s *InstalledVersionStub) InstalledVersion() (string, error) {
 	if s.err != nil {
 		return "", s.err
 	}
@@ -28,13 +28,13 @@ func (s *SnapdStub) InstalledVersion() (string, error) {
 	return v, nil
 }
 
-func newInstaller(snapd SnapdVersion) *Installer {
-	i := New(snapd, zap.NewNop())
-	i.sleep = func(time.Duration) {}
-	return i
+func newSnapd(version InstalledVersionProvider) *Snapd {
+	s := NewSnapd(version, zap.NewNop())
+	s.sleep = func(time.Duration) {}
+	return s
 }
 
-func TestPruneKeepsTwoNewest(t *testing.T) {
+func TestSnapdPruneKeepsTwoNewest(t *testing.T) {
 	dir := t.TempDir()
 	base := time.Now()
 	for idx, name := range []string{"snapd-1-amd64.tar.gz", "snapd-2-amd64.tar.gz", "snapd-3-amd64.tar.gz", "snapd-4-amd64.tar.gz"} {
@@ -43,7 +43,7 @@ func TestPruneKeepsTwoNewest(t *testing.T) {
 		assert.NoError(t, os.Chtimes(path, base, base.Add(time.Duration(idx)*time.Hour)))
 	}
 
-	newInstaller(&SnapdStub{}).prune(dir, 2)
+	newSnapd(&InstalledVersionStub{}).prune(dir, 2)
 
 	left, err := filepath.Glob(filepath.Join(dir, "snapd-*.tar.gz"))
 	assert.NoError(t, err)
@@ -54,22 +54,22 @@ func TestPruneKeepsTwoNewest(t *testing.T) {
 	assert.ElementsMatch(t, []string{"snapd-3-amd64.tar.gz", "snapd-4-amd64.tar.gz"}, names)
 }
 
-func TestVerifySucceedsWhenVersionMatches(t *testing.T) {
-	err := newInstaller(&SnapdStub{versions: []string{"660"}}).verify("660")
+func TestSnapdVerifySucceedsWhenVersionMatches(t *testing.T) {
+	err := newSnapd(&InstalledVersionStub{versions: []string{"660"}}).verify("660")
 	assert.NoError(t, err)
 }
 
-func TestVerifyRetriesUntilVersionMatches(t *testing.T) {
-	err := newInstaller(&SnapdStub{versions: []string{"659", "659", "660"}}).verify("660")
+func TestSnapdVerifyRetriesUntilVersionMatches(t *testing.T) {
+	err := newSnapd(&InstalledVersionStub{versions: []string{"659", "659", "660"}}).verify("660")
 	assert.NoError(t, err)
 }
 
-func TestVerifyFailsWhenVersionNeverMatches(t *testing.T) {
-	err := newInstaller(&SnapdStub{versions: []string{"659"}}).verify("660")
+func TestSnapdVerifyFailsWhenVersionNeverMatches(t *testing.T) {
+	err := newSnapd(&InstalledVersionStub{versions: []string{"659"}}).verify("660")
 	assert.Error(t, err)
 }
 
-func TestVerifyFailsOnError(t *testing.T) {
-	err := newInstaller(&SnapdStub{err: fmt.Errorf("snapd down")}).verify("660")
+func TestSnapdVerifyFailsOnError(t *testing.T) {
+	err := newSnapd(&InstalledVersionStub{err: fmt.Errorf("snapd down")}).verify("660")
 	assert.Error(t, err)
 }
