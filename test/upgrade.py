@@ -11,6 +11,7 @@ from syncloudlib.integration.installer import local_install
 
 TMP_DIR = '/tmp/syncloud'
 DB_PATH = '/var/snap/platform/current/platform.db'
+SNAPD_UPGRADE_BASELINE_VERSION = '640'
 
 
 @pytest.fixture(scope="session")
@@ -35,7 +36,7 @@ def test_start(module_setup, app, device_host, domain, device):
 
 def test_upgrade(device, device_user, device_password, device_host, app_archive_path, app_domain, app_dir):
     device.run_ssh('snap remove platform')
-    device.run_ssh('/test/install-snapd.sh')
+    device.run_ssh('/test/install-snapd.sh {0}'.format(SNAPD_UPGRADE_BASELINE_VERSION))
     device.run_ssh('snap install platform', retries=3)
 
     # Insert a custom proxy entry using old schema (without https column) to test migration
@@ -78,15 +79,32 @@ def test_slapd_quiet_after_refresh(device):
     assert int(output.strip()) == 0, output
 
 
+def installer_version(session, domain):
+    response = session.get('https://{0}/rest/installer/version'.format(domain), verify=False)
+    assert response.status_code == 200, response.text
+    return json.loads(response.text)['data']
+
+
 def test_installer_upgrade(device, domain):
     session = device.login_v2()
-    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
-    assert response.status_code == 200, response.text
-    wait_for_jobs(domain, session)
+
+    before = installer_version(session, domain)
+    assert before['store_version'].strip() != SNAPD_UPGRADE_BASELINE_VERSION, before
 
     response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
     assert response.status_code == 200, response.text
     wait_for_jobs(domain, session)
+
+    after = installer_version(session, domain)
+    assert after['installed_version'].strip() == after['store_version'].strip(), after
+    assert after['installed_version'].strip() != SNAPD_UPGRADE_BASELINE_VERSION, after
+
+    response = session.post('https://{0}/rest/installer/upgrade'.format(domain), verify=False)
+    assert response.status_code == 200, response.text
+    wait_for_jobs(domain, session)
+
+    after = installer_version(session, domain)
+    assert after['installed_version'].strip() == after['store_version'].strip(), after
 
 
 def wait_for_jobs(domain, session):
