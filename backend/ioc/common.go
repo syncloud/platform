@@ -19,7 +19,6 @@ import (
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/hook"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/network"
@@ -316,13 +315,21 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, userConfig *config.UserConfig) *cron.Cron {
-		return cron.New([]cron.Job{job1, job2, job3, job4}, time.Minute*5, userConfig)
+	err = c.Singleton(func(snapd *snap.Server, client *retryablehttp.Client) *snap.Snapd {
+		return snap.NewSnapd(snapd, client, logger)
 	})
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func() *installer.Installer { return installer.New() })
+	err = c.Singleton(func(snapd *snap.Server, upgrader *snap.Snapd, master *job.SingleJobMaster, scheduler *cron.SimpleScheduler, provider *date.RealProvider) *cron.SnapdUpgradeJob {
+		return cron.NewSnapdUpgradeJob(snapd, upgrader, master, scheduler, provider, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, job5 *cron.SnapdUpgradeJob, userConfig *config.UserConfig) *cron.Cron {
+		return cron.New([]cron.Job{job1, job2, job3, job4, job5}, time.Minute*5, userConfig)
+	})
 	if err != nil {
 		return nil, err
 	}

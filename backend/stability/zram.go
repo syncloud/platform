@@ -21,7 +21,6 @@ const (
 	zramSysBlockDefault = "/sys/block/zram0"
 	zramHotAddDefault   = "/sys/class/zram-control/hot_add"
 	procSwapsDefault    = "/proc/swaps"
-	memThresholdKB      = 6 * 1024 * 1024
 	zramMaxSizeBytes    = uint64(2 * 1024 * 1024 * 1024)
 	zramPriority        = 10
 	swapMagicV1         = "SWAPSPACE2"
@@ -53,10 +52,6 @@ func (z *Zram) EnsureConfigured() error {
 	snap, err := z.mem.Snapshot()
 	if err != nil {
 		return fmt.Errorf("zram: meminfo: %w", err)
-	}
-	if snap.TotalKB > memThresholdKB {
-		z.log.Info("zram: skipping; memory above threshold", zap.Uint64("total_kb", snap.TotalKB))
-		return nil
 	}
 	on, err := z.alreadyOn()
 	if err != nil {
@@ -175,7 +170,7 @@ func (z *Zram) sizeBytes(totalBytes uint64) uint64 {
 
 func (z *Zram) configureSysfs(sizeBytes uint64) error {
 	if err := os.WriteFile(filepath.Join(z.sysBlock, "comp_algorithm"), []byte("zstd"), 0644); err != nil {
-		return err
+		z.log.Warn("zram: zstd unsupported, keeping kernel default algorithm", zap.Error(err))
 	}
 	return os.WriteFile(filepath.Join(z.sysBlock, "disksize"), []byte(fmt.Sprintf("%d", sizeBytes)), 0644)
 }

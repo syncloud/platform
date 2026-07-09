@@ -54,13 +54,6 @@ func strconvUint(v uint64) string {
 	return string(digits)
 }
 
-func TestEnsureSkipsAboveMemThreshold(t *testing.T) {
-	z, sysBlock := newTestZram(t, 8*1024*1024, "Filename...\n")
-	require.NoError(t, z.EnsureConfigured())
-	size, _ := os.ReadFile(filepath.Join(sysBlock, "disksize"))
-	assert.Equal(t, "0", string(size))
-}
-
 func TestEnsureSkipsIfAlreadyOn(t *testing.T) {
 	z, sysBlock := newTestZram(t, 4*1024*1024, "Filename\t\tType\tSize\tUsed\tPriority\n")
 	sc, err := os.ReadFile(z.procSwaps)
@@ -89,6 +82,15 @@ func TestConfigureSysfsWritesAlgoAndSize(t *testing.T) {
 	require.NoError(t, z.configureSysfs(123456))
 	algo, _ := os.ReadFile(filepath.Join(sysBlock, "comp_algorithm"))
 	assert.Equal(t, "zstd", string(algo))
+	size, _ := os.ReadFile(filepath.Join(sysBlock, "disksize"))
+	assert.Equal(t, "123456", string(size))
+}
+
+func TestConfigureSysfsToleratesUnsupportedAlgo(t *testing.T) {
+	z, sysBlock := newTestZram(t, 4*1024*1024, "")
+	require.NoError(t, os.Remove(filepath.Join(sysBlock, "comp_algorithm")))
+	require.NoError(t, os.Mkdir(filepath.Join(sysBlock, "comp_algorithm"), 0755))
+	require.NoError(t, z.configureSysfs(123456))
 	size, _ := os.ReadFile(filepath.Join(sysBlock, "disksize"))
 	assert.Equal(t, "123456", string(size))
 }

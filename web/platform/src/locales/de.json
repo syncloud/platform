@@ -322,6 +322,8 @@
     "ioWrite": "schreiben",
     "netRx": "Empfang",
     "netTx": "Senden",
+    "swapIn": "rein",
+    "swapOut": "raus",
     "kindZramEnabled": "zram aktiviert",
     "kindSwapoffFile": "Auslagerungsdatei deaktiviert",
     "kindPressure": "Speicherengpass erkannt",

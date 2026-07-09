@@ -194,17 +194,25 @@ func (s *Server) StoreSnaps() ([]model.Snap, error) {
 	return s.find("*")
 }
 
-func (s *Server) Installer() (*model.InstallerInfo, error) {
-	s.logger.Info("installer")
-	channel := s.systemConfig.Channel()
+func (s *Server) InstalledVersion() (string, error) {
 	systemInfoBytes, err := s.client.Get(fmt.Sprintf("http://unix/v2/system-info"))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	var systemInfo model.SystemInfo
 	err = json.Unmarshal(systemInfoBytes, &systemInfo)
 	if err != nil {
 		s.logger.Error("cannot unmarshal", zap.Error(err))
+		return "", err
+	}
+	return systemInfo.Result.Version, nil
+}
+
+func (s *Server) Installer() (*model.InstallerInfo, error) {
+	s.logger.Info("installer")
+	channel := s.systemConfig.Channel()
+	installedVersion, err := s.InstalledVersion()
+	if err != nil {
 		return nil, err
 	}
 
@@ -220,7 +228,7 @@ func (s *Server) Installer() (*model.InstallerInfo, error) {
 
 	return &model.InstallerInfo{
 		StoreVersion:     string(body),
-		InstalledVersion: systemInfo.Result.Version,
+		InstalledVersion: installedVersion,
 	}, nil
 }
 
