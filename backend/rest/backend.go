@@ -18,7 +18,6 @@ import (
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
@@ -40,7 +39,7 @@ type Backend struct {
 	eventTrigger    *event.Trigger
 	worker          *job.Worker
 	redirect        *redirect.Service
-	installer       installer.AppInstaller
+	snapdUpgrader   *snap.Snapd
 	storage         *storage.Storage
 	identification  *identification.Parser
 	activate        *Activate
@@ -73,7 +72,7 @@ type Backend struct {
 
 func NewBackend(
 	master *job.SingleJobMaster, backup *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
-	redirect *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
+	redirect *redirect.Service, snapdUpgrader *snap.Snapd, storageService *storage.Storage,
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	redirectConfig *config.Redirect,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
@@ -92,7 +91,7 @@ func NewBackend(
 		eventTrigger:    eventTrigger,
 		worker:          worker,
 		redirect:        redirect,
-		installer:       installerService,
+		snapdUpgrader:   snapdUpgrader,
 		storage:         storageService,
 		identification:  identification,
 		activate:        activate,
@@ -278,7 +277,12 @@ func (b *Backend) BackupRestore(req *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) InstallerUpgrade(_ *http.Request) (interface{}, error) {
-	err := b.JobMaster.Offer("installer.upgrade", func() error { return b.installer.Upgrade() })
+	info, err := b.snapd.Installer()
+	if err != nil {
+		return nil, err
+	}
+	version := info.StoreVersion
+	err = b.JobMaster.Offer("installer.upgrade", func() error { return b.snapdUpgrader.Upgrade(version) })
 	return "submitted", err
 }
 

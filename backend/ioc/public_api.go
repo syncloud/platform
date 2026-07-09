@@ -12,7 +12,6 @@ import (
 	"github.com/syncloud/platform/hardware/lcd"
 	"github.com/syncloud/platform/health"
 	"github.com/syncloud/platform/identification"
-	"github.com/syncloud/platform/installer"
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/network"
 	"github.com/syncloud/platform/redirect"
@@ -32,7 +31,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 	}
 
 	err = c.Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
-		redirectService *redirect.Service, installerService *installer.Installer, storageService *storage.Storage,
+		redirectService *redirect.Service, snapdUpgrader *snap.Snapd, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, redirectConfig *config.Redirect, cert *rest.Certificate,
 		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
 		executor *cli.ShellExecutor, iface *network.TcpInterfaces, sender *support.Sender,
@@ -43,7 +42,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		healthService *health.Health,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
-			installerService, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
+			snapdUpgrader, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
 			snapd, disks, journalCtl, executor, iface, sender, proxy, customProxy,
 			userManager, groupManager, middleware, cookies, net, address, changesClient,
 			oidcService, authelia, totp, tz, healthService, logger)
