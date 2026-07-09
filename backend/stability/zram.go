@@ -21,7 +21,6 @@ const (
 	zramSysBlockDefault = "/sys/block/zram0"
 	zramHotAddDefault   = "/sys/class/zram-control/hot_add"
 	procSwapsDefault    = "/proc/swaps"
-	memThresholdKB      = 6 * 1024 * 1024
 	zramMaxSizeBytes    = uint64(2 * 1024 * 1024 * 1024)
 	zramPriority        = 10
 	swapMagicV1         = "SWAPSPACE2"
@@ -53,10 +52,6 @@ func (z *Zram) EnsureConfigured() error {
 	snap, err := z.mem.Snapshot()
 	if err != nil {
 		return fmt.Errorf("zram: meminfo: %w", err)
-	}
-	if snap.TotalKB > memThresholdKB {
-		z.log.Info("zram: skipping; memory above threshold", zap.Uint64("total_kb", snap.TotalKB))
-		return nil
 	}
 	on, err := z.alreadyOn()
 	if err != nil {
