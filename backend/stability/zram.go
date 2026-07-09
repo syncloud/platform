@@ -170,7 +170,7 @@ func (z *Zram) sizeBytes(totalBytes uint64) uint64 {
 
 func (z *Zram) configureSysfs(sizeBytes uint64) error {
 	if err := os.WriteFile(filepath.Join(z.sysBlock, "comp_algorithm"), []byte("zstd"), 0644); err != nil {
-		return err
+		z.log.Warn("zram: zstd unsupported, keeping kernel default algorithm", zap.Error(err))
 	}
 	return os.WriteFile(filepath.Join(z.sysBlock, "disksize"), []byte(fmt.Sprintf("%d", sizeBytes)), 0644)
 }

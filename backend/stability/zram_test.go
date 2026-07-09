@@ -86,6 +86,15 @@ func TestConfigureSysfsWritesAlgoAndSize(t *testing.T) {
 	assert.Equal(t, "123456", string(size))
 }
 
+func TestConfigureSysfsToleratesUnsupportedAlgo(t *testing.T) {
+	z, sysBlock := newTestZram(t, 4*1024*1024, "")
+	require.NoError(t, os.Remove(filepath.Join(sysBlock, "comp_algorithm")))
+	require.NoError(t, os.Mkdir(filepath.Join(sysBlock, "comp_algorithm"), 0755))
+	require.NoError(t, z.configureSysfs(123456))
+	size, _ := os.ReadFile(filepath.Join(sysBlock, "disksize"))
+	assert.Equal(t, "123456", string(size))
+}
+
 func TestSizeBytesCapped(t *testing.T) {
 	z, _ := newTestZram(t, 4*1024*1024, "")
 	assert.Equal(t, uint64(2*1024*1024*1024), z.sizeBytes(8*1024*1024*1024))
