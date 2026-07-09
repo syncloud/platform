@@ -322,6 +322,8 @@
     "ioWrite": "写入",
     "netRx": "下载",
     "netTx": "上传",
+    "swapIn": "换入",
+    "swapOut": "换出",
     "kindZramEnabled": "已启用 zram",
     "kindSwapoffFile": "已禁用文件交换",
     "kindPressure": "检测到内存压力",

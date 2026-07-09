@@ -322,6 +322,8 @@
     "ioWrite": "запись",
     "netRx": "приём",
     "netTx": "передача",
+    "swapIn": "вход",
+    "swapOut": "выход",
     "kindZramEnabled": "zram включён",
     "kindSwapoffFile": "файл подкачки отключён",
     "kindPressure": "обнаружена нехватка памяти",

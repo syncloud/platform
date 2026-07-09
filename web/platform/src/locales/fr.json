@@ -322,6 +322,8 @@
     "ioWrite": "écriture",
     "netRx": "reçu",
     "netTx": "envoyé",
+    "swapIn": "entrée",
+    "swapOut": "sortie",
     "kindZramEnabled": "zram activé",
     "kindSwapoffFile": "fichier swap désactivé",
     "kindPressure": "pression mémoire détectée",

@@ -322,6 +322,8 @@
     "ioWrite": "書き込み",
     "netRx": "受信",
     "netTx": "送信",
+    "swapIn": "入",
+    "swapOut": "出",
     "kindZramEnabled": "zram を有効化",
     "kindSwapoffFile": "ファイルスワップを無効化",
     "kindPressure": "メモリ圧迫を検出",

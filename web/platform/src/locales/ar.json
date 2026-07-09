@@ -322,6 +322,8 @@
     "ioWrite": "كتابة",
     "netRx": "استقبال",
     "netTx": "إرسال",
+    "swapIn": "داخل",
+    "swapOut": "خارج",
     "kindZramEnabled": "تم تمكين zram",
     "kindSwapoffFile": "تم تعطيل ملف التبديل",
     "kindPressure": "تم اكتشاف ضغط على الذاكرة",

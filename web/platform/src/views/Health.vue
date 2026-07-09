@@ -19,6 +19,7 @@
           <div class="setline" v-if="swapTotalMb > 0">
             <h3>{{ $t('health.swap') }} — {{ swapUsedMb }} / {{ swapTotalMb }} MB</h3>
             <s-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
+            <div class="muted" data-testid="health-swap-rate">{{ $t('health.swapIn') }} {{ swapRate.inKBs }} · {{ $t('health.swapOut') }} {{ swapRate.outKBs }} KB/s</div>
           </div>
         </div>
 
@@ -86,6 +87,7 @@ export default {
       prevMetrics: null,
       events: [],
       cpuPct: 0,
+      swapRate: { inKBs: 0, outKBs: 0 },
       diskRates: [],
       netRates: [],
       metricsTimer: null,
@@ -177,6 +179,7 @@ export default {
     computeDeltas (prev, next) {
       if (!prev) {
         this.cpuPct = 0
+        this.swapRate = { inKBs: 0, outKBs: 0 }
         this.diskRates = (next.disks || []).map(d => ({ name: d.name, readKBs: 0, writeKBs: 0 }))
         this.netRates = (next.net || []).map(n => ({ name: n.name, rxKBs: 0, txKBs: 0 }))
         return
@@ -187,6 +190,11 @@ export default {
       this.cpuPct = totalDelta > 0 ? Math.max(0, Math.min(100, ((totalDelta - idleDelta) / totalDelta) * 100)) : 0
 
       const secs = METRICS_INTERVAL_MS / 1000
+      const pageKb = 4
+      this.swapRate = {
+        inKBs: Math.max(0, Math.round(((next.memory.swap_in_pages || 0) - (prev.memory.swap_in_pages || 0)) * pageKb / secs)),
+        outKBs: Math.max(0, Math.round(((next.memory.swap_out_pages || 0) - (prev.memory.swap_out_pages || 0)) * pageKb / secs))
+      }
       const prevDisks = {}
       ;(prev.disks || []).forEach(d => { prevDisks[d.name] = d })
       this.diskRates = (next.disks || []).map(d => {
