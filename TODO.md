@@ -11,7 +11,6 @@ repo with its own release workflow.
 platform CI pipeline (similar to how nginx and authelia are already built
 in-tree), so upgrading a dependency is just a version bump in this repo.
 
-**Current downloads in `package.sh`:**
+**Remaining downloads in `package.sh`:**
 - `https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz`
 - `https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz`
-- `https://github.com/syncloud/3rdparty/releases/download/gptfdisk/gptfdisk-${ARCH}.tar.gz`
