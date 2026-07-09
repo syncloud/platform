@@ -322,6 +322,8 @@
     "ioWrite": "लिखना",
     "netRx": "डाउनलोड",
     "netTx": "अपलोड",
+    "swapIn": "अंदर",
+    "swapOut": "बाहर",
     "kindZramEnabled": "zram सक्षम",
     "kindSwapoffFile": "फ़ाइल स्वैप अक्षम",
     "kindPressure": "मेमोरी दबाव का पता चला",

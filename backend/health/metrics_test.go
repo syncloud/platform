@@ -21,6 +21,7 @@ func newTestCollector(t *testing.T) (*Collector, string) {
 	dir := t.TempDir()
 	writeProc(t, dir, "stat", "cpu  1000 50 200 5000 30 0 10 0\ncpu0 ...\n")
 	writeProc(t, dir, "meminfo", "MemTotal: 3700000 kB\nMemAvailable: 1500000 kB\nMemFree: 200000 kB\nBuffers: 50000 kB\nCached: 900000 kB\nSwapTotal: 2000000 kB\nSwapFree: 1500000 kB\n")
+	writeProc(t, dir, "vmstat", "nr_free_pages 50000\npswpin 1234\npswpout 5678\npgfault 999\n")
 	writeProc(t, dir, "diskstats", "   8       0 sda 100 0 200 0 10 0 20 0 0 0 0 0 0 0\n"+
 		"   8       1 sda1 50 0 100 0 5 0 10 0 0 0 0 0 0 0\n"+
 		" 179       0 mmcblk0 1000 0 2000 0 100 0 200 0 0 0 0 0 0 0\n"+
@@ -50,6 +51,20 @@ func TestReadMemory(t *testing.T) {
 	assert.Equal(t, uint64(3700000), mem.TotalKB)
 	assert.Equal(t, uint64(1500000), mem.AvailableKB)
 	assert.Equal(t, uint64(2000000), mem.SwapTotalKB)
+}
+
+func TestReadSwapCounters(t *testing.T) {
+	c, _ := newTestCollector(t)
+	in, out := c.readSwapCounters()
+	assert.Equal(t, uint64(1234), in)
+	assert.Equal(t, uint64(5678), out)
+}
+
+func TestReadSwapCountersMissingVmstat(t *testing.T) {
+	c := NewCollector(t.TempDir())
+	in, out := c.readSwapCounters()
+	assert.Equal(t, uint64(0), in)
+	assert.Equal(t, uint64(0), out)
 }
 
 func TestReadDisksFiltersPartitionsAndLoops(t *testing.T) {

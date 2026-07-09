@@ -10,14 +10,14 @@ import (
 )
 
 type CPU struct {
-	User   uint64 `json:"user"`
-	Nice   uint64 `json:"nice"`
-	System uint64 `json:"system"`
-	Idle   uint64 `json:"idle"`
-	IOWait uint64 `json:"iowait"`
-	IRQ    uint64 `json:"irq"`
+	User    uint64 `json:"user"`
+	Nice    uint64 `json:"nice"`
+	System  uint64 `json:"system"`
+	Idle    uint64 `json:"idle"`
+	IOWait  uint64 `json:"iowait"`
+	IRQ     uint64 `json:"irq"`
 	SoftIRQ uint64 `json:"softirq"`
-	Steal  uint64 `json:"steal"`
+	Steal   uint64 `json:"steal"`
 }
 
 func (c CPU) Total() uint64 {
@@ -29,13 +29,15 @@ func (c CPU) Busy() uint64 {
 }
 
 type Memory struct {
-	TotalKB     uint64 `json:"total_kb"`
-	AvailableKB uint64 `json:"available_kb"`
-	FreeKB      uint64 `json:"free_kb"`
-	BuffersKB   uint64 `json:"buffers_kb"`
-	CachedKB    uint64 `json:"cached_kb"`
-	SwapTotalKB uint64 `json:"swap_total_kb"`
-	SwapFreeKB  uint64 `json:"swap_free_kb"`
+	TotalKB      uint64 `json:"total_kb"`
+	AvailableKB  uint64 `json:"available_kb"`
+	FreeKB       uint64 `json:"free_kb"`
+	BuffersKB    uint64 `json:"buffers_kb"`
+	CachedKB     uint64 `json:"cached_kb"`
+	SwapTotalKB  uint64 `json:"swap_total_kb"`
+	SwapFreeKB   uint64 `json:"swap_free_kb"`
+	SwapInPages  uint64 `json:"swap_in_pages"`
+	SwapOutPages uint64 `json:"swap_out_pages"`
 }
 
 type Disk struct {
@@ -47,9 +49,9 @@ type Disk struct {
 }
 
 type Mount struct {
-	Path     string `json:"path"`
-	TotalKB  uint64 `json:"total_kb"`
-	UsedKB   uint64 `json:"used_kb"`
+	Path    string `json:"path"`
+	TotalKB uint64 `json:"total_kb"`
+	UsedKB  uint64 `json:"used_kb"`
 }
 
 type Net struct {
@@ -59,11 +61,11 @@ type Net struct {
 }
 
 type Snapshot struct {
-	CPU    CPU    `json:"cpu"`
-	Memory Memory `json:"memory"`
-	Disks  []Disk `json:"disks"`
+	CPU    CPU     `json:"cpu"`
+	Memory Memory  `json:"memory"`
+	Disks  []Disk  `json:"disks"`
 	Mounts []Mount `json:"mounts"`
-	Net    []Net  `json:"net"`
+	Net    []Net   `json:"net"`
 }
 
 type Collector struct {
@@ -85,6 +87,7 @@ func (c *Collector) Snapshot() (Snapshot, error) {
 	if err != nil {
 		return s, err
 	}
+	mem.SwapInPages, mem.SwapOutPages = c.readSwapCounters()
 	s.Memory = mem
 	s.Disks, _ = c.readDisks()
 	s.Net, _ = c.readNet()
@@ -153,6 +156,29 @@ func (c *Collector) readMemory() (Memory, error) {
 		}
 	}
 	return m, sc.Err()
+}
+
+func (c *Collector) readSwapCounters() (in, out uint64) {
+	f, err := os.Open(filepath.Join(c.procDir, "vmstat"))
+	if err != nil {
+		return 0, 0
+	}
+	defer f.Close()
+	sc := bufio.NewScanner(f)
+	for sc.Scan() {
+		fields := strings.Fields(sc.Text())
+		if len(fields) != 2 {
+			continue
+		}
+		v, _ := strconv.ParseUint(fields[1], 10, 64)
+		switch fields[0] {
+		case "pswpin":
+			in = v
+		case "pswpout":
+			out = v
+		}
+	}
+	return in, out
 }
 
 func (c *Collector) readDisks() ([]Disk, error) {

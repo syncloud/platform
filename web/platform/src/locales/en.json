@@ -78,6 +78,8 @@
     "ioWrite": "write",
     "netRx": "down",
     "netTx": "up",
+    "swapIn": "in",
+    "swapOut": "out",
     "kindZramEnabled": "zram enabled",
     "kindSwapoffFile": "file swap disabled",
     "kindPressure": "memory pressure detected",
