@@ -119,6 +119,7 @@ export default {
     }
   },
   async mounted() {
+    this.setupKeyboard()
     // Handle logout path - clear Authelia session first
     if (window.location.pathname === '/logout') {
       try {
@@ -134,7 +135,39 @@ export default {
     this.flowID = params.get('flow_id') || ''
     this.checkState()
   },
+  beforeUnmount() {
+    const vv = window.visualViewport
+    if (vv && this.vvHandler) {
+      vv.removeEventListener('resize', this.vvHandler)
+      vv.removeEventListener('scroll', this.vvHandler)
+    }
+    if (this.focusHandler) {
+      document.removeEventListener('focusin', this.focusHandler)
+    }
+  },
   methods: {
+    setupKeyboard() {
+      const vv = window.visualViewport
+      if (!vv) return
+      this.vvHandler = () => {
+        const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+        document.documentElement.style.setProperty('--kb', inset + 'px')
+        const active = document.activeElement
+        if (inset > 0 && active && active.tagName === 'INPUT') {
+          active.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        }
+      }
+      vv.addEventListener('resize', this.vvHandler)
+      vv.addEventListener('scroll', this.vvHandler)
+      this.focusHandler = (e) => {
+        if (e.target && e.target.tagName === 'INPUT') {
+          setTimeout(() => {
+            e.target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          }, 300)
+        }
+      }
+      document.addEventListener('focusin', this.focusHandler)
+    },
     async checkState() {
       console.log('login: checkState, flowID=' + this.flowID + ', targetURL=' + this.targetURL)
       // For OIDC flows, always show login form (don't auto-complete)
@@ -324,25 +357,28 @@ body {
   color: var(--lg-ink);
   background: linear-gradient(140deg, #f7fafe 0%, #eaf2fb 55%, #dbe7f4 100%);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 .login-root {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 40px 16px;
+  padding: 32px 16px calc(40px + var(--kb, 0px));
 }
 .login-wordmark {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 6px;
   color: var(--lg-primary);
+  margin-top: auto;
   margin-bottom: 24px;
 }
 .login-card {
   width: 100%;
   max-width: 420px;
+  margin-bottom: auto;
   background: #fff;
   border-radius: 22px;
   box-shadow: 0 24px 60px -20px rgba(22, 50, 92, 0.18), 0 2px 6px rgba(22, 50, 92, 0.04);
