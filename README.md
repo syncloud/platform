@@ -8,7 +8,7 @@ We are open to cooperation with hardware vendors interested in including Synclou
 
 ### Apps
 
-https://syncloud.org/apps.html
+https://store.syncloud.org
 
 ### Download
 
