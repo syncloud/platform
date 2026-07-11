@@ -1,4 +1,12 @@
 import { createApp } from 'vue'
 import LoginApp from './LoginApp.vue'
 
-createApp(LoginApp).mount('#app')
+async function start () {
+  if (import.meta.env.VITE_STUB) {
+    const { mock } = await import('./stub/api')
+    mock()
+  }
+  createApp(LoginApp).mount('#app')
+}
+
+start()
