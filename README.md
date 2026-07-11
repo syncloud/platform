@@ -10,12 +10,12 @@ We are open to cooperation with hardware vendors interested in including Synclou
 
 <table>
   <tr>
-    <td align="center"><b>Apps</b></td>
-    <td align="center"><b>Settings</b></td>
+    <td align="center" width="50%"><b>Apps</b></td>
+    <td align="center" width="50%"><b>Settings</b></td>
   </tr>
   <tr>
-    <td><img src="doc/screenshots/apps.jpg" alt="Apps" width="300"></td>
-    <td><img src="doc/screenshots/settings.jpg" alt="Settings" width="300"></td>
+    <td width="50%"><img src="doc/screenshots/apps.jpg" alt="Apps" width="100%"></td>
+    <td width="50%"><img src="doc/screenshots/settings.jpg" alt="Settings" width="100%"></td>
   </tr>
 </table>
 
