@@ -119,6 +119,7 @@ export default {
     }
   },
   async mounted() {
+    this.setupKeyboard()
     // Handle logout path - clear Authelia session first
     if (window.location.pathname === '/logout') {
       try {
@@ -134,7 +135,39 @@ export default {
     this.flowID = params.get('flow_id') || ''
     this.checkState()
   },
+  beforeUnmount() {
+    const vv = window.visualViewport
+    if (vv && this.vvHandler) {
+      vv.removeEventListener('resize', this.vvHandler)
+      vv.removeEventListener('scroll', this.vvHandler)
+    }
+    if (this.focusHandler) {
+      document.removeEventListener('focusin', this.focusHandler)
+    }
+  },
   methods: {
+    setupKeyboard() {
+      const vv = window.visualViewport
+      if (!vv) return
+      this.vvHandler = () => {
+        const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+        document.documentElement.style.setProperty('--kb', inset + 'px')
+        const active = document.activeElement
+        if (inset > 0 && active && active.tagName === 'INPUT') {
+          active.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        }
+      }
+      vv.addEventListener('resize', this.vvHandler)
+      vv.addEventListener('scroll', this.vvHandler)
+      this.focusHandler = (e) => {
+        if (e.target && e.target.tagName === 'INPUT') {
+          setTimeout(() => {
+            e.target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          }, 300)
+        }
+      }
+      document.addEventListener('focusin', this.focusHandler)
+    },
     async checkState() {
       console.log('login: checkState, flowID=' + this.flowID + ', targetURL=' + this.targetURL)
       // For OIDC flows, always show login form (don't auto-complete)
@@ -332,7 +365,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 16px 160px;
+  padding: 32px 16px calc(40px + var(--kb, 0px));
 }
 .login-wordmark {
   font-size: 14px;
