@@ -14,8 +14,8 @@ We are open to cooperation with hardware vendors interested in including Synclou
     <td align="center"><b>Settings</b></td>
   </tr>
   <tr>
-    <td><img src="doc/screenshots/apps.png" alt="Apps" width="400"></td>
-    <td><img src="doc/screenshots/settings.png" alt="Settings" width="400"></td>
+    <td><img src="doc/screenshots/apps.jpg" alt="Apps" width="300"></td>
+    <td><img src="doc/screenshots/settings.jpg" alt="Settings" width="300"></td>
   </tr>
 </table>
 
