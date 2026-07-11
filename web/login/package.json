@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:stub": "VITE_STUB=1 vite",
     "build": "vite build",
     "lint": "eslint --fix src"
   },
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.6.1",
+    "miragejs": "^0.1.48",
     "vite": "^2.5.4"
   }
 }
