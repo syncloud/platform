@@ -332,7 +332,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 16px;
+  padding: 32px 16px 160px;
 }
 .login-wordmark {
   font-size: 14px;
