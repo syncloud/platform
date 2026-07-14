@@ -785,6 +785,16 @@ identity_providers:
       allowed_origins:
         - 'https://{{ .Domain }}'
       allowed_origins_from_client_redirect_uris: false
+    claims_policies:
+      syncloud:
+        id_token:
+          - 'email'
+          - 'email_verified'
+          - 'name'
+          - 'given_name'
+          - 'family_name'
+          - 'preferred_username'
+          - 'groups'
     clients:
       - client_id: 'syncloud'
         public: true
@@ -814,6 +824,7 @@ identity_providers:
       - client_id: '{{ .ID }}'
         client_secret: '{{ .Secret }}'
         public: false
+        claims_policy: 'syncloud'
         authorization_policy: '{{ if $.TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
         redirect_uris:
 {{- range .RedirectURIs }}

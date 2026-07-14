@@ -80,7 +80,7 @@ func main() {
 			"client_id":             {"testapp"},
 			"response_type":         {"code"},
 			"redirect_uri":          {redirectURI},
-			"scope":                 {"openid profile email"},
+			"scope":                 {"openid profile email groups"},
 			"state":                 {state},
 			"code_challenge":        {challenge},
 			"code_challenge_method": {"S256"},
@@ -131,60 +131,47 @@ func main() {
 		}
 
 		var tokenResp struct {
-			IDToken     string `json:"id_token"`
-			AccessToken string `json:"access_token"`
+			IDToken string `json:"id_token"`
 		}
 		json.Unmarshal(body, &tokenResp)
 
-		var username string
-		if tokenResp.AccessToken != "" {
-			userinfoURL := authUrl + "/api/oidc/userinfo"
-			uReq, _ := http.NewRequest("GET", userinfoURL, nil)
-			uReq.Header.Set("Authorization", "Bearer "+tokenResp.AccessToken)
-			uResp, uErr := newHTTPClient().Do(uReq)
-			if uErr == nil {
-				defer uResp.Body.Close()
-				uBody, _ := io.ReadAll(uResp.Body)
-				var userInfo struct {
-					PreferredUsername string `json:"preferred_username"`
-				}
-				json.Unmarshal(uBody, &userInfo)
-				username = userInfo.PreferredUsername
-			}
-		}
-		if username == "" {
-			username, err = extractUsername(tokenResp.IDToken)
-			if err != nil {
-				http.Error(w, fmt.Sprintf("extract username: %v", err), http.StatusInternalServerError)
-				return
-			}
+		claims, err := extractClaims(tokenResp.IDToken)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("extract claims: %v", err), http.StatusInternalServerError)
+			return
 		}
 
 		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "OK %s", username)
+		fmt.Fprintf(w, "OK %s email=%s groups=%s", claims.PreferredUsername, claims.Email, strings.Join(claims.Groups, ","))
 	})
 
 	http.Serve(listener, mux)
 }
 
-func extractUsername(idToken string) (string, error) {
+type idTokenClaims struct {
+	PreferredUsername string   `json:"preferred_username"`
+	Email             string   `json:"email"`
+	Groups            []string `json:"groups"`
+	Subject           string   `json:"sub"`
+}
+
+func extractClaims(idToken string) (idTokenClaims, error) {
+	var claims idTokenClaims
 	parts := strings.Split(idToken, ".")
 	if len(parts) != 3 {
-		return "", fmt.Errorf("invalid id_token")
+		return claims, fmt.Errorf("invalid id_token")
 	}
 	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
-		return "", err
+		return claims, err
 	}
-	var claims struct {
-		PreferredUsername string `json:"preferred_username"`
-		Subject          string `json:"sub"`
+	if err := json.Unmarshal(payload, &claims); err != nil {
+		return claims, err
 	}
-	json.Unmarshal(payload, &claims)
-	if claims.PreferredUsername != "" {
-		return claims.PreferredUsername, nil
+	if claims.PreferredUsername == "" {
+		claims.PreferredUsername = claims.Subject
 	}
-	return claims.Subject, nil
+	return claims, nil
 }
 
 func randomString(length int) (string, error) {

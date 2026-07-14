@@ -6,9 +6,22 @@ It is available as an image or a pre-built [device](https://shop.syncloud.org).
 
 We are open to cooperation with hardware vendors interested in including Syncloud into their products.
 
+### Screenshots
+
+<table>
+  <tr>
+    <td align="center" width="50%"><b>Apps</b></td>
+    <td align="center" width="50%"><b>Settings</b></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="doc/screenshots/apps.jpg" alt="Apps" width="100%"></td>
+    <td width="50%"><img src="doc/screenshots/settings.jpg" alt="Settings" width="100%"></td>
+  </tr>
+</table>
+
 ### Apps
 
-https://syncloud.org/apps.html
+https://store.syncloud.org
 
 ### Download
 
