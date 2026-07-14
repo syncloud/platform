@@ -27,6 +27,10 @@ test('testapp OIDC login', async ({}, testInfo) => {
   await shoot(page, testInfo, 'testapp-oidc-login')
   await page.locator('#sign-in-button').click()
   await expect(page.locator(`xpath=//*[contains(text(),'OK ${deviceUser}')]`)).toBeVisible()
+  const claims = await page.locator('body').innerText()
+  expect(claims).toContain(`OK ${deviceUser}`)
+  expect(claims).toMatch(/email=\S+@\S+/)
+  expect(claims).toContain('groups=syncloud')
   await shoot(page, testInfo, 'testapp-oidc-callback')
 })
 
