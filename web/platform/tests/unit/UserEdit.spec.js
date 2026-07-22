@@ -41,6 +41,34 @@ test('create: save disabled until username and a strong password', async () => {
   await wrapper.find('#user_username').setValue('bob')
   expect(save.attributes().disabled).toBeDefined()
 
+  await wrapper.find('#user_password').setValue('strongpass1')
+  expect(save.attributes().disabled).toBeUndefined()
+
+  await wrapper.find('#user_username').setValue('Bob')
+  expect(wrapper.find('[data-testid="unrule-start"]').classes()).not.toContain('pw-ok')
+  expect(wrapper.find('[data-testid="unrule-chars"]').classes()).not.toContain('pw-ok')
+  expect(wrapper.find('[data-testid="unrule-length"]').classes()).toContain('pw-ok')
+  expect(save.attributes().disabled).toBeDefined()
+
+  await wrapper.find('#user_username').setValue('bob smith')
+  expect(wrapper.find('[data-testid="unrule-start"]').classes()).toContain('pw-ok')
+  expect(wrapper.find('[data-testid="unrule-chars"]').classes()).not.toContain('pw-ok')
+  expect(save.attributes().disabled).toBeDefined()
+
+  await wrapper.find('#user_username').setValue('b')
+  expect(wrapper.find('[data-testid="unrule-length"]').classes()).not.toContain('pw-ok')
+  expect(save.attributes().disabled).toBeDefined()
+
+  await wrapper.find('#user_username').setValue('bob.smith-1')
+  expect(wrapper.find('[data-testid="unrule-start"]').classes()).toContain('pw-ok')
+  expect(wrapper.find('[data-testid="unrule-chars"]').classes()).toContain('pw-ok')
+  expect(wrapper.find('[data-testid="unrule-length"]').classes()).toContain('pw-ok')
+  expect(save.attributes().disabled).toBeUndefined()
+
+  await wrapper.find('#user_username').setValue('bob')
+  await wrapper.find('#user_password').setValue('')
+  expect(save.attributes().disabled).toBeDefined()
+
   await wrapper.find('#user_password').setValue('short')
   expect(wrapper.find('[data-testid="pwrule-length"]').classes()).not.toContain('pw-ok')
   expect(wrapper.find('[data-testid="pwrule-number"]').classes()).not.toContain('pw-ok')
