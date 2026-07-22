@@ -343,6 +343,10 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func() *auth.UsernameValidator { return auth.NewUsernameValidator() })
+	if err != nil {
+		return nil, err
+	}
 	err = c.Singleton(func() *auth.PasswordValidator { return auth.NewPasswordValidator() })
 	if err != nil {
 		return nil, err
@@ -367,8 +371,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(ldapClient *auth.LdapClient, groups *auth.GroupManager, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.UserManager {
-		return auth.NewUserManager(ldapClient, groups, passwordValidator, passwordHasher, emailResolver, userBuilder)
+	err = c.Singleton(func(ldapClient *auth.LdapClient, groups *auth.GroupManager, usernameValidator *auth.UsernameValidator, passwordValidator *auth.PasswordValidator, passwordHasher *auth.PasswordHasher, emailResolver *auth.EmailResolver, userBuilder *auth.UserBuilder) *auth.UserManager {
+		return auth.NewUserManager(ldapClient, groups, usernameValidator, passwordValidator, passwordHasher, emailResolver, userBuilder)
 	})
 	if err != nil {
 		return nil, err

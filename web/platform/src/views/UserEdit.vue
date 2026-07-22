@@ -8,6 +8,15 @@
         <input class="user-input sc-input" id="user_username" type="text" v-model="username"
                :disabled="!isNew" :placeholder="$t('users.usernamePlaceholder')">
       </div>
+      <div class="setline password-rules" v-if="isNew" data-testid="username-rules">
+        <ul class="pw-rules">
+          <li v-for="rule in usernameRules" :key="rule.key" :data-testid="'unrule-' + rule.key"
+              class="pw-rule" :class="{ 'pw-ok': rule.ok }">
+            <i class="material-icons pw-rule-icon">{{ rule.ok ? 'check_circle' : 'radio_button_unchecked' }}</i>
+            <span>{{ $t(rule.label) }}</span>
+          </li>
+        </ul>
+      </div>
 
       <div class="setline user-field">
         <label class="span user-label" for="user_password">{{ $t('users.password') }}</label>
@@ -119,6 +128,17 @@ export default {
     adminLocked () {
       return !this.isNew && this.originalAdmin && this.adminCount <= 1
     },
+    usernameRules () {
+      const u = this.username
+      return [
+        { key: 'start', label: 'users.usernameRuleStart', ok: /^[a-z]/.test(u) },
+        { key: 'chars', label: 'users.usernameRuleChars', ok: u !== '' && /^[a-z0-9._-]*$/.test(u) },
+        { key: 'length', label: 'users.usernameRuleLength', ok: u.length >= 2 && u.length <= 32 }
+      ]
+    },
+    usernameValid () {
+      return this.usernameRules.every(rule => rule.ok)
+    },
     passwordRules () {
       const p = this.password
       return [
@@ -132,7 +152,7 @@ export default {
     },
     saveDisabled () {
       if (this.isNew) {
-        return this.username.trim() === '' || !this.passwordValid
+        return !this.usernameValid || !this.passwordValid
       }
       return this.password !== '' && !this.passwordValid
     }

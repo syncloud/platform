@@ -50,7 +50,17 @@ test('create requires username and a strong password', async ({}, testInfo) => {
   await expect(page.getByTestId('user-edit-title')).toBeVisible()
   await expect(page.locator('#btn_save')).toBeDisabled()
 
+  await page.locator('#user_username').fill('Temp')
+  await expect(page.getByTestId('unrule-start')).not.toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('unrule-chars')).not.toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('unrule-length')).toHaveClass(/pw-ok/)
+  await expect(page.locator('#btn_save')).toBeDisabled()
+  await shoot(page, testInfo, 'settings_users_username_rules')
+
   await page.locator('#user_username').fill('temp')
+  await expect(page.getByTestId('unrule-start')).toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('unrule-chars')).toHaveClass(/pw-ok/)
+  await expect(page.getByTestId('unrule-length')).toHaveClass(/pw-ok/)
   await expect(page.locator('#btn_save')).toBeDisabled()
 
   await page.locator('#user_password').fill('short')

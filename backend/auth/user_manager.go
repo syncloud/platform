@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
-	"strings"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -12,16 +11,18 @@ import (
 type UserManager struct {
 	ldapClient        *LdapClient
 	groups            *GroupManager
+	usernameValidator *UsernameValidator
 	passwordValidator *PasswordValidator
 	passwordHasher    *PasswordHasher
 	emailResolver     *EmailResolver
 	userBuilder       *UserBuilder
 }
 
-func NewUserManager(ldapClient *LdapClient, groups *GroupManager, passwordValidator *PasswordValidator, passwordHasher *PasswordHasher, emailResolver *EmailResolver, userBuilder *UserBuilder) *UserManager {
+func NewUserManager(ldapClient *LdapClient, groups *GroupManager, usernameValidator *UsernameValidator, passwordValidator *PasswordValidator, passwordHasher *PasswordHasher, emailResolver *EmailResolver, userBuilder *UserBuilder) *UserManager {
 	return &UserManager{
 		ldapClient:        ldapClient,
 		groups:            groups,
+		usernameValidator: usernameValidator,
 		passwordValidator: passwordValidator,
 		passwordHasher:    passwordHasher,
 		emailResolver:     emailResolver,
@@ -30,8 +31,8 @@ func NewUserManager(ldapClient *LdapClient, groups *GroupManager, passwordValida
 }
 
 func (m *UserManager) AddUser(username string, password string, email string, admin bool) error {
-	if strings.TrimSpace(username) == "" {
-		return fmt.Errorf("username is required")
+	if err := m.usernameValidator.Validate(username); err != nil {
+		return err
 	}
 	if err := m.passwordValidator.Validate(password); err != nil {
 		return err

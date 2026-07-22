@@ -12,6 +12,7 @@ func newTestUserManager(domain string) *UserManager {
 	return NewUserManager(
 		ldapClient,
 		NewGroupManager(ldapClient),
+		NewUsernameValidator(),
 		NewPasswordValidator(),
 		hasher,
 		NewEmailResolver(DomainProviderStub{domain: domain}),
@@ -27,6 +28,13 @@ func TestAddUser_WeakPasswordRejected(t *testing.T) {
 
 func TestAddUser_EmptyUsernameRejected(t *testing.T) {
 	users := newTestUserManager("example.com")
-	err := users.AddUser("   ", "password", "", false)
+	err := users.AddUser("   ", "password1", "", false)
 	assert.Error(t, err)
+}
+
+func TestAddUser_InvalidUsernameRejected(t *testing.T) {
+	users := newTestUserManager("example.com")
+	err := users.AddUser("Bob", "password1", "", false)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "lowercase")
 }
