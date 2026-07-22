@@ -201,7 +201,8 @@ local build(arch, testUI) = [{
                     CI: 'true',
                   },
                   commands: [
-                    'apt-get -o Acquire::Retries=10 update && apt-get -o Acquire::Retries=10 install -y sshpass sudo',
+                    'for i in 1 2 3 4 5; do apt-get -o Acquire::Retries=10 update && apt-get -o Acquire::Retries=10 install -y sshpass sudo && break; echo "apt attempt $i failed, retrying in 60s"; sleep 60; done',
+                    'command -v sshpass',
                     'DOMAIN="' + distro_default + '-' + arch + '"',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/auth.$DOMAIN.redirect/g" >> /etc/hosts',
                     'getent hosts $DOMAIN | sed "s/$DOMAIN/$DOMAIN.redirect/g" >> /etc/hosts',
