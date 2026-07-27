@@ -93,7 +93,7 @@ func TestUpdate_Ipv4And6Enabled(t *testing.T) {
 	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
 	port := 1
-	err := service.Update(&ipv4, &port, true, true, true)
+	err := service.Update(false, &ipv4, &port, true, true, true)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"ip":"1.1.1.1","local_ip":"0.0.0.0","token":"token","ipv6":"[::1]","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":true}`, client.request)
 }
@@ -103,7 +103,7 @@ func TestUpdate_Ipv4Disabled(t *testing.T) {
 	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
 	port := 1
-	err := service.Update(&ipv4, &port, false, true, true)
+	err := service.Update(false, &ipv4, &port, false, true, true)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"token":"token","ipv6":"[::1]","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":false,"ipv6_enabled":true}`, client.request)
 }
@@ -113,7 +113,7 @@ func TestUpdate_Ipv6Disabled(t *testing.T) {
 	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, &NetInfoStub{}, client, &VersionStub{}, log.Default())
 	ipv4 := "1.1.1.1"
 	port := 1
-	err := service.Update(&ipv4, &port, true, true, false)
+	err := service.Update(false, &ipv4, &port, true, true, false)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"ip":"1.1.1.1","local_ip":"0.0.0.0","token":"token","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":false}`, client.request)
 }
@@ -123,7 +123,7 @@ func TestUpdate_Ipv4AutoDetect(t *testing.T) {
 	netInfo := &NetInfoStub{publicIp: "2.2.2.2"}
 	service := New(&UserConfigStub{}, &RedirectStub{}, &IpParserStub{}, netInfo, client, &VersionStub{}, log.Default())
 	port := 1
-	err := service.Update(nil, &port, true, true, false)
+	err := service.Update(false, nil, &port, true, true, false)
 	assert.Nil(t, err)
 	assert.Equal(t, `{"ip":"2.2.2.2","local_ip":"0.0.0.0","token":"token","dkim_key":"dkim","platform_version":"","web_protocol":"https","web_local_port":443,"web_port":1,"ipv4_enabled":true,"ipv6_enabled":false}`, client.request)
 }

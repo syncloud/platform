@@ -21,17 +21,43 @@ func (p *PoptProbeStub) Probe(ip string, port int) error {
 }
 
 type RedirectStub struct {
+	relay       bool
+	ipv4Enabled bool
+	ipv4Public  bool
+	ipv6Enabled bool
+	called      bool
 }
 
-func (r *RedirectStub) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
+type RelayStub struct {
+	enabled  bool
+	disabled bool
+}
+
+func (r *RelayStub) Enable() error {
+	r.enabled = true
+	return nil
+}
+
+func (r *RelayStub) Disable() error {
+	r.disabled = true
+	return nil
+}
+
+func (r *RedirectStub) Update(relay bool, ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
+	r.relay = relay
+	r.ipv4Enabled = ipv4Enabled
+	r.ipv4Public = ipv4Public
+	r.ipv6Enabled = ipv6Enabled
+	r.called = true
 	return nil
 }
 
 type TriggerStub struct {
+	triggered int
 }
 
-func (t TriggerStub) RunAccessChangeEvent() error {
-	return nil
+func (t *TriggerStub) Trigger() {
+	t.triggered++
 }
 
 type NetworkInfoStub struct {
@@ -39,8 +65,8 @@ type NetworkInfoStub struct {
 }
 
 func (n *NetworkInfoStub) IPv6() (*string, error) {
-	//TODO implement me
-	panic("implement me")
+	ipv6 := "2a0d:3344:2d9:1b00::1"
+	return &ipv6, nil
 }
 
 func (n *NetworkInfoStub) PublicIPv4() (*string, error) {
@@ -91,6 +117,13 @@ func (u *ExternalAddressUserConfigStub) IsIpv4Public() bool {
 	panic("implement me")
 }
 
+func (u *ExternalAddressUserConfigStub) IsRelayEnabled() bool {
+	return false
+}
+
+func (u *ExternalAddressUserConfigStub) SetRelayEnabled(enabled bool) {
+}
+
 func (u *ExternalAddressUserConfigStub) IsIpv4Enabled() bool {
 	//TODO implement me
 	panic("implement me")
@@ -100,7 +133,7 @@ func TestExternalAddress_UpdateWithIpv4(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	config := &ExternalAddressUserConfigStub{}
 	probe := NewPoptProbeStub()
-	access := New(probe, config, &RedirectStub{}, &TriggerStub{}, network, log.Default())
+	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
 	ip := "1.1.1.1"
 	port := 443
 	request := model.Access{
@@ -120,7 +153,7 @@ func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	config := &ExternalAddressUserConfigStub{}
 	probe := NewPoptProbeStub()
-	access := New(probe, config, &RedirectStub{}, &TriggerStub{}, network, log.Default())
+	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
 	ip := ""
 	port := 443
 	request := model.Access{
@@ -136,11 +169,47 @@ func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	assert.Equal(t, 1, probe.probed["2.2.2.2"])
 }
 
+func TestExternalAddress_RelayWithIpv6_Coexist(t *testing.T) {
+	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
+	config := &ExternalAddressUserConfigStub{}
+	probe := NewPoptProbeStub()
+	relay := &RelayStub{}
+	redirect := &RedirectStub{}
+	access := New(probe, config, redirect, relay, &TriggerStub{}, network, log.Default())
+	request := model.Access{
+		RelayEnabled: true,
+		Ipv6Enabled:  true,
+	}
+	err := access.Update(request)
+	assert.Nil(t, err)
+	assert.True(t, relay.enabled)
+	assert.False(t, relay.disabled)
+	assert.True(t, redirect.called)
+	assert.True(t, redirect.relay)
+	assert.True(t, redirect.ipv4Enabled)
+	assert.False(t, redirect.ipv4Public)
+	assert.True(t, redirect.ipv6Enabled)
+	assert.Equal(t, 1, probe.probed["2a0d:3344:2d9:1b00::1"])
+}
+
+func TestExternalAddress_RelayDisabled_CallsDisable(t *testing.T) {
+	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
+	config := &ExternalAddressUserConfigStub{}
+	relay := &RelayStub{}
+	redirect := &RedirectStub{}
+	access := New(NewPoptProbeStub(), config, redirect, relay, &TriggerStub{}, network, log.Default())
+	err := access.Update(model.Access{RelayEnabled: false, Ipv6Enabled: true})
+	assert.Nil(t, err)
+	assert.True(t, relay.disabled)
+	assert.False(t, redirect.relay)
+	assert.True(t, redirect.ipv6Enabled)
+}
+
 func TestExternalAddress_Ipv4Private_NoProbe(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	config := &ExternalAddressUserConfigStub{}
 	probe := NewPoptProbeStub()
-	access := New(probe, config, &RedirectStub{}, &TriggerStub{}, network, log.Default())
+	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
 	ip := ""
 	port := 443
 	request := model.Access{

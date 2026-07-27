@@ -237,6 +237,9 @@ const networkInterfaces = {
 
 const accessData = {
   data: {
+    relay_enabled: true,
+    relay_used_bytes: 7408818586,
+    relay_limit_bytes: 10737418240,
     ipv4_enabled: true,
     ipv4_public: true
     // access_port: 443

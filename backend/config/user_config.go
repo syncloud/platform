@@ -54,6 +54,14 @@ func (c *UserConfig) SetIpv6Enabled(enabled bool) {
 	c.db.UpsertBool("platform.ipv6_enabled", enabled)
 }
 
+func (c *UserConfig) IsRelayEnabled() bool {
+	return c.db.GetBool("platform.relay_enabled", false)
+}
+
+func (c *UserConfig) SetRelayEnabled(enabled bool) {
+	c.db.UpsertBool("platform.relay_enabled", enabled)
+}
+
 func (c *UserConfig) IsRedirectEnabled() bool {
 	return c.db.GetBool("platform.redirect_enabled", false)
 }

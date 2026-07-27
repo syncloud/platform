@@ -239,6 +239,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func(trigger *event.Trigger, logger *zap.Logger) *event.AccessChangeRunner {
+		return event.NewAccessChangeRunner(trigger, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
 	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, nginxService *nginx.Nginx, eventTrigger *event.Trigger) (*cert.CertificateGenerator, error) {
 		var certLogger *zap.Logger
 		err := c.NamedResolve(&certLogger, CertificateLogger)
@@ -264,8 +270,14 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, eventTrigger *event.Trigger, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
-		return access.New(probe, userConfig, redirectService, eventTrigger, netInfo, logger)
+	err = c.Singleton(func(control *systemd.Control, systemConfig *config.SystemConfig, userConfig *config.UserConfig, redirectConfig *config.Redirect) *access.RelayClient {
+		return access.NewRelayClient(control, systemConfig, userConfig, redirectConfig, access.NewFrpcAdminClient(systemConfig.DataDir()), logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, relayClient *access.RelayClient, accessChange *event.AccessChangeRunner, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(probe, userConfig, redirectService, relayClient, accessChange, netInfo, logger)
 	})
 	if err != nil {
 		return nil, err

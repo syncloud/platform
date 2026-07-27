@@ -441,7 +441,7 @@ h3 { font-size: 17px; font-weight: 700; color: var(--sc-ink); margin: 18px 0 12p
   border-radius: 50%;
   animation: sc-spin 0.9s linear infinite;
 }
-.sc-loading-text { color: #fff; font-size: 14px; letter-spacing: 0.3px; }
+.sc-loading-text { color: #fff; font-size: 14px; letter-spacing: 0.3px; text-align: center; max-width: 320px; padding: 0 24px; line-height: 1.4; }
 @keyframes sc-spin { to { transform: rotate(360deg); } }
 
 /* toasts */

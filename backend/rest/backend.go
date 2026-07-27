@@ -428,11 +428,12 @@ func (b *Backend) LoginToken(w http.ResponseWriter, req *http.Request) {
 
 func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
 	response := &model.Access{
-		Ipv4:        b.userConfig.GetPublicIp(),
-		Ipv4Enabled: b.userConfig.IsIpv4Enabled(),
-		Ipv4Public:  b.userConfig.IsIpv4Public(),
-		AccessPort:  b.userConfig.GetPublicPort(),
-		Ipv6Enabled: b.userConfig.IsIpv6Enabled(),
+		RelayEnabled: b.userConfig.IsRelayEnabled(),
+		Ipv4:         b.userConfig.GetPublicIp(),
+		Ipv4Enabled:  b.userConfig.IsIpv4Enabled(),
+		Ipv4Public:   b.userConfig.IsIpv4Public(),
+		AccessPort:   b.userConfig.GetPublicPort(),
+		Ipv6Enabled:  b.userConfig.IsIpv6Enabled(),
 	}
 	return response, nil
 }

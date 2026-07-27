@@ -70,6 +70,14 @@ apps:
     restart-condition: always
     restart-delay: 10s
     start-timeout: 30s
+  frpc:
+    command: bin/service.frpc.sh
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    restart-delay: 10s
 
   cli:
     command: bin/cli

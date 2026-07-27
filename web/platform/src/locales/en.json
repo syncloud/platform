@@ -274,6 +274,13 @@
   },
   "access": {
     "title": "Access",
+    "relay": "Syncloud Relay",
+    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayConnected": "Connected via relay",
+    "relayUpgrade": "Approaching your limit — upgrade to Max",
+    "relayInfoTitle": "Syncloud Relay",
+    "relayInfoText": "With relay on, your device keeps a secure outbound connection to the Syncloud relay and your traffic is tunnelled through it. You can reach your device from anywhere without opening ports or touching your router — it even works behind CGNAT. Requires an active subscription.",
+    "manual": "Manual access",
     "ipv4": "IP v4",
     "ipv6": "IP v6",
     "support": "Support:",
@@ -291,7 +298,18 @@
     "ipv4Title": "IP v4",
     "ipv4Text": "Enables IP v4 DNS record and allows you to control which IP v4 address (public/private) is used for DNS. Syncloud DNS service verifies open public ip/port (Internet accessibility) for convenience on save.",
     "ipv6Title": "IP v6",
-    "ipv6Text": "Enables IP v6 DNS record. Syncloud DNS service verifies device connection (Internet accessibility) for convenience on save."
+    "ipv6Text": "Enables IP v6 DNS record. Syncloud DNS service verifies device connection (Internet accessibility) for convenience on save.",
+    "ipv4Relay": "Relay",
+    "ipv4Manual": "Port forwarding",
+    "ipv4Off": "Off",
+    "ipv6Description": "IPv6 is reachable directly, end-to-end — no relay or router setup needed.",
+    "ipv4Public": "Public",
+    "ipv4Local": "Local",
+    "ipv4LocalText": "Reachable on your local network only — the domain resolves to this device's LAN address.",
+    "ipv4OffText": "No IPv4 DNS record is published.",
+    "ipv4PublicText": "Reachable from the internet — forward a port on your router to this device.",
+    "applying": "Applying changes…",
+    "applyTimeout": "Could not confirm the change — your device may be unreachable. Please refresh the page."
   },
   "activate": {
     "title": "Activate",
