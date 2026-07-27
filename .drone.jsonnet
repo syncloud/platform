@@ -10,7 +10,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '2997';
+local visual_diff_skip_build = '3004';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -75,6 +75,23 @@ local build(arch, testUI) = [{
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
                './authelia/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
+           {
+             name: 'frp',
+             image: 'golang:' + go,
+             commands: [
+               './frp/build.sh',
+             ],
+           },
+         ] + [
+           {
+             name: 'frp test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './frp/test.sh',
              ],
            }
            for distro in distros
@@ -313,7 +330,16 @@ local build(arch, testUI) = [{
         DOMAIN: 'redirect',
       },
     },
-  ],
+  ] + (if testUI then [
+    {
+      name: 'relay.redirect',
+      image: 'snowdreamtech/frps:0.61.1',
+      commands: [
+        'printf "bindPort = 443\nvhostHTTPSPort = 4443\n" > /etc/frp/frps.toml',
+        '/usr/bin/frps -c /etc/frp/frps.toml',
+      ],
+    },
+  ] else []),
   volumes: [
     {
       name: 'dbus',

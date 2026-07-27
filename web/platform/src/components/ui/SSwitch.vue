@@ -8,8 +8,8 @@
       :checked="!!modelValue"
       :disabled="disabled"
       @change="$emit('update:modelValue', $event.target.checked)"
-      v-bind="$attrs">
-    <span class="s-switch-track"><span class="s-switch-thumb"></span></span>
+      v-bind="inputAttrs">
+    <span class="s-switch-track" :data-testid="testid"><span class="s-switch-thumb"></span></span>
     <span v-if="stateText" class="s-switch-text">{{ stateText }}</span>
   </label>
 </template>
@@ -29,6 +29,14 @@ export default {
   computed: {
     stateText () {
       return this.modelValue ? this.activeText : this.inactiveText
+    },
+    testid () {
+      return this.$attrs['data-testid']
+    },
+    inputAttrs () {
+      const attrs = { ...this.$attrs }
+      delete attrs['data-testid']
+      return attrs
     }
   }
 }

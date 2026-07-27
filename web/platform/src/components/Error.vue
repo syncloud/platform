@@ -1,10 +1,10 @@
 <template>
   <div v-if="visible" class="s-modal-overlay" @click.self="close">
-    <div class="s-modal syncloud-dialog" role="dialog">
+    <div class="s-modal syncloud-dialog" role="dialog" data-testid="error-dialog">
       <h4 class="modal-title"><slot name="title">{{ $t('common.error') }}</slot></h4>
       <slot name="text">
         <div class="bodymod">
-          <div class="btext" id="txt_error">{{ message }}</div>
+          <div class="btext" id="txt_error" data-testid="error-message">{{ message }}</div>
         </div>
       </slot>
       <div class="s-modal-footer">

@@ -13,6 +13,7 @@ type UserConfig interface {
 	SetIpv4Enabled(enabled bool)
 	SetIpv4Public(enabled bool)
 	SetIpv6Enabled(enabled bool)
+	SetRelayEnabled(enabled bool)
 	SetPublicIp(publicIp *string)
 	SetPublicPort(port *int)
 	GetPublicIp() *string
@@ -20,14 +21,20 @@ type UserConfig interface {
 	IsIpv6Enabled() bool
 	IsIpv4Public() bool
 	IsIpv4Enabled() bool
+	IsRelayEnabled() bool
 }
 
 type Redirect interface {
-	Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error
+	Update(relay bool, ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error
+}
+
+type Relay interface {
+	Enable() error
+	Disable() error
 }
 
 type Trigger interface {
-	RunAccessChangeEvent() error
+	Trigger()
 }
 
 type NetworkInfo interface {
@@ -48,16 +55,18 @@ type ExternalAddress struct {
 	probe      Probe
 	userConfig UserConfig
 	redirect   Redirect
+	relay      Relay
 	trigger    Trigger
 	network    NetworkInfo
 	logger     *zap.Logger
 }
 
-func New(probe Probe, userConfig UserConfig, redirect Redirect, trigger Trigger, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
+func New(probe Probe, userConfig UserConfig, redirect Redirect, relay Relay, trigger Trigger, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
 		probe:      probe,
 		userConfig: userConfig,
 		redirect:   redirect,
+		relay:      relay,
 		trigger:    trigger,
 		network:    network,
 		logger:     logger,
@@ -66,12 +75,22 @@ func New(probe Probe, userConfig UserConfig, redirect Redirect, trigger Trigger,
 
 func (a *ExternalAddress) Update(request model.Access) error {
 
-	a.logger.Info(fmt.Sprintf("update ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
-		request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
+	a.logger.Info(fmt.Sprintf("update relay: %v, ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
+		request.RelayEnabled, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
+
+	if request.RelayEnabled {
+		if err := a.relay.Enable(); err != nil {
+			return err
+		}
+	} else {
+		if err := a.relay.Disable(); err != nil {
+			return err
+		}
+	}
 
 	ipv4 := request.Ipv4
 	ipv4ToSave := ipv4
-	if request.Ipv4Enabled {
+	if request.Ipv4Manual() {
 
 		port := config.WebAccessPort
 		if request.AccessPort != nil {
@@ -98,6 +117,9 @@ func (a *ExternalAddress) Update(request model.Access) error {
 				return err
 			}
 		}
+	} else {
+		ipv4 = nil
+		ipv4ToSave = nil
 	}
 
 	if request.Ipv6Enabled {
@@ -113,22 +135,25 @@ func (a *ExternalAddress) Update(request model.Access) error {
 
 	if a.userConfig.IsRedirectEnabled() {
 		err := a.redirect.Update(
+			request.RelayEnabled,
 			ipv4,
 			request.AccessPort,
-			request.Ipv4Enabled,
-			request.Ipv4Public,
+			request.Ipv4Active(),
+			request.Ipv4PublicDirect(),
 			request.Ipv6Enabled)
 		if err != nil {
 			return err
 		}
 	}
+	a.userConfig.SetRelayEnabled(request.RelayEnabled)
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
 	a.userConfig.SetIpv4Public(request.Ipv4Public)
 	a.userConfig.SetPublicIp(ipv4ToSave)
 	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
 	a.userConfig.SetPublicPort(request.AccessPort)
 
-	return a.trigger.RunAccessChangeEvent()
+	a.trigger.Trigger()
+	return nil
 
 }
 
@@ -136,6 +161,7 @@ func (a *ExternalAddress) Sync() error {
 
 	if a.userConfig.IsRedirectEnabled() {
 		err := a.redirect.Update(
+			a.userConfig.IsRelayEnabled(),
 			a.userConfig.GetPublicIp(),
 			a.userConfig.GetPublicPort(),
 			a.userConfig.IsIpv4Enabled(),

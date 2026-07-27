@@ -123,10 +123,10 @@ func (r *Service) Acquire(email string, password string, domain string) (*Domain
 }
 
 func (r *Service) Reset() error {
-	return r.Update(nil, nil, true, false, true)
+	return r.Update(false, nil, nil, true, false, true)
 }
 
-func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
+func (r *Service) Update(relay bool, ipv4 *string, port *int, ipv4Enabled bool, ipv4Public bool, ipv6Enabled bool) error {
 
 	platformVersion, err := r.version.Get()
 	if err != nil {
@@ -143,6 +143,7 @@ func (r *Service) Update(ipv4 *string, port *int, ipv4Enabled bool, ipv4Public b
 		WebProtocol:     config.WebProtocol,
 		WebPort:         port,
 		WebLocalPort:    config.WebAccessPort,
+		Relay:           relay,
 		Ipv4Enabled:     ipv4Enabled,
 		Ipv6Enabled:     ipv6Enabled,
 	}

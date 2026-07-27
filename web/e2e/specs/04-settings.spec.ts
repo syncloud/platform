@@ -31,11 +31,8 @@ test('settings activation', async ({}, testInfo) => {
 
 test('settings access', async ({}, testInfo) => {
   await settings(page, 'access', testInfo)
-  await expect(page.getByRole('heading', { name: 'Access' })).toBeVisible()
-  await page.locator('xpath=//input[@id="tgl_ipv4_enabled"]/../span').click()
-  await page.locator('css=#ipv4_mode_block[data-ready]').waitFor()
-  await page.locator('xpath=//input[@id="tgl_ipv4_public"]/../span').click()
-  await page.locator('css=#ipv4_public_block[data-ready]').waitFor()
+  await expect(page.getByTestId('ipv4-section')).toBeVisible()
+  await page.getByTestId('ipv4-mode-public').click()
   await shoot(page, testInfo, 'settings_access')
 })
 
