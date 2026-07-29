@@ -50,7 +50,8 @@
     "customProxy": "Свой прокси",
     "system": "Система",
     "locale": "Регион",
-    "health": "Здоровье"
+    "health": "Здоровье",
+    "email": "Почта"
   },
   "activation": {
     "title": "Активация",
@@ -350,5 +351,11 @@
     "kindPressure": "обнаружена нехватка памяти",
     "kindVictimSigterm": "процесс завершён (SIGTERM)",
     "kindVictimSigkill": "процесс убит (SIGKILL)"
+  },
+  "email": {
+    "title": "Почта",
+    "relay": "Почтовый релей Syncloud",
+    "relayDescription": "Отправлять исходящую почту через Syncloud, чтобы крупные провайдеры её принимали. Требуется активная подписка.",
+    "save": "Сохранить"
   }
 }

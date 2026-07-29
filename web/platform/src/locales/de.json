@@ -50,7 +50,8 @@
     "customProxy": "Benutzerdefinierter Proxy",
     "system": "System",
     "locale": "Regional",
-    "health": "Gesundheit"
+    "health": "Gesundheit",
+    "email": "E-Mail"
   },
   "activation": {
     "title": "Aktivierung",
@@ -350,5 +351,11 @@
     "kindPressure": "Speicherengpass erkannt",
     "kindVictimSigterm": "Prozess beendet (SIGTERM)",
     "kindVictimSigkill": "Prozess gekillt (SIGKILL)"
+  },
+  "email": {
+    "title": "E-Mail",
+    "relay": "Syncloud-Mail-Relay",
+    "relayDescription": "Ausgehende E-Mails über Syncloud senden, damit große Anbieter sie akzeptieren. Erfordert ein aktives Abonnement.",
+    "save": "Speichern"
   }
 }

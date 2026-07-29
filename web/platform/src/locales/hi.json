@@ -50,7 +50,8 @@
     "customProxy": "कस्टम प्रॉक्सी",
     "system": "सिस्टम",
     "locale": "क्षेत्रीय",
-    "health": "स्वास्थ्य"
+    "health": "स्वास्थ्य",
+    "email": "ईमेल"
   },
   "activation": {
     "title": "सक्रियण",
@@ -350,5 +351,11 @@
     "kindPressure": "मेमोरी दबाव का पता चला",
     "kindVictimSigterm": "प्रक्रिया समाप्त (SIGTERM)",
     "kindVictimSigkill": "प्रक्रिया मार दी गई (SIGKILL)"
+  },
+  "email": {
+    "title": "ईमेल",
+    "relay": "Syncloud मेल रिले",
+    "relayDescription": "आउटगोइंग ईमेल Syncloud के माध्यम से भेजें ताकि बड़े प्रदाता उसे स्वीकार करें। सक्रिय सदस्यता आवश्यक है।",
+    "save": "सहेजें"
   }
 }

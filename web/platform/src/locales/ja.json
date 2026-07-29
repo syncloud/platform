@@ -50,7 +50,8 @@
     "customProxy": "カスタムプロキシ",
     "system": "システム",
     "locale": "ロケール",
-    "health": "ヘルス"
+    "health": "ヘルス",
+    "email": "メール"
   },
   "activation": {
     "title": "アクティベーション",
@@ -350,5 +351,11 @@
     "kindPressure": "メモリ圧迫を検出",
     "kindVictimSigterm": "プロセス終了 (SIGTERM)",
     "kindVictimSigkill": "プロセス強制終了 (SIGKILL)"
+  },
+  "email": {
+    "title": "メール",
+    "relay": "Syncloud メールリレー",
+    "relayDescription": "送信メールを Syncloud 経由で送信し、主要プロバイダーに受け入れられるようにします。有効なサブスクリプションが必要です。",
+    "save": "保存"
   }
 }

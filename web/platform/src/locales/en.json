@@ -57,7 +57,8 @@
     "customProxy": "Custom Proxy",
     "system": "System",
     "locale": "Locale",
-    "health": "Health"
+    "health": "Health",
+    "email": "Email"
   },
   "health": {
     "title": "Health",
@@ -350,5 +351,11 @@
       "deviceCredentialsText": "Device credentials are used to access your device and all the apps (as admin user). They are stored on device and no one knows them. If you forget them you will need to reactivate your device."
     },
     "deviceNameSub": "Choose the name your device will be reachable by."
+  },
+  "email": {
+    "title": "Email",
+    "relay": "Syncloud mail relay",
+    "relayDescription": "Send outgoing email through Syncloud so major providers accept it. Requires an active subscription.",
+    "save": "Save"
   }
 }

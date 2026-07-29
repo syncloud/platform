@@ -50,7 +50,8 @@
     "customProxy": "وكيل مخصص",
     "system": "النظام",
     "locale": "الإعدادات الإقليمية",
-    "health": "الصحة"
+    "health": "الصحة",
+    "email": "البريد"
   },
   "activation": {
     "title": "التفعيل",
@@ -350,5 +351,11 @@
     "kindPressure": "تم اكتشاف ضغط على الذاكرة",
     "kindVictimSigterm": "تم إنهاء العملية (SIGTERM)",
     "kindVictimSigkill": "تم قتل العملية (SIGKILL)"
+  },
+  "email": {
+    "title": "البريد",
+    "relay": "مُرحّل بريد Syncloud",
+    "relayDescription": "إرسال البريد الصادر عبر Syncloud حتى تقبله مزودات البريد الكبرى. يتطلب اشتراكًا نشطًا.",
+    "save": "حفظ"
   }
 }

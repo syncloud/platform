@@ -195,6 +195,8 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/certificate/log", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.certificate.CertificateLog))).Methods("GET")
 	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetAccess))).Methods("GET")
 	r.HandleFunc("/rest/access", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetAccess))).Methods("POST")
+	r.HandleFunc("/rest/mail_relay", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GetMailRelay))).Methods("GET")
+	r.HandleFunc("/rest/mail_relay", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.SetMailRelay))).Methods("POST")
 	r.HandleFunc("/rest/apps/available", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppsAvailable))).Methods("GET")
 	r.HandleFunc("/rest/apps/installed", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.AppsInstalled))).Methods("GET")
 	r.HandleFunc("/rest/app/install", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.AppInstall))).Methods("POST")
@@ -440,6 +442,22 @@ func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
 
 func (b *Backend) IsActivated(_ *http.Request) (interface{}, error) {
 	return b.userConfig.IsActivated(), nil
+}
+
+func (b *Backend) GetMailRelay(_ *http.Request) (interface{}, error) {
+	return &model.MailRelay{Enabled: b.userConfig.IsMailRelayEnabled()}, nil
+}
+
+func (b *Backend) SetMailRelay(req *http.Request) (interface{}, error) {
+	var request model.MailRelay
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("mail relay request is wrong")
+	}
+	b.userConfig.SetMailRelayEnabled(request.Enabled)
+	if err := b.eventTrigger.RunMailRelayChangeEvent(); err != nil {
+		return nil, err
+	}
+	return request, nil
 }
 
 func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {

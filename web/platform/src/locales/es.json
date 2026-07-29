@@ -50,7 +50,8 @@
     "customProxy": "Proxy personalizado",
     "system": "Sistema",
     "locale": "Regional",
-    "health": "Salud"
+    "health": "Salud",
+    "email": "Correo"
   },
   "activation": {
     "title": "Activación",
@@ -350,5 +351,11 @@
     "kindPressure": "presión de memoria detectada",
     "kindVictimSigterm": "proceso terminado (SIGTERM)",
     "kindVictimSigkill": "proceso matado (SIGKILL)"
+  },
+  "email": {
+    "title": "Correo",
+    "relay": "Relé de correo de Syncloud",
+    "relayDescription": "Enviar el correo saliente a través de Syncloud para que los grandes proveedores lo acepten. Requiere una suscripción activa.",
+    "save": "Guardar"
   }
 }

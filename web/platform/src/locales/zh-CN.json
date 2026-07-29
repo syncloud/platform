@@ -50,7 +50,8 @@
     "customProxy": "自定义代理",
     "system": "系统",
     "locale": "区域设置",
-    "health": "健康"
+    "health": "健康",
+    "email": "邮件"
   },
   "activation": {
     "title": "激活",
@@ -350,5 +351,11 @@
     "kindPressure": "检测到内存压力",
     "kindVictimSigterm": "进程已终止 (SIGTERM)",
     "kindVictimSigkill": "进程被强制结束 (SIGKILL)"
+  },
+  "email": {
+    "title": "邮件",
+    "relay": "Syncloud 邮件中继",
+    "relayDescription": "通过 Syncloud 发送外发邮件，以便主流服务商接受。需要有效的订阅。",
+    "save": "保存"
   }
 }
