@@ -43,7 +43,7 @@ func TestMailRelay_Enabled(t *testing.T) {
 
 	assert.True(t, credentials.Enabled)
 	assert.Equal(t, "mail-relay.syncloud.it", credentials.Host)
-	assert.Equal(t, 587, credentials.Port)
+	assert.Equal(t, 465, credentials.Port)
 	assert.Equal(t, "device.syncloud.it", credentials.Login)
 	assert.Equal(t, token, credentials.Password)
 }

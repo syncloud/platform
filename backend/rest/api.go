@@ -165,7 +165,7 @@ func (a *Api) MailRelay(_ *http.Request) (interface{}, error) {
 	return &model.MailRelayCredentials{
 		Enabled:  true,
 		Host:     fmt.Sprintf("mail-relay.%s", a.redirect.Domain()),
-		Port:     587,
+		Port:     465,
 		Login:    a.userConfig.GetDeviceDomain(),
 		Password: *token,
 	}, nil
