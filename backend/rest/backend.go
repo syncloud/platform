@@ -454,6 +454,9 @@ func (b *Backend) SetMailRelay(req *http.Request) (interface{}, error) {
 		return nil, errors.New("mail relay request is wrong")
 	}
 	b.userConfig.SetMailRelayEnabled(request.Enabled)
+	if err := b.externalAddress.Sync(); err != nil {
+		return nil, err
+	}
 	if err := b.eventTrigger.RunMailRelayChangeEvent(); err != nil {
 		return nil, err
 	}
