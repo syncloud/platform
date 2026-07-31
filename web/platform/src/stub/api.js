@@ -341,6 +341,14 @@ export function mock () {
         state.twoFactorEnabled = attrs.enabled
         return new Response(200, {}, { success: true, data: 'OK' })
       })
+      this.get('/rest/mail_relay', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: { enabled: state.mailRelayEnabled || false } })
+      })
+      this.post('/rest/mail_relay', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        state.mailRelayEnabled = attrs.enabled
+        return new Response(200, {}, { success: true, data: 'OK' })
+      })
       this.get('/rest/user', function (_schema, _request) {
         if (!state.activated) {
           return new Response(501, {}, { message: 'Not activated' })
