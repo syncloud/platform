@@ -6,24 +6,35 @@ const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
 
 export { deviceUser, devicePassword, waitForLoading }
 
-const loginAttempts = 3
+const loginAttempts = 2
+const formTimeout = 5000
+const firstFactorTimeout = 10000
 
 export async function login(page: Page, opts: { user?: string; password?: string } = {}) {
   const applications = page.getByRole('heading', { name: 'Applications' })
+  const username = page.locator('#username-textfield')
   for (let attempt = 1; attempt <= loginAttempts; attempt++) {
+    const last = attempt === loginAttempts
     await page.goto('/')
     if (await applications.isVisible()) {
       break
     }
+    try {
+      await expect(username).toBeVisible({ timeout: formTimeout })
+    } catch (e) {
+      if (last) {
+        throw e
+      }
+      continue
+    }
     const firstFactor = page
-      .waitForResponse(response => response.url().includes('/api/firstfactor'), { timeout: 30000 })
+      .waitForResponse(response => response.url().includes('/api/firstfactor'), { timeout: firstFactorTimeout })
       .catch(() => null)
-    await page.locator('#username-textfield').fill(opts.user ?? deviceUser)
+    await username.fill(opts.user ?? deviceUser)
     await page.locator('#password-textfield').fill(opts.password ?? devicePassword)
     await page.locator('#sign-in-button').click()
     const response = await firstFactor
-    if (response !== null && response.status() >= 500 && attempt < loginAttempts) {
-      await page.waitForTimeout(2000)
+    if (!last && response !== null && response.status() >= 500) {
       continue
     }
     await expect(applications).toBeVisible()
