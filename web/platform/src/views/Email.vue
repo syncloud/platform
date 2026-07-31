@@ -81,3 +81,35 @@ export default {
   }
 }
 </script>
+<style scoped>
+.access-block {
+  border: 1px solid var(--sc-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  background: var(--sc-surface);
+}
+.access-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.access-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.access-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--sc-ink);
+}
+.detail-desc {
+  color: var(--sc-muted);
+  font-size: 14px;
+  margin: 8px 0 0;
+  max-width: 460px;
+  line-height: 1.5;
+}
+</style>
