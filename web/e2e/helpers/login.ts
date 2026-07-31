@@ -6,12 +6,29 @@ const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
 
 export { deviceUser, devicePassword, waitForLoading }
 
+const loginAttempts = 3
+
 export async function login(page: Page, opts: { user?: string; password?: string } = {}) {
-  await page.goto('/')
-  await page.locator('#username-textfield').fill(opts.user ?? deviceUser)
-  await page.locator('#password-textfield').fill(opts.password ?? devicePassword)
-  await page.locator('#sign-in-button').click()
-  await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
+  const applications = page.getByRole('heading', { name: 'Applications' })
+  for (let attempt = 1; attempt <= loginAttempts; attempt++) {
+    await page.goto('/')
+    if (await applications.isVisible()) {
+      break
+    }
+    const firstFactor = page
+      .waitForResponse(response => response.url().includes('/api/firstfactor'), { timeout: 30000 })
+      .catch(() => null)
+    await page.locator('#username-textfield').fill(opts.user ?? deviceUser)
+    await page.locator('#password-textfield').fill(opts.password ?? devicePassword)
+    await page.locator('#sign-in-button').click()
+    const response = await firstFactor
+    if (response !== null && response.status() >= 500 && attempt < loginAttempts) {
+      await page.waitForTimeout(2000)
+      continue
+    }
+    await expect(applications).toBeVisible()
+    break
+  }
   await waitForLoading(page)
 }
 
