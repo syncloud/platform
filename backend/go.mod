@@ -16,7 +16,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.11.1
-	github.com/syncloud/golib v1.1.15
+	github.com/syncloud/golib v1.1.21
 	go.uber.org/zap v1.25.0
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f
 	golang.org/x/image v0.23.0
