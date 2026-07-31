@@ -260,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "Activa el registro DNS IP v6. El servicio DNS de Syncloud verifica la conexión del dispositivo (accesibilidad desde internet) por conveniencia al guardar.",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "Acceda a su dispositivo desde cualquier lugar, sin configurar el router e incluso detrás de CGNAT. Se aplican límites mensuales de uso según su plan.",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -355,7 +355,7 @@
   "email": {
     "title": "Correo",
     "relay": "Relé de correo de Syncloud",
-    "relayDescription": "Enviar el correo saliente a través de Syncloud para que los grandes proveedores lo acepten. Requiere una suscripción activa.",
+    "relayDescription": "Enviar el correo saliente a través de Syncloud para que los grandes proveedores lo acepten. Se aplican límites mensuales de envío según su plan.",
     "save": "Guardar"
   }
 }

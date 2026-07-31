@@ -260,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "IP v6 DNS रिकॉर्ड सक्षम करता है। Syncloud DNS सेवा सुविधा के लिए सहेजने पर डिवाइस कनेक्शन (इंटरनेट पहुँच) की पुष्टि करती है।",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "कहीं से भी अपने डिवाइस तक पहुँचें — राउटर सेटअप के बिना, CGNAT के पीछे भी काम करता है। आपकी योजना के अनुसार मासिक उपयोग सीमाएँ लागू होती हैं।",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -355,7 +355,7 @@
   "email": {
     "title": "ईमेल",
     "relay": "Syncloud मेल रिले",
-    "relayDescription": "आउटगोइंग ईमेल Syncloud के माध्यम से भेजें ताकि बड़े प्रदाता उसे स्वीकार करें। सक्रिय सदस्यता आवश्यक है।",
+    "relayDescription": "आउटगोइंग ईमेल Syncloud के माध्यम से भेजें ताकि बड़े प्रदाता उसे स्वीकार करें। आपकी योजना के अनुसार मासिक भेजने की सीमाएँ लागू होती हैं।",
     "save": "सहेजें"
   }
 }

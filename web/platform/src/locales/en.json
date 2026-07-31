@@ -276,7 +276,7 @@
   "access": {
     "title": "Access",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Monthly usage limits apply and depend on your plan.",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -355,7 +355,7 @@
   "email": {
     "title": "Email",
     "relay": "Syncloud mail relay",
-    "relayDescription": "Send outgoing email through Syncloud so major providers accept it. Requires an active subscription.",
+    "relayDescription": "Send outgoing email through Syncloud so major providers accept it. Monthly sending limits apply and depend on your plan.",
     "save": "Save"
   }
 }
