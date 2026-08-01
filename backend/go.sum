@@ -256,6 +256,8 @@ github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/syncloud/golib v1.1.15 h1:NuWw/BOJ+0maoU775HxrlpvXdAWrFvRnn5X2gPhRBxA=
 github.com/syncloud/golib v1.1.15/go.mod h1:XmmoqNuegLnl27FbmzLj60dTR/tN7c1X7Qp3uUPRC88=
+github.com/syncloud/golib v1.1.21 h1:UpNlcB0lREN3TrZaeCidskutEdArt1oQMgU4/eoBpn8=
+github.com/syncloud/golib v1.1.21/go.mod h1:XmmoqNuegLnl27FbmzLj60dTR/tN7c1X7Qp3uUPRC88=
 github.com/tklauser/go-sysconf v0.3.12 h1:0QaGUFOdQaIVdPgfITYzaTegZvdCjmYO52cSFAEVmqU=
 github.com/tklauser/go-sysconf v0.3.12/go.mod h1:Ho14jnntGE1fpdOqQEEaiKRpvIavV0hSfmBq8nJbHYI=
 github.com/tklauser/numcpus v0.6.1 h1:ng9scYS7az0Bk4OZLvrNXNSAO2Pxr1XXRAPyjhIx+Fk=

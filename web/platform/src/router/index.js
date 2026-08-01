@@ -12,6 +12,7 @@ const routes = [
   { path: '/backup', name: 'Backup', component: () => import('../views/Backup.vue'), meta: { admin: true } },
   { path: '/network', name: 'Network', component: () => import('../views/Network.vue'), meta: { admin: true } },
   { path: '/access', name: 'Access', component: () => import('../views/Access.vue'), meta: { admin: true } },
+  { path: '/email', name: 'Email', component: () => import('../views/Email.vue'), meta: { admin: true } },
   { path: '/storage', name: 'Storage', component: () => import('../views/Storage.vue'), meta: { admin: true } },
   { path: '/internalmemory', name: 'InternalMemory', component: () => import('../views/InternalMemory.vue'), meta: { admin: true } },
   { path: '/updates', name: 'Updates', component: () => import('../views/Updates.vue'), meta: { admin: true } },

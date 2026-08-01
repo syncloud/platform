@@ -67,7 +67,7 @@ func UpdateConfigs() error {
 		return err
 	}
 
-	clientSecret, err := client.RegisterOIDCClient(App, "/oidc/callback", false, "client_secret_basic")
+	clientSecret, err := client.RegisterOIDCClient(App, []string{"/oidc/callback"}, false, "client_secret_basic")
 	if err != nil {
 		return err
 	}

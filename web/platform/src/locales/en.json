@@ -57,7 +57,8 @@
     "customProxy": "Custom Proxy",
     "system": "System",
     "locale": "Locale",
-    "health": "Health"
+    "health": "Health",
+    "email": "Email"
   },
   "health": {
     "title": "Health",
@@ -275,7 +276,7 @@
   "access": {
     "title": "Access",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Monthly usage limits apply and depend on your plan.",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
       "deviceCredentialsText": "Device credentials are used to access your device and all the apps (as admin user). They are stored on device and no one knows them. If you forget them you will need to reactivate your device."
     },
     "deviceNameSub": "Choose the name your device will be reachable by."
+  },
+  "email": {
+    "title": "Email",
+    "relay": "Syncloud mail relay",
+    "relayDescription": "Send outgoing email through Syncloud so major providers accept it. Monthly sending limits apply and depend on your plan.",
+    "save": "Save"
   }
 }

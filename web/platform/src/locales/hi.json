@@ -50,7 +50,8 @@
     "customProxy": "कस्टम प्रॉक्सी",
     "system": "सिस्टम",
     "locale": "क्षेत्रीय",
-    "health": "स्वास्थ्य"
+    "health": "स्वास्थ्य",
+    "email": "ईमेल"
   },
   "activation": {
     "title": "सक्रियण",
@@ -259,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "IP v6 DNS रिकॉर्ड सक्षम करता है। Syncloud DNS सेवा सुविधा के लिए सहेजने पर डिवाइस कनेक्शन (इंटरनेट पहुँच) की पुष्टि करती है।",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "कहीं से भी अपने डिवाइस तक पहुँचें — राउटर सेटअप के बिना, CGNAT के पीछे भी काम करता है। आपकी योजना के अनुसार मासिक उपयोग सीमाएँ लागू होती हैं।",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
     "kindPressure": "मेमोरी दबाव का पता चला",
     "kindVictimSigterm": "प्रक्रिया समाप्त (SIGTERM)",
     "kindVictimSigkill": "प्रक्रिया मार दी गई (SIGKILL)"
+  },
+  "email": {
+    "title": "ईमेल",
+    "relay": "Syncloud मेल रिले",
+    "relayDescription": "आउटगोइंग ईमेल Syncloud के माध्यम से भेजें ताकि बड़े प्रदाता उसे स्वीकार करें। आपकी योजना के अनुसार मासिक भेजने की सीमाएँ लागू होती हैं।",
+    "save": "सहेजें"
   }
 }

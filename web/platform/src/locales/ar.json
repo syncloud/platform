@@ -50,7 +50,8 @@
     "customProxy": "وكيل مخصص",
     "system": "النظام",
     "locale": "الإعدادات الإقليمية",
-    "health": "الصحة"
+    "health": "الصحة",
+    "email": "البريد"
   },
   "activation": {
     "title": "التفعيل",
@@ -259,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "يُفعّل سجل DNS لـ IP v6. تتحقق خدمة DNS الخاصة بـ Syncloud من اتصال الجهاز (إمكانية الوصول إلى الإنترنت) عند الحفظ للراحة.",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "الوصول إلى جهازك من أي مكان دون إعداد الموجّه، ويعمل حتى خلف CGNAT. تُطبَّق حدود استخدام شهرية بحسب باقتك.",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
     "kindPressure": "تم اكتشاف ضغط على الذاكرة",
     "kindVictimSigterm": "تم إنهاء العملية (SIGTERM)",
     "kindVictimSigkill": "تم قتل العملية (SIGKILL)"
+  },
+  "email": {
+    "title": "البريد",
+    "relay": "مُرحّل بريد Syncloud",
+    "relayDescription": "إرسال البريد الصادر عبر Syncloud حتى تقبله مزودات البريد الكبرى. تُطبَّق حدود إرسال شهرية بحسب باقتك.",
+    "save": "حفظ"
   }
 }

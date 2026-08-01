@@ -50,7 +50,8 @@
     "customProxy": "Benutzerdefinierter Proxy",
     "system": "System",
     "locale": "Regional",
-    "health": "Gesundheit"
+    "health": "Gesundheit",
+    "email": "E-Mail"
   },
   "activation": {
     "title": "Aktivierung",
@@ -259,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "Aktiviert den IP v6 DNS-Eintrag. Der Syncloud DNS-Dienst prüft beim Speichern die Geräteverbindung (Internet-Zugänglichkeit).",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "Erreichen Sie Ihr Gerät von überall — ohne Router-Einrichtung, auch hinter CGNAT. Es gelten monatliche Nutzungsgrenzen je nach Tarif.",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
     "kindPressure": "Speicherengpass erkannt",
     "kindVictimSigterm": "Prozess beendet (SIGTERM)",
     "kindVictimSigkill": "Prozess gekillt (SIGKILL)"
+  },
+  "email": {
+    "title": "E-Mail",
+    "relay": "Syncloud-Mail-Relay",
+    "relayDescription": "Ausgehende E-Mails über Syncloud senden, damit große Anbieter sie akzeptieren. Es gelten monatliche Sendelimits je nach Tarif.",
+    "save": "Speichern"
   }
 }
