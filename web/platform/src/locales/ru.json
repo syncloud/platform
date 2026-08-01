@@ -50,7 +50,8 @@
     "customProxy": "Свой прокси",
     "system": "Система",
     "locale": "Регион",
-    "health": "Здоровье"
+    "health": "Здоровье",
+    "email": "Почта"
   },
   "activation": {
     "title": "Активация",
@@ -259,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "Включает DNS-запись IP v6. Служба DNS Syncloud проверяет при сохранении подключение устройства (доступность из интернета).",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "Доступ к устройству откуда угодно — без настройки роутера, работает даже за CGNAT. Действуют месячные лимиты использования в зависимости от тарифа.",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
     "kindPressure": "обнаружена нехватка памяти",
     "kindVictimSigterm": "процесс завершён (SIGTERM)",
     "kindVictimSigkill": "процесс убит (SIGKILL)"
+  },
+  "email": {
+    "title": "Почта",
+    "relay": "Почтовый релей Syncloud",
+    "relayDescription": "Отправлять исходящую почту через Syncloud, чтобы крупные провайдеры её принимали. Действуют месячные лимиты отправки в зависимости от тарифа.",
+    "save": "Сохранить"
   }
 }

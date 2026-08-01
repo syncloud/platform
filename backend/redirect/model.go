@@ -56,6 +56,7 @@ type FreeDomainUpdateRequest struct {
 	LocalIp         *string `json:"local_ip,omitempty"`
 	MapLocalAddress bool    `json:"map_local_address,omitempty"`
 	Relay           bool    `json:"relay,omitempty"`
+	MailRelay       bool    `json:"mail_relay,omitempty"`
 	Token           string  `json:"token"`
 	Ipv6            *string `json:"ipv6,omitempty"`
 	DkimKey         *string `json:"dkim_key,omitempty"`

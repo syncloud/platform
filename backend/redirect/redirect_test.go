@@ -25,6 +25,10 @@ func (u *UserConfigStub) GetDkimKey() *string {
 	return &key
 }
 
+func (u *UserConfigStub) IsMailRelayEnabled() bool {
+	return false
+}
+
 type RedirectStub struct{}
 
 func (r *RedirectStub) ApiUrl() string {

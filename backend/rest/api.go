@@ -3,6 +3,7 @@ package rest
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/syncloud/platform/rest/model"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -14,10 +15,13 @@ type DeviceUserConfig interface {
 	SetDkimKey(key *string)
 	Url(app string) string
 	AppDomain(app string) string
+	IsMailRelayEnabled() bool
+	GetDomainUpdateToken() *string
 }
 
 type DeviceRedirect interface {
 	UserEmail() *string
+	Domain() string
 }
 
 type Storage interface {
@@ -76,6 +80,7 @@ func (a *Api) Start() error {
 	r.HandleFunc("/app/init_storage", a.mw.Handle(a.AppInitStorage)).Methods("POST")
 	r.HandleFunc("/config/get_dkim_key", a.mw.Handle(a.ConfigGetDkimKey)).Methods("GET")
 	r.HandleFunc("/config/set_dkim_key", a.mw.Handle(a.ConfigSetDkimKey)).Methods("POST")
+	r.HandleFunc("/mail/relay", a.mw.Handle(a.MailRelay)).Methods("GET")
 	r.HandleFunc("/service/restart", a.mw.Handle(a.ServiceRestart)).Methods("POST")
 	r.HandleFunc("/app/storage_dir", a.mw.Handle(a.AppStorageDir)).Methods("GET")
 	r.HandleFunc("/user/email", a.mw.Handle(a.UserEmail)).Methods("GET")
@@ -150,6 +155,20 @@ func (a *Api) RegisterOIDCClient(req *http.Request) (interface{}, error) {
 
 func (a *Api) ConfigGetDkimKey(_ *http.Request) (interface{}, error) {
 	return a.userConfig.GetDkimKey(), nil
+}
+
+func (a *Api) MailRelay(_ *http.Request) (interface{}, error) {
+	token := a.userConfig.GetDomainUpdateToken()
+	if !a.userConfig.IsMailRelayEnabled() || token == nil {
+		return &model.MailRelayCredentials{Enabled: false}, nil
+	}
+	return &model.MailRelayCredentials{
+		Enabled:  true,
+		Host:     fmt.Sprintf("mail-relay.%s", a.redirect.Domain()),
+		Port:     465,
+		Login:    a.userConfig.GetDeviceDomain(),
+		Password: *token,
+	}, nil
 }
 
 func (a *Api) ConfigSetDkimKey(req *http.Request) (interface{}, error) {

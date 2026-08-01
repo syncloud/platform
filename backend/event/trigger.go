@@ -31,6 +31,10 @@ func (t *Trigger) RunAccessChangeEvent() error {
 	return t.RunEventOnAllApps("access-change")
 }
 
+func (t *Trigger) RunMailRelayChangeEvent() error {
+	return t.RunEventOnAllApps("mail-relay-change")
+}
+
 func (t *Trigger) RunCertificateChangeEvent() error {
 	return t.RunEventOnAllApps("certificate-change")
 }

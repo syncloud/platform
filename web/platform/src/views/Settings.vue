@@ -19,6 +19,10 @@
           <i class="material-icons sc-tile-icon">cloud_queue</i>
           <div class="sc-tile-name">{{ $t('settings.access') }}</div>
         </router-link>
+        <router-link v-if="isAdmin" to="/email" id="email" data-testid="nav-email" class="sc-tile">
+          <i class="material-icons sc-tile-icon">mail_outline</i>
+          <div class="sc-tile-name">{{ $t('settings.email') }}</div>
+        </router-link>
         <router-link v-if="isAdmin" to="/internalmemory" id="internalmemory" class="sc-tile">
           <i class="material-icons sc-tile-icon">memory</i>
           <div class="sc-tile-name">{{ $t('settings.internalMemory') }}</div>

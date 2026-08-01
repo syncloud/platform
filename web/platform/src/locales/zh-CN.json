@@ -50,7 +50,8 @@
     "customProxy": "自定义代理",
     "system": "系统",
     "locale": "区域设置",
-    "health": "健康"
+    "health": "健康",
+    "email": "邮件"
   },
   "activation": {
     "title": "激活",
@@ -259,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "启用 IP v6 DNS 记录。Syncloud DNS 服务在保存时会为方便起见验证设备连接(互联网可访问性)。",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "无需配置路由器，即使在 CGNAT 环境下也能随时随地访问您的设备。将根据您的套餐适用每月用量上限。",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
     "kindPressure": "检测到内存压力",
     "kindVictimSigterm": "进程已终止 (SIGTERM)",
     "kindVictimSigkill": "进程被强制结束 (SIGKILL)"
+  },
+  "email": {
+    "title": "邮件",
+    "relay": "Syncloud 邮件中继",
+    "relayDescription": "通过 Syncloud 发送外发邮件，以便主流服务商接受。将根据您的套餐适用每月发送上限。",
+    "save": "保存"
   }
 }

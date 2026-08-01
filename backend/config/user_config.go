@@ -62,6 +62,14 @@ func (c *UserConfig) SetRelayEnabled(enabled bool) {
 	c.db.UpsertBool("platform.relay_enabled", enabled)
 }
 
+func (c *UserConfig) IsMailRelayEnabled() bool {
+	return c.db.GetBool("platform.mail_relay_enabled", false)
+}
+
+func (c *UserConfig) SetMailRelayEnabled(enabled bool) {
+	c.db.UpsertBool("platform.mail_relay_enabled", enabled)
+}
+
 func (c *UserConfig) IsRedirectEnabled() bool {
 	return c.db.GetBool("platform.redirect_enabled", false)
 }

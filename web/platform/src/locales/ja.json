@@ -50,7 +50,8 @@
     "customProxy": "カスタムプロキシ",
     "system": "システム",
     "locale": "ロケール",
-    "health": "ヘルス"
+    "health": "ヘルス",
+    "email": "メール"
   },
   "activation": {
     "title": "アクティベーション",
@@ -259,7 +260,7 @@
     "ipv6Title": "IP v6",
     "ipv6Text": "IP v6 DNS レコードを有効にします。Syncloud DNS サービスは保存時にデバイス接続(インターネットアクセス性)を便宜的に確認します。",
     "relay": "Syncloud Relay",
-    "relayDescription": "Reach your device from anywhere — no router setup, works even behind CGNAT. Included with an active subscription.",
+    "relayDescription": "ルーター設定なしで、CGNAT 環境でもどこからでもデバイスにアクセスできます。プランに応じた月間の利用上限が適用されます。",
     "relayConnected": "Connected via relay",
     "relayUpgrade": "Approaching your limit — upgrade to Max",
     "relayInfoTitle": "Syncloud Relay",
@@ -350,5 +351,11 @@
     "kindPressure": "メモリ圧迫を検出",
     "kindVictimSigterm": "プロセス終了 (SIGTERM)",
     "kindVictimSigkill": "プロセス強制終了 (SIGKILL)"
+  },
+  "email": {
+    "title": "メール",
+    "relay": "Syncloud メールリレー",
+    "relayDescription": "送信メールを Syncloud 経由で送信し、主要プロバイダーに受け入れられるようにします。プランに応じた月間の送信上限が適用されます。",
+    "save": "保存"
   }
 }

@@ -16,6 +16,7 @@ import (
 type UserConfig interface {
 	GetDomainUpdateToken() *string
 	GetDkimKey() *string
+	IsMailRelayEnabled() bool
 }
 
 type RedirectConfig interface {
@@ -144,6 +145,7 @@ func (r *Service) Update(relay bool, ipv4 *string, port *int, ipv4Enabled bool, 
 		WebPort:         port,
 		WebLocalPort:    config.WebAccessPort,
 		Relay:           relay,
+		MailRelay:       r.userConfig.IsMailRelayEnabled(),
 		Ipv4Enabled:     ipv4Enabled,
 		Ipv6Enabled:     ipv6Enabled,
 	}
