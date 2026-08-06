@@ -73,6 +73,11 @@ type FreeDomainAcquireResponse struct {
 	Data    *Domain `json:"data,omitempty"`
 }
 
+type FreeDomainUpdateResponse struct {
+	Success bool    `json:"success"`
+	Data    *Domain `json:"data,omitempty"`
+}
+
 type Domain struct {
 	Name             string     `json:"name,omitempty"`
 	Ip               *string    `json:"ip,omitempty"`
@@ -88,5 +93,6 @@ type Domain struct {
 	PlatformVersion  *string    `json:"platform_version,omitempty"`
 	WebProtocol      *string    `json:"web_protocol,omitempty"`
 	WebPort          *int       `json:"web_port,omitempty"`
+	SmtpPort         *int       `json:"smtp_port,omitempty"`
 	WebLocalPort     *int       `json:"web_local_port,omitempty"`
 }

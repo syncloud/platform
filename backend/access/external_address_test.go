@@ -31,15 +31,16 @@ type RedirectStub struct {
 type RelayStub struct {
 	enabled  bool
 	disabled bool
+	applied  int
 }
 
-func (r *RelayStub) Enable() error {
-	r.enabled = true
-	return nil
-}
-
-func (r *RelayStub) Disable() error {
-	r.disabled = true
+func (r *RelayStub) Apply(relayEnabled bool) error {
+	r.applied++
+	if relayEnabled {
+		r.enabled = true
+	} else {
+		r.disabled = true
+	}
 	return nil
 }
 
@@ -98,23 +99,19 @@ func (u *ExternalAddressUserConfigStub) SetPublicPort(port *int) {
 }
 
 func (u *ExternalAddressUserConfigStub) GetPublicIp() *string {
-	//TODO implement me
-	panic("implement me")
+	return u.publicIp
 }
 
 func (u *ExternalAddressUserConfigStub) GetPublicPort() *int {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }
 
 func (u *ExternalAddressUserConfigStub) IsIpv6Enabled() bool {
-	//TODO implement me
-	panic("implement me")
+	return false
 }
 
 func (u *ExternalAddressUserConfigStub) IsIpv4Public() bool {
-	//TODO implement me
-	panic("implement me")
+	return false
 }
 
 func (u *ExternalAddressUserConfigStub) IsRelayEnabled() bool {
@@ -125,8 +122,7 @@ func (u *ExternalAddressUserConfigStub) SetRelayEnabled(enabled bool) {
 }
 
 func (u *ExternalAddressUserConfigStub) IsIpv4Enabled() bool {
-	//TODO implement me
-	panic("implement me")
+	return true
 }
 
 func TestExternalAddress_UpdateWithIpv4(t *testing.T) {
@@ -223,4 +219,31 @@ func TestExternalAddress_Ipv4Private_NoProbe(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, config.publicIp)
 	assert.Equal(t, 0, len(probe.probed))
+}
+
+func TestExternalAddress_UpdateAppliesTheTunnelAgainAfterTheAddressUpdate(t *testing.T) {
+	relay := &RelayStub{}
+	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, relay,
+		&TriggerStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+
+	err := access.Update(model.Access{Ipv4Enabled: true, Ipv4Public: false})
+
+	assert.Nil(t, err)
+	// redirect hands out the smtp port during the update, so the tunnel has to
+	// be reapplied afterwards or a device turning the mail relay on would not
+	// get its mail proxy until something else changed
+	assert.Equal(t, 2, relay.applied)
+}
+
+func TestExternalAddress_SyncAppliesTheTunnel(t *testing.T) {
+	relay := &RelayStub{}
+	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, relay,
+		&TriggerStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+
+	err := access.Sync()
+
+	assert.Nil(t, err)
+	// switching the mail relay on goes through Sync, and that is the only way
+	// a device with the traffic relay off ever gets a tunnel
+	assert.Equal(t, 1, relay.applied)
 }

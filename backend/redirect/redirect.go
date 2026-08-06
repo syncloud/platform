@@ -17,6 +17,7 @@ type UserConfig interface {
 	GetDomainUpdateToken() *string
 	GetDkimKey() *string
 	IsMailRelayEnabled() bool
+	SetMailSmtpPort(port *int)
 }
 
 type RedirectConfig interface {
@@ -182,8 +183,31 @@ func (r *Service) Update(relay bool, ipv4 *string, port *int, ipv4Enabled bool, 
 	}
 
 	url := fmt.Sprintf("%s/%s", r.redirect.ApiUrl(), "domain/update")
-	_, err = r.postAndCheck(url, request)
-	return err
+	body, err := r.postAndCheck(url, request)
+	if err != nil {
+		return err
+	}
+	return r.saveSmtpPort(body)
+}
+
+// redirect allocates an inbound mail port per device and returns it with the
+// domain, so the tunnel knows which port to ask frps for
+func (r *Service) saveSmtpPort(body *[]byte) error {
+	if body == nil {
+		return nil
+	}
+	var response FreeDomainUpdateResponse
+	if err := json.Unmarshal(*body, &response); err != nil {
+		// the port only decides whether inbound mail can be tunnelled; the
+		// address update itself has already succeeded and must not be undone
+		log.Printf("cannot read the smtp port from the domain update: %v", err)
+		return nil
+	}
+	if response.Data == nil {
+		return nil
+	}
+	r.userConfig.SetMailSmtpPort(response.Data.SmtpPort)
+	return nil
 }
 
 func (r *Service) postAndCheck(url string, request interface{}) (*[]byte, error) {
