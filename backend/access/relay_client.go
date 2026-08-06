@@ -21,6 +21,10 @@ const (
 	relayAdminSocket     = "frpc-admin.sock"
 	relayAdminUrl        = "http://unix/api/status"
 	relayConnectAttempts = 30
+
+	// must match the suffix redirect strips when it attributes tunnel traffic
+	// and authorises the proxy's port
+	SmtpProxySuffix = "-smtp"
 )
 
 type RelayControl interface {
@@ -33,16 +37,22 @@ type RelaySystemConfig interface {
 }
 
 type frpcConfig struct {
-	Server      string
-	Token       string
-	AdminSocket string
-	Domain      string
-	LocalPort   int
+	Server        string
+	Token         string
+	AdminSocket   string
+	Domain        string
+	Web           bool
+	LocalPort     int
+	Mail          bool
+	MailLocalPort int
+	SmtpPort      int
 }
 
 type RelayUserConfig interface {
 	GetDeviceDomain() string
 	GetDomainUpdateToken() *string
+	IsMailRelayEnabled() bool
+	GetMailSmtpPort() *int
 }
 
 type RelayRedirectConfig interface {
@@ -56,6 +66,8 @@ type RelayClient struct {
 	redirect     RelayRedirectConfig
 	client       *http.Client
 	logger       *zap.Logger
+
+	connectAttempts int
 }
 
 func NewRelayClient(control RelayControl, systemConfig RelaySystemConfig, userConfig RelayUserConfig, redirect RelayRedirectConfig, client *http.Client, logger *zap.Logger) *RelayClient {
@@ -66,6 +78,8 @@ func NewRelayClient(control RelayControl, systemConfig RelaySystemConfig, userCo
 		redirect:     redirect,
 		client:       client,
 		logger:       logger,
+
+		connectAttempts: relayConnectAttempts,
 	}
 }
 
@@ -89,7 +103,20 @@ func (c *RelayClient) adminSocketPath() string {
 	return filepath.Join(c.systemConfig.DataDir(), relayAdminSocket)
 }
 
-func (c *RelayClient) Enable() error {
+// Apply brings the tunnel to the state the device's settings ask for. The web
+// proxy carries app traffic when the relay is on; the smtp proxy carries
+// inbound mail when the mail relay is on and redirect has handed out a port.
+// Either can be present without the other, so a device that only wants mail
+// still gets a tunnel.
+func (c *RelayClient) Apply(relayEnabled bool) error {
+	mailEnabled := c.userConfig.IsMailRelayEnabled()
+	smtpPort := c.userConfig.GetMailSmtpPort()
+	mail := mailEnabled && smtpPort != nil
+
+	if !relayEnabled && !mail {
+		return c.Disable()
+	}
+
 	domain := c.userConfig.GetDeviceDomain()
 	token := c.userConfig.GetDomainUpdateToken()
 	if token == nil {
@@ -100,31 +127,50 @@ func (c *RelayClient) Enable() error {
 	if err != nil {
 		return err
 	}
+	settings := frpcConfig{
+		Server:        server,
+		Token:         *token,
+		AdminSocket:   c.adminSocketPath(),
+		Domain:        domain,
+		Web:           relayEnabled,
+		LocalPort:     config.WebAccessPort,
+		Mail:          mail,
+		MailLocalPort: config.MailInboundPort,
+	}
+	if mail {
+		settings.SmtpPort = *smtpPort
+	}
 	var content bytes.Buffer
-	err = tmpl.Execute(&content, frpcConfig{
-		Server:      server,
-		Token:       *token,
-		AdminSocket: c.adminSocketPath(),
-		Domain:      domain,
-		LocalPort:   config.WebAccessPort,
-	})
-	if err != nil {
+	if err := tmpl.Execute(&content, settings); err != nil {
 		return err
 	}
 
-	if c.currentConfig() == content.String() && c.proxyRunning(domain) {
-		c.logger.Info("relay already connected, skipping restart", zap.String("domain", domain))
+	expected := c.expectedProxies(domain, relayEnabled, mail)
+	if c.currentConfig() == content.String() && c.proxiesRunning(expected) {
+		c.logger.Info("relay already connected, skipping restart", zap.Strings("proxies", expected))
 		return nil
 	}
 
-	c.logger.Info("enabling relay", zap.String("server", server), zap.String("domain", domain))
+	c.logger.Info("applying relay",
+		zap.String("server", server), zap.Strings("proxies", expected))
 	if err := os.WriteFile(c.configPath(), content.Bytes(), 0644); err != nil {
 		return err
 	}
 	if err := c.control.RestartService(RelayService); err != nil {
 		return err
 	}
-	return c.waitConnected(domain)
+	return c.waitConnected(expected)
+}
+
+func (c *RelayClient) expectedProxies(domain string, web bool, mail bool) []string {
+	var proxies []string
+	if web {
+		proxies = append(proxies, domain)
+	}
+	if mail {
+		proxies = append(proxies, domain+SmtpProxySuffix)
+	}
+	return proxies
 }
 
 func (c *RelayClient) currentConfig() string {
@@ -135,38 +181,49 @@ func (c *RelayClient) currentConfig() string {
 	return string(content)
 }
 
-func (c *RelayClient) waitConnected(domain string) error {
-	for attempt := 0; attempt < relayConnectAttempts; attempt++ {
-		if c.proxyRunning(domain) {
-			c.logger.Info("relay tunnel connected", zap.String("domain", domain))
+func (c *RelayClient) waitConnected(proxies []string) error {
+	for attempt := 0; attempt < c.connectAttempts; attempt++ {
+		if c.proxiesRunning(proxies) {
+			c.logger.Info("relay tunnel connected", zap.Strings("proxies", proxies))
 			return nil
 		}
 		time.Sleep(time.Second)
 	}
-	return fmt.Errorf("relay tunnel did not come up for %s", domain)
+	return fmt.Errorf("relay tunnel did not come up for %v", proxies)
 }
 
-func (c *RelayClient) proxyRunning(domain string) bool {
+func (c *RelayClient) proxiesRunning(proxies []string) bool {
+	running := c.runningProxies()
+	for _, name := range proxies {
+		if !running[name] {
+			return false
+		}
+	}
+	return true
+}
+
+func (c *RelayClient) runningProxies() map[string]bool {
+	result := map[string]bool{}
 	resp, err := c.client.Get(relayAdminUrl)
 	if err != nil {
-		return false
+		return result
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return false
+		return result
 	}
 	var status map[string][]relayProxyStatus
 	if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {
-		return false
+		return result
 	}
-	for _, proxies := range status {
-		for _, p := range proxies {
-			if p.Name == domain && p.Status == "running" {
-				return true
+	for _, group := range status {
+		for _, p := range group {
+			if p.Status == "running" {
+				result[p.Name] = true
 			}
 		}
 	}
-	return false
+	return result
 }
 
 func (c *RelayClient) Disable() error {

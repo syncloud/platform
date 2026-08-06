@@ -6,6 +6,10 @@ import (
 )
 
 const WebAccessPort = 443
+
+// the loopback port the mail app's postfix listens on for mail arriving
+// through the relay tunnel
+const MailInboundPort = 10025
 const WebProtocol = "https"
 
 type SystemConfig struct {
