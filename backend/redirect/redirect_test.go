@@ -13,11 +13,6 @@ import (
 )
 
 type UserConfigStub struct {
-	smtpPort *int
-}
-
-func (u *UserConfigStub) SetMailSmtpPort(port *int) {
-	u.smtpPort = port
 }
 
 func (u *UserConfigStub) GetDomainUpdateToken() *string {

@@ -13,8 +13,9 @@ localPort = {{ .LocalPort }}
 {{ end }}{{ if .Mail }}
 [[proxies]]
 name = "{{ .Domain }}-smtp"
-type = "tcp"
+type = "tcpmux"
+multiplexer = "httpconnect"
+customDomains = ["{{ .Domain }}"]
 localIP = "127.0.0.1"
 localPort = {{ .MailLocalPort }}
-remotePort = {{ .SmtpPort }}
 {{ end }}

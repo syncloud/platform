@@ -70,18 +70,6 @@ func (c *UserConfig) SetMailRelayEnabled(enabled bool) {
 	c.db.UpsertBool("platform.mail_relay_enabled", enabled)
 }
 
-func (c *UserConfig) GetMailSmtpPort() *int {
-	return c.db.GetOrNilInt("platform.mail_smtp_port")
-}
-
-func (c *UserConfig) SetMailSmtpPort(port *int) {
-	if port == nil {
-		c.db.Delete("platform.mail_smtp_port")
-	} else {
-		c.db.Upsert("platform.mail_smtp_port", strconv.Itoa(*port))
-	}
-}
-
 func (c *UserConfig) IsRedirectEnabled() bool {
 	return c.db.GetBool("platform.redirect_enabled", false)
 }

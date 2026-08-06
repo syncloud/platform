@@ -45,14 +45,12 @@ type frpcConfig struct {
 	LocalPort     int
 	Mail          bool
 	MailLocalPort int
-	SmtpPort      int
 }
 
 type RelayUserConfig interface {
 	GetDeviceDomain() string
 	GetDomainUpdateToken() *string
 	IsMailRelayEnabled() bool
-	GetMailSmtpPort() *int
 }
 
 type RelayRedirectConfig interface {
@@ -105,13 +103,10 @@ func (c *RelayClient) adminSocketPath() string {
 
 // Apply brings the tunnel to the state the device's settings ask for. The web
 // proxy carries app traffic when the relay is on; the smtp proxy carries
-// inbound mail when the mail relay is on and redirect has handed out a port.
-// Either can be present without the other, so a device that only wants mail
-// still gets a tunnel.
+// inbound mail when the mail relay is on. Either can be present without the
+// other, so a device that only wants mail still gets a tunnel.
 func (c *RelayClient) Apply(relayEnabled bool) error {
-	mailEnabled := c.userConfig.IsMailRelayEnabled()
-	smtpPort := c.userConfig.GetMailSmtpPort()
-	mail := mailEnabled && smtpPort != nil
+	mail := c.userConfig.IsMailRelayEnabled()
 
 	if !relayEnabled && !mail {
 		return c.Disable()
@@ -136,9 +131,6 @@ func (c *RelayClient) Apply(relayEnabled bool) error {
 		LocalPort:     config.WebAccessPort,
 		Mail:          mail,
 		MailLocalPort: config.MailInboundPort,
-	}
-	if mail {
-		settings.SmtpPort = *smtpPort
 	}
 	var content bytes.Buffer
 	if err := tmpl.Execute(&content, settings); err != nil {
