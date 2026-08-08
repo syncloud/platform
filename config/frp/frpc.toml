@@ -3,14 +3,14 @@ serverPort = 443
 transport.tls.enable = true
 metadatas.token = "{{ .Token }}"
 webServer.unixSocket = "{{ .AdminSocket }}"
-{{ if .Web }}
+
 [[proxies]]
 name = "{{ .Domain }}"
 type = "https"
 customDomains = ["{{ .Domain }}", "*.{{ .Domain }}"]
 localIP = "127.0.0.1"
 localPort = {{ .LocalPort }}
-{{ end }}{{ if .Mail }}
+
 [[proxies]]
 name = "{{ .Domain }}-smtp"
 type = "tcpmux"
@@ -18,4 +18,3 @@ multiplexer = "httpconnect"
 customDomains = ["{{ .Domain }}"]
 localIP = "127.0.0.1"
 localPort = {{ .MailLocalPort }}
-{{ end }}

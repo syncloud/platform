@@ -41,16 +41,13 @@ type frpcConfig struct {
 	Token         string
 	AdminSocket   string
 	Domain        string
-	Web           bool
 	LocalPort     int
-	Mail          bool
 	MailLocalPort int
 }
 
 type RelayUserConfig interface {
 	GetDeviceDomain() string
 	GetDomainUpdateToken() *string
-	IsMailRelayEnabled() bool
 }
 
 type RelayRedirectConfig interface {
@@ -102,13 +99,8 @@ func (c *RelayClient) adminSocketPath() string {
 }
 
 // Apply brings the tunnel to the state the device's settings ask for. The web
-// proxy carries app traffic when the relay is on; the smtp proxy carries
-// inbound mail when the mail relay is on. Either can be present without the
-// other, so a device that only wants mail still gets a tunnel.
 func (c *RelayClient) Apply(relayEnabled bool) error {
-	mail := c.userConfig.IsMailRelayEnabled()
-
-	if !relayEnabled && !mail {
+	if !relayEnabled {
 		return c.Disable()
 	}
 
@@ -127,9 +119,7 @@ func (c *RelayClient) Apply(relayEnabled bool) error {
 		Token:         *token,
 		AdminSocket:   c.adminSocketPath(),
 		Domain:        domain,
-		Web:           relayEnabled,
 		LocalPort:     config.WebAccessPort,
-		Mail:          mail,
 		MailLocalPort: config.MailInboundPort,
 	}
 	var content bytes.Buffer
@@ -137,7 +127,7 @@ func (c *RelayClient) Apply(relayEnabled bool) error {
 		return err
 	}
 
-	expected := c.expectedProxies(domain, relayEnabled, mail)
+	expected := c.expectedProxies(domain)
 	if c.currentConfig() == content.String() && c.proxiesRunning(expected) {
 		c.logger.Info("relay already connected, skipping restart", zap.Strings("proxies", expected))
 		return nil
@@ -154,15 +144,8 @@ func (c *RelayClient) Apply(relayEnabled bool) error {
 	return c.waitConnected(expected)
 }
 
-func (c *RelayClient) expectedProxies(domain string, web bool, mail bool) []string {
-	var proxies []string
-	if web {
-		proxies = append(proxies, domain)
-	}
-	if mail {
-		proxies = append(proxies, domain+SmtpProxySuffix)
-	}
-	return proxies
+func (c *RelayClient) expectedProxies(domain string) []string {
+	return []string{domain, domain + SmtpProxySuffix}
 }
 
 func (c *RelayClient) currentConfig() string {

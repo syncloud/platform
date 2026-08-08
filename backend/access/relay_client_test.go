@@ -69,16 +69,11 @@ func (t relayStatusTransport) RoundTrip(_ *http.Request) (*http.Response, error)
 	return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(t.body)), Header: make(http.Header)}, nil
 }
 
-func relayRunningClient(domain string) *http.Client {
-	body := fmt.Sprintf(`{"https":[{"name":"%s","status":"running"}]}`, domain)
-	return &http.Client{Transport: relayStatusTransport{body}}
-}
-
 func TestRelayClient_EnableWritesConfigAndRestartsAndVerifies(t *testing.T) {
 	dir := t.TempDir()
 	token := "tok123"
 	control := &relayControlStub{}
-	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it", token: &token}, &relayRedirectStub{"syncloud.it"}, relayRunningClient("name.syncloud.it"), zap.NewNop())
+	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it", token: &token}, &relayRedirectStub{"syncloud.it"}, relayRunningProxies("name.syncloud.it", "name.syncloud.it-smtp"), zap.NewNop())
 
 	err := client.Apply(true)
 	assert.Nil(t, err)
@@ -98,7 +93,7 @@ func TestRelayClient_EnableIdempotentSkipsRestartWhenConnected(t *testing.T) {
 	dir := t.TempDir()
 	token := "tok123"
 	control := &relayControlStub{}
-	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it", token: &token}, &relayRedirectStub{"syncloud.it"}, relayRunningClient("name.syncloud.it"), zap.NewNop())
+	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it", token: &token}, &relayRedirectStub{"syncloud.it"}, relayRunningProxies("name.syncloud.it", "name.syncloud.it-smtp"), zap.NewNop())
 
 	assert.Nil(t, client.Apply(true))
 	assert.Nil(t, client.Apply(true))
@@ -107,7 +102,7 @@ func TestRelayClient_EnableIdempotentSkipsRestartWhenConnected(t *testing.T) {
 }
 
 func TestRelayClient_EnableWithoutTokenFails(t *testing.T) {
-	client := NewRelayClient(&relayControlStub{}, &relaySystemConfigStub{t.TempDir(), "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningClient("name.syncloud.it"), zap.NewNop())
+	client := NewRelayClient(&relayControlStub{}, &relaySystemConfigStub{t.TempDir(), "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningProxies("name.syncloud.it", "name.syncloud.it-smtp"), zap.NewNop())
 	assert.NotNil(t, client.Apply(true))
 }
 
@@ -116,7 +111,7 @@ func TestRelayClient_DisableRemovesConfigAndRestartsToIdle(t *testing.T) {
 	path := filepath.Join(dir, "frpc.toml")
 	assert.Nil(t, os.WriteFile(path, []byte("x"), 0644))
 	control := &relayControlStub{}
-	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningClient("name.syncloud.it"), zap.NewNop())
+	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningProxies("name.syncloud.it", "name.syncloud.it-smtp"), zap.NewNop())
 
 	err := client.Disable()
 	assert.Nil(t, err)
@@ -127,7 +122,7 @@ func TestRelayClient_DisableRemovesConfigAndRestartsToIdle(t *testing.T) {
 
 func TestRelayClient_DisableWithoutConfigIsNoop(t *testing.T) {
 	control := &relayControlStub{}
-	client := NewRelayClient(control, &relaySystemConfigStub{t.TempDir(), "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningClient("name.syncloud.it"), zap.NewNop())
+	client := NewRelayClient(control, &relaySystemConfigStub{t.TempDir(), "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningProxies("name.syncloud.it", "name.syncloud.it-smtp"), zap.NewNop())
 	assert.Nil(t, client.Disable())
 	assert.Empty(t, control.restarted)
 }
@@ -141,50 +136,36 @@ func relayRunningProxies(names ...string) *http.Client {
 	return &http.Client{Transport: relayStatusTransport{body}}
 }
 
-func mailClient(t *testing.T, dir string, relay bool, mail bool, running ...string) (*RelayClient, *relayControlStub) {
+func mailClient(t *testing.T, dir string, running ...string) (*RelayClient, *relayControlStub) {
 	t.Helper()
 	token := "tok123"
 	control := &relayControlStub{}
-	user := &relayUserConfigStub{domain: "name.syncloud.it", token: &token, mailRelay: mail}
+	user := &relayUserConfigStub{domain: "name.syncloud.it", token: &token}
 	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, user,
 		&relayRedirectStub{"syncloud.it"}, relayRunningProxies(running...), zap.NewNop())
 	return client, control
 }
 
-func TestRelayClient_MailOnlyTunnelHasNoWebProxy(t *testing.T) {
+func TestRelayClient_RelayOnOpensWebAndMailProxies(t *testing.T) {
 	dir := t.TempDir()
-	client, control := mailClient(t, dir, false, true, "name.syncloud.it-smtp")
-
-	assert.Nil(t, client.Apply(false))
-
-	s, err := readConfig(dir)
-	assert.Nil(t, err)
-	assert.NotContains(t, s, `type = "https"`)
-	assert.Contains(t, s, `name = "name.syncloud.it-smtp"`)
-	assert.Contains(t, s, `type = "tcpmux"`)
-	assert.Contains(t, s, `multiplexer = "httpconnect"`)
-	assert.Contains(t, s, `customDomains = ["name.syncloud.it"]`)
-	assert.Contains(t, s, "localPort = 10025")
-	assert.Equal(t, []string{RelayService}, control.restarted)
-}
-
-func TestRelayClient_BothProxiesWhenRelayAndMailAreOn(t *testing.T) {
-	dir := t.TempDir()
-	client, _ := mailClient(t, dir, true, true, "name.syncloud.it", "name.syncloud.it-smtp")
+	client, _ := mailClient(t, dir, "name.syncloud.it", "name.syncloud.it-smtp")
 
 	assert.Nil(t, client.Apply(true))
 
 	s, err := readConfig(dir)
 	assert.Nil(t, err)
 	assert.Contains(t, s, `type = "https"`)
+	assert.Contains(t, s, `name = "name.syncloud.it-smtp"`)
 	assert.Contains(t, s, `type = "tcpmux"`)
+	assert.Contains(t, s, `multiplexer = "httpconnect"`)
+	assert.Contains(t, s, "localPort = 10025")
 }
 
-func TestRelayClient_BothOffRemovesTheTunnel(t *testing.T) {
+func TestRelayClient_RelayOffRemovesTheTunnel(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "frpc.toml")
 	assert.Nil(t, os.WriteFile(path, []byte("x"), 0644))
-	client, _ := mailClient(t, dir, false, false)
+	client, _ := mailClient(t, dir)
 
 	assert.Nil(t, client.Apply(false))
 
@@ -194,8 +175,7 @@ func TestRelayClient_BothOffRemovesTheTunnel(t *testing.T) {
 
 func TestRelayClient_WaitsForBothProxiesBeforeSucceeding(t *testing.T) {
 	dir := t.TempDir()
-	// only the web proxy comes up, the mail one never does
-	client, _ := mailClient(t, dir, true, true, "name.syncloud.it")
+	client, _ := mailClient(t, dir, "name.syncloud.it")
 	client.connectAttempts = 2
 
 	assert.NotNil(t, client.Apply(true))
