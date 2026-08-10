@@ -29,8 +29,7 @@ type Redirect interface {
 }
 
 type Relay interface {
-	Enable() error
-	Disable() error
+	Apply(relayEnabled bool) error
 }
 
 type Trigger interface {
@@ -78,14 +77,8 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	a.logger.Info(fmt.Sprintf("update relay: %v, ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
 		request.RelayEnabled, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 
-	if request.RelayEnabled {
-		if err := a.relay.Enable(); err != nil {
-			return err
-		}
-	} else {
-		if err := a.relay.Disable(); err != nil {
-			return err
-		}
+	if err := a.relay.Apply(request.RelayEnabled); err != nil {
+		return err
 	}
 
 	ipv4 := request.Ipv4
@@ -152,6 +145,10 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	a.userConfig.SetIpv6Enabled(request.Ipv6Enabled)
 	a.userConfig.SetPublicPort(request.AccessPort)
 
+	if err := a.relay.Apply(request.RelayEnabled); err != nil {
+		return err
+	}
+
 	a.trigger.Trigger()
 	return nil
 
@@ -171,5 +168,5 @@ func (a *ExternalAddress) Sync() error {
 			return err
 		}
 	}
-	return nil
+	return a.relay.Apply(a.userConfig.IsRelayEnabled())
 }

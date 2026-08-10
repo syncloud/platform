@@ -10,3 +10,13 @@ type = "https"
 customDomains = ["{{ .Domain }}", "*.{{ .Domain }}"]
 localIP = "127.0.0.1"
 localPort = {{ .LocalPort }}
+{{ if .MailSocket }}
+[[proxies]]
+name = "{{ .Domain }}-smtp"
+type = "tcpmux"
+multiplexer = "httpconnect"
+customDomains = ["{{ .Domain }}"]
+[proxies.plugin]
+type = "unix_domain_socket"
+unixPath = "{{ .MailSocket }}"
+{{ end }}

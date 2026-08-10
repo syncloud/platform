@@ -10,7 +10,7 @@ local bootstrap = '25.02';
 local nginx = '1.24.0';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '3040';
+local visual_diff_skip_build = '3055';
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -335,7 +335,7 @@ local build(arch, testUI) = [{
       name: 'relay.redirect',
       image: 'snowdreamtech/frps:0.61.1',
       commands: [
-        'printf "bindPort = 443\nvhostHTTPSPort = 4443\n" > /etc/frp/frps.toml',
+        'printf "bindPort = 443\nvhostHTTPSPort = 4443\ntcpMuxHTTPConnectPort = 1337\n" > /etc/frp/frps.toml',
         '/usr/bin/frps -c /etc/frp/frps.toml',
       ],
     },

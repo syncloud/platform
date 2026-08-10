@@ -2,6 +2,7 @@ package ioc
 
 import (
 	"github.com/golobby/container/v3"
+	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/rest"
@@ -21,8 +22,9 @@ func InitInternalApi(userConfig string, systemConfig string, backupDir string, v
 		systemd *systemd.Control,
 		middleware *rest.Middleware,
 		authelia *auth.Authelia,
+		relay *access.RelayClient,
 	) *rest.Api {
-		return rest.NewApi(userConfig, redirect, storage, systemd, middleware, network, address, authelia, logger)
+		return rest.NewApi(userConfig, redirect, storage, systemd, middleware, network, address, authelia, relay, logger)
 	})
 	if err != nil {
 		return nil, err
