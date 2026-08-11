@@ -16,7 +16,9 @@ type DeviceUserConfig interface {
 	Url(app string) string
 	AppDomain(app string) string
 	IsMailRelayEnabled() bool
+	IsRelayEnabled() bool
 	GetDomainUpdateToken() *string
+	SetMailInboundSocket(socket *string)
 }
 
 type DeviceRedirect interface {
@@ -33,6 +35,10 @@ type Systemd interface {
 	RestartService(service string) error
 }
 
+type Relay interface {
+	Apply(relayEnabled bool) error
+}
+
 type WebAuth interface {
 	RegisterOIDCClient(id string, redirectURIs []string, requirePkce bool, tokenEndpointAuthMethod string) (string, error)
 }
@@ -46,12 +52,13 @@ type Api struct {
 	network    string
 	address    string
 	webAuth    WebAuth
+	relay      Relay
 	logger     *zap.Logger
 }
 
 func NewApi(userConfig DeviceUserConfig, redirect DeviceRedirect, storage Storage, systemd Systemd,
 	middleware *Middleware, network string, address string,
-	webAuth WebAuth, logger *zap.Logger) *Api {
+	webAuth WebAuth, relay Relay, logger *zap.Logger) *Api {
 	return &Api{
 		userConfig: userConfig,
 		redirect:   redirect,
@@ -61,6 +68,7 @@ func NewApi(userConfig DeviceUserConfig, redirect DeviceRedirect, storage Storag
 		network:    network,
 		address:    address,
 		webAuth:    webAuth,
+		relay:      relay,
 		logger:     logger,
 	}
 }
@@ -85,6 +93,8 @@ func (a *Api) Start() error {
 	r.HandleFunc("/app/storage_dir", a.mw.Handle(a.AppStorageDir)).Methods("GET")
 	r.HandleFunc("/user/email", a.mw.Handle(a.UserEmail)).Methods("GET")
 	r.HandleFunc("/oidc/register", a.mw.Handle(a.RegisterOIDCClient)).Methods("POST")
+	r.HandleFunc("/mail/inbound/register", a.mw.Handle(a.RegisterMailInbound)).Methods("POST")
+	r.HandleFunc("/mail/inbound/unregister", a.mw.Handle(a.UnregisterMailInbound)).Methods("POST")
 	r.NotFoundHandler = http.HandlerFunc(a.mw.NotFoundHandler)
 
 	r.Use(a.mw.JsonHeader)
@@ -151,6 +161,23 @@ func (a *Api) RegisterOIDCClient(req *http.Request) (interface{}, error) {
 		req.FormValue("token_endpoint_auth_method"),
 	)
 	return password, err
+}
+
+func (a *Api) RegisterMailInbound(req *http.Request) (interface{}, error) {
+	if err := req.ParseForm(); err != nil {
+		return nil, err
+	}
+	socket := req.FormValue("socket")
+	if socket == "" {
+		return nil, fmt.Errorf("socket is required")
+	}
+	a.userConfig.SetMailInboundSocket(&socket)
+	return socket, a.relay.Apply(a.userConfig.IsRelayEnabled())
+}
+
+func (a *Api) UnregisterMailInbound(_ *http.Request) (interface{}, error) {
+	a.userConfig.SetMailInboundSocket(nil)
+	return "unregistered", a.relay.Apply(a.userConfig.IsRelayEnabled())
 }
 
 func (a *Api) ConfigGetDkimKey(_ *http.Request) (interface{}, error) {

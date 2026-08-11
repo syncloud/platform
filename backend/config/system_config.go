@@ -6,6 +6,7 @@ import (
 )
 
 const WebAccessPort = 443
+
 const WebProtocol = "https"
 
 type SystemConfig struct {

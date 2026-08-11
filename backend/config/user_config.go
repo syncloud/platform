@@ -117,6 +117,18 @@ func (c *UserConfig) SetDkimKey(key *string) {
 		c.db.Upsert("dkim_key", *key)
 	}
 }
+func (c *UserConfig) GetMailInboundSocket() *string {
+	return c.db.GetOrNilString("mail.inbound_socket")
+}
+
+func (c *UserConfig) SetMailInboundSocket(socket *string) {
+	if socket == nil {
+		c.db.Delete("mail.inbound_socket")
+	} else {
+		c.db.Upsert("mail.inbound_socket", *socket)
+	}
+}
+
 func (c *UserConfig) GetDomainUpdateToken() *string {
 	return c.db.GetOrNilString("platform.domain_update_token")
 }
