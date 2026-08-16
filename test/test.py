@@ -267,6 +267,51 @@ def test_platform_rest(device_host):
     assert response.status_code == 200
 
 
+def test_index_is_revalidated(device_host):
+    response = requests.get('https://{0}'.format(device_host), verify=False)
+    assert response.status_code == 200
+    assert response.headers['Cache-Control'] == 'no-cache'
+
+
+def test_assets_are_immutable(device_host):
+    index = requests.get('https://{0}'.format(device_host), verify=False)
+    asset = re.search(r'/assets/[A-Za-z0-9._-]+\.js', index.text).group(0)
+    response = requests.get('https://{0}{1}'.format(device_host, asset), verify=False)
+    assert response.status_code == 200
+    assert response.headers['Cache-Control'] == 'public, max-age=31536000, immutable'
+
+
+def test_missing_asset_is_not_index(device_host):
+    response = requests.get('https://{0}/assets/Missing.deadbeef.js'.format(device_host), verify=False)
+    assert response.status_code == 404
+
+
+def test_asset_content_type_is_javascript(device_host):
+    index = requests.get('https://{0}'.format(device_host), verify=False)
+    asset = re.search(r'/assets/[A-Za-z0-9._-]+\.js', index.text).group(0)
+    response = requests.get('https://{0}{1}'.format(device_host, asset), verify=False)
+    assert 'javascript' in response.headers['Content-Type']
+
+
+def test_auth_index_is_revalidated(full_domain):
+    response = requests.get('https://auth.{0}'.format(full_domain), verify=False)
+    assert response.status_code == 200
+    assert response.headers['Cache-Control'] == 'no-cache'
+
+
+def test_auth_assets_are_immutable(full_domain):
+    index = requests.get('https://auth.{0}'.format(full_domain), verify=False)
+    asset = re.search(r'/assets/[A-Za-z0-9._-]+\.js', index.text).group(0)
+    response = requests.get('https://auth.{0}{1}'.format(full_domain, asset), verify=False)
+    assert response.status_code == 200
+    assert response.headers['Cache-Control'] == 'public, max-age=31536000, immutable'
+
+
+def test_auth_missing_asset_is_not_index(full_domain):
+    response = requests.get('https://auth.{0}/assets/Missing.deadbeef.js'.format(full_domain), verify=False)
+    assert response.status_code == 404
+
+
 def test_api(device):
     time.sleep(10) # start-limit-hit
     device.scp_to_device(join(DIR, "api/api.test"), '/', throw=True)
