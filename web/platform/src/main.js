@@ -9,6 +9,7 @@ import './style/design.css'
 import ui from './ui'
 import i18n, { detectLocale, setLocale } from './i18n'
 import { useThemeStore } from './stores/theme'
+import { installStaleAssetsReload, clearStaleAssetsReload } from './util/staleAssets'
 
 async function start () {
   if (import.meta.env.VITE_STUB) {
@@ -17,6 +18,8 @@ async function start () {
   }
 
   setLocale(detectLocale())
+
+  installStaleAssetsReload(window, router)
 
   const pinia = createPinia()
 
@@ -28,6 +31,9 @@ async function start () {
     .mount('#app')
 
   useThemeStore(pinia).init()
+
+  await router.isReady()
+  clearStaleAssetsReload(window)
 }
 
 start()
