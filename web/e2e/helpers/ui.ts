@@ -7,8 +7,8 @@ export function uiMode(testInfo: TestInfo): UiMode {
 }
 
 export async function waitForLoading(page: Page) {
-  await page.waitForTimeout(500)
-  const mask = page.locator('.sc-loading-mask').first()
+  const mask = page.getByTestId('loading-mask').first()
+  await mask.waitFor({ state: 'visible', timeout: 1_500 }).catch(() => {})
   await mask.waitFor({ state: 'hidden', timeout: 120_000 }).catch(() => {})
 }
 
