@@ -256,6 +256,18 @@ def test_unauthorized(device_host):
     assert response.status_code == 401
 
 
+def test_uptime_unauthorized(device_host):
+    response = requests.get('https://{0}/rest/uptime'.format(device_host), allow_redirects=False, verify=False)
+    assert response.status_code == 401
+
+
+def test_uptime(device, device_host):
+    session = device.login_v2()
+    response = session.get('https://{0}/rest/uptime'.format(device_host), verify=False)
+    assert response.status_code == 200, response.text
+    assert response.json()['data'] > 0, response.text
+
+
 def test_running_platform_web(device_host):
     print(check_output('nc -zv -w 1 {0} 443'.format(device_host), shell=True).decode())
 

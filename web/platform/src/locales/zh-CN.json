@@ -120,7 +120,23 @@
     "shutdownLabel": "关闭设备",
     "shutdown": "关机",
     "restartConfirm": "您确定要重启设备吗?",
-    "shutdownConfirm": "您确定要关闭设备吗?您需要物理访问才能再次开机。"
+    "shutdownConfirm": "您确定要关闭设备吗?您需要物理访问才能再次开机。",
+    "restarting": "正在重启",
+    "shuttingDown": "正在关机",
+    "reload": "重新加载",
+    "stage": {
+      "restart": {
+        "stopping": "设备正在关机。",
+        "starting": "设备正在启动，可能需要几分钟。",
+        "done": "设备已恢复在线，正在重新加载页面。",
+        "timeout": "设备未恢复在线，请检查设备并重新加载页面。"
+      },
+      "shutdown": {
+        "stopping": "设备正在关机。",
+        "off": "设备已关闭，您可以关闭此页面。",
+        "timeout": "设备仍在响应，请检查设备。"
+      }
+    }
   },
   "twoFactor": {
     "title": "双因素认证",

@@ -154,7 +154,23 @@
     "shutdownLabel": "Shut down the device",
     "shutdown": "Shutdown",
     "restartConfirm": "Are you sure you want to restart the device?",
-    "shutdownConfirm": "Are you sure you want to shut down the device? You will need physical access to turn it back on."
+    "shutdownConfirm": "Are you sure you want to shut down the device? You will need physical access to turn it back on.",
+    "restarting": "Restarting",
+    "shuttingDown": "Shutting down",
+    "reload": "Reload",
+    "stage": {
+      "restart": {
+        "stopping": "The device is going offline.",
+        "starting": "The device is starting up, this can take a few minutes.",
+        "done": "The device is back online, reloading the page.",
+        "timeout": "The device did not come back online, check it and reload the page."
+      },
+      "shutdown": {
+        "stopping": "The device is shutting down.",
+        "off": "The device is off, you can close this page.",
+        "timeout": "The device is still responding, check it."
+      }
+    }
   },
   "twoFactor": {
     "title": "Two-Factor Authentication",
