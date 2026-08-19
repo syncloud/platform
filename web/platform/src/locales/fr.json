@@ -235,7 +235,8 @@
     "title": "Mémoire interne",
     "boot": "Démarrage",
     "partition": "Partition - {size}",
-    "extend": "Étendre"
+    "extend": "Étendre",
+    "healthLabel": "Utilisation du disque et autres mesures de l'appareil"
   },
   "storage": {
     "title": "Stockage",

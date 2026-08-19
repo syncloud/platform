@@ -235,7 +235,8 @@
     "title": "内部ストレージ",
     "boot": "ブート",
     "partition": "パーティション - {size}",
-    "extend": "拡張"
+    "extend": "拡張",
+    "healthLabel": "ディスク使用量とその他のデバイス指標"
   },
   "storage": {
     "title": "ストレージ",

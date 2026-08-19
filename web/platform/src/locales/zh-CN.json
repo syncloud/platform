@@ -235,7 +235,8 @@
     "title": "内部存储",
     "boot": "引导",
     "partition": "分区 - {size}",
-    "extend": "扩展"
+    "extend": "扩展",
+    "healthLabel": "磁盘使用情况和其他设备指标"
   },
   "storage": {
     "title": "存储",

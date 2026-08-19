@@ -235,7 +235,8 @@
     "title": "Interner Speicher",
     "boot": "Boot",
     "partition": "Partition - {size}",
-    "extend": "Erweitern"
+    "extend": "Erweitern",
+    "healthLabel": "Speicherbelegung und weitere Gerätewerte"
   },
   "storage": {
     "title": "Speicher",

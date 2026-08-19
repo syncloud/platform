@@ -269,7 +269,8 @@
     "title": "Internal Memory",
     "boot": "Boot",
     "partition": "Partition - {size}",
-    "extend": "Extend"
+    "extend": "Extend",
+    "healthLabel": "Disk usage and other device metrics"
   },
   "storage": {
     "title": "Storage",

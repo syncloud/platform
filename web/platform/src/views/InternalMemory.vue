@@ -14,6 +14,12 @@
           >{{ $t('internalMemory.extend') }}</s-button>
         </div>
       </div>
+      <div class="sc-row">
+        <span class="sc-row-label">{{ $t('internalMemory.healthLabel') }}</span>
+        <router-link to="/health" id="health_link" data-testid="health-link">
+          <button class="sc-btn sc-btn-primary">{{ $t('health.title') }}</button>
+        </router-link>
+      </div>
     </div>
   </div>
   <Error ref="error"/>

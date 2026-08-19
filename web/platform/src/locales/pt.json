@@ -235,7 +235,8 @@
     "title": "Memória interna",
     "boot": "Inicialização",
     "partition": "Partição - {size}",
-    "extend": "Ampliar"
+    "extend": "Ampliar",
+    "healthLabel": "Uso do disco e outras métricas do dispositivo"
   },
   "storage": {
     "title": "Armazenamento",
