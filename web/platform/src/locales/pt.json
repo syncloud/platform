@@ -120,7 +120,23 @@
     "shutdownLabel": "Desligar o dispositivo",
     "shutdown": "Desligar",
     "restartConfirm": "Tem certeza de que deseja reiniciar o dispositivo?",
-    "shutdownConfirm": "Tem certeza de que deseja desligar o dispositivo? Será necessário acesso físico para ligá-lo novamente."
+    "shutdownConfirm": "Tem certeza de que deseja desligar o dispositivo? Será necessário acesso físico para ligá-lo novamente.",
+    "restarting": "Reiniciando",
+    "shuttingDown": "Desligando",
+    "reload": "Recarregar",
+    "stage": {
+      "restart": {
+        "stopping": "O dispositivo está desligando.",
+        "starting": "O dispositivo está iniciando, isso pode levar alguns minutos.",
+        "done": "O dispositivo está online novamente, recarregando a página.",
+        "timeout": "O dispositivo não voltou a ficar online, verifique-o e recarregue a página."
+      },
+      "shutdown": {
+        "stopping": "O dispositivo está desligando.",
+        "off": "O dispositivo está desligado, você pode fechar esta página.",
+        "timeout": "O dispositivo ainda está respondendo, verifique-o."
+      }
+    }
   },
   "twoFactor": {
     "title": "Autenticação de dois fatores",

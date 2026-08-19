@@ -120,7 +120,23 @@
     "shutdownLabel": "Apagar el dispositivo",
     "shutdown": "Apagar",
     "restartConfirm": "¿Estás seguro de que quieres reiniciar el dispositivo?",
-    "shutdownConfirm": "¿Estás seguro de que quieres apagar el dispositivo? Necesitarás acceso físico para volver a encenderlo."
+    "shutdownConfirm": "¿Estás seguro de que quieres apagar el dispositivo? Necesitarás acceso físico para volver a encenderlo.",
+    "restarting": "Reiniciando",
+    "shuttingDown": "Apagando",
+    "reload": "Recargar",
+    "stage": {
+      "restart": {
+        "stopping": "El dispositivo se está apagando.",
+        "starting": "El dispositivo se está iniciando, esto puede tardar unos minutos.",
+        "done": "El dispositivo está de nuevo en línea, recargando la página.",
+        "timeout": "El dispositivo no volvió a estar en línea, revíselo y recargue la página."
+      },
+      "shutdown": {
+        "stopping": "El dispositivo se está apagando.",
+        "off": "El dispositivo está apagado, puede cerrar esta página.",
+        "timeout": "El dispositivo sigue respondiendo, revíselo."
+      }
+    }
   },
   "twoFactor": {
     "title": "Autenticación de dos factores",

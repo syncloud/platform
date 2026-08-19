@@ -13,7 +13,6 @@ import (
 	"github.com/syncloud/platform/access"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
-	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/event"
 	"github.com/syncloud/platform/health"
@@ -26,6 +25,7 @@ import (
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/support"
+	"github.com/syncloud/platform/system"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/timezone"
 	"go.uber.org/zap"
@@ -51,7 +51,8 @@ type Backend struct {
 	changesClient   *snap.ChangesClient
 	disks           *storage.Disks
 	journalCtl      *systemd.Journal
-	executor        *cli.ShellExecutor
+	power           *system.Power
+	uptime          *system.Uptime
 	iface           *network.TcpInterfaces
 	support         *support.Sender
 	proxy           *Proxy
@@ -76,7 +77,7 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	redirectConfig *config.Redirect,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
-	disks *storage.Disks, journalCtl *systemd.Journal, executor *cli.ShellExecutor,
+	disks *storage.Disks, journalCtl *systemd.Journal, power *system.Power, uptime *system.Uptime,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
 	userManager *auth.UserManager, groupManager *auth.GroupManager, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
@@ -102,7 +103,8 @@ func NewBackend(
 		snapd:           snapd,
 		disks:           disks,
 		journalCtl:      journalCtl,
-		executor:        executor,
+		power:           power,
+		uptime:          uptime,
 		iface:           iface,
 		support:         support,
 		proxy:           proxy,
@@ -208,6 +210,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/device/url", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.DeviceUrl))).Methods("GET")
 	r.HandleFunc("/rest/restart", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Restart))).Methods("POST")
 	r.HandleFunc("/rest/shutdown", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Shutdown))).Methods("POST")
+	r.HandleFunc("/rest/uptime", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Uptime))).Methods("GET")
 	r.HandleFunc("/rest/network/interfaces", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.NetworkInterfaces))).Methods("GET")
 	r.PathPrefix("/rest/proxy/image").HandlerFunc(b.mw.FailIfNotActivated(b.mw.Secured(b.proxy.ProxyImageFunc())))
 	r.HandleFunc("/rest/proxy_custom/list", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.customProxy.List))).Methods("GET")
@@ -614,11 +617,17 @@ func (b *Backend) DeviceUrl(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) Restart(_ *http.Request) (interface{}, error) {
-	return b.executor.CombinedOutput("shutdown", "-r", "now")
+	b.power.Restart()
+	return "OK", nil
 }
 
 func (b *Backend) Shutdown(_ *http.Request) (interface{}, error) {
-	return b.executor.CombinedOutput("shutdown", "now")
+	b.power.Shutdown()
+	return "OK", nil
+}
+
+func (b *Backend) Uptime(_ *http.Request) (interface{}, error) {
+	return b.uptime.Seconds()
 }
 
 func (b *Backend) NetworkInterfaces(_ *http.Request) (interface{}, error) {
