@@ -19,6 +19,7 @@ type SnapdHttpClient struct {
 type HttpClient interface {
 	Get(url string) (resp *http.Response, err error)
 	Post(url, bodyType string, body io.Reader) (*http.Response, error)
+	Do(req *http.Request) (*http.Response, error)
 }
 
 func NewSnapdHttpClient(logger *zap.Logger) *SnapdHttpClient {
@@ -54,4 +55,13 @@ func (c *SnapdHttpClient) Get(url string) ([]byte, error) {
 
 func (c *SnapdHttpClient) Post(url, bodyType string, body io.Reader) (*http.Response, error) {
 	return c.client.Post(url, bodyType, body)
+}
+
+func (c *SnapdHttpClient) Put(url, bodyType string, body io.Reader) (*http.Response, error) {
+	request, err := http.NewRequest(http.MethodPut, url, body)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Content-Type", bodyType)
+	return c.client.Do(request)
 }

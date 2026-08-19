@@ -138,7 +138,7 @@ func (s *Server) FindInstalled(name string) (*model.Snap, error) {
 }
 
 func (s *Server) Upgrade(name string) error {
-	response, err := s.snapsAction("refresh", name)
+	response, err := s.snapsAction(model.InstallRequest{Action: "refresh"}, name)
 	if err != nil {
 		return err
 	}
@@ -154,17 +154,17 @@ func (s *Server) Upgrade(name string) error {
 }
 
 func (s *Server) Install(name string) error {
-	_, err := s.snapsAction("install", name)
+	_, err := s.snapsAction(model.InstallRequest{Action: "install"}, name)
 	return err
 }
 
 func (s *Server) Remove(name string) error {
-	_, err := s.snapsAction("remove", name)
+	_, err := s.snapsAction(model.InstallRequest{Action: "remove", Purge: true}, name)
 	return err
 }
 
-func (s *Server) snapsAction(action, name string) (*model.ServerResponse, error) {
-	requestJson, err := json.Marshal(model.InstallRequest{Action: action})
+func (s *Server) snapsAction(request model.InstallRequest, name string) (*model.ServerResponse, error) {
+	requestJson, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}

@@ -59,6 +59,8 @@ test('remove app', async ({}, testInfo) => {
   await waitForLoading(page)
   await expect(page.locator('#btn_install')).toBeVisible({ timeout: 600_000 })
   await shoot(page, testInfo, 'app_removed')
+
+  expect(ssh('snap saved')).not.toContain('files')
 })
 
 test('not installed app', async ({}, testInfo) => {

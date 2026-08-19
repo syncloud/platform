@@ -269,7 +269,8 @@
     "title": "Internal Memory",
     "boot": "Boot",
     "partition": "Partition - {size}",
-    "extend": "Extend"
+    "extend": "Extend",
+    "healthLabel": "Disk usage and other device metrics"
   },
   "storage": {
     "title": "Storage",
@@ -373,5 +374,9 @@
     "relay": "Syncloud mail relay",
     "relayDescription": "Send outgoing email through Syncloud so major providers accept it. Monthly sending limits apply and depend on your plan.",
     "save": "Save"
+  },
+  "space": {
+    "lowSystem": "Low disk space: only {free} left in internal memory. Apps may fail to install or start.",
+    "lowData": "Low disk space: only {free} left on the data disk. Apps may fail to install or start."
   }
 }

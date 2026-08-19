@@ -50,6 +50,7 @@ type Backend struct {
 	snapd           *snap.Server
 	changesClient   *snap.ChangesClient
 	disks           *storage.Disks
+	diskSpace       *storage.DiskSpace
 	journalCtl      *systemd.Journal
 	power           *system.Power
 	uptime          *system.Uptime
@@ -77,7 +78,7 @@ func NewBackend(
 	identification *identification.Parser, activate *Activate, userConfig *config.UserConfig,
 	redirectConfig *config.Redirect,
 	certificate *Certificate, externalAddress *access.ExternalAddress, snapd *snap.Server,
-	disks *storage.Disks, journalCtl *systemd.Journal, power *system.Power, uptime *system.Uptime,
+	disks *storage.Disks, diskSpace *storage.DiskSpace, journalCtl *systemd.Journal, power *system.Power, uptime *system.Uptime,
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
 	userManager *auth.UserManager, groupManager *auth.GroupManager, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
@@ -102,6 +103,7 @@ func NewBackend(
 		externalAddress: externalAddress,
 		snapd:           snapd,
 		disks:           disks,
+		diskSpace:       diskSpace,
 		journalCtl:      journalCtl,
 		power:           power,
 		uptime:          uptime,
@@ -191,6 +193,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/storage/error/last", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageLastError))).Methods("GET")
 	r.HandleFunc("/rest/storage/error/clear", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageClearError))).Methods("POST")
 	r.HandleFunc("/rest/storage/disks", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageDisks))).Methods("GET")
+	r.HandleFunc("/rest/storage/space", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageSpace))).Methods("GET")
 	r.HandleFunc("/rest/event/trigger", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.EventTrigger))).Methods("POST")
 	r.HandleFunc("/rest/deactivate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Deactivate))).Methods("POST")
 	r.HandleFunc("/rest/certificate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.certificate.Certificate))).Methods("GET")
@@ -595,6 +598,10 @@ func (b *Backend) StorageActivateDisks(req *http.Request) (interface{}, error) {
 	}
 
 	return "OK", b.JobMaster.Offer("storage.activate.disks", func() error { return b.disks.ActivateDisks(request.Devices, request.Format) })
+}
+
+func (b *Backend) StorageSpace(_ *http.Request) (interface{}, error) {
+	return b.diskSpace.Status(), nil
 }
 
 func (b *Backend) StorageLastError(_ *http.Request) (interface{}, error) {

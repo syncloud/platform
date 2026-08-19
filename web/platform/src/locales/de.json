@@ -235,7 +235,8 @@
     "title": "Interner Speicher",
     "boot": "Boot",
     "partition": "Partition - {size}",
-    "extend": "Erweitern"
+    "extend": "Erweitern",
+    "healthLabel": "Speicherbelegung und weitere Gerätewerte"
   },
   "storage": {
     "title": "Speicher",
@@ -373,5 +374,9 @@
     "relay": "Syncloud-Mail-Relay",
     "relayDescription": "Ausgehende E-Mails über Syncloud senden, damit große Anbieter sie akzeptieren. Es gelten monatliche Sendelimits je nach Tarif.",
     "save": "Speichern"
+  },
+  "space": {
+    "lowSystem": "Wenig Speicherplatz: im internen Speicher sind nur noch {free} frei. Apps lassen sich möglicherweise nicht installieren oder starten.",
+    "lowData": "Wenig Speicherplatz: auf der Datenfestplatte sind nur noch {free} frei. Apps lassen sich möglicherweise nicht installieren oder starten."
   }
 }

@@ -14,7 +14,8 @@ const state = {
   activated: true,
   accessSuccess: true,
   diskActionSuccess: true,
-  diskLastError: true
+  diskLastError: true,
+  diskSpaceLow: true
 }
 
 const store = {
@@ -568,6 +569,19 @@ export function mock () {
       })
       this.get('/rest/storage/boot/disk', function (_schema, _request) {
         return new Response(200, {}, bootDiskData)
+      })
+      this.get('/rest/storage/space', function (_schema, _request) {
+        const low = state.diskSpaceLow
+        return new Response(200, {}, {
+          success: true,
+          data: {
+            low: low,
+            mounts: [
+              { kind: 'system', path: '/', total_kb: 15 * 1024 * 1024, free_kb: low ? 855 * 1024 : 8 * 1024 * 1024, low: low },
+              { kind: 'data', path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 400 * 1024 * 1024, low: false }
+            ]
+          }
+        })
       })
       this.post('/rest/storage/activate/partition', function (_schema, _request) {
         if (state.diskActionSuccess) {

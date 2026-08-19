@@ -42,7 +42,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 	err = c.Singleton(func(master *job.SingleJobMaster, backupService *backup.Backup, eventTrigger *event.Trigger, worker *job.Worker,
 		redirectService *redirect.Service, snapdUpgrader *snap.Snapd, storageService *storage.Storage,
 		id *identification.Parser, activate *rest.Activate, userConfig *config.UserConfig, redirectConfig *config.Redirect, cert *rest.Certificate,
-		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, journalCtl *systemd.Journal,
+		externalAddress *access.ExternalAddress, snapd *snap.Server, disks *storage.Disks, diskSpace *storage.DiskSpace, journalCtl *systemd.Journal,
 		power *system.Power, uptime *system.Uptime, iface *network.TcpInterfaces, sender *support.Sender,
 		proxy *rest.Proxy, customProxy *rest.CustomProxy, middleware *rest.Middleware, userManager *auth.UserManager, groupManager *auth.GroupManager, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
@@ -52,7 +52,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			snapdUpgrader, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
-			snapd, disks, journalCtl, power, uptime, iface, sender, proxy, customProxy,
+			snapd, disks, diskSpace, journalCtl, power, uptime, iface, sender, proxy, customProxy,
 			userManager, groupManager, middleware, cookies, net, address, changesClient,
 			oidcService, authelia, totp, tz, healthService, logger)
 	})
