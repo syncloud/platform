@@ -235,7 +235,8 @@
     "title": "Mémoire interne",
     "boot": "Démarrage",
     "partition": "Partition - {size}",
-    "extend": "Étendre"
+    "extend": "Étendre",
+    "healthLabel": "Utilisation du disque et autres mesures de l'appareil"
   },
   "storage": {
     "title": "Stockage",
@@ -373,5 +374,9 @@
     "relay": "Relais de messagerie Syncloud",
     "relayDescription": "Envoyer le courrier sortant via Syncloud afin que les grands fournisseurs l'acceptent. Des limites d'envoi mensuelles s'appliquent selon votre forfait.",
     "save": "Enregistrer"
+  },
+  "space": {
+    "lowSystem": "Espace disque faible : il ne reste que {free} dans la mémoire interne. Les applications peuvent ne pas s'installer ou ne pas démarrer.",
+    "lowData": "Espace disque faible : il ne reste que {free} sur le disque de données. Les applications peuvent ne pas s'installer ou ne pas démarrer."
   }
 }

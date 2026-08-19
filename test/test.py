@@ -268,6 +268,26 @@ def test_uptime(device, device_host):
     assert response.json()['data'] > 0, response.text
 
 
+def test_storage_space(device, device_host):
+    session = device.login_v2()
+    response = session.get('https://{0}/rest/storage/space'.format(device_host), verify=False)
+    assert response.status_code == 200, response.text
+    space = response.json()['data']
+    assert len(space['mounts']) > 0, response.text
+    root = space['mounts'][0]
+    assert root['path'] == '/', response.text
+    assert root['kind'] == 'system', response.text
+    assert root['total_kb'] > 0, response.text
+    assert root['low'] == (root['free_kb'] < 2 * 1024 * 1024), response.text
+
+
+def test_automatic_snapshots_are_disabled(device):
+    def check():
+        retention = device.run_ssh('snap get system snapshots.automatic.retention', throw=False)
+        assert 'no' in retention, retention
+    retry(check, retries=80)
+
+
 def test_running_platform_web(device_host):
     print(check_output('nc -zv -w 1 {0} 443'.format(device_host), shell=True).decode())
 

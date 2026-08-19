@@ -45,7 +45,8 @@ test('Extend', async () => {
             methods: {
               showAxios: showError
             }
-          }
+          },
+          'router-link': { props: ['to'], template: '<a :href="to"><slot/></a>' }
         },
         mocks: {
           $route: { path: '/app', query: { id: 'files' } },
@@ -67,5 +68,31 @@ test('Extend', async () => {
   expect(showError).toHaveBeenCalledTimes(0)
   expect(extended).toBe(true)
   expect(statusCalled).toBeTruthy()
+  wrapper.unmount()
+})
+
+test('links to the health page for more disk details', async () => {
+  const mock = new MockAdapter(axios)
+  mock.onGet('/rest/storage/boot/disk').reply(200, {
+    success: true,
+    data: { device: '/dev/mmcblk0p2', size: '2G', extendable: false }
+  })
+
+  const wrapper = mount(InternalMemory, {
+    attachTo: document.body,
+    global: {
+      stubs: {
+        Error: { template: '<span/>' },
+        'router-link': { props: ['to'], template: '<a :href="to"><slot/></a>' }
+      }
+    }
+  })
+
+  await flushPromises()
+
+  const link = wrapper.find('[data-testid="health-link"]')
+  expect(link.exists()).toBe(true)
+  expect(link.attributes('href')).toBe('/health')
+  expect(link.text()).toBe('Health')
   wrapper.unmount()
 })

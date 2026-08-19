@@ -235,7 +235,8 @@
     "title": "Memoria interna",
     "boot": "Arranque",
     "partition": "Partición - {size}",
-    "extend": "Ampliar"
+    "extend": "Ampliar",
+    "healthLabel": "Uso del disco y otras métricas del dispositivo"
   },
   "storage": {
     "title": "Almacenamiento",
@@ -373,5 +374,9 @@
     "relay": "Relé de correo de Syncloud",
     "relayDescription": "Enviar el correo saliente a través de Syncloud para que los grandes proveedores lo acepten. Se aplican límites mensuales de envío según su plan.",
     "save": "Guardar"
+  },
+  "space": {
+    "lowSystem": "Poco espacio: solo quedan {free} en la memoria interna. Las aplicaciones pueden fallar al instalarse o iniciarse.",
+    "lowData": "Poco espacio: solo quedan {free} en el disco de datos. Las aplicaciones pueden fallar al instalarse o iniciarse."
   }
 }

@@ -36,12 +36,25 @@
       <router-link v-if="auth.admin" to="/settings" id="settings_mobile" @click="close">{{ $t('menu.settings') }}</router-link>
       <a href="#" id="logout_mobile" class="sc-mobile-logout" @click="logout(); close()">{{ $t('menu.logout') }}</a>
     </div>
+
+    <router-link
+      v-if="spaceWarningVisible"
+      to="/internalmemory"
+      id="disk_space_warning"
+      data-testid="disk-space-warning"
+      class="sc-header-alert">
+      <i class="material-icons">warning</i>
+      <span>{{ $t(spaceMessage, { free: freeText }) }}</span>
+    </router-link>
   </header>
 </template>
 
 <script>
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
+import { useSpaceStore } from '../stores/space'
+
+const SPACE_INTERVAL_MS = 5 * 60 * 1000
 
 export default {
   props: {
@@ -51,8 +64,45 @@ export default {
     return {
       menuOpen: false,
       auth: useAuthStore(),
-      theme: useThemeStore()
+      theme: useThemeStore(),
+      space: useSpaceStore(),
+      spaceTimer: undefined
     }
+  },
+  computed: {
+    spaceWarningVisible () {
+      return this.auth.admin && this.space.low && this.space.lowest !== undefined
+    },
+    spaceMessage () {
+      return this.space.lowest.kind === 'data' ? 'space.lowData' : 'space.lowSystem'
+    },
+    freeText () {
+      const kb = this.space.lowest.free_kb
+      if (kb >= 1024 * 1024) {
+        return (kb / (1024 * 1024)).toFixed(1) + ' GB'
+      }
+      return Math.round(kb / 1024) + ' MB'
+    }
+  },
+  watch: {
+    'auth.admin' (admin) {
+      if (admin) {
+        this.space.load()
+      }
+    }
+  },
+  mounted () {
+    if (this.auth.admin) {
+      this.space.load()
+    }
+    this.spaceTimer = setInterval(() => {
+      if (this.auth.admin) {
+        this.space.load()
+      }
+    }, SPACE_INTERVAL_MS)
+  },
+  beforeUnmount () {
+    clearInterval(this.spaceTimer)
   },
   methods: {
     close: function () {
@@ -190,6 +240,22 @@ export default {
 }
 .sc-mobile-nav a:hover { background: var(--sc-primary-soft); color: var(--sc-primary); }
 .sc-mobile-logout { color: var(--sc-muted) !important; }
+
+.sc-header-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--sc-danger-soft);
+  color: var(--sc-danger);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border-top: 1px solid var(--sc-border-soft);
+}
+.sc-header-alert i { font-size: 18px; }
 
 @media (max-width: 850px) {
   .sc-nav, .sc-logout { display: none; }
