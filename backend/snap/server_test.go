@@ -20,11 +20,21 @@ type ClientStub struct {
 	findError   error
 	systemJson  string
 	systemError error
+	postUrl     string
+	postBody    string
 }
 
-func (c *ClientStub) Post(_, _ string, _ io.Reader) (*http.Response, error) {
-	//TODO implement me
-	panic("implement me")
+func (c *ClientStub) Post(url, _ string, body io.Reader) (*http.Response, error) {
+	content, err := io.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+	c.postUrl = url
+	c.postBody = string(content)
+	return &http.Response{
+		StatusCode: http.StatusAccepted,
+		Body:       io.NopCloser(strings.NewReader(`{"status": "Accepted"}`)),
+	}, nil
 }
 
 func (c *ClientStub) Get(url string) ([]byte, error) {
@@ -546,4 +556,35 @@ func TestServer_Find_NotInStore(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, found.CurrentVersion)
 	assert.Equal(t, "1", *found.InstalledVersion)
+}
+
+func TestRemove_PurgesData(t *testing.T) {
+	client := &ClientStub{}
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
+
+	err := snapd.Remove("app")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "http://unix/v2/snaps/app", client.postUrl)
+	assert.Equal(t, `{"action":"remove","purge":true}`, client.postBody)
+}
+
+func TestInstall_KeepsRequestUnchanged(t *testing.T) {
+	client := &ClientStub{}
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
+
+	err := snapd.Install("app")
+
+	assert.Nil(t, err)
+	assert.Equal(t, `{"action":"install"}`, client.postBody)
+}
+
+func TestUpgrade_KeepsRequestUnchanged(t *testing.T) {
+	client := &ClientStub{}
+	snapd := NewServer(client, &SystemConfigStub{}, &UserConfigStub{}, &HttpClientStub{}, log.Default())
+
+	err := snapd.Upgrade("app")
+
+	assert.Nil(t, err)
+	assert.Equal(t, `{"action":"refresh"}`, client.postBody)
 }

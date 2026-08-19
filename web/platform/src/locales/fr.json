@@ -373,5 +373,8 @@
     "relay": "Relais de messagerie Syncloud",
     "relayDescription": "Envoyer le courrier sortant via Syncloud afin que les grands fournisseurs l'acceptent. Des limites d'envoi mensuelles s'appliquent selon votre forfait.",
     "save": "Enregistrer"
+  },
+  "space": {
+    "low": "Espace disque faible : il ne reste que {free} sur {path}. Les applications peuvent ne pas s'installer ou ne pas démarrer."
   }
 }

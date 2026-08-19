@@ -373,5 +373,8 @@
     "relay": "Retransmissão de e-mail Syncloud",
     "relayDescription": "Enviar e-mails de saída através do Syncloud para que os grandes provedores os aceitem. Aplicam-se limites mensais de envio consoante o seu plano.",
     "save": "Salvar"
+  },
+  "space": {
+    "low": "Pouco espaço em disco: restam apenas {free} em {path}. Os aplicativos podem falhar ao instalar ou iniciar."
   }
 }

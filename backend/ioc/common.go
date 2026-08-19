@@ -339,8 +339,20 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, job5 *cron.SnapdUpgradeJob, userConfig *config.UserConfig) *cron.Cron {
-		return cron.New([]cron.Job{job1, job2, job3, job4, job5}, time.Minute*5, userConfig)
+	err = c.Singleton(func(client *snap.SnapdHttpClient) *snap.Snapshots {
+		return snap.NewSnapshots(client, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(snapshots *snap.Snapshots) *cron.SnapshotsJob {
+		return cron.NewSnapshotsJob(snapshots, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, job5 *cron.SnapdUpgradeJob, job6 *cron.SnapshotsJob, userConfig *config.UserConfig) *cron.Cron {
+		return cron.New([]cron.Job{job1, job2, job3, job4, job5, job6}, time.Minute*5, userConfig)
 	})
 	if err != nil {
 		return nil, err
@@ -537,6 +549,16 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	}
 	err = c.Singleton(func(executor *cli.ShellExecutor) *storage.FreeSpaceChecker {
 		return storage.NewFreeSpaceChecker(executor)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func() *storage.FileSystemStat { return storage.NewFileSystemStat() })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(fileSystem *storage.FileSystemStat, systemConfig *config.SystemConfig) *storage.DiskSpace {
+		return storage.NewDiskSpace(fileSystem, systemConfig, logger)
 	})
 	if err != nil {
 		return nil, err

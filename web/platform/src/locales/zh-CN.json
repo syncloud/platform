@@ -373,5 +373,8 @@
     "relay": "Syncloud 邮件中继",
     "relayDescription": "通过 Syncloud 发送外发邮件，以便主流服务商接受。将根据您的套餐适用每月发送上限。",
     "save": "保存"
+  },
+  "space": {
+    "low": "磁盘空间不足：{path} 仅剩 {free}。应用可能无法安装或启动。"
   }
 }

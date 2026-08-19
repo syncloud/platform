@@ -373,5 +373,8 @@
     "relay": "Syncloud mail relay",
     "relayDescription": "Send outgoing email through Syncloud so major providers accept it. Monthly sending limits apply and depend on your plan.",
     "save": "Save"
+  },
+  "space": {
+    "low": "Low disk space: only {free} left on {path}. Apps may fail to install or start."
   }
 }

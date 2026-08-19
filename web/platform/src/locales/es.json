@@ -373,5 +373,8 @@
     "relay": "Relé de correo de Syncloud",
     "relayDescription": "Enviar el correo saliente a través de Syncloud para que los grandes proveedores lo acepten. Se aplican límites mensuales de envío según su plan.",
     "save": "Guardar"
+  },
+  "space": {
+    "low": "Poco espacio en disco: solo quedan {free} en {path}. Las aplicaciones pueden fallar al instalarse o iniciarse."
   }
 }
