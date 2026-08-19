@@ -376,6 +376,7 @@
     "save": "Save"
   },
   "space": {
-    "low": "Low disk space: only {free} left on {path}. Apps may fail to install or start."
+    "lowSystem": "Low disk space: only {free} left in internal memory. Apps may fail to install or start.",
+    "lowData": "Low disk space: only {free} left on the data disk. Apps may fail to install or start."
   }
 }

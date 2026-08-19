@@ -32,24 +32,25 @@ func NewDiskSpace(fileSystem FileSystem, config DiskSpaceConfig, logger *zap.Log
 func (d *DiskSpace) Status() model.DiskSpace {
 	status := model.DiskSpace{Mounts: []model.DiskSpaceMount{}}
 	devices := make(map[uint64]bool)
-	for _, path := range []string{"/", d.config.DiskLink()} {
-		total, free, device, err := d.fileSystem.Stat(path)
+	paths := []model.DiskSpaceMount{
+		{Kind: model.DiskSpaceSystem, Path: "/"},
+		{Kind: model.DiskSpaceData, Path: d.config.DiskLink()},
+	}
+	for _, mount := range paths {
+		total, free, device, err := d.fileSystem.Stat(mount.Path)
 		if err != nil {
-			d.logger.Warn("cannot check free space", zap.String("path", path), zap.Error(err))
+			d.logger.Warn("cannot check free space", zap.String("path", mount.Path), zap.Error(err))
 			continue
 		}
 		if devices[device] {
 			continue
 		}
 		devices[device] = true
-		low := free < LowFreeKB
-		status.Mounts = append(status.Mounts, model.DiskSpaceMount{
-			Path:    path,
-			TotalKB: total,
-			FreeKB:  free,
-			Low:     low,
-		})
-		if low {
+		mount.TotalKB = total
+		mount.FreeKB = free
+		mount.Low = free < LowFreeKB
+		status.Mounts = append(status.Mounts, mount)
+		if mount.Low {
 			status.Low = true
 		}
 	}

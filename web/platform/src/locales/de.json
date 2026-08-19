@@ -376,6 +376,7 @@
     "save": "Speichern"
   },
   "space": {
-    "low": "Wenig Speicherplatz: auf {path} sind nur noch {free} frei. Apps lassen sich möglicherweise nicht installieren oder starten."
+    "lowSystem": "Wenig Speicherplatz: im internen Speicher sind nur noch {free} frei. Apps lassen sich möglicherweise nicht installieren oder starten.",
+    "lowData": "Wenig Speicherplatz: auf der Datenfestplatte sind nur noch {free} frei. Apps lassen sich möglicherweise nicht installieren oder starten."
   }
 }

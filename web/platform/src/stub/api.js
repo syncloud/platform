@@ -577,8 +577,8 @@ export function mock () {
           data: {
             low: low,
             mounts: [
-              { path: '/', total_kb: 15 * 1024 * 1024, free_kb: low ? 855 * 1024 : 8 * 1024 * 1024, low: low },
-              { path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 400 * 1024 * 1024, low: false }
+              { kind: 'system', path: '/', total_kb: 15 * 1024 * 1024, free_kb: low ? 855 * 1024 : 8 * 1024 * 1024, low: low },
+              { kind: 'data', path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 400 * 1024 * 1024, low: false }
             ]
           }
         })

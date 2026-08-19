@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
+	"github.com/syncloud/platform/storage/model"
 )
 
 type FileSystemStub struct {
@@ -65,6 +66,7 @@ func TestDiskSpace_LowOnDataDisk(t *testing.T) {
 
 	assert.True(t, status.Low)
 	assert.True(t, status.Mounts[1].Low)
+	assert.Equal(t, model.DiskSpaceData, status.Mounts[1].Kind)
 }
 
 func TestDiskSpace_SameDeviceReportedOnce(t *testing.T) {
@@ -75,6 +77,7 @@ func TestDiskSpace_SameDeviceReportedOnce(t *testing.T) {
 
 	assert.Len(t, status.Mounts, 1)
 	assert.Equal(t, "/", status.Mounts[0].Path)
+	assert.Equal(t, model.DiskSpaceSystem, status.Mounts[0].Kind)
 }
 
 func TestDiskSpace_MissingPathIsSkipped(t *testing.T) {

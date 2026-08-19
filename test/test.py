@@ -276,6 +276,7 @@ def test_storage_space(device, device_host):
     assert len(space['mounts']) > 0, response.text
     root = space['mounts'][0]
     assert root['path'] == '/', response.text
+    assert root['kind'] == 'system', response.text
     assert root['total_kb'] > 0, response.text
     assert root['low'] == (root['free_kb'] < 2 * 1024 * 1024), response.text
 

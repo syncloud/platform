@@ -376,6 +376,7 @@
     "save": "Salvar"
   },
   "space": {
-    "low": "Pouco espaço em disco: restam apenas {free} em {path}. Os aplicativos podem falhar ao instalar ou iniciar."
+    "lowSystem": "Pouco espaço: restam apenas {free} na memória interna. Os aplicativos podem falhar ao instalar ou iniciar.",
+    "lowData": "Pouco espaço: restam apenas {free} no disco de dados. Os aplicativos podem falhar ao instalar ou iniciar."
   }
 }

@@ -44,7 +44,7 @@
       data-testid="disk-space-warning"
       class="sc-header-alert">
       <i class="material-icons">warning</i>
-      <span>{{ $t('space.low', { free: freeText, path: space.lowest.path }) }}</span>
+      <span>{{ $t(spaceMessage, { free: freeText }) }}</span>
     </router-link>
   </header>
 </template>
@@ -72,6 +72,9 @@ export default {
   computed: {
     spaceWarningVisible () {
       return this.auth.admin && this.space.low && this.space.lowest !== undefined
+    },
+    spaceMessage () {
+      return this.space.lowest.kind === 'data' ? 'space.lowData' : 'space.lowSystem'
     },
     freeText () {
       const kb = this.space.lowest.free_kb

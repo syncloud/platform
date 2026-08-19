@@ -27,14 +27,14 @@ function mountMenu (admin, space) {
 
 const enough = {
   low: false,
-  mounts: [{ path: '/', total_kb: 15 * 1024 * 1024, free_kb: 8 * 1024 * 1024, low: false }]
+  mounts: [{ kind: 'system', path: '/', total_kb: 15 * 1024 * 1024, free_kb: 8 * 1024 * 1024, low: false }]
 }
 
 const full = {
   low: true,
   mounts: [
-    { path: '/', total_kb: 15 * 1024 * 1024, free_kb: 855 * 1024, low: true },
-    { path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 400 * 1024 * 1024, low: false }
+    { kind: 'system', path: '/', total_kb: 15 * 1024 * 1024, free_kb: 855 * 1024, low: true },
+    { kind: 'data', path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 400 * 1024 * 1024, low: false }
   ]
 }
 
@@ -45,21 +45,35 @@ test('no warning when there is enough space', async () => {
   wrapper.unmount()
 })
 
-test('warning shows the lowest mount and how much is left', async () => {
+test('warning names the internal memory and how much is left', async () => {
   const { wrapper } = mountMenu(true, full)
   await flushPromises()
   const warning = wrapper.find('[data-testid="disk-space-warning"]')
   expect(warning.exists()).toBe(true)
   expect(warning.text()).toContain('855 MB')
-  expect(warning.text()).toContain('/')
+  expect(warning.text()).toContain('internal memory')
+  expect(warning.text()).not.toContain('/data')
   expect(warning.attributes('href')).toBe('/internalmemory')
+  wrapper.unmount()
+})
+
+test('warning names the data disk when that is the full one', async () => {
+  const { wrapper } = mountMenu(true, {
+    low: true,
+    mounts: [
+      { kind: 'system', path: '/', total_kb: 15 * 1024 * 1024, free_kb: 8 * 1024 * 1024, low: false },
+      { kind: 'data', path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 512 * 1024, low: true }
+    ]
+  })
+  await flushPromises()
+  expect(wrapper.find('[data-testid="disk-space-warning"]').text()).toContain('data disk')
   wrapper.unmount()
 })
 
 test('free space in gigabytes is rounded', async () => {
   const { wrapper } = mountMenu(true, {
     low: true,
-    mounts: [{ path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 1.5 * 1024 * 1024, low: true }]
+    mounts: [{ kind: 'data', path: '/data', total_kb: 900 * 1024 * 1024, free_kb: 1.5 * 1024 * 1024, low: true }]
   })
   await flushPromises()
   expect(wrapper.find('[data-testid="disk-space-warning"]').text()).toContain('1.5 GB')

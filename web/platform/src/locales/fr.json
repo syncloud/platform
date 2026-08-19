@@ -376,6 +376,7 @@
     "save": "Enregistrer"
   },
   "space": {
-    "low": "Espace disque faible : il ne reste que {free} sur {path}. Les applications peuvent ne pas s'installer ou ne pas démarrer."
+    "lowSystem": "Espace disque faible : il ne reste que {free} dans la mémoire interne. Les applications peuvent ne pas s'installer ou ne pas démarrer.",
+    "lowData": "Espace disque faible : il ne reste que {free} sur le disque de données. Les applications peuvent ne pas s'installer ou ne pas démarrer."
   }
 }
