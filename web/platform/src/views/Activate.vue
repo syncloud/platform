@@ -172,7 +172,7 @@
       </transition>
     </div>
 
-    <div v-if="loading" class="act-loading">
+    <div v-if="loading" class="act-loading" data-testid="loading-mask">
       <div class="act-spinner"></div>
       <div class="act-loading-text">{{ $t('common.loading') }}</div>
     </div>

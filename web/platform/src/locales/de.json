@@ -120,7 +120,23 @@
     "shutdownLabel": "Gerät herunterfahren",
     "shutdown": "Herunterfahren",
     "restartConfirm": "Möchten Sie das Gerät wirklich neu starten?",
-    "shutdownConfirm": "Möchten Sie das Gerät wirklich herunterfahren? Sie benötigen physischen Zugriff, um es wieder einzuschalten."
+    "shutdownConfirm": "Möchten Sie das Gerät wirklich herunterfahren? Sie benötigen physischen Zugriff, um es wieder einzuschalten.",
+    "restarting": "Neustart",
+    "shuttingDown": "Herunterfahren",
+    "reload": "Neu laden",
+    "stage": {
+      "restart": {
+        "stopping": "Das Gerät wird heruntergefahren.",
+        "starting": "Das Gerät startet, das kann einige Minuten dauern.",
+        "done": "Das Gerät ist wieder erreichbar, die Seite wird neu geladen.",
+        "timeout": "Das Gerät ist nicht wieder erreichbar, prüfen Sie es und laden Sie die Seite neu."
+      },
+      "shutdown": {
+        "stopping": "Das Gerät wird heruntergefahren.",
+        "off": "Das Gerät ist aus, Sie können diese Seite schließen.",
+        "timeout": "Das Gerät antwortet noch, prüfen Sie es."
+      }
+    }
   },
   "twoFactor": {
     "title": "Zwei-Faktor-Authentifizierung",

@@ -120,7 +120,23 @@
     "shutdownLabel": "Éteindre l'appareil",
     "shutdown": "Éteindre",
     "restartConfirm": "Voulez-vous vraiment redémarrer l'appareil ?",
-    "shutdownConfirm": "Voulez-vous vraiment éteindre l'appareil ? Il vous faudra un accès physique pour le rallumer."
+    "shutdownConfirm": "Voulez-vous vraiment éteindre l'appareil ? Il vous faudra un accès physique pour le rallumer.",
+    "restarting": "Redémarrage",
+    "shuttingDown": "Arrêt",
+    "reload": "Recharger",
+    "stage": {
+      "restart": {
+        "stopping": "L'appareil s'arrête.",
+        "starting": "L'appareil démarre, cela peut prendre quelques minutes.",
+        "done": "L'appareil est de nouveau en ligne, la page se recharge.",
+        "timeout": "L'appareil n'est pas revenu en ligne, vérifiez-le et rechargez la page."
+      },
+      "shutdown": {
+        "stopping": "L'appareil s'arrête.",
+        "off": "L'appareil est éteint, vous pouvez fermer cette page.",
+        "timeout": "L'appareil répond encore, vérifiez-le."
+      }
+    }
   },
   "twoFactor": {
     "title": "Authentification à deux facteurs",

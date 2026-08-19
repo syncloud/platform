@@ -429,6 +429,9 @@ export function mock () {
       this.post('/rest/shutdown', function (_schema, _request) {
         return new Response(200, {}, { success: true })
       })
+      this.get('/rest/uptime', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: 12345 })
+      })
       this.get('/rest/installer/status', function (_schema, _request) {
         for (const [app, progress] of Object.entries(installerProgress.data.progress)) {
           progress.tick = (progress.tick || 0) + 1
