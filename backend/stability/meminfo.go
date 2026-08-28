@@ -76,7 +76,7 @@ func (m *MemInfo) PSIAvailable() bool {
 	return err == nil
 }
 
-func (m *MemInfo) PSIMemoryAvg10() (float64, error) {
+func (m *MemInfo) PSIMemoryFullAvg10() (float64, error) {
 	f, err := os.Open(filepath.Join(m.procDir, "pressure", "memory"))
 	if err != nil {
 		return 0, err
@@ -85,7 +85,7 @@ func (m *MemInfo) PSIMemoryAvg10() (float64, error) {
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
 		line := sc.Text()
-		if !strings.HasPrefix(line, "some ") {
+		if !strings.HasPrefix(line, "full ") {
 			continue
 		}
 		for _, field := range strings.Fields(line) {
@@ -94,5 +94,5 @@ func (m *MemInfo) PSIMemoryAvg10() (float64, error) {
 			}
 		}
 	}
-	return 0, fmt.Errorf("pressure/memory: 'some avg10' missing")
+	return 0, fmt.Errorf("pressure/memory: 'full avg10' missing")
 }

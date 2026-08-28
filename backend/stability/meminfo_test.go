@@ -46,12 +46,19 @@ func TestPSIAvailability(t *testing.T) {
 	assert.True(t, m.PSIAvailable())
 }
 
-func TestPSIMemoryAvg10(t *testing.T) {
+func TestPSIMemoryFullAvg10(t *testing.T) {
 	dir := t.TempDir()
 	writeProcFile(t, dir, "pressure/memory", `some avg10=12.34 avg60=3.21 avg300=1.00 total=12345
 full avg10=4.50 avg60=1.00 avg300=0.50 total=678
 `)
-	v, err := NewMemInfo(dir).PSIMemoryAvg10()
+	v, err := NewMemInfo(dir).PSIMemoryFullAvg10()
 	require.NoError(t, err)
-	assert.InDelta(t, 12.34, v, 0.001)
+	assert.InDelta(t, 4.50, v, 0.001)
+}
+
+func TestPSIMemoryFullAvg10MissingFullLine(t *testing.T) {
+	dir := t.TempDir()
+	writeProcFile(t, dir, "pressure/memory", "some avg10=99.00 avg60=99.00 avg300=99.00 total=12345\n")
+	_, err := NewMemInfo(dir).PSIMemoryFullAvg10()
+	assert.Error(t, err)
 }

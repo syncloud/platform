@@ -82,8 +82,9 @@
     "swapIn": "in",
     "swapOut": "out",
     "kindZramEnabled": "zram enabled",
+    "kindZramModuleLoaded": "zram module loaded",
     "kindSwapoffFile": "file swap disabled",
-    "kindPressure": "memory pressure detected",
+    "kindPressureDetected": "memory pressure detected",
     "kindVictimSigterm": "process terminated (SIGTERM)",
     "kindVictimSigkill": "process killed (SIGKILL)"
   },

@@ -820,6 +820,8 @@ export function mock () {
       const stubHealth = {
         tick: 0,
         cpu: { user: 1000000, nice: 100, system: 200000, idle: 5000000, iowait: 30000, irq: 0, softirq: 10000, steal: 0 },
+        swapIn: 4000000,
+        swapOut: 5000000,
         net: [
           { name: 'eth0', rx_bytes: 50000000, tx_bytes: 20000000 },
           { name: 'wlan0', rx_bytes: 1000000, tx_bytes: 500000 }
@@ -846,6 +848,9 @@ export function mock () {
           d.sectors_written += Math.round(200 + 4000 * Math.random())
         })
         const memUsed = 1500000 + Math.round(800000 * Math.sin(stubHealth.tick / 12))
+        const swapPages = Math.max(0, Math.round(400 * Math.sin(stubHealth.tick / 9)))
+        stubHealth.swapIn += swapPages
+        stubHealth.swapOut += Math.round(swapPages / 2)
         const data = {
           cpu: { ...stubHealth.cpu },
           memory: {
@@ -855,7 +860,9 @@ export function mock () {
             buffers_kb: 50000,
             cached_kb: 900000,
             swap_total_kb: 2097148,
-            swap_free_kb: 2097148 - 600000 - Math.round(300000 * Math.sin(stubHealth.tick / 7))
+            swap_free_kb: 2097148 - 600000 - Math.round(300000 * Math.sin(stubHealth.tick / 7)),
+            swap_in_pages: stubHealth.swapIn,
+            swap_out_pages: stubHealth.swapOut
           },
           disks: stubHealth.disks.map(d => ({ ...d })),
           mounts: [

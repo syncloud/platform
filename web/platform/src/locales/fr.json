@@ -364,8 +364,9 @@
     "swapIn": "entrée",
     "swapOut": "sortie",
     "kindZramEnabled": "zram activé",
+    "kindZramModuleLoaded": "module zram chargé",
     "kindSwapoffFile": "fichier swap désactivé",
-    "kindPressure": "pression mémoire détectée",
+    "kindPressureDetected": "pression mémoire détectée",
     "kindVictimSigterm": "processus terminé (SIGTERM)",
     "kindVictimSigkill": "processus tué (SIGKILL)"
   },
