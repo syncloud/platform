@@ -18,7 +18,7 @@
 
           <div class="setline" v-if="swapTotalMb > 0">
             <h3>{{ $t('health.swap') }} — {{ swapUsedMb }} / {{ swapTotalMb }} MB</h3>
-            <s-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="pctStatus(swapPct)" data-testid="health-swap-bar" />
+            <s-progress :percentage="swapPct" :stroke-width="14" :show-text="false" :status="swapStatus" data-testid="health-swap-bar" />
             <div class="muted" data-testid="health-swap-rate">{{ $t('health.swapIn') }} {{ swapRate.inKBs }} · {{ $t('health.swapOut') }} {{ swapRate.outKBs }} KB/s</div>
           </div>
         </div>
@@ -78,6 +78,8 @@ import axios from 'axios'
 
 const METRICS_INTERVAL_MS = 2000
 const EVENTS_INTERVAL_MS = 10000
+const SWAP_ACTIVE_KBS = 256
+const SWAP_BUSY_KBS = 2048
 
 export default {
   name: 'Health',
@@ -109,6 +111,12 @@ export default {
       const t = this.metrics.memory.swap_total_kb || 0
       if (!t) return 0
       return ((t - (this.metrics.memory.swap_free_kb || 0)) / t) * 100
+    },
+    swapStatus () {
+      const rate = this.swapRate.inKBs + this.swapRate.outKBs
+      if (rate >= SWAP_BUSY_KBS) return 'exception'
+      if (rate >= SWAP_ACTIVE_KBS) return 'warning'
+      return 'success'
     }
   },
   methods: {
