@@ -364,8 +364,9 @@
     "swapIn": "rein",
     "swapOut": "raus",
     "kindZramEnabled": "zram aktiviert",
+    "kindZramModuleLoaded": "zram-Modul geladen",
     "kindSwapoffFile": "Auslagerungsdatei deaktiviert",
-    "kindPressure": "Speicherengpass erkannt",
+    "kindPressureDetected": "Speicherengpass erkannt",
     "kindVictimSigterm": "Prozess beendet (SIGTERM)",
     "kindVictimSigkill": "Prozess gekillt (SIGKILL)"
   },

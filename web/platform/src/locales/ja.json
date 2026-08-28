@@ -364,8 +364,9 @@
     "swapIn": "入",
     "swapOut": "出",
     "kindZramEnabled": "zram を有効化",
+    "kindZramModuleLoaded": "zram モジュールを読み込み",
     "kindSwapoffFile": "ファイルスワップを無効化",
-    "kindPressure": "メモリ圧迫を検出",
+    "kindPressureDetected": "メモリ圧迫を検出",
     "kindVictimSigterm": "プロセス終了 (SIGTERM)",
     "kindVictimSigkill": "プロセス強制終了 (SIGKILL)"
   },

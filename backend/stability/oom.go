@@ -12,17 +12,20 @@ import (
 type KillFn func(pid int, sig syscall.Signal) error
 
 type Watcher struct {
-	mem      *MemInfo
-	scan     *ProcScanner
-	protect  Protect
-	kill     KillFn
-	events   *EventLog
-	log      *zap.Logger
-	interval time.Duration
-	availMin float64
-	psiMax   float64
-	grace    time.Duration
-	selfPID  int
+	mem        *MemInfo
+	scan       *ProcScanner
+	protect    Protect
+	kill       KillFn
+	events     *EventLog
+	log        *zap.Logger
+	interval   time.Duration
+	availMin   float64
+	availPSI   float64
+	psiMax     float64
+	grace      time.Duration
+	cooldown   time.Duration
+	lastAction time.Time
+	selfPID    int
 }
 
 func NewWatcher(mem *MemInfo, scan *ProcScanner, kill KillFn, events *EventLog, log *zap.Logger) *Watcher {
@@ -35,8 +38,10 @@ func NewWatcher(mem *MemInfo, scan *ProcScanner, kill KillFn, events *EventLog, 
 		log:      log,
 		interval: 2 * time.Second,
 		availMin: 0.08,
-		psiMax:   40.0,
+		availPSI: 0.20,
+		psiMax:   20.0,
 		grace:    4 * time.Second,
+		cooldown: 60 * time.Second,
 		selfPID:  os.Getpid(),
 	}
 }
@@ -47,7 +52,9 @@ func (w *Watcher) Run() {
 	w.log.Info("oom-watcher: started",
 		zap.Duration("interval", w.interval),
 		zap.Float64("avail_min", w.availMin),
+		zap.Float64("avail_psi", w.availPSI),
 		zap.Float64("psi_max", w.psiMax),
+		zap.Duration("cooldown", w.cooldown),
 	)
 	for range t.C {
 		if err := w.tick(); err != nil {
@@ -65,7 +72,7 @@ func (w *Watcher) tick() error {
 	psi := 0.0
 	psiOK := false
 	if w.mem.PSIAvailable() {
-		if v, err := w.mem.PSIMemoryAvg10(); err == nil {
+		if v, err := w.mem.PSIMemoryFullAvg10(); err == nil {
 			psi = v
 			psiOK = true
 		}
@@ -73,6 +80,10 @@ func (w *Watcher) tick() error {
 	if !w.pressureExceeded(avail, psi, psiOK) {
 		return nil
 	}
+	if time.Since(w.lastAction) < w.cooldown {
+		return nil
+	}
+	w.lastAction = time.Now()
 	w.log.Warn("oom-watcher: pressure detected",
 		zap.Float64("avail_ratio", avail),
 		zap.Float64("psi_avg10", psi),
@@ -88,10 +99,7 @@ func (w *Watcher) pressureExceeded(avail, psi float64, psiOK bool) bool {
 	if avail < w.availMin {
 		return true
 	}
-	if psiOK && psi > w.psiMax {
-		return true
-	}
-	return false
+	return psiOK && psi > w.psiMax && avail < w.availPSI
 }
 
 func (w *Watcher) killWorst() error {
