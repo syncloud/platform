@@ -364,8 +364,9 @@
     "swapIn": "داخل",
     "swapOut": "خارج",
     "kindZramEnabled": "تم تمكين zram",
+    "kindZramModuleLoaded": "تم تحميل وحدة zram",
     "kindSwapoffFile": "تم تعطيل ملف التبديل",
-    "kindPressure": "تم اكتشاف ضغط على الذاكرة",
+    "kindPressureDetected": "تم اكتشاف ضغط على الذاكرة",
     "kindVictimSigterm": "تم إنهاء العملية (SIGTERM)",
     "kindVictimSigkill": "تم قتل العملية (SIGKILL)"
   },

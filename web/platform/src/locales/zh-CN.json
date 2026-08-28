@@ -364,8 +364,9 @@
     "swapIn": "换入",
     "swapOut": "换出",
     "kindZramEnabled": "已启用 zram",
+    "kindZramModuleLoaded": "已加载 zram 模块",
     "kindSwapoffFile": "已禁用文件交换",
-    "kindPressure": "检测到内存压力",
+    "kindPressureDetected": "检测到内存压力",
     "kindVictimSigterm": "进程已终止 (SIGTERM)",
     "kindVictimSigkill": "进程被强制结束 (SIGKILL)"
   },

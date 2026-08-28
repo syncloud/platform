@@ -364,8 +364,9 @@
     "swapIn": "вход",
     "swapOut": "выход",
     "kindZramEnabled": "zram включён",
+    "kindZramModuleLoaded": "модуль zram загружен",
     "kindSwapoffFile": "файл подкачки отключён",
-    "kindPressure": "обнаружена нехватка памяти",
+    "kindPressureDetected": "обнаружена нехватка памяти",
     "kindVictimSigterm": "процесс завершён (SIGTERM)",
     "kindVictimSigkill": "процесс убит (SIGKILL)"
   },
