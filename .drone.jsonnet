@@ -127,6 +127,8 @@ local build(arch, testUI) = [{
              commands: [
                'cd backend',
                'for i in 1 2 3; do go mod download && break || sleep 5; done',
+               'gofmt -l . | tee /tmp/gofmt.backend',
+               'test ! -s /tmp/gofmt.backend',
                'go test ./... -coverprofile cover.out',
                'go tool cover -func cover.out',
                "CGO_ENABLED=0 go build -o ../build/snap/bin/backend ./cmd/backend",
@@ -144,6 +146,8 @@ local build(arch, testUI) = [{
                "CGO_ENABLED=0 go build -o ../build/snap/bin/login ./cmd/login",
                "CGO_ENABLED=0 go build -o ../build/snap/bin/stability ./cmd/stability",
                'cd ../visual-diff',
+               'gofmt -l . | tee /tmp/gofmt.visual-diff',
+               'test ! -s /tmp/gofmt.visual-diff',
                'CGO_ENABLED=0 go build -o visual-diff ./cmd',
              ],
            },
