@@ -27,7 +27,11 @@
   },
   "error": {
     "sendLogs": "Enviar registros",
-    "defaultMessage": "¡Ha ocurrido un error!"
+    "defaultMessage": "¡Ha ocurrido un error!",
+    "ipv4NotDetected": "No se pudo detectar su dirección IPv4 pública. Desactive IPv4 y guarde de nuevo, o compruebe la conexión a internet del dispositivo.",
+    "ipv4NotReachable": "IPv4 no funciona en esta red: no se pudo acceder al dispositivo desde internet. Desactive IPv4 y guarde de nuevo, o configure la redirección de puertos en su router.",
+    "ipv6NotAvailable": "IPv6 no funciona en esta red: el dispositivo no tiene dirección IPv6. Desactive IPv6 y guarde de nuevo.",
+    "ipv6NotReachable": "IPv6 no funciona en esta red: no se pudo acceder al dispositivo por IPv6. Desactive IPv6 y guarde de nuevo, o permita el puerto en el firewall de su router."
   },
   "login": {
     "title": "Iniciar sesión",

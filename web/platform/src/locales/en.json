@@ -34,7 +34,11 @@
   },
   "error": {
     "sendLogs": "Send logs",
-    "defaultMessage": "Some error happened!"
+    "defaultMessage": "Some error happened!",
+    "ipv4NotDetected": "Your public IPv4 address could not be detected. Turn IPv4 off and save again, or check the device's internet connection.",
+    "ipv4NotReachable": "IPv4 does not work on this network: the device could not be reached from the internet. Turn IPv4 off and save again, or set up port forwarding on your router.",
+    "ipv6NotAvailable": "IPv6 does not work on this network: the device has no IPv6 address. Turn IPv6 off and save again.",
+    "ipv6NotReachable": "IPv6 does not work on this network: the device could not be reached over IPv6. Turn IPv6 off and save again, or allow the port in your router's firewall."
   },
   "login": {
     "title": "Log in",
