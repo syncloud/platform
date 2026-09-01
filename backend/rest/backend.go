@@ -31,6 +31,7 @@ import (
 	"go.uber.org/zap"
 	"net"
 	"net/http"
+	"net/url"
 )
 
 type Backend struct {
@@ -317,6 +318,15 @@ func (b *Backend) RedirectInfo(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) OIDCLogin(w http.ResponseWriter, req *http.Request) {
+	deviceUrl := b.userConfig.DeviceUrl()
+	canonical, err := url.Parse(deviceUrl)
+	if err == nil && canonical.Host != "" && req.Host != canonical.Host {
+		b.logger.Info("redirecting sign in to the device address",
+			zap.String("from", req.Host), zap.String("to", canonical.Host))
+		http.Redirect(w, req, deviceUrl+"/rest/oidc/login", http.StatusFound)
+		return
+	}
+
 	authURL, state, codeVerifier, err := b.oidc.GetAuthorizationURL()
 	if err != nil {
 		b.mw.Fail(w, model.BadRequest(err))
@@ -336,7 +346,7 @@ func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 	if oidcError := query.Get("error"); oidcError != "" {
 		description := query.Get("error_description")
 		b.logger.Warn("OIDC authorization error", zap.String("error", oidcError), zap.String("description", description))
-		http.Redirect(w, req, "/#/login", http.StatusFound)
+		http.Redirect(w, req, "/login?error=signin", http.StatusFound)
 		return
 	}
 
@@ -345,13 +355,14 @@ func (b *Backend) OIDCCallback(w http.ResponseWriter, req *http.Request) {
 
 	if code == "" || state == "" {
 		b.logger.Warn("OIDC callback missing code or state")
-		http.Redirect(w, req, "/#/login", http.StatusFound)
+		http.Redirect(w, req, "/login?error=signin", http.StatusFound)
 		return
 	}
 
 	savedState, codeVerifier, err := b.cookies.GetOIDCState(req)
 	if err != nil {
-		b.mw.Fail(w, model.BadRequest(fmt.Errorf("no OIDC session: %w", err)))
+		b.logger.Warn("OIDC callback without a session", zap.Error(err))
+		http.Redirect(w, req, "/login?error=session", http.StatusFound)
 		return
 	}
 
@@ -447,7 +458,12 @@ func (b *Backend) GetAccess(_ *http.Request) (interface{}, error) {
 }
 
 func (b *Backend) IsActivated(_ *http.Request) (interface{}, error) {
-	return b.userConfig.IsActivated(), nil
+	activated := b.userConfig.IsActivated()
+	response := &model.ActivationStatusResponse{Activated: activated}
+	if activated {
+		response.DeviceUrl = b.userConfig.DeviceUrl()
+	}
+	return response, nil
 }
 
 func (b *Backend) GetMailRelay(_ *http.Request) (interface{}, error) {

@@ -31,7 +31,10 @@
   },
   "login": {
     "title": "Iniciar sesión",
-    "redirecting": "Redirigiendo al inicio de sesión..."
+    "redirecting": "Redirigiendo al inicio de sesión...",
+    "retry": "Inténtalo de nuevo",
+    "session": "No se completó el inicio de sesión. Esto puede ocurrir si lo iniciaste en una dirección diferente o si tardó demasiado.",
+    "signin": "No se completó el inicio de sesión. Inténtalo de nuevo."
   },
   "settings": {
     "title": "Configuración",

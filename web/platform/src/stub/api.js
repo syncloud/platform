@@ -367,7 +367,7 @@ export function mock () {
       })
       this.get('/rest/activation/status', function (_schema, _request) {
         console.debug('activated: ' + state.activated)
-        return new Response(200, {}, { data: state.activated })
+        return new Response(200, {}, { data: { activated: state.activated, device_url: window.location.origin } })
         // return new Response(500, {}, { message: "unknown activation status" })
       })
       this.get('/rest/apps/installed', function (_schema, _request) {

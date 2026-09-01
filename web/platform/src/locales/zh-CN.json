@@ -31,7 +31,10 @@
   },
   "login": {
     "title": "登录",
-    "redirecting": "正在跳转登录..."
+    "redirecting": "正在跳转登录...",
+    "retry": "重试",
+    "session": "登录未完成。如果您在其他地址开始登录，或者耗时过长，可能会发生这种情况。",
+    "signin": "登录未完成，请重试。"
   },
   "settings": {
     "title": "设置",

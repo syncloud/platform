@@ -191,6 +191,7 @@
 import axios from 'axios'
 import Password from '../components/Password.vue'
 import { SUPPORTED_LOCALES, setLocale } from '../i18n'
+import { waitForDevice } from '../device'
 
 export default {
   name: 'Activate',
@@ -354,8 +355,15 @@ export default {
         this.activateSyncloudDomain()
       }
     },
-    forceCertificateRecheck () {
-      window.location = '/?t=' + (new Date()).getTime()
+    handOverToDevice (domain) {
+      const deviceUrl = 'https://' + domain
+      return waitForDevice(deviceUrl).then(reachable => {
+        if (reachable) {
+          window.location.replace(deviceUrl)
+          return
+        }
+        window.location = '/?t=' + (new Date()).getTime()
+      })
     },
     hideAlerts () {
       this.deviceUsernameAlertVisible = false
@@ -430,7 +438,7 @@ export default {
     activateSyncloudDomain () {
       axios
         .post('/rest/activate/managed', this.activateRequestBody(this.fullDomain()))
-        .then(this.forceCertificateRecheck)
+        .then(() => this.handOverToDevice(this.fullDomain()))
         .catch(err => {
           this.loading = false
           this.showActivateAlert(err)
@@ -439,7 +447,7 @@ export default {
     activateCustomDomain () {
       axios
         .post('/rest/activate/managed', this.activateRequestBody(this.domain))
-        .then(this.forceCertificateRecheck)
+        .then(() => this.handOverToDevice(this.domain))
         .catch(err => {
           this.loading = false
           this.showActivateAlert(err)

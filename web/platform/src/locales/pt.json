@@ -31,7 +31,10 @@
   },
   "login": {
     "title": "Entrar",
-    "redirecting": "Redirecionando para o login..."
+    "redirecting": "Redirecionando para o login...",
+    "retry": "Tentar novamente",
+    "session": "O seu início de sessão não foi concluído. Isto pode acontecer se o iniciou num endereço diferente ou se demorou demasiado tempo.",
+    "signin": "O início de sessão não foi concluído. Tente novamente."
   },
   "settings": {
     "title": "Configurações",

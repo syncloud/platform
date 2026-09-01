@@ -37,6 +37,11 @@ type RedirectInfoResponse struct {
 	Domain string `json:"domain"`
 }
 
+type ActivationStatusResponse struct {
+	Activated bool   `json:"activated"`
+	DeviceUrl string `json:"device_url"`
+}
+
 type BackupCreateRequest struct {
 	App string `json:"app"`
 }

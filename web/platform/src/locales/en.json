@@ -38,7 +38,10 @@
   },
   "login": {
     "title": "Log in",
-    "redirecting": "Redirecting to login..."
+    "redirecting": "Redirecting to login...",
+    "retry": "Try again",
+    "session": "Your sign in did not complete. This can happen if you started signing in at a different address, or if it took too long.",
+    "signin": "Sign in was not completed. Please try again."
   },
   "settings": {
     "title": "Settings",

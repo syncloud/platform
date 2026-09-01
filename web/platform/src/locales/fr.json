@@ -31,7 +31,10 @@
   },
   "login": {
     "title": "Se connecter",
-    "redirecting": "Redirection vers la connexion..."
+    "redirecting": "Redirection vers la connexion...",
+    "retry": "Réessayer",
+    "session": "Votre connexion n'a pas abouti. Cela peut arriver si vous l'avez commencée à une autre adresse ou si elle a pris trop de temps.",
+    "signin": "La connexion n'a pas abouti. Veuillez réessayer."
   },
   "settings": {
     "title": "Paramètres",

@@ -31,7 +31,10 @@
   },
   "login": {
     "title": "Anmelden",
-    "redirecting": "Weiterleitung zur Anmeldung..."
+    "redirecting": "Weiterleitung zur Anmeldung...",
+    "retry": "Erneut versuchen",
+    "session": "Ihre Anmeldung wurde nicht abgeschlossen. Das kann passieren, wenn Sie die Anmeldung unter einer anderen Adresse begonnen haben oder es zu lange gedauert hat.",
+    "signin": "Die Anmeldung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut."
   },
   "settings": {
     "title": "Einstellungen",

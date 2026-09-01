@@ -16,7 +16,7 @@ test('Activate syncloud domain', async () => {
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
   delete window.location
-  window.location = ''
+  window.location = { replace: jest.fn(), href: '' }
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate/managed').reply(function (config) {
     const request = JSON.parse(config.data)
@@ -35,6 +35,7 @@ test('Activate syncloud domain', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -79,7 +80,7 @@ test('Activate syncloud domain', async () => {
   expect(domain).toBe('domain.test.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
+  expect(window.location.replace).toHaveBeenCalledWith('https://domain.test.com')
 
   wrapper.unmount()
 })
@@ -96,6 +97,7 @@ test('Activate syncloud domain error', async () => {
     message: 'ok'
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -145,6 +147,7 @@ test('Activate syncloud domain availability error', async () => {
     ]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -195,6 +198,7 @@ test('Activate syncloud domain availability generic error', async () => {
     message: 'authentication failed'
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -247,6 +251,7 @@ test('Activate syncloud domain availability error email', async () => {
     ]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -289,7 +294,7 @@ test('Activate custom domain', async () => {
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
   delete window.location
-  window.location = ''
+  window.location = { replace: jest.fn(), href: '' }
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate/managed').reply(function (config) {
     const request = JSON.parse(config.data)
@@ -308,6 +313,7 @@ test('Activate custom domain', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -351,7 +357,7 @@ test('Activate custom domain', async () => {
   expect(domain).toBe('example.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
+  expect(window.location.replace).toHaveBeenCalledWith('https://example.com')
   expect(availabilityDomain).toBe('example.com')
 
   wrapper.unmount()
@@ -367,7 +373,7 @@ test('Activated while page is open (mostly in local dev)', async () => {
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
   delete window.location
-  window.location = ''
+  window.location = { replace: jest.fn(), href: '' }
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/activate/managed').reply(function (config) {
     const request = JSON.parse(config.data)
@@ -386,6 +392,7 @@ test('Activated while page is open (mostly in local dev)', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/redirect_info').reply(502, { message: 'Device is already activated' })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
@@ -429,7 +436,7 @@ test('Activated while page is open (mostly in local dev)', async () => {
   expect(domain).toBe('example.com')
   expect(deviceUsername).toBe('user')
   expect(devicePassword).toBe('password')
-  expect(window.location).toMatch(new RegExp('^/\\?t=.*'))
+  expect(window.location.replace).toHaveBeenCalledWith('https://example.com')
   expect(availabilityDomain).toBe('example.com')
 
   wrapper.unmount()
@@ -443,7 +450,7 @@ test('No finish if device password confirmation is wrong', async () => {
   const showError = jest.fn()
   const mockRouter = { push: jest.fn() }
   delete window.location
-  window.location = ''
+  window.location = { replace: jest.fn(), href: '' }
   const mock = new MockAdapter(axios)
   mock.onPost('/rest/redirect/domain/availability').reply(function (config) {
     const request = JSON.parse(config.data)
@@ -453,6 +460,7 @@ test('No finish if device password confirmation is wrong', async () => {
     return [200, { success: true }]
   })
   mock.onGet('/rest/redirect_info').reply(200, { success: true, data: { domain: 'test.com' } })
+  mock.onGet(/\/ping$/).reply(200, 'OK')
 
   const wrapper = mount(Activate,
     {
