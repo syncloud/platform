@@ -101,13 +101,13 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			if ipv4 == nil {
 				publicIp, err := a.network.PublicIPv4()
 				if err != nil {
-					return err
+					return model.Coded("ipv4NotDetected", err)
 				}
 				ipv4 = publicIp
 			}
 			err := a.probe.Probe(*ipv4, port)
 			if err != nil {
-				return err
+				return model.Coded("ipv4NotReachable", err)
 			}
 		}
 	} else {
@@ -118,11 +118,14 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	if request.Ipv6Enabled {
 		ipv6, err := a.network.IPv6()
 		if err != nil {
-			return err
+			return model.Coded("ipv6NotAvailable", err)
+		}
+		if ipv6 == nil {
+			return model.Coded("ipv6NotAvailable", fmt.Errorf("no ipv6 address on this device"))
 		}
 		err = a.probe.Probe(*ipv6, config.WebAccessPort)
 		if err != nil {
-			return err
+			return model.Coded("ipv6NotReachable", err)
 		}
 	}
 
