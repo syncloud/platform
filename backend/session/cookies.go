@@ -74,7 +74,6 @@ func (c *Cookies) GetSessionUser(r *http.Request) (string, error) {
 	return user.(string), nil
 }
 
-
 func (c *Cookies) SetOIDCState(w http.ResponseWriter, r *http.Request, state string, codeVerifier string) error {
 	session := c.getSession(r)
 	session.Values[OIDCStateKey] = state

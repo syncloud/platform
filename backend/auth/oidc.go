@@ -51,11 +51,11 @@ func (s *OIDCService) GetAuthorizationURL() (authURL string, state string, codeV
 
 	params := url.Values{
 		"client_id":             {"syncloud"},
-		"response_type":        {"code"},
-		"redirect_uri":         {redirectURI},
-		"scope":                {"openid profile email groups"},
-		"state":                {state},
-		"code_challenge":       {codeChallenge},
+		"response_type":         {"code"},
+		"redirect_uri":          {redirectURI},
+		"scope":                 {"openid profile email groups"},
+		"state":                 {state},
+		"code_challenge":        {codeChallenge},
 		"code_challenge_method": {"S256"},
 	}
 
@@ -173,7 +173,7 @@ func extractUsernameFromIDToken(idToken string) (string, error) {
 
 	var claims struct {
 		PreferredUsername string `json:"preferred_username"`
-		Subject          string `json:"sub"`
+		Subject           string `json:"sub"`
 	}
 	if err := json.Unmarshal(payload, &claims); err != nil {
 		return "", fmt.Errorf("parse id_token claims: %w", err)
