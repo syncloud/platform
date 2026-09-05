@@ -97,10 +97,7 @@ func (s *OIDCService) ExchangeCode(code string, codeVerifier string) (string, er
 		return "", fmt.Errorf("token endpoint returned %d: %s", resp.StatusCode, string(body))
 	}
 
-	var tokenResponse struct {
-		IDToken     string `json:"id_token"`
-		AccessToken string `json:"access_token"`
-	}
+	var tokenResponse TokenResponse
 	if err := json.Unmarshal(body, &tokenResponse); err != nil {
 		return "", fmt.Errorf("parse token response: %w", err)
 	}
@@ -150,9 +147,7 @@ func (s *OIDCService) fetchUsernameFromUserInfo(client *http.Client, accessToken
 		return "", fmt.Errorf("userinfo endpoint returned %d: %s", resp.StatusCode, string(body))
 	}
 
-	var userInfo struct {
-		PreferredUsername string `json:"preferred_username"`
-	}
+	var userInfo UserInfo
 	if err := json.Unmarshal(body, &userInfo); err != nil {
 		return "", fmt.Errorf("parse userinfo response: %w", err)
 	}
@@ -171,10 +166,7 @@ func extractUsernameFromIDToken(idToken string) (string, error) {
 		return "", fmt.Errorf("decode id_token payload: %w", err)
 	}
 
-	var claims struct {
-		PreferredUsername string `json:"preferred_username"`
-		Subject           string `json:"sub"`
-	}
+	var claims IDTokenClaims
 	if err := json.Unmarshal(payload, &claims); err != nil {
 		return "", fmt.Errorf("parse id_token claims: %w", err)
 	}
