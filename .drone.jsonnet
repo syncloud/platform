@@ -103,7 +103,7 @@ local build(arch, testUI) = [{
              name: 'build',
              image: 'golang:' + go,
              commands: [
-               './ci/build-backend.sh',
+               './backend/build.sh',
              ],
            },
            {
