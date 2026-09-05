@@ -258,7 +258,11 @@ const disksData = {
       size: '100G',
       has_errors: false,
       raid: 'raid10',
-      partitions: []
+      partitions: [
+        { size: '512M', device: '/dev/sda1', mount_point: '', active: false, fs_type: 'vfat', extendable: false },
+        { size: '49.5G', device: '/dev/sda2', mount_point: '', active: false, fs_type: 'ext4', extendable: false },
+        { size: '50G', device: '/dev/sda3', mount_point: '', active: false, fs_type: 'btrfs', extendable: false }
+      ]
     },
     {
       name: 'Disk 2',
@@ -266,15 +270,20 @@ const disksData = {
       active: true,
       size: '100G',
       raid: 'raid10',
-      partitions: []
+      partitions: [
+        { size: '100G', device: '/dev/sdb1', mount_point: '', active: false, fs_type: 'ext4', extendable: true }
+      ]
     },
     {
-      name: 'Disk 3',
+      name: 'Seagate Expansion Desk with a rather long product name',
       device: '/dev/sdc',
       active: true,
       size: '100G',
       raid: 'raid10',
-      partitions: []
+      partitions: [
+        { size: '30G', device: '/dev/sdc1', mount_point: '', active: false, fs_type: 'ext4', extendable: false },
+        { size: '70G', device: '/dev/sdc2', mount_point: '', active: false, fs_type: 'exfat', extendable: false }
+      ]
     },
     {
       name: 'Disk 4',
@@ -282,7 +291,12 @@ const disksData = {
       active: true,
       size: '100G',
       raid: 'raid10',
-      partitions: []
+      partitions: [
+        { size: '25G', device: '/dev/sdd1', mount_point: '', active: false, fs_type: 'ext4', extendable: false },
+        { size: '25G', device: '/dev/sdd2', mount_point: '', active: false, fs_type: 'ext4', extendable: false },
+        { size: '25G', device: '/dev/sdd3', mount_point: '', active: false, fs_type: 'ext4', extendable: false },
+        { size: '25G', device: '/dev/sdd4', mount_point: '', active: false, fs_type: 'ext4', extendable: false }
+      ]
     }
   ],
   success: true
