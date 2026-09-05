@@ -172,7 +172,7 @@ local build(arch, testUI) = [{
                     CI: 'true',
                   },
                   commands: [
-                    './ci/test-ui.sh ' + mode + ' ' + distro_default + '-' + arch,
+                    './web/e2e/test.sh ' + mode + ' ' + distro_default + '-' + arch,
                   ],
                   privileged: true,
                 }

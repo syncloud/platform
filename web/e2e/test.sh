@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 MODE=$1
 DOMAIN=$2
@@ -29,6 +29,6 @@ for alias in \
 done
 cat /etc/hosts
 
-cd "${DIR}/web/e2e"
+cd "${DIR}"
 npm ci
 npx playwright test --project="${MODE}"
