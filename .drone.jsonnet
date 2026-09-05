@@ -295,18 +295,6 @@ local build(arch, testUI) = [{
         path: '/dev',
       },
     },
-    {
-      name: 'docker',
-      host: {
-        path: '/usr/bin/docker',
-      },
-    },
-    {
-      name: 'docker.sock',
-      host: {
-        path: '/var/run/docker.sock',
-      },
-    },
   ],
 }];
 
