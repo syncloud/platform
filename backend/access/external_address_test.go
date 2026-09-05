@@ -272,7 +272,7 @@ func TestExternalAddress_NoIpv6OnNetwork_SaysIpv6IsUnavailable(t *testing.T) {
 
 	err := access.Update(model.Access{Ipv6Enabled: true})
 
-	assertCode(t, err, "ipv6NotAvailable")
+	assertCode(t, err, CodeIpv6NotAvailable)
 }
 
 func TestExternalAddress_Ipv6NotProbeable_SaysIpv6IsUnreachable(t *testing.T) {
@@ -281,7 +281,7 @@ func TestExternalAddress_Ipv6NotProbeable_SaysIpv6IsUnreachable(t *testing.T) {
 
 	err := access.Update(model.Access{Ipv6Enabled: true})
 
-	assertCode(t, err, "ipv6NotReachable")
+	assertCode(t, err, CodeIpv6NotReachable)
 }
 
 func TestExternalAddress_Ipv4NotProbeable_SaysIpv4IsUnreachable(t *testing.T) {
@@ -291,7 +291,7 @@ func TestExternalAddress_Ipv4NotProbeable_SaysIpv4IsUnreachable(t *testing.T) {
 
 	err := access.Update(model.Access{Ipv4: &ip, Ipv4Enabled: true, Ipv4Public: true})
 
-	assertCode(t, err, "ipv4NotReachable")
+	assertCode(t, err, CodeIpv4NotReachable)
 }
 
 func TestExternalAddress_NoPublicIpv4_SaysIpv4WasNotDetected(t *testing.T) {
@@ -300,5 +300,5 @@ func TestExternalAddress_NoPublicIpv4_SaysIpv4WasNotDetected(t *testing.T) {
 
 	err := access.Update(model.Access{Ipv4Enabled: true, Ipv4Public: true})
 
-	assertCode(t, err, "ipv4NotDetected")
+	assertCode(t, err, CodeIpv4NotDetected)
 }

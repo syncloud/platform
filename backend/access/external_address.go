@@ -8,6 +8,13 @@ import (
 	"net"
 )
 
+const (
+	CodeIpv4NotDetected  = "ipv4NotDetected"
+	CodeIpv4NotReachable = "ipv4NotReachable"
+	CodeIpv6NotAvailable = "ipv6NotAvailable"
+	CodeIpv6NotReachable = "ipv6NotReachable"
+)
+
 type UserConfig interface {
 	IsRedirectEnabled() bool
 	SetIpv4Enabled(enabled bool)
@@ -101,13 +108,13 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			if ipv4 == nil {
 				publicIp, err := a.network.PublicIPv4()
 				if err != nil {
-					return model.Coded("ipv4NotDetected", err)
+					return model.Coded(CodeIpv4NotDetected, err)
 				}
 				ipv4 = publicIp
 			}
 			err := a.probe.Probe(*ipv4, port)
 			if err != nil {
-				return model.Coded("ipv4NotReachable", err)
+				return model.Coded(CodeIpv4NotReachable, err)
 			}
 		}
 	} else {
@@ -118,14 +125,14 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	if request.Ipv6Enabled {
 		ipv6, err := a.network.IPv6()
 		if err != nil {
-			return model.Coded("ipv6NotAvailable", err)
+			return model.Coded(CodeIpv6NotAvailable, err)
 		}
 		if ipv6 == nil {
-			return model.Coded("ipv6NotAvailable", fmt.Errorf("no ipv6 address on this device"))
+			return model.Coded(CodeIpv6NotAvailable, fmt.Errorf("no ipv6 address on this device"))
 		}
 		err = a.probe.Probe(*ipv6, config.WebAccessPort)
 		if err != nil {
-			return model.Coded("ipv6NotReachable", err)
+			return model.Coded(CodeIpv6NotReachable, err)
 		}
 	}
 
