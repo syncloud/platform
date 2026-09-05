@@ -69,13 +69,6 @@ func (d *Disks) apply(before []string, after []string, newUuid string, format bo
 	removed := Diff(before, after)
 	added := Diff(after, before)
 
-	//if len(removed) == len(added) {
-	//	for i, _ := range removed {
-	//		changes = append(changes, NewChange("replace", removed[i], added[i]))
-	//	}
-	//	return changes, nil
-	//}
-
 	mode := "single"
 	if len(after) >= 2 {
 		mode = "raid1"

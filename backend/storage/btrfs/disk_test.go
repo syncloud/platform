@@ -79,16 +79,6 @@ func Test_Update_1_To_2_Format(t *testing.T) {
 	assert.True(t, systemd.addMountCalled)
 }
 
-/*func Test_Update_2_To_2_Replace1(t *testing.T) {
-	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, &ModulesStub{}, log.Default()}
-	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1", "/dev/loop3"}, "", false)
-
-	assert.Nil(t, err)
-	assert.Len(t, executor.commands, 1)
-	assert.Equal(t, "/snap/platform/current/btrfs/bin/btrfs.sh device add --enqueue -f /dev/loop2 /mnt", executor.commands[0])
-}*/
-
 func Test_Update_0_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
