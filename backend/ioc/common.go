@@ -573,8 +573,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, stats *btrfs.Stats, systemd *systemd.Control) *btrfs.Disks {
-		return btrfs.NewDisks(systemConfig, executor, systemd, logger)
+	err = c.Singleton(func(executor *cli.ShellExecutor) *btrfs.ModuleLoader { return btrfs.NewModuleLoader(executor) })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, stats *btrfs.Stats, systemd *systemd.Control, modules *btrfs.ModuleLoader) *btrfs.Disks {
+		return btrfs.NewDisks(systemConfig, executor, systemd, modules, logger)
 	})
 	if err != nil {
 		return nil, err
