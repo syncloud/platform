@@ -22,13 +22,6 @@ local build(arch, testUI) = [{
   },
   steps: [
            {
-             name: 'version',
-             image: 'debian:bookworm-slim',
-             commands: [
-               'echo $DRONE_BUILD_NUMBER > version',
-             ],
-           },
-           {
              name: 'gptfdisk',
              image: 'debian:bookworm-slim',
              commands: [
@@ -140,8 +133,7 @@ local build(arch, testUI) = [{
              name: 'package',
              image: 'debian:bookworm-slim',
              commands: [
-               'VERSION=$(cat version)',
-               './package.sh $VERSION',
+               './package.sh ${DRONE_BUILD_NUMBER}',
                './test/testapp/build.sh ',
              ],
            },
