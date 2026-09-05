@@ -10,13 +10,31 @@ const loginAttempts = 2
 const formTimeout = 5000
 const firstFactorTimeout = 10000
 const applicationsTimeout = 30000
+const servingTimeout = 60000
+const servingPoll = 1000
+const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
+
+async function gotoWhenServing(page: Page) {
+  const deadline = Date.now() + servingTimeout
+  while (fullDomain !== '' && Date.now() < deadline) {
+    const status = await page.request
+      .get(`https://auth.${fullDomain}/`, { failOnStatusCode: false })
+      .then(r => r.status())
+      .catch(() => 0)
+    if (status > 0 && status < 500) {
+      break
+    }
+    await page.waitForTimeout(servingPoll)
+  }
+  await page.goto('/')
+}
 
 export async function login(page: Page, opts: { user?: string; password?: string } = {}) {
   const applications = page.getByRole('heading', { name: 'Applications' })
   const username = page.locator('#username-textfield')
   for (let attempt = 1; attempt <= loginAttempts; attempt++) {
     const last = attempt === loginAttempts
-    await page.goto('/')
+    await gotoWhenServing(page)
     if (await applications.isVisible()) {
       break
     }
