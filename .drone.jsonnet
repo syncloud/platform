@@ -126,7 +126,7 @@ local build(arch, testUI) = [{
              name: 'build testapp cli',
              image: 'golang:' + go,
              commands: [
-               './ci/build-testapp-cli.sh',
+               './test/testapp/cli/build.sh',
              ],
            },
            {

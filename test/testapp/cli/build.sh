@@ -1,9 +1,9 @@
 #!/bin/bash -xe
 
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )
-BUILD=${DIR}/test/testapp/build
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+BUILD=${DIR}/../build
 
-cd "${DIR}/test/testapp/cli"
+cd "${DIR}"
 
 CGO_ENABLED=0 go build -o "${BUILD}/meta/hooks/install" ./cmd/install
 CGO_ENABLED=0 go build -o "${BUILD}/meta/hooks/configure" ./cmd/configure
