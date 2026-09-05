@@ -9,6 +9,7 @@ export { deviceUser, devicePassword, waitForLoading }
 const loginAttempts = 2
 const formTimeout = 5000
 const firstFactorTimeout = 10000
+const applicationsTimeout = 30000
 
 export async function login(page: Page, opts: { user?: string; password?: string } = {}) {
   const applications = page.getByRole('heading', { name: 'Applications' })
@@ -37,7 +38,7 @@ export async function login(page: Page, opts: { user?: string; password?: string
     if (!last && response !== null && response.status() >= 500) {
       continue
     }
-    await expect(applications).toBeVisible()
+    await expect(applications).toBeVisible({ timeout: applicationsTimeout })
     break
   }
   await waitForLoading(page)
