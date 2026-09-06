@@ -33,9 +33,19 @@ func (s *SystemdStub) AddMount(_ string) error {
 	return nil
 }
 
+type ModulesStub struct {
+	loaded []string
+	err    error
+}
+
+func (m *ModulesStub) Load(name string) error {
+	m.loaded = append(m.loaded, name)
+	return m.err
+}
+
 func Test_Update_1_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1", "/dev/loop3"}, "uuid", false)
 
 	assert.Nil(t, err)
@@ -48,7 +58,7 @@ func Test_Update_1_To_1(t *testing.T) {
 
 func Test_Update_1_To_2(t *testing.T) {
 	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, &ModulesStub{}, log.Default()}
 	_, err := disks.Update([]string{"/dev/loop1"}, []string{"/dev/loop1", "/dev/loop2"}, "", false)
 
 	assert.Nil(t, err)
@@ -60,7 +70,7 @@ func Test_Update_1_To_2(t *testing.T) {
 func Test_Update_1_To_2_Format(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{"/dev/loop1"}, []string{"/dev/loop1", "/dev/loop2"}, "", true)
 
 	assert.Nil(t, err)
@@ -69,20 +79,10 @@ func Test_Update_1_To_2_Format(t *testing.T) {
 	assert.True(t, systemd.addMountCalled)
 }
 
-/*func Test_Update_2_To_2_Replace1(t *testing.T) {
-	executor := &ExecutorStub{}
-	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, log.Default()}
-	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1", "/dev/loop3"}, "", false)
-
-	assert.Nil(t, err)
-	assert.Len(t, executor.commands, 1)
-	assert.Equal(t, "/snap/platform/current/btrfs/bin/btrfs.sh device add --enqueue -f /dev/loop2 /mnt", executor.commands[0])
-}*/
-
 func Test_Update_0_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{}, []string{"/dev/loop1"}, "uuid", false)
 
 	assert.Nil(t, err)
@@ -94,7 +94,7 @@ func Test_Update_0_To_1(t *testing.T) {
 func Test_Update_0_To_1_Format(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{}, []string{"/dev/loop1"}, "uuid", true)
 
 	assert.Nil(t, err)
@@ -107,7 +107,7 @@ func Test_Update_0_To_1_Format(t *testing.T) {
 func Test_Update_0_To_2_Format(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{}, []string{"/dev/loop1", "/dev/loop2"}, "uuid", true)
 
 	assert.Nil(t, err)
@@ -121,7 +121,7 @@ func Test_Update_0_To_2_Format(t *testing.T) {
 func Test_Update_2_To_1(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{"/dev/loop1"}, "", false)
 
 	assert.Nil(t, err)
@@ -136,7 +136,7 @@ func Test_Update_2_To_1(t *testing.T) {
 func Test_Update_1_To_0(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	_, err := disks.Update([]string{"/dev/loop1"}, []string{}, "", false)
 
 	assert.Nil(t, err)
@@ -147,7 +147,7 @@ func Test_Update_1_To_0(t *testing.T) {
 func Test_Update_2_To_0(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	_, err := disks.Update([]string{"/dev/loop1", "/dev/loop2"}, []string{}, "", false)
 
 	assert.Nil(t, err)
@@ -158,7 +158,7 @@ func Test_Update_2_To_0(t *testing.T) {
 func Test_Update_0_To_3(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{}, []string{"/dev/loop1", "/dev/loop2", "/dev/loop3"}, "uuid", true)
 
 	assert.Nil(t, err)
@@ -170,7 +170,7 @@ func Test_Update_0_To_3(t *testing.T) {
 func Test_Update_1_To_3(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	_, err := disks.Update([]string{"/dev/loop1"}, []string{"/dev/loop1", "/dev/loop2", "/dev/loop3"}, "uuid", false)
 
 	assert.Nil(t, err)
@@ -183,7 +183,7 @@ func Test_Update_1_To_3(t *testing.T) {
 func Test_Update_0_To_4(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	uuid, err := disks.Update([]string{}, []string{"/dev/loop1", "/dev/loop2", "/dev/loop3", "/dev/loop4"}, "uuid", true)
 
 	assert.Nil(t, err)
@@ -195,7 +195,7 @@ func Test_Update_0_To_4(t *testing.T) {
 func Test_Update_1_To_4(t *testing.T) {
 	executor := &ExecutorStub{}
 	systemd := &SystemdStub{}
-	disks := &Disks{&ConfigStub{}, executor, systemd, log.Default()}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{}, log.Default()}
 	_, err := disks.Update([]string{"/dev/loop1"}, []string{"/dev/loop1", "/dev/loop2", "/dev/loop3", "/dev/loop4"}, "uuid", false)
 
 	assert.Nil(t, err)
@@ -203,4 +203,25 @@ func Test_Update_1_To_4(t *testing.T) {
 	assert.Equal(t, "/snap/platform/current/btrfs/bin/btrfs.sh device add --enqueue -f /dev/loop2 /dev/loop3 /dev/loop4 /mnt", executor.commands[0])
 	assert.Equal(t, "/snap/platform/current/btrfs/bin/btrfs.sh balance start --enqueue -dconvert=raid10 -mconvert=raid10 /mnt", executor.commands[1])
 	assert.True(t, systemd.addMountCalled)
+}
+
+func Test_Update_LoadsBtrfsModuleBeforeFormatting(t *testing.T) {
+	modules := &ModulesStub{}
+	executor := &ExecutorStub{}
+	disks := &Disks{&ConfigStub{}, executor, &SystemdStub{}, modules, log.Default()}
+	_, err := disks.Update([]string{}, []string{"/dev/loop1"}, "", true)
+
+	assert.Nil(t, err)
+	assert.Equal(t, []string{"btrfs"}, modules.loaded)
+}
+
+func Test_Update_ContinuesWhenModuleCannotBeLoaded(t *testing.T) {
+	systemd := &SystemdStub{}
+	executor := &ExecutorStub{}
+	disks := &Disks{&ConfigStub{}, executor, systemd, &ModulesStub{err: fmt.Errorf("modprobe btrfs: not found")}, log.Default()}
+	_, err := disks.Update([]string{}, []string{"/dev/loop1"}, "", true)
+
+	assert.Nil(t, err)
+	assert.True(t, systemd.addMountCalled)
+	assert.Len(t, executor.commands, 1)
 }

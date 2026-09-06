@@ -10,6 +10,7 @@ import (
 
 const MKFS = "/snap/platform/current/btrfs/bin/mkfs.sh"
 const BTRFS = "/snap/platform/current/btrfs/bin/btrfs.sh"
+const Module = "btrfs"
 
 type Config interface {
 	ExternalDiskDir() string
@@ -19,10 +20,15 @@ type Systemd interface {
 	AddMount(device string) error
 }
 
+type Modules interface {
+	Load(name string) error
+}
+
 type Disks struct {
 	config   Config
 	executor cli.Executor
 	systemd  Systemd
+	modules  Modules
 	logger   *zap.Logger
 }
 
@@ -30,12 +36,14 @@ func NewDisks(
 	config Config,
 	executor cli.Executor,
 	systemd Systemd,
+	modules Modules,
 	logger *zap.Logger) *Disks {
 
 	return &Disks{
 		config:   config,
 		executor: executor,
 		systemd:  systemd,
+		modules:  modules,
 		logger:   logger,
 	}
 }
@@ -53,15 +61,13 @@ func (d *Disks) Update(existingDevices []string, newDevices []string, existingUu
 }
 
 func (d *Disks) apply(before []string, after []string, newUuid string, format bool) error {
+	err := d.modules.Load(Module)
+	if err != nil {
+		d.logger.Warn("unable to load the btrfs module", zap.Error(err))
+	}
+
 	removed := Diff(before, after)
 	added := Diff(after, before)
-
-	//if len(removed) == len(added) {
-	//	for i, _ := range removed {
-	//		changes = append(changes, NewChange("replace", removed[i], added[i]))
-	//	}
-	//	return changes, nil
-	//}
 
 	mode := "single"
 	if len(after) >= 2 {

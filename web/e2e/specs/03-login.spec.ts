@@ -41,12 +41,7 @@ test('regular user login (no 2FA enabled)', async ({}, testInfo) => {
   ssh('snap run platform.cli user add regularuser --password=regularpass123', { throw: false })
   try {
     await logout(page)
-    await page.goto('/')
-    await page.locator('#username-textfield').fill('regularuser')
-    await page.locator('#password-textfield').fill('regularpass123')
-    await page.locator('#sign-in-button').click()
-    await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
-    await waitForLoading(page)
+    await login(page, { user: 'regularuser', password: 'regularpass123' })
     await shoot(page, testInfo, 'login-regular-user')
   } finally {
     ssh('snap run platform.cli user remove regularuser', { throw: false })

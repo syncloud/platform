@@ -27,11 +27,18 @@
   },
   "error": {
     "sendLogs": "Enviar registros",
-    "defaultMessage": "Ocorreu um erro!"
+    "defaultMessage": "Ocorreu um erro!",
+    "ipv4NotDetected": "Não foi possível detetar o seu endereço IPv4 público. Desligue o IPv4 e guarde novamente, ou verifique a ligação à internet do dispositivo.",
+    "ipv4NotReachable": "O IPv4 não funciona nesta rede: não foi possível alcançar o dispositivo a partir da internet. Desligue o IPv4 e guarde novamente, ou configure o encaminhamento de portas no seu router.",
+    "ipv6NotAvailable": "O IPv6 não funciona nesta rede: o dispositivo não tem endereço IPv6. Desligue o IPv6 e guarde novamente.",
+    "ipv6NotReachable": "O IPv6 não funciona nesta rede: não foi possível alcançar o dispositivo por IPv6. Desligue o IPv6 e guarde novamente, ou permita a porta na firewall do seu router."
   },
   "login": {
     "title": "Entrar",
-    "redirecting": "Redirecionando para o login..."
+    "redirecting": "Redirecionando para o login...",
+    "retry": "Tentar novamente",
+    "session": "O seu início de sessão não foi concluído. Isto pode acontecer se o iniciou num endereço diferente ou se demorou demasiado tempo.",
+    "signin": "O início de sessão não foi concluído. Tente novamente."
   },
   "settings": {
     "title": "Configurações",

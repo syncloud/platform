@@ -35,6 +35,9 @@ func (e *LsblkEntry) IsSupportedType() bool {
 	if e.IsMMCBootPartition() {
 		return false
 	}
+	if e.IsZram() {
+		return false
+	}
 	if slices.Contains(SupportedDeviceTypes, e.DeviceType) {
 		return true
 	}
@@ -46,6 +49,11 @@ func (e *LsblkEntry) IsSupportedType() bool {
 
 func (e *LsblkEntry) IsMMCBootPartition() bool {
 	return e.DetectMMCBootDevice() != nil
+}
+
+func (e *LsblkEntry) IsZram() bool {
+	r := regexp.MustCompile(`^/dev/zram\d+$`)
+	return r.MatchString(e.Name)
 }
 
 func (e *LsblkEntry) DetectMMCBootDevice() *string {

@@ -27,11 +27,18 @@
   },
   "error": {
     "sendLogs": "Protokolle senden",
-    "defaultMessage": "Ein Fehler ist aufgetreten!"
+    "defaultMessage": "Ein Fehler ist aufgetreten!",
+    "ipv4NotDetected": "Ihre öffentliche IPv4-Adresse konnte nicht ermittelt werden. Schalten Sie IPv4 aus und speichern Sie erneut, oder prüfen Sie die Internetverbindung des Geräts.",
+    "ipv4NotReachable": "IPv4 funktioniert in diesem Netzwerk nicht: Das Gerät war aus dem Internet nicht erreichbar. Schalten Sie IPv4 aus und speichern Sie erneut, oder richten Sie eine Portweiterleitung in Ihrem Router ein.",
+    "ipv6NotAvailable": "IPv6 funktioniert in diesem Netzwerk nicht: Das Gerät hat keine IPv6-Adresse. Schalten Sie IPv6 aus und speichern Sie erneut.",
+    "ipv6NotReachable": "IPv6 funktioniert in diesem Netzwerk nicht: Das Gerät war über IPv6 nicht erreichbar. Schalten Sie IPv6 aus und speichern Sie erneut, oder geben Sie den Port in der Firewall Ihres Routers frei."
   },
   "login": {
     "title": "Anmelden",
-    "redirecting": "Weiterleitung zur Anmeldung..."
+    "redirecting": "Weiterleitung zur Anmeldung...",
+    "retry": "Erneut versuchen",
+    "session": "Ihre Anmeldung wurde nicht abgeschlossen. Das kann passieren, wenn Sie die Anmeldung unter einer anderen Adresse begonnen haben oder es zu lange gedauert hat.",
+    "signin": "Die Anmeldung wurde nicht abgeschlossen. Bitte versuchen Sie es erneut."
   },
   "settings": {
     "title": "Einstellungen",
