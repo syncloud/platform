@@ -12,7 +12,7 @@ test('activated and logged in', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/activation/status').reply(200,
-    { data: true }
+    { data: { activated: true, device_url: 'https://localhost' } }
   )
   mock.onGet('/rest/user').reply(200,
     { message: 'OK' }
@@ -45,7 +45,7 @@ test('activated and not logged in', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/activation/status').reply(200,
-    { data: true }
+    { data: { activated: true, device_url: 'https://localhost' } }
   )
   mock.onGet('/rest/user').reply(500,
     { message: 'not OK' }
@@ -79,7 +79,7 @@ test('not activated and not logged in', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/activation/status').reply(200,
-    { data: false }
+    { data: { activated: false, device_url: '' } }
   )
   mock.onGet('/rest/user').reply(500,
     { message: 'not OK' }

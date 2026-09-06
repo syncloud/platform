@@ -1,6 +1,8 @@
 package access
 
 import (
+	"errors"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/rest/model"
@@ -62,16 +64,37 @@ func (t *TriggerStub) Trigger() {
 }
 
 type NetworkInfoStub struct {
-	publicIPv4 string
+	publicIPv4    string
+	ipv6Err       error
+	publicIPv4Err error
 }
 
 func (n *NetworkInfoStub) IPv6() (*string, error) {
+	if n.ipv6Err != nil {
+		return nil, n.ipv6Err
+	}
 	ipv6 := "2a0d:3344:2d9:1b00::1"
 	return &ipv6, nil
 }
 
 func (n *NetworkInfoStub) PublicIPv4() (*string, error) {
+	if n.publicIPv4Err != nil {
+		return nil, n.publicIPv4Err
+	}
 	return &n.publicIPv4, nil
+}
+
+type FailingProbeStub struct{}
+
+func (p *FailingProbeStub) Probe(_ string, _ int) error {
+	return fmt.Errorf("connection refused")
+}
+
+func assertCode(t *testing.T, err error, code string) {
+	t.Helper()
+	var coded *model.CodedError
+	assert.True(t, errors.As(err, &coded), "expected a coded error, got %v", err)
+	assert.Equal(t, code, coded.Code)
 }
 
 type ExternalAddressUserConfigStub struct {
@@ -241,4 +264,76 @@ func TestExternalAddress_SyncAppliesTheTunnel(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1, relay.applied)
+}
+
+func TestExternalAddress_NoIpv6OnNetwork_SaysIpv6IsUnavailable(t *testing.T) {
+	network := &NetworkInfoStub{publicIPv4: "2.2.2.2", ipv6Err: fmt.Errorf("network is unreachable")}
+	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
+
+	err := access.Update(model.Access{Ipv6Enabled: true})
+
+	assertCode(t, err, CodeIpv6NotAvailable)
+}
+
+func TestExternalAddress_Ipv6NotProbeable_SaysIpv6IsUnreachable(t *testing.T) {
+	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
+	access := New(&FailingProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
+
+	err := access.Update(model.Access{Ipv6Enabled: true})
+
+	assertCode(t, err, CodeIpv6NotReachable)
+}
+
+func TestExternalAddress_Ipv4NotProbeable_SaysIpv4IsUnreachable(t *testing.T) {
+	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
+	access := New(&FailingProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
+	ip := "1.1.1.1"
+
+	err := access.Update(model.Access{Ipv4: &ip, Ipv4Enabled: true, Ipv4Public: true})
+
+	assertCode(t, err, CodeIpv4NotReachable)
+}
+
+func TestExternalAddress_NoPublicIpv4_SaysIpv4WasNotDetected(t *testing.T) {
+	network := &NetworkInfoStub{publicIPv4Err: fmt.Errorf("lookup failed")}
+	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, network, log.Default())
+
+	err := access.Update(model.Access{Ipv4Enabled: true, Ipv4Public: true})
+
+	assertCode(t, err, CodeIpv4NotDetected)
+}
+
+type RelayStateConfigStub struct {
+	ExternalAddressUserConfigStub
+	relayEnabled bool
+}
+
+func (u *RelayStateConfigStub) IsRelayEnabled() bool {
+	return u.relayEnabled
+}
+
+func (u *RelayStateConfigStub) SetRelayEnabled(enabled bool) {
+	u.relayEnabled = enabled
+}
+
+type RelayObservingConfigStub struct {
+	config      *RelayStateConfigStub
+	seenOnApply []bool
+}
+
+func (r *RelayObservingConfigStub) Apply(_ bool) error {
+	r.seenOnApply = append(r.seenOnApply, r.config.IsRelayEnabled())
+	return nil
+}
+
+func TestExternalAddress_UpdatePersistsRelayBeforeApplyingIt(t *testing.T) {
+	config := &RelayStateConfigStub{}
+	relay := &RelayObservingConfigStub{config: config}
+	access := New(NewPoptProbeStub(), config, &RedirectStub{}, relay,
+		&TriggerStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+
+	err := access.Update(model.Access{RelayEnabled: true})
+
+	assert.Nil(t, err)
+	assert.Equal(t, []bool{true, true}, relay.seenOnApply)
 }

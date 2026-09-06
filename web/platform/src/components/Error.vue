@@ -60,6 +60,9 @@ export default {
         if (error.message !== undefined) {
           message = error.message
         }
+        if (error.code !== undefined && this.$te('error.' + error.code)) {
+          message = this.$t('error.' + error.code)
+        }
       }
       this.message = message
       this.visible = true

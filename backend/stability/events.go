@@ -111,7 +111,7 @@ func (l *EventLog) readLastLocked(limit int, reverse bool) ([]Event, error) {
 	for i := 0; i < count; i++ {
 		var idx int
 		if reverse {
-			idx = ((n - 1 - i) % limit + limit) % limit
+			idx = ((n-1-i)%limit + limit) % limit
 		} else {
 			start := 0
 			if n > limit {

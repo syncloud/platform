@@ -3,9 +3,9 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	_ "modernc.org/sqlite"
 	"go.uber.org/zap"
 	"log"
+	_ "modernc.org/sqlite"
 	"strconv"
 )
 

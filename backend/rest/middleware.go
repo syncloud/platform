@@ -135,6 +135,9 @@ func (m *Middleware) Fail(w http.ResponseWriter, err error) {
 		statusCode = 400
 	case *model.ServiceError:
 		statusCode = v.StatusCode
+	case *model.CodedError:
+		response.Code = v.Code
+		statusCode = http.StatusBadRequest
 	}
 	responseJson, err := json.Marshal(response)
 	responseText := ""

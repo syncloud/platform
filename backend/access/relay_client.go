@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"text/template"
 	"time"
 
@@ -62,6 +63,7 @@ type RelayClient struct {
 	logger       *zap.Logger
 
 	connectAttempts int
+	apply           sync.Mutex
 }
 
 func NewRelayClient(control RelayControl, systemConfig RelaySystemConfig, userConfig RelayUserConfig, redirect RelayRedirectConfig, client *http.Client, logger *zap.Logger) *RelayClient {
@@ -98,8 +100,11 @@ func (c *RelayClient) adminSocketPath() string {
 }
 
 func (c *RelayClient) Apply(relayEnabled bool) error {
+	c.apply.Lock()
+	defer c.apply.Unlock()
+
 	if !relayEnabled {
-		return c.Disable()
+		return c.disable()
 	}
 	mailSocket := c.userConfig.GetMailInboundSocket()
 
@@ -212,6 +217,13 @@ func (c *RelayClient) runningProxies() map[string]bool {
 }
 
 func (c *RelayClient) Disable() error {
+	c.apply.Lock()
+	defer c.apply.Unlock()
+
+	return c.disable()
+}
+
+func (c *RelayClient) disable() error {
 	if _, err := os.Stat(c.configPath()); os.IsNotExist(err) {
 		return nil
 	}

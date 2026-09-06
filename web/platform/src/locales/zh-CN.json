@@ -27,11 +27,18 @@
   },
   "error": {
     "sendLogs": "发送日志",
-    "defaultMessage": "发生错误!"
+    "defaultMessage": "发生错误!",
+    "ipv4NotDetected": "无法检测到您的公网 IPv4 地址。请关闭 IPv4 后重新保存，或检查设备的互联网连接。",
+    "ipv4NotReachable": "此网络上 IPv4 无法使用：无法从互联网访问设备。请关闭 IPv4 后重新保存，或在路由器上设置端口转发。",
+    "ipv6NotAvailable": "此网络上 IPv6 无法使用：设备没有 IPv6 地址。请关闭 IPv6 后重新保存。",
+    "ipv6NotReachable": "此网络上 IPv6 无法使用：无法通过 IPv6 访问设备。请关闭 IPv6 后重新保存，或在路由器防火墙中放行该端口。"
   },
   "login": {
     "title": "登录",
-    "redirecting": "正在跳转登录..."
+    "redirecting": "正在跳转登录...",
+    "retry": "重试",
+    "session": "登录未完成。如果您在其他地址开始登录，或者耗时过长，可能会发生这种情况。",
+    "signin": "登录未完成，请重试。"
   },
   "settings": {
     "title": "设置",

@@ -13,17 +13,16 @@
 
       <!--Single disk-->
       <div v-if="!multiMode">
-        <s-radio-group v-model="activeSinglePartition" style="display: table;">
-          <div v-for="(disk, index) in disks" :key="index">
-            <div v-for="(partition, pindex) in disk.partitions" :key="pindex">
-              <s-radio :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large"
-                        border class="disk">
+        <s-radio-group v-model="activeSinglePartition">
+          <template v-for="(disk, index) in disks" :key="index">
+            <s-radio v-for="(partition, pindex) in disk.partitions" :key="pindex"
+                      :id="'partition_' + index + '_' + pindex" :label="partition.device" size="large"
+                      border class="disk">
               <span style="white-space: normal;">
                 {{ disk.name }}  - {{ partition.size }}
               </span>
-              </s-radio>
-            </div>
-          </div>
+            </s-radio>
+          </template>
           <s-radio id="none" label="none" size="large" border class="disk" v-if="disks.length !== 0">
             <span>{{ $t('storage.none') }}</span>
           </s-radio>

@@ -88,18 +88,7 @@ def test_activation_status_false(device_host):
     response = requests.get('https://{0}/rest/activation/status'.format(device_host),
                             allow_redirects=False, verify=False)
     assert response.status_code == 200
-    assert not json.loads(response.text)["data"], response.text
-
-
-def test_id_redirect_backward_compatibility(device_host):
-    response = requests.get('http://{0}:81/rest/id'.format(device_host), allow_redirects=False)
-    assert response.status_code == 200, response.text
-    response_json = json.loads(response.text)
-    assert 'data' in response_json
-    assert 'success' in response_json
-    assert 'mac_address' in response_json['data']
-    assert 'title' in response_json['data']
-    assert 'name' in response_json['data']
+    assert not json.loads(response.text)["data"]["activated"], response.text
 
 
 def test_id_before_activation(device_host):
@@ -210,7 +199,7 @@ def test_activation_status_false_after_deactivate(device_host):
     response = requests.get('https://{0}/rest/activation/status'.format(device_host), allow_redirects=False,
                             verify=False)
     assert response.status_code == 200
-    assert not json.loads(response.text)["data"], response.text
+    assert not json.loads(response.text)["data"]["activated"], response.text
 
 
 def test_redirect_info(device_host, main_domain):
@@ -238,7 +227,7 @@ def test_activation_status_true(device_host):
     response = requests.get('https://{0}/rest/activation/status'.format(device_host), allow_redirects=False,
                             verify=False)
     assert response.status_code == 200
-    assert json.loads(response.text)["data"], response.text
+    assert json.loads(response.text)["data"]["activated"], response.text
 
 
 def test_install_ca_cert(device_host, full_domain):

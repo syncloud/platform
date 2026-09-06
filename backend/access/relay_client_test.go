@@ -7,7 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -203,4 +205,45 @@ func readConfig(dir string) (string, error) {
 		return "", err
 	}
 	return string(content), nil
+}
+
+type relayOverlapControlStub struct {
+	mutex    sync.Mutex
+	inside   int
+	overlaps int
+}
+
+func (c *relayOverlapControlStub) RestartService(_ string) error {
+	c.mutex.Lock()
+	c.inside++
+	if c.inside > 1 {
+		c.overlaps++
+	}
+	c.mutex.Unlock()
+
+	time.Sleep(10 * time.Millisecond)
+
+	c.mutex.Lock()
+	c.inside--
+	c.mutex.Unlock()
+	return nil
+}
+
+func TestRelayClient_ApplyDoesNotOverlap(t *testing.T) {
+	dir := t.TempDir()
+	control := &relayOverlapControlStub{}
+	client := NewRelayClient(control, &relaySystemConfigStub{dir, "../../config"}, &relayUserConfigStub{domain: "name.syncloud.it"}, &relayRedirectStub{"syncloud.it"}, relayRunningProxies("name.syncloud.it"), zap.NewNop())
+
+	var wg sync.WaitGroup
+	for i := 0; i < 8; i++ {
+		wg.Add(1)
+		go func(n int) {
+			defer wg.Done()
+			assert.Nil(t, os.WriteFile(filepath.Join(dir, "frpc.toml"), []byte(fmt.Sprintf("x%d", n)), 0644))
+			_ = client.Apply(false)
+		}(i)
+	}
+	wg.Wait()
+
+	assert.Equal(t, 0, control.overlaps)
 }

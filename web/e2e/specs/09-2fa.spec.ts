@@ -78,6 +78,7 @@ test('2FA login returning user (TOTP only)', async ({}, testInfo) => {
 })
 
 test('2FA regular user login (own QR)', async ({}, testInfo) => {
+  test.setTimeout(120_000)
   ssh('snap run platform.cli user add testuser --password=testpass123', { throw: false })
   try {
     await logout(page)

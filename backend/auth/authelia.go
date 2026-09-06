@@ -7,12 +7,12 @@ import (
 	"encoding/pem"
 	"fmt"
 	"github.com/google/uuid"
-	_ "modernc.org/sqlite"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
 	"github.com/syncloud/platform/parser"
 	"go.uber.org/zap"
 	"io"
+	_ "modernc.org/sqlite"
 	"os"
 	"path"
 	"path/filepath"
@@ -29,16 +29,16 @@ func autheliaDSN(sqlitePath string) string {
 }
 
 type Variables struct {
-	Domain            string
-	AppUrl            string
-	EncryptionKey     string
-	JwtSecret         string
-	HmacSecret        string
-	DeviceUrl         string
-	AuthUrl           string
-	IsActivated       bool
-	TwoFactorEnabled  bool
-	OIDCClients       []config.OIDCClient
+	Domain           string
+	AppUrl           string
+	EncryptionKey    string
+	JwtSecret        string
+	HmacSecret       string
+	DeviceUrl        string
+	AuthUrl          string
+	IsActivated      bool
+	TwoFactorEnabled bool
+	OIDCClients      []config.OIDCClient
 }
 
 type HealthWaiter interface {

@@ -82,4 +82,3 @@ func TestDeviceUrl_NonStandardPort(t *testing.T) {
 	url := config.Url("app1")
 	assert.Equal(t, "https://app1.domain.tld:10000", url)
 }
-

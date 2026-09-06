@@ -200,3 +200,56 @@ test('Disable send logs', async () => {
 
   wrapper.unmount()
 })
+
+test('protocol failure shows the translated advice, not the raw dial error', async () => {
+  const mockRouter = { push: jest.fn() }
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        mocks: {
+          $route: { path: '/' },
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await wrapper.vm.showAxios({
+    response: {
+      status: 400,
+      data: {
+        message: 'dial udp [2001:4860:4860::8888]:80: connect: network is unreachable',
+        code: 'ipv6NotAvailable'
+      }
+    }
+  })
+
+  expect(wrapper.vm.message).toContain('IPv6')
+  expect(wrapper.vm.message).not.toContain('dial udp')
+
+  wrapper.unmount()
+})
+
+test('an unknown code falls back to the server message', async () => {
+  const mockRouter = { push: jest.fn() }
+  const wrapper = mount(Error,
+    {
+      attachTo: document.body,
+      global: {
+        mocks: {
+          $route: { path: '/' },
+          $router: mockRouter
+        }
+      }
+    }
+  )
+
+  await wrapper.vm.showAxios({
+    response: { status: 400, data: { message: 'something specific', code: 'notATranslatedCode' } }
+  })
+
+  expect(wrapper.vm.message).toBe('something specific')
+
+  wrapper.unmount()
+})

@@ -116,6 +116,15 @@ func TestLsblk_AvailableDisks_DoNotShowSnaps_BrokenFsTypeSquashfs(t *testing.T) 
 	assert.Equal(t, 0, len(disks))
 }
 
+func TestLsblk_AvailableDisks_DoNotShowZram(t *testing.T) {
+	output := `NAME="/dev/zram0" SIZE="2G" TYPE="disk" MOUNTPOINT="[SWAP]" PARTTYPE="" FSTYPE="swap" MODEL="" UUID=""`
+
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output}, log.Default())
+	disks, err := lsblk.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(disks))
+}
+
 func TestLsblk_AvailableDisks_DoNotShowInternalDisks(t *testing.T) {
 	output := `
 NAME="/dev/mmcblk0" SIZE="14.4G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID=""
