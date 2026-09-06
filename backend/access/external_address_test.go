@@ -302,3 +302,38 @@ func TestExternalAddress_NoPublicIpv4_SaysIpv4WasNotDetected(t *testing.T) {
 
 	assertCode(t, err, CodeIpv4NotDetected)
 }
+
+type RelayStateConfigStub struct {
+	ExternalAddressUserConfigStub
+	relayEnabled bool
+}
+
+func (u *RelayStateConfigStub) IsRelayEnabled() bool {
+	return u.relayEnabled
+}
+
+func (u *RelayStateConfigStub) SetRelayEnabled(enabled bool) {
+	u.relayEnabled = enabled
+}
+
+type RelayObservingConfigStub struct {
+	config      *RelayStateConfigStub
+	seenOnApply []bool
+}
+
+func (r *RelayObservingConfigStub) Apply(_ bool) error {
+	r.seenOnApply = append(r.seenOnApply, r.config.IsRelayEnabled())
+	return nil
+}
+
+func TestExternalAddress_UpdatePersistsRelayBeforeApplyingIt(t *testing.T) {
+	config := &RelayStateConfigStub{}
+	relay := &RelayObservingConfigStub{config: config}
+	access := New(NewPoptProbeStub(), config, &RedirectStub{}, relay,
+		&TriggerStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+
+	err := access.Update(model.Access{RelayEnabled: true})
+
+	assert.Nil(t, err)
+	assert.Equal(t, []bool{true, true}, relay.seenOnApply)
+}

@@ -84,6 +84,8 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	a.logger.Info(fmt.Sprintf("update relay: %v, ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
 		request.RelayEnabled, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 
+	a.userConfig.SetRelayEnabled(request.RelayEnabled)
+
 	if err := a.relay.Apply(request.RelayEnabled); err != nil {
 		return err
 	}
@@ -148,7 +150,6 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			return err
 		}
 	}
-	a.userConfig.SetRelayEnabled(request.RelayEnabled)
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
 	a.userConfig.SetIpv4Public(request.Ipv4Public)
 	a.userConfig.SetPublicIp(ipv4ToSave)
