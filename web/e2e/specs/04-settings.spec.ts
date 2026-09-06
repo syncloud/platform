@@ -1,6 +1,6 @@
 import { test, expect, Page } from '@playwright/test'
 import { login } from '../helpers/login'
-import { menu, settings, clickElSelect, waitForLoading } from '../helpers/ui'
+import { menu, settings, clickElSelect } from '../helpers/ui'
 import { ssh } from '../helpers/ssh'
 import { shoot } from '../helpers/screenshot'
 
@@ -98,8 +98,9 @@ test('settings locale', async ({}, testInfo) => {
   await page.keyboard.type('Asia/Tokyo')
   await page.waitForTimeout(1000)
   await page.locator('#settings_tz_Asia_Tokyo').click()
+  const saved = page.waitForResponse(r => r.url().includes('/rest/timezone') && r.request().method() === 'POST')
   await page.locator('#btn_save_timezone').click()
-  await waitForLoading(page)
+  await saved
   const tz = ssh('cat /etc/timezone').trim()
   expect(tz).toBe('Asia/Tokyo')
   await page.waitForTimeout(2000)
