@@ -5,8 +5,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha1"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/pem"
 	"fmt"
 	"math/big"
@@ -51,6 +53,23 @@ func NewFake(systemConfig GeneratorSystemConfig, userConfig GeneratorUserConfig,
 	}
 }
 
+func subjectKeyId(publicKey any) ([]byte, error) {
+	encoded, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return nil, err
+	}
+	var info struct {
+		Algorithm pkix.AlgorithmIdentifier
+		Key       asn1.BitString
+	}
+	_, err = asn1.Unmarshal(encoded, &info)
+	if err != nil {
+		return nil, err
+	}
+	sum := sha1.Sum(info.Key.Bytes)
+	return sum[:], nil
+}
+
 func (c *Fake) Generate() error {
 	c.logger.Info("generating fake certificate")
 
@@ -73,6 +92,11 @@ func (c *Fake) Generate() error {
 		BasicConstraintsValid: true,
 	}
 	caPrivKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	if err != nil {
+		return err
+	}
+
+	ca.SubjectKeyId, err = subjectKeyId(caPrivKey.Public())
 	if err != nil {
 		return err
 	}
