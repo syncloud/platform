@@ -131,6 +131,7 @@ type Client struct {
 	ClientID     string   `yaml:"client_id"`
 	ClientSecret string   `yaml:"client_secret"`
 	RedirectUris []string `yaml:"redirect_uris"`
+	ConsentMode  string   `yaml:"consent_mode"`
 }
 
 func TestAutheliaClients(t *testing.T) {
@@ -154,14 +155,17 @@ func TestAutheliaClients(t *testing.T) {
 
 	assert.Len(t, gen.IdentityProviders.OIDC.Clients, 3)
 	assert.Equal(t, "syncloud", gen.IdentityProviders.OIDC.Clients[0].ClientID)
+	assert.Equal(t, "implicit", gen.IdentityProviders.OIDC.Clients[0].ConsentMode)
 
 	assert.Equal(t, "app1", gen.IdentityProviders.OIDC.Clients[1].ClientID)
 	assert.Equal(t, "app1secret", gen.IdentityProviders.OIDC.Clients[1].ClientSecret)
+	assert.Equal(t, "implicit", gen.IdentityProviders.OIDC.Clients[1].ConsentMode)
 	assert.Len(t, gen.IdentityProviders.OIDC.Clients[1].RedirectUris, 1)
 	assert.Equal(t, "https://app1.example.com/callback1", gen.IdentityProviders.OIDC.Clients[1].RedirectUris[0])
 
 	assert.Equal(t, "app2", gen.IdentityProviders.OIDC.Clients[2].ClientID)
 	assert.Equal(t, "app2secret", gen.IdentityProviders.OIDC.Clients[2].ClientSecret)
+	assert.Equal(t, "implicit", gen.IdentityProviders.OIDC.Clients[2].ConsentMode)
 	assert.Len(t, gen.IdentityProviders.OIDC.Clients[2].RedirectUris, 2)
 	assert.Equal(t, "https://app2.example.com/callback2", gen.IdentityProviders.OIDC.Clients[2].RedirectUris[0])
 	assert.Equal(t, "https://app2.example.com/mobile2", gen.IdentityProviders.OIDC.Clients[2].RedirectUris[1])
