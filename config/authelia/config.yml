@@ -826,6 +826,7 @@ identity_providers:
         public: false
         claims_policy: 'syncloud'
         authorization_policy: '{{ if $.TwoFactorEnabled }}two_factor{{ else }}one_factor{{ end }}'
+        consent_mode: 'implicit'
         redirect_uris:
 {{- range .RedirectURIs }}
           - '{{ . }}'

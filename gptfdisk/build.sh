@@ -16,7 +16,17 @@ rm -rf ${BUILD}
 mkdir ${BUILD}
 cd ${BUILD}
 
-wget http://www.rodsbooks.com/gdisk/gptfdisk-${VERSION}.tar.gz
+for i in $(seq 1 10); do
+    if wget --tries=3 --timeout=60 https://www.rodsbooks.com/gdisk/gptfdisk-${VERSION}.tar.gz; then
+        break
+    fi
+    if [ "$i" = "10" ]; then
+        echo "gptfdisk download failed"
+        exit 1
+    fi
+    echo "retry gptfdisk download"
+    sleep 10
+done
 tar xf gptfdisk-${VERSION}.tar.gz
 cd gptfdisk-${VERSION}
 make sgdisk

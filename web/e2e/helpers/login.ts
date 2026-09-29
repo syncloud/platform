@@ -14,7 +14,7 @@ const servingTimeout = 60000
 const servingPoll = 1000
 const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
 
-async function gotoWhenServing(page: Page) {
+export async function waitForServing(page: Page) {
   const deadline = Date.now() + servingTimeout
   while (fullDomain !== '' && Date.now() < deadline) {
     const status = await page.request
@@ -22,10 +22,14 @@ async function gotoWhenServing(page: Page) {
       .then(r => r.status())
       .catch(() => 0)
     if (status > 0 && status < 500) {
-      break
+      return
     }
     await page.waitForTimeout(servingPoll)
   }
+}
+
+async function gotoWhenServing(page: Page) {
+  await waitForServing(page)
   await page.goto('/')
 }
 
@@ -65,6 +69,7 @@ export async function login(page: Page, opts: { user?: string; password?: string
 export async function logout(page: Page) {
   const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
   const url = fullDomain ? `https://${fullDomain}/rest/logout` : '/rest/logout'
+  await waitForServing(page)
   await page.goto(url)
-  await expect(page.locator('#username-textfield')).toBeVisible()
+  await expect(page.locator('#username-textfield')).toBeVisible({ timeout: applicationsTimeout })
 }

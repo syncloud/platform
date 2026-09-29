@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
-import { login, logout, deviceUser, devicePassword } from '../helpers/login'
+import { login, logout, waitForServing, deviceUser, devicePassword } from '../helpers/login'
 import { ssh } from '../helpers/ssh'
 import { settings, waitForLoading, waitAppIconsLoaded } from '../helpers/ui'
 import { loginV2 } from '../helpers/device'
@@ -128,15 +128,11 @@ test('2FA recovery via CLI', async ({}, testInfo) => {
   await ctx.dispose()
 
   ssh('snap run platform.cli disable-2fa')
-  await page.waitForTimeout(2000)
+  await waitForServing(page)
 
   await logout(page)
-  await page.goto(`https://${fullDomain}`)
-  await page.locator('#username-textfield').fill(deviceUser)
-  await page.locator('#password-textfield').fill(devicePassword)
-  await page.locator('#sign-in-button').click()
+  await login(page)
   await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
-  await waitForLoading(page)
   await waitAppIconsLoaded(page)
   await shoot(page, testInfo, '2fa_recovery_cli')
 })
