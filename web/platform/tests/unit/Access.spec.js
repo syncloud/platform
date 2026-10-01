@@ -156,6 +156,34 @@ test('ipv6 disable', async () => {
   wrapper.unmount()
 })
 
+test('ipv6 unreachable warning is shown without an error', async () => {
+  const { wrapper, showError } = mountAccess({ ipv6_enabled: false },
+    () => [200, { success: true, data: { ipv6_enabled: true, warning: 'ipv6NotReachable' } }])
+  await flushPromises()
+  await wrapper.find('#tgl_ipv6_enabled').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
+  await flushPromises()
+  expect(showError).toHaveBeenCalledTimes(0)
+  expect(wrapper.find('[data-testid="ipv6-warning"]').text()).toContain('443')
+  wrapper.unmount()
+})
+
+test('ipv6 warning is cleared by the next save', async () => {
+  let warning = 'ipv6NotReachable'
+  const { wrapper } = mountAccess({ ipv6_enabled: false },
+    () => [200, { success: true, data: { ipv6_enabled: true, warning: warning } }])
+  await flushPromises()
+  await wrapper.find('#tgl_ipv6_enabled').trigger('click')
+  await wrapper.find('#btn_save').trigger('click')
+  await flushPromises()
+  expect(wrapper.find('[data-testid="ipv6-warning"]').text()).not.toBe('')
+  warning = undefined
+  await wrapper.find('#btn_save').trigger('click')
+  await flushPromises()
+  expect(wrapper.find('[data-testid="ipv6-warning"]').text()).toBe('')
+  wrapper.unmount()
+})
+
 test('public auto detect omits ipv4', async () => {
   const { state, reply } = captured()
   const { wrapper, showError } = mountAccess({ ipv4_enabled: false }, reply)

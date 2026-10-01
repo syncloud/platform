@@ -563,20 +563,13 @@ export function mock () {
 
       this.post('/rest/access', function (_schema, request) {
         const attrs = JSON.parse(request.requestBody)
-        // state.accessSuccess = !state.accessSuccess
-        // if (state.accessSuccess) {
         accessData.data = attrs
-        // accessData.data.external_access = attrs.external_access
-        // if (attrs.public_ip === undefined) {
-        //   delete accessData.data.public_ip
-        // } else {
-        //   accessData.data.public_ip = attrs.public_ip
-        // }
-        // accessData.access_port = attrs.access_port
-        return new Response(200, {}, { success: true })
-        // } else {
-        //   return new Response(500, {}, { success: false, message: 'error' })
-        // }
+        state.accessSuccess = !state.accessSuccess
+        const data = Object.assign({}, attrs)
+        if (!state.accessSuccess) {
+          data.warning = 'ipv6NotReachable'
+        }
+        return new Response(200, {}, { success: true, data: data })
       })
       this.get('/rest/storage/disks', function (_schema, _request) {
         return new Response(200, {}, disksData)

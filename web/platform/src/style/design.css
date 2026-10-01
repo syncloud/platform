@@ -20,6 +20,8 @@
   --sc-option-hover: #f0f6fe;
   --sc-danger: #d9363e;
   --sc-danger-soft: #fbe6e7;
+  --sc-warn: #b06a00;
+  --sc-warn-soft: #fdf2df;
   --sc-success: #2faa5d;
   --sc-card-radius: 22px;
   --sc-control-radius: 12px;
@@ -59,6 +61,8 @@
   --sc-option-hover: #1e2a38;
   --sc-danger: #f06a70;
   --sc-danger-soft: rgba(240, 106, 112, 0.16);
+  --sc-warn: #e0a042;
+  --sc-warn-soft: rgba(224, 160, 66, 0.16);
   --sc-success: #43c073;
   --sc-shadow-card: 0 24px 60px -20px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
   --sc-shadow-soft: 0 10px 24px -12px rgba(0, 0, 0, 0.5);

@@ -79,7 +79,7 @@ func New(probe Probe, userConfig UserConfig, redirect Redirect, relay Relay, tri
 	}
 }
 
-func (a *ExternalAddress) Update(request model.Access) error {
+func (a *ExternalAddress) Update(request model.Access) (*string, error) {
 
 	a.logger.Info(fmt.Sprintf("update relay: %v, ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
 		request.RelayEnabled, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
@@ -87,7 +87,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	a.userConfig.SetRelayEnabled(request.RelayEnabled)
 
 	if err := a.relay.Apply(request.RelayEnabled); err != nil {
-		return err
+		return nil, err
 	}
 
 	ipv4 := request.Ipv4
@@ -110,13 +110,13 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			if ipv4 == nil {
 				publicIp, err := a.network.PublicIPv4()
 				if err != nil {
-					return model.Coded(CodeIpv4NotDetected, err)
+					return nil, model.Coded(CodeIpv4NotDetected, err)
 				}
 				ipv4 = publicIp
 			}
 			err := a.probe.Probe(*ipv4, port)
 			if err != nil {
-				return model.Coded(CodeIpv4NotReachable, err)
+				return nil, model.Coded(CodeIpv4NotReachable, err)
 			}
 		}
 	} else {
@@ -124,17 +124,19 @@ func (a *ExternalAddress) Update(request model.Access) error {
 		ipv4ToSave = nil
 	}
 
+	var warning *string
 	if request.Ipv6Enabled {
 		ipv6, err := a.network.IPv6()
 		if err != nil {
-			return model.Coded(CodeIpv6NotAvailable, err)
+			return nil, model.Coded(CodeIpv6NotAvailable, err)
 		}
 		if ipv6 == nil {
-			return model.Coded(CodeIpv6NotAvailable, fmt.Errorf("no ipv6 address on this device"))
+			return nil, model.Coded(CodeIpv6NotAvailable, fmt.Errorf("no ipv6 address on this device"))
 		}
-		err = a.probe.Probe(*ipv6, config.WebAccessPort)
-		if err != nil {
-			return model.Coded(CodeIpv6NotReachable, err)
+		if err := a.probe.Probe(*ipv6, config.WebAccessPort); err != nil {
+			a.logger.Info("ipv6 is not reachable from the internet", zap.Error(err))
+			code := CodeIpv6NotReachable
+			warning = &code
 		}
 	}
 
@@ -147,7 +149,7 @@ func (a *ExternalAddress) Update(request model.Access) error {
 			request.Ipv4PublicDirect(),
 			request.Ipv6Enabled)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	a.userConfig.SetIpv4Enabled(request.Ipv4Enabled)
@@ -157,11 +159,11 @@ func (a *ExternalAddress) Update(request model.Access) error {
 	a.userConfig.SetPublicPort(request.AccessPort)
 
 	if err := a.relay.Apply(request.RelayEnabled); err != nil {
-		return err
+		return nil, err
 	}
 
 	a.trigger.Trigger()
-	return nil
+	return warning, nil
 
 }
 
