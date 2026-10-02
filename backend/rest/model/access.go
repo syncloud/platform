@@ -9,6 +9,11 @@ type Access struct {
 	Ipv6Enabled  bool    `json:"ipv6_enabled"`
 }
 
+type AccessResponse struct {
+	Access
+	Warning *string `json:"warning,omitempty"`
+}
+
 func (a Access) Ipv4Manual() bool {
 	return !a.RelayEnabled && a.Ipv4Enabled
 }

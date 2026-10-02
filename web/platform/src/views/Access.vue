@@ -93,6 +93,14 @@
                       style="--el-switch-on-color: #2faa5d" />
           </div>
           <p class="detail-desc">{{ $t('access.ipv6Description') }}</p>
+          <div class="reveal" :class="{ open: ipv6WarningText !== '' }">
+            <div class="reveal-inner">
+              <p class="sc-notice" data-testid="ipv6-warning">
+                <i class='fa fa-exclamation-triangle'></i>
+                {{ ipv6WarningText }}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div class="sc-actions">
@@ -172,6 +180,7 @@ export default {
       visibility: 'hidden',
       ipv4Mode: 'off',
       ipv6Enabled: undefined,
+      ipv6Warning: undefined,
       loading: undefined,
       relayInfoVisible: false,
       accessPortInfoVisible: false,
@@ -183,6 +192,11 @@ export default {
   components: {
     Error,
     Dialog
+  },
+  computed: {
+    ipv6WarningText () {
+      return this.ipv6Warning === 'ipv6NotReachable' ? this.$t('access.ipv6NotReachable') : ''
+    }
   },
   mounted () {
     this.progressShow()
@@ -257,6 +271,7 @@ export default {
     },
     save (event) {
       event.preventDefault()
+      this.ipv6Warning = undefined
       const mode = this.ipv4Mode
       const requestData = {
         relay_enabled: mode === 'relay',
@@ -286,6 +301,9 @@ export default {
             this.$refs.error.showAxios({ response: { status: 200, data: response.data } })
             this.progressHide()
             return
+          }
+          if (response.data && response.data.data) {
+            this.ipv6Warning = response.data.data.warning
           }
           this.reload()
         })
@@ -398,6 +416,19 @@ export default {
   margin: 8px 0 0;
   max-width: 460px;
   line-height: 1.5;
+}
+.sc-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--sc-warn);
+  background: var(--sc-warn-soft);
+  border-radius: var(--sc-control-radius);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  max-width: 460px;
 }
 .row {
   display: flex;
