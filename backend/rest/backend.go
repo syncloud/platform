@@ -493,7 +493,11 @@ func (b *Backend) SetAccess(req *http.Request) (interface{}, error) {
 		return nil, errors.New("access request is wrong")
 	}
 
-	return request, b.externalAddress.Update(request)
+	warning, err := b.externalAddress.Update(request)
+	if err != nil {
+		return nil, err
+	}
+	return model.AccessResponse{Access: request, Warning: warning}, nil
 }
 
 func (b *Backend) AppsAvailable(_ *http.Request) (interface{}, error) {
