@@ -1,5 +1,7 @@
 import re
 import json
+import socket
+import ssl
 import time
 from os.path import dirname, join
 from subprocess import check_output
@@ -312,6 +314,24 @@ def test_asset_content_type_is_javascript(device_host):
     asset = re.search(r'/assets/[A-Za-z0-9._-]+\.js', index.text).group(0)
     response = requests.get('https://{0}{1}'.format(device_host, asset), verify=False)
     assert 'javascript' in response.headers['Content-Type']
+
+
+def test_redirect_without_host_header_is_relative(device_host):
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    with socket.create_connection((device_host, 443), timeout=10) as plain:
+        with context.wrap_socket(plain) as tls:
+            tls.sendall(b'GET /assets HTTP/1.0\r\n\r\n')
+            response = b''
+            while True:
+                chunk = tls.recv(4096)
+                if not chunk:
+                    break
+                response += chunk
+    headers = response.decode().split('\r\n\r\n')[0].split('\r\n')
+    assert headers[0].split(' ')[1] == '301', headers
+    assert 'Location: /assets/' in headers, headers
 
 
 def test_auth_index_is_revalidated(full_domain):
