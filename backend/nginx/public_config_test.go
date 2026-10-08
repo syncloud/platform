@@ -38,6 +38,11 @@ func TestPublicConfig_AssetsKeepSecurityHeaders(t *testing.T) {
 	}
 }
 
+func TestPublicConfig_RedirectsAreRelative(t *testing.T) {
+	config := generatePublicConfig(t)
+	assert.Equal(t, 1, strings.Count(config, "absolute_redirect off;"))
+}
+
 func generatePublicConfig(t *testing.T) string {
 	t.Helper()
 	nginx, _, outputDir := newTestNginx(t, "example.com", nil)
