@@ -276,8 +276,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, relayClient *access.RelayClient, accessChange *event.AccessChangeRunner, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
-		return access.New(probe, userConfig, redirectService, relayClient, accessChange, netInfo, logger)
+	err = c.Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, relayClient *access.RelayClient, accessChange *event.AccessChangeRunner, nginxService *nginx.Nginx, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(probe, userConfig, redirectService, relayClient, accessChange, nginxService, netInfo, logger)
 	})
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/tls"
@@ -86,6 +87,35 @@ func main() {
 			"code_challenge_method": {"S256"},
 		}
 		http.Redirect(w, r, authEndpoint+"?"+params.Encode(), http.StatusFound)
+	})
+
+	mux.HandleFunc("/oidc/discovery", func(w http.ResponseWriter, r *http.Request) {
+		authUrl := readConfig("auth_url")
+		client := &http.Client{Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				return (&net.Dialer{}).DialContext(ctx, "unix", "/var/snap/platform/current/authelia.socket")
+			},
+		}}
+		req, _ := http.NewRequest("GET", "http://authelia/.well-known/openid-configuration", nil)
+		req.Header.Set("X-Forwarded-Host", "wrong.example.com")
+		req.Header.Set("X-Forwarded-Proto", "http")
+		resp, err := client.Do(req)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("discovery request failed: %v", err), http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+		var doc discovery
+		if err := json.NewDecoder(resp.Body).Decode(&doc); err != nil {
+			http.Error(w, fmt.Sprintf("discovery decode: %v", err), http.StatusInternalServerError)
+			return
+		}
+		if doc.Issuer != authUrl {
+			http.Error(w, fmt.Sprintf("issuer %s does not match %s", doc.Issuer, authUrl), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintf(w, "OK %s", doc.Issuer)
 	})
 
 	mux.HandleFunc("/oidc/callback", func(w http.ResponseWriter, r *http.Request) {
