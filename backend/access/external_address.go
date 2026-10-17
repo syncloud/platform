@@ -43,6 +43,11 @@ type Trigger interface {
 	Trigger()
 }
 
+type PublicNginx interface {
+	InitConfig() error
+	ReloadPublic() error
+}
+
 type NetworkInfo interface {
 	IPv6() (*string, error)
 	PublicIPv4() (*string, error)
@@ -63,17 +68,19 @@ type ExternalAddress struct {
 	redirect   Redirect
 	relay      Relay
 	trigger    Trigger
+	nginx      PublicNginx
 	network    NetworkInfo
 	logger     *zap.Logger
 }
 
-func New(probe Probe, userConfig UserConfig, redirect Redirect, relay Relay, trigger Trigger, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
+func New(probe Probe, userConfig UserConfig, redirect Redirect, relay Relay, trigger Trigger, nginx PublicNginx, network NetworkInfo, logger *zap.Logger) *ExternalAddress {
 	return &ExternalAddress{
 		probe:      probe,
 		userConfig: userConfig,
 		redirect:   redirect,
 		relay:      relay,
 		trigger:    trigger,
+		nginx:      nginx,
 		network:    network,
 		logger:     logger,
 	}
@@ -159,6 +166,13 @@ func (a *ExternalAddress) Update(request model.Access) (*string, error) {
 	a.userConfig.SetPublicPort(request.AccessPort)
 
 	if err := a.relay.Apply(request.RelayEnabled); err != nil {
+		return nil, err
+	}
+
+	if err := a.nginx.InitConfig(); err != nil {
+		return nil, err
+	}
+	if err := a.nginx.ReloadPublic(); err != nil {
 		return nil, err
 	}
 

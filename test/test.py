@@ -483,6 +483,20 @@ def test_testapp_oidc_without_browser(full_domain, device_user, device_password)
     assert response.text.endswith('groups=syncloud'), response.text
 
 
+def wait_for_testapp_issuer(full_domain, issuer):
+    for attempt in range(60):
+        response = requests.get('https://testapp.{0}/oidc/discovery'.format(full_domain), verify=False)
+        if response.status_code == 200 and response.text == 'OK {0}'.format(issuer):
+            return
+        print('discovery attempt {0}/60: {1} {2}'.format(attempt + 1, response.status_code, response.text))
+        time.sleep(2)
+    assert False, 'testapp never discovered issuer {0}: {1} {2}'.format(issuer, response.status_code, response.text)
+
+
+def test_testapp_oidc_discovery_over_socket(full_domain):
+    wait_for_testapp_issuer(full_domain, 'https://auth.{0}'.format(full_domain))
+
+
 def test_get_access(device, domain):
     response = device.login_v2().get('https://{0}/rest/access'.format(domain), verify=False)
     print(response.text)
@@ -554,13 +568,14 @@ def test_api_url_443(device, domain):
     assert response.status_code == 200
 
 
-def test_api_url_10000(device, domain):
+def test_api_url_10000(device, domain, full_domain):
     response = device.login_v2().post('https://{0}/rest/access'.format(domain), verify=False,
                                    json={'ipv4_enabled': False,
                                          'ipv4_public': False,
                                          'access_port': 10000})
     assert json.loads(response.text)["success"]
     assert response.status_code == 200
+    wait_for_testapp_issuer(full_domain, 'https://auth.{0}:10000'.format(full_domain))
 
     response = device.login_v2().get('https://{0}/rest/access'.format(domain), verify=False)
     assert response.status_code == 200
@@ -570,6 +585,7 @@ def test_api_url_10000(device, domain):
                                          'ipv4_public': False,
                                          'access_port': 443})
     assert json.loads(response.text)["success"]
+    wait_for_testapp_issuer(full_domain, 'https://auth.{0}'.format(full_domain))
 
 
 def test_cron(device):

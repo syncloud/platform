@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/config"
 )
 
 type SystemdMock struct {
@@ -32,6 +33,11 @@ func (s *SystemConfigMock) DataDir() string {
 
 type UserConfigMock struct {
 	deviceDomain string
+	port         *int
+}
+
+func (u *UserConfigMock) Url(app string) string {
+	return config.ConstructUrl(u.port, app+"."+u.deviceDomain)
 }
 
 func (u *UserConfigMock) GetDeviceDomain() string {
@@ -52,7 +58,7 @@ func newTestNginx(t *testing.T, domain string, entries []ProxyEntry) (*Nginx, *S
 	configDir := path.Join("..", "..", "config")
 	systemd := &SystemdMock{}
 	systemConfig := &SystemConfigMock{configDir: configDir, dataDir: outputDir}
-	userConfig := &UserConfigMock{domain}
+	userConfig := &UserConfigMock{deviceDomain: domain}
 	proxyConfig := &ProxyConfigMock{entries: entries}
 	return New(systemd, systemConfig, userConfig, proxyConfig), systemd, outputDir
 }
