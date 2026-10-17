@@ -28,9 +28,14 @@ export async function waitForServing(page: Page) {
   }
 }
 
-async function gotoWhenServing(page: Page) {
+async function gotoWhenServing(page: Page): Promise<boolean> {
   await waitForServing(page)
+  const session = page
+    .waitForResponse(response => new URL(response.url()).pathname === '/rest/user', { timeout: formTimeout })
+    .then(response => response.ok())
+    .catch(() => false)
   await page.goto('/')
+  return session
 }
 
 export async function login(page: Page, opts: { user?: string; password?: string } = {}) {
@@ -38,8 +43,8 @@ export async function login(page: Page, opts: { user?: string; password?: string
   const username = page.locator('#username-textfield')
   for (let attempt = 1; attempt <= loginAttempts; attempt++) {
     const last = attempt === loginAttempts
-    await gotoWhenServing(page)
-    if (await applications.isVisible()) {
+    if (await gotoWhenServing(page)) {
+      await expect(applications).toBeVisible({ timeout: applicationsTimeout })
       break
     }
     try {
