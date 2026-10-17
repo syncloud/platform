@@ -19,6 +19,7 @@ type SystemConfig interface {
 
 type UserConfig interface {
 	GetDeviceDomain() string
+	Url(app string) string
 }
 
 type ProxyEntry struct {
@@ -63,6 +64,7 @@ func (n *Nginx) InitConfig() error {
 	tmpl := string(templateFile)
 	tmpl = strings.ReplaceAll(tmpl, "{{ domain_regex }}", strings.ReplaceAll(domain, ".", "\\."))
 	tmpl = strings.ReplaceAll(tmpl, "{{ domain }}", domain)
+	tmpl = strings.ReplaceAll(tmpl, "{{ auth_host }}", strings.TrimPrefix(n.userConfig.Url("auth"), "https://"))
 	nginxConfigDir := n.systemConfig.DataDir()
 	nginxConfigFile := path.Join(nginxConfigDir, "nginx.conf")
 	return os.WriteFile(nginxConfigFile, []byte(tmpl), 0644)

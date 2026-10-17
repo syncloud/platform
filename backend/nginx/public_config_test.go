@@ -43,6 +43,33 @@ func TestPublicConfig_RedirectsAreRelative(t *testing.T) {
 	assert.Equal(t, 1, strings.Count(config, "absolute_redirect off;"))
 }
 
+func TestPublicConfig_AuthGatewaySendsThePublicAuthHost(t *testing.T) {
+	config := generatePublicConfig(t)
+	gateway := strings.SplitN(config, "listen unix:/var/snap/platform/current/authelia.socket;", 2)[1]
+	assert.Contains(t, gateway, "proxy_set_header Host auth.example.com;")
+	assert.Contains(t, gateway, "proxy_set_header X-Forwarded-Host auth.example.com;")
+	assert.Contains(t, gateway, "proxy_set_header X-Forwarded-Proto https;")
+}
+
+func TestPublicConfig_AuthGatewayKeepsTheExternalPort(t *testing.T) {
+	nginx, _, outputDir := newTestNginx(t, "example.com", nil)
+	port := 10443
+	nginx.userConfig.(*UserConfigMock).port = &port
+	assert.NoError(t, nginx.InitConfig())
+	content, err := os.ReadFile(path.Join(outputDir, "nginx.conf"))
+	assert.NoError(t, err)
+	gateway := strings.SplitN(string(content), "listen unix:/var/snap/platform/current/authelia.socket;", 2)[1]
+	assert.Contains(t, gateway, "proxy_set_header Host auth.example.com:10443;")
+	assert.Contains(t, gateway, "proxy_set_header X-Forwarded-Host auth.example.com:10443;")
+}
+
+func TestPublicConfig_AuthGatewayLeavesForwardAuthHeadersAlone(t *testing.T) {
+	config := generatePublicConfig(t)
+	gateway := strings.SplitN(config, "listen unix:/var/snap/platform/current/authelia.socket;", 2)[1]
+	authz := strings.SplitN(strings.SplitN(gateway, "location /api/authz/ {", 2)[1], "}", 2)[0]
+	assert.NotContains(t, authz, "proxy_set_header")
+}
+
 func generatePublicConfig(t *testing.T) string {
 	t.Helper()
 	nginx, _, outputDir := newTestNginx(t, "example.com", nil)

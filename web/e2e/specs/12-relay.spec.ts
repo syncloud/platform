@@ -37,9 +37,10 @@ test.beforeAll(async ({ browser }) => {
 test.afterAll(async () => {
   // saving access fires the access-change app fan-out in the background; let it
   // drain so its OIDC/nginx reconfigure doesn't leak into the next spec's login
-  for (let i = 0; i < 60; i++) {
+  let idle = 0
+  for (let i = 0; i < 90 && idle < 5; i++) {
     const running = ssh("pgrep -f 'access[-]change' || true", { throw: false })
-    if (!running.trim()) break
+    idle = running.trim() ? 0 : idle + 1
     await new Promise((r) => setTimeout(r, 1000))
   }
   await page.close()

@@ -810,7 +810,6 @@ identity_providers:
         requested_audience_mode: 'implicit'
         grant_types:
           - 'authorization_code'
-          - 'refresh_token'
         response_types:
           - 'code'
         response_modes:
@@ -837,7 +836,6 @@ identity_providers:
           - 'profile'
           - 'groups'
         grant_types:
-          - refresh_token
           - authorization_code
         response_types:
           - code
