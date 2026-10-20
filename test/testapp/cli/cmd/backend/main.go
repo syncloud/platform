@@ -175,6 +175,10 @@ func main() {
 		fmt.Fprintf(w, "OK %s email=%s groups=%s", claims.PreferredUsername, claims.Email, strings.Join(claims.Groups, ","))
 	})
 
+	uploads := &upload{}
+	mux.HandleFunc("/upload", uploads.Receive)
+	mux.HandleFunc("/upload/progress", uploads.Progress)
+
 	http.Serve(listener, mux)
 }
 

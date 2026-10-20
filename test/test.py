@@ -453,6 +453,31 @@ def test_testapp_session_authorized(full_domain, device_user, device_password):
     assert 'session protected page' in response.text, response.text
 
 
+def test_testapp_receives_the_request_body_while_it_is_being_sent(full_domain):
+    host = 'testapp.{0}'.format(full_domain)
+    half = b'x' * 1048576
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    with context.wrap_socket(socket.create_connection((host, 443)), server_hostname=host) as conn:
+        conn.sendall('POST /upload HTTP/1.1\r\nHost: {0}\r\nContent-Length: {1}\r\n\r\n'.format(host, 2 * len(half)).encode())
+        conn.sendall(half)
+        received = 0
+        deadline = time.time() + 30
+        while received == 0 and time.time() < deadline:
+            time.sleep(1)
+            received = int(requests.get('https://{0}/upload/progress'.format(host), verify=False).text)
+        assert received > 0, 'the app got none of the body before the client finished sending it'
+        conn.sendall(half)
+        response = b''
+        while not response.endswith(str(2 * len(half)).encode()):
+            data = conn.recv(4096)
+            if not data:
+                break
+            response += data
+    assert response.startswith(b'HTTP/1.1 200'), response
+
+
 def test_testapp_basic_unauthorized(full_domain):
     response = requests.get(
         'https://testapp.{0}/basic'.format(full_domain),
