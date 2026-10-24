@@ -662,7 +662,7 @@ def test_backup_rest(device, artifact_dir, domain):
     open('{0}/rest.backup.list.json'.format(artifact_dir), 'w').write(response.text)
     print(response.text)
     backup = json.loads(response.text)['data'][0]
-    device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
+    assert_backup_complete(device, backup)
 
     response = session.post(
         'https://{0}/rest/backup/restore'.format(domain),
@@ -671,6 +671,7 @@ def test_backup_rest(device, artifact_dir, domain):
     assert response.status_code == 200
 
     wait_for_jobs(domain, session)
+    assert_links_restored(device)
 
 
 def test_backup_cli(device, artifact_dir):
@@ -679,8 +680,22 @@ def test_backup_cli(device, artifact_dir):
     open('{0}/cli.backup.list.json'.format(artifact_dir), 'w').write(response)
     print(response)
     backup = json.loads(response)[0]
-    device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
+    assert_backup_complete(device, backup)
     device.run_ssh("snap run platform.cli backup restore {0}".format(backup['file']))
+    assert_links_restored(device)
+
+
+def assert_backup_complete(device, backup):
+    listing = device.run_ssh('tar tvf {0}/{1}'.format(backup['path'], backup['file']))
+    assert './current/config/' in listing
+    assert './common/testapp/snap/testapp/current -> ' in listing
+    assert './common/dangling -> missing' in listing
+
+
+def assert_links_restored(device):
+    revision = device.run_ssh('readlink /var/snap/testapp/current').strip()
+    assert device.run_ssh('readlink /var/snap/testapp/common/testapp/snap/testapp/current').strip() == revision
+    assert device.run_ssh('readlink /var/snap/testapp/common/dangling').strip() == 'missing'
 
 
 def test_rest_backup_list(device, domain, artifact_dir):
