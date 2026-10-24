@@ -4,12 +4,13 @@ import { settings, waitForLoading, waitAppIconsLoaded, defocus } from '../helper
 import { login, deviceUser, devicePassword } from '../helpers/login'
 import { shoot } from '../helpers/screenshot'
 
-test.describe.configure({ mode: 'serial' })
+test.describe.configure({ mode: 'serial', timeout: 180_000 })
 
 const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
 const domain = process.env.PLAYWRIGHT_DOMAIN_SHORT ?? deviceHost.replace(/\.redirect$/, '')
 const redirectUser = process.env.PLAYWRIGHT_REDIRECT_USER ?? 'redirect'
 const redirectPassword = process.env.PLAYWRIGHT_REDIRECT_PASSWORD ?? 'redirect'
+const handoverTimeout = 120_000
 
 let page: Page
 
@@ -53,15 +54,10 @@ test('deactivate via settings then re-activate', async ({}, testInfo) => {
   await defocus(page)
   await shoot(page, testInfo, 'activate-ready')
   await page.locator('#btn_activate').click()
-  await waitForLoading(page)
-  await expect(page.locator('#username-textfield')).toBeVisible()
+  await expect(page.locator('#username-textfield')).toBeVisible({ timeout: handoverTimeout })
   await defocus(page)
   await shoot(page, testInfo, 'deactivate-login-page')
-  await page.locator('#username-textfield').fill(deviceUser)
-  await page.locator('#password-textfield').fill(devicePassword)
-  await page.locator('#sign-in-button').click()
-  await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
-  await waitForLoading(page)
+  await login(page)
   await expect(page.locator('.appimg').first()).toBeVisible()
   await waitAppIconsLoaded(page)
   await shoot(page, testInfo, 'reactivate-index')

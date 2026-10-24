@@ -220,6 +220,7 @@ func (b *Backup) Create(app string) error {
 
 	err = createTarGz(file, tempDir)
 	if err != nil {
+		_ = os.Remove(file)
 		return err
 	}
 
@@ -438,7 +439,14 @@ func createTarGz(outputFile, sourceDir string) error {
 		if rel == "." {
 			return nil
 		}
-		header, err := tar.FileInfoHeader(info, "")
+		link := ""
+		if info.Mode()&os.ModeSymlink != 0 {
+			link, err = os.Readlink(path)
+			if err != nil {
+				return err
+			}
+		}
+		header, err := tar.FileInfoHeader(info, link)
 		if err != nil {
 			return err
 		}
@@ -450,7 +458,7 @@ func createTarGz(outputFile, sourceDir string) error {
 		if err := tw.WriteHeader(header); err != nil {
 			return err
 		}
-		if info.IsDir() {
+		if !info.Mode().IsRegular() {
 			return nil
 		}
 		file, err := os.Open(path)
@@ -507,6 +515,14 @@ func extractTarGz(archiveFile, destDir string) error {
 			}
 			file.Close()
 			os.Chown(target, header.Uid, header.Gid)
+		case tar.TypeSymlink:
+			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
+				return err
+			}
+			if err := os.Symlink(header.Linkname, target); err != nil {
+				return err
+			}
+			os.Lchown(target, header.Uid, header.Gid)
 		}
 	}
 	return nil

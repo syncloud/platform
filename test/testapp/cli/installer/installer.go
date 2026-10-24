@@ -86,9 +86,36 @@ func UpdateConfigs() error {
 		return err
 	}
 
+	err = createSnapUserLinks()
+	if err != nil {
+		return err
+	}
+
 	err = linux.Chown(DataDir, App)
 	if err != nil {
 		return err
 	}
 	return linux.Chown(CommonDir, App)
+}
+
+func createSnapUserLinks() error {
+	revision := os.Getenv("SNAP_REVISION")
+	snapUserDir := path.Join(CommonDir, App, "snap", App)
+	err := os.MkdirAll(path.Join(snapUserDir, revision), 0755)
+	if err != nil {
+		return err
+	}
+	err = replaceSymlink(revision, path.Join(snapUserDir, "current"))
+	if err != nil {
+		return err
+	}
+	return replaceSymlink("missing", path.Join(CommonDir, "dangling"))
+}
+
+func replaceSymlink(target, link string) error {
+	err := os.Remove(link)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return os.Symlink(target, link)
 }
