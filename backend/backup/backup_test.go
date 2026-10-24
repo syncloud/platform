@@ -304,3 +304,43 @@ func TestTarGz_Symlinks(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "missing", link)
 }
+
+func TestBackup_Restore_RefusesArchiveWithoutCurrent(t *testing.T) {
+	backupDir := t.TempDir()
+	varDir := t.TempDir()
+	appDir := filepath.Join(varDir, "test-app")
+	versionDir := filepath.Join(appDir, "x1")
+	assert.NoError(t, os.MkdirAll(versionDir, 0750))
+	assert.NoError(t, os.Symlink("x1", filepath.Join(appDir, "current")))
+	commonDir := filepath.Join(appDir, "common")
+	assert.NoError(t, os.Mkdir(commonDir, 0750))
+	liveCurrentFile := filepath.Join(versionDir, "config.php")
+	assert.NoError(t, os.WriteFile(liveCurrentFile, []byte("live"), 0644))
+	liveCommonFile := filepath.Join(commonDir, "common.file")
+	assert.NoError(t, os.WriteFile(liveCommonFile, []byte("live"), 0644))
+
+	sourceDir := t.TempDir()
+	assert.NoError(t, os.MkdirAll(filepath.Join(sourceDir, "common", "log"), 0755))
+	assert.NoError(t, createTarGz(filepath.Join(backupDir, "test-app-2026-1021-203240.tar.gz"), sourceDir))
+
+	backup := New(
+		backupDir,
+		varDir,
+		cli.New(log.Default()),
+		&DiskUsageStub{100},
+		&SnapServiceStub{versionDir: versionDir},
+		&SnapInfoStub{},
+		&UserConfigStub{},
+		&ProviderStub{},
+		log.Default())
+
+	err := backup.Restore("test-app-2026-1021-203240.tar.gz")
+	assert.ErrorContains(t, err, "incomplete")
+
+	content, err := os.ReadFile(liveCurrentFile)
+	assert.NoError(t, err)
+	assert.Equal(t, "live", string(content))
+	content, err = os.ReadFile(liveCommonFile)
+	assert.NoError(t, err)
+	assert.Equal(t, "live", string(content))
+}
