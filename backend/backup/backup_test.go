@@ -276,3 +276,31 @@ func TestBackup_Auto(t *testing.T) {
 	assert.Equal(t, 1, auto.Day)
 	assert.Equal(t, 2, auto.Hour)
 }
+
+func TestTarGz_Symlinks(t *testing.T) {
+	sourceDir := t.TempDir()
+	snapDir := filepath.Join(sourceDir, "common", "app", "snap", "app")
+	assert.NoError(t, os.MkdirAll(filepath.Join(snapDir, "227"), 0755))
+	assert.NoError(t, os.Symlink("227", filepath.Join(snapDir, "current")))
+	assert.NoError(t, os.Symlink("missing", filepath.Join(sourceDir, "common", "dangling")))
+	assert.NoError(t, os.MkdirAll(filepath.Join(sourceDir, "current"), 0755))
+	assert.NoError(t, os.WriteFile(filepath.Join(sourceDir, "current", "db.sqlite3"), []byte("vault"), 0644))
+
+	archive := filepath.Join(t.TempDir(), "app.tar.gz")
+	assert.NoError(t, createTarGz(archive, sourceDir))
+
+	destDir := t.TempDir()
+	assert.NoError(t, extractTarGz(archive, destDir))
+
+	content, err := os.ReadFile(filepath.Join(destDir, "current", "db.sqlite3"))
+	assert.NoError(t, err)
+	assert.Equal(t, "vault", string(content))
+
+	link, err := os.Readlink(filepath.Join(destDir, "common", "app", "snap", "app", "current"))
+	assert.NoError(t, err)
+	assert.Equal(t, "227", link)
+
+	link, err = os.Readlink(filepath.Join(destDir, "common", "dangling"))
+	assert.NoError(t, err)
+	assert.Equal(t, "missing", link)
+}
