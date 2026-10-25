@@ -278,7 +278,14 @@ func (b *Backup) Restore(fileName string) error {
 
 	err = extractTarGz(file.FullName, tempDir)
 	if err != nil {
+		_ = os.RemoveAll(tempDir)
 		return err
+	}
+
+	err = checkExtracted(tempDir)
+	if err != nil {
+		_ = os.RemoveAll(tempDir)
+		return fmt.Errorf("backup %s is incomplete, nothing was changed: %w", file.File, err)
 	}
 
 	snap, err := b.snapServer.FindInstalled(file.App)
@@ -362,6 +369,19 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
+	return nil
+}
+
+func checkExtracted(dir string) error {
+	for _, name := range []string{"current", "common"} {
+		info, err := os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			return fmt.Errorf("%s is not a directory", name)
+		}
+	}
 	return nil
 }
 
@@ -485,6 +505,7 @@ func extractTarGz(archiveFile, destDir string) error {
 	defer gr.Close()
 
 	tr := tar.NewReader(gr)
+	owners := newOwnerMap()
 	for {
 		header, err := tr.Next()
 		if err == io.EOF {
@@ -494,12 +515,13 @@ func extractTarGz(archiveFile, destDir string) error {
 			return err
 		}
 		target := filepath.Join(destDir, header.Name)
+		uid, gid := owners.Resolve(header)
 		switch header.Typeflag {
 		case tar.TypeDir:
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return err
 			}
-			os.Chown(target, header.Uid, header.Gid)
+			os.Chown(target, uid, gid)
 		case tar.TypeReg:
 			dir := filepath.Dir(target)
 			if err := os.MkdirAll(dir, 0755); err != nil {
@@ -514,7 +536,7 @@ func extractTarGz(archiveFile, destDir string) error {
 				return err
 			}
 			file.Close()
-			os.Chown(target, header.Uid, header.Gid)
+			os.Chown(target, uid, gid)
 		case tar.TypeSymlink:
 			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return err
@@ -522,7 +544,7 @@ func extractTarGz(archiveFile, destDir string) error {
 			if err := os.Symlink(header.Linkname, target); err != nil {
 				return err
 			}
-			os.Lchown(target, header.Uid, header.Gid)
+			os.Lchown(target, uid, gid)
 		}
 	}
 	return nil
