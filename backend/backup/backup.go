@@ -278,7 +278,14 @@ func (b *Backup) Restore(fileName string) error {
 
 	err = extractTarGz(file.FullName, tempDir)
 	if err != nil {
+		_ = os.RemoveAll(tempDir)
 		return err
+	}
+
+	err = checkExtracted(tempDir)
+	if err != nil {
+		_ = os.RemoveAll(tempDir)
+		return fmt.Errorf("backup %s is incomplete, nothing was changed: %w", file.File, err)
 	}
 
 	snap, err := b.snapServer.FindInstalled(file.App)
@@ -362,6 +369,19 @@ func (b *Backup) Restore(fileName string) error {
 		return err
 	}
 
+	return nil
+}
+
+func checkExtracted(dir string) error {
+	for _, name := range []string{"current", "common"} {
+		info, err := os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			return fmt.Errorf("%s is not a directory", name)
+		}
+	}
 	return nil
 }
 
