@@ -1,6 +1,6 @@
 local name = 'platform';
 local playwright = 'v1.49.1-jammy';
-local go = '1.25.8';
+local go = '1.27.3';
 local node = '22.16.0';
 local publisher_image = 'syncloud/store-publisher:stable-346';
 local authelia = '4.39.15';

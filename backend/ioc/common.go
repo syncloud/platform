@@ -321,8 +321,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(executor *cli.ShellExecutor, dateProvider *date.RealProvider) *cron.TimeSyncJob {
-		return cron.NewTimeSyncJob(executor, dateProvider, logger)
+	err = c.Singleton(func(dateProvider *date.RealProvider) *cron.TimeSyncJob {
+		return cron.NewTimeSyncJob(cron.NewNtpTimeSource(5*time.Second), cron.NewSystemClock(), cron.TimeSyncServers, dateProvider, logger)
 	})
 	if err != nil {
 		return nil, err

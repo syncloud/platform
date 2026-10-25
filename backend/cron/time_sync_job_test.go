@@ -1,53 +1,53 @@
 package cron
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/syncloud/platform/log"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syncloud/platform/log"
 )
 
-type ExecutorStub struct {
-	called int
+var syncNow = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+
+func newTimeSyncJob(offsets map[string]time.Duration) (*TimeSyncJob, *TimeSourceStub, *ClockStub) {
+	source := &TimeSourceStub{offsets: offsets}
+	clock := &ClockStub{}
+	job := NewTimeSyncJob(source, clock, []string{"a", "b", "c"}, &DateProviderStub{now: syncNow}, log.Default())
+	return job, source, clock
 }
 
-func (e *ExecutorStub) CombinedOutput(_ string, _ ...string) ([]byte, error) {
-	e.called++
-	return []byte("test output"), nil
+func TestTimeSyncJob_LeavesSmallDriftToNtpd(t *testing.T) {
+	job, source, clock := newTimeSyncJob(map[string]time.Duration{"a": 30 * time.Second})
+	assert.NoError(t, job.Run())
+	assert.Equal(t, []string{"a"}, source.asked)
+	assert.Empty(t, clock.set)
 }
 
-type DateProviderStub struct {
-	now time.Time
+func TestTimeSyncJob_SetsClockWhenFarOff(t *testing.T) {
+	offset := 56 * 365 * 24 * time.Hour
+	job, _, clock := newTimeSyncJob(map[string]time.Duration{"a": offset})
+	assert.NoError(t, job.Run())
+	assert.Equal(t, []time.Time{syncNow.Add(offset)}, clock.set)
 }
 
-func (d *DateProviderStub) Now() time.Time {
-	return d.now
+func TestTimeSyncJob_SetsClockWhenAhead(t *testing.T) {
+	job, _, clock := newTimeSyncJob(map[string]time.Duration{"a": -2 * time.Hour})
+	assert.NoError(t, job.Run())
+	assert.Equal(t, []time.Time{syncNow.Add(-2 * time.Hour)}, clock.set)
 }
 
-func TestTimeSyncJob_RunOnce_24h(t *testing.T) {
-	executor := &ExecutorStub{}
-	date := &DateProviderStub{}
-	job := NewTimeSyncJob(executor, date, log.Default())
-	date.now = time.Now()
+func TestTimeSyncJob_TriesNextServer(t *testing.T) {
+	job, source, clock := newTimeSyncJob(map[string]time.Duration{"c": time.Hour})
+	assert.NoError(t, job.Run())
+	assert.Equal(t, []string{"a", "b", "c"}, source.asked)
+	assert.Equal(t, []time.Time{syncNow.Add(time.Hour)}, clock.set)
+}
+
+func TestTimeSyncJob_FailsWhenNoServerAnswers(t *testing.T) {
+	job, _, clock := newTimeSyncJob(map[string]time.Duration{})
 	err := job.Run()
-	assert.NoError(t, err)
-	date.now = date.now.Add(time.Hour * 24)
-	err = job.Run()
-	err = job.Run()
-	assert.NoError(t, err)
-	assert.Equal(t, 3, executor.called)
-}
-
-func TestTimeSyncJob_RunTwice_48h(t *testing.T) {
-	executor := &ExecutorStub{}
-	date := &DateProviderStub{}
-	job := NewTimeSyncJob(executor, date, log.Default())
-	date.now = time.Now()
-	err := job.Run()
-	assert.NoError(t, err)
-	date.now = date.now.Add(time.Hour * 48)
-	err = job.Run()
-	err = job.Run()
-	assert.NoError(t, err)
-	assert.Equal(t, 6, executor.called)
+	assert.ErrorContains(t, err, "a: i/o timeout")
+	assert.ErrorContains(t, err, "c: i/o timeout")
+	assert.Empty(t, clock.set)
 }

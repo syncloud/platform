@@ -1,46 +1,58 @@
 package cron
 
 import (
-	"github.com/syncloud/platform/cli"
+	"errors"
+	"fmt"
+	"time"
+
 	"github.com/syncloud/platform/date"
 	"go.uber.org/zap"
-	"time"
 )
 
+const TimeSyncMaxOffset = time.Minute
+
+var TimeSyncServers = []string{"0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"}
+
+type TimeSource interface {
+	Offset(server string) (time.Duration, error)
+}
+
+type Clock interface {
+	Set(now time.Time) error
+}
+
 type TimeSyncJob struct {
-	executor     cli.Executor
-	lastRun      time.Time
+	source       TimeSource
+	clock        Clock
+	servers      []string
 	dateProvider date.Provider
 	logger       *zap.Logger
 }
 
-func NewTimeSyncJob(executor cli.Executor, dateProvider date.Provider, logger *zap.Logger) *TimeSyncJob {
+func NewTimeSyncJob(source TimeSource, clock Clock, servers []string, dateProvider date.Provider, logger *zap.Logger) *TimeSyncJob {
 	return &TimeSyncJob{
-		executor:     executor,
+		source:       source,
+		clock:        clock,
+		servers:      servers,
 		dateProvider: dateProvider,
 		logger:       logger,
 	}
 }
 
 func (t *TimeSyncJob) Run() error {
-	now := t.dateProvider.Now()
-	if t.lastRun.Add(time.Hour * 24).Before(now) {
-		output, err := t.executor.CombinedOutput("service", "ntp", "stop")
-		t.logger.Info(string(output))
+	var errs []error
+	for _, server := range t.servers {
+		offset, err := t.source.Offset(server)
 		if err != nil {
-			return err
+			errs = append(errs, fmt.Errorf("%s: %w", server, err))
+			continue
 		}
-		output, err = t.executor.CombinedOutput("ntpd", "-gq")
-		t.logger.Info(string(output))
-		if err != nil {
-			return err
+		if offset.Abs() <= TimeSyncMaxOffset {
+			return nil
 		}
-		output, err = t.executor.CombinedOutput("service", "ntp", "start")
-		t.logger.Info(string(output))
-		if err != nil {
-			return err
-		}
-		t.lastRun = now
+		now := t.dateProvider.Now().Add(offset)
+		t.logger.Info("setting system clock", zap.String("server", server), zap.Duration("offset", offset), zap.Time("time", now))
+		return t.clock.Set(now)
 	}
-	return nil
+	return fmt.Errorf("time sync failed: %w", errors.Join(errs...))
 }
