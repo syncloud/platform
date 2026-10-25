@@ -1,6 +1,8 @@
 package backup
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"fmt"
 	"net"
 	"os"
@@ -343,4 +345,48 @@ func TestBackup_Restore_RefusesArchiveWithoutCurrent(t *testing.T) {
 	content, err = os.ReadFile(liveCommonFile)
 	assert.NoError(t, err)
 	assert.Equal(t, "live", string(content))
+}
+
+func TestTarGz_RestoresOwnersByName(t *testing.T) {
+	app := "test-app"
+	assert.NoError(t, linux.CreateUser(app))
+	appUser, err := user.Lookup(app)
+	assert.NoError(t, err)
+
+	archive := filepath.Join(t.TempDir(), "app.tar.gz")
+	f, err := os.Create(archive)
+	assert.NoError(t, err)
+	gw := gzip.NewWriter(f)
+	tw := tar.NewWriter(gw)
+	file := func(name, uname string, uid int) {
+		assert.NoError(t, tw.WriteHeader(&tar.Header{Name: name, Typeflag: tar.TypeReg, Mode: 0644, Size: 4, Uid: uid, Gid: uid, Uname: uname, Gname: uname}))
+		_, err := tw.Write([]byte("data"))
+		assert.NoError(t, err)
+	}
+	file("./current/db.sqlite3", app, 4242)
+	file("./current/box/inbox", "root", 4243)
+	file("./current/orphan", "no-such-user-on-this-device", 4244)
+	assert.NoError(t, tw.WriteHeader(&tar.Header{Name: "./common/link", Typeflag: tar.TypeSymlink, Linkname: "missing", Uid: 4242, Gid: 4242, Uname: app, Gname: app}))
+	assert.NoError(t, tw.Close())
+	assert.NoError(t, gw.Close())
+	assert.NoError(t, f.Close())
+
+	destDir := t.TempDir()
+	assert.NoError(t, extractTarGz(archive, destDir))
+
+	owner, err := getOwner(filepath.Join(destDir, "current", "db.sqlite3"))
+	assert.NoError(t, err)
+	assert.Equal(t, app, owner)
+
+	owner, err = getOwner(filepath.Join(destDir, "current", "box", "inbox"))
+	assert.NoError(t, err)
+	assert.Equal(t, "root", owner)
+
+	info, err := os.Stat(filepath.Join(destDir, "current", "orphan"))
+	assert.NoError(t, err)
+	assert.Equal(t, uint32(4244), info.Sys().(*syscall.Stat_t).Uid)
+
+	info, err = os.Lstat(filepath.Join(destDir, "common", "link"))
+	assert.NoError(t, err)
+	assert.Equal(t, appUser.Uid, fmt.Sprint(info.Sys().(*syscall.Stat_t).Uid))
 }
