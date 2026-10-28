@@ -5,6 +5,7 @@ import ssl
 import time
 from os.path import dirname, join
 from subprocess import check_output
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 import requests
@@ -506,6 +507,27 @@ def test_testapp_oidc_without_browser(full_domain, device_user, device_password)
     assert response.status_code == 200, "{0}: {1}".format(response.status_code, response.text)
     assert response.text.startswith('OK {0} email='.format(device_user)), response.text
     assert response.text.endswith('groups=syncloud'), response.text
+
+
+def test_testapp_oidc_refresh_token(full_domain, device_user, device_password):
+    session = requests.session()
+    response = session.post(
+        'https://auth.{0}/api/firstfactor'.format(full_domain),
+        json={'username': device_user, 'password': device_password},
+        verify=False)
+    assert response.status_code == 200, response.text
+    response = session.get('https://testapp.{0}/oidc/login?offline=true'.format(full_domain), verify=False)
+    assert '/consent/openid/decision' in response.url, response.url
+    flow_id = parse_qs(urlparse(response.url).query)['flow_id'][0]
+    response = session.post(
+        'https://auth.{0}/api/oidc/consent'.format(full_domain),
+        json={'flow_id': flow_id, 'client_id': 'testapp', 'consent': True, 'pre_configure': False, 'claims': []},
+        verify=False)
+    assert response.status_code == 200, response.text
+    response = session.get(response.json()['data']['redirect_uri'], verify=False)
+    assert response.status_code == 200, "{0}: {1}".format(response.status_code, response.text)
+    assert response.text.startswith('OK {0} email='.format(device_user)), response.text
+    assert response.text.endswith('refreshed=true'), response.text
 
 
 def wait_for_testapp_issuer(full_domain, issuer):

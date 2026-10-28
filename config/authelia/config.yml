@@ -835,8 +835,10 @@ identity_providers:
           - 'email'
           - 'profile'
           - 'groups'
+          - 'offline_access'
         grant_types:
           - authorization_code
+          - refresh_token
         response_types:
           - code
         response_modes:

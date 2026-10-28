@@ -76,12 +76,16 @@ func main() {
 		challenge := generateCodeChallenge(verifier)
 		redirectURI := appUrl + "/oidc/callback"
 		authEndpoint := authUrl + "/api/oidc/authorization"
+		scope := "openid profile email groups"
+		if r.URL.Query().Get("offline") == "true" {
+			scope += " offline_access"
+		}
 
 		params := url.Values{
 			"client_id":             {"testapp"},
 			"response_type":         {"code"},
 			"redirect_uri":          {redirectURI},
-			"scope":                 {"openid profile email groups"},
+			"scope":                 {scope},
 			"state":                 {state},
 			"code_challenge":        {challenge},
 			"code_challenge_method": {"S256"},
@@ -160,9 +164,7 @@ func main() {
 			return
 		}
 
-		var tokenResp struct {
-			IDToken string `json:"id_token"`
-		}
+		var tokenResp tokenResponse
 		json.Unmarshal(body, &tokenResp)
 
 		claims, err := extractClaims(tokenResp.IDToken)
@@ -171,8 +173,17 @@ func main() {
 			return
 		}
 
+		refreshed := ""
+		if tokenResp.RefreshToken != "" {
+			if err := refreshTokens(authUrl, clientSecret, tokenResp.RefreshToken); err != nil {
+				http.Error(w, fmt.Sprintf("refresh: %v", err), http.StatusInternalServerError)
+				return
+			}
+			refreshed = " refreshed=true"
+		}
+
 		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "OK %s email=%s groups=%s", claims.PreferredUsername, claims.Email, strings.Join(claims.Groups, ","))
+		fmt.Fprintf(w, "OK %s email=%s groups=%s%s", claims.PreferredUsername, claims.Email, strings.Join(claims.Groups, ","), refreshed)
 	})
 
 	uploads := &upload{}
@@ -206,6 +217,36 @@ func extractClaims(idToken string) (idTokenClaims, error) {
 		claims.PreferredUsername = claims.Subject
 	}
 	return claims, nil
+}
+
+func refreshTokens(authUrl, clientSecret, refreshToken string) error {
+	data := url.Values{
+		"grant_type":    {"refresh_token"},
+		"refresh_token": {refreshToken},
+	}
+	req, _ := http.NewRequest("POST", authUrl+"/api/oidc/token", strings.NewReader(data.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.SetBasicAuth("testapp", clientSecret)
+	resp, err := newHTTPClient().Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("token endpoint error %d: %s", resp.StatusCode, string(body))
+	}
+	var refreshed tokenResponse
+	if err := json.Unmarshal(body, &refreshed); err != nil {
+		return err
+	}
+	if refreshed.AccessToken == "" {
+		return fmt.Errorf("no access token in refresh response")
+	}
+	if refreshed.RefreshToken == "" || refreshed.RefreshToken == refreshToken {
+		return fmt.Errorf("refresh token was not rotated")
+	}
+	return nil
 }
 
 func randomString(length int) (string, error) {
