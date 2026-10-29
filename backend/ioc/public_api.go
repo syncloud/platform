@@ -60,6 +60,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		return nil, err
 	}
 	err = c.Singleton(func(
+		startupTimeSync *cron.StartupTimeSync,
 		cronService *cron.Cron,
 		backupService *backup.Backup,
 		cookies *session.Cookies,
@@ -67,6 +68,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		lcdDisplay *lcd.Display,
 	) []Service {
 		return []Service{
+			startupTimeSync,
 			cronService,
 			backupService,
 			cookies,
