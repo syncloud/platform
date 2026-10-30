@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/syncloud/platform/caddy"
 	"github.com/syncloud/platform/cert"
 )
 
@@ -16,8 +17,11 @@ func certCmd(userConfig *string, systemConfig *string) *cobra.Command {
 				return err
 			}
 			if fake {
-				return c.Call(func(fakeGenerator *cert.Fake) error {
-					return fakeGenerator.Generate()
+				return c.Call(func(fakeGenerator *cert.Fake, proxy *caddy.Caddy) error {
+					if err := fakeGenerator.Generate(); err != nil {
+						return err
+					}
+					return proxy.ReloadPublic()
 				})
 			}
 			return c.Call(func(certGenerator *cert.CertificateGenerator) error {

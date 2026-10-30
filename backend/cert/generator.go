@@ -31,7 +31,7 @@ type CertificateGenerator struct {
 	certbot      CertbotGenerator
 	fake         FakeGenerator
 	dateProvider date.Provider
-	nginx        GeneratorNginx
+	proxy        GeneratorProxy
 	trigger      Trigger
 	logger       *zap.Logger
 }
@@ -48,7 +48,7 @@ type GeneratorUserConfig interface {
 	GetDeviceDomain() string
 }
 
-type GeneratorNginx interface {
+type GeneratorProxy interface {
 	ReloadPublic() error
 }
 
@@ -58,7 +58,7 @@ func New(
 	dateProvider date.Provider,
 	certbot CertbotGenerator,
 	fake FakeGenerator,
-	nginx GeneratorNginx,
+	proxy GeneratorProxy,
 	trigger Trigger,
 	logger *zap.Logger,
 ) *CertificateGenerator {
@@ -68,7 +68,7 @@ func New(
 		certbot:      certbot,
 		fake:         fake,
 		dateProvider: dateProvider,
-		nginx:        nginx,
+		proxy:        proxy,
 		trigger:      trigger,
 		logger:       logger,
 	}
@@ -92,7 +92,7 @@ func (g *CertificateGenerator) Generate() error {
 		return err
 	}
 	if generated {
-		err = g.nginx.ReloadPublic()
+		err = g.proxy.ReloadPublic()
 		if err != nil {
 			return err
 		}
@@ -122,7 +122,7 @@ func (g *CertificateGenerator) generateReal() error {
 		return err
 	}
 
-	err = g.nginx.ReloadPublic()
+	err = g.proxy.ReloadPublic()
 	if err != nil {
 		return err
 	}

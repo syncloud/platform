@@ -1,0 +1,153 @@
+{
+	admin unix//var/snap/platform/current/caddy-admin.sock
+	auto_https off
+	persist_config off
+	storage file_system /var/snap/platform/current/caddy
+	default_sni example.com
+	servers {
+		protocols h1 h2
+		trusted_proxies_unix
+	}
+	servers :443 {
+		protocols h1 h2
+		listener_wrappers {
+			layer4 {
+				@stream syncloud_stream example.com
+				route @stream {
+					tls {
+						connection_policy {
+							alpn http/1.1
+						}
+					}
+					proxy {
+						proxy_protocol v1
+						upstream unix//var/snap/{l4.syncloud.app}/common/stream.socket
+					}
+				}
+			}
+			tls
+		}
+	}
+}
+
+(access_log) {
+	@static path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.ttf *.eot *.txt
+	log_skip @static
+	log
+}
+
+(cert) {
+	tls /var/snap/platform/current/syncloud.crt /var/snap/platform/current/syncloud.key
+}
+
+(spa) {
+	@directory {
+		file {
+			root {args[0]}
+			try_files {path}/
+		}
+		not path */
+	}
+	redir @directory {path}/ 301
+	handle /assets/* {
+		header Cache-Control "public, max-age=31536000, immutable"
+		root * {args[0]}
+		file_server
+	}
+	handle {
+		root * {args[0]}
+		try_files {args[1:]}
+		file_server
+	}
+}
+
+(device) {
+	header {
+		Access-Control-Allow-Origin *
+		Cache-Control no-cache
+	}
+	handle /rest* {
+		reverse_proxy unix//var/snap/platform/current/backend.sock
+	}
+	handle /ping {
+		respond "OK" 200
+	}
+	import spa /snap/platform/current/web/platform {path} {path}/ /index.html
+}
+
+https://example.com {
+	import cert
+	import access_log
+	header Strict-Transport-Security "max-age=31536000; includeSubdomains"
+	import device
+}
+
+https://auth.example.com {
+	import cert
+	import access_log
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubdomains"
+		Access-Control-Allow-Origin *
+		Cache-Control no-cache
+	}
+	handle /api/authz/* {
+		reverse_proxy unix//var/snap/platform/current/authelia-internal.socket
+	}
+	@authelia path /api/* /.well-known/* /oauth2/* /jwks.json
+	handle @authelia {
+		reverse_proxy unix//var/snap/platform/current/authelia-internal.socket {
+			header_up X-Original-URL https://{host}{uri}
+			header_up X-Forwarded-Uri {uri}
+			header_up X-Forwarded-Ssl on
+		}
+	}
+	handle /login/* {
+		reverse_proxy unix//var/snap/platform/current/login.sock
+	}
+	import spa /snap/platform/current/web/login {path} /index.html
+}
+
+https:// {
+	import cert
+	header Strict-Transport-Security "max-age=31536000; includeSubdomains"
+	map {host} {app} {
+		~^(?:.*\.)?([^.]+)\.example\.com$ "${1}"
+		default -
+	}
+	@device expression `{app} == "-"`
+	handle @device {
+		import device
+	}
+	@installed file {
+		root /var/snap
+		try_files /{app}/common/
+	}
+	handle @installed {
+		reverse_proxy unix//var/snap/{app}/common/web.socket {
+			header_up X-Real-IP {remote_host}
+		}
+	}
+	import /var/snap/platform/current/custom-proxy.caddy
+	handle {
+		error 502
+	}
+	handle_errors 502 {
+		root * /snap/platform/current/config/errors
+		rewrite * /502.html
+		file_server
+	}
+}
+
+http:// {
+	bind unix//var/snap/platform/current/authelia.socket|0777
+	handle /api/authz/* {
+		reverse_proxy unix//var/snap/platform/current/authelia-internal.socket
+	}
+	handle {
+		reverse_proxy unix//var/snap/platform/current/authelia-internal.socket {
+			header_up Host auth.example.com
+			header_up X-Forwarded-Host auth.example.com
+			header_up X-Forwarded-Proto https
+		}
+	}
+}
