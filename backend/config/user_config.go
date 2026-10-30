@@ -235,7 +235,7 @@ func (c *UserConfig) DeviceUrl() string {
 
 func ConstructUrl(port *int, domain string) string {
 	externalPort := ""
-	if port != nil && *port != 80 && *port != 443 {
+	if port != nil && *port > 0 && *port != 80 && *port != 443 {
 		externalPort = fmt.Sprintf(":%d", *port)
 	}
 	return fmt.Sprintf("https://%s%s", domain, externalPort)

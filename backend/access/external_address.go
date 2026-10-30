@@ -91,6 +91,10 @@ func (a *ExternalAddress) Update(request model.Access) (*string, error) {
 	a.logger.Info(fmt.Sprintf("update relay: %v, ipv4 enabled: %v, ipv4 public: %v, ipv6 enabled: %v",
 		request.RelayEnabled, request.Ipv4Enabled, request.Ipv4Public, request.Ipv6Enabled))
 
+	if request.AccessPort != nil && (*request.AccessPort < 1 || *request.AccessPort > 65535) {
+		return nil, fmt.Errorf("access port %d is out of range 1-65535", *request.AccessPort)
+	}
+
 	a.userConfig.SetRelayEnabled(request.RelayEnabled)
 
 	if err := a.relay.Apply(request.RelayEnabled); err != nil {

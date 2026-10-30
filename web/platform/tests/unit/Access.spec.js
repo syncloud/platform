@@ -241,6 +241,19 @@ test('public empty ip shows error', async () => {
   wrapper.unmount()
 })
 
+test('local out of range access port shows error', async () => {
+  const { reply } = captured()
+  const { wrapper, showError, mock } = mountAccess({ ipv4_enabled: false }, reply)
+  await flushPromises()
+  await selectMode(wrapper, 'local')
+  await wrapper.find('#access_port').setValue(0)
+  await wrapper.find('#btn_save').trigger('click')
+  await flushPromises()
+  expect(showError).toHaveBeenCalledTimes(1)
+  expect(mock.history.post.length).toBe(0)
+  wrapper.unmount()
+})
+
 test('save http error shows error', async () => {
   const showError = jest.fn()
   const mock = new MockAdapter(axios)

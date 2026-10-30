@@ -264,6 +264,16 @@ func TestExternalAddress_Ipv4Private_NoProbe(t *testing.T) {
 	assert.Equal(t, 0, len(probe.probed))
 }
 
+func TestExternalAddress_AccessPortOutOfRange_Rejected(t *testing.T) {
+	for _, port := range []int{0, -1, 65536} {
+		config := &ExternalAddressUserConfigStub{}
+		redirect := &RedirectStub{}
+		access := New(NewPoptProbeStub(), config, redirect, &RelayStub{}, &TriggerStub{}, &NginxStub{}, &NetworkInfoStub{}, log.Default())
+		_, err := access.Update(model.Access{Ipv4Enabled: true, AccessPort: &port})
+		assert.ErrorContains(t, err, fmt.Sprintf("access port %d", port))
+	}
+}
+
 func TestExternalAddress_UpdateAppliesTheTunnelAgainAfterTheAddressUpdate(t *testing.T) {
 	relay := &RelayStub{}
 	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, relay,

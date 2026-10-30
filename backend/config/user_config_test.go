@@ -74,6 +74,15 @@ func TestDeviceUrl_StandardPort(t *testing.T) {
 	assert.Equal(t, "https://app1.domain.tld", url)
 }
 
+func TestDeviceUrl_ZeroPort(t *testing.T) {
+	config, _ := newTestUserConfig(t)
+	config.SetCustomDomain("domain.tld")
+	port := 0
+	config.SetPublicPort(&port)
+	assert.Equal(t, "https://app1.domain.tld", config.Url("app1"))
+	assert.Equal(t, "https://domain.tld", config.DeviceUrl())
+}
+
 func TestDeviceUrl_NonStandardPort(t *testing.T) {
 	config, _ := newTestUserConfig(t)
 	config.SetCustomDomain("domain.tld")

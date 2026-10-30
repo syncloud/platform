@@ -32,7 +32,7 @@
     </div>
   </div>
 
-  <Error ref="error"/>
+  <Error ref="error" :enable-logs="false"/>
 
 </template>
 

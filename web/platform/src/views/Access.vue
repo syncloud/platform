@@ -280,11 +280,11 @@ export default {
         ipv4_public: mode === 'public',
         ipv6_enabled: this.ipv6Enabled
       }
+      if (!isValidPort(this.accessPort)) {
+        this.$refs.error.showAxios(error(this.$t('access.errorPortRange', { port: this.accessPort })))
+        return
+      }
       if (mode === 'public') {
-        if (!isValidPort(this.accessPort)) {
-          this.$refs.error.showAxios(error(this.$t('access.errorPortRange', { port: this.accessPort })))
-          return
-        }
         if (!this.ipAutoDetect) {
           if (this.ipv4.trim() === '') {
             this.$refs.error.showAxios(error(this.$t('access.errorEmptyIp')))

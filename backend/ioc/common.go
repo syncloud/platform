@@ -327,6 +327,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func(timeSync *cron.TimeSyncJob) *cron.StartupTimeSync {
+		return cron.NewStartupTimeSync(timeSync, time.Minute, 5*time.Second, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
 	err = c.Singleton(func(snapd *snap.Server, client *retryablehttp.Client) *snap.Snapd {
 		return snap.NewSnapd(snapd, client, logger)
 	})
