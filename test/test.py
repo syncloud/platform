@@ -593,6 +593,22 @@ def test_api_url_443(device, domain):
     assert response.status_code == 200
 
 
+def test_api_access_port_0(device, domain, full_domain):
+    try:
+        response = device.login_v2().post('https://{0}/rest/access'.format(domain), verify=False,
+                                       json={'ipv4_enabled': True,
+                                             'ipv4_public': False,
+                                             'access_port': 0})
+        assert not json.loads(response.text)["success"], response.text
+        response = device.login_v2().get('https://{0}/rest/device/url'.format(domain), verify=False)
+        assert json.loads(response.text)["data"] == 'https://{}'.format(full_domain), response.text
+    finally:
+        device.login_v2().post('https://{0}/rest/access'.format(domain), verify=False,
+                            json={'ipv4_enabled': False,
+                                  'ipv4_public': False,
+                                  'access_port': 443})
+
+
 def test_api_url_10000(device, domain, full_domain):
     response = device.login_v2().post('https://{0}/rest/access'.format(domain), verify=False,
                                    json={'ipv4_enabled': False,
