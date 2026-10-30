@@ -10,3 +10,5 @@ CGO_ENABLED=0 go build -o "${BUILD}/meta/hooks/install" ./cmd/install
 CGO_ENABLED=0 go build -o "${BUILD}/meta/hooks/configure" ./cmd/configure
 CGO_ENABLED=0 go build -o "${BUILD}/bin/cli" ./cmd/cli
 CGO_ENABLED=0 go build -o "${BUILD}/bin/backend" ./cmd/backend
+mkdir -p "${DIR}/../../streamapp/build/bin"
+CGO_ENABLED=0 go build -o "${DIR}/../../streamapp/build/bin/stream" ./cmd/stream

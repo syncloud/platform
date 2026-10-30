@@ -1,0 +1,22 @@
+{{- range .Entries}}
+@custom_{{.Name}} host {{.ServerName}}
+handle @custom_{{.Name}} {
+	@loop header X-Syncloud-Custom-Proxy *
+	error @loop 502
+{{- if .Authelia}}
+	forward_auth unix//var/snap/platform/current/authelia.socket {
+		uri /api/authz/forward-auth
+		copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+	}
+{{- end}}
+	reverse_proxy {{.Scheme}}://{{.Host}}:{{.Port}} {
+		header_up X-Syncloud-Custom-Proxy 1
+		header_up X-Real-IP {remote_host}
+{{- if eq .Scheme "https"}}
+		transport http {
+			tls_insecure_skip_verify
+		}
+{{- end}}
+	}
+}
+{{- end}}

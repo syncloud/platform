@@ -19,7 +19,7 @@ type Install struct {
 	systemConfig   SystemConfig
 	certGenerator  CertificateGenerator
 	ldap           Ldap
-	nginx          Nginx
+	proxy          Proxy
 	web            auth.Web
 	systemdControl SystemdControl
 	logDir         string
@@ -49,7 +49,7 @@ func (i *Install) Configure() error {
 	return i.ldap.ApplyConfig()
 }
 
-type Nginx interface {
+type Proxy interface {
 	InitConfig() error
 	InitCustomProxyConfig() error
 }
@@ -73,7 +73,7 @@ func NewInstall(
 	systemConfig SystemConfig,
 	certGenerator CertificateGenerator,
 	ldap Ldap,
-	nginx Nginx,
+	proxy Proxy,
 	web auth.Web,
 	systemdControl SystemdControl,
 	logger *zap.Logger,
@@ -84,7 +84,7 @@ func NewInstall(
 		systemConfig:   systemConfig,
 		certGenerator:  certGenerator,
 		ldap:           ldap,
-		nginx:          nginx,
+		proxy:          proxy,
 		web:            web,
 		systemdControl: systemdControl,
 		logDir:         path.Join(CommonDir, "log"),
@@ -116,11 +116,11 @@ func (i *Install) Install() error {
 	if err != nil {
 		return err
 	}
-	err = i.nginx.InitConfig()
+	err = i.proxy.InitConfig()
 	if err != nil {
 		return err
 	}
-	err = i.nginx.InitCustomProxyConfig()
+	err = i.proxy.InitCustomProxyConfig()
 	if err != nil {
 		return err
 	}
@@ -143,12 +143,12 @@ func (i *Install) PostRefresh() error {
 		return err
 	}
 
-	err = i.nginx.InitConfig()
+	err = i.proxy.InitConfig()
 	if err != nil {
 		return err
 	}
 
-	err = i.nginx.InitCustomProxyConfig()
+	err = i.proxy.InitCustomProxyConfig()
 	if err != nil {
 		return err
 	}
@@ -211,7 +211,7 @@ func (i *Install) InitConfigs() error {
 
 	dataDirs := []string{
 		i.logDir,
-		path.Join(DataDir, "nginx"),
+		path.Join(DataDir, "caddy"),
 		path.Join(DataDir, "openldap"),
 		path.Join(DataDir, "openldap-data"),
 	}

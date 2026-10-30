@@ -8,19 +8,19 @@ import (
 	"net/http"
 )
 
-type CustomProxyNginx interface {
+type CustomProxyReloader interface {
 	ReloadCustomProxy() error
 }
 
 type CustomProxy struct {
 	config *config.CustomProxy
-	nginx  CustomProxyNginx
+	proxy  CustomProxyReloader
 }
 
-func NewCustomProxy(config *config.CustomProxy, nginx CustomProxyNginx) *CustomProxy {
+func NewCustomProxy(config *config.CustomProxy, proxy CustomProxyReloader) *CustomProxy {
 	return &CustomProxy{
 		config: config,
-		nginx:  nginx,
+		proxy:  proxy,
 	}
 }
 
@@ -50,7 +50,7 @@ func (cp *CustomProxy) Add(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return "OK", cp.nginx.ReloadCustomProxy()
+	return "OK", cp.proxy.ReloadCustomProxy()
 }
 
 type customProxyRemoveRequest struct {
@@ -71,5 +71,5 @@ func (cp *CustomProxy) Remove(req *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return "OK", cp.nginx.ReloadCustomProxy()
+	return "OK", cp.proxy.ReloadCustomProxy()
 }
