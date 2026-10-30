@@ -1,0 +1,10 @@
+
+@custom_myapp host myapp.example.com
+handle @custom_myapp {
+	@loop header X-Syncloud-Custom-Proxy *
+	error @loop 502
+	reverse_proxy http://192.168.1.10:8080 {
+		header_up X-Syncloud-Custom-Proxy 1
+		header_up X-Real-IP {remote_host}
+	}
+}

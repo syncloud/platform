@@ -8,7 +8,6 @@ cp -r ${DIR}/bin/* ${BUILD_DIR}/bin/
 cp ${DIR}/meta/snap.yaml ${BUILD_DIR}/meta/snap.yaml
 cp -r ${DIR}/config ${BUILD_DIR}
 cp -r ${DIR}/www ${BUILD_DIR}
-cp -r ${DIR}/../../build/snap/nginx ${BUILD_DIR}
 echo "architectures:" >> ${BUILD_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${BUILD_DIR}/meta/snap.yaml
 

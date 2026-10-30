@@ -7,6 +7,7 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/caddy"
 	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/config"
@@ -22,7 +23,6 @@ import (
 	"github.com/syncloud/platform/job"
 	"github.com/syncloud/platform/log"
 	"github.com/syncloud/platform/network"
-	"github.com/syncloud/platform/nginx"
 	"github.com/syncloud/platform/redirect"
 	"github.com/syncloud/platform/rest"
 	"github.com/syncloud/platform/session"
@@ -144,8 +144,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, customProxy *config.CustomProxy, control *systemd.Control) *nginx.Nginx {
-		return nginx.New(control, systemConfig, userConfig, nginx.NewProxyConfigAdapter(customProxy))
+	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, customProxy *config.CustomProxy, control *systemd.Control) *caddy.Caddy {
+		return caddy.New(control, systemConfig, userConfig, caddy.NewProxyConfigAdapter(customProxy))
 	})
 	if err != nil {
 		return nil, err
@@ -245,13 +245,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, nginxService *nginx.Nginx, eventTrigger *event.Trigger) (*cert.CertificateGenerator, error) {
+	err = c.Singleton(func(systemConfig *config.SystemConfig, userConfig *config.UserConfig, provider *date.RealProvider, certbot *cert.Certbot, fakeCert *cert.Fake, caddyService *caddy.Caddy, eventTrigger *event.Trigger) (*cert.CertificateGenerator, error) {
 		var certLogger *zap.Logger
 		err := c.NamedResolve(&certLogger, CertificateLogger)
 		if err != nil {
 			return nil, err
 		}
-		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, nginxService, eventTrigger, certLogger), nil
+		return cert.New(systemConfig, userConfig, provider, certbot, fakeCert, caddyService, eventTrigger, certLogger), nil
 	})
 	if err != nil {
 		return nil, err
@@ -276,8 +276,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, relayClient *access.RelayClient, accessChange *event.AccessChangeRunner, nginxService *nginx.Nginx, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
-		return access.New(probe, userConfig, redirectService, relayClient, accessChange, nginxService, netInfo, logger)
+	err = c.Singleton(func(probe *access.PortProbe, userConfig *config.UserConfig, redirectService *redirect.Service, relayClient *access.RelayClient, accessChange *event.AccessChangeRunner, caddyService *caddy.Caddy, netInfo *network.TcpInterfaces, logger *zap.Logger) *access.ExternalAddress {
+		return access.New(probe, userConfig, redirectService, relayClient, accessChange, caddyService, netInfo, logger)
 	})
 	if err != nil {
 		return nil, err
@@ -481,14 +481,14 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
-	err = c.Singleton(func(ldapService *auth.Initializer, nginxService *nginx.Nginx, userConfig *config.UserConfig,
+	err = c.Singleton(func(ldapService *auth.Initializer, caddyService *caddy.Caddy, userConfig *config.UserConfig,
 		eventTrigger *event.Trigger, cookies *session.Cookies,
 		storage *storage.Storage, web *auth.Authelia,
 	) *activation.Device {
 		return activation.NewDevice(
 			userConfig,
 			ldapService,
-			nginxService,
+			caddyService,
 			eventTrigger,
 			cookies,
 			storage,
@@ -619,8 +619,8 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(customProxy *config.CustomProxy, nginxService *nginx.Nginx) *rest.CustomProxy {
-		return rest.NewCustomProxy(customProxy, nginxService)
+	err = c.Singleton(func(customProxy *config.CustomProxy, caddyService *caddy.Caddy) *rest.CustomProxy {
+		return rest.NewCustomProxy(customProxy, caddyService)
 	})
 
 	if err != nil {
@@ -640,7 +640,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		userConfig *config.UserConfig,
 		certGenerator *cert.CertificateGenerator,
 		ldapService *auth.Initializer,
-		nginxService *nginx.Nginx,
+		caddyService *caddy.Caddy,
 		web *auth.Authelia,
 		systemdControl *systemd.Control,
 	) *hook.Install {
@@ -650,7 +650,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			systemConfig,
 			certGenerator,
 			ldapService,
-			nginxService,
+			caddyService,
 			web,
 			systemdControl,
 			logger,
