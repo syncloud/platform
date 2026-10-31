@@ -63,19 +63,19 @@ func (t *TriggerStub) Trigger() {
 	t.triggered++
 }
 
-type NginxStub struct {
+type ProxyStub struct {
 	trigger           *TriggerStub
 	initialized       int
 	reloaded          int
 	triggeredAtReload int
 }
 
-func (n *NginxStub) InitConfig() error {
+func (n *ProxyStub) InitConfig() error {
 	n.initialized++
 	return nil
 }
 
-func (n *NginxStub) ReloadPublic() error {
+func (n *ProxyStub) ReloadPublic() error {
 	n.reloaded++
 	if n.trigger != nil {
 		n.triggeredAtReload = n.trigger.triggered
@@ -172,7 +172,7 @@ func TestExternalAddress_UpdateWithIpv4(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	config := &ExternalAddressUserConfigStub{}
 	probe := NewPoptProbeStub()
-	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 	ip := "1.1.1.1"
 	port := 443
 	request := model.Access{
@@ -192,7 +192,7 @@ func TestExternalAddress_UpdateWithInvalidIpv4_Reset(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	config := &ExternalAddressUserConfigStub{}
 	probe := NewPoptProbeStub()
-	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 	ip := ""
 	port := 443
 	request := model.Access{
@@ -214,7 +214,7 @@ func TestExternalAddress_RelayWithIpv6_Coexist(t *testing.T) {
 	probe := NewPoptProbeStub()
 	relay := &RelayStub{}
 	redirect := &RedirectStub{}
-	access := New(probe, config, redirect, relay, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(probe, config, redirect, relay, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 	request := model.Access{
 		RelayEnabled: true,
 		Ipv6Enabled:  true,
@@ -236,7 +236,7 @@ func TestExternalAddress_RelayDisabled_CallsDisable(t *testing.T) {
 	config := &ExternalAddressUserConfigStub{}
 	relay := &RelayStub{}
 	redirect := &RedirectStub{}
-	access := New(NewPoptProbeStub(), config, redirect, relay, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(NewPoptProbeStub(), config, redirect, relay, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 	_, err := access.Update(model.Access{RelayEnabled: false, Ipv6Enabled: true})
 	assert.Nil(t, err)
 	assert.True(t, relay.disabled)
@@ -248,7 +248,7 @@ func TestExternalAddress_Ipv4Private_NoProbe(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	config := &ExternalAddressUserConfigStub{}
 	probe := NewPoptProbeStub()
-	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(probe, config, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 	ip := ""
 	port := 443
 	request := model.Access{
@@ -268,7 +268,7 @@ func TestExternalAddress_AccessPortOutOfRange_Rejected(t *testing.T) {
 	for _, port := range []int{0, -1, 65536} {
 		config := &ExternalAddressUserConfigStub{}
 		redirect := &RedirectStub{}
-		access := New(NewPoptProbeStub(), config, redirect, &RelayStub{}, &TriggerStub{}, &NginxStub{}, &NetworkInfoStub{}, log.Default())
+		access := New(NewPoptProbeStub(), config, redirect, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, &NetworkInfoStub{}, log.Default())
 		_, err := access.Update(model.Access{Ipv4Enabled: true, AccessPort: &port})
 		assert.ErrorContains(t, err, fmt.Sprintf("access port %d", port))
 	}
@@ -277,7 +277,7 @@ func TestExternalAddress_AccessPortOutOfRange_Rejected(t *testing.T) {
 func TestExternalAddress_UpdateAppliesTheTunnelAgainAfterTheAddressUpdate(t *testing.T) {
 	relay := &RelayStub{}
 	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, relay,
-		&TriggerStub{}, &NginxStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+		&TriggerStub{}, &ProxyStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
 
 	_, err := access.Update(model.Access{Ipv4Enabled: true, Ipv4Public: false})
 
@@ -288,7 +288,7 @@ func TestExternalAddress_UpdateAppliesTheTunnelAgainAfterTheAddressUpdate(t *tes
 func TestExternalAddress_SyncAppliesTheTunnel(t *testing.T) {
 	relay := &RelayStub{}
 	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, relay,
-		&TriggerStub{}, &NginxStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+		&TriggerStub{}, &ProxyStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
 
 	err := access.Sync()
 
@@ -298,7 +298,7 @@ func TestExternalAddress_SyncAppliesTheTunnel(t *testing.T) {
 
 func TestExternalAddress_NoIpv6OnNetwork_SaysIpv6IsUnavailable(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2", ipv6Err: fmt.Errorf("network is unreachable")}
-	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 
 	_, err := access.Update(model.Access{Ipv6Enabled: true})
 
@@ -308,7 +308,7 @@ func TestExternalAddress_NoIpv6OnNetwork_SaysIpv6IsUnavailable(t *testing.T) {
 func TestExternalAddress_Ipv6NotProbeable_PublishesItAnywayAndWarns(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	redirect := &RedirectStub{}
-	access := New(&FailingProbeStub{}, &ExternalAddressUserConfigStub{}, redirect, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(&FailingProbeStub{}, &ExternalAddressUserConfigStub{}, redirect, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 
 	warning, err := access.Update(model.Access{Ipv6Enabled: true})
 
@@ -320,7 +320,7 @@ func TestExternalAddress_Ipv6NotProbeable_PublishesItAnywayAndWarns(t *testing.T
 func TestExternalAddress_Ipv6Probeable_DoesNotWarn(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
 	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{},
-		&RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+		&RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 
 	warning, err := access.Update(model.Access{Ipv6Enabled: true})
 
@@ -330,7 +330,7 @@ func TestExternalAddress_Ipv6Probeable_DoesNotWarn(t *testing.T) {
 
 func TestExternalAddress_Ipv4NotProbeable_SaysIpv4IsUnreachable(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4: "2.2.2.2"}
-	access := New(&FailingProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(&FailingProbeStub{}, &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 	ip := "1.1.1.1"
 
 	_, err := access.Update(model.Access{Ipv4: &ip, Ipv4Enabled: true, Ipv4Public: true})
@@ -340,7 +340,7 @@ func TestExternalAddress_Ipv4NotProbeable_SaysIpv4IsUnreachable(t *testing.T) {
 
 func TestExternalAddress_NoPublicIpv4_SaysIpv4WasNotDetected(t *testing.T) {
 	network := &NetworkInfoStub{publicIPv4Err: fmt.Errorf("lookup failed")}
-	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &NginxStub{}, network, log.Default())
+	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{}, &TriggerStub{}, &ProxyStub{}, network, log.Default())
 
 	_, err := access.Update(model.Access{Ipv4Enabled: true, Ipv4Public: true})
 
@@ -374,7 +374,7 @@ func TestExternalAddress_UpdatePersistsRelayBeforeApplyingIt(t *testing.T) {
 	config := &RelayStateConfigStub{}
 	relay := &RelayObservingConfigStub{config: config}
 	access := New(NewPoptProbeStub(), config, &RedirectStub{}, relay,
-		&TriggerStub{}, &NginxStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+		&TriggerStub{}, &ProxyStub{}, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
 
 	_, err := access.Update(model.Access{RelayEnabled: true})
 
@@ -384,16 +384,16 @@ func TestExternalAddress_UpdatePersistsRelayBeforeApplyingIt(t *testing.T) {
 
 func TestExternalAddress_RegeneratesTheAuthGatewayBeforeAppsHearOfTheChange(t *testing.T) {
 	trigger := &TriggerStub{}
-	nginx := &NginxStub{trigger: trigger}
+	proxy := &ProxyStub{trigger: trigger}
 	access := New(NewPoptProbeStub(), &ExternalAddressUserConfigStub{}, &RedirectStub{}, &RelayStub{},
-		trigger, nginx, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
+		trigger, proxy, &NetworkInfoStub{publicIPv4: "2.2.2.2"}, log.Default())
 	port := 10443
 
 	_, err := access.Update(model.Access{Ipv6Enabled: true, AccessPort: &port})
 
 	assert.Nil(t, err)
-	assert.Equal(t, 1, nginx.initialized)
-	assert.Equal(t, 1, nginx.reloaded)
-	assert.Equal(t, 0, nginx.triggeredAtReload)
+	assert.Equal(t, 1, proxy.initialized)
+	assert.Equal(t, 1, proxy.reloaded)
+	assert.Equal(t, 0, proxy.triggeredAtReload)
 	assert.Equal(t, 1, trigger.triggered)
 }

@@ -8,6 +8,8 @@ local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
+local caddy = '2.11.7';
+local caddy_l4 = '0.1.2-syncloud.1';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
 local visual_diff_skip_build = '3144';
@@ -39,18 +41,35 @@ local build(arch, testUI) = [{
            for distro in distros
          ] + [
            {
-             name: 'nginx',
-             image: 'nginx:' + nginx,
+             name: 'caddy',
+             image: 'caddy:' + caddy + '-builder',
              commands: [
-               './nginx/build.sh',
+               './caddy/build.sh ' + caddy + ' ' + caddy_l4,
              ],
            },
          ] + [
            {
-             name: 'nginx test ' + distro,
+             name: 'caddy test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
-               './nginx/test.sh',
+               './caddy/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
+           {
+             name: 'testapp nginx',
+             image: 'nginx:' + nginx,
+             commands: [
+               './test/testapp/nginx/build.sh',
+             ],
+           },
+         ] + [
+           {
+             name: 'testapp nginx test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './test/testapp/nginx/test.sh',
              ],
            }
            for distro in distros
@@ -135,6 +154,7 @@ local build(arch, testUI) = [{
              commands: [
                './package.sh ${DRONE_BUILD_NUMBER}',
                './test/testapp/build.sh ',
+               './test/streamapp/build.sh',
              ],
            },
          ] + [

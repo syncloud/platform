@@ -1,0 +1,12 @@
+apps:
+  stream:
+    command: bin/service.stream.sh
+    daemon: simple
+    restart-condition: always
+    restart-delay: 5s
+
+description: Raw TLS stream test app
+grade: stable
+name: streamapp
+summary: Stream test app
+version: 1

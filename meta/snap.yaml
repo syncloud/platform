@@ -1,23 +1,10 @@
 apps:
-  nginx-public:
-    command: bin/service.nginx-public.sh start
-    daemon: forking
-    plugs:
-    - network
-    - network-bind
+  caddy:
+    command: bin/service.caddy.sh start
+    daemon: simple
     restart-condition: always
     restart-delay: 10s
-    reload-command: bin/service.nginx-public.sh reload
-    start-timeout: 2000s
-  nginx-custom-proxy:
-    command: bin/service.nginx-custom-proxy.sh start
-    daemon: forking
-    plugs:
-    - network
-    - network-bind
-    restart-condition: always
-    restart-delay: 10s
-    reload-command: bin/service.nginx-custom-proxy.sh reload
+    reload-command: bin/service.caddy.sh reload
     start-timeout: 2000s
   openldap:
     command: bin/service.openldap.sh

@@ -1,0 +1,35 @@
+
+@custom_open host open.mydevice.syncloud.it
+handle @custom_open {
+	@loop header X-Syncloud-Custom-Proxy *
+	error @loop 502
+	reverse_proxy http://192.168.1.10:8080 {
+		header_up X-Syncloud-Custom-Proxy 1
+		header_up X-Real-IP {remote_host}
+	}
+}
+@custom_camera host camera.mydevice.syncloud.it
+handle @custom_camera {
+	@loop header X-Syncloud-Custom-Proxy *
+	error @loop 502
+	reverse_proxy https://10.0.0.100:8443 {
+		header_up X-Syncloud-Custom-Proxy 1
+		header_up X-Real-IP {remote_host}
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+@custom_secret host secret.mydevice.syncloud.it
+handle @custom_secret {
+	@loop header X-Syncloud-Custom-Proxy *
+	error @loop 502
+	forward_auth unix//var/snap/platform/current/authelia.socket {
+		uri /api/authz/forward-auth
+		copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+	}
+	reverse_proxy http://192.168.1.20:9090 {
+		header_up X-Syncloud-Custom-Proxy 1
+		header_up X-Real-IP {remote_host}
+	}
+}
