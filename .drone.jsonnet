@@ -8,9 +8,63 @@ local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
+local caddy = '2.11.7';
+local caddy_l4 = '0.1.2-syncloud.1';
+local xcaddy = '0.4.7';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
 local visual_diff_skip_build = '3144';
+
+local shared = [{
+  kind: 'pipeline',
+  name: 'shared',
+  platform: {
+    os: 'linux',
+    arch: 'amd64',
+  },
+  steps: [
+    {
+      name: 'build web',
+      image: 'node:' + node,
+      environment: {
+        NODE_OPTIONS: '--max_old_space_size=2048',
+      },
+      commands: [
+        './web/build.sh',
+      ],
+    },
+    {
+      name: 'build',
+      image: 'golang:' + go,
+      commands: [
+        './shared/build.sh ' + caddy + ' ' + caddy_l4 + ' ' + xcaddy,
+      ],
+    },
+    {
+      name: 'upload',
+      image: 'appleboy/drone-scp:1.6.4',
+      settings: {
+        host: {
+          from_secret: 'artifact_host',
+        },
+        username: 'artifact',
+        key: {
+          from_secret: 'artifact_key',
+        },
+        timeout: '2m',
+        command_timeout: '2m',
+        target: '/home/artifact/repo/' + name + '/${DRONE_BUILD_NUMBER}-shared',
+        source: 'artifact/shared/*',
+        strip_components: 2,
+      },
+    },
+  ],
+  trigger: {
+    event: [
+      'push',
+    ],
+  },
+}];
 
 local build(arch, testUI) = [{
   kind: 'pipeline',
@@ -20,7 +74,20 @@ local build(arch, testUI) = [{
     os: 'linux',
     arch: arch,
   },
+  depends_on: ['shared'],
   steps: [
+           {
+             name: 'shared',
+             image: 'alpine:' + alpine,
+             environment: {
+               ARTIFACT_HOST: {
+                 from_secret: 'artifact_host',
+               },
+             },
+             commands: [
+               './shared/fetch.sh ${DRONE_BUILD_NUMBER} ' + arch,
+             ],
+           },
            {
              name: 'gptfdisk',
              image: 'debian:bookworm-slim',
@@ -39,18 +106,27 @@ local build(arch, testUI) = [{
            for distro in distros
          ] + [
            {
-             name: 'nginx',
+             name: 'caddy test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './caddy/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
+           {
+             name: 'testapp nginx',
              image: 'nginx:' + nginx,
              commands: [
-               './nginx/build.sh',
+               './test/testapp/nginx/build.sh',
              ],
            },
          ] + [
            {
-             name: 'nginx test ' + distro,
+             name: 'testapp nginx test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
-               './nginx/test.sh',
+               './test/testapp/nginx/test.sh',
              ],
            }
            for distro in distros
@@ -73,14 +149,6 @@ local build(arch, testUI) = [{
            for distro in distros
          ] + [
            {
-             name: 'frp',
-             image: 'golang:' + go,
-             commands: [
-               './frp/build.sh',
-             ],
-           },
-         ] + [
-           {
              name: 'frp test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
@@ -90,51 +158,21 @@ local build(arch, testUI) = [{
            for distro in distros
          ] + [
            {
-             name: 'build web',
-             image: 'node:' + node,
-             environment: {
-               NODE_OPTIONS: '--max_old_space_size=2048',
-             },
+             name: 'backend test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
-               './web/build.sh',
+               './backend/test.sh',
              ],
-           },
-           {
-             name: 'build',
-             image: 'golang:' + go,
-             commands: [
-               './backend/build.sh',
-             ],
-           },
-           {
-             name: 'build api test',
-             image: 'golang:' + go,
-             commands: [
-               'cd test/api',
-               "CGO_ENABLED=0 go test -c -o api.test",
-             ],
-           },
-           {
-             name: 'build external app',
-             image: 'golang:' + go,
-             commands: [
-               'cd test/externalapp',
-               "CGO_ENABLED=0 go build -o externalapp",
-             ],
-           },
-           {
-             name: 'build testapp cli',
-             image: 'golang:' + go,
-             commands: [
-               './test/testapp/cli/build.sh',
-             ],
-           },
+           }
+           for distro in distros
+         ] + [
            {
              name: 'package',
              image: 'debian:bookworm-slim',
              commands: [
                './package.sh ${DRONE_BUILD_NUMBER}',
                './test/testapp/build.sh ',
+               './test/streamapp/build.sh',
              ],
            },
          ] + [
@@ -298,6 +336,7 @@ local build(arch, testUI) = [{
   ],
 }];
 
+shared +
 build('amd64', true) +
 build('arm64', false) +
 build('arm', false)

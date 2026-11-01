@@ -57,6 +57,7 @@ def test_start(module_setup, device, app, domain, device_host, full_domain):
     add_host_alias(app, device_host, domain)
     add_host_alias("app", device_host, domain)
     add_host_alias("testapp", device_host, full_domain)
+    add_host_alias("streamapp", device_host, full_domain)
     device.run_ssh("echo '127.0.0.1 auth.{0}' >> /etc/hosts".format(full_domain))
     device.run_ssh('mkdir {0}'.format(TMP_DIR), throw=False)
     device.run_ssh('date', retries=100, throw=True)
@@ -240,6 +241,10 @@ def test_install_ca_cert(device_host, full_domain):
 
 def test_install_testapp(device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, join(DIR, 'testapp', 'testapp.snap'))
+
+
+def test_install_streamapp(device_host):
+    local_install(device_host, LOGS_SSH_PASSWORD, join(DIR, 'streamapp', 'streamapp.snap'))
 
 
 def test_unauthorized(device_host):
@@ -493,6 +498,34 @@ def test_testapp_basic_authorized(full_domain, device_user, device_password):
         allow_redirects=False)
     assert response.status_code == 200, "expected 200 with basic auth, got {0}: {1}".format(response.status_code, response.text)
     assert 'session protected page' in response.text, response.text
+
+
+def stream_exchange(host, line):
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    with socket.create_connection((host, 443), timeout=10) as raw:
+        with context.wrap_socket(raw, server_hostname=host) as tls:
+            tls.sendall(line.encode() + b'\n')
+            reply = tls.makefile('r').readline().strip()
+            return reply, tls.getsockname()[0]
+
+
+def test_streamapp_gets_raw_tls_stream_with_client_address(full_domain):
+    host = 'streamapp.{0}'.format(full_domain)
+    for _ in range(30):
+        try:
+            reply, client = stream_exchange(host, 'not http at all')
+            break
+        except (OSError, ssl.SSLError):
+            time.sleep(2)
+    else:
+        reply, client = stream_exchange(host, 'not http at all')
+    assert reply == 'stream {0} not http at all'.format(client)
+
+
+def test_remove_streamapp(device_host):
+    run_ssh(device_host, 'snap remove streamapp', password=LOGS_SSH_PASSWORD)
 
 
 def test_testapp_oidc_without_browser(full_domain, device_user, device_password):
@@ -840,7 +873,7 @@ def test_reinstall_local_after_upgrade(app_archive_path, device_host):
     local_install(device_host, LOGS_SSH_PASSWORD, app_archive_path)
 
 
-def test_nginx_performance(device_host):
+def test_https_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/ping'.format(device_host), shell=True).decode())
 
 
@@ -849,7 +882,7 @@ def test_cli_ipv4(device):
     assert re.search(r"^\d*?\.\d*?\.\d*?\.\d*?$", ipv4) is not None
 
 
-def test_nginx_plus_flask_performance(device_host):
+def test_https_backend_performance(device_host):
     print(check_output('ab -c 1 -n 1000 https://{0}/rest/id'.format(device_host), shell=True).decode())
 
 
@@ -858,7 +891,7 @@ def test_cli_user_add_remove(device):
     device.run_ssh('snap run platform.cli user remove testuser')
 
 
-def test_cli_cert_fake(device):
+def test_cli_cert_fake(device, device_host):
     cert_path = '/var/snap/platform/current/syncloud.crt'
     ca_path = '/var/snap/platform/current/syncloud.ca.crt'
     cert_serial_before = device.run_ssh('cat {} | openssl x509 -noout -serial'.format(cert_path)).strip()
@@ -869,6 +902,13 @@ def test_cli_cert_fake(device):
     assert cert_serial_before != cert_serial_after, 'cert was not regenerated: {}'.format(cert_serial_after)
     assert ca_serial_before != ca_serial_after, 'CA was not regenerated: {}'.format(ca_serial_after)
     device.run_ssh('openssl verify -CAfile {} {}'.format(ca_path, cert_path))
+    cert_file = device.run_ssh('cat {}'.format(cert_path))
+    for _ in range(30):
+        served = ssl.get_server_certificate((device_host, 443))
+        if served.strip() in cert_file:
+            return
+        time.sleep(2)
+    assert served.strip() in cert_file, '443 still serves the old certificate after cert --fake'
 
 
 def test_admin_api_secured(device, domain):

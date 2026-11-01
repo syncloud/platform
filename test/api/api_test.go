@@ -18,7 +18,7 @@ func TestGetAppDir(t *testing.T) {
 
 func TestRestart(t *testing.T) {
 
-	status, err := Restart("platform.nginx-public")
+	status, err := Restart("platform.caddy")
 
 	assert.Nil(t, err)
 	assert.Contains(t, "OK", *status)
