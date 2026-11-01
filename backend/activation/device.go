@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/syncloud/platform/auth"
+	"github.com/syncloud/platform/caddy"
 	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/event"
-	"github.com/syncloud/platform/nginx"
 	"log"
 	"strings"
 )
@@ -15,7 +15,7 @@ type Device struct {
 	config               DevicePlatformUserConfig
 	certificateGenerator *cert.Generator
 	auth                 *auth.Initializer
-	nginx                *nginx.Nginx
+	proxy                *caddy.Caddy
 	web                  auth.Web
 	trigger              *event.Trigger
 	cookies              Cookies
@@ -45,7 +45,7 @@ type InternalMemory interface {
 func NewDevice(
 	config DevicePlatformUserConfig,
 	auth *auth.Initializer,
-	nginx *nginx.Nginx,
+	proxy *caddy.Caddy,
 	trigger *event.Trigger,
 	cookies Cookies,
 	internalMemory InternalMemory,
@@ -54,7 +54,7 @@ func NewDevice(
 	return &Device{
 		config:         config,
 		auth:           auth,
-		nginx:          nginx,
+		proxy:          proxy,
 		trigger:        trigger,
 		cookies:        cookies,
 		internalMemory: internalMemory,
@@ -82,11 +82,11 @@ func (d *Device) ActivateDevice(username string, password string, name string, e
 		return err
 	}
 
-	err = d.nginx.InitConfig()
+	err = d.proxy.InitConfig()
 	if err != nil {
 		return err
 	}
-	err = d.nginx.ReloadPublic()
+	err = d.proxy.ReloadPublic()
 	if err != nil {
 		return err
 	}

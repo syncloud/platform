@@ -99,7 +99,7 @@ curl -O "http://ci.syncloud.org:8081/files/platform/282-amd64/distro/desktop/scr
 - `authelia/` — Authelia auth server packaging
 - `nginx/` — Nginx build/test scripts
 - `bin/` — Platform utility scripts
-- `meta/snap.yaml` — Snap metadata (services: nginx-public, openldap, backend, api, authelia, cli)
+- `meta/snap.yaml` — Snap metadata (services: caddy, openldap, backend, api, authelia, cli)
 - `test/` — Python integration tests (pytest), Selenium UI tests, Go API tests
 - `package.sh` — Creates snap package
 
