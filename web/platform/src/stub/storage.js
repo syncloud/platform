@@ -4,6 +4,11 @@ const busyMessage = 'an app install or update is in progress, try again when it 
 
 const zeroErrors = () => ({ write: 0, read: 0, flush: 0, corruption: 0, generation: 0 })
 
+const passedLog = (hours) => [
+  { type: 'Short offline', status: 'Completed without error', passed: true, hours: hours - 168 },
+  { type: 'Short offline', status: 'Completed without error', passed: true, hours: hours - 336 }
+]
+
 const smartOk = (hours, temperature, crc) => ({
   available: true,
   passed: true,
@@ -13,7 +18,8 @@ const smartOk = (hours, temperature, crc) => ({
   crc_errors: crc,
   power_on_hours: hours,
   temperature: temperature,
-  self_test: { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed without error', last_passed: true }
+  self_test: { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed without error', last_passed: true },
+  log: passedLog(hours)
 })
 
 const arrayDisks = () => [
@@ -70,7 +76,11 @@ const arrayDisks = () => [
       crc_errors: 0,
       power_on_hours: 40211,
       temperature: 41,
-      self_test: { running: false, remaining_percent: 0 }
+      self_test: { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed: read failure', last_passed: false },
+      log: [
+        { type: 'Short offline', status: 'Completed: read failure', passed: false, hours: 40190 },
+        { type: 'Short offline', status: 'Completed without error', passed: true, hours: 40022 }
+      ]
     },
     link: { count: 0 },
     io: { count: 0 }
@@ -84,8 +94,32 @@ export function storageStub (scenario) {
     busy: scenario === 'busy',
     scrub: inArray && disks.length > 0 ? { state: 'never', corrected: 0, uncorrectable: 0 } : null,
     scrubSteps: [],
-    schedule: { scrub: false, smart: false }
+    schedule: { scrub: false, smart: false },
+    seen: []
   }
+
+  const problems = () => {
+    const result = []
+    if (state.scrub && state.scrub.errors) {
+      result.push({ kind: 'scrub_errors' })
+    }
+    disks.forEach(disk => {
+      if (inArray && Object.values(disk.errors).some(v => v > 0)) {
+        result.push({ kind: 'error_counters', device: disk.device })
+      }
+      if (disk.smart.available && disk.smart.passed === false) {
+        result.push({ kind: 'smart_failed', device: disk.device })
+      }
+      if (disk.smart.self_test.last_passed === false) {
+        result.push({ kind: 'self_test_failed', device: disk.device })
+      }
+      if (disk.io.count > 0) {
+        result.push({ kind: 'io_errors', device: disk.device })
+      }
+    })
+    return result
+  }
+  const key = problem => problem.kind + ':' + (problem.device || '')
 
   const diskList = () => disks.map((disk, index) => {
     const result = {
@@ -132,6 +166,7 @@ export function storageStub (scenario) {
           last_passed: !failing,
           last_hours: disk.smart.power_on_hours
         }
+        disk.smart.log = [{ type: 'Short offline', status: disk.smart.self_test.last_status, passed: !failing, hours: disk.smart.power_on_hours }].concat(disk.smart.log || []).slice(0, 5)
       }
     })
   }
@@ -199,6 +234,14 @@ export function storageStub (scenario) {
     this.post('/rest/storage/check/schedule', function (_schema, request) {
       state.schedule = JSON.parse(request.requestBody)
       return new Response(200, {}, { success: true, data: state.schedule })
+    })
+    this.get('/rest/storage/alerts', function () {
+      const current = problems()
+      return new Response(200, {}, { success: true, data: { problems: current, new: current.some(p => !state.seen.includes(key(p))) } })
+    })
+    this.post('/rest/storage/alerts/seen', function () {
+      state.seen = problems().map(key)
+      return new Response(200, {}, { success: true, data: 'OK' })
     })
     this.post('/rest/storage/errors/reset', function () {
       if (!state.scrub) {

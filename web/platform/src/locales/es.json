@@ -302,7 +302,15 @@
     "diskMissing": "Este disco ya no está conectado",
     "status_ok": "Sin problemas",
     "status_warning": "Requiere atención",
-    "status_error": "Se encontraron errores"
+    "status_error": "Se encontraron errores",
+    "scheduleTime": "Las comprobaciones programadas empiezan a las 03:00 hora del dispositivo: un scrub cada 30 días y una prueba corta SMART cada 7 días.",
+    "scrubHelpTitle": "¿Qué hace un scrub?",
+    "scrubHelpText": "Un scrub lee todos los datos y metadatos del conjunto de discos y comprueba cada bloque con su suma de verificación. Así encuentra corrupción silenciosa y detecta un disco que ya no se puede leer de forma fiable, antes de que necesite esos datos. Aquí se ejecuta en solo lectura: informa de los problemas pero nunca cambia nada en los discos. En discos grandes puede tardar varias horas y ralentiza los discos mientras se ejecuta, así que una vez al mes basta para uso doméstico.",
+    "smartHelpTitle": "¿Qué hace una prueba SMART?",
+    "smartHelpText": "SMART es la autosupervisión integrada en la mayoría de discos duros y SSD. La autoprueba corta dura unos dos minutos, se ejecuta dentro del propio disco y no toca sus datos. Una prueba fallida, o sectores reasignados y pendientes que no dejan de crecer, significan que el disco se está desgastando y debería sustituirse pronto. Los errores de cable/conector suelen indicar un cable o puerto suelto o defectuoso, no el disco. Algunos adaptadores USB no transmiten SMART y esos discos aparecen como no disponibles.",
+    "selfTestLog": "Registro de autopruebas",
+    "selfTestLogEntry": "{type}: {status}, a las {hours} h",
+    "alertBanner": "Una comprobación de disco encontró un problema. Abra Almacenamiento para ver qué disco."
   },
   "access": {
     "title": "Acceso",

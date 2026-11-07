@@ -19,7 +19,8 @@ export function diskStatus (disk, health) {
     return ''
   }
   const smart = health.smart
-  if (disk.has_errors || health.io.count > 0 || (smart.available && (smart.passed === false || smart.pending > 0 || smart.offline_uncorrectable > 0))) {
+  const testFailed = smart.self_test && smart.self_test.last_passed === false
+  if (disk.has_errors || health.io.count > 0 || testFailed || (smart.available && (smart.passed === false || smart.pending > 0 || smart.offline_uncorrectable > 0))) {
     return 'error'
   }
   if (health.link.count > 0 || (smart.available && (smart.crc_errors > 0 || smart.reallocated > 0))) {
@@ -78,4 +79,8 @@ export function scrubText (t, scrub) {
     return text + '. ' + t('storage.scrubErrors', { errors: scrub.errors, corrected: scrub.corrected, uncorrectable: scrub.uncorrectable })
   }
   return text
+}
+
+export function logEntryText (t, entry) {
+  return t('storage.selfTestLogEntry', { type: entry.type, status: entry.status, hours: entry.hours })
 }

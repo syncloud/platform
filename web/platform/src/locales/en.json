@@ -337,7 +337,15 @@
     "diskMissing": "This disk is no longer connected",
     "status_ok": "No problems found",
     "status_warning": "Needs attention",
-    "status_error": "Errors found"
+    "status_error": "Errors found",
+    "scheduleTime": "Scheduled checks start at 03:00 device time; a scrub every 30 days, a SMART short test every 7 days.",
+    "scrubHelpTitle": "What does a scrub do?",
+    "scrubHelpText": "A scrub reads all data and metadata on the disk array and checks every block against its checksum. It finds silent corruption and spots a disk that can no longer be read reliably, before you need that data. Here it runs read-only: it reports problems but never changes anything on the disks. On large disks it can take several hours and slows the disks down while it runs, so once a month is enough for home use.",
+    "smartHelpTitle": "What does a SMART test do?",
+    "smartHelpText": "SMART is the self-monitoring built into most hard disks and SSDs. The short self-test takes about two minutes, runs inside the disk itself and does not touch your data. A failed test, or reallocated and pending sectors that keep growing, means the disk is wearing out and should be replaced soon. Cable/connector errors usually point to a loose or faulty cable or port rather than the disk. Some USB adapters do not pass SMART through, and those disks show as not available.",
+    "selfTestLog": "Self-test log",
+    "selfTestLogEntry": "{type}: {status}, at {hours} h",
+    "alertBanner": "A disk check found a problem. Open Storage to see which disk."
   },
   "access": {
     "title": "Access",

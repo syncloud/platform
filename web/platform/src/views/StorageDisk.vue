@@ -35,10 +35,18 @@
           <template v-if="health.smart.available">
             <dt>{{ $t('storage.selfTest') }}</dt>
             <dd class="disk-selftest">
-              <span data-testid="disk-selftest">{{ selfTestText(t, health.smart.self_test) }}</span>
               <button class="sc-btn sc-btn-ghost sc-btn-small" type="button" data-testid="disk-smart-test"
                       :disabled="busy || health.smart.self_test.running"
                       @click="startSmartTest">{{ $t('storage.smartTestStart') }}</button>
+              <span data-testid="disk-selftest">{{ selfTestText(t, health.smart.self_test) }}</span>
+            </dd>
+          </template>
+          <template v-if="health.smart.log && health.smart.log.length > 0">
+            <dt>{{ $t('storage.selfTestLog') }}</dt>
+            <dd>
+              <ul class="selftest-log" data-testid="disk-selftest-log">
+                <li v-for="(entry, index) in health.smart.log" :key="index" :class="{ 'disk-bad': entry.passed === false }">{{ logEntryText(t, entry) }}</li>
+              </ul>
             </dd>
           </template>
           <dt>{{ $t('storage.linkEvents') }}</dt>
@@ -56,7 +64,7 @@
 <script>
 import axios from 'axios'
 import Error from '../components/Error.vue'
-import { eventsText, healthOf, portOf, selfTestText, smartBad, smartText } from '../js/storage'
+import { eventsText, healthOf, logEntryText, portOf, selfTestText, smartBad, smartText } from '../js/storage'
 
 export default {
   name: 'StorageDisk',
@@ -94,6 +102,7 @@ export default {
     smartText,
     selfTestText,
     eventsText,
+    logEntryText,
     reload () {
       clearTimeout(this.timer)
       return Promise.all([axios.get('/rest/storage/disks'), axios.get('/rest/storage/health')])
@@ -123,7 +132,7 @@ export default {
 }
 .disk-details {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: 8px 16px;
   margin: 0;
 }
@@ -137,23 +146,22 @@ export default {
 .disk-bad {
   color: var(--sc-danger);
 }
+.selftest-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 .disk-selftest {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
+.disk-selftest button {
+  flex-shrink: 0;
+}
 .sc-btn-small {
   padding: 4px 10px;
   font-size: 13px;
-}
-@media (max-width: 600px) {
-  .disk-details {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
-  .disk-details dd {
-    margin-bottom: 8px;
-  }
 }
 </style>

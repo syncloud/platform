@@ -5,6 +5,7 @@ import (
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -218,6 +219,18 @@ func (c *UserConfig) StorageCheckSchedule() model.CheckSchedule {
 func (c *UserConfig) SetStorageCheckSchedule(schedule model.CheckSchedule) {
 	c.db.UpsertBool("platform.storage_check_scrub", schedule.Scrub)
 	c.db.UpsertBool("platform.storage_check_smart", schedule.Smart)
+}
+
+func (c *UserConfig) StorageAlertsSeen() []string {
+	value := c.db.Get("platform.storage_alerts_seen", "")
+	if value == "" {
+		return nil
+	}
+	return strings.Split(value, ",")
+}
+
+func (c *UserConfig) SetStorageAlertsSeen(keys []string) {
+	c.db.Upsert("platform.storage_alerts_seen", strings.Join(keys, ","))
 }
 
 func (c *UserConfig) GetStorageCheckTime(check string) time.Time {

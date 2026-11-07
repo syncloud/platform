@@ -3,6 +3,7 @@ package smart
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/syncloud/platform/log"
+	"github.com/syncloud/platform/storage/model"
 	"testing"
 )
 
@@ -45,6 +46,8 @@ func TestHealth_SelfTestDone(t *testing.T) {
 	assert.Equal(t, "Completed without error", health.SelfTest.LastStatus)
 	assert.True(t, *health.SelfTest.LastPassed)
 	assert.Equal(t, int64(213), *health.SelfTest.LastHours)
+	passed := true
+	assert.Equal(t, []model.SmartLogEntry{{Type: "Short offline", Status: "Completed without error", Passed: &passed, Hours: 213}}, health.Log)
 }
 
 func TestHealth_NotAvailable(t *testing.T) {

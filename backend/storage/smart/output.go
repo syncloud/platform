@@ -8,6 +8,7 @@ const (
 	AttributeOfflineUncorrectable = 198
 	AttributeCrcErrors            = 199
 	NotAvailable                  = "SMART is not available for this disk"
+	LogEntries                    = 5
 )
 
 type Output struct {
@@ -56,7 +57,27 @@ func (o *Output) Health() model.SmartHealth {
 		health.Temperature = &current
 	}
 	health.SelfTest = o.selfTest()
+	health.Log = o.log()
 	return health
+}
+
+func (o *Output) log() []model.SmartLogEntry {
+	entries := []model.SmartLogEntry{}
+	if o.SelfTestLog == nil {
+		return entries
+	}
+	for i, entry := range o.SelfTestLog.Standard.Table {
+		if i == LogEntries {
+			break
+		}
+		entries = append(entries, model.SmartLogEntry{
+			Type:   entry.Type.String,
+			Status: entry.Status.String,
+			Passed: entry.Status.Passed,
+			Hours:  entry.LifetimeHours,
+		})
+	}
+	return entries
 }
 
 func (o *Output) selfTest() model.SmartTestResult {

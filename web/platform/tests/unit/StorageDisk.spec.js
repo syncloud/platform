@@ -44,6 +44,8 @@ test('Healthy disk shows serial, port, counters, smart and kernel events', async
   expect(wrapper.find('[data-testid="disk-errors"]').text()).toBe('write 0, read 0, flush 0, corruption 0, generation 0')
   expect(wrapper.find('[data-testid="disk-smart"]').text()).toBe('Passed, 212 h powered on, 31 °C. Reallocated 0, pending 0, uncorrectable 0, cable/connector errors 0')
   expect(wrapper.find('[data-testid="disk-selftest"]').text()).toBe('Short offline: Completed without error')
+  expect(wrapper.find('[data-testid="disk-selftest-log"]').text()).toBe('Short offline: Completed without error, at 212 hShort offline: Completed: read failure, at 40 h')
+  expect(wrapper.findAll('[data-testid="disk-selftest-log"] .disk-bad').length).toBe(1)
   expect(wrapper.find('[data-testid="disk-link"]').text()).toBe('None')
   expect(wrapper.find('[data-testid="disk-io"]').text()).toBe('None')
   expect(wrapper.find('[data-testid="storage-back"]').attributes('href')).toBe('/storage')

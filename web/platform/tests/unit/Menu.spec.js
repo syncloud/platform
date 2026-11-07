@@ -6,9 +6,10 @@ import flushPromises from 'flush-promises'
 import Menu from '../../src/components/Menu.vue'
 import { useAuthStore } from '../../src/stores/auth'
 
-function mountMenu (admin, space) {
+function mountMenu (admin, space, alerts) {
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/space').reply(200, { success: true, data: space })
+  mock.onGet('/rest/storage/alerts').reply(200, { success: true, data: alerts || { problems: [], new: false } })
   const pinia = createPinia()
   setActivePinia(pinia)
   const auth = useAuthStore()
@@ -112,5 +113,28 @@ test('failing space request does not show a warning', async () => {
   })
   await flushPromises()
   expect(wrapper.find('[data-testid="disk-space-warning"]').exists()).toBe(false)
+  wrapper.unmount()
+})
+
+test('storage alert shows while a disk problem is new', async () => {
+  const { wrapper } = mountMenu(true, enough, { problems: [{ kind: 'self_test_failed', device: '/dev/sda' }], new: true })
+  await flushPromises()
+  const alert = wrapper.find('[data-testid="storage-alert"]')
+  expect(alert.exists()).toBe(true)
+  expect(alert.attributes('href')).toBe('/storage')
+  wrapper.unmount()
+})
+
+test('no storage alert once problems were seen', async () => {
+  const { wrapper } = mountMenu(true, enough, { problems: [{ kind: 'self_test_failed', device: '/dev/sda' }], new: false })
+  await flushPromises()
+  expect(wrapper.find('[data-testid="storage-alert"]').exists()).toBe(false)
+  wrapper.unmount()
+})
+
+test('no storage alert for non admin', async () => {
+  const { wrapper } = mountMenu(false, enough, { problems: [{ kind: 'smart_failed', device: '/dev/sda' }], new: true })
+  await flushPromises()
+  expect(wrapper.find('[data-testid="storage-alert"]').exists()).toBe(false)
   wrapper.unmount()
 })

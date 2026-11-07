@@ -14,8 +14,8 @@ const mountChecks = (showError) => mount(StorageChecks,
       stubs: {
         Error: { template: '<span/>', methods: { showAxios: showError } },
         Dialog: {
-          template: '<span :id="id"><slot name="text"></slot></span>',
-          props: { id: String }
+          template: '<span v-if="visible" :id="id"><slot name="text"></slot></span>',
+          props: { id: String, visible: Boolean }
         },
         'router-link': { props: ['to'], template: '<a :href="to"><slot/></a>' }
       }
@@ -110,6 +110,10 @@ test('Schedule monthly scrub', async () => {
 
   await wrapper.find('[data-testid="schedule-scrub"]').trigger('click')
   await flushPromises()
+  expect(saved).toBe(null)
+
+  await wrapper.find('[data-testid="checks-save"]').trigger('click')
+  await flushPromises()
 
   expect(saved).toEqual({ scrub: true, smart: true })
   expect(showError).toHaveBeenCalledTimes(0)
@@ -136,5 +140,20 @@ test('Without a btrfs array only the SMART schedule is offered', async () => {
   expect(wrapper.find('[data-testid="array-section"]').exists()).toBe(false)
   expect(wrapper.find('[data-testid="errors-section"]').exists()).toBe(false)
   expect(wrapper.find('[data-testid="schedule-smart"]').exists()).toBe(true)
+  wrapper.unmount()
+})
+
+test('Scrub and SMART explain what they do', async () => {
+  const showError = jest.fn()
+  mockApi(arrayHealth())
+  const wrapper = mountChecks(showError)
+  await flushPromises()
+
+  expect(wrapper.find('[data-testid="scrub-help-dialog"]').exists()).toBe(false)
+  await wrapper.find('[data-testid="scrub-help"]').trigger('click')
+  expect(wrapper.find('[data-testid="scrub-help-dialog"]').text()).toContain('read-only')
+
+  await wrapper.find('[data-testid="smart-help"]').trigger('click')
+  expect(wrapper.find('[data-testid="smart-help-dialog"]').text()).toContain('short self-test')
   wrapper.unmount()
 })

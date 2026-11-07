@@ -302,7 +302,15 @@
     "diskMissing": "Ce disque n'est plus connecté",
     "status_ok": "Aucun problème détecté",
     "status_warning": "À surveiller",
-    "status_error": "Erreurs détectées"
+    "status_error": "Erreurs détectées",
+    "scheduleTime": "Les vérifications planifiées démarrent à 03:00, heure de l'appareil : un scrub tous les 30 jours, un test court SMART tous les 7 jours.",
+    "scrubHelpTitle": "À quoi sert un scrub ?",
+    "scrubHelpText": "Un scrub lit toutes les données et métadonnées de la grappe de disques et vérifie chaque bloc par rapport à sa somme de contrôle. Il détecte la corruption silencieuse et repère un disque qui ne se lit plus de façon fiable, avant que vous ayez besoin de ces données. Ici il fonctionne en lecture seule : il signale les problèmes mais ne modifie jamais rien sur les disques. Sur de gros disques il peut durer plusieurs heures et ralentit les disques pendant ce temps, une fois par mois suffit donc pour un usage domestique.",
+    "smartHelpTitle": "À quoi sert un test SMART ?",
+    "smartHelpText": "SMART est l'autosurveillance intégrée à la plupart des disques durs et SSD. Le test court dure environ deux minutes, s'exécute dans le disque lui-même et ne touche pas à vos données. Un test en échec, ou des secteurs réalloués et en attente qui augmentent sans cesse, signifient que le disque s'use et devrait bientôt être remplacé. Les erreurs câble/connecteur indiquent généralement un câble ou un port mal branché ou défectueux plutôt que le disque. Certains adaptateurs USB ne transmettent pas SMART ; ces disques apparaissent comme non disponibles.",
+    "selfTestLog": "Journal des autotests",
+    "selfTestLogEntry": "{type} : {status}, à {hours} h",
+    "alertBanner": "Une vérification de disque a trouvé un problème. Ouvrez Stockage pour voir quel disque."
   },
   "access": {
     "title": "Accès",

@@ -31,9 +31,9 @@
 
       <!--Multi disk-->
       <div v-if="multiMode">
-        <s-checkbox-group v-model="activeMultiDisks" size="large">
+        <s-checkbox-group v-model="activeMultiDisks" size="large" class="disk-list">
           <div v-for="(disk, index) in disks" :key="index" class="disk-row">
-            <s-checkbox :id="'disk_' + index" class="disk" size="large" border :label="disk.device">
+            <s-checkbox :id="'disk_' + index" class="disk-choice" size="large" border :label="disk.device">
               <span style="white-space: normal;">
                 {{ disk.name }} - {{ disk.size }}
                 <span v-if="disk.raid">({{ disk.raid }})</span>
@@ -50,7 +50,8 @@
         </s-checkbox-group>
       </div>
 
-      <router-link v-if="disks.length !== 0" to="/storage/checks" class="checks-link" data-testid="storage-checks-link">
+      <router-link v-if="disks.length !== 0" to="/storage/checks" class="checks-link" data-testid="storage-checks-link"
+                   :class="{ 'checks-link-bad': scrubBad }">
         <span class="checks-link-text">
           <span class="checks-link-title">{{ $t('storage.checks') }}</span>
           <span class="sc-muted" data-testid="storage-checks-summary">{{ checksSummary }}</span>
@@ -122,6 +123,7 @@ import Dialog from '../components/Dialog.vue'
 import Loading from '../util/loading'
 import notify from '../util/notify'
 import { diskStatus, healthOf, scrubText } from '../js/storage'
+import { useStorageAlertsStore } from '../stores/storageAlerts'
 
 export default {
   name: 'Storage',
@@ -144,6 +146,9 @@ export default {
     }
   },
   computed: {
+    scrubBad () {
+      return !!(this.health.scrub && (this.health.scrub.errors || this.health.scrub.uncorrectable > 0))
+    },
     checksSummary () {
       if (this.health.scrub) {
         return this.$t('storage.scrub') + ': ' + scrubText((...args) => this.$t(...args), this.health.scrub)
@@ -154,6 +159,7 @@ export default {
   mounted () {
     this.progressShow()
     this.reload()
+    useStorageAlertsStore().seen().catch(err => this.$refs.error.showAxios(err))
   },
   methods: {
     progressShow () {
@@ -299,6 +305,23 @@ export default {
   display: flex;
   align-items: center;
   gap: 6px;
+  width: 100%;
+}
+.disk-list {
+  display: flex;
+  width: 100%;
+}
+.disk-choice {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.disk-choice :deep(.s-choice-body) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.disk-status,
+.disk-details-link {
+  flex-shrink: 0;
 }
 .disk-status {
   font-size: 22px !important;
@@ -328,6 +351,12 @@ export default {
   border-radius: var(--sc-control-radius);
   color: var(--sc-ink);
   text-decoration: none;
+}
+.checks-link-bad {
+  border-color: var(--sc-danger);
+}
+.checks-link-bad .sc-muted {
+  color: var(--sc-danger);
 }
 .checks-link-text {
   display: grid;

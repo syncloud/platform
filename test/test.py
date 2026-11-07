@@ -824,6 +824,12 @@ def test_storage_array_health_and_checks(loop_device, device, domain, artifact_d
     response = session.post(url(domain, 'errors/reset'), verify=False)
     assert response.status_code == 200, response.text
 
+    response = session.get(url(domain, 'alerts'), verify=False)
+    assert response.status_code == 200, response.text
+    assert response.json()['data'] == {'problems': [], 'new': False}, response.text
+    response = session.post(url(domain, 'alerts/seen'), verify=False)
+    assert response.status_code == 200, response.text
+
     response = session.post(url(domain, 'check/smart'), json={'device': loop_device}, verify=False)
     assert response.status_code == 500, response.text
     assert 'Unable to detect device type' in response.json()['message'], response.text

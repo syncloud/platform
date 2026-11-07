@@ -6,7 +6,11 @@
 
       <div v-if="health.scrub" class="check-block" data-testid="array-section">
         <div class="check-head">
-          <span class="check-name">{{ $t('storage.scrub') }}</span>
+          <span class="check-name">{{ $t('storage.scrub') }}
+            <button @click="scrubHelpVisible = true" type="button" class="help-button" data-testid="scrub-help">
+              <i class='fa fa-question-circle fa-lg'></i>
+            </button>
+          </span>
           <button class="sc-btn sc-btn-ghost sc-btn-small" type="button" data-testid="scrub-start"
                   :disabled="health.busy || health.scrub.state === 'running'"
                   @click="startScrub">{{ $t('storage.scrubStart') }}</button>
@@ -14,7 +18,7 @@
         <p class="check-text" data-testid="scrub-status" :class="{ 'disk-bad': !!health.scrub.errors }">{{ scrubText(t, health.scrub) }}</p>
         <div class="schedule-row">
           <span>{{ $t('storage.scheduleScrub') }}</span>
-          <s-switch data-testid="schedule-scrub" :model-value="schedule.scrub" @update:model-value="value => saveSchedule('scrub', value)"/>
+          <s-switch data-testid="schedule-scrub" v-model="schedule.scrub"/>
         </div>
       </div>
 
@@ -29,18 +33,44 @@
 
       <div class="check-block" data-testid="smart-section">
         <div class="check-head">
-          <span class="check-name">{{ $t('storage.smart') }}</span>
+          <span class="check-name">{{ $t('storage.smart') }}
+            <button @click="smartHelpVisible = true" type="button" class="help-button" data-testid="smart-help">
+              <i class='fa fa-question-circle fa-lg'></i>
+            </button>
+          </span>
         </div>
         <div class="schedule-row">
           <span>{{ $t('storage.scheduleSmart') }}</span>
-          <s-switch data-testid="schedule-smart" :model-value="schedule.smart" @update:model-value="value => saveSchedule('smart', value)"/>
+          <s-switch data-testid="schedule-smart" v-model="schedule.smart"/>
         </div>
       </div>
 
+      <p class="sc-muted" data-testid="schedule-time">{{ $t('storage.scheduleTime') }}</p>
       <p v-if="health.busy" class="sc-muted" data-testid="checks-busy">{{ $t('storage.checksBusy') }}</p>
+
+      <div class="sc-actions">
+        <button class="sc-btn sc-btn-success" id="btn_save" data-testid="checks-save" type="button"
+                @click="saveSchedule">{{ $t('storage.save') }}</button>
+      </div>
     </div>
   </div>
   <Error ref="error"/>
+
+  <Dialog :visible="scrubHelpVisible" id="scrub-help-dialog" data-testid="scrub-help-dialog" @cancel="scrubHelpVisible = false"
+          :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('storage.scrubHelpTitle') }}</template>
+    <template v-slot:text>
+      <div class="btext">{{ $t('storage.scrubHelpText') }}</div>
+    </template>
+  </Dialog>
+
+  <Dialog :visible="smartHelpVisible" id="smart-help-dialog" data-testid="smart-help-dialog" @cancel="smartHelpVisible = false"
+          :confirm-enabled="false" :cancel-text="$t('common.close')">
+    <template v-slot:title>{{ $t('storage.smartHelpTitle') }}</template>
+    <template v-slot:text>
+      <div class="btext">{{ $t('storage.smartHelpText') }}</div>
+    </template>
+  </Dialog>
 
   <Dialog :visible="resetVisible" id="reset-confirmation" data-testid="reset-confirmation" @confirm="resetErrors"
           @cancel="resetVisible = false">
@@ -55,6 +85,7 @@
 import axios from 'axios'
 import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
+import Loading from '../util/loading'
 import { scrubText } from '../js/storage'
 
 export default {
@@ -69,6 +100,9 @@ export default {
       schedule: { scrub: false, smart: false },
       anyErrors: false,
       resetVisible: false,
+      scrubHelpVisible: false,
+      smartHelpVisible: false,
+      loading: undefined,
       timer: undefined
     }
   },
@@ -107,11 +141,12 @@ export default {
         .then(() => this.reload())
         .catch(err => this.$refs.error.showAxios(err))
     },
-    saveSchedule (check, value) {
-      this.schedule = { ...this.schedule, [check]: value }
+    saveSchedule () {
+      this.loading = Loading.service({ lock: true, text: this.$t('common.loading'), background: 'rgba(0, 0, 0, 0.7)' })
       return axios.post('/rest/storage/check/schedule', this.schedule)
-        .then(resp => { this.schedule = { ...resp.data.data } })
+        .then(() => this.reload())
         .catch(err => this.$refs.error.showAxios(err))
+        .finally(() => this.loading.close())
     }
   }
 }
@@ -134,7 +169,17 @@ export default {
   gap: 12px;
 }
 .check-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 600;
+}
+.help-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--sc-faint);
 }
 .check-text {
   margin: 8px 0 0;

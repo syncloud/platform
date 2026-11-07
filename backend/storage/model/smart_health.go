@@ -11,4 +11,5 @@ type SmartHealth struct {
 	PowerOnHours         *int64          `json:"power_on_hours,omitempty"`
 	Temperature          *int64          `json:"temperature,omitempty"`
 	SelfTest             SmartTestResult `json:"self_test"`
+	Log                  []SmartLogEntry `json:"log"`
 }

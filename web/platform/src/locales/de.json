@@ -302,7 +302,15 @@
     "diskMissing": "Diese Festplatte ist nicht mehr angeschlossen",
     "status_ok": "Keine Probleme gefunden",
     "status_warning": "Erfordert Aufmerksamkeit",
-    "status_error": "Fehler gefunden"
+    "status_error": "Fehler gefunden",
+    "scheduleTime": "Geplante Prüfungen starten um 03:00 Uhr Gerätezeit: ein Scrub alle 30 Tage, ein SMART-Kurztest alle 7 Tage.",
+    "scrubHelpTitle": "Was macht ein Scrub?",
+    "scrubHelpText": "Ein Scrub liest alle Daten und Metadaten im Festplattenverbund und prüft jeden Block gegen seine Prüfsumme. So findet er unbemerkte Beschädigungen und erkennt eine Festplatte, die sich nicht mehr zuverlässig lesen lässt, bevor Sie die Daten brauchen. Hier läuft er nur lesend: Er meldet Probleme, verändert aber nichts auf den Festplatten. Auf großen Festplatten kann er mehrere Stunden dauern und bremst die Festplatten währenddessen, daher reicht für den Heimgebrauch einmal im Monat.",
+    "smartHelpTitle": "Was macht ein SMART-Test?",
+    "smartHelpText": "SMART ist die Selbstüberwachung, die in die meisten Festplatten und SSDs eingebaut ist. Der kurze Selbsttest dauert etwa zwei Minuten, läuft in der Festplatte selbst und berührt Ihre Daten nicht. Ein fehlgeschlagener Test oder ständig steigende neu zugewiesene und ausstehende Sektoren bedeuten, dass die Festplatte verschleißt und bald ersetzt werden sollte. Kabel-/Steckerfehler deuten meist auf ein lockeres oder defektes Kabel bzw. einen defekten Anschluss hin, nicht auf die Festplatte. Manche USB-Adapter reichen SMART nicht durch; solche Festplatten werden als nicht verfügbar angezeigt.",
+    "selfTestLog": "Selbsttest-Protokoll",
+    "selfTestLogEntry": "{type}: {status}, bei {hours} h",
+    "alertBanner": "Eine Festplattenprüfung hat ein Problem gefunden. Öffnen Sie Speicher, um die Festplatte zu sehen."
   },
   "access": {
     "title": "Zugriff",

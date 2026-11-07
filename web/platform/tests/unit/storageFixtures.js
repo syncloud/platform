@@ -43,7 +43,11 @@ export const arrayHealth = (overrides) => Object.assign({
         crc_errors: 0,
         power_on_hours: 212,
         temperature: 31,
-        self_test: { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed without error', last_passed: true }
+        self_test: { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed without error', last_passed: true },
+        log: [
+          { type: 'Short offline', status: 'Completed without error', passed: true, hours: 212 },
+          { type: 'Short offline', status: 'Completed: read failure', passed: false, hours: 40 }
+        ]
       },
       link: { count: 0 },
       io: { count: 0 }

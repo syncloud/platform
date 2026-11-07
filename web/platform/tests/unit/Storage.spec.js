@@ -3,11 +3,27 @@ import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 import flushPromises from 'flush-promises'
 import Storage from '../../src/views/Storage.vue'
+import { createPinia, setActivePinia } from 'pinia'
 import { arrayDisks, arrayHealth } from './storageFixtures'
 
 jest.setTimeout(30000)
 
 const emptyHealth = { disks: [], scrub: null, schedule: { scrub: false, smart: false }, busy: false }
+
+let seen = 0
+
+const mockAlerts = (mock) => {
+  mock.onGet('/rest/storage/alerts').reply(200, { success: true, data: { problems: [], new: false } })
+  mock.onPost('/rest/storage/alerts/seen').reply(function () {
+    seen++
+    return [200, { success: true, data: 'OK' }]
+  })
+}
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+  seen = 0
+})
 
 test('Activate partition', async () => {
   let deviceAction = ''
@@ -15,6 +31,7 @@ test('Activate partition', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/error/last').reply(200,
     { success: true, data: 'OK' }
   )
@@ -94,6 +111,7 @@ test('Deactivate partition', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -165,6 +183,7 @@ test('Activate partition error', async () => {
   }
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -246,6 +265,7 @@ test('Activate partition service error', async () => {
   }
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -327,6 +347,7 @@ test('Activate disks', async () => {
   }
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -410,6 +431,7 @@ test('Activate disks error', async () => {
   }
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').replyOnce(200,
     {
       data: [
@@ -492,6 +514,7 @@ test('Deactivate disks', async () => {
   }
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -563,6 +586,7 @@ test('Show single partition', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -632,6 +656,7 @@ test('Show single partition none', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -702,6 +727,7 @@ test('Show multi disk', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: [
@@ -773,6 +799,7 @@ test('Show null disk', async () => {
 
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: emptyHealth })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/disks').reply(200,
     {
       data: null,
@@ -824,6 +851,7 @@ test('Disk list shows one status per disk and links to its page and to the check
   const mock = new MockAdapter(axios)
   mock.onGet('/rest/storage/disks').reply(200, { success: true, data: arrayDisks })
   mock.onGet('/rest/storage/health').reply(200, { success: true, data: arrayHealth() })
+  mockAlerts(mock)
   mock.onGet('/rest/storage/error/last').reply(200, { success: true, data: 'OK' })
   mock.onGet('/rest/job/status').reply(200, { success: true, data: { name: 'test' } })
   const wrapper = mount(Storage,
@@ -845,7 +873,9 @@ test('Disk list shows one status per disk and links to its page and to the check
   expect(wrapper.find('[data-testid="disk-details-1"]').attributes('href')).toBe('/storage/disk?device=/dev/sdb')
   expect(wrapper.find('[data-testid="storage-checks-link"]').attributes('href')).toBe('/storage/checks')
   expect(wrapper.find('[data-testid="storage-checks-summary"]').text()).toBe('Scrub: Finished, started Sat Nov  7 21:40:51 2026, took 1:10:02. Errors: read=12 csum=3, corrected 0, uncorrectable 15')
+  expect(wrapper.find('[data-testid="storage-checks-link"]').classes()).toContain('checks-link-bad')
   expect(wrapper.find('[data-testid="disk-serial-0"]').exists()).toBe(false)
+  expect(seen).toBe(1)
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })

@@ -630,6 +630,12 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
+	err = c.Singleton(func(health *storage.Health, disks *storage.Disks, userConfig *config.UserConfig) *storage.Alerts {
+		return storage.NewAlerts(health, disks, userConfig)
+	})
+	if err != nil {
+		return nil, err
+	}
 	err = c.Singleton(func(checks *storage.Checks, userConfig *config.UserConfig, provider *date.RealProvider) *cron.StorageCheckJob {
 		return cron.NewStorageCheckJob(checks, userConfig, provider, logger)
 	})

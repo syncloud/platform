@@ -71,6 +71,7 @@ type Backend struct {
 	health          *health.Health
 	storageHealth   *storage.Health
 	storageChecks   *storage.Checks
+	storageAlerts   *storage.Alerts
 	network         string
 	address         string
 	logger          *zap.Logger
@@ -91,6 +92,7 @@ func NewBackend(
 	healthService *health.Health,
 	storageHealth *storage.Health,
 	storageChecks *storage.Checks,
+	storageAlerts *storage.Alerts,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -128,6 +130,7 @@ func NewBackend(
 		health:          healthService,
 		storageHealth:   storageHealth,
 		storageChecks:   storageChecks,
+		storageAlerts:   storageAlerts,
 		network:         network,
 		address:         address,
 		changesClient:   changesClient,
@@ -207,6 +210,8 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/storage/check/smart", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckSmart))).Methods("POST")
 	r.HandleFunc("/rest/storage/check/schedule", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckSchedule))).Methods("GET")
 	r.HandleFunc("/rest/storage/check/schedule", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckScheduleSave))).Methods("POST")
+	r.HandleFunc("/rest/storage/alerts", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageAlerts))).Methods("GET")
+	r.HandleFunc("/rest/storage/alerts/seen", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageAlertsSeen))).Methods("POST")
 	r.HandleFunc("/rest/storage/errors/reset", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageErrorsReset))).Methods("POST")
 	r.HandleFunc("/rest/event/trigger", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.EventTrigger))).Methods("POST")
 	r.HandleFunc("/rest/deactivate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Deactivate))).Methods("POST")
@@ -666,6 +671,14 @@ func (b *Backend) StorageCheckScheduleSave(req *http.Request) (interface{}, erro
 	}
 	b.storageChecks.SetSchedule(schedule)
 	return b.storageChecks.Schedule(), nil
+}
+
+func (b *Backend) StorageAlerts(_ *http.Request) (interface{}, error) {
+	return b.storageAlerts.Get()
+}
+
+func (b *Backend) StorageAlertsSeen(_ *http.Request) (interface{}, error) {
+	return "OK", b.storageAlerts.Seen()
 }
 
 func (b *Backend) StorageErrorsReset(_ *http.Request) (interface{}, error) {
