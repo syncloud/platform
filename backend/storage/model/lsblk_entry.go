@@ -24,6 +24,9 @@ type LsblkEntry struct {
 	Model      string
 	Active     bool
 	Uuid       string
+	Serial     string
+	Wwn        string
+	Hctl       string
 	Boot       bool
 }
 

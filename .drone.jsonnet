@@ -6,6 +6,7 @@ local publisher_image = 'syncloud/store-publisher:stable-346';
 local authelia = '4.39.15';
 local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
+local tools = ['gptfdisk', 'btrfs', 'smartmontools'];
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local caddy = '2.11.7';
@@ -88,21 +89,24 @@ local build(arch, testUI) = [{
                './shared/fetch.sh ${DRONE_BUILD_NUMBER} ' + arch,
              ],
            },
-           {
-             name: 'gptfdisk',
-             image: 'debian:bookworm-slim',
-             commands: [
-               './gptfdisk/build.sh',
-             ],
-           },
          ] + [
            {
-             name: 'gptfdisk test ' + distro,
-             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             name: tool,
+             image: 'debian:bookworm-slim',
              commands: [
-               './gptfdisk/test.sh',
+               './' + tool + '/build.sh',
              ],
            }
+           for tool in tools
+         ] + [
+           {
+             name: tool + ' test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './' + tool + '/test.sh',
+             ],
+           }
+           for tool in tools
            for distro in distros
          ] + [
            {

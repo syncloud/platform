@@ -397,3 +397,23 @@ NAME="/dev/mmcblk1boo1" SIZE="4M" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="
 	assert.False(t, disks[1].Boot)
 	assert.False(t, disks[2].Boot)
 }
+
+func TestLsblk_AllDisks_SerialWwnHctl(t *testing.T) {
+	output := `NAME="/dev/sda" SIZE="1.8T" TYPE="disk" MOUNTPOINT="/opt/disk/external" PARTTYPE="" FSTYPE="btrfs" MODEL="CT2000BX500SSD1" UUID="b7020451-ac9c-4195-a7e8-f072458b1bae" SERIAL="2112E58EB6C6" WWN="0x500a0751e58eb6c6" HCTL="0:0:0:0"
+NAME="/dev/sdb" SIZE="931.5G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="btrfs" MODEL="External_USB_3.0" UUID="b7020451-ac9c-4195-a7e8-f072458b1bae" SERIAL="20170617007242F" WWN="" HCTL="2:0:0:0"
+NAME="/dev/mmcblk0" SIZE="29.7G" TYPE="disk" MOUNTPOINT="" PARTTYPE="" FSTYPE="" MODEL="" UUID="" SERIAL="0xbf138c98" WWN="" HCTL=""
+NAME="/dev/mmcblk0p2" SIZE="29.5G" TYPE="part" MOUNTPOINT="/" PARTTYPE="0x83" FSTYPE="ext4" MODEL="" UUID="" SERIAL="" WWN="" HCTL=""`
+	lsblk := NewLsblk(&ConfigStub{diskDir: "/opt/disk/external"}, &PathCheckerStub{exists: true}, &ExecutorStub{output: output}, log.Default())
+
+	disks, err := lsblk.AvailableDisks()
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(disks))
+	assert.Equal(t, "CT2000BX500SSD1", disks[0].Name)
+	assert.Equal(t, "2112E58EB6C6", disks[0].Serial)
+	assert.Equal(t, "0x500a0751e58eb6c6", disks[0].Wwn)
+	assert.Equal(t, "0:0:0:0", disks[0].Hctl)
+	assert.True(t, disks[0].Active)
+	assert.Equal(t, "20170617007242F", disks[1].Serial)
+	assert.Equal(t, "2:0:0:0", disks[1].Hctl)
+	assert.True(t, disks[1].Active)
+}

@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+const LsblkColumns = "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID,SERIAL,WWN,HCTL"
+
+var lsblkField = regexp.MustCompile(`([A-Z:_-]+)="([^"]*)"`)
+
 type Lsblk struct {
 	systemConfig Config
 	pathChecker  Checker
@@ -54,37 +58,34 @@ func (l *Lsblk) AvailableDisks() ([]model.Disk, error) {
 func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
 	var entries []model.LsblkEntry
 
-	lsblkOutputBytes, err := l.executor.CombinedOutput("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID")
+	lsblkOutputBytes, err := l.executor.CombinedOutput("lsblk", "-Pp", "-o", LsblkColumns)
 	if err != nil {
 		return nil, err
 	}
-	lsblkOutput := string(lsblkOutputBytes)
-	lsblkLines := strings.Split(lsblkOutput, "\n")
-	for _, rawLine := range lsblkLines {
+	for _, rawLine := range strings.Split(string(lsblkOutputBytes), "\n") {
 		line := strings.TrimSpace(rawLine)
 		if line == "" {
 			continue
 		}
-		r, err := regexp.Compile(`NAME="(.*)" SIZE="(.*)" TYPE="(.*)" MOUNTPOINT="(.*)" PARTTYPE="(.*)" FSTYPE="(.*)" MODEL="(.*)" UUID="(.*)"`)
-		if err != nil {
-			return nil, err
+		fields := make(map[string]string)
+		for _, match := range lsblkField.FindAllStringSubmatch(line, -1) {
+			fields[match[1]] = match[2]
 		}
-
-		match := r.FindStringSubmatch(line)
-		mountPoint := match[4]
-
+		mountPoint := fields["MOUNTPOINT"]
 		entries = append(entries, model.LsblkEntry{
-			Name:       match[1],
-			Size:       match[2],
-			DeviceType: match[3],
+			Name:       fields["NAME"],
+			Size:       fields["SIZE"],
+			DeviceType: fields["TYPE"],
 			MountPoint: mountPoint,
-			PartType:   match[5],
-			FsType:     match[6],
-			Model:      strings.TrimSpace(match[7]),
+			PartType:   fields["PARTTYPE"],
+			FsType:     fields["FSTYPE"],
+			Model:      strings.TrimSpace(fields["MODEL"]),
 			Active:     l.isActive(mountPoint),
-			Uuid:       match[8],
+			Uuid:       fields["UUID"],
+			Serial:     strings.TrimSpace(fields["SERIAL"]),
+			Wwn:        fields["WWN"],
+			Hctl:       fields["HCTL"],
 		})
-
 	}
 
 	return entries, nil
@@ -131,6 +132,9 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 				active = activeUuids[entry.Uuid]
 			}
 			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, entry.MountPoint, entry.Boot, []model.Partition{})
+			disk.Serial = entry.Serial
+			disk.Wwn = entry.Wwn
+			disk.Hctl = entry.Hctl
 			if entry.IsRaid() {
 				disk.Name = entry.DeviceType
 				partition := l.createPartition(entry)

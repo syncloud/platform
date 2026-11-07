@@ -54,3 +54,13 @@ func TestTail_KeepsLastN(t *testing.T) {
 func TestTail_NoTruncationWhenUnderLimit(t *testing.T) {
 	assert.Equal(t, "a\nb\nc", tail("a\nb\nc", 1000))
 }
+
+func TestDiskDevices_SkipsPartitionsZramAndSdCard(t *testing.T) {
+	devices := DiskDevices(`/dev/sda    disk
+/dev/sdb    disk
+/dev/mmcblk0 disk
+/dev/zram0  disk
+/dev/loop0  loop
+`)
+	assert.Equal(t, []string{"/dev/sda", "/dev/sdb"}, devices)
+}

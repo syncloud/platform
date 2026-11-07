@@ -2,6 +2,9 @@ package support
 
 import (
 	"fmt"
+	"github.com/syncloud/platform/storage"
+	"github.com/syncloud/platform/storage/btrfs"
+	"github.com/syncloud/platform/storage/smart"
 	"go.uber.org/zap"
 	"os"
 	"os/exec"
@@ -36,8 +39,13 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.cmd("cat", "/etc/debian_version")
 	log += a.cmd("free", "-h")
 	log += a.cmd("df", "-h")
-	log += a.cmd("lsblk", "-o", "+UUID")
-	log += a.cmd("lsblk", "-Pp", "-o", "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL")
+	log += a.cmd("lsblk", "-o", "+UUID,SERIAL,WWN,HCTL")
+	log += a.cmd("lsblk", "-Pp", "-o", storage.LsblkColumns)
+	log += a.cmd("ls", "-l", "/dev/disk/by-path", "/dev/disk/by-id")
+	log += a.cmd(btrfs.BTRFS, "device", "stats", "/data/")
+	log += a.cmd(btrfs.BTRFS, "filesystem", "df", "/data/")
+	log += a.cmd(btrfs.BTRFS, "scrub", "status", "/data/")
+	log += a.smartReport()
 	log += a.cmd("ls", "-la", "/data")
 	log += a.cmd("uptime")
 	log += a.cmd("snap", "version")
@@ -129,13 +137,47 @@ func (a *LogAggregator) snapChangesDetail() string {
 	return result + Separator
 }
 
+func (a *LogAggregator) smartReport() string {
+	out, err := exec.Command("lsblk", "-dnp", "-o", "NAME,TYPE").CombinedOutput()
+	if err != nil {
+		a.logger.Warn("failed", zap.Error(err))
+		return "lsblk -dnp -o NAME,TYPE\n\n" + string(out) + Separator
+	}
+	result := ""
+	for _, device := range DiskDevices(string(out)) {
+		report := a.cmd(smart.SMARTCTL, "-a", device)
+		result += report
+		if smartNeedsSat.MatchString(report) {
+			result += a.cmd(smart.SMARTCTL, "-a", "-d", "sat", device)
+		}
+	}
+	return result
+}
+
+var smartNeedsSat = regexp.MustCompile(`Unknown USB bridge|Unable to detect device type|please specify device type with the -d option`)
+
+func DiskDevices(lsblk string) []string {
+	var devices []string
+	for _, line := range strings.Split(lsblk, "\n") {
+		fields := strings.Fields(line)
+		if len(fields) != 2 || fields[1] != "disk" {
+			continue
+		}
+		if strings.HasPrefix(fields[0], "/dev/zram") || strings.HasPrefix(fields[0], "/dev/mmcblk") {
+			continue
+		}
+		devices = append(devices, fields[0])
+	}
+	return devices
+}
+
 func (a *LogAggregator) dmesgErrors() string {
 	result := "dmesg errors\n\n"
 	out, err := exec.Command("dmesg", "-T").CombinedOutput()
 	if err != nil {
 		a.logger.Warn("failed", zap.Error(err))
 	}
-	re := regexp.MustCompile(`(?i)I/O error|EXT4-fs error|usb-storage|disconnect`)
+	re := regexp.MustCompile(`(?i)I/O error|EXT4-fs error|BTRFS (error|warning)|usb-storage|disconnect|hard resetting link|SError|exception Emask`)
 	var matches []string
 	for _, line := range strings.Split(string(out), "\n") {
 		if re.MatchString(line) {

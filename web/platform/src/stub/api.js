@@ -258,6 +258,11 @@ const disksData = {
       size: '100G',
       has_errors: false,
       raid: 'raid10',
+      raid_metadata: 'raid1c3',
+      serial: '50026B738075DA24',
+      hctl: '0:0:0:0',
+      devid: '1',
+      errors: { write: 0, read: 0, flush: 0, corruption: 0, generation: 0 },
       partitions: [
         { size: '512M', device: '/dev/sda1', mount_point: '', active: false, fs_type: 'vfat', extendable: false },
         { size: '49.5G', device: '/dev/sda2', mount_point: '', active: false, fs_type: 'ext4', extendable: false },
@@ -270,6 +275,12 @@ const disksData = {
       active: true,
       size: '100G',
       raid: 'raid10',
+      raid_metadata: 'raid1c3',
+      serial: '2342E8815856',
+      hctl: '1:0:0:0',
+      devid: '2',
+      errors: { write: 0, read: 12, flush: 0, corruption: 3, generation: 0 },
+      has_errors: true,
       partitions: [
         { size: '100G', device: '/dev/sdb1', mount_point: '', active: false, fs_type: 'ext4', extendable: true }
       ]
@@ -300,6 +311,35 @@ const disksData = {
     }
   ],
   success: true
+}
+
+const storageHealthData = {
+  disks: [
+    {
+      device: '/dev/sda',
+      port: 'ata1',
+      smart: { available: true, passed: true, reallocated: 0, pending: 0, offline_uncorrectable: 0, crc_errors: 0, power_on_hours: 8784, temperature: 26, self_test: { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed without error', last_passed: true } },
+      link: { count: 0 },
+      io: { count: 0 }
+    },
+    {
+      device: '/dev/sdb',
+      port: 'ata2',
+      smart: { available: true, passed: true, reallocated: 0, pending: 0, offline_uncorrectable: 0, crc_errors: 41, power_on_hours: 212, temperature: 31, self_test: { running: true, remaining_percent: 90 } },
+      link: { count: 4, last: '2026-10-31T02:01:44' },
+      io: { count: 3, last: '2026-10-31T02:01:45' }
+    },
+    {
+      device: '/dev/sdc',
+      port: 'usb2',
+      smart: { available: false, message: 'Unknown USB bridge', self_test: { running: false, remaining_percent: 0 } },
+      link: { count: 0 },
+      io: { count: 0 }
+    }
+  ],
+  scrub: { state: 'finished', started: 'Sat Nov  7 21:40:51 2026', duration: '1:10:02', corrected: 0, uncorrectable: 0 },
+  schedule: { scrub: true, smart: false },
+  busy: false
 }
 
 const disksDataError = {
@@ -573,6 +613,26 @@ export function mock () {
       })
       this.get('/rest/storage/disks', function (_schema, _request) {
         return new Response(200, {}, disksData)
+      })
+      this.get('/rest/storage/health', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: storageHealthData })
+      })
+      this.post('/rest/storage/check/scrub', function (_schema, _request) {
+        storageHealthData.scrub = { state: 'running', progress: '16.32%', corrected: 0, uncorrectable: 0 }
+        return new Response(200, {}, { success: true, data: 'OK' })
+      })
+      this.post('/rest/storage/check/smart', function (_schema, request) {
+        const device = JSON.parse(request.requestBody).device
+        storageHealthData.disks.filter(d => d.device === device).forEach(d => { d.smart.self_test = { running: true, remaining_percent: 90 } })
+        return new Response(200, {}, { success: true, data: 'OK' })
+      })
+      this.post('/rest/storage/check/schedule', function (_schema, request) {
+        storageHealthData.schedule = JSON.parse(request.requestBody)
+        return new Response(200, {}, { success: true, data: storageHealthData.schedule })
+      })
+      this.post('/rest/storage/errors/reset', function (_schema, _request) {
+        disksData.data.forEach(d => { d.has_errors = false })
+        return new Response(200, {}, { success: true, data: 'OK' })
       })
       this.get('/rest/storage/boot/disk', function (_schema, _request) {
         return new Response(200, {}, bootDiskData)

@@ -790,6 +790,69 @@ def test_public_settings_disk_add_remove(loop_device, device, fs_type, domain, a
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
 
 
+def test_storage_array_health_and_checks(loop_device, device, domain, artifact_dir):
+    device.run_ssh('/snap/platform/current/smartmontools/bin/smartctl.sh --version')
+    assert disk_activate(loop_device, device, domain, artifact_dir) == '/opt/disk/external/platform'
+    session = device.login_v2()
+    url = 'https://{0}/rest/storage/{1}'.format
+
+    disks = session.get(url(domain, 'disks'), verify=False).json()['data']
+    disk = next(d for d in disks if d['device'] == loop_device)
+    assert disk['devid'] == '1', disk
+    assert disk['errors'] == {'write': 0, 'read': 0, 'flush': 0, 'corruption': 0, 'generation': 0}, disk
+    assert not disk['has_errors'], disk
+    assert disk['raid'] != '' and disk['raid_metadata'] != '', disk
+
+    health = storage_health(session, domain, artifact_dir, 'before')
+    loop_health = next(d for d in health['disks'] if d['device'] == loop_device)
+    assert not loop_health['smart']['available'], loop_health
+    assert loop_health['link'] == {'count': 0}, loop_health
+    assert loop_health['io'] == {'count': 0}, loop_health
+    assert health['scrub']['state'] == 'never', health
+
+    device.run_ssh('dd if=/dev/urandom of=/opt/disk/external/scrub.data bs=1M count=20 conv=fsync')
+    response = session.post(url(domain, 'check/scrub'), verify=False)
+    assert response.status_code == 200, response.text
+    wait_for_response(session, url(domain, 'health'),
+                      lambda r: r.json()['data']['scrub']['state'] == 'finished',
+                      attempts=60)
+    health = storage_health(session, domain, artifact_dir, 'after.scrub')
+    assert 'errors' not in health['scrub'], health
+    assert health['scrub']['uncorrectable'] == 0, health
+    device.run_ssh('rm /opt/disk/external/scrub.data')
+
+    response = session.post(url(domain, 'errors/reset'), verify=False)
+    assert response.status_code == 200, response.text
+
+    response = session.post(url(domain, 'check/smart'), json={'device': loop_device}, verify=False)
+    assert response.status_code == 500, response.text
+    assert 'Unable to detect device type' in response.json()['message'], response.text
+
+    response = session.post(url(domain, 'check/smart'), json={'device': '/dev/notadisk'}, verify=False)
+    assert response.status_code == 500, response.text
+    assert response.json()['message'] == 'unknown disk: /dev/notadisk', response.text
+
+    response = session.post(url(domain, 'check/schedule'), json={'scrub': True, 'smart': True}, verify=False)
+    assert response.status_code == 200, response.text
+    assert session.get(url(domain, 'check/schedule'), verify=False).json()['data'] == {'scrub': True, 'smart': True}
+    response = session.post(url(domain, 'check/schedule'), json={'scrub': False, 'smart': False}, verify=False)
+    assert response.json()['data'] == {'scrub': False, 'smart': False}, response.text
+
+    assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
+    response = session.post(url(domain, 'check/scrub'), verify=False)
+    assert response.status_code == 500, response.text
+    assert response.json()['message'] == 'no active btrfs disk array', response.text
+    assert storage_health(session, domain, artifact_dir, 'deactivated')['scrub'] is None
+
+
+def storage_health(session, domain, artifact_dir, name):
+    response = session.get('https://{0}/rest/storage/health'.format(domain), verify=False)
+    with open('{0}/rest.storage.health.{1}.json'.format(artifact_dir, name), 'w') as the_file:
+        the_file.write(response.text)
+    assert response.status_code == 200, response.text
+    return response.json()['data']
+
+
 def test_public_settings_partition_add_remove(loop_device, device, domain, artifact_dir):
     device.run_ssh('/snap/platform/current/bin/disk_format.sh {0}'.format(loop_device), retries=3)
     partition = device.run_ssh('lsblk -pl -o NAME,TYPE {0} | grep part | head -1'.format(loop_device)).split()[0]

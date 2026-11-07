@@ -24,6 +24,7 @@ import (
 	"github.com/syncloud/platform/session"
 	"github.com/syncloud/platform/snap"
 	"github.com/syncloud/platform/storage"
+	storagemodel "github.com/syncloud/platform/storage/model"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/system"
 	"github.com/syncloud/platform/systemd"
@@ -68,6 +69,8 @@ type Backend struct {
 	totp            *auth.TOTP
 	timezone        *timezone.Applier
 	health          *health.Health
+	storageHealth   *storage.Health
+	storageChecks   *storage.Checks
 	network         string
 	address         string
 	logger          *zap.Logger
@@ -86,6 +89,8 @@ func NewBackend(
 	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 	timezone *timezone.Applier,
 	healthService *health.Health,
+	storageHealth *storage.Health,
+	storageChecks *storage.Checks,
 	logger *zap.Logger) *Backend {
 
 	return &Backend{
@@ -121,6 +126,8 @@ func NewBackend(
 		totp:            totp,
 		timezone:        timezone,
 		health:          healthService,
+		storageHealth:   storageHealth,
+		storageChecks:   storageChecks,
 		network:         network,
 		address:         address,
 		changesClient:   changesClient,
@@ -195,6 +202,12 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/storage/error/clear", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageClearError))).Methods("POST")
 	r.HandleFunc("/rest/storage/disks", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageDisks))).Methods("GET")
 	r.HandleFunc("/rest/storage/space", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageSpace))).Methods("GET")
+	r.HandleFunc("/rest/storage/health", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageHealth))).Methods("GET")
+	r.HandleFunc("/rest/storage/check/scrub", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckScrub))).Methods("POST")
+	r.HandleFunc("/rest/storage/check/smart", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckSmart))).Methods("POST")
+	r.HandleFunc("/rest/storage/check/schedule", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckSchedule))).Methods("GET")
+	r.HandleFunc("/rest/storage/check/schedule", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckScheduleSave))).Methods("POST")
+	r.HandleFunc("/rest/storage/errors/reset", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageErrorsReset))).Methods("POST")
 	r.HandleFunc("/rest/event/trigger", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.EventTrigger))).Methods("POST")
 	r.HandleFunc("/rest/deactivate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Deactivate))).Methods("POST")
 	r.HandleFunc("/rest/certificate", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.certificate.Certificate))).Methods("GET")
@@ -622,6 +635,41 @@ func (b *Backend) StorageActivateDisks(req *http.Request) (interface{}, error) {
 
 func (b *Backend) StorageSpace(_ *http.Request) (interface{}, error) {
 	return b.diskSpace.Status(), nil
+}
+
+func (b *Backend) StorageHealth(_ *http.Request) (interface{}, error) {
+	return b.storageHealth.Get()
+}
+
+func (b *Backend) StorageCheckScrub(_ *http.Request) (interface{}, error) {
+	return "OK", b.storageChecks.StartScrub()
+}
+
+func (b *Backend) StorageCheckSmart(req *http.Request) (interface{}, error) {
+	var request model.StorageSmartTestRequest
+	err := json.NewDecoder(req.Body).Decode(&request)
+	if err != nil {
+		return nil, err
+	}
+	return "OK", b.storageChecks.StartSmartTest(request.Device)
+}
+
+func (b *Backend) StorageCheckSchedule(_ *http.Request) (interface{}, error) {
+	return b.storageChecks.Schedule(), nil
+}
+
+func (b *Backend) StorageCheckScheduleSave(req *http.Request) (interface{}, error) {
+	var schedule storagemodel.CheckSchedule
+	err := json.NewDecoder(req.Body).Decode(&schedule)
+	if err != nil {
+		return nil, err
+	}
+	b.storageChecks.SetSchedule(schedule)
+	return b.storageChecks.Schedule(), nil
+}
+
+func (b *Backend) StorageErrorsReset(_ *http.Request) (interface{}, error) {
+	return "OK", b.storageChecks.ResetErrors()
 }
 
 func (b *Backend) StorageLastError(_ *http.Request) (interface{}, error) {
