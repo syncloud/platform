@@ -281,7 +281,6 @@
     "ioErrors": "Erros de E/S",
     "eventsNone": "Nenhum",
     "eventsCount": "{count}, o último às {last}",
-    "array": "Conjunto de discos",
     "scrub": "Scrub",
     "scrubNever": "Nunca executado",
     "scrubRunning": "Em execução, {progress} concluído",
@@ -294,7 +293,16 @@
     "resetText": "Repõe a zero os contadores de erros de todos os discos do conjunto. Faça-o depois de resolver a causa, para que os erros novos se destaquem.",
     "scheduleScrub": "Scrub só de leitura todos os meses",
     "scheduleSmart": "Teste curto SMART todas as semanas",
-    "checksBusy": "Outra operação está em curso. As verificações podem começar quando terminar."
+    "checksBusy": "Outra operação está em curso. As verificações podem começar quando terminar.",
+    "device": "Dispositivo",
+    "details": "Detalhes",
+    "checks": "Verificações de estado",
+    "checksSummary": "Autotestes SMART e agendamentos",
+    "back": "‹ Armazenamento",
+    "diskMissing": "Este disco já não está ligado",
+    "status_ok": "Sem problemas",
+    "status_warning": "Requer atenção",
+    "status_error": "Foram encontrados erros"
   },
   "access": {
     "title": "Acesso",

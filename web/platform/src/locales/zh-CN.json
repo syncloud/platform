@@ -281,7 +281,6 @@
     "ioErrors": "I/O 错误",
     "eventsNone": "无",
     "eventsCount": "{count} 次，最近一次 {last}",
-    "array": "磁盘阵列",
     "scrub": "校验 (scrub)",
     "scrubNever": "从未运行",
     "scrubRunning": "进行中，已完成 {progress}",
@@ -294,7 +293,16 @@
     "resetText": "将阵列中所有磁盘的错误计数清零。请在处理完原因后再执行，以便新的错误能被注意到。",
     "scheduleScrub": "每月运行只读校验",
     "scheduleSmart": "每周运行 SMART 短自检",
-    "checksBusy": "另一项操作正在进行，完成后才能开始检查。"
+    "checksBusy": "另一项操作正在进行，完成后才能开始检查。",
+    "device": "设备",
+    "details": "详情",
+    "checks": "健康检查",
+    "checksSummary": "SMART 自检与计划",
+    "back": "‹ 存储",
+    "diskMissing": "此磁盘已断开连接",
+    "status_ok": "未发现问题",
+    "status_warning": "需要关注",
+    "status_error": "发现错误"
   },
   "access": {
     "title": "访问",

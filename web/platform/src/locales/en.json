@@ -316,7 +316,6 @@
     "ioErrors": "I/O errors",
     "eventsNone": "None",
     "eventsCount": "{count}, last at {last}",
-    "array": "Disk array",
     "scrub": "Scrub",
     "scrubNever": "Never run",
     "scrubRunning": "Running, {progress} done",
@@ -329,7 +328,16 @@
     "resetText": "Set the error counters of every disk in the array back to zero. Do this after you have dealt with the cause, so that new errors stand out.",
     "scheduleScrub": "Read-only scrub every month",
     "scheduleSmart": "SMART short test every week",
-    "checksBusy": "Another operation is in progress. Checks can start when it finishes."
+    "checksBusy": "Another operation is in progress. Checks can start when it finishes.",
+    "device": "Device",
+    "details": "Details",
+    "checks": "Health checks",
+    "checksSummary": "SMART self-tests and schedules",
+    "back": "‹ Storage",
+    "diskMissing": "This disk is no longer connected",
+    "status_ok": "No problems found",
+    "status_warning": "Needs attention",
+    "status_error": "Errors found"
   },
   "access": {
     "title": "Access",

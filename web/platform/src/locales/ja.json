@@ -281,7 +281,6 @@
     "ioErrors": "I/O エラー",
     "eventsNone": "なし",
     "eventsCount": "{count} 件、最終 {last}",
-    "array": "ディスクアレイ",
     "scrub": "スクラブ",
     "scrubNever": "未実行",
     "scrubRunning": "実行中、{progress} 完了",
@@ -294,7 +293,16 @@
     "resetText": "アレイ内のすべてのディスクのエラーカウンターを 0 に戻します。新しいエラーに気付けるよう、原因に対処した後で行ってください。",
     "scheduleScrub": "毎月、読み取り専用スクラブ",
     "scheduleSmart": "毎週、SMART ショートテスト",
-    "checksBusy": "別の処理を実行中です。終了後にチェックを開始できます。"
+    "checksBusy": "別の処理を実行中です。終了後にチェックを開始できます。",
+    "device": "デバイス",
+    "details": "詳細",
+    "checks": "ヘルスチェック",
+    "checksSummary": "SMART セルフテストとスケジュール",
+    "back": "‹ ストレージ",
+    "diskMissing": "このディスクは接続されていません",
+    "status_ok": "問題なし",
+    "status_warning": "要確認",
+    "status_error": "エラーあり"
   },
   "access": {
     "title": "アクセス",

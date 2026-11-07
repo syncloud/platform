@@ -281,7 +281,6 @@
     "ioErrors": "E/A-Fehler",
     "eventsNone": "Keine",
     "eventsCount": "{count}, zuletzt {last}",
-    "array": "Festplattenverbund",
     "scrub": "Scrub",
     "scrubNever": "Noch nie ausgeführt",
     "scrubRunning": "Läuft, {progress} erledigt",
@@ -294,7 +293,16 @@
     "resetText": "Setzt die Fehlerzähler aller Festplatten im Verbund auf null. Tun Sie das, nachdem Sie die Ursache behoben haben, damit neue Fehler auffallen.",
     "scheduleScrub": "Monatlicher Scrub (nur lesend)",
     "scheduleSmart": "Wöchentlicher SMART-Kurztest",
-    "checksBusy": "Ein anderer Vorgang läuft. Prüfungen können starten, sobald er abgeschlossen ist."
+    "checksBusy": "Ein anderer Vorgang läuft. Prüfungen können starten, sobald er abgeschlossen ist.",
+    "device": "Gerät",
+    "details": "Details",
+    "checks": "Zustandsprüfungen",
+    "checksSummary": "SMART-Selbsttests und Zeitpläne",
+    "back": "‹ Speicher",
+    "diskMissing": "Diese Festplatte ist nicht mehr angeschlossen",
+    "status_ok": "Keine Probleme gefunden",
+    "status_warning": "Erfordert Aufmerksamkeit",
+    "status_error": "Fehler gefunden"
   },
   "access": {
     "title": "Zugriff",

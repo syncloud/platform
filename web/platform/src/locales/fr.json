@@ -281,7 +281,6 @@
     "ioErrors": "Erreurs d'E/S",
     "eventsNone": "Aucune",
     "eventsCount": "{count}, la dernière à {last}",
-    "array": "Grappe de disques",
     "scrub": "Scrub",
     "scrubNever": "Jamais lancé",
     "scrubRunning": "En cours, {progress} effectué",
@@ -294,7 +293,16 @@
     "resetText": "Remet à zéro les compteurs d'erreurs de tous les disques de la grappe. Faites-le après avoir traité la cause, pour que les nouvelles erreurs ressortent.",
     "scheduleScrub": "Scrub en lecture seule chaque mois",
     "scheduleSmart": "Test court SMART chaque semaine",
-    "checksBusy": "Une autre opération est en cours. Les vérifications pourront démarrer quand elle sera terminée."
+    "checksBusy": "Une autre opération est en cours. Les vérifications pourront démarrer quand elle sera terminée.",
+    "device": "Périphérique",
+    "details": "Détails",
+    "checks": "Vérifications de santé",
+    "checksSummary": "Autotests SMART et planification",
+    "back": "‹ Stockage",
+    "diskMissing": "Ce disque n'est plus connecté",
+    "status_ok": "Aucun problème détecté",
+    "status_warning": "À surveiller",
+    "status_error": "Erreurs détectées"
   },
   "access": {
     "title": "Accès",
