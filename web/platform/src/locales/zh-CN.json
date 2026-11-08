@@ -312,7 +312,8 @@
     "selfTestsRunning": "正在 {disks} 上运行",
     "selfTestsFailed": "在 {disks} 上失败",
     "selfTestsPassed": "所有磁盘均通过",
-    "selfTestsNotAvailable": "没有磁盘支持 SMART"
+    "selfTestsNotAvailable": "没有磁盘支持自检",
+    "selfTestUnsupported": "此磁盘不支持"
   },
   "access": {
     "title": "访问",

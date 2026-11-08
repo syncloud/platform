@@ -845,9 +845,9 @@ def test_storage_array_health_and_checks(loop_device, device, domain, artifact_d
     assert response.json()['data'] == {'enabled': False}, response.text
 
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
-    response = session.post(url(domain, 'check'), verify=False)
+    response = session.post(url(domain, 'errors/reset'), verify=False)
     assert response.status_code == 500, response.text
-    assert response.json()['message'] == 'no disk supports checks: no active btrfs disk array and no disk with SMART', response.text
+    assert response.json()['message'] == 'no active btrfs disk array', response.text
     assert storage_health(session, domain, artifact_dir, 'deactivated')['scrub'] is None
 
 

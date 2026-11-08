@@ -312,7 +312,8 @@
     "selfTestsRunning": "قيد التشغيل على {disks}",
     "selfTestsFailed": "فشل على {disks}",
     "selfTestsPassed": "نجح على كل الأقراص",
-    "selfTestsNotAvailable": "لا يوجد قرص يدعم SMART"
+    "selfTestsNotAvailable": "لا يوجد قرص يدعم الاختبار الذاتي",
+    "selfTestUnsupported": "لا يدعمه هذا القرص"
   },
   "access": {
     "title": "الوصول",

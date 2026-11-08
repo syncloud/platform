@@ -36,6 +36,7 @@ export const arrayHealth = (overrides) => Object.assign({
       port: 'ata1',
       smart: {
         available: true,
+        self_test_supported: true,
         passed: true,
         reallocated: 0,
         pending: 0,

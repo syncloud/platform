@@ -44,12 +44,15 @@ func (s *Smartctl) StartShortTest(device string) error {
 	if !output.Supported() {
 		return errors.New(output.Message())
 	}
+	if !output.SelfTestSupported() {
+		return errors.New(SelfTestNotSupported)
+	}
 	result, err := s.run(append(deviceType, "-t", "short", device)...)
 	if err != nil {
 		return err
 	}
 	if !result.Succeeded() {
-		return errors.New(result.Message())
+		return errors.New(result.Failure())
 	}
 	return nil
 }

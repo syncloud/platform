@@ -1,5 +1,6 @@
 package smart
 
 type AtaSmartData struct {
-	SelfTest *SelfTestState `json:"self_test"`
+	SelfTest     *SelfTestState   `json:"self_test"`
+	Capabilities *AtaCapabilities `json:"capabilities"`
 }

@@ -312,7 +312,8 @@
     "selfTestsRunning": "Läuft auf {disks}",
     "selfTestsFailed": "Fehlgeschlagen auf {disks}",
     "selfTestsPassed": "Auf allen Festplatten bestanden",
-    "selfTestsNotAvailable": "Keine Festplatte unterstützt SMART"
+    "selfTestsNotAvailable": "Keine Festplatte unterstützt Selbsttests",
+    "selfTestUnsupported": "Von dieser Festplatte nicht unterstützt"
   },
   "access": {
     "title": "Zugriff",

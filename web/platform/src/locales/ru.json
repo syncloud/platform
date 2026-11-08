@@ -312,7 +312,8 @@
     "selfTestsRunning": "Идёт на {disks}",
     "selfTestsFailed": "Не пройден на {disks}",
     "selfTestsPassed": "Пройден на всех дисках",
-    "selfTestsNotAvailable": "Ни один диск не поддерживает SMART"
+    "selfTestsNotAvailable": "Ни один диск не поддерживает самотест",
+    "selfTestUnsupported": "Этот диск не поддерживает"
   },
   "access": {
     "title": "Доступ",

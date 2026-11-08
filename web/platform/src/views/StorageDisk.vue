@@ -34,12 +34,13 @@
           <dd data-testid="disk-smart" :class="{ 'disk-bad': smartBad(health.smart) }">{{ smartText(t, health.smart) }}</dd>
           <template v-if="health.smart.available">
             <dt>{{ $t('storage.selfTest') }}</dt>
-            <dd class="disk-selftest">
+            <dd v-if="health.smart.self_test_supported" class="disk-selftest">
               <button class="sc-btn sc-btn-ghost sc-btn-small" type="button" data-testid="disk-smart-test"
                       :disabled="busy || health.smart.self_test.running"
                       @click="startSmartTest">{{ $t('storage.smartTestStart') }}</button>
               <span data-testid="disk-selftest">{{ selfTestText(t, health.smart.self_test) }}</span>
             </dd>
+            <dd v-else data-testid="disk-selftest">{{ $t('storage.selfTestUnsupported') }}</dd>
           </template>
           <template v-if="health.smart.log && health.smart.log.length > 0">
             <dt>{{ $t('storage.selfTestLog') }}</dt>

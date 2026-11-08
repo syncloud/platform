@@ -117,7 +117,7 @@ func (c *Checks) Start() error {
 		return errors.Join(errs...)
 	}
 	if candidates == 0 {
-		return fmt.Errorf("no disk supports checks: no active btrfs disk array and no disk with SMART")
+		return fmt.Errorf("no disk supports checks: no active btrfs disk array and no disk with SMART self-tests")
 	}
 	if started == 0 {
 		return fmt.Errorf("checks are already running")
@@ -143,7 +143,7 @@ func (c *Checks) smartTests(disks []model.Disk) (int, int, []error) {
 	var errs []error
 	for _, disk := range disks {
 		health := c.smart.Health(disk.Device)
-		if !health.Available {
+		if !health.Available || !health.SelfTestSupported {
 			continue
 		}
 		candidates++

@@ -312,7 +312,8 @@
     "selfTestsRunning": "Em curso em {disks}",
     "selfTestsFailed": "Falhou em {disks}",
     "selfTestsPassed": "Aprovado em todos os discos",
-    "selfTestsNotAvailable": "Nenhum disco suporta SMART"
+    "selfTestsNotAvailable": "Nenhum disco suporta autotestes",
+    "selfTestUnsupported": "Não suportado por este disco"
   },
   "access": {
     "title": "Acesso",

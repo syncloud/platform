@@ -104,3 +104,37 @@ func TestStartShortTest_NotAvailable(t *testing.T) {
 	assert.EqualError(t, err, "/dev/loop0: Unable to detect device type")
 	assert.Len(t, executor.calls, 2)
 }
+
+func TestHealth_SelfTestSupport(t *testing.T) {
+	executor := &ExecutorStub{responses: map[string]string{
+		"-j -a /dev/sda": "ata-self-test-unsupported.json",
+		"-j -a /dev/sdb": "ata-self-test-done.json",
+	}}
+	smartctl := NewSmartctl(executor, log.Default())
+
+	unsupported := smartctl.Health("/dev/sda")
+	assert.True(t, unsupported.Available)
+	assert.True(t, *unsupported.Passed)
+	assert.False(t, unsupported.SelfTestSupported)
+	assert.Equal(t, int64(0), *unsupported.CrcErrors)
+
+	assert.True(t, smartctl.Health("/dev/sdb").SelfTestSupported)
+}
+
+func TestStartShortTest_SelfTestNotSupported(t *testing.T) {
+	executor := &ExecutorStub{responses: map[string]string{"-j -a /dev/sda": "ata-self-test-unsupported.json"}}
+	err := NewSmartctl(executor, log.Default()).StartShortTest("/dev/sda")
+
+	assert.EqualError(t, err, "this disk does not support self-tests")
+	assert.Equal(t, []string{"-j -a /dev/sda"}, executor.calls)
+}
+
+func TestStartShortTest_FailureWithoutMessage(t *testing.T) {
+	executor := &ExecutorStub{responses: map[string]string{
+		"-j -a /dev/sda":       "ata-self-test-done.json",
+		"-j -t short /dev/sda": "ata-command-failed.json",
+	}}
+	err := NewSmartctl(executor, log.Default()).StartShortTest("/dev/sda")
+
+	assert.EqualError(t, err, "smartctl failed with exit status 4")
+}

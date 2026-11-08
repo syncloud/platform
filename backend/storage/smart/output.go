@@ -1,6 +1,9 @@
 package smart
 
-import "github.com/syncloud/platform/storage/model"
+import (
+	"fmt"
+	"github.com/syncloud/platform/storage/model"
+)
 
 const (
 	AttributeReallocated          = 5
@@ -8,21 +11,39 @@ const (
 	AttributeOfflineUncorrectable = 198
 	AttributeCrcErrors            = 199
 	NotAvailable                  = "SMART is not available for this disk"
+	SelfTestNotSupported          = "this disk does not support self-tests"
 	LogEntries                    = 5
 )
 
 type Output struct {
-	Smartctl     Info           `json:"smartctl"`
-	SmartStatus  *Status        `json:"smart_status"`
-	AtaSmartData *AtaSmartData  `json:"ata_smart_data"`
-	Attributes   *AtaAttributes `json:"ata_smart_attributes"`
-	PowerOnTime  *PowerOnTime   `json:"power_on_time"`
-	Temperature  *Temperature   `json:"temperature"`
-	SelfTestLog  *SelfTestLog   `json:"ata_smart_self_test_log"`
+	Smartctl     Info               `json:"smartctl"`
+	SmartStatus  *Status            `json:"smart_status"`
+	AtaSmartData *AtaSmartData      `json:"ata_smart_data"`
+	Attributes   *AtaAttributes     `json:"ata_smart_attributes"`
+	PowerOnTime  *PowerOnTime       `json:"power_on_time"`
+	Temperature  *Temperature       `json:"temperature"`
+	SelfTestLog  *SelfTestLog       `json:"ata_smart_self_test_log"`
+	NvmeCommands *NvmeAdminCommands `json:"nvme_optional_admin_commands"`
 }
 
 func (o *Output) Supported() bool {
 	return o.SmartStatus != nil
+}
+
+func (o *Output) SelfTestSupported() bool {
+	if o.AtaSmartData != nil && o.AtaSmartData.Capabilities != nil && o.AtaSmartData.Capabilities.SelfTestsSupported {
+		return true
+	}
+	return o.NvmeCommands != nil && o.NvmeCommands.SelfTest
+}
+
+func (o *Output) Failure() string {
+	for _, message := range o.Smartctl.Messages {
+		if message.Severity == "error" {
+			return message.String
+		}
+	}
+	return fmt.Sprintf("smartctl failed with exit status %d", o.Smartctl.ExitStatus)
 }
 
 func (o *Output) Succeeded() bool {
@@ -42,6 +63,7 @@ func (o *Output) Health() model.SmartHealth {
 	passed := o.SmartStatus.Passed
 	health := model.SmartHealth{
 		Available:            true,
+		SelfTestSupported:    o.SelfTestSupported(),
 		Passed:               &passed,
 		Reallocated:          o.Attributes.Raw(AttributeReallocated),
 		Pending:              o.Attributes.Raw(AttributePending),

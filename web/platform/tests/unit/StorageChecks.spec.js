@@ -185,3 +185,15 @@ test('Disk check explains what it does', async () => {
   expect(text).toContain('read-only')
   wrapper.unmount()
 })
+
+test('Disks without self-test support are left out of the self-test result', async () => {
+  const showError = jest.fn()
+  const health = arrayHealth()
+  health.disks[0].smart.self_test_supported = false
+  mockApi(health)
+  const wrapper = mountChecks(showError)
+  await flushPromises()
+
+  expect(wrapper.find('[data-testid="selftest-status"]').text()).toBe('No disk supports self-tests')
+  wrapper.unmount()
+})

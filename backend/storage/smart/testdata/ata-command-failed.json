@@ -1,0 +1,8 @@
+{
+  "json_format_version": [1, 0],
+  "smartctl": {
+    "version": [7, 5],
+    "argv": ["smartctl", "-j", "-t", "short", "/dev/sda"],
+    "exit_status": 4
+  }
+}

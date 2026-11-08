@@ -109,3 +109,17 @@ test('Disconnected disk', async () => {
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
+
+test('Disk without self-test support has no test button', async () => {
+  const showError = jest.fn()
+  const health = arrayHealth()
+  health.disks[0].smart.self_test_supported = false
+  mockApi(health)
+  const wrapper = mountDisk('/dev/sda', showError)
+  await flushPromises()
+
+  expect(wrapper.find('[data-testid="disk-smart"]').text()).toContain('Passed')
+  expect(wrapper.find('[data-testid="disk-smart-test"]').exists()).toBe(false)
+  expect(wrapper.find('[data-testid="disk-selftest"]').text()).toBe('Not supported by this disk')
+  wrapper.unmount()
+})

@@ -312,7 +312,8 @@
     "selfTestsRunning": "{disks} पर चल रहा है",
     "selfTestsFailed": "{disks} पर विफल",
     "selfTestsPassed": "सभी डिस्क पर सफल",
-    "selfTestsNotAvailable": "कोई डिस्क SMART का समर्थन नहीं करती"
+    "selfTestsNotAvailable": "कोई डिस्क स्व-परीक्षण का समर्थन नहीं करती",
+    "selfTestUnsupported": "यह डिस्क समर्थन नहीं करती"
   },
   "access": {
     "title": "एक्सेस",

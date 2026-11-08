@@ -347,7 +347,8 @@
     "selfTestsRunning": "Running on {disks}",
     "selfTestsFailed": "Failed on {disks}",
     "selfTestsPassed": "Passed on all disks",
-    "selfTestsNotAvailable": "No disk supports SMART"
+    "selfTestsNotAvailable": "No disk supports self-tests",
+    "selfTestUnsupported": "Not supported by this disk"
   },
   "access": {
     "title": "Access",

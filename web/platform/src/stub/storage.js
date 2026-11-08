@@ -11,6 +11,7 @@ const passedLog = (hours) => [
 
 const smartOk = (hours, temperature, crc) => ({
   available: true,
+  self_test_supported: true,
   passed: true,
   reallocated: 0,
   pending: 0,
@@ -24,14 +25,14 @@ const smartOk = (hours, temperature, crc) => ({
 
 const arrayDisks = () => [
   {
-    name: 'CT2000BX500SSD1',
+    name: 'KINGSTON SA400S37960G',
     device: '/dev/sda',
-    size: '1.8T',
-    serial: '2112E58EB6C6',
+    size: '894.3G',
+    serial: '50026B7682C5ABCD',
     hctl: '0:0:0:0',
     port: 'ata1',
     errors: zeroErrors(),
-    smart: smartOk(8784, 26, 0),
+    smart: { ...smartOk(58430, 35, 0), self_test_supported: false, self_test: { running: false, remaining_percent: 0 }, log: [] },
     link: { count: 0 },
     io: { count: 0 }
   },
@@ -69,6 +70,7 @@ const arrayDisks = () => [
     errors: zeroErrors(),
     smart: {
       available: true,
+      self_test_supported: true,
       passed: false,
       reallocated: 120,
       pending: 8,

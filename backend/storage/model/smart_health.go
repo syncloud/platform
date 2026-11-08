@@ -3,6 +3,7 @@ package model
 type SmartHealth struct {
 	Available            bool            `json:"available"`
 	Message              string          `json:"message,omitempty"`
+	SelfTestSupported    bool            `json:"self_test_supported"`
 	Passed               *bool           `json:"passed,omitempty"`
 	Reallocated          *int64          `json:"reallocated,omitempty"`
 	Pending              *int64          `json:"pending,omitempty"`

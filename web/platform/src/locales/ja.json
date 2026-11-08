@@ -312,7 +312,8 @@
     "selfTestsRunning": "{disks} で実行中",
     "selfTestsFailed": "{disks} で失敗",
     "selfTestsPassed": "すべてのディスクで合格",
-    "selfTestsNotAvailable": "SMART に対応したディスクがありません"
+    "selfTestsNotAvailable": "セルフテストに対応したディスクがありません",
+    "selfTestUnsupported": "このディスクは非対応"
   },
   "access": {
     "title": "アクセス",

@@ -58,7 +58,7 @@ export function selfTestText (t, test) {
 }
 
 export function selfTestsText (t, health) {
-  const disks = health.disks.filter(d => d.smart.available)
+  const disks = health.disks.filter(d => d.smart.available && d.smart.self_test_supported)
   const names = list => list.map(d => d.device).join(', ')
   if (disks.length === 0) {
     return t('storage.selfTestsNotAvailable')
@@ -82,7 +82,7 @@ export function selfTestsBad (health) {
 }
 
 export function checksRunning (health) {
-  return (!!health.scrub && health.scrub.state === 'running') || health.disks.some(d => d.smart.available && d.smart.self_test.running)
+  return (!!health.scrub && health.scrub.state === 'running') || health.disks.some(d => d.smart.available && d.smart.self_test_supported && d.smart.self_test.running)
 }
 
 export function eventsText (t, events) {
