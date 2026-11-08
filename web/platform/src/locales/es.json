@@ -308,7 +308,7 @@
     "checkNow": "Comprobar ahora",
     "scheduleChecks": "Comprobar los discos automáticamente",
     "checksHelpTitle": "¿Qué hace la comprobación de discos?",
-    "checksHelpText": "La comprobación tiene dos partes. La autoprueba SMART pide a cada disco que pruebe su propio hardware. Dura unos dos minutos y no toca sus datos. Una prueba fallida, o sectores reasignados y pendientes que no dejan de crecer, significa que el disco se está desgastando y debería sustituirse pronto. Los errores de cable/conector suelen indicar un cable o puerto suelto o defectuoso, no el disco. Algunos adaptadores USB no transmiten SMART y esos discos se omiten. El scrub lee todos los datos del conjunto de discos y comprueba cada bloque con su suma de verificación, lo que encuentra corrupción silenciosa que el propio disco no detecta. Funciona en solo lectura: informa de los problemas pero nunca cambia nada. En discos grandes puede tardar varias horas y ralentiza los discos mientras se ejecuta. Los resultados se muestran aquí y en la página de cada disco, y aparece un aviso arriba cuando una comprobación encuentra un problema.",
+    "checksHelpText": "Se ejecutan dos comprobaciones juntas. La autoprueba SMART permite a cada disco probar su propio hardware en unos dos minutos, sin tocar sus datos; una prueba fallida significa que el disco se está desgastando. El scrub de solo lectura lee todos los datos del conjunto de discos y los compara con las sumas de verificación guardadas para encontrar corrupción silenciosa; en discos grandes puede tardar horas. Si una comprobación encuentra un problema, aparece un aviso arriba.",
     "selfTestsRunning": "En curso en {disks}",
     "selfTestsFailed": "Falló en {disks}",
     "selfTestsPassed": "Superada en todos los discos",

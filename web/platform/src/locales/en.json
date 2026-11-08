@@ -343,7 +343,7 @@
     "checkNow": "Check now",
     "scheduleChecks": "Check disks automatically",
     "checksHelpTitle": "What does the disk check do?",
-    "checksHelpText": "The check has two parts. The SMART self-test asks every disk to test its own hardware. It takes about two minutes and does not touch your data. A failed test, or reallocated and pending sectors that keep growing, means the disk is wearing out and should be replaced soon. Cable/connector errors usually point to a loose or faulty cable or port rather than the disk. Some USB adapters do not pass SMART through, and those disks are skipped. The scrub reads all data on the disk array and checks every block against its checksum, which finds silent corruption the disk itself does not notice. It runs read-only: it reports problems but never changes anything. On large disks it can take several hours and slows the disks down while it runs. Results are shown here and on each disk's page, and an alert appears at the top when a check finds a problem.",
+    "checksHelpText": "Two checks run together. The SMART self-test lets each disk test its own hardware in about two minutes, without touching your data; a failed test means the disk is wearing out. The read-only scrub reads all data on the disk array and compares it with stored checksums to find silent corruption; on large disks it can take hours. If a check finds a problem, an alert appears at the top.",
     "selfTestsRunning": "Running on {disks}",
     "selfTestsFailed": "Failed on {disks}",
     "selfTestsPassed": "Passed on all disks",
