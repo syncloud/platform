@@ -27,6 +27,7 @@ type LsblkEntry struct {
 	Serial     string
 	Wwn        string
 	Hctl       string
+	Parent     string
 	Boot       bool
 }
 
@@ -86,16 +87,6 @@ func (e *LsblkEntry) IsRaid() bool {
 		return true
 	}
 	return false
-}
-
-func (e *LsblkEntry) ParentDevice() (string, error) {
-	r, err := regexp.Compile(`(.*?)p?\d*$`)
-	if err != nil {
-		return "", err
-	}
-
-	match := r.FindStringSubmatch(e.Name)
-	return match[1], nil
 }
 
 func (e *LsblkEntry) GetFsType() string {

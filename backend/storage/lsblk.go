@@ -1,24 +1,25 @@
 package storage
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/syncloud/platform/cli"
 	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
-	"regexp"
 	"sort"
 	"strings"
 )
 
 const LsblkColumns = "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID,SERIAL,WWN,HCTL"
 
-var lsblkField = regexp.MustCompile(`([A-Z:_-]+)="([^"]*)"`)
-
 type Lsblk struct {
 	systemConfig Config
 	pathChecker  Checker
-	executor     cli.Executor
+	executor     LsblkExecutor
 	logger       *zap.Logger
+}
+
+type LsblkExecutor interface {
+	Output(name string, arg ...string) ([]byte, error)
 }
 
 type Config interface {
@@ -31,7 +32,7 @@ func (a ByDevice) Len() int           { return len(a) }
 func (a ByDevice) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByDevice) Less(i, j int) bool { return a[i].Device < a[j].Device }
 
-func NewLsblk(config Config, pathChecker Checker, executor cli.Executor, logger *zap.Logger) *Lsblk {
+func NewLsblk(config Config, pathChecker Checker, executor LsblkExecutor, logger *zap.Logger) *Lsblk {
 	return &Lsblk{
 		systemConfig: config,
 		pathChecker:  pathChecker,
@@ -56,39 +57,37 @@ func (l *Lsblk) AvailableDisks() ([]model.Disk, error) {
 }
 
 func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
-	var entries []model.LsblkEntry
-
-	lsblkOutputBytes, err := l.executor.CombinedOutput("lsblk", "-Pp", "-o", LsblkColumns)
+	output, err := l.executor.Output("lsblk", "-Jp", "-o", LsblkColumns)
 	if err != nil {
 		return nil, err
 	}
-	for _, rawLine := range strings.Split(string(lsblkOutputBytes), "\n") {
-		line := strings.TrimSpace(rawLine)
-		if line == "" {
-			continue
-		}
-		fields := make(map[string]string)
-		for _, match := range lsblkField.FindAllStringSubmatch(line, -1) {
-			fields[match[1]] = match[2]
-		}
-		mountPoint := fields["MOUNTPOINT"]
-		entries = append(entries, model.LsblkEntry{
-			Name:       fields["NAME"],
-			Size:       fields["SIZE"],
-			DeviceType: fields["TYPE"],
-			MountPoint: mountPoint,
-			PartType:   fields["PARTTYPE"],
-			FsType:     fields["FSTYPE"],
-			Model:      strings.TrimSpace(fields["MODEL"]),
-			Active:     l.isActive(mountPoint),
-			Uuid:       fields["UUID"],
-			Serial:     strings.TrimSpace(fields["SERIAL"]),
-			Wwn:        fields["WWN"],
-			Hctl:       fields["HCTL"],
-		})
+	var parsed model.LsblkOutput
+	if err := json.Unmarshal(output, &parsed); err != nil {
+		return nil, fmt.Errorf("unable to parse lsblk output: %w", err)
 	}
+	return l.flatten(parsed.BlockDevices, "", nil), nil
+}
 
-	return entries, nil
+func (l *Lsblk) flatten(devices []model.LsblkDevice, parent string, entries []model.LsblkEntry) []model.LsblkEntry {
+	for _, device := range devices {
+		entries = append(entries, model.LsblkEntry{
+			Name:       device.Name,
+			Size:       device.Size,
+			DeviceType: device.Type,
+			MountPoint: device.MountPoint,
+			PartType:   device.PartType,
+			FsType:     device.FsType,
+			Model:      strings.TrimSpace(device.Model),
+			Active:     l.isActive(device.MountPoint),
+			Uuid:       device.Uuid,
+			Serial:     strings.TrimSpace(device.Serial),
+			Wwn:        device.Wwn,
+			Hctl:       device.Hctl,
+			Parent:     parent,
+		})
+		entries = l.flatten(device.Children, device.Name, entries)
+	}
+	return entries
 }
 
 func (l *Lsblk) extractActiveUuid(entries []model.LsblkEntry) map[string]bool {
@@ -144,15 +143,8 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 			disks[device] = disk
 
 		} else if entry.DeviceType == "part" {
-			partition := l.createPartition(entry)
-			parentDevice, err := entry.ParentDevice()
-			if err != nil {
-				return nil, err
-			}
-
-			if _, ok := disks[parentDevice]; ok {
-				disk := disks[parentDevice]
-				disk.AddPartition(partition)
+			if disk, ok := disks[entry.Parent]; ok {
+				disk.AddPartition(l.createPartition(entry))
 			}
 		}
 	}
