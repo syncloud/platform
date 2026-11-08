@@ -39,8 +39,8 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.cmd("cat", "/etc/debian_version")
 	log += a.cmd("free", "-h")
 	log += a.cmd("df", "-h")
-	log += a.cmd("lsblk", "-o", "+UUID,SERIAL,WWN,HCTL")
-	log += a.cmd("lsblk", "-Pp", "-o", storage.LsblkColumns)
+	log += a.cmd(storage.LSBLK, "-o", "+UUID,SERIAL,WWN,HCTL")
+	log += a.cmd(storage.LSBLK, "-Jp", "-o", storage.LsblkColumns)
 	log += a.cmd("ls", "-l", "/dev/disk/by-path", "/dev/disk/by-id")
 	log += a.cmd(btrfs.BTRFS, "device", "stats", "/data/")
 	log += a.cmd(btrfs.BTRFS, "filesystem", "df", "/data/")
@@ -138,7 +138,7 @@ func (a *LogAggregator) snapChangesDetail() string {
 }
 
 func (a *LogAggregator) smartReport() string {
-	out, err := exec.Command("lsblk", "-dnp", "-o", "NAME,TYPE").CombinedOutput()
+	out, err := exec.Command(storage.LSBLK, "-dnp", "-o", "NAME,TYPE").CombinedOutput()
 	if err != nil {
 		a.logger.Warn("failed", zap.Error(err))
 		return "lsblk -dnp -o NAME,TYPE\n\n" + string(out) + Separator

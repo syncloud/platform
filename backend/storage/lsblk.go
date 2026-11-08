@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const LSBLK = "/snap/platform/current/lsblk/bin/lsblk.sh"
+
 const LsblkColumns = "NAME,SIZE,TYPE,MOUNTPOINT,PARTTYPE,FSTYPE,MODEL,UUID,SERIAL,WWN,HCTL"
 
 type Lsblk struct {
@@ -57,7 +59,7 @@ func (l *Lsblk) AvailableDisks() ([]model.Disk, error) {
 }
 
 func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
-	output, err := l.executor.Output("lsblk", "-Jp", "-o", LsblkColumns)
+	output, err := l.executor.Output(LSBLK, "-Jp", "-o", LsblkColumns)
 	if err != nil {
 		return nil, err
 	}

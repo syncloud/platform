@@ -9,6 +9,7 @@ local distros = ['bookworm', 'buster'];
 local gptfdisk = '1.0.10';
 local btrfs = '5.18.1';
 local smartmontools = '7.5';
+local lsblk = '2.42.4';
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local caddy = '2.11.7';
@@ -138,6 +139,23 @@ local build(arch, testUI) = [{
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
                './smartmontools/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
+           {
+             name: 'lsblk',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './lsblk/build.sh ' + lsblk,
+             ],
+           },
+         ] + [
+           {
+             name: 'lsblk test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './lsblk/test.sh',
              ],
            }
            for distro in distros
