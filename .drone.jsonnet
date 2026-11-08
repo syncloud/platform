@@ -98,20 +98,6 @@ local build(arch, testUI) = [{
                './gptfdisk/build.sh ' + gptfdisk,
              ],
            },
-           {
-             name: 'btrfs',
-             image: 'debian:bookworm-slim',
-             commands: [
-               './btrfs/build.sh ' + btrfs,
-             ],
-           },
-           {
-             name: 'smartmontools',
-             image: 'debian:bookworm-slim',
-             commands: [
-               './smartmontools/build.sh ' + smartmontools,
-             ],
-           },
          ] + [
            {
              name: 'gptfdisk test ' + distro,
@@ -123,6 +109,14 @@ local build(arch, testUI) = [{
            for distro in distros
          ] + [
            {
+             name: 'btrfs',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './btrfs/build.sh ' + btrfs,
+             ],
+           },
+         ] + [
+           {
              name: 'btrfs test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
@@ -130,6 +124,14 @@ local build(arch, testUI) = [{
              ],
            }
            for distro in distros
+         ] + [
+           {
+             name: 'smartmontools',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './smartmontools/build.sh ' + smartmontools,
+             ],
+           },
          ] + [
            {
              name: 'smartmontools test ' + distro,
