@@ -6,7 +6,9 @@ local publisher_image = 'syncloud/store-publisher:stable-346';
 local authelia = '4.39.15';
 local distro_default = 'buster';
 local distros = ['bookworm', 'buster'];
-local tools = ['gptfdisk', 'btrfs', 'smartmontools'];
+local gptfdisk = '1.0.10';
+local btrfs = '5.18.1';
+local smartmontools = '7.5';
 local bootstrap = '25.02';
 local nginx = '1.24.0';
 local caddy = '2.11.7';
@@ -89,24 +91,53 @@ local build(arch, testUI) = [{
                './shared/fetch.sh ${DRONE_BUILD_NUMBER} ' + arch,
              ],
            },
-         ] + [
            {
-             name: tool,
+             name: 'gptfdisk',
              image: 'debian:bookworm-slim',
              commands: [
-               './' + tool + '/build.sh',
+               './gptfdisk/build.sh ' + gptfdisk,
              ],
-           }
-           for tool in tools
+           },
+           {
+             name: 'btrfs',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './btrfs/build.sh ' + btrfs,
+             ],
+           },
+           {
+             name: 'smartmontools',
+             image: 'debian:bookworm-slim',
+             commands: [
+               './smartmontools/build.sh ' + smartmontools,
+             ],
+           },
          ] + [
            {
-             name: tool + ' test ' + distro,
+             name: 'gptfdisk test ' + distro,
              image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
              commands: [
-               './' + tool + '/test.sh',
+               './gptfdisk/test.sh',
              ],
            }
-           for tool in tools
+           for distro in distros
+         ] + [
+           {
+             name: 'btrfs test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './btrfs/test.sh',
+             ],
+           }
+           for distro in distros
+         ] + [
+           {
+             name: 'smartmontools test ' + distro,
+             image: 'syncloud/bootstrap-' + distro + '-' + arch + ':' + bootstrap,
+             commands: [
+               './smartmontools/test.sh',
+             ],
+           }
            for distro in distros
          ] + [
            {
