@@ -58,7 +58,7 @@ func (l *Lsblk) AvailableDisks() ([]model.Disk, error) {
 	return disks, nil
 }
 
-func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
+func (l *Lsblk) parseLsblkOutput() ([]model.LsblkDevice, error) {
 	output, err := l.executor.Output(LSBLK, "-Jp", "-o", LsblkColumns)
 	if err != nil {
 		return nil, err
@@ -67,89 +67,50 @@ func (l *Lsblk) parseLsblkOutput() ([]model.LsblkEntry, error) {
 	if err := json.Unmarshal(output, &parsed); err != nil {
 		return nil, fmt.Errorf("unable to parse lsblk output: %w", err)
 	}
-	return l.flatten(parsed.BlockDevices, "", nil), nil
+	return parsed.BlockDevices, nil
 }
 
-func (l *Lsblk) flatten(devices []model.LsblkDevice, parent string, entries []model.LsblkEntry) []model.LsblkEntry {
+func (l *Lsblk) walk(devices []model.LsblkDevice, parent string, visit func(device model.LsblkDevice, parent string)) {
 	for _, device := range devices {
-		entries = append(entries, model.LsblkEntry{
-			Name:       device.Name,
-			Size:       device.Size,
-			DeviceType: device.Type,
-			MountPoint: device.MountPoint,
-			PartType:   device.PartType,
-			FsType:     device.FsType,
-			Model:      strings.TrimSpace(device.Model),
-			Active:     l.isActive(device.MountPoint),
-			Uuid:       device.Uuid,
-			Serial:     strings.TrimSpace(device.Serial),
-			Wwn:        device.Wwn,
-			Hctl:       device.Hctl,
-			Parent:     parent,
-		})
-		entries = l.flatten(device.Children, device.Name, entries)
+		visit(device, parent)
+		l.walk(device.Children, device.Name, visit)
 	}
-	return entries
-}
-
-func (l *Lsblk) extractActiveUuid(entries []model.LsblkEntry) map[string]bool {
-	uuids := make(map[string]bool)
-	for _, entry := range entries {
-		if entry.Active && entry.Uuid != "" {
-			uuids[entry.Uuid] = true
-		}
-	}
-	return uuids
-}
-
-func (l *Lsblk) extractBootDevices(entries []model.LsblkEntry) map[string]bool {
-	devices := make(map[string]bool)
-	for _, entry := range entries {
-		device := entry.DetectMMCBootDevice()
-		if device != nil {
-			devices[*device] = true
-		}
-	}
-	return devices
 }
 
 func (l *Lsblk) AllDisks() ([]model.Disk, error) {
-	disks := make(map[string]*model.Disk)
-	entries, err := l.parseLsblkOutput()
+	devices, err := l.parseLsblkOutput()
 	if err != nil {
 		return nil, err
 	}
-	activeUuids := l.extractActiveUuid(entries)
-	bootDevices := l.extractBootDevices(entries)
-	for _, entry := range entries {
-		device := entry.Name
-		if ok, _ := bootDevices[device]; ok {
-			entry.Boot = true
+	activeUuids := make(map[string]bool)
+	bootDevices := make(map[string]bool)
+	l.walk(devices, "", func(device model.LsblkDevice, _ string) {
+		if l.isActive(device.MountPoint) && device.Uuid != "" {
+			activeUuids[device.Uuid] = true
 		}
-		if entry.IsSupportedType() && entry.IsSupportedFsType() {
-			diskName := entry.Model
-			active := entry.Active
-			if !active {
-				active = activeUuids[entry.Uuid]
+		if boot := device.DetectMMCBootDevice(); boot != nil {
+			bootDevices[*boot] = true
+		}
+	})
+	disks := make(map[string]*model.Disk)
+	l.walk(devices, "", func(device model.LsblkDevice, parent string) {
+		if device.IsSupportedType() && device.IsSupportedFsType() {
+			active := l.isActive(device.MountPoint) || activeUuids[device.Uuid]
+			disk := model.NewDisk(strings.TrimSpace(device.Model), device.Name, device.Size, active, device.Uuid, device.MountPoint, bootDevices[device.Name], []model.Partition{})
+			disk.Serial = strings.TrimSpace(device.Serial)
+			disk.Wwn = device.Wwn
+			disk.Hctl = device.Hctl
+			if device.IsRaid() {
+				disk.Name = device.Type
+				disk.AddPartition(l.createPartition(device))
 			}
-			disk := model.NewDisk(diskName, device, entry.Size, active, entry.Uuid, entry.MountPoint, entry.Boot, []model.Partition{})
-			disk.Serial = entry.Serial
-			disk.Wwn = entry.Wwn
-			disk.Hctl = entry.Hctl
-			if entry.IsRaid() {
-				disk.Name = entry.DeviceType
-				partition := l.createPartition(entry)
-				disk.AddPartition(partition)
-			}
-
-			disks[device] = disk
-
-		} else if entry.DeviceType == "part" {
-			if disk, ok := disks[entry.Parent]; ok {
-				disk.AddPartition(l.createPartition(entry))
+			disks[device.Name] = disk
+		} else if device.Type == "part" {
+			if disk, ok := disks[parent]; ok {
+				disk.AddPartition(l.createPartition(device))
 			}
 		}
-	}
+	})
 
 	var results []model.Disk
 	for _, disk := range disks {
@@ -159,13 +120,13 @@ func (l *Lsblk) AllDisks() ([]model.Disk, error) {
 	return results, nil
 }
 
-func (l *Lsblk) createPartition(lsblkEntry model.LsblkEntry) model.Partition {
+func (l *Lsblk) createPartition(device model.LsblkDevice) model.Partition {
 	return model.Partition{
-		Size:       lsblkEntry.Size,
-		Device:     lsblkEntry.Name,
-		MountPoint: lsblkEntry.MountPoint,
-		Active:     lsblkEntry.Active,
-		FsType:     lsblkEntry.GetFsType()}
+		Size:       device.Size,
+		Device:     device.Name,
+		MountPoint: device.MountPoint,
+		Active:     l.isActive(device.MountPoint),
+		FsType:     device.GetFsType()}
 }
 
 func (l *Lsblk) isActive(mountPoint string) bool {
