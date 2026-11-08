@@ -49,12 +49,14 @@ func (j *StorageCheckJob) Run() error {
 	if now.Hour() != StorageCheckHour {
 		return nil
 	}
-	schedule := j.checks.Schedule()
+	if !j.checks.Schedule().Enabled {
+		return nil
+	}
 	var errs []error
-	if schedule.Scrub && j.checks.ScrubAvailable() && j.due(StorageCheckScrub, ScrubInterval, now) {
+	if j.checks.ScrubAvailable() && j.due(StorageCheckScrub, ScrubInterval, now) {
 		errs = append(errs, j.run(StorageCheckScrub, now, j.checks.StartScrub))
 	}
-	if schedule.Smart && j.due(StorageCheckSmart, SmartInterval, now) {
+	if j.due(StorageCheckSmart, SmartInterval, now) {
 		errs = append(errs, j.run(StorageCheckSmart, now, j.checks.StartSmartTests))
 	}
 	return errors.Join(errs...)

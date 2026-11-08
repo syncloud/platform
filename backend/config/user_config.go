@@ -211,14 +211,12 @@ func (c *UserConfig) SetBackupAppTime(app string, mode string, time time.Time) {
 
 func (c *UserConfig) StorageCheckSchedule() model.CheckSchedule {
 	return model.CheckSchedule{
-		Scrub: c.db.GetBool("platform.storage_check_scrub", false),
-		Smart: c.db.GetBool("platform.storage_check_smart", false),
+		Enabled: c.db.GetBool("platform.storage_check", false),
 	}
 }
 
 func (c *UserConfig) SetStorageCheckSchedule(schedule model.CheckSchedule) {
-	c.db.UpsertBool("platform.storage_check_scrub", schedule.Scrub)
-	c.db.UpsertBool("platform.storage_check_smart", schedule.Smart)
+	c.db.UpsertBool("platform.storage_check", schedule.Enabled)
 }
 
 func (c *UserConfig) StorageAlertsSeen() []string {

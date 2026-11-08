@@ -20,7 +20,7 @@ func TestHealth_Get(t *testing.T) {
 `}
 	ports := &PortsStub{ports: map[string]string{"/dev/sda": "ata1", "/dev/sdb": "ata2"}}
 	scrub := &ScrubStub{status: model.ScrubStatus{State: model.ScrubFinished}}
-	schedule := &ScheduleConfigStub{schedule: model.CheckSchedule{Scrub: true}}
+	schedule := &ScheduleConfigStub{schedule: model.CheckSchedule{Enabled: true}}
 	health := NewHealth(&LsblkDisksStub{disks: disks}, smart, kernelLog, ports, scrub, &BtrfsStub{mounted: true}, schedule, &GuardStub{}, log.Default())
 
 	result, err := health.Get()
@@ -32,7 +32,7 @@ func TestHealth_Get(t *testing.T) {
 			Io:   model.KernelEvents{Count: 1, Last: "2026-10-31T02:01:45"}},
 	}, result.Disks)
 	assert.Equal(t, &model.ScrubStatus{State: model.ScrubFinished}, result.Scrub)
-	assert.Equal(t, model.CheckSchedule{Scrub: true}, result.Schedule)
+	assert.Equal(t, model.CheckSchedule{Enabled: true}, result.Schedule)
 	assert.False(t, result.Busy)
 }
 

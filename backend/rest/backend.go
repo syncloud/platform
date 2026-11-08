@@ -206,7 +206,7 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/storage/disks", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageDisks))).Methods("GET")
 	r.HandleFunc("/rest/storage/space", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageSpace))).Methods("GET")
 	r.HandleFunc("/rest/storage/health", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageHealth))).Methods("GET")
-	r.HandleFunc("/rest/storage/check/scrub", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckScrub))).Methods("POST")
+	r.HandleFunc("/rest/storage/check", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheck))).Methods("POST")
 	r.HandleFunc("/rest/storage/check/smart", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckSmart))).Methods("POST")
 	r.HandleFunc("/rest/storage/check/schedule", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckSchedule))).Methods("GET")
 	r.HandleFunc("/rest/storage/check/schedule", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.StorageCheckScheduleSave))).Methods("POST")
@@ -646,8 +646,8 @@ func (b *Backend) StorageHealth(_ *http.Request) (interface{}, error) {
 	return b.storageHealth.Get()
 }
 
-func (b *Backend) StorageCheckScrub(_ *http.Request) (interface{}, error) {
-	return "OK", b.storageChecks.StartScrub()
+func (b *Backend) StorageCheck(_ *http.Request) (interface{}, error) {
+	return "OK", b.storageChecks.Start()
 }
 
 func (b *Backend) StorageCheckSmart(req *http.Request) (interface{}, error) {

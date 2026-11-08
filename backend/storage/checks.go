@@ -90,6 +90,41 @@ func (c *Checks) StartSmartTest(device string) error {
 	return c.smart.StartShortTest(device)
 }
 
+func (c *Checks) Start() error {
+	if err := c.guard.Check(); err != nil {
+		return err
+	}
+	disks, err := c.lsblk.AvailableDisks()
+	if err != nil {
+		return err
+	}
+	candidates, started, errs := c.smartTests(disks)
+	if c.btrfs.Mounted() {
+		candidates++
+		status, err := c.scrub.Status()
+		if err != nil {
+			errs = append(errs, err)
+		} else if status.State != model.ScrubRunning {
+			c.logger.Info("starting read-only scrub")
+			if err := c.scrub.Start(); err != nil {
+				errs = append(errs, err)
+			} else {
+				started++
+			}
+		}
+	}
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	if candidates == 0 {
+		return fmt.Errorf("no disk supports checks: no active btrfs disk array and no disk with SMART")
+	}
+	if started == 0 {
+		return fmt.Errorf("checks are already running")
+	}
+	return nil
+}
+
 func (c *Checks) StartSmartTests() error {
 	if err := c.guard.Check(); err != nil {
 		return err
@@ -98,18 +133,31 @@ func (c *Checks) StartSmartTests() error {
 	if err != nil {
 		return err
 	}
+	_, _, errs := c.smartTests(disks)
+	return errors.Join(errs...)
+}
+
+func (c *Checks) smartTests(disks []model.Disk) (int, int, []error) {
+	candidates := 0
+	started := 0
 	var errs []error
 	for _, disk := range disks {
 		health := c.smart.Health(disk.Device)
-		if !health.Available || health.SelfTest.Running {
+		if !health.Available {
 			continue
 		}
-		c.logger.Info("starting scheduled smart short test", zap.String("device", disk.Device))
+		candidates++
+		if health.SelfTest.Running {
+			continue
+		}
+		c.logger.Info("starting smart short test", zap.String("device", disk.Device))
 		if err := c.smart.StartShortTest(disk.Device); err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", disk.Device, err))
+			continue
 		}
+		started++
 	}
-	return errors.Join(errs...)
+	return candidates, started, errs
 }
 
 func (c *Checks) ResetErrors() error {

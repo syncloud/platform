@@ -30,12 +30,13 @@ const mockApi = (health) => {
   return mock
 }
 
-test('Scrub status and schedules', async () => {
+test('Self-test and scrub results', async () => {
   const showError = jest.fn()
   mockApi(arrayHealth())
   const wrapper = mountChecks(showError)
   await flushPromises()
 
+  expect(wrapper.find('[data-testid="selftest-status"]').text()).toBe('Passed on all disks')
   expect(wrapper.find('[data-testid="scrub-status"]').text()).toBe('Finished, started Sat Nov  7 21:40:51 2026, took 1:10:02. Errors: read=12 csum=3, corrected 0, uncorrectable 15')
   expect(wrapper.find('[data-testid="errors-section"]').exists()).toBe(true)
   expect(wrapper.find('[data-testid="checks-busy"]').exists()).toBe(false)
@@ -43,36 +44,63 @@ test('Scrub status and schedules', async () => {
   wrapper.unmount()
 })
 
-test('Run read-only scrub', async () => {
+test('Failed self-test is shown in red', async () => {
   const showError = jest.fn()
-  let scrubs = 0
+  const health = arrayHealth()
+  health.disks[0].smart.self_test = { running: false, remaining_percent: 0, last_type: 'Short offline', last_status: 'Completed: read failure', last_passed: false }
+  mockApi(health)
+  const wrapper = mountChecks(showError)
+  await flushPromises()
+
+  const status = wrapper.find('[data-testid="selftest-status"]')
+  expect(status.text()).toBe('Failed on /dev/sda')
+  expect(status.classes()).toContain('disk-bad')
+  wrapper.unmount()
+})
+
+test('Check now starts both checks', async () => {
+  const showError = jest.fn()
+  let checks = 0
   const mock = mockApi(arrayHealth())
-  mock.onPost('/rest/storage/check/scrub').reply(function () {
-    scrubs++
+  mock.onPost('/rest/storage/check').reply(function () {
+    checks++
     return [200, { success: true, data: 'OK' }]
   })
   const wrapper = mountChecks(showError)
   await flushPromises()
 
-  await wrapper.find('[data-testid="scrub-start"]').trigger('click')
+  await wrapper.find('[data-testid="checks-start"]').trigger('click')
   await flushPromises()
 
-  expect(scrubs).toBe(1)
+  expect(checks).toBe(1)
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
 
-test('Scrub refused during an app update shows the error', async () => {
+test('Check refused during an app update shows the error', async () => {
   const showError = jest.fn()
   const mock = mockApi(arrayHealth())
-  mock.onPost('/rest/storage/check/scrub').reply(500, { success: false, message: 'an app install or update is in progress, try again when it finishes' })
+  mock.onPost('/rest/storage/check').reply(500, { success: false, message: 'an app install or update is in progress, try again when it finishes' })
   const wrapper = mountChecks(showError)
   await flushPromises()
 
-  await wrapper.find('[data-testid="scrub-start"]').trigger('click')
+  await wrapper.find('[data-testid="checks-start"]').trigger('click')
   await flushPromises()
 
   expect(showError).toHaveBeenCalledTimes(1)
+  wrapper.unmount()
+})
+
+test('Check now is disabled while a self-test runs', async () => {
+  const showError = jest.fn()
+  const health = arrayHealth()
+  health.disks[0].smart.self_test = { running: true, remaining_percent: 60 }
+  mockApi(health)
+  const wrapper = mountChecks(showError)
+  await flushPromises()
+
+  expect(wrapper.find('[data-testid="selftest-status"]').text()).toBe('Running on /dev/sda')
+  expect(wrapper.find('[data-testid="checks-start"]').attributes('disabled')).toBeDefined()
   wrapper.unmount()
 })
 
@@ -97,7 +125,7 @@ test('Reset error counters after confirmation', async () => {
   wrapper.unmount()
 })
 
-test('Schedule monthly scrub', async () => {
+test('Schedule automatic checks', async () => {
   const showError = jest.fn()
   let saved = null
   const mock = mockApi(arrayHealth())
@@ -108,14 +136,14 @@ test('Schedule monthly scrub', async () => {
   const wrapper = mountChecks(showError)
   await flushPromises()
 
-  await wrapper.find('[data-testid="schedule-scrub"]').trigger('click')
+  await wrapper.find('[data-testid="schedule-checks"]').trigger('click')
   await flushPromises()
   expect(saved).toBe(null)
 
   await wrapper.find('[data-testid="checks-save"]').trigger('click')
   await flushPromises()
 
-  expect(saved).toEqual({ scrub: true, smart: true })
+  expect(saved).toEqual({ enabled: true })
   expect(showError).toHaveBeenCalledTimes(0)
   wrapper.unmount()
 })
@@ -127,33 +155,33 @@ test('Checks are disabled while another operation runs', async () => {
   await flushPromises()
 
   expect(wrapper.find('[data-testid="checks-busy"]').exists()).toBe(true)
-  expect(wrapper.find('[data-testid="scrub-start"]').attributes('disabled')).toBeDefined()
+  expect(wrapper.find('[data-testid="checks-start"]').attributes('disabled')).toBeDefined()
   wrapper.unmount()
 })
 
-test('Without a btrfs array only the SMART schedule is offered', async () => {
+test('Without a btrfs array only the self-test is shown', async () => {
   const showError = jest.fn()
   mockApi(arrayHealth({ scrub: null }))
   const wrapper = mountChecks(showError)
   await flushPromises()
 
-  expect(wrapper.find('[data-testid="array-section"]').exists()).toBe(false)
+  expect(wrapper.find('[data-testid="scrub-status"]').exists()).toBe(false)
   expect(wrapper.find('[data-testid="errors-section"]').exists()).toBe(false)
-  expect(wrapper.find('[data-testid="schedule-smart"]').exists()).toBe(true)
+  expect(wrapper.find('[data-testid="selftest-status"]').exists()).toBe(true)
+  expect(wrapper.find('[data-testid="schedule-checks"]').exists()).toBe(true)
   wrapper.unmount()
 })
 
-test('Scrub and SMART explain what they do', async () => {
+test('Disk check explains what it does', async () => {
   const showError = jest.fn()
   mockApi(arrayHealth())
   const wrapper = mountChecks(showError)
   await flushPromises()
 
-  expect(wrapper.find('[data-testid="scrub-help-dialog"]').exists()).toBe(false)
-  await wrapper.find('[data-testid="scrub-help"]').trigger('click')
-  expect(wrapper.find('[data-testid="scrub-help-dialog"]').text()).toContain('read-only')
-
-  await wrapper.find('[data-testid="smart-help"]').trigger('click')
-  expect(wrapper.find('[data-testid="smart-help-dialog"]').text()).toContain('short self-test')
+  expect(wrapper.find('[data-testid="checks-help-dialog"]').exists()).toBe(false)
+  await wrapper.find('[data-testid="checks-help"]').trigger('click')
+  const text = wrapper.find('[data-testid="checks-help-dialog"]').text()
+  expect(text).toContain('SMART self-test')
+  expect(text).toContain('read-only')
   wrapper.unmount()
 })

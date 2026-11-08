@@ -80,3 +80,51 @@ func TestChecks_ResetErrors(t *testing.T) {
 	assert.EqualError(t, newChecks(nil, &SmartStub{}, &ScrubStub{}, unmounted, &GuardStub{}).ResetErrors(), "no active btrfs disk array")
 	assert.False(t, unmounted.reset)
 }
+
+func TestChecks_Start_SmartAndScrub(t *testing.T) {
+	disks := []model.Disk{{Device: "/dev/sda"}, {Device: "/dev/sdb"}}
+	smart := &SmartStub{health: map[string]model.SmartHealth{"/dev/sda": {Available: true}}}
+	scrub := &ScrubStub{status: model.ScrubStatus{State: model.ScrubNever}}
+	assert.Nil(t, newChecks(disks, smart, scrub, &BtrfsStub{mounted: true}, &GuardStub{}).Start())
+	assert.Equal(t, []string{"/dev/sda"}, smart.started)
+	assert.True(t, scrub.started)
+}
+
+func TestChecks_Start_SmartOnlyWithoutArray(t *testing.T) {
+	smart := &SmartStub{health: map[string]model.SmartHealth{"/dev/sda": {Available: true}}}
+	scrub := &ScrubStub{}
+	assert.Nil(t, newChecks([]model.Disk{{Device: "/dev/sda"}}, smart, scrub, &BtrfsStub{}, &GuardStub{}).Start())
+	assert.Equal(t, []string{"/dev/sda"}, smart.started)
+	assert.False(t, scrub.started)
+}
+
+func TestChecks_Start_NothingToCheck(t *testing.T) {
+	err := newChecks([]model.Disk{{Device: "/dev/sda"}}, &SmartStub{}, &ScrubStub{}, &BtrfsStub{}, &GuardStub{}).Start()
+	assert.EqualError(t, err, "no disk supports checks: no active btrfs disk array and no disk with SMART")
+}
+
+func TestChecks_Start_AlreadyRunning(t *testing.T) {
+	smart := &SmartStub{health: map[string]model.SmartHealth{"/dev/sda": {Available: true, SelfTest: model.SmartTestResult{Running: true}}}}
+	scrub := &ScrubStub{status: model.ScrubStatus{State: model.ScrubRunning}}
+	err := newChecks([]model.Disk{{Device: "/dev/sda"}}, smart, scrub, &BtrfsStub{mounted: true}, &GuardStub{}).Start()
+	assert.EqualError(t, err, "checks are already running")
+	assert.Empty(t, smart.started)
+	assert.False(t, scrub.started)
+}
+
+func TestChecks_Start_RefusedDuringRefresh(t *testing.T) {
+	smart := &SmartStub{health: map[string]model.SmartHealth{"/dev/sda": {Available: true}}}
+	scrub := &ScrubStub{}
+	err := newChecks([]model.Disk{{Device: "/dev/sda"}}, smart, scrub, &BtrfsStub{mounted: true}, &GuardStub{err: fmt.Errorf("busy")}).Start()
+	assert.EqualError(t, err, "busy")
+	assert.Empty(t, smart.started)
+	assert.False(t, scrub.started)
+}
+
+func TestChecks_Start_ReportsSmartFailure(t *testing.T) {
+	smart := &SmartStub{health: map[string]model.SmartHealth{"/dev/sda": {Available: true}}, fail: map[string]bool{"/dev/sda": true}}
+	scrub := &ScrubStub{}
+	err := newChecks([]model.Disk{{Device: "/dev/sda"}}, smart, scrub, &BtrfsStub{mounted: true}, &GuardStub{}).Start()
+	assert.EqualError(t, err, "/dev/sda: test refused")
+	assert.True(t, scrub.started)
+}

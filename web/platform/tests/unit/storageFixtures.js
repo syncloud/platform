@@ -61,6 +61,6 @@ export const arrayHealth = (overrides) => Object.assign({
     }
   ],
   scrub: { state: 'finished', started: 'Sat Nov  7 21:40:51 2026', duration: '1:10:02', errors: 'read=12 csum=3', corrected: 0, uncorrectable: 15 },
-  schedule: { scrub: false, smart: true },
+  schedule: { enabled: false },
   busy: false
 }, overrides)

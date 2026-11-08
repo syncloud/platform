@@ -8,7 +8,7 @@ import { arrayDisks, arrayHealth } from './storageFixtures'
 
 jest.setTimeout(30000)
 
-const emptyHealth = { disks: [], scrub: null, schedule: { scrub: false, smart: false }, busy: false }
+const emptyHealth = { disks: [], scrub: null, schedule: { enabled: false }, busy: false }
 
 let seen = 0
 

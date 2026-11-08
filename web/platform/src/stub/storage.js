@@ -94,7 +94,7 @@ export function storageStub (scenario) {
     busy: scenario === 'busy',
     scrub: inArray && disks.length > 0 ? { state: 'never', corrected: 0, uncorrectable: 0 } : null,
     scrubSteps: [],
-    schedule: { scrub: false, smart: false },
+    schedule: { enabled: false },
     seen: []
   }
 
@@ -171,6 +171,19 @@ export function storageStub (scenario) {
     })
   }
 
+  const startScrub = () => {
+    const damaged = disks.some(disk => Object.values(disk.errors).some(v => v > 0))
+    const started = new Date().toString().slice(0, 24)
+    state.scrub = { state: 'running', started: started, duration: '0:00:00', progress: '0.00%', corrected: 0, uncorrectable: 0 }
+    state.scrubSteps = [
+      { progress: '25.40%', duration: '0:17:52' },
+      { progress: '61.02%', duration: '0:42:10' },
+      damaged
+        ? { state: 'finished', progress: '', duration: '1:10:02', errors: 'read=12 csum=3', corrected: 3, uncorrectable: 12 }
+        : { state: 'finished', progress: '', duration: '1:08:47', errors: '', corrected: 0, uncorrectable: 0 }
+    ]
+  }
+
   const refused = () => state.busy ? new Response(500, {}, { success: false, message: busyMessage }) : null
 
   return function routes () {
@@ -189,27 +202,29 @@ export function storageStub (scenario) {
         }
       })
     })
-    this.post('/rest/storage/check/scrub', function () {
-      if (!state.scrub) {
-        return new Response(500, {}, { success: false, message: 'no active btrfs disk array' })
-      }
-      if (state.scrub.state === 'running') {
-        return new Response(500, {}, { success: false, message: 'a scrub is already running' })
-      }
+    this.post('/rest/storage/check', function () {
       const busy = refused()
       if (busy) {
         return busy
       }
-      const damaged = disks.some(disk => Object.values(disk.errors).some(v => v > 0))
-      const started = new Date().toString().slice(0, 24)
-      state.scrub = { state: 'running', started: started, duration: '0:00:00', progress: '0.00%', corrected: 0, uncorrectable: 0 }
-      state.scrubSteps = [
-        { progress: '25.40%', duration: '0:17:52' },
-        { progress: '61.02%', duration: '0:42:10' },
-        damaged
-          ? { state: 'finished', progress: '', duration: '1:10:02', errors: 'read=12 csum=3', corrected: 3, uncorrectable: 12 }
-          : { state: 'finished', progress: '', duration: '1:08:47', errors: '', corrected: 0, uncorrectable: 0 }
-      ]
+      const testable = disks.filter(disk => disk.smart.available)
+      if (testable.length === 0 && !state.scrub) {
+        return new Response(500, {}, { success: false, message: 'no disk supports checks: no active btrfs disk array and no disk with SMART' })
+      }
+      let started = 0
+      testable.forEach(disk => {
+        if (!disk.smart.self_test.running) {
+          disk.smart.self_test = { running: true, remaining_percent: 90 }
+          started++
+        }
+      })
+      if (state.scrub && state.scrub.state !== 'running') {
+        startScrub()
+        started++
+      }
+      if (started === 0) {
+        return new Response(500, {}, { success: false, message: 'checks are already running' })
+      }
       return new Response(200, {}, { success: true, data: 'OK' })
     })
     this.post('/rest/storage/check/smart', function (_schema, request) {

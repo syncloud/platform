@@ -811,7 +811,7 @@ def test_storage_array_health_and_checks(loop_device, device, domain, artifact_d
     assert health['scrub']['state'] == 'never', health
 
     device.run_ssh('dd if=/dev/urandom of=/opt/disk/external/scrub.data bs=1M count=20 conv=fsync')
-    response = session.post(url(domain, 'check/scrub'), verify=False)
+    response = session.post(url(domain, 'check'), verify=False)
     assert response.status_code == 200, response.text
     wait_for_response(session, url(domain, 'health'),
                       lambda r: r.json()['data']['scrub']['state'] == 'finished',
@@ -838,16 +838,16 @@ def test_storage_array_health_and_checks(loop_device, device, domain, artifact_d
     assert response.status_code == 500, response.text
     assert response.json()['message'] == 'unknown disk: /dev/notadisk', response.text
 
-    response = session.post(url(domain, 'check/schedule'), json={'scrub': True, 'smart': True}, verify=False)
+    response = session.post(url(domain, 'check/schedule'), json={'enabled': True}, verify=False)
     assert response.status_code == 200, response.text
-    assert session.get(url(domain, 'check/schedule'), verify=False).json()['data'] == {'scrub': True, 'smart': True}
-    response = session.post(url(domain, 'check/schedule'), json={'scrub': False, 'smart': False}, verify=False)
-    assert response.json()['data'] == {'scrub': False, 'smart': False}, response.text
+    assert session.get(url(domain, 'check/schedule'), verify=False).json()['data'] == {'enabled': True}
+    response = session.post(url(domain, 'check/schedule'), json={'enabled': False}, verify=False)
+    assert response.json()['data'] == {'enabled': False}, response.text
 
     assert disk_deactivate(loop_device, device, domain) == '/opt/disk/internal/platform'
-    response = session.post(url(domain, 'check/scrub'), verify=False)
+    response = session.post(url(domain, 'check'), verify=False)
     assert response.status_code == 500, response.text
-    assert response.json()['message'] == 'no active btrfs disk array', response.text
+    assert response.json()['message'] == 'no disk supports checks: no active btrfs disk array and no disk with SMART', response.text
     assert storage_health(session, domain, artifact_dir, 'deactivated')['scrub'] is None
 
 

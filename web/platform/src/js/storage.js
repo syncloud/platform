@@ -57,6 +57,34 @@ export function selfTestText (t, test) {
   return [test.last_type, test.last_status].filter(v => v).join(': ')
 }
 
+export function selfTestsText (t, health) {
+  const disks = health.disks.filter(d => d.smart.available)
+  const names = list => list.map(d => d.device).join(', ')
+  if (disks.length === 0) {
+    return t('storage.selfTestsNotAvailable')
+  }
+  const running = disks.filter(d => d.smart.self_test.running)
+  if (running.length > 0) {
+    return t('storage.selfTestsRunning', { disks: names(running) })
+  }
+  const failed = disks.filter(d => d.smart.self_test.last_passed === false)
+  if (failed.length > 0) {
+    return t('storage.selfTestsFailed', { disks: names(failed) })
+  }
+  if (disks.every(d => !d.smart.self_test.last_status)) {
+    return t('storage.selfTestNone')
+  }
+  return t('storage.selfTestsPassed')
+}
+
+export function selfTestsBad (health) {
+  return health.disks.some(d => d.smart.available && !d.smart.self_test.running && d.smart.self_test.last_passed === false)
+}
+
+export function checksRunning (health) {
+  return (!!health.scrub && health.scrub.state === 'running') || health.disks.some(d => d.smart.available && d.smart.self_test.running)
+}
+
 export function eventsText (t, events) {
   if (events.count === 0) {
     return t('storage.eventsNone')

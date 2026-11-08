@@ -14,7 +14,7 @@ func at(day int, hour int, minute int) time.Time {
 }
 
 func TestStorageCheckJob_OnlyAtCheckHour(t *testing.T) {
-	checks := &StorageChecksStub{schedule: model.CheckSchedule{Scrub: true, Smart: true}, scrubAvailable: true}
+	checks := &StorageChecksStub{schedule: model.CheckSchedule{Enabled: true}, scrubAvailable: true}
 	config := &StorageCheckConfigStub{times: map[string]time.Time{}}
 	job := NewStorageCheckJob(checks, config, &DateProviderStub{now: at(1, 2, 55)}, log.Default())
 	assert.Nil(t, job.Run())
@@ -32,7 +32,7 @@ func TestStorageCheckJob_Disabled(t *testing.T) {
 }
 
 func TestStorageCheckJob_MonthlyScrubWeeklySmart(t *testing.T) {
-	checks := &StorageChecksStub{schedule: model.CheckSchedule{Scrub: true, Smart: true}, scrubAvailable: true}
+	checks := &StorageChecksStub{schedule: model.CheckSchedule{Enabled: true}, scrubAvailable: true}
 	config := &StorageCheckConfigStub{times: map[string]time.Time{}}
 	provider := &DateProviderStub{}
 	job := NewStorageCheckJob(checks, config, provider, log.Default())
@@ -52,7 +52,7 @@ func TestStorageCheckJob_MonthlyScrubWeeklySmart(t *testing.T) {
 }
 
 func TestStorageCheckJob_ScrubSkippedWithoutArray(t *testing.T) {
-	checks := &StorageChecksStub{schedule: model.CheckSchedule{Scrub: true}}
+	checks := &StorageChecksStub{schedule: model.CheckSchedule{Enabled: true}}
 	config := &StorageCheckConfigStub{times: map[string]time.Time{}}
 	job := NewStorageCheckJob(checks, config, &DateProviderStub{now: at(1, 3, 0)}, log.Default())
 	assert.Nil(t, job.Run())
@@ -61,7 +61,7 @@ func TestStorageCheckJob_ScrubSkippedWithoutArray(t *testing.T) {
 }
 
 func TestStorageCheckJob_RetriesWhenBusy(t *testing.T) {
-	checks := &StorageChecksStub{schedule: model.CheckSchedule{Scrub: true}, scrubAvailable: true, scrubErr: fmt.Errorf("an app install or update is in progress")}
+	checks := &StorageChecksStub{schedule: model.CheckSchedule{Enabled: true}, scrubAvailable: true, scrubErr: fmt.Errorf("an app install or update is in progress")}
 	config := &StorageCheckConfigStub{times: map[string]time.Time{}}
 	provider := &DateProviderStub{now: at(1, 3, 0)}
 	job := NewStorageCheckJob(checks, config, provider, log.Default())
