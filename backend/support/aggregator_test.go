@@ -64,3 +64,23 @@ func TestDiskDevices_SkipsPartitionsZramAndSdCard(t *testing.T) {
 `)
 	assert.Equal(t, []string{"/dev/sda", "/dev/sdb"}, devices)
 }
+
+func TestSmartctlSucceeded_ErrorLogEntriesOnly(t *testing.T) {
+	assert.True(t, SmartctlSucceeded(64))
+}
+
+func TestSmartctlSucceeded_Zero(t *testing.T) {
+	assert.True(t, SmartctlSucceeded(0))
+}
+
+func TestSmartctlSucceeded_DeviceOpenFailed(t *testing.T) {
+	assert.False(t, SmartctlSucceeded(2))
+}
+
+func TestSmartctlSucceeded_CommandFailed(t *testing.T) {
+	assert.False(t, SmartctlSucceeded(4|64))
+}
+
+func TestSmartctlSucceeded_NotStarted(t *testing.T) {
+	assert.False(t, SmartctlSucceeded(-1))
+}

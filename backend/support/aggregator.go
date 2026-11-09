@@ -42,9 +42,7 @@ func (a *LogAggregator) GetLogs() string {
 	log += a.cmd(storage.LSBLK, "-o", "+UUID,SERIAL,WWN,HCTL")
 	log += a.cmd(storage.LSBLK, "-Jp", "-o", storage.LsblkColumns)
 	log += a.cmd("ls", "-l", "/dev/disk/by-path", "/dev/disk/by-id")
-	log += a.cmd(btrfs.BTRFS, "device", "stats", "/data/")
-	log += a.cmd(btrfs.BTRFS, "filesystem", "df", "/data/")
-	log += a.cmd(btrfs.BTRFS, "scrub", "status", "/data/")
+	log += a.btrfsReport()
 	log += a.smartReport()
 	log += a.cmd("ls", "-la", "/data")
 	log += a.cmd("uptime")
@@ -145,10 +143,10 @@ func (a *LogAggregator) smartReport() string {
 	}
 	result := ""
 	for _, device := range DiskDevices(string(out)) {
-		report := a.cmd(smart.SMARTCTL, "-a", device)
+		report := a.cmdAllowing(SmartctlSucceeded, smart.SMARTCTL, "-a", device)
 		result += report
 		if smartNeedsSat.MatchString(report) {
-			result += a.cmd(smart.SMARTCTL, "-a", "-d", "sat", device)
+			result += a.cmdAllowing(SmartctlSucceeded, smart.SMARTCTL, "-a", "-d", "sat", device)
 		}
 	}
 	return result
@@ -199,14 +197,37 @@ func tail(s string, n int) string {
 	return strings.Join(lines, "\n")
 }
 
+func SmartctlSucceeded(exitCode int) bool {
+	return exitCode&0x7 == 0
+}
+
+func (a *LogAggregator) btrfsReport() string {
+	out, err := exec.Command("stat", "-f", "-c", "%T", "/data/").CombinedOutput()
+	fsType := strings.TrimSpace(string(out))
+	if err != nil {
+		a.logger.Warn("failed", zap.Error(err))
+	}
+	if err != nil || fsType != "btrfs" {
+		return fmt.Sprintf("btrfs\n\n/data/ is %s, not btrfs\n", fsType) + Separator
+	}
+	result := a.cmd(btrfs.BTRFS, "device", "stats", "/data/")
+	result += a.cmd(btrfs.BTRFS, "filesystem", "df", "/data/")
+	result += a.cmd(btrfs.BTRFS, "scrub", "status", "/data/")
+	return result
+}
+
 func (a *LogAggregator) cmd(app string, args ...string) string {
+	return a.cmdAllowing(func(exitCode int) bool { return exitCode == 0 }, app, args...)
+}
+
+func (a *LogAggregator) cmdAllowing(succeeded func(exitCode int) bool, app string, args ...string) string {
 	command := exec.Command(app, args...)
 	if app == "top" {
 		command.Env = append(os.Environ(), "COLUMNS=1000")
 	}
 	result := command.String() + "\n\n"
 	output, err := command.CombinedOutput()
-	if err != nil {
+	if err != nil && !succeeded(command.ProcessState.ExitCode()) {
 		a.logger.Info(string(output))
 		a.logger.Warn("failed", zap.Error(err))
 	}
