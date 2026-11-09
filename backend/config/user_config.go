@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"github.com/syncloud/platform/storage/model"
 	"go.uber.org/zap"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -205,6 +207,40 @@ func (c *UserConfig) GetBackupAppTime(app string, mode string) time.Time {
 
 func (c *UserConfig) SetBackupAppTime(app string, mode string, time time.Time) {
 	c.db.Upsert(fmt.Sprintf("platform.backup.%s.%s", app, mode), strconv.FormatInt(time.Unix(), 10))
+}
+
+func (c *UserConfig) StorageCheckSchedule() model.CheckSchedule {
+	return model.CheckSchedule{
+		Enabled: c.db.GetBool("platform.storage_check", false),
+	}
+}
+
+func (c *UserConfig) SetStorageCheckSchedule(schedule model.CheckSchedule) {
+	c.db.UpsertBool("platform.storage_check", schedule.Enabled)
+}
+
+func (c *UserConfig) StorageAlertsSeen() []string {
+	value := c.db.Get("platform.storage_alerts_seen", "")
+	if value == "" {
+		return nil
+	}
+	return strings.Split(value, ",")
+}
+
+func (c *UserConfig) SetStorageAlertsSeen(keys []string) {
+	c.db.Upsert("platform.storage_alerts_seen", strings.Join(keys, ","))
+}
+
+func (c *UserConfig) GetStorageCheckTime(check string) time.Time {
+	value := c.db.GetOrNilInt64(fmt.Sprintf("platform.storage_check.%s", check))
+	if value == nil {
+		return time.Time{}
+	}
+	return time.Unix(*value, 0)
+}
+
+func (c *UserConfig) SetStorageCheckTime(check string, time time.Time) {
+	c.db.Upsert(fmt.Sprintf("platform.storage_check.%s", check), strconv.FormatInt(time.Unix(), 10))
 }
 
 func (c *UserConfig) SetCustomDomain(domain string) {

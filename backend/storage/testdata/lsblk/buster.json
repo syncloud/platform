@@ -1,0 +1,19 @@
+{
+   "blockdevices": [
+      {"name":"/dev/loop0", "size":"449.9M", "type":"loop", "mountpoint":"/snap/collabora/128", "parttype":null, "fstype":"squashfs", "model":null, "uuid":null, "serial":null, "wwn":null, "hctl":null},
+      {"name":"/dev/loop1", "size":"465.5M", "type":"loop", "mountpoint":"/snap/mastodon/358", "parttype":null, "fstype":"squashfs", "model":null, "uuid":null, "serial":null, "wwn":null, "hctl":null},
+      {"name":"/dev/loop2", "size":"55.1M", "type":"loop", "mountpoint":"/snap/openvpn/277", "parttype":null, "fstype":"squashfs", "model":null, "uuid":null, "serial":null, "wwn":null, "hctl":null},
+      {"name":"/dev/sda", "size":"111.8G", "type":"disk", "mountpoint":null, "parttype":null, "fstype":null, "model":"KINGSTON_SA400S37120G", "uuid":null, "serial":"SERIAL00000001", "wwn":"0x5000000000000001", "hctl":"0:0:0:0",
+         "children": [
+            {"name":"/dev/sda1", "size":"953M", "type":"part", "mountpoint":"[SWAP]", "parttype":"0x82", "fstype":"swap", "model":null, "uuid":"a72beb01-994e-427c-837a-b71438066aa6", "serial":null, "wwn":"0x5000000000000001", "hctl":null},
+            {"name":"/dev/sda2", "size":"110.9G", "type":"part", "mountpoint":"/", "parttype":"0x83", "fstype":"ext4", "model":null, "uuid":"d2597165-b767-4b45-b1f8-ff2d784e72d5", "serial":null, "wwn":"0x5000000000000001", "hctl":null}
+         ]
+      },
+      {"name":"/dev/sdb", "size":"931.5G", "type":"disk", "mountpoint":null, "parttype":null, "fstype":null, "model":"External_USB_3.0", "uuid":null, "serial":"SERIAL00000002", "wwn":null, "hctl":"2:0:0:0",
+         "children": [
+            {"name":"/dev/sdb1", "size":"931.5G", "type":"part", "mountpoint":"/opt/disk/external", "parttype":"0x83", "fstype":"ext4", "model":null, "uuid":"902ac45e-f2ac-47e0-a39d-eaf8ec1e693a", "serial":null, "wwn":null, "hctl":null}
+         ]
+      },
+      {"name":"/dev/zram0", "size":"2G", "type":"disk", "mountpoint":"[SWAP]", "parttype":null, "fstype":null, "model":null, "uuid":null, "serial":null, "wwn":null, "hctl":null}
+   ]
+}

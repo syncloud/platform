@@ -49,12 +49,15 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
 		tz *timezone.Applier,
 		healthService *health.Health,
+		storageHealth *storage.Health,
+		storageChecks *storage.Checks,
+		storageAlerts *storage.Alerts,
 	) *rest.Backend {
 		return rest.NewBackend(master, backupService, eventTrigger, worker, redirectService,
 			snapdUpgrader, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
 			snapd, disks, diskSpace, journalCtl, power, uptime, iface, sender, proxy, customProxy,
 			userManager, groupManager, middleware, cookies, net, address, changesClient,
-			oidcService, authelia, totp, tz, healthService, logger)
+			oidcService, authelia, totp, tz, healthService, storageHealth, storageChecks, storageAlerts, logger)
 	})
 	if err != nil {
 		return nil, err

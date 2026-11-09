@@ -5,7 +5,7 @@ cd ${DIR}
 
 ARCH=$(uname -m)
 NAME=gptfdisk
-VERSION=1.0.10
+VERSION=$1
 BUILD=${DIR}/build
 PREFIX=${BUILD}/${NAME}
 

@@ -30,6 +30,8 @@ import (
 	"github.com/syncloud/platform/stability"
 	"github.com/syncloud/platform/storage"
 	"github.com/syncloud/platform/storage/btrfs"
+	"github.com/syncloud/platform/storage/kernel"
+	"github.com/syncloud/platform/storage/smart"
 	"github.com/syncloud/platform/support"
 	"github.com/syncloud/platform/systemd"
 	"github.com/syncloud/platform/timezone"
@@ -357,12 +359,6 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 	if err != nil {
 		return nil, err
 	}
-	err = c.Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, job5 *cron.SnapdUpgradeJob, job6 *cron.SnapshotsJob, userConfig *config.UserConfig) *cron.Cron {
-		return cron.New([]cron.Job{job1, job2, job3, job4, job5, job6}, time.Minute*5, userConfig)
-	})
-	if err != nil {
-		return nil, err
-	}
 	err = c.Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor, logger *zap.Logger) *storage.Storage {
 		return storage.New(systemConfig, executor, logger)
 	})
@@ -595,6 +591,60 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return storage.NewDisks(systemConfig, eventTrigger, lsblk, systemd, freeSpaceChecker, linker, executor, btrfs, stats, logger)
 	})
 
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(executor *cli.ShellExecutor) *smart.Smartctl { return smart.NewSmartctl(executor, logger) })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(executor *cli.ShellExecutor) *kernel.Log { return kernel.NewLog(executor) })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func() *kernel.PortResolver { return kernel.NewPortResolver("/sys") })
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(systemConfig *config.SystemConfig, executor *cli.ShellExecutor) *btrfs.Scrub {
+		return btrfs.NewScrub(systemConfig, executor)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(changesClient *snap.ChangesClient, master *job.SingleJobMaster) *storage.RefreshGuard {
+		return storage.NewRefreshGuard(changesClient, master)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(lsblk *storage.Lsblk, smartctl *smart.Smartctl, kernelLog *kernel.Log, ports *kernel.PortResolver, scrub *btrfs.Scrub, stats *btrfs.Stats, userConfig *config.UserConfig, guard *storage.RefreshGuard) *storage.Health {
+		return storage.NewHealth(lsblk, smartctl, kernelLog, ports, scrub, stats, userConfig, guard, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(lsblk *storage.Lsblk, smartctl *smart.Smartctl, scrub *btrfs.Scrub, stats *btrfs.Stats, userConfig *config.UserConfig, guard *storage.RefreshGuard) *storage.Checks {
+		return storage.NewChecks(lsblk, smartctl, scrub, stats, userConfig, guard, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(health *storage.Health, disks *storage.Disks, userConfig *config.UserConfig) *storage.Alerts {
+		return storage.NewAlerts(health, disks, userConfig)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(checks *storage.Checks, userConfig *config.UserConfig, provider *date.RealProvider) *cron.StorageCheckJob {
+		return cron.NewStorageCheckJob(checks, userConfig, provider, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = c.Singleton(func(job1 *cron.CertificateJob, job2 *cron.ExternalAddressJob, job3 *cron.BackupJob, job4 *cron.TimeSyncJob, job5 *cron.SnapdUpgradeJob, job6 *cron.SnapshotsJob, job7 *cron.StorageCheckJob, userConfig *config.UserConfig) *cron.Cron {
+		return cron.New([]cron.Job{job1, job2, job3, job4, job5, job6, job7}, time.Minute*5, userConfig)
+	})
 	if err != nil {
 		return nil, err
 	}

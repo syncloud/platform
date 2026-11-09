@@ -1,0 +1,92 @@
+{
+   "blockdevices": [
+      {
+         "name": "/dev/loop3",
+         "size": "10M",
+         "type": "loop",
+         "mountpoint": null,
+         "parttype": null,
+         "fstype": "ext4",
+         "model": null,
+         "uuid": "dc95eec9-899c-4e80-89ce-83d55d840689",
+         "serial": null,
+         "wwn": null,
+         "hctl": null
+      },{
+         "name": "/dev/loop4",
+         "size": "10M",
+         "type": "loop",
+         "mountpoint": null,
+         "parttype": null,
+         "fstype": "ext2",
+         "model": null,
+         "uuid": "d2782e25-5b6a-4f07-8b1a-ab050bcda3e5",
+         "serial": null,
+         "wwn": null,
+         "hctl": null
+      },{
+         "name": "/dev/sda",
+         "size": "1.8T",
+         "type": "disk",
+         "mountpoint": "/opt/disk/external",
+         "parttype": null,
+         "fstype": "btrfs",
+         "model": "CT2000BX500SSD1",
+         "uuid": "f85fb0ab-e643-4266-9f61-0f6e4980b871",
+         "serial": "SERIAL00000003",
+         "wwn": "0x5000000000000003",
+         "hctl": "0:0:0:0"
+      },{
+         "name": "/dev/mmcblk0",
+         "size": "29.7G",
+         "type": "disk",
+         "mountpoint": null,
+         "parttype": null,
+         "fstype": null,
+         "model": null,
+         "uuid": null,
+         "serial": "0x00000004",
+         "wwn": null,
+         "hctl": null,
+         "children": [
+            {
+               "name": "/dev/mmcblk0p1",
+               "size": "256M",
+               "type": "part",
+               "mountpoint": null,
+               "parttype": "0x83",
+               "fstype": "ext2",
+               "model": null,
+               "uuid": "8aebe132-fe1a-4a27-8f39-e411208615d3",
+               "serial": null,
+               "wwn": null,
+               "hctl": null
+            },{
+               "name": "/dev/mmcblk0p2",
+               "size": "29.5G",
+               "type": "part",
+               "mountpoint": "/",
+               "parttype": "0x83",
+               "fstype": "ext4",
+               "model": null,
+               "uuid": "39592271-3e37-454c-9d28-c03da9328b43",
+               "serial": null,
+               "wwn": null,
+               "hctl": null
+            }
+         ]
+      },{
+         "name": "/dev/zram0",
+         "size": "1.8G",
+         "type": "disk",
+         "mountpoint": "[SWAP]",
+         "parttype": null,
+         "fstype": null,
+         "model": null,
+         "uuid": null,
+         "serial": null,
+         "wwn": null,
+         "hctl": null
+      }
+   ]
+}
