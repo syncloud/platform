@@ -1,4 +1,5 @@
 import { createServer, Model, Response } from 'miragejs'
+import { storageStub } from './storage'
 const domain = 'syncloud.it'
 const state = {
   loggedIn: true,
@@ -339,6 +340,7 @@ const installerProgress = {
 }
 
 export function mock () {
+  const storageRoutes = storageStub(new URLSearchParams(window.location.search).get('storage'))
   createServer({
     models: {
       author: Model
@@ -571,9 +573,7 @@ export function mock () {
         }
         return new Response(200, {}, { success: true, data: data })
       })
-      this.get('/rest/storage/disks', function (_schema, _request) {
-        return new Response(200, {}, disksData)
-      })
+      storageRoutes.call(this)
       this.get('/rest/storage/boot/disk', function (_schema, _request) {
         return new Response(200, {}, bootDiskData)
       })

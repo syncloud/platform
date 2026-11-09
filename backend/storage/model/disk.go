@@ -6,16 +6,22 @@ import (
 )
 
 type Disk struct {
-	Name       string      `json:"name"`
-	Device     string      `json:"device"`
-	Size       string      `json:"size"`
-	Partitions []Partition `json:"partitions"`
-	Active     bool        `json:"active"`
-	Uuid       string      `json:"uuid"`
-	MountPoint string      `json:"mount_point"`
-	Raid       string      `json:"raid"`
-	HasErrors  bool        `json:"has_errors"`
-	Boot       bool        `json:"boot"`
+	Name         string        `json:"name"`
+	Device       string        `json:"device"`
+	Size         string        `json:"size"`
+	Partitions   []Partition   `json:"partitions"`
+	Active       bool          `json:"active"`
+	Uuid         string        `json:"uuid"`
+	MountPoint   string        `json:"mount_point"`
+	Raid         string        `json:"raid"`
+	RaidMetadata string        `json:"raid_metadata"`
+	HasErrors    bool          `json:"has_errors"`
+	Boot         bool          `json:"boot"`
+	Serial       string        `json:"serial"`
+	Wwn          string        `json:"wwn"`
+	Hctl         string        `json:"hctl"`
+	Devid        string        `json:"devid"`
+	Errors       *DeviceErrors `json:"errors"`
 }
 
 type UiDeviceEntry struct {

@@ -44,9 +44,6 @@ mv usr/share/ca-certificates/mozilla ${BUILD_DIR}/certs
 download https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz openldap-${ARCH}.tar.gz
 tar xf openldap-${ARCH}.tar.gz
 mv openldap ${BUILD_DIR}
-download https://github.com/syncloud/3rdparty/releases/download/btrfs/btrfs-${ARCH}.tar.gz btrfs-${ARCH}.tar.gz
-tar xf btrfs-${ARCH}.tar.gz
-mv btrfs ${BUILD_DIR}
 
 cd ${DIR}/build
 

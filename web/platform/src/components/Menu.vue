@@ -46,6 +46,15 @@
       <i class="material-icons">warning</i>
       <span>{{ $t(spaceMessage, { free: freeText }) }}</span>
     </router-link>
+    <router-link
+      v-if="auth.admin && storageAlerts.fresh"
+      to="/storage"
+      id="storage_alert"
+      data-testid="storage-alert"
+      class="sc-header-alert">
+      <i class="material-icons">error</i>
+      <span>{{ $t('storage.alertBanner') }}</span>
+    </router-link>
   </header>
 </template>
 
@@ -53,6 +62,7 @@
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 import { useSpaceStore } from '../stores/space'
+import { useStorageAlertsStore } from '../stores/storageAlerts'
 
 const SPACE_INTERVAL_MS = 5 * 60 * 1000
 
@@ -66,6 +76,7 @@ export default {
       auth: useAuthStore(),
       theme: useThemeStore(),
       space: useSpaceStore(),
+      storageAlerts: useStorageAlertsStore(),
       spaceTimer: undefined
     }
   },
@@ -88,16 +99,19 @@ export default {
     'auth.admin' (admin) {
       if (admin) {
         this.space.load()
+        this.storageAlerts.load()
       }
     }
   },
   mounted () {
     if (this.auth.admin) {
       this.space.load()
+      this.storageAlerts.load()
     }
     this.spaceTimer = setInterval(() => {
       if (this.auth.admin) {
         this.space.load()
+        this.storageAlerts.load()
       }
     }, SPACE_INTERVAL_MS)
   },

@@ -1,1 +1,6 @@
-backend
+/api
+/backend
+/configure
+/install
+/login
+/post-refresh

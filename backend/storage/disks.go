@@ -65,8 +65,8 @@ type BtrfsDisks interface {
 }
 
 type BtrfsDiskStats interface {
-	RaidMode(uuid string) (string, error)
-	HasErrors(device string) (bool, error)
+	Profiles(uuid string) (model.RaidProfiles, error)
+	Devices() ([]model.BtrfsDevice, error)
 }
 
 func NewDisks(
@@ -121,21 +121,43 @@ func (d *Disks) AvailableDisks() ([]model.Disk, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i, disk := range disks {
-		mode, err := d.btrfsStats.RaidMode(disk.Uuid)
+	devices := make(map[string]model.BtrfsDevice)
+	if d.anyActive(disks) {
+		btrfsDevices, err := d.btrfsStats.Devices()
 		if err != nil {
-			d.logger.Info("unable to get raid mode", zap.String("device", disk.Device), zap.String("uuid", disk.Uuid))
-		} else {
-			disks[i].Raid = mode
+			d.logger.Info("unable to get btrfs device stats", zap.Error(err))
 		}
-		hasErrors, err := d.btrfsStats.HasErrors(disk.Device)
-		if err != nil {
-			d.logger.Info("unable to get errors", zap.String("device", disk.Device))
-		} else {
-			disks[i].HasErrors = hasErrors
+		for _, device := range btrfsDevices {
+			devices[device.Device] = device
 		}
 	}
-	return disks, err
+	for i, disk := range disks {
+		if disk.Uuid != "" {
+			profiles, err := d.btrfsStats.Profiles(disk.Uuid)
+			if err != nil {
+				d.logger.Info("unable to get raid mode", zap.String("device", disk.Device), zap.String("uuid", disk.Uuid))
+			} else {
+				disks[i].Raid = profiles.Data
+				disks[i].RaidMetadata = profiles.Metadata
+			}
+		}
+		if device, ok := devices[disk.Device]; ok {
+			errors := device.Errors
+			disks[i].Devid = device.Devid
+			disks[i].Errors = &errors
+			disks[i].HasErrors = errors.Any()
+		}
+	}
+	return disks, nil
+}
+
+func (d *Disks) anyActive(disks []model.Disk) bool {
+	for _, disk := range disks {
+		if disk.Active {
+			return true
+		}
+	}
+	return false
 }
 
 func (d *Disks) ActivateDisks(newDevices []string, format bool) error {
