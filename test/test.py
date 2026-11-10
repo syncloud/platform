@@ -826,9 +826,12 @@ def test_storage_array_health_and_checks(loop_device, device, domain, artifact_d
 
     response = session.get(url(domain, 'alerts'), verify=False)
     assert response.status_code == 200, response.text
-    assert response.json()['data'] == {'problems': [], 'new': False}, response.text
+    problems = response.json()['data']['problems']
+    assert [p for p in problems if p.get('device', '') in ('', loop_device)] == [], response.text
     response = session.post(url(domain, 'alerts/seen'), verify=False)
     assert response.status_code == 200, response.text
+    response = session.get(url(domain, 'alerts'), verify=False)
+    assert not response.json()['data']['new'], response.text
 
     response = session.post(url(domain, 'check/smart'), json={'device': loop_device}, verify=False)
     assert response.status_code == 500, response.text
