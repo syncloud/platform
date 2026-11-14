@@ -1,7 +1,7 @@
 <template>
   <div class="sc-page">
     <div class="sc-card sc-card-wide" id="block1">
-      <h1 class="sc-title">{{ $t('apps.title') }}</h1>
+      <h1 class="sc-title" data-testid="apps-title">{{ $t('apps.title') }}</h1>
       <div id="block_apps">
         <div v-if="apps.length === 0" class="sc-empty">
           <p class="sc-lead">{{ $t('apps.emptyHeading') }}</p>
