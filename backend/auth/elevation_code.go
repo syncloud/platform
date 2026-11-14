@@ -34,11 +34,20 @@ func (e *ElevationCode) Read(email string) (string, error) {
 		case strings.HasPrefix(line, subjectHeader):
 			subject = true
 		case subject && line != "":
-			if !strings.Contains(recipient, fmt.Sprintf("<%s>", email)) {
+			if !addressedTo(recipient, email) {
 				return "", fmt.Errorf("notification is not for %s", email)
 			}
 			return line, nil
 		}
 	}
 	return "", fmt.Errorf("no code in notification")
+}
+
+func addressedTo(recipient, email string) bool {
+	for _, field := range strings.Fields(recipient) {
+		if strings.Trim(field, "{}<>\"") == email {
+			return true
+		}
+	}
+	return false
 }
