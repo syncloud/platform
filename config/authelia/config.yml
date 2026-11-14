@@ -232,16 +232,18 @@ webauthn:
   ## Adjust the interaction timeout for Webauthn dialogues.
   timeout: 60s
 
+  enable_passkey_login: true
+
   ## The display name the browser should show the user for when using Webauthn to login/register.
-  display_name: Authelia
+  display_name: Syncloud
 
   ## Conveyance preference controls if we collect the attestation statement including the AAGUID from the device.
   ## Options are none, indirect, direct.
   attestation_conveyance_preference: indirect
 
-  ## User verification controls if the user must make a gesture or action to confirm they are present.
-  ## Options are required, preferred, discouraged.
-  user_verification: preferred
+  selection_criteria:
+    discoverability: required
+    user_verification: preferred
 
   ##
   ## Duo Push API Configuration
@@ -745,6 +747,8 @@ storage:
 notifier:
   ## You can disable the notifier startup check by setting this to true.
   disable_startup_check: true
+
+  template_path: /snap/platform/current/config/authelia/templates
 
   filesystem:
     filename: /var/snap/platform/current/authelia-notification.txt
