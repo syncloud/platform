@@ -11,6 +11,7 @@
           <label for="username-textfield">Username</label>
           <input
             id="username-textfield"
+            data-testid="username"
             class="input"
             v-model="username"
             placeholder="Username"
@@ -22,6 +23,7 @@
           <div class="password-wrap">
             <input
               id="password-textfield"
+              data-testid="password"
               class="input"
               :type="showPassword ? 'text' : 'password'"
               v-model="password"
@@ -35,9 +37,19 @@
         <label class="remember">
           <input type="checkbox" v-model="keepMeLoggedIn"> Remember me
         </label>
-        <button id="sign-in-button" type="submit" class="btn btn-primary" :disabled="loading">
+        <label v-if="passkeySupported" class="remember">
+          <input type="checkbox" v-model="addPasskey" data-testid="passkey-setup"> Set up a passkey
+        </label>
+        <button id="sign-in-button" data-testid="sign-in" type="submit" class="btn btn-primary" :disabled="loading">
           <span v-if="loading" class="spinner"></span><span v-else>Sign in</span>
         </button>
+        <button
+          v-if="passkeySupported"
+          type="button"
+          class="btn btn-secondary"
+          data-testid="passkey-sign-in"
+          :disabled="loading"
+          @click="signInWithPasskey">Sign in with passkey</button>
       </form>
 
       <!-- TOTP setup (first time) -->
@@ -109,6 +121,11 @@ export default {
       password: '',
       showPassword: false,
       keepMeLoggedIn: false,
+      addPasskey: false,
+      passkeyUsed: false,
+      passkeySupported: !!(window.PublicKeyCredential &&
+        PublicKeyCredential.parseRequestOptionsFromJSON &&
+        PublicKeyCredential.parseCreationOptionsFromJSON),
       totpCode: '',
       totpQr: null,
       totpSecret: null,
@@ -206,11 +223,52 @@ export default {
           keepMeLoggedIn: this.keepMeLoggedIn,
           targetURL: this.targetURL
         })
-        await this.handleSecondFactor()
       } catch (err) {
         this.loading = false
         this.showError(this.extractError(err, 'Incorrect username or password'))
+        return
       }
+      if (this.addPasskey) {
+        try {
+          await this.registerPasskey()
+        } catch (err) {
+          this.loading = false
+          this.addPasskey = false
+          this.showError(this.extractError(err, 'Failed to set up a passkey'))
+          return
+        }
+      }
+      await this.handleSecondFactor()
+    },
+    async registerPasskey() {
+      await axios.post('/api/user/session/elevation', {})
+      const codeResp = await axios.post('/login/passkey/elevation', { username: this.username, password: this.password })
+      await axios.put('/api/user/session/elevation', { otc: codeResp.data.data.code })
+      const description = 'Passkey ' + new Date().toISOString().slice(0, 19).replace('T', ' ')
+      const options = await axios.put('/api/secondfactor/webauthn/credential/register', { description })
+      const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(options.data.data.publicKey)
+      const credential = await navigator.credentials.create({ publicKey })
+      await axios.post('/api/secondfactor/webauthn/credential/register', credential.toJSON())
+    },
+    async signInWithPasskey() {
+      this.loading = true
+      this.errorMessage = ''
+      try {
+        const options = await axios.get('/api/firstfactor/passkey')
+        const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options.data.data.publicKey)
+        const credential = await navigator.credentials.get({ publicKey })
+        await axios.post('/api/firstfactor/passkey', {
+          response: credential.toJSON(),
+          keepMeLoggedIn: this.keepMeLoggedIn,
+          targetURL: this.targetURL
+        })
+      } catch (err) {
+        this.loading = false
+        this.showError(this.extractError(err, 'Passkey sign in failed'))
+        return
+      }
+      this.passkeyUsed = true
+      await this.handleSecondFactor()
     },
     async handleSecondFactor() {
       const stateResp = await axios.get('/api/state')
@@ -243,6 +301,11 @@ export default {
         if (!this.flowID) {
           // Direct login to auth domain without OIDC flow, redirect to target or home
           await this.completeFlow()
+          return
+        }
+        if (this.passkeyUsed) {
+          this.step = 'totp_verify'
+          this.loading = false
           return
         }
         // Check if user already has TOTP configured (returning user)
@@ -453,6 +516,12 @@ body {
 }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-secondary {
+  margin-top: 12px;
+  background: #fff;
+  color: var(--lg-primary);
+  border: 1px solid var(--lg-border);
+}
 .btn-primary {
   background: linear-gradient(135deg, var(--lg-primary) 0%, var(--lg-primary-dark) 100%);
   color: #fff;
