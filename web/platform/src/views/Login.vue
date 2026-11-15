@@ -18,6 +18,7 @@
 
 <script>
 import Error from '../components/Error.vue'
+import { leave } from '../util/leaving'
 
 const REASONS = ['session', 'signin']
 
@@ -41,7 +42,7 @@ export default {
   },
   methods: {
     signIn () {
-      window.location.href = '/rest/oidc/login'
+      leave('/rest/oidc/login')
     }
   }
 }
