@@ -16,6 +16,7 @@
 </template>
 <script>
 import axios from 'axios'
+import { isLeaving } from '../util/leaving'
 
 export default {
   name: 'Error',
@@ -38,6 +39,9 @@ export default {
       this.visible = false
     },
     showAxios (err) {
+      if (err.response === undefined && isLeaving()) {
+        return
+      }
       let status = 500
       if (err.response !== undefined) {
         status = err.response.status

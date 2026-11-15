@@ -63,6 +63,7 @@ import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 import { useSpaceStore } from '../stores/space'
 import { useStorageAlertsStore } from '../stores/storageAlerts'
+import { leave } from '../util/leaving'
 
 const SPACE_INTERVAL_MS = 5 * 60 * 1000
 
@@ -126,7 +127,7 @@ export default {
       this.menuOpen = !this.menuOpen
     },
     logout: function () {
-      window.location.href = '/rest/logout'
+      leave('/rest/logout')
     }
   }
 }
