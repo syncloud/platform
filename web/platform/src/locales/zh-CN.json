@@ -44,6 +44,7 @@
     "title": "设置",
     "activation": "激活",
     "users": "用户",
+    "passkeys": "通行密钥",
     "network": "网络",
     "access": "访问",
     "internalMemory": "内部存储",
@@ -200,6 +201,18 @@
     "ruleNumber": "包含数字",
     "addGroup": "添加",
     "confirmDelete": "确定要删除此用户吗？"
+  },
+  "passkeys": {
+    "title": "通行密钥",
+    "hint": "通行密钥让你无需密码即可登录。请删除位于丢失设备上或不再使用的通行密钥。要添加通行密钥，请在该设备上用密码登录，并在提示时保存。",
+    "none": "暂无通行密钥",
+    "added": "添加于 {date}",
+    "lastUsed": "上次使用 {date}",
+    "neverUsed": "从未使用",
+    "remove": "删除",
+    "removeAll": "全部删除",
+    "confirmRemove": "删除通行密钥“{name}”？之后将无法用它登录。",
+    "confirmRemoveAll": "删除所有通行密钥？之后将无法用其中任何一个登录。"
   },
   "backup": {
     "title": "备份",

@@ -1,8 +1,9 @@
 import { Page, expect } from '@playwright/test'
+import { env } from './env'
 import { waitForLoading } from './ui'
 
-const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'user'
-const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
+const deviceUser = env('PLAYWRIGHT_DEVICE_USER')
+const devicePassword = env('PLAYWRIGHT_DEVICE_PASSWORD')
 
 export { deviceUser, devicePassword, waitForLoading }
 
@@ -12,11 +13,11 @@ const firstFactorTimeout = 10000
 const applicationsTimeout = 30000
 const servingTimeout = 60000
 const servingPoll = 1000
-const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
+const fullDomain = env('PLAYWRIGHT_FULL_DOMAIN')
 
 export async function waitForServing(page: Page) {
   const deadline = Date.now() + servingTimeout
-  while (fullDomain !== '' && Date.now() < deadline) {
+  while (Date.now() < deadline) {
     const status = await page.request
       .get(`https://auth.${fullDomain}/`, { failOnStatusCode: false })
       .then(r => r.status())
@@ -72,8 +73,7 @@ export async function login(page: Page, opts: { user?: string; password?: string
 }
 
 export async function logout(page: Page) {
-  const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
-  const url = fullDomain ? `https://${fullDomain}/rest/logout` : '/rest/logout'
+  const url = `https://${fullDomain}/rest/logout`
   await waitForServing(page)
   await page.goto(url)
   await expect(page.locator('#username-textfield')).toBeVisible({ timeout: applicationsTimeout })

@@ -46,7 +46,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 		power *system.Power, uptime *system.Uptime, iface *network.TcpInterfaces, sender *support.Sender,
 		proxy *rest.Proxy, customProxy *rest.CustomProxy, middleware *rest.Middleware, userManager *auth.UserManager, groupManager *auth.GroupManager, cookies *session.Cookies,
 		changesClient *snap.ChangesClient,
-		oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
+		oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP, passkeys *auth.Passkeys,
 		tz *timezone.Applier,
 		healthService *health.Health,
 		storageHealth *storage.Health,
@@ -57,7 +57,7 @@ func InitPublicApi(userConfig string, systemConfig string, backupDir string, var
 			snapdUpgrader, storageService, id, activate, userConfig, redirectConfig, cert, externalAddress,
 			snapd, disks, diskSpace, journalCtl, power, uptime, iface, sender, proxy, customProxy,
 			userManager, groupManager, middleware, cookies, net, address, changesClient,
-			oidcService, authelia, totp, tz, healthService, storageHealth, storageChecks, storageAlerts, logger)
+			oidcService, authelia, totp, passkeys, tz, healthService, storageHealth, storageChecks, storageAlerts, logger)
 	})
 	if err != nil {
 		return nil, err

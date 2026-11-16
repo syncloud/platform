@@ -44,6 +44,7 @@
     "title": "Configuración",
     "activation": "Activación",
     "users": "Usuarios",
+    "passkeys": "Llaves de acceso",
     "network": "Red",
     "access": "Acceso",
     "internalMemory": "Memoria interna",
@@ -200,6 +201,18 @@
     "ruleNumber": "Contiene un número",
     "addGroup": "Añadir",
     "confirmDelete": "¿Seguro que quiere eliminar este usuario?"
+  },
+  "passkeys": {
+    "title": "Llaves de acceso",
+    "hint": "Las llaves de acceso te permiten iniciar sesión sin contraseña. Elimina la que esté en un dispositivo perdido o que ya no uses. Para añadir una, inicia sesión con tu contraseña en el dispositivo y guárdala cuando se te pida.",
+    "none": "Aún no hay llaves de acceso",
+    "added": "Añadida {date}",
+    "lastUsed": "último uso {date}",
+    "neverUsed": "nunca usada",
+    "remove": "Eliminar",
+    "removeAll": "Eliminar todas",
+    "confirmRemove": "¿Eliminar la llave de acceso \"{name}\"? Ya no servirá para iniciar sesión.",
+    "confirmRemoveAll": "¿Eliminar todas las llaves de acceso? Ninguna servirá ya para iniciar sesión."
   },
   "backup": {
     "title": "Copia de seguridad",

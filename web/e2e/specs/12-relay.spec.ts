@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
+import { env } from '../helpers/env'
 import { execFileSync } from 'node:child_process'
 import { login } from '../helpers/login'
 import { settings } from '../helpers/ui'
@@ -7,7 +8,7 @@ import { ssh } from '../helpers/ssh'
 
 test.describe.configure({ mode: 'serial' })
 
-const domain = process.env.PLAYWRIGHT_DOMAIN ?? 'bookworm-amd64.redirect'
+const domain = env('PLAYWRIGHT_DOMAIN')
 const relayHost = 'relay.redirect'
 
 function httpCode(args: string[]): string {

@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test'
+import { env } from '../helpers/env'
 import { login, waitForLoading } from '../helpers/login'
 import { ssh } from '../helpers/ssh'
 import { shoot } from '../helpers/screenshot'
 import { openAppMenu } from '../helpers/ui'
 
 const APP_ID = 'testapp'
-const APP_SNAP = process.env.PLAYWRIGHT_TESTAPP_SNAP ?? '/test/testapp/testapp.snap'
+const APP_SNAP = env('PLAYWRIGHT_TESTAPP_SNAP')
 
 test.describe('local app install', () => {
   test.beforeAll(async () => {

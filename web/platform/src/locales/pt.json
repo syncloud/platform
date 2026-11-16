@@ -44,6 +44,7 @@
     "title": "Configurações",
     "activation": "Ativação",
     "users": "Usuários",
+    "passkeys": "Chaves de acesso",
     "network": "Rede",
     "access": "Acesso",
     "internalMemory": "Memória interna",
@@ -200,6 +201,18 @@
     "ruleNumber": "Contém um número",
     "addGroup": "Adicionar",
     "confirmDelete": "Tem certeza de que deseja remover este usuário?"
+  },
+  "passkeys": {
+    "title": "Chaves de acesso",
+    "hint": "As chaves de acesso permitem entrar sem senha. Remova a que estiver num dispositivo perdido ou que já não usa. Para adicionar uma, entre com a sua senha no dispositivo e guarde-a quando for pedido.",
+    "none": "Ainda não há chaves de acesso",
+    "added": "Adicionada em {date}",
+    "lastUsed": "último uso em {date}",
+    "neverUsed": "nunca usada",
+    "remove": "Remover",
+    "removeAll": "Remover todas",
+    "confirmRemove": "Remover a chave de acesso \"{name}\"? Ela deixará de permitir a entrada.",
+    "confirmRemoveAll": "Remover todas as chaves de acesso? Nenhuma permitirá mais a entrada."
   },
   "backup": {
     "title": "Cópia de segurança",

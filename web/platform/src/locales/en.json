@@ -51,6 +51,7 @@
     "title": "Settings",
     "activation": "Activation",
     "users": "Users",
+    "passkeys": "Passkeys",
     "network": "Network",
     "access": "Access",
     "internalMemory": "Internal Memory",
@@ -235,6 +236,18 @@
     "ruleNumber": "Contains a number",
     "addGroup": "Add",
     "confirmDelete": "Are you sure you want to delete this user?"
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "hint": "Passkeys sign you in without a password. Remove one that is on a lost device or that you no longer use. To add a passkey, sign in with your password on the device and save one when asked.",
+    "none": "No passkeys yet",
+    "added": "Added {date}",
+    "lastUsed": "last used {date}",
+    "neverUsed": "never used",
+    "remove": "Remove",
+    "removeAll": "Remove all",
+    "confirmRemove": "Remove passkey \"{name}\"? It will no longer sign in.",
+    "confirmRemoveAll": "Remove all passkeys? None of them will sign in any more."
   },
   "backup": {
     "title": "Backup",

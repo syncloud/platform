@@ -1,8 +1,9 @@
 import { Page, TestInfo } from '@playwright/test'
+import { env } from './env'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 
-const artifactRoot = process.env.PLAYWRIGHT_ARTIFACT_DIR ?? 'artifact'
+const artifactRoot = env('PLAYWRIGHT_ARTIFACT_DIR')
 
 const freezeCss = '*,*::before,*::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; transition-delay: 0s !important; caret-color: transparent !important; }'
 
