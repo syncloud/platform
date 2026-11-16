@@ -44,6 +44,7 @@
     "title": "Einstellungen",
     "activation": "Aktivierung",
     "users": "Benutzer",
+    "passkeys": "Passkeys",
     "network": "Netzwerk",
     "access": "Zugriff",
     "internalMemory": "Interner Speicher",
@@ -200,6 +201,18 @@
     "ruleNumber": "Enthält eine Zahl",
     "addGroup": "Hinzufügen",
     "confirmDelete": "Möchten Sie diesen Benutzer wirklich löschen?"
+  },
+  "passkeys": {
+    "title": "Passkeys",
+    "hint": "Mit Passkeys melden Sie sich ohne Passwort an. Entfernen Sie einen Passkey, der sich auf einem verlorenen Gerät befindet oder den Sie nicht mehr verwenden. Um einen Passkey hinzuzufügen, melden Sie sich auf dem Gerät mit Ihrem Passwort an und speichern Sie ihn, wenn Sie gefragt werden.",
+    "none": "Noch keine Passkeys",
+    "added": "Hinzugefügt {date}",
+    "lastUsed": "zuletzt verwendet {date}",
+    "neverUsed": "nie verwendet",
+    "remove": "Entfernen",
+    "removeAll": "Alle entfernen",
+    "confirmRemove": "Passkey \"{name}\" entfernen? Er kann danach nicht mehr zur Anmeldung verwendet werden.",
+    "confirmRemoveAll": "Alle Passkeys entfernen? Keiner davon kann danach zur Anmeldung verwendet werden."
   },
   "backup": {
     "title": "Sicherung",

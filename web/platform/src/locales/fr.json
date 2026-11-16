@@ -44,6 +44,7 @@
     "title": "Paramètres",
     "activation": "Activation",
     "users": "Utilisateurs",
+    "passkeys": "Clés d'accès",
     "network": "Réseau",
     "access": "Accès",
     "internalMemory": "Mémoire interne",
@@ -200,6 +201,18 @@
     "ruleNumber": "Contient un chiffre",
     "addGroup": "Ajouter",
     "confirmDelete": "Voulez-vous vraiment supprimer cet utilisateur ?"
+  },
+  "passkeys": {
+    "title": "Clés d'accès",
+    "hint": "Les clés d'accès vous connectent sans mot de passe. Supprimez celle qui se trouve sur un appareil perdu ou que vous n'utilisez plus. Pour en ajouter une, connectez-vous avec votre mot de passe sur l'appareil et enregistrez-la lorsque cela vous est proposé.",
+    "none": "Aucune clé d'accès",
+    "added": "Ajoutée le {date}",
+    "lastUsed": "dernière utilisation le {date}",
+    "neverUsed": "jamais utilisée",
+    "remove": "Supprimer",
+    "removeAll": "Tout supprimer",
+    "confirmRemove": "Supprimer la clé d'accès « {name} » ? Elle ne permettra plus de se connecter.",
+    "confirmRemoveAll": "Supprimer toutes les clés d'accès ? Aucune ne permettra plus de se connecter."
   },
   "backup": {
     "title": "Sauvegarde",

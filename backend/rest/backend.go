@@ -67,6 +67,7 @@ type Backend struct {
 	oidc            *auth.OIDCService
 	authelia        *auth.Authelia
 	totp            *auth.TOTP
+	passkeys        *auth.Passkeys
 	timezone        *timezone.Applier
 	health          *health.Health
 	storageHealth   *storage.Health
@@ -87,7 +88,7 @@ func NewBackend(
 	iface *network.TcpInterfaces, support *support.Sender, proxy *Proxy, customProxy *CustomProxy,
 	userManager *auth.UserManager, groupManager *auth.GroupManager, middleware *Middleware, cookies *session.Cookies, network string, address string,
 	changesClient *snap.ChangesClient,
-	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP,
+	oidcService *auth.OIDCService, authelia *auth.Authelia, totp *auth.TOTP, passkeys *auth.Passkeys,
 	timezone *timezone.Applier,
 	healthService *health.Health,
 	storageHealth *storage.Health,
@@ -126,6 +127,7 @@ func NewBackend(
 		oidc:            oidcService,
 		authelia:        authelia,
 		totp:            totp,
+		passkeys:        passkeys,
 		timezone:        timezone,
 		health:          healthService,
 		storageHealth:   storageHealth,
@@ -172,6 +174,12 @@ func (b *Backend) Start() error {
 	r.HandleFunc("/rest/users/email", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetEmail))).Methods("POST")
 	r.HandleFunc("/rest/users/password", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetPassword))).Methods("POST")
 	r.HandleFunc("/rest/users/admin", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserSetAdmin))).Methods("POST")
+	r.HandleFunc("/rest/users/passkeys", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserPasskeys))).Methods("GET")
+	r.HandleFunc("/rest/users/passkeys/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserPasskeyRemove))).Methods("POST")
+	r.HandleFunc("/rest/users/passkeys/reset", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.UserPasskeysReset))).Methods("POST")
+	r.HandleFunc("/rest/passkeys", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.Passkeys))).Methods("GET")
+	r.HandleFunc("/rest/passkeys/remove", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.PasskeyRemove))).Methods("POST")
+	r.HandleFunc("/rest/passkeys/reset", b.mw.FailIfNotActivated(b.mw.SecuredHandle(b.PasskeysReset))).Methods("POST")
 	r.HandleFunc("/rest/groups", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.Groups))).Methods("GET")
 	r.HandleFunc("/rest/groups/add", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupAdd))).Methods("POST")
 	r.HandleFunc("/rest/groups/remove", b.mw.FailIfNotActivated(b.mw.AdminSecuredHandle(b.GroupRemove))).Methods("POST")
@@ -795,6 +803,58 @@ func (b *Backend) UserSetAdmin(req *http.Request) (interface{}, error) {
 		return nil, errors.New("wrong request")
 	}
 	return "ok", b.userManager.SetAdmin(request.Username, request.Admin)
+}
+
+func (b *Backend) UserPasskeys(req *http.Request) (interface{}, error) {
+	username := req.URL.Query().Get("username")
+	if username == "" {
+		return nil, errors.New("username is required")
+	}
+	return b.passkeys.List(username)
+}
+
+func (b *Backend) UserPasskeyRemove(req *http.Request) (interface{}, error) {
+	var request UserPasskeyRemoveRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.passkeys.Remove(request.Username, request.ID)
+}
+
+func (b *Backend) UserPasskeysReset(req *http.Request) (interface{}, error) {
+	var request UserPasskeysResetRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.passkeys.Reset(request.Username)
+}
+
+func (b *Backend) Passkeys(req *http.Request) (interface{}, error) {
+	username, err := b.cookies.GetSessionUser(req)
+	if err != nil {
+		return nil, err
+	}
+	return b.passkeys.List(username)
+}
+
+func (b *Backend) PasskeyRemove(req *http.Request) (interface{}, error) {
+	username, err := b.cookies.GetSessionUser(req)
+	if err != nil {
+		return nil, err
+	}
+	var request PasskeyRemoveRequest
+	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
+		return nil, errors.New("wrong request")
+	}
+	return "ok", b.passkeys.Remove(username, request.ID)
+}
+
+func (b *Backend) PasskeysReset(req *http.Request) (interface{}, error) {
+	username, err := b.cookies.GetSessionUser(req)
+	if err != nil {
+		return nil, err
+	}
+	return "ok", b.passkeys.Reset(username)
 }
 
 func (b *Backend) Groups(_ *http.Request) (interface{}, error) {

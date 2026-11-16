@@ -1,4 +1,5 @@
 import { test, expect, request, Page } from '@playwright/test'
+import { env } from '../helpers/env'
 import { addHostAlias } from '../helpers/hosts'
 import { ssh, deviceHost } from '../helpers/ssh'
 import { loginV2, waitForRest } from '../helpers/device'
@@ -8,23 +9,18 @@ import { deviceUser, devicePassword } from '../helpers/login'
 
 test.describe.configure({ mode: 'serial' })
 
-const domain = process.env.PLAYWRIGHT_DOMAIN_SHORT ?? deriveShortDomain()
-const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? `${domain}.redirect`
-const mainDomain = process.env.PLAYWRIGHT_MAIN_DOMAIN ?? 'redirect'
-const redirectUser = process.env.PLAYWRIGHT_REDIRECT_USER ?? 'redirect'
-const redirectPassword = process.env.PLAYWRIGHT_REDIRECT_PASSWORD ?? 'redirect'
-
-function deriveShortDomain(): string {
-  const d = process.env.PLAYWRIGHT_DOMAIN ?? deviceHost
-  return d.replace(/\.redirect$/, '')
-}
+const domain = env('PLAYWRIGHT_DOMAIN_SHORT')
+const fullDomain = env('PLAYWRIGHT_FULL_DOMAIN')
+const mainDomain = env('PLAYWRIGHT_MAIN_DOMAIN')
+const redirectUser = env('PLAYWRIGHT_REDIRECT_USER')
+const redirectPassword = env('PLAYWRIGHT_REDIRECT_PASSWORD')
 
 const LOCALES = ['en', 'zh-CN', 'es', 'hi', 'ar', 'pt', 'ru', 'ja', 'de', 'fr']
 
 let page: Page
 
 test.beforeAll(async ({ browser }) => {
-  await addHostAlias(process.env.PLAYWRIGHT_APP ?? 'platform', deviceHost, domain)
+  await addHostAlias(env('PLAYWRIGHT_APP'), deviceHost, domain)
   await addHostAlias('auth', deviceHost, fullDomain)
   await addHostAlias('testapp', deviceHost, fullDomain)
   page = await browser.newPage()

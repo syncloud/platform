@@ -1,8 +1,9 @@
 import { request, APIRequestContext } from '@playwright/test'
+import { env } from './env'
 import { deviceHost, ssh } from './ssh'
 
-const deviceUser = process.env.PLAYWRIGHT_DEVICE_USER ?? 'user'
-const devicePassword = process.env.PLAYWRIGHT_DEVICE_PASSWORD ?? 'Password1'
+const deviceUser = env('PLAYWRIGHT_DEVICE_USER')
+const devicePassword = env('PLAYWRIGHT_DEVICE_PASSWORD')
 
 export async function loginV2(): Promise<APIRequestContext> {
   const token = ssh(`snap run platform.cli login ${deviceUser} ${devicePassword}`).trim()

@@ -1,6 +1,7 @@
 import { test, expect, Page } from '@playwright/test'
 import { login, logout } from '../helpers/login'
 import { ssh } from '../helpers/ssh'
+import { settings } from '../helpers/ui'
 import { shoot } from '../helpers/screenshot'
 
 test.describe.configure({ mode: 'serial' })
@@ -25,9 +26,14 @@ test.afterAll(async () => {
 
 test('regular user sees apps but no admin navigation', async ({}, testInfo) => {
   await expect(page.getByRole('heading', { name: 'Applications' })).toBeVisible()
-  await expect(page.locator('#settings')).toHaveCount(0)
-  await expect(page.locator('#settings_mobile')).toHaveCount(0)
   await expect(page.locator('#appcenter')).toHaveCount(0)
   await expect(page.locator('#appcenter_mobile')).toHaveCount(0)
   await shoot(page, testInfo, 'nav_nonadmin')
+})
+
+test('regular user manages only own passkeys', async ({}, testInfo) => {
+  await settings(page, 'passkeys', testInfo)
+  await expect(page.getByTestId('passkeys-title')).toBeVisible()
+  await expect(page.getByTestId('passkeys-empty')).toBeVisible()
+  await shoot(page, testInfo, 'passkeys_nonadmin')
 })

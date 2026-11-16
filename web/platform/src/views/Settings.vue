@@ -7,6 +7,10 @@
           <i class="material-icons sc-tile-icon">perm_identity</i>
           <div class="sc-tile-name">{{ $t('settings.activation') }}</div>
         </router-link>
+        <router-link to="/passkeys" id="passkeys" data-testid="nav-passkeys" class="sc-tile">
+          <i class="material-icons sc-tile-icon">key</i>
+          <div class="sc-tile-name">{{ $t('settings.passkeys') }}</div>
+        </router-link>
         <router-link v-if="isAdmin" to="/users" id="users" class="sc-tile">
           <i class="material-icons sc-tile-icon">people</i>
           <div class="sc-tile-name">{{ $t('settings.users') }}</div>

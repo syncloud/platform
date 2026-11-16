@@ -32,3 +32,8 @@ test('admin sees every settings tile', () => {
     expect(wrapper.find('#' + tile).exists()).toBe(true)
   }
 })
+
+test('everyone sees the passkeys tile', () => {
+  expect(mountSettings(false).find('#passkeys').exists()).toBe(true)
+  expect(mountSettings(true).find('#passkeys').exists()).toBe(true)
+})

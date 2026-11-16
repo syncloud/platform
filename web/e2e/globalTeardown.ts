@@ -1,13 +1,14 @@
 import { ssh, scpFrom } from './helpers/ssh'
+import { env } from './helpers/env'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 import { execSync } from 'node:child_process'
 
 const TMP_DIR = '/tmp/syncloud/ui'
-const artifactRoot = process.env.PLAYWRIGHT_ARTIFACT_DIR ?? 'artifact'
+const artifactRoot = env('PLAYWRIGHT_ARTIFACT_DIR')
 
 export default async function () {
-  const project = process.env.PLAYWRIGHT_PROJECT ?? 'desktop'
+  const project = env('PLAYWRIGHT_PROJECT')
   const out = path.join(artifactRoot, 'playwright', project)
   fs.mkdirSync(out, { recursive: true })
 

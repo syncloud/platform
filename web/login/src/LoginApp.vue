@@ -16,7 +16,7 @@
             v-model="username"
             placeholder="Username"
             :disabled="loading"
-            autocomplete="username">
+            autocomplete="username webauthn">
         </div>
         <div class="field">
           <label for="password-textfield">Password</label>
@@ -37,9 +37,6 @@
         <label class="remember">
           <input type="checkbox" v-model="keepMeLoggedIn"> Remember me
         </label>
-        <label v-if="passkeySupported" class="remember">
-          <input type="checkbox" v-model="addPasskey" data-testid="passkey-setup"> Set up a passkey
-        </label>
         <button id="sign-in-button" data-testid="sign-in" type="submit" class="btn btn-primary" :disabled="loading">
           <span v-if="loading" class="spinner"></span><span v-else>Sign in</span>
         </button>
@@ -51,6 +48,14 @@
           :disabled="loading"
           @click="signInWithPasskey">Sign in with passkey</button>
       </form>
+
+      <div v-if="step === 'passkey_offer'" class="login-form" data-testid="passkey-offer">
+        <p class="muted center">Save a passkey on this device to sign in without a password next time.</p>
+        <button type="button" class="btn btn-primary" data-testid="passkey-save" :disabled="loading" @click="savePasskey">
+          <span v-if="loading" class="spinner"></span><span v-else>Save a passkey</span>
+        </button>
+        <button type="button" class="btn btn-secondary" data-testid="passkey-skip" :disabled="loading" @click="skipPasskey">Not now</button>
+      </div>
 
       <!-- TOTP setup (first time) -->
       <div v-if="step === 'totp_setup'">
@@ -100,7 +105,7 @@
       </div>
 
       <!-- Error display -->
-      <div v-if="errorMessage" class="alert alert-error notification" id="login_error">
+      <div v-if="errorMessage" class="alert alert-error notification" id="login_error" data-testid="login-error">
         {{ errorMessage }}
         <button type="button" class="alert-close" @click="errorMessage = ''">✕</button>
       </div>
@@ -111,6 +116,10 @@
 <script>
 import axios from 'axios'
 import QRCode from 'qrcode'
+import { deviceName } from './deviceName'
+import { readPasskeyChoice, writePasskeyChoice } from './passkeyChoice'
+
+const PASSKEY_OFFER_PAUSE_MS = 30 * 24 * 60 * 60 * 1000
 
 export default {
   name: 'LoginApp',
@@ -121,7 +130,6 @@ export default {
       password: '',
       showPassword: false,
       keepMeLoggedIn: false,
-      addPasskey: false,
       passkeyUsed: false,
       passkeySupported: !!(window.PublicKeyCredential &&
         PublicKeyCredential.parseRequestOptionsFromJSON &&
@@ -150,9 +158,11 @@ export default {
     const params = new URLSearchParams(window.location.search)
     this.targetURL = params.get('rd') || ''
     this.flowID = params.get('flow_id') || ''
-    this.checkState()
+    await this.checkState()
+    this.startConditionalPasskey()
   },
   beforeUnmount() {
+    this.stopConditionalPasskey()
     const vv = window.visualViewport
     if (vv && this.vvHandler) {
       vv.removeEventListener('resize', this.vvHandler)
@@ -216,6 +226,7 @@ export default {
       }
       this.loading = true
       this.errorMessage = ''
+      await this.stopConditionalPasskey()
       try {
         await axios.post('/api/firstfactor', {
           username: this.username,
@@ -228,35 +239,89 @@ export default {
         this.showError(this.extractError(err, 'Incorrect username or password'))
         return
       }
-      if (this.addPasskey) {
-        try {
-          await this.registerPasskey()
-        } catch (err) {
-          this.loading = false
-          this.addPasskey = false
-          this.showError(this.extractError(err, 'Failed to set up a passkey'))
-          return
-        }
+      if (this.passkeyOfferable()) {
+        this.loading = false
+        this.step = 'passkey_offer'
+        return
       }
+      await this.handleSecondFactor()
+    },
+    passkeyOfferable() {
+      if (!this.passkeySupported) {
+        return false
+      }
+      const choice = readPasskeyChoice()
+      if (choice === 'saved') {
+        return false
+      }
+      if (choice.startsWith('declined:')) {
+        return Date.now() - Number(choice.slice('declined:'.length)) > PASSKEY_OFFER_PAUSE_MS
+      }
+      return true
+    },
+    async savePasskey() {
+      this.loading = true
+      this.errorMessage = ''
+      try {
+        await this.registerPasskey()
+      } catch (err) {
+        this.loading = false
+        this.showError(this.extractError(err, 'Failed to save a passkey'))
+        return
+      }
+      writePasskeyChoice('saved')
+      await this.handleSecondFactor()
+    },
+    async skipPasskey() {
+      this.loading = true
+      writePasskeyChoice('declined:' + Date.now())
       await this.handleSecondFactor()
     },
     async registerPasskey() {
       await axios.post('/api/user/session/elevation', {})
       const codeResp = await axios.post('/login/passkey/elevation', { username: this.username, password: this.password })
       await axios.put('/api/user/session/elevation', { otc: codeResp.data.data.code })
-      const description = 'Passkey ' + new Date().toISOString().slice(0, 19).replace('T', ' ')
+      const description = deviceName() + ' ' + new Date().toISOString().slice(0, 19).replace('T', ' ')
       const options = await axios.put('/api/secondfactor/webauthn/credential/register', { description })
       const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(options.data.data.publicKey)
       const credential = await navigator.credentials.create({ publicKey })
       await axios.post('/api/secondfactor/webauthn/credential/register', credential.toJSON())
     },
-    async signInWithPasskey() {
+    async startConditionalPasskey() {
+      if (!this.passkeySupported || this.step !== 'credentials' || !PublicKeyCredential.isConditionalMediationAvailable) {
+        return
+      }
+      if (!await PublicKeyCredential.isConditionalMediationAvailable()) {
+        return
+      }
+      const controller = new AbortController()
+      this.conditionalAbort = controller
+      this.conditional = this.passkeyCredential({ mediation: 'conditional', signal: controller.signal })
+        .then(result => this.finishPasskey(result))
+        .catch(err => {
+          if (!controller.signal.aborted) {
+            this.showError(this.extractError(err, 'Passkey sign in failed'))
+          }
+        })
+    },
+    async stopConditionalPasskey() {
+      if (!this.conditionalAbort) {
+        return
+      }
+      this.conditionalAbort.abort()
+      this.conditionalAbort = null
+      await this.conditional
+    },
+    async passkeyCredential(request) {
+      const options = await axios.get('/api/firstfactor/passkey')
+      const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options.data.data.publicKey)
+      const credential = await navigator.credentials.get({ ...request, publicKey })
+      return { publicKey, credential }
+    },
+    async finishPasskey({ publicKey, credential }) {
       this.loading = true
       this.errorMessage = ''
       try {
-        const options = await axios.get('/api/firstfactor/passkey')
-        const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options.data.data.publicKey)
-        const credential = await navigator.credentials.get({ publicKey })
         await axios.post('/api/firstfactor/passkey', {
           response: credential.toJSON(),
           keepMeLoggedIn: this.keepMeLoggedIn,
@@ -264,11 +329,37 @@ export default {
         })
       } catch (err) {
         this.loading = false
+        if (err.response) {
+          this.forgetPasskey(publicKey, credential)
+          this.showError('This passkey is no longer valid. Sign in with your password to save a new one.')
+          return
+        }
         this.showError(this.extractError(err, 'Passkey sign in failed'))
         return
       }
       this.passkeyUsed = true
       await this.handleSecondFactor()
+    },
+    forgetPasskey(publicKey, credential) {
+      writePasskeyChoice('')
+      if (PublicKeyCredential.signalUnknownCredential) {
+        PublicKeyCredential.signalUnknownCredential({ rpId: publicKey.rpId || window.location.hostname, credentialId: credential.id })
+          .catch(err => console.log('login: signalUnknownCredential failed: ' + err))
+      }
+    },
+    async signInWithPasskey() {
+      this.loading = true
+      this.errorMessage = ''
+      await this.stopConditionalPasskey()
+      let result
+      try {
+        result = await this.passkeyCredential({})
+      } catch (err) {
+        this.loading = false
+        this.showError(this.extractError(err, 'Passkey sign in failed'))
+        return
+      }
+      await this.finishPasskey(result)
     },
     async handleSecondFactor() {
       const stateResp = await axios.get('/api/state')

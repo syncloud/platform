@@ -1,8 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
+import { env } from './helpers/env'
 
-const domain = process.env.PLAYWRIGHT_DOMAIN ?? 'bookworm-amd64.redirect'
-const app = process.env.PLAYWRIGHT_APP ?? 'platform'
-const artifactDir = process.env.PLAYWRIGHT_ARTIFACT_DIR ?? 'artifact'
+const domain = env('PLAYWRIGHT_DOMAIN')
+const app = env('PLAYWRIGHT_APP')
+const artifactDir = env('PLAYWRIGHT_ARTIFACT_DIR')
+const fullDomain = env('PLAYWRIGHT_FULL_DOMAIN')
 
 export default defineConfig({
   testDir: './specs',
@@ -17,6 +19,13 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   use: {
     baseURL: `https://${domain}`,
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: `https://auth.${fullDomain}`,
+        localStorage: [{ name: 'passkey', value: `declined:${Date.now()}` }],
+      }],
+    },
     ignoreHTTPSErrors: true,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
