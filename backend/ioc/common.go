@@ -451,6 +451,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func() *auth.Passkeys {
+		return auth.NewPasskeys(hook.DataDir)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(
 		userConfig *config.UserConfig,
 		oidc *config.OIDC,

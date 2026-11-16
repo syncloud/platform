@@ -7,7 +7,7 @@ const state = {
     username: '11',
     password: '2'
   },
-  admin: true,
+  admin: new URLSearchParams(window.location.search).get('admin') !== 'false',
   jobStatusRunning: false,
   installerIsRunning: true,
   installerUpgradeCounter: 0,
@@ -174,6 +174,25 @@ let stubUsers = [
   { username: 'alice', email: 'alice@' + domain, admin: false, groups: ['family'] },
   { username: 'bob', email: 'bob@example.com', admin: false, groups: [] }
 ]
+
+const stubPasskeys = {
+  [state.credentials.username]: [
+    { id: 1, description: 'Firefox on Android', created: '2026-11-14T21:45:00Z', last_used: '2026-11-15T09:12:00Z' },
+    { id: 2, description: 'Chrome on Windows', created: '2026-10-02T18:20:00Z', last_used: null }
+  ],
+  alice: [
+    { id: 3, description: 'Safari on iOS', created: '2026-09-21T07:05:00Z', last_used: '2026-11-01T12:00:00Z' }
+  ]
+}
+
+function passkeysOf (username) {
+  stubPasskeys[username] = stubPasskeys[username] || []
+  return stubPasskeys[username]
+}
+
+function removePasskey (username, id) {
+  stubPasskeys[username] = passkeysOf(username).filter(p => p.id !== id)
+}
 
 let stubGroups = [
   { name: 'syncloud', members: ['admin'] },
@@ -761,6 +780,31 @@ export function mock () {
           user.admin = !!attrs.admin
         }
         syncGroupMembers()
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/passkeys', function (_schema, _request) {
+        return new Response(200, {}, { success: true, data: passkeysOf(state.credentials.username) })
+      })
+      this.post('/rest/passkeys/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        removePasskey(state.credentials.username, attrs.id)
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/passkeys/reset', function (_schema, _request) {
+        stubPasskeys[state.credentials.username] = []
+        return new Response(200, {}, { success: true })
+      })
+      this.get('/rest/users/passkeys', function (_schema, request) {
+        return new Response(200, {}, { success: true, data: passkeysOf(request.queryParams.username) })
+      })
+      this.post('/rest/users/passkeys/remove', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        removePasskey(attrs.username, attrs.id)
+        return new Response(200, {}, { success: true })
+      })
+      this.post('/rest/users/passkeys/reset', function (_schema, request) {
+        const attrs = JSON.parse(request.requestBody)
+        stubPasskeys[attrs.username] = []
         return new Response(200, {}, { success: true })
       })
       this.get('/rest/groups', function (_schema, _request) {

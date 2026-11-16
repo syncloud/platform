@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
+import { env } from '../helpers/env'
 import { login, deviceUser, devicePassword, logout } from '../helpers/login'
 import { waitForLoading, waitAppIconsLoaded, defocus } from '../helpers/ui'
 import { ssh } from '../helpers/ssh'
@@ -17,7 +18,7 @@ test.afterAll(async () => {
 })
 
 test('login page loads on auth subdomain', async ({}, testInfo) => {
-  const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
+  const fullDomain = env('PLAYWRIGHT_FULL_DOMAIN')
   await page.goto(`https://auth.${fullDomain}`)
   await expect(page.locator('#username-textfield')).toBeVisible()
   await shoot(page, testInfo, 'login-page-direct')

@@ -1,15 +1,16 @@
 import { test, expect, Page } from '@playwright/test'
-import { ssh, deviceHost } from '../helpers/ssh'
+import { env } from '../helpers/env'
+import { ssh } from '../helpers/ssh'
 import { settings, waitForLoading, waitAppIconsLoaded, defocus } from '../helpers/ui'
 import { login, deviceUser, devicePassword } from '../helpers/login'
 import { shoot } from '../helpers/screenshot'
 
 test.describe.configure({ mode: 'serial', timeout: 180_000 })
 
-const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
-const domain = process.env.PLAYWRIGHT_DOMAIN_SHORT ?? deviceHost.replace(/\.redirect$/, '')
-const redirectUser = process.env.PLAYWRIGHT_REDIRECT_USER ?? 'redirect'
-const redirectPassword = process.env.PLAYWRIGHT_REDIRECT_PASSWORD ?? 'redirect'
+const fullDomain = env('PLAYWRIGHT_FULL_DOMAIN')
+const domain = env('PLAYWRIGHT_DOMAIN_SHORT')
+const redirectUser = env('PLAYWRIGHT_REDIRECT_USER')
+const redirectPassword = env('PLAYWRIGHT_REDIRECT_PASSWORD')
 const handoverTimeout = 120_000
 
 let page: Page

@@ -65,6 +65,11 @@
         </div>
       </div>
 
+      <div v-if="!isNew && username" class="user-groups-section" data-testid="user-passkeys">
+        <h3 class="user-groups-heading">{{ $t('passkeys.title') }}</h3>
+        <PasskeyList :username="username"/>
+      </div>
+
       <div class="sc-actions user-edit-actions">
         <button class="sc-btn sc-btn-success" id="btn_save" type="button" :disabled="saveDisabled" @click="save">{{ $t('users.save') }}</button>
         <button class="sc-btn" id="btn_cancel" type="button" @click="cancel">{{ $t('users.cancel') }}</button>
@@ -87,6 +92,7 @@
 <script>
 import Error from '../components/Error.vue'
 import Dialog from '../components/Dialog.vue'
+import PasskeyList from '../components/PasskeyList.vue'
 import * as Common from '../js/common.js'
 import axios from 'axios'
 import Loading from '../util/loading'
@@ -113,7 +119,8 @@ export default {
   },
   components: {
     Error,
-    Dialog
+    Dialog,
+    PasskeyList
   },
   computed: {
     isNew () {

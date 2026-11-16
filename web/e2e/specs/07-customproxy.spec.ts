@@ -1,4 +1,5 @@
 import { test, expect, request, Page } from '@playwright/test'
+import { env } from '../helpers/env'
 import { addHostAlias } from '../helpers/hosts'
 import { ssh, deviceHost } from '../helpers/ssh'
 import { login } from '../helpers/login'
@@ -7,7 +8,7 @@ import { shoot } from '../helpers/screenshot'
 
 test.describe.configure({ mode: 'serial' })
 
-const fullDomain = process.env.PLAYWRIGHT_FULL_DOMAIN ?? process.env.PLAYWRIGHT_DOMAIN ?? ''
+const fullDomain = env('PLAYWRIGHT_FULL_DOMAIN')
 
 let page: Page
 
