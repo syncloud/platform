@@ -119,7 +119,11 @@
     "yes": "Sim",
     "no": "Não",
     "reportIssue": "Relatar problema:",
-    "sendLogs": "Enviar registros"
+    "sendLogs": "Enviar registros",
+    "hintOwnerOnly": "Os registros são enviados apenas para você, para o e-mail da sua conta syncloud.it.",
+    "hintWithSupport": "Os registros são enviados para você, para o e-mail da sua conta syncloud.it, e uma cópia vai para o suporte da Syncloud.",
+    "sentOwnerOnly": "Registros enviados para o seu e-mail.",
+    "sentWithSupport": "Registros enviados para o seu e-mail e para o suporte da Syncloud."
   },
   "system": {
     "title": "Sistema",

@@ -17,7 +17,7 @@ local caddy_l4 = '0.1.2-syncloud.1';
 local xcaddy = '0.4.7';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
-local visual_diff_skip_build = '3241';
+local visual_diff_skip_build = '3250';
 
 local shared = [{
   kind: 'pipeline',

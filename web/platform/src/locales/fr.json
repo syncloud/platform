@@ -119,7 +119,11 @@
     "yes": "Oui",
     "no": "Non",
     "reportIssue": "Signaler un problème :",
-    "sendLogs": "Envoyer les journaux"
+    "sendLogs": "Envoyer les journaux",
+    "hintOwnerOnly": "Les journaux sont envoyés uniquement à vous, à l'adresse e-mail de votre compte syncloud.it.",
+    "hintWithSupport": "Les journaux vous sont envoyés, à l'adresse e-mail de votre compte syncloud.it, et une copie est adressée au support Syncloud.",
+    "sentOwnerOnly": "Journaux envoyés à votre adresse e-mail.",
+    "sentWithSupport": "Journaux envoyés à votre adresse e-mail et au support Syncloud."
   },
   "system": {
     "title": "Système",
