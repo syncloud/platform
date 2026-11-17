@@ -63,8 +63,17 @@ test('settings internal memory', async ({}, testInfo) => {
 
 test('settings support', async ({}, testInfo) => {
   await settings(page, 'support', testInfo)
-  await expect(page.getByRole('heading', { name: 'Support' })).toBeVisible()
+  await expect(page.getByTestId('support-title')).toBeVisible()
+  await expect(page.getByTestId('support-hint')).toContainText('only to you')
   await shoot(page, testInfo, 'settings_support')
+})
+
+test('settings support send logs with a copy to support', async ({}, testInfo) => {
+  await page.getByTestId('support-include').click()
+  await expect(page.getByTestId('support-hint')).toContainText('Syncloud support')
+  await page.getByTestId('support-send').click()
+  await expect(page.getByTestId('support-sent')).toContainText('Logs sent to your email and to Syncloud support.')
+  await shoot(page, testInfo, 'settings_support_sent')
 })
 
 test('settings backup', async ({}, testInfo) => {

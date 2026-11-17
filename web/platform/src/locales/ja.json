@@ -119,7 +119,11 @@
     "yes": "はい",
     "no": "いいえ",
     "reportIssue": "問題を報告:",
-    "sendLogs": "ログを送信"
+    "sendLogs": "ログを送信",
+    "hintOwnerOnly": "ログはあなたの syncloud.it アカウントのメールアドレスにのみ送信されます。",
+    "hintWithSupport": "ログはあなたの syncloud.it アカウントのメールアドレスに送信され、Syncloud サポートにもコピーが送られます。",
+    "sentOwnerOnly": "ログをあなたのメールに送信しました。",
+    "sentWithSupport": "ログをあなたのメールと Syncloud サポートに送信しました。"
   },
   "system": {
     "title": "システム",
