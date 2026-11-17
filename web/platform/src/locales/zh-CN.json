@@ -119,7 +119,11 @@
     "yes": "是",
     "no": "否",
     "reportIssue": "报告问题:",
-    "sendLogs": "发送日志"
+    "sendLogs": "发送日志",
+    "hintOwnerOnly": "日志只会发送给您，即您的 syncloud.it 账户邮箱。",
+    "hintWithSupport": "日志会发送到您的 syncloud.it 账户邮箱，并抄送一份给 Syncloud 支持团队。",
+    "sentOwnerOnly": "日志已发送到您的邮箱。",
+    "sentWithSupport": "日志已发送到您的邮箱和 Syncloud 支持团队。"
   },
   "system": {
     "title": "系统",

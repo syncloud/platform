@@ -119,7 +119,11 @@
     "yes": "Ja",
     "no": "Nein",
     "reportIssue": "Problem melden:",
-    "sendLogs": "Protokolle senden"
+    "sendLogs": "Protokolle senden",
+    "hintOwnerOnly": "Die Protokolle werden nur an Sie gesendet, an die E-Mail-Adresse Ihres syncloud.it-Kontos.",
+    "hintWithSupport": "Die Protokolle werden an Sie gesendet, an die E-Mail-Adresse Ihres syncloud.it-Kontos, und eine Kopie geht an den Syncloud-Support.",
+    "sentOwnerOnly": "Protokolle an Ihre E-Mail-Adresse gesendet.",
+    "sentWithSupport": "Protokolle an Ihre E-Mail-Adresse und an den Syncloud-Support gesendet."
   },
   "system": {
     "title": "System",

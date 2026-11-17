@@ -119,7 +119,11 @@
     "yes": "हाँ",
     "no": "नहीं",
     "reportIssue": "समस्या रिपोर्ट करें:",
-    "sendLogs": "लॉग भेजें"
+    "sendLogs": "लॉग भेजें",
+    "hintOwnerOnly": "लॉग केवल आपको, आपके syncloud.it खाते के ईमेल पते पर भेजे जाते हैं।",
+    "hintWithSupport": "लॉग आपके syncloud.it खाते के ईमेल पते पर भेजे जाते हैं, और एक प्रति Syncloud सहायता को जाती है।",
+    "sentOwnerOnly": "लॉग आपके ईमेल पर भेजे गए।",
+    "sentWithSupport": "लॉग आपके ईमेल और Syncloud सहायता को भेजे गए।"
   },
   "system": {
     "title": "सिस्टम",

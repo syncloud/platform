@@ -154,7 +154,11 @@
     "yes": "Yes",
     "no": "No",
     "reportIssue": "Report Issue:",
-    "sendLogs": "Send logs"
+    "sendLogs": "Send logs",
+    "hintOwnerOnly": "Logs are emailed only to you, at the address of your syncloud.it account.",
+    "hintWithSupport": "Logs are emailed to you, at the address of your syncloud.it account, and a copy goes to Syncloud support.",
+    "sentOwnerOnly": "Logs sent to your email.",
+    "sentWithSupport": "Logs sent to your email and to Syncloud support."
   },
   "system": {
     "title": "System",
