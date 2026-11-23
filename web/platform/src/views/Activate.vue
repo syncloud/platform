@@ -1,5 +1,5 @@
 <template>
-  <div class="act-root">
+  <div class="act-root sc-light">
     <div class="act-wordmark">SYNCLOUD</div>
 
     <div class="act-card">
