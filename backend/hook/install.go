@@ -3,7 +3,6 @@ package hook
 import (
 	"errors"
 	"fmt"
-	cp "github.com/otiai10/copy"
 	"github.com/syncloud/golib/linux"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/cli"
@@ -22,6 +21,7 @@ type Install struct {
 	proxy          Proxy
 	web            auth.Web
 	systemdControl SystemdControl
+	caStore        CaStore
 	logDir         string
 	logger         *zap.Logger
 }
@@ -34,6 +34,10 @@ type SystemConfig interface {
 
 type CertificateGenerator interface {
 	Generate() error
+}
+
+type CaStore interface {
+	Update() error
 }
 
 type DisksLinker interface {
@@ -76,6 +80,7 @@ func NewInstall(
 	proxy Proxy,
 	web auth.Web,
 	systemdControl SystemdControl,
+	caStore CaStore,
 	logger *zap.Logger,
 ) *Install {
 	return &Install{
@@ -87,6 +92,7 @@ func NewInstall(
 		proxy:          proxy,
 		web:            web,
 		systemdControl: systemdControl,
+		caStore:        caStore,
 		logDir:         path.Join(CommonDir, "log"),
 		logger:         logger,
 	}
@@ -223,12 +229,7 @@ func (i *Install) InitConfigs() error {
 		}
 	}
 
-	err := cp.Copy(path.Join(AppDir, "certs"), "/usr/share/ca-certificates/mozilla")
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return i.caStore.Update()
 }
 
 func (i *Install) InitDisk() error {

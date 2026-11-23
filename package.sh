@@ -10,12 +10,11 @@ fi
 NAME=platform
 ARCH=$(uname -m)
 VERSION=$1
-CA_CERTIFICATES_VERSION=20250419
 cd ${DIR}/build
 
 BUILD_DIR=${DIR}/build/snap
 
-apt update
+apt update -o Acquire::Retries=5
 apt install -y wget squashfs-tools dpkg-dev
 
 # wget treats DNS resolution failures as fatal and never retries them
@@ -37,8 +36,10 @@ download() {
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}
 
-download http://ftp.us.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb
-dpkg -x ca-certificates_${CA_CERTIFICATES_VERSION}_all.deb .
+echo "deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] http://deb.debian.org/debian testing main" > /etc/apt/sources.list.d/testing.list
+apt update -o Acquire::Retries=5
+apt-get download -o Acquire::Retries=5 ca-certificates/testing
+dpkg -x ca-certificates_*_all.deb .
 mv usr/share/ca-certificates/mozilla ${BUILD_DIR}/certs
 
 download https://github.com/syncloud/3rdparty/releases/download/openldap/openldap-${ARCH}.tar.gz openldap-${ARCH}.tar.gz

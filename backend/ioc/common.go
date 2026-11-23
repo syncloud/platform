@@ -7,6 +7,7 @@ import (
 	"github.com/syncloud/platform/activation"
 	"github.com/syncloud/platform/auth"
 	"github.com/syncloud/platform/backup"
+	"github.com/syncloud/platform/ca"
 	"github.com/syncloud/platform/caddy"
 	"github.com/syncloud/platform/cert"
 	"github.com/syncloud/platform/cli"
@@ -690,6 +691,13 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		return nil, err
 	}
 
+	err = c.Singleton(func(executor *cli.ShellExecutor) *ca.Store {
+		return ca.NewStore(path.Join(hook.AppDir, "certs"), "/usr/share/ca-certificates/mozilla", "/etc/ca-certificates.conf", executor, logger)
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	err = c.Singleton(func(
 		checker *storage.PathChecker,
 		linker *storage.Linker,
@@ -700,6 +708,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 		caddyService *caddy.Caddy,
 		web *auth.Authelia,
 		systemdControl *systemd.Control,
+		caStore *ca.Store,
 	) *hook.Install {
 		return hook.NewInstall(
 			checker,
@@ -710,6 +719,7 @@ func Init(userConfig string, systemConfig string, backupDir string, varDir strin
 			caddyService,
 			web,
 			systemdControl,
+			caStore,
 			logger,
 		)
 	})

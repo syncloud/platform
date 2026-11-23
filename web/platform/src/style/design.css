@@ -2,7 +2,7 @@
   box-sizing: border-box;
 }
 
-:root {
+:root, .sc-light {
   --sc-primary: #2b7bd6;
   --sc-primary-dark: #1d6ec7;
   --sc-primary-soft: #e7f1fc;
