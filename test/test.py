@@ -73,6 +73,11 @@ def test_install(app_archive_path, device_host):
     local_install(device_host, DEFAULT_LOGS_SSH_PASSWORD, app_archive_path)
 
 
+def test_ca_certificates(device_host):
+    output = run_ssh(device_host, '/test/ca-certificates.sh', password=DEFAULT_LOGS_SSH_PASSWORD)
+    assert output.strip() == '', output
+
+
 def test_https_port_validation_url(device_host):
     response = requests.get('https://{0}/ping'.format(device_host), allow_redirects=False, verify=False)
     assert response.status_code == 200

@@ -11,13 +11,14 @@ local btrfs = '5.18.1';
 local smartmontools = '7.5';
 local lsblk = '2.42.4';
 local bootstrap = '25.02';
-local nginx = '1.24.0';
+local nginx = '1.30.7';
 local caddy = '2.11.7';
 local caddy_l4 = '0.1.2-syncloud.1';
 local xcaddy = '0.4.7';
 local python = '3.12-slim-bookworm';
 local alpine = '3.21';
 local visual_diff_skip_build = '3250';
+local ca_check_hosts = ['api.syncloud.it', 'api.store.syncloud.org', 'acme-v02.api.letsencrypt.org', 'apps.syncloud.org'];
 
 local shared = [{
   kind: 'pipeline',
@@ -228,6 +229,14 @@ local build(arch, testUI) = [{
                './package.sh ${DRONE_BUILD_NUMBER}',
                './test/testapp/build.sh ',
                './test/streamapp/build.sh',
+             ],
+           },
+           {
+             name: 'ca check',
+             image: 'golang:' + go,
+             commands: [
+               'cd ca-check',
+               'go run . -certs ../build/snap/certs -years 3 ' + std.join(' ', ca_check_hosts),
              ],
            },
          ] + [
